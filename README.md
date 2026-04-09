@@ -1,37 +1,178 @@
 # VC Signals
 
-A Claude Code skill that helps VCs discover emerging investable themes in **devtools**, **cybersecurity**, and **AI infrastructure**.
+> **AI-Powered Investment Theme Discovery for Venture Capital**
 
-Run one command per week. Get a ranked list of emerging themes with company mapping, momentum scoring, and investor-oriented analysis.
+A Claude Code skill that turns noisy public internet chatter into ranked, investor-oriented briefs. Run one command per week — get the top emerging themes in **devtools**, **cybersecurity**, and **AI infrastructure** with company mapping, momentum scoring, and a blunt hype-vs-durable verdict.
 
-## What This Is
+---
 
-`/vc-signals` turns noisy public internet chatter (Hacker News, Reddit, X/Twitter, GitHub, blogs) into a structured investor brief. For each emerging theme, you get:
+## What is this?
 
-- Why it's rising (with evidence and citations)
-- Momentum score (1-10) — how fast is this growing?
-- Confidence rating — how sure are we this is real?
-- Investment timing — early, mid, or late?
-- Hype vs durable — blunt assessment
-- Company mapping — who's solving this, who benefits, with confidence tags
+VC Signals is a skill (plugin) for [Claude Code](https://docs.anthropic.com/en/docs/claude-code) that acts as your weekly research analyst. It scans Hacker News, Reddit, X/Twitter, GitHub, blogs, and other sources — then synthesizes what it finds into a structured investor brief.
 
-## Quick Start (Zero Setup)
+For each emerging theme, you get:
 
-Works immediately with no API keys. Claude uses its built-in web search.
+- **Why it's rising** — with evidence and citations
+- **Momentum score (1-10)** — how fast is this growing?
+- **Confidence rating** — how sure are we this is real?
+- **Investment timing** — early, mid, or late?
+- **Hype vs durable** — blunt, one-sentence assessment
+- **Company mapping** — who's solving this, who benefits, with confidence tags
+
+---
+
+## Installation
+
+### Prerequisites
+
+Before you start, make sure you have:
+
+- **Claude Code** — Anthropic's CLI for Claude. If you don't have it yet:
+  ```bash
+  npm install -g @anthropic-ai/claude-code
+  ```
+  Then run `claude` once to authenticate with your Anthropic account.
+
+- **Python 3.12 or newer** — Check with:
+  ```bash
+  python3 --version
+  ```
+  If you need to install it (Mac):
+  ```bash
+  brew install python@3.13
+  ```
+
+- **Git** — to clone this repo
+
+### Step 1: Clone the Repository
+
+```bash
+git clone https://github.com/abhishek255/vc-signals.git
+cd vc-signals
+```
+
+### Step 2: Install Python Dependencies
+
+```bash
+pip install requests
+```
+
+That's it — just one library (for GitHub API calls).
+
+### Step 3: Open Claude Code in the Project
+
+```bash
+claude
+```
+
+Make sure you're inside the `vc-signals/` directory when you launch Claude Code. The skill is automatically detected from the `.claude/skills/` folder — no extra configuration needed.
+
+### Step 4: Verify it Works
+
+Once inside Claude Code, type:
 
 ```
 /vc-signals weekly devtools
-/vc-signals weekly cybersecurity
-/vc-signals weekly ai-infra
 ```
 
-For better coverage (Reddit, HN, X, YouTube independently), run the setup wizard:
+Claude will start running web searches and produce your first investor brief. No API keys needed for the basic version.
+
+---
+
+## Optional: Enhanced Setup
+
+The basic version uses Claude's built-in web search. For **much better results** — with independent Reddit, Hacker News, X/Twitter, and YouTube searches — run the setup wizard:
 
 ```
 /vc-signals setup
 ```
 
-## All Commands
+The wizard walks you through each API key one at a time. Here's what's available:
+
+| API Key | What it Unlocks | Cost | Required? |
+|---------|----------------|------|-----------|
+| **GitHub PAT** | Trending repos by star velocity | Free | Recommended |
+| **Brave Search** | Broader web search coverage | Free (2,000/month) | Optional |
+| **ScrapeCreators** | TikTok, Instagram, YouTube search | ~$29/month | Optional |
+| **OpenAI or Gemini** | Query planning for last30days engine | Pay-per-use / Free | Optional |
+| **X/Twitter tokens** | X/Twitter developer discussions | Free (your account) | Optional |
+
+**You can skip any key** — the skill works with whatever you have and tells you what you're missing.
+
+### How to Get Each API Key
+
+<details>
+<summary><strong>GitHub Personal Access Token (recommended)</strong></summary>
+
+1. Go to https://github.com/settings/tokens
+2. Click **"Generate new token"** → **"Generate new token (classic)"**
+3. Name: `vc-signals`
+4. Expiration: 90 days (or your preference)
+5. Scopes: check **`public_repo`** only
+6. Click **"Generate token"** and copy it
+
+</details>
+
+<details>
+<summary><strong>Brave Search API Key</strong></summary>
+
+1. Go to https://brave.com/search/api/
+2. Click **"Get Started for Free"**
+3. Create an account
+4. Go to **API Keys** → copy your key
+
+Free tier gives you 2,000 queries/month — more than enough for weekly scans.
+
+</details>
+
+<details>
+<summary><strong>ScrapeCreators API Key</strong></summary>
+
+1. Go to https://scrapecreators.com
+2. Sign up for an account
+3. Choose a plan (Basic is fine for weekly scans)
+4. Go to **Dashboard** → **API Keys** → copy your key
+
+This enables TikTok, Instagram, and YouTube searches via the last30days engine.
+
+</details>
+
+<details>
+<summary><strong>OpenAI API Key (or Gemini as a free alternative)</strong></summary>
+
+**OpenAI:**
+1. Go to https://platform.openai.com/api-keys
+2. Sign up or log in
+3. Click **"Create new secret key"**
+4. Copy the key (starts with `sk-`)
+5. Add a payment method under **Billing** (usage is typically $0.01-0.05 per scan)
+
+**Gemini (free):**
+1. Go to https://aistudio.google.com/apikey
+2. Click **"Create API key"**
+3. Copy the key
+
+</details>
+
+<details>
+<summary><strong>X/Twitter Auth Tokens</strong></summary>
+
+1. Log into X/Twitter in your browser (Chrome or Firefox)
+2. Open Developer Tools: **Cmd+Option+I** (Mac) or **Ctrl+Shift+I** (Windows)
+3. Go to **Application** tab (Chrome) or **Storage** tab (Firefox)
+4. Click **Cookies** → **twitter.com** (or **x.com**)
+5. Find `auth_token` — copy its **Value**
+6. Find `ct0` — copy its **Value**
+
+These expire periodically — you'll need to re-extract them every few weeks.
+
+</details>
+
+---
+
+## Usage
+
+### All Commands
 
 | Command | What It Does |
 |---------|-------------|
@@ -43,9 +184,9 @@ For better coverage (Reddit, HN, X, YouTube independently), run the setup wizard
 
 **Sectors:** `devtools`, `cybersecurity`, `ai-infra`
 
-## Examples
+### Examples
 
-### Weekly Sector Scan
+**Weekly Sector Scan:**
 ```
 /vc-signals weekly devtools
 ```
@@ -53,23 +194,66 @@ Returns 8-12 ranked themes like:
 - "AI-Powered Code Review" (momentum: 8/10, timing: mid, companies: CodeRabbit, Cursor)
 - "Rust-Based Build Tooling" (momentum: 6/10, timing: early, companies: Turbopack, oxc)
 
-### Theme Drill-Down
+**Theme Drill-Down:**
 ```
 /vc-signals theme "agent evals"
 ```
-Returns deep analysis: what it is, why now, subthemes, companies solving it, OSS projects, hype vs durable verdict.
+Deep analysis: what it is, why now, subthemes, companies solving it, OSS projects, hype vs durable verdict.
 
-### Company Backtrace
+**Company Backtrace:**
 ```
 /vc-signals company "Confluent"
 ```
-Returns which rising themes Confluent maps to, its role (solver vs beneficiary), evidence, and competitive context.
+Which rising themes Confluent maps to, its role (solver vs beneficiary), evidence, and competitive context.
 
-### GitHub Trending
+**GitHub Trending:**
 ```
 /vc-signals github ai-infra
 ```
-Returns top repos by star velocity — the ones growing fastest relative to their size, with commercial entity mapping.
+Top repos by star velocity — the ones growing fastest relative to their size, with commercial entity mapping.
+
+---
+
+## How It Works
+
+```
+You type: /vc-signals weekly devtools
+                    │
+                    ▼
+        ┌───────────────────────┐
+        │      SKILL.md         │  ← Claude reads this as instructions
+        │   (orchestrator)      │
+        └───────────┬───────────┘
+                    │
+        ┌───────────▼───────────┐
+        │   Retrieval Layer     │  ← Goes and finds recent chatter
+        │  WebSearch (default)  │
+        │  or last30days        │
+        │  (Reddit, HN, X...)  │
+        └───────────┬───────────┘
+                    │
+        ┌───────────▼───────────┐
+        │   GitHub Trending     │  ← Finds fast-growing repos
+        │  (star velocity API)  │
+        └───────────┬───────────┘
+                    │
+        ┌───────────▼───────────┐
+        │   Claude's Brain      │  ← The magic part
+        │  • Spots patterns     │
+        │  • Clusters themes    │
+        │  • Scores momentum    │
+        │  • Maps companies     │
+        │  • Investor framing   │
+        └───────────┬───────────┘
+                    │
+                    ▼
+          Investor Brief
+          (printed + saved)
+```
+
+**Claude is the intelligence engine.** The Python scripts just handle API calls and file storage. Claude does all the thinking.
+
+---
 
 ## How It Differs from last30days
 
@@ -82,122 +266,9 @@ Returns top repos by star velocity — the ones growing fastest relative to thei
 | **Persistence** | Optional save | Week-over-week comparison |
 | **GitHub trending** | Basic search | Star velocity + commercial entity mapping |
 
-vc-signals uses last30days as a retrieval engine (when configured) and adds the VC intelligence layer on top.
+vc-signals uses last30days as an optional retrieval engine and adds the VC intelligence layer on top.
 
-## Full Setup Guide
-
-### Prerequisites
-
-- **Claude Code** — installed and working
-- **Python 3.12+** — check with `python3 --version`
-
-### Step 1: Install Python dependency
-
-```bash
-pip install requests
-```
-
-### Step 2: Run the setup wizard
-
-```
-/vc-signals setup
-```
-
-The wizard walks you through everything. Here's what each API key unlocks:
-
-### API Keys Reference
-
-#### ScrapeCreators API Key (for last30days)
-- **What it unlocks:** TikTok, Instagram, YouTube search via last30days
-- **Required for:** last30days enhanced retrieval path
-- **Cost:** Paid plans starting at ~$29/month
-- **How to get it:**
-  1. Go to https://scrapecreators.com
-  2. Sign up for an account
-  3. Choose a plan (Basic is fine for weekly scans)
-  4. Go to Dashboard → API Keys → copy your key
-
-#### Brave Search API Key
-- **What it unlocks:** Broad web search coverage
-- **Required for:** last30days web search (or use Exa/Serper as alternatives)
-- **Cost:** Free tier — 2,000 queries/month (plenty for weekly scans)
-- **How to get it:**
-  1. Go to https://brave.com/search/api/
-  2. Click "Get Started for Free"
-  3. Create an account
-  4. Go to API Keys → copy your key
-
-#### OpenAI API Key (or Gemini)
-- **What it unlocks:** Query planning and result ranking in last30days
-- **Required for:** last30days enhanced retrieval path
-- **Cost:** Usage-based — typically $0.01-0.05 per weekly scan
-- **How to get it (OpenAI):**
-  1. Go to https://platform.openai.com/api-keys
-  2. Sign up or log in
-  3. Click "Create new secret key"
-  4. Copy the key (starts with `sk-`)
-  5. Add a payment method under Billing
-- **How to get it (Gemini — free alternative):**
-  1. Go to https://aistudio.google.com/apikey
-  2. Click "Create API key"
-  3. Copy the key
-
-#### GitHub Personal Access Token
-- **What it unlocks:** GitHub trending repos — star velocity, repo search
-- **Required for:** `/vc-signals github` mode
-- **Cost:** Free
-- **How to get it:**
-  1. Go to https://github.com/settings/tokens
-  2. Click "Generate new token" → "Generate new token (classic)"
-  3. Name: "vc-signals"
-  4. Expiration: 90 days (or your preference)
-  5. Scopes: check `public_repo` only
-  6. Click "Generate token" and copy it
-
-#### X/Twitter Auth Tokens (optional)
-- **What it unlocks:** X/Twitter search for developer discussions
-- **Required for:** last30days X/Twitter source
-- **Cost:** Free (uses your existing X account)
-- **How to get them:**
-  1. Log into X/Twitter in your browser (Chrome/Firefox)
-  2. Open Developer Tools: `Cmd+Option+I` (Mac) or `Ctrl+Shift+I` (Windows)
-  3. Go to **Application** tab (Chrome) or **Storage** tab (Firefox)
-  4. Click **Cookies** → **twitter.com** (or **x.com**)
-  5. Find `auth_token` — copy its Value
-  6. Find `ct0` — copy its Value
-  7. These expire periodically — you'll need to re-extract them
-
-### What Works Without Any API Keys
-
-The zero-config path uses Claude's built-in WebSearch. You get:
-- Weekly sector scans (slightly less source diversity)
-- Theme drill-downs
-- Company backtrace
-- GitHub trending (if you have a GitHub token or `gh` CLI)
-
-## Architecture
-
-```
-SKILL.md (orchestrator)
-    │
-    ├── Retrieval Layer
-    │   ├── WebSearch (built-in, zero-config)
-    │   └── last30days (enhanced, after setup)
-    │
-    ├── GitHub Trending
-    │   └── github_trending.py (star velocity via API)
-    │
-    ├── Intelligence Layer (Claude)
-    │   ├── Theme extraction & clustering
-    │   ├── Momentum scoring
-    │   ├── Company mapping
-    │   └── Investor framing
-    │
-    └── Persistence Layer
-        └── persistence.py (save/load/diff briefings)
-```
-
-**Claude is the intelligence engine.** Python scripts handle I/O only (API calls, file storage). The SKILL.md orchestrates everything.
+---
 
 ## Customization
 
@@ -220,7 +291,9 @@ Edit `.claude/skills/vc-signals/config/sectors.json` — add a new entry under a
 
 ### Add a New Sector
 
-Add a new top-level key to `sectors.json` following the existing structure.
+Add a new top-level key to `sectors.json` following the existing structure (display_name, subcategories, discovery_queries, negative_terms).
+
+---
 
 ## Known Limitations
 
@@ -238,10 +311,12 @@ Add a new top-level key to `sectors.json` following the existing structure.
 4. **Slack/email delivery** — weekly briefs pushed to you
 5. **Historical trend charts** — visualize theme momentum over time
 
+---
+
 ## Project Structure
 
 ```
-.
+vc-signals/
 ├── README.md
 ├── vendor/
 │   └── last30days-skill/          # research engine (cloned during setup)
@@ -252,7 +327,7 @@ Add a new top-level key to `sectors.json` following the existing structure.
 └── .claude/
     └── skills/
         └── vc-signals/
-            ├── SKILL.md           # skill definition
+            ├── SKILL.md           # the skill definition
             ├── scripts/
             │   ├── persistence.py
             │   ├── github_trending.py
@@ -268,3 +343,20 @@ Add a new top-level key to `sectors.json` following the existing structure.
                 ├── github/        # GitHub trending outputs
                 └── history/       # theme index for week-over-week
 ```
+
+---
+
+## Contributing
+
+1. Fork the repo
+2. Create a branch: `git checkout -b my-feature`
+3. Make your changes
+4. Run tests: `python3 -m pytest .claude/skills/vc-signals/tests/ -v`
+5. Commit and push
+6. Open a PR
+
+---
+
+## License
+
+MIT
