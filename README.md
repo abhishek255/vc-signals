@@ -2,13 +2,17 @@
 
 > **AI-Powered Investment Theme Discovery for Venture Capital**
 
-A Claude Code skill that turns noisy public internet chatter into ranked, investor-oriented briefs. Run one command per week — get the top emerging themes in **devtools**, **cybersecurity**, and **AI infrastructure** with company mapping, momentum scoring, and a blunt hype-vs-durable verdict.
+A skill for [Claude Code](https://docs.anthropic.com/en/docs/claude-code) and [Claude Co-Work](https://claude.com/product/cowork) that turns noisy public internet chatter into ranked, investor-oriented briefs. Run one command per week — get the top emerging themes in **devtools**, **cybersecurity**, and **AI infrastructure** with company mapping, momentum scoring, and a blunt hype-vs-durable verdict.
 
 ---
 
 ## What is this?
 
-VC Signals is a skill (plugin) for [Claude Code](https://docs.anthropic.com/en/docs/claude-code) that acts as your weekly research analyst. It scans Hacker News, Reddit, X/Twitter, GitHub, blogs, and other sources — then synthesizes what it finds into a structured investor brief.
+VC Signals is a skill (plugin) for Claude that acts as your weekly research analyst. It scans Hacker News, Reddit, X/Twitter, GitHub, blogs, and other sources — then synthesizes what it finds into a structured investor brief.
+
+**Works with:**
+- **Claude Code** — CLI, desktop app, VS Code, JetBrains
+- **Claude Co-Work** — Anthropic's desktop app for knowledge work
 
 For each emerging theme, you get:
 
@@ -23,15 +27,16 @@ For each emerging theme, you get:
 
 ## Installation
 
+Choose your setup based on how you use Claude:
+
+- **Option A** — [Claude Code](#option-a-claude-code) (CLI, desktop app, or IDE)
+- **Option B** — [Claude Co-Work](#option-b-claude-co-work) (desktop app for knowledge work)
+
+Both options give you the same skill with the same features.
+
 ### Prerequisites
 
 Before you start, make sure you have:
-
-- **Claude Code** — Anthropic's CLI for Claude. If you don't have it yet:
-  ```bash
-  npm install -g @anthropic-ai/claude-code
-  ```
-  Then run `claude` once to authenticate with your Anthropic account.
 
 - **Python 3.12 or newer** — Check with:
   ```bash
@@ -44,38 +49,89 @@ Before you start, make sure you have:
 
 - **Git** — to clone this repo
 
-### Step 1: Clone the Repository
+- **One Python library:**
+  ```bash
+  pip install requests
+  ```
+
+---
+
+### Option A: Claude Code
+
+Use this if you have Claude Code installed (CLI, desktop app, VS Code, or JetBrains).
+
+**Step 1: Install Claude Code** (if you don't have it yet)
+
+```bash
+npm install -g @anthropic-ai/claude-code
+```
+
+Then run `claude` once to sign in with your Anthropic account.
+
+**Step 2: Clone the repo**
 
 ```bash
 git clone https://github.com/abhishek255/vc-signals.git
 cd vc-signals
 ```
 
-### Step 2: Install Python Dependencies
-
-```bash
-pip install requests
-```
-
-That's it — just one library (for GitHub API calls).
-
-### Step 3: Open Claude Code in the Project
+**Step 3: Open Claude Code inside the project folder**
 
 ```bash
 claude
 ```
 
-Make sure you're inside the `vc-signals/` directory when you launch Claude Code. The skill is automatically detected from the `.claude/skills/` folder — no extra configuration needed.
+The skill is automatically detected from the `.claude/skills/` folder — no extra setup needed.
 
-### Step 4: Verify it Works
+**Step 4: Verify it works**
 
-Once inside Claude Code, type:
+Inside Claude Code, type:
 
 ```
 /vc-signals weekly devtools
 ```
 
-Claude will start running web searches and produce your first investor brief. No API keys needed for the basic version.
+Claude will run web searches and produce your first investor brief. No API keys needed for the basic version.
+
+---
+
+### Option B: Claude Co-Work
+
+Use this if you use [Claude Co-Work](https://claude.com/product/cowork) — Anthropic's desktop app for knowledge work. Co-Work supports the same skills as Claude Code.
+
+**Step 1: Clone the repo**
+
+Open your terminal and run:
+
+```bash
+git clone https://github.com/abhishek255/vc-signals.git
+```
+
+**Step 2: Install the skill globally**
+
+Skills need to live in your home folder for Co-Work to find them. Run this to copy the skill there:
+
+```bash
+cp -r vc-signals/.claude/skills/vc-signals ~/.claude/skills/vc-signals
+```
+
+This copies the skill, its scripts, and config files to `~/.claude/skills/vc-signals/` where Co-Work automatically discovers it.
+
+**Step 3: Open Claude Co-Work**
+
+Open the Claude desktop app. The skill is now available — Co-Work picks it up automatically from `~/.claude/skills/`.
+
+**Step 4: Verify it works**
+
+In Co-Work, type:
+
+```
+/vc-signals weekly devtools
+```
+
+Claude will run web searches and produce your first investor brief. No API keys needed for the basic version.
+
+> **Note:** Briefings and weekly history are saved to `~/.claude/skills/vc-signals/data/`. Keep Co-Work open while a scan is running — closing the app stops active tasks.
 
 ---
 
