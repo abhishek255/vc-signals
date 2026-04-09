@@ -64,7 +64,7 @@ def test_calculate_velocity_with_timestamps():
     velocity = calculate_velocity(timestamps, total_stars=5000)
     assert velocity["stars_last_7d"] == 50
     assert velocity["stars_last_30d"] == 80
-    assert velocity["weekly_velocity"] == pytest.approx(50 / 5000, abs=0.001)
+    assert velocity["acceleration_ratio"] == pytest.approx(50 / 5000, abs=0.001)
 
 
 def test_calculate_velocity_empty():

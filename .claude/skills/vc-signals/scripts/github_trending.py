@@ -87,12 +87,13 @@ def calculate_velocity(
         except ValueError:
             continue
 
-    weekly_velocity = stars_7d / total_stars if total_stars > 0 else 0.0
+    # stars_last_7d / total_stars — higher = faster relative growth
+    acceleration_ratio = stars_7d / total_stars if total_stars > 0 else 0.0
 
     return {
         "stars_last_7d": stars_7d,
         "stars_last_30d": stars_30d,
-        "weekly_velocity": weekly_velocity,
+        "acceleration_ratio": acceleration_ratio,
         "method": "stargazer_timestamps",
     }
 
@@ -223,9 +224,15 @@ def fetch_star_timestamps(
                 except (ValueError, IndexError):
                     pass
 
+    if last_page == 1 and resp.json():
+        print(
+            json.dumps({"warning": f"Could not parse Link header for {full_name}; velocity data may be incomplete"}),
+            file=sys.stderr,
+        )
+
     for page_num in range(max(1, last_page - sample_pages + 1), last_page + 1):
         try:
-            resp = requests.get(
+            page_resp = requests.get(
                 f"{GITHUB_API}/repos/{full_name}/stargazers",
                 params={"per_page": 100, "page": page_num},
                 headers=headers,
@@ -234,10 +241,10 @@ def fetch_star_timestamps(
         except requests.RequestException:
             continue
 
-        if resp.status_code != 200:
+        if page_resp.status_code != 200:
             continue
 
-        for item in resp.json():
+        for item in page_resp.json():
             if isinstance(item, dict) and "starred_at" in item:
                 timestamps.append(item["starred_at"])
 
@@ -292,7 +299,12 @@ def _cli_main() -> None:
     sector = args.get("sector", "")
     config_path = Path(args["config"]) if "config" in args else None
     token = args.get("token") or os.environ.get("GITHUB_TOKEN")
-    limit = int(args.get("limit", "15"))
+    try:
+        limit = int(args.get("limit", "15"))
+        if limit <= 0:
+            limit = 15
+    except ValueError:
+        limit = 15
 
     if not sector:
         print(json.dumps({"error": "Usage: github_trending.py --sector <sector> [--config <path>] [--token <token>] [--limit N]"}))
