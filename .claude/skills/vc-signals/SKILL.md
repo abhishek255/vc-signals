@@ -27,25 +27,24 @@ If no arguments or unrecognized arguments, show this help and ask what they'd li
 
 ## Script Paths
 
-All Python scripts are relative to this skill's directory. Determine the base path:
+Before running any script, determine the skill directory. Check these locations in order:
+1. `.claude/skills/vc-signals/` (relative to the current project root — check if it exists)
+2. `~/.claude/skills/vc-signals/` (global installation for Co-Work)
 
-```bash
-SKILL_DIR="$(cd "$(dirname "$0")" 2>/dev/null && pwd)" || SKILL_DIR=".claude/skills/vc-signals"
-```
+Once found, use that path for all script commands. For example:
+- If found at `.claude/skills/vc-signals/`, run: `python3 .claude/skills/vc-signals/scripts/<script>.py`
+- If found at `~/.claude/skills/vc-signals/`, run: `python3 ~/.claude/skills/vc-signals/scripts/<script>.py`
+
+Store the resolved path and reuse it for all script calls in this session.
 
 Scripts:
-- `${SKILL_DIR}/scripts/persistence.py` — save/load briefings, diffs, theme index
-- `${SKILL_DIR}/scripts/github_trending.py` — GitHub star velocity search
-- `${SKILL_DIR}/scripts/last30days_adapter.py` — last30days integration
+- `<skill_dir>/scripts/persistence.py` — save/load briefings, diffs, theme index
+- `<skill_dir>/scripts/github_trending.py` — GitHub star velocity search
+- `<skill_dir>/scripts/last30days_adapter.py` — last30days integration
 
 Config:
-- `${SKILL_DIR}/config/sectors.json` — sector taxonomy
-- `${SKILL_DIR}/config/company_aliases.json` — company seed map
-
-When running scripts via Bash, always use the full path from the project root:
-```bash
-python3 .claude/skills/vc-signals/scripts/<script>.py <args>
-```
+- `<skill_dir>/config/sectors.json` — sector taxonomy
+- `<skill_dir>/config/company_aliases.json` — company seed map
 
 ---
 
@@ -213,6 +212,13 @@ python3 .claude/skills/vc-signals/scripts/persistence.py load-previous --sector 
 
 If a previous briefing exists, save it for comparison in Step 7.
 
+Also load the theme index to check for durable themes:
+```bash
+cat <skill_dir>/data/history/theme_index.json 2>/dev/null || echo "{}"
+```
+
+Use this to identify themes that have appeared in 3+ consecutive scans — these are candidates for the "Durable" section of the week-over-week comparison.
+
 ### Step 3: Select Retrieval Path
 
 ```bash
@@ -238,6 +244,8 @@ Example query generation for devtools:
 3. Total: ~12 queries
 
 For each query, use WebSearch. Collect titles, URLs, snippets.
+
+**Filtering noise:** Check the sector's `negative_terms` list from the taxonomy config. Skip or deprioritize results that are clearly tutorial content, beginner guides, or consumer product reviews. These terms exist to reduce noise — use them when evaluating search results.
 
 **last30days path:**
 
@@ -389,20 +397,26 @@ Rank themes by momentum score (descending). Output the top 8-12 themes.
 
 Save the briefing:
 
-Prepare a JSON array of theme objects with all scores and company mappings. Pipe to persistence:
+Prepare a JSON array of theme objects with all scores and company mappings. Write it to a temp file, then pipe it:
 
 ```bash
-echo '<JSON_THEMES_ARRAY>' | python3 .claude/skills/vc-signals/scripts/persistence.py save-briefing --sector <SECTOR> --retrieval-path <websearch|last30days> --date $(date +%Y-%m-%d)
+cat <<'THEMES_EOF' | python3 <skill_dir>/scripts/persistence.py save-briefing --sector <SECTOR> --retrieval-path <websearch|last30days> --date $(date +%Y-%m-%d)
+[the JSON themes array goes here]
+THEMES_EOF
 ```
 
 Save the markdown output:
 ```bash
-echo '<MARKDOWN_CONTENT>' | python3 .claude/skills/vc-signals/scripts/persistence.py save-markdown --subdir briefings --slug <SECTOR> --date $(date +%Y-%m-%d)
+cat <<'MD_EOF' | python3 <skill_dir>/scripts/persistence.py save-markdown --subdir briefings --slug <SECTOR> --date $(date +%Y-%m-%d)
+[the markdown content goes here]
+MD_EOF
 ```
 
 Update the theme index:
 ```bash
-echo '<JSON_THEMES_ARRAY>' | python3 .claude/skills/vc-signals/scripts/persistence.py update-index --sector <SECTOR> --date $(date +%Y-%m-%d)
+cat <<'THEMES_EOF' | python3 <skill_dir>/scripts/persistence.py update-index --sector <SECTOR> --date $(date +%Y-%m-%d)
+[the JSON themes array goes here]
+THEMES_EOF
 ```
 
 If any persistence step fails, warn the user but still display the full briefing inline. Do not crash.
@@ -486,7 +500,9 @@ python3 .claude/skills/vc-signals/scripts/github_trending.py --sector all --limi
 ### Step 4: Persist
 
 ```bash
-echo '<MARKDOWN>' | python3 .claude/skills/vc-signals/scripts/persistence.py save-markdown --subdir themes --slug <SLUGIFIED_TOPIC> --date $(date +%Y-%m-%d)
+cat <<'MD_EOF' | python3 <skill_dir>/scripts/persistence.py save-markdown --subdir themes --slug <SLUGIFIED_TOPIC> --date $(date +%Y-%m-%d)
+[the markdown content goes here]
+MD_EOF
 ```
 
 ---
@@ -551,7 +567,9 @@ Cross-reference the evidence against:
 ### Step 5: Persist
 
 ```bash
-echo '<MARKDOWN>' | python3 .claude/skills/vc-signals/scripts/persistence.py save-markdown --subdir companies --slug <SLUGIFIED_NAME> --date $(date +%Y-%m-%d)
+cat <<'MD_EOF' | python3 <skill_dir>/scripts/persistence.py save-markdown --subdir companies --slug <SLUGIFIED_NAME> --date $(date +%Y-%m-%d)
+[the markdown content goes here]
+MD_EOF
 ```
 
 ---
@@ -612,7 +630,9 @@ Repos ranked by star velocity (recent growth rate, not absolute count).
 ### Step 5: Persist
 
 ```bash
-echo '<MARKDOWN>' | python3 .claude/skills/vc-signals/scripts/persistence.py save-markdown --subdir github --slug <SECTOR> --date $(date +%Y-%m-%d)
+cat <<'MD_EOF' | python3 <skill_dir>/scripts/persistence.py save-markdown --subdir github --slug <SECTOR> --date $(date +%Y-%m-%d)
+[the markdown content goes here]
+MD_EOF
 ```
 
 ---
