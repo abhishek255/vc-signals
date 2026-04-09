@@ -10,6 +10,9 @@ from pathlib import Path
 
 DEFAULT_DATA_DIR = Path(__file__).parent.parent / "data"
 
+FADING_MOMENTUM_DROP = 3   # theme is fading if momentum dropped by this much or more
+ACCELERATING_MOMENTUM_GAIN = 2  # theme is accelerating if momentum gained by this much or more
+
 
 def save_briefing(
     sector: str,
@@ -33,9 +36,10 @@ def save_briefing(
     briefings_dir.mkdir(parents=True, exist_ok=True)
 
     json_path = briefings_dir / f"{date}-{sector}.json"
+    overwritten = json_path.exists()
     json_path.write_text(json.dumps(briefing, indent=2))
 
-    return {"saved": str(json_path), "date": date}
+    return {"saved": str(json_path), "date": date, "overwritten": overwritten}
 
 
 def load_briefing(
@@ -48,7 +52,11 @@ def load_briefing(
     json_path = data_dir / "briefings" / f"{date}-{sector}.json"
     if not json_path.exists():
         return None
-    return json.loads(json_path.read_text())
+    try:
+        return json.loads(json_path.read_text())
+    except json.JSONDecodeError:
+        print(f"Warning: malformed JSON in {json_path}", file=sys.stderr)
+        return None
 
 
 def load_previous_briefing(
@@ -66,7 +74,11 @@ def load_previous_briefing(
     for path in candidates:
         file_date = path.name.removesuffix(f"-{sector}.json")
         if file_date < before_date:
-            return json.loads(path.read_text())
+            try:
+                return json.loads(path.read_text())
+            except json.JSONDecodeError:
+                print(f"Warning: malformed JSON in {path}", file=sys.stderr)
+                return None
     return None
 
 
@@ -81,7 +93,7 @@ def compute_diff(current: dict, previous: dict) -> dict:
     for name, prev_t in previous_themes.items():
         if name not in current_themes:
             fading_themes.append(prev_t)
-        elif current_themes[name].get("momentum", 0) <= prev_t.get("momentum", 0) - 3:
+        elif current_themes[name].get("momentum", 0) <= prev_t.get("momentum", 0) - FADING_MOMENTUM_DROP:
             fading_themes.append(prev_t)
 
     accelerating_themes = []
@@ -89,7 +101,7 @@ def compute_diff(current: dict, previous: dict) -> dict:
         if name in previous_themes:
             curr_m = current_themes[name].get("momentum", 0)
             prev_m = previous_themes[name].get("momentum", 0)
-            if curr_m >= prev_m + 2:
+            if curr_m >= prev_m + ACCELERATING_MOMENTUM_GAIN:
                 accelerating_themes.append(current_themes[name])
 
     return {
@@ -114,7 +126,11 @@ def update_theme_index(
     index_path.parent.mkdir(parents=True, exist_ok=True)
 
     if index_path.exists():
-        index = json.loads(index_path.read_text())
+        try:
+            index = json.loads(index_path.read_text())
+        except json.JSONDecodeError:
+            print(f"Warning: malformed JSON in {index_path}, starting with empty index", file=sys.stderr)
+            index = {}
     else:
         index = {}
 
@@ -166,6 +182,13 @@ def save_markdown(
 
 # --- CLI interface for Claude to call via Bash ---
 
+def _require_args(args: dict, *required: str) -> None:
+    missing = [k for k in required if k not in args]
+    if missing:
+        print(json.dumps({"error": f"Missing required arguments: {', '.join('--' + k for k in missing)}"}))
+        sys.exit(1)
+
+
 def _cli_main() -> None:
     """CLI entry point. Commands: save-briefing, load-briefing, load-previous, diff, update-index, save-markdown."""
     if len(sys.argv) < 2:
@@ -177,6 +200,7 @@ def _cli_main() -> None:
     data_dir = Path(args.get("data-dir", str(DEFAULT_DATA_DIR)))
 
     if command == "save-briefing":
+        _require_args(args, "sector")
         themes = json.loads(sys.stdin.read())
         result = save_briefing(
             sector=args["sector"],
@@ -188,14 +212,17 @@ def _cli_main() -> None:
         print(json.dumps(result))
 
     elif command == "load-briefing":
+        _require_args(args, "sector", "date")
         result = load_briefing(args["sector"], args["date"], data_dir)
         print(json.dumps(result))
 
     elif command == "load-previous":
+        _require_args(args, "sector", "before")
         result = load_previous_briefing(args["sector"], args["before"], data_dir)
         print(json.dumps(result))
 
     elif command == "diff":
+        _require_args(args, "sector", "date")
         current = load_briefing(args["sector"], args["date"], data_dir)
         previous = load_previous_briefing(args["sector"], args["date"], data_dir)
         if current and previous:
@@ -204,11 +231,13 @@ def _cli_main() -> None:
             print(json.dumps({"error": "Missing current or previous briefing", "current_found": current is not None, "previous_found": previous is not None}))
 
     elif command == "update-index":
+        _require_args(args, "sector")
         themes = json.loads(sys.stdin.read())
         index = update_theme_index(themes, args["sector"], args.get("date"), data_dir)
         print(json.dumps(index))
 
     elif command == "save-markdown":
+        _require_args(args, "subdir", "slug")
         content = sys.stdin.read()
         result = save_markdown(args["subdir"], args["slug"], content, args.get("date"), data_dir)
         print(json.dumps(result))
