@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import json
+import re
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
@@ -143,6 +144,8 @@ def update_theme_index(
             entry["last_seen"] = date
             entry["appearances"] += 1
             entry["momentum_history"].append(momentum)
+            if len(entry["momentum_history"]) > 52:
+                entry["momentum_history"] = entry["momentum_history"][-52:]
             entry["peak_momentum"] = max(entry["peak_momentum"], momentum)
             if sector not in entry["sectors"]:
                 entry["sectors"].append(sector)
@@ -189,6 +192,13 @@ def _require_args(args: dict, *required: str) -> None:
         sys.exit(1)
 
 
+def _validate_slug(value: str, name: str) -> None:
+    """Validate that a value is safe for use in file paths."""
+    if not re.match(r'^[a-zA-Z0-9_-]+$', value):
+        print(json.dumps({"error": f"Invalid {name}: '{value}'. Only letters, numbers, hyphens, and underscores allowed."}))
+        sys.exit(1)
+
+
 def _cli_main() -> None:
     """CLI entry point. Commands: save-briefing, load-briefing, load-previous, diff, update-index, save-markdown."""
     if len(sys.argv) < 2:
@@ -201,6 +211,10 @@ def _cli_main() -> None:
 
     if command == "save-briefing":
         _require_args(args, "sector")
+        _validate_slug(args["sector"], "sector")
+        if sys.stdin.isatty():
+            print(json.dumps({"error": "No data piped to stdin. Usage: echo '<json>' | persistence.py <command> ..."}))
+            sys.exit(1)
         themes = json.loads(sys.stdin.read())
         result = save_briefing(
             sector=args["sector"],
@@ -232,12 +246,21 @@ def _cli_main() -> None:
 
     elif command == "update-index":
         _require_args(args, "sector")
+        _validate_slug(args["sector"], "sector")
+        if sys.stdin.isatty():
+            print(json.dumps({"error": "No data piped to stdin. Usage: echo '<json>' | persistence.py <command> ..."}))
+            sys.exit(1)
         themes = json.loads(sys.stdin.read())
         index = update_theme_index(themes, args["sector"], args.get("date"), data_dir)
         print(json.dumps(index))
 
     elif command == "save-markdown":
         _require_args(args, "subdir", "slug")
+        _validate_slug(args["subdir"], "subdir")
+        _validate_slug(args["slug"], "slug")
+        if sys.stdin.isatty():
+            print(json.dumps({"error": "No data piped to stdin. Usage: echo '<json>' | persistence.py <command> ..."}))
+            sys.exit(1)
         content = sys.stdin.read()
         result = save_markdown(args["subdir"], args["slug"], content, args.get("date"), data_dir)
         print(json.dumps(result))

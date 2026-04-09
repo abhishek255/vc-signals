@@ -9,7 +9,19 @@ import subprocess
 import sys
 from pathlib import Path
 
-DEFAULT_VENDOR_PATH = Path(__file__).resolve().parents[4] / "vendor" / "last30days-skill"
+def _find_vendor_path() -> Path:
+    """Find last30days-skill in multiple candidate locations."""
+    candidates = [
+        Path(__file__).resolve().parents[4] / "vendor" / "last30days-skill",  # project-level
+        Path.home() / "vendor" / "last30days-skill",  # home dir
+        Path.home() / ".claude" / "vendor" / "last30days-skill",  # claude config dir
+    ]
+    for candidate in candidates:
+        if (candidate / "scripts" / "last30days.py").exists():
+            return candidate
+    return candidates[0]  # return first as default even if not found
+
+DEFAULT_VENDOR_PATH = _find_vendor_path()
 DEFAULT_CONFIG_PATH = Path.home() / ".config" / "last30days" / ".env"
 
 
