@@ -1,0 +1,209 @@
+{
+  "devtools": {
+    "display_name": "Developer Tools",
+    "subcategories": {
+      "ci_cd": {
+        "name": "CI/CD & Build Systems",
+        "aliases": ["continuous integration", "continuous delivery", "build pipelines", "GitHub Actions", "CI pipeline", "build system"],
+        "seed_queries": [
+          "new CI/CD tools developers switching to",
+          "build system trends emerging",
+          "GitHub Actions alternatives gaining traction",
+          "CI pipeline performance optimization tools"
+        ]
+      },
+      "testing": {
+        "name": "Testing & Quality",
+        "aliases": ["test automation", "test frameworks", "code quality", "QA tooling", "end-to-end testing", "unit testing", "integration testing"],
+        "seed_queries": [
+          "software testing tools emerging trends",
+          "AI testing automation new tools",
+          "testing bottleneck developer productivity"
+        ]
+      },
+      "ide_dx": {
+        "name": "IDEs & Developer Experience",
+        "aliases": ["code editors", "developer productivity", "dev environments", "developer portals", "developer experience", "DX platforms"],
+        "seed_queries": [
+          "AI-powered IDE tools trending",
+          "developer experience platforms gaining traction",
+          "code editor innovations new"
+        ]
+      },
+      "observability": {
+        "name": "Observability & Debugging",
+        "aliases": ["monitoring", "logging", "tracing", "APM", "error tracking", "debugging tools", "observability platform"],
+        "seed_queries": [
+          "observability tools new entrants",
+          "debugging tools AI-powered trending",
+          "APM alternatives developers prefer"
+        ]
+      },
+      "infra_as_code": {
+        "name": "Infrastructure as Code & Platform Engineering",
+        "aliases": ["IaC", "platform engineering", "internal developer platforms", "Terraform alternatives", "infrastructure management", "IDP"],
+        "seed_queries": [
+          "platform engineering tools trending",
+          "Terraform alternatives new IaC tools",
+          "internal developer platform emerging"
+        ]
+      },
+      "source_control": {
+        "name": "Source Control & Code Management",
+        "aliases": ["git tools", "code review", "merge tooling", "monorepo", "version control", "code collaboration"],
+        "seed_queries": [
+          "code review tools AI-powered new",
+          "monorepo tooling trends",
+          "git workflow tools emerging"
+        ]
+      }
+    },
+    "discovery_queries": [
+      "emerging developer tools 2026",
+      "devtools startups gaining traction",
+      "developer tools trending hacker news",
+      "what developer tools are you switching to reddit",
+      "most interesting devtools startups funded recently",
+      "developer tooling landscape changes"
+    ],
+    "negative_terms": ["tutorial", "beginner guide", "how to learn", "free course", "coding bootcamp"]
+  },
+  "cybersecurity": {
+    "display_name": "Cybersecurity",
+    "subcategories": {
+      "appsec": {
+        "name": "Application Security",
+        "aliases": ["SAST", "DAST", "SCA", "software supply chain security", "application security testing", "code scanning", "SBOM"],
+        "seed_queries": [
+          "application security tools new entrants",
+          "software supply chain security emerging",
+          "SAST DAST tools developer-friendly trending"
+        ]
+      },
+      "cloud_security": {
+        "name": "Cloud & Infrastructure Security",
+        "aliases": ["CSPM", "CNAPP", "container security", "kubernetes security", "cloud workload protection", "cloud security posture"],
+        "seed_queries": [
+          "cloud security posture management new tools",
+          "kubernetes security emerging threats tools",
+          "CNAPP market new entrants"
+        ]
+      },
+      "identity": {
+        "name": "Identity & Access",
+        "aliases": ["IAM", "zero trust", "authentication", "authorization", "CIAM", "identity governance", "privileged access"],
+        "seed_queries": [
+          "identity security tools emerging trends",
+          "zero trust architecture new tools",
+          "authentication authorization new approaches"
+        ]
+      },
+      "soc_detection": {
+        "name": "SOC & Detection",
+        "aliases": ["SIEM", "XDR", "EDR", "threat detection", "incident response", "security operations", "SOAR"],
+        "seed_queries": [
+          "SIEM alternatives emerging",
+          "XDR tools new vendors gaining traction",
+          "AI-powered threat detection new"
+        ]
+      },
+      "ai_security": {
+        "name": "AI & LLM Security",
+        "aliases": ["AI red teaming", "prompt injection", "LLM security", "AI guardrails", "model security", "AI safety tooling"],
+        "seed_queries": [
+          "AI security tools emerging market",
+          "LLM security guardrails new tools",
+          "prompt injection defense tools",
+          "AI red teaming platforms"
+        ]
+      },
+      "data_security": {
+        "name": "Data Security & Privacy",
+        "aliases": ["DLP", "encryption", "data governance", "privacy engineering", "data loss prevention", "data classification"],
+        "seed_queries": [
+          "data security tools emerging",
+          "privacy engineering platforms trending",
+          "data governance tools new"
+        ]
+      }
+    },
+    "discovery_queries": [
+      "emerging cybersecurity threats 2026",
+      "cybersecurity startups gaining traction funded",
+      "new vulnerability classes discovered recently",
+      "cybersecurity tools trending hacker news",
+      "security startup landscape changes",
+      "cybersecurity categories emerging investment"
+    ],
+    "negative_terms": ["antivirus review", "VPN review", "consumer security", "password manager review", "best free antivirus"]
+  },
+  "ai-infra": {
+    "display_name": "AI Infrastructure",
+    "subcategories": {
+      "model_serving": {
+        "name": "Model Serving & Inference",
+        "aliases": ["inference optimization", "LLM serving", "GPU orchestration", "model deployment", "inference engine", "model runtime"],
+        "seed_queries": [
+          "LLM inference optimization tools new",
+          "model serving infrastructure emerging",
+          "GPU orchestration platforms trending"
+        ]
+      },
+      "training_compute": {
+        "name": "Training & Compute",
+        "aliases": ["distributed training", "GPU cloud", "training infrastructure", "ML compute", "training optimization", "compute cluster"],
+        "seed_queries": [
+          "GPU cloud providers new entrants",
+          "distributed training tools emerging",
+          "ML training infrastructure cost optimization"
+        ]
+      },
+      "data_pipelines": {
+        "name": "Data & Feature Pipelines",
+        "aliases": ["feature stores", "data labeling", "vector databases", "embeddings infrastructure", "data pipeline", "RAG infrastructure"],
+        "seed_queries": [
+          "vector database market new entrants",
+          "RAG infrastructure tools emerging",
+          "AI data pipeline tools trending"
+        ]
+      },
+      "agent_infra": {
+        "name": "Agent Infrastructure",
+        "aliases": ["agent frameworks", "agent orchestration", "tool use", "agent evals", "MCP", "agent runtime", "agent memory"],
+        "seed_queries": [
+          "AI agent frameworks trending",
+          "agent evaluation tools emerging",
+          "MCP model context protocol tools",
+          "agent orchestration infrastructure new"
+        ]
+      },
+      "mlops": {
+        "name": "MLOps & Experiment Management",
+        "aliases": ["model registry", "experiment tracking", "ML monitoring", "model observability", "LLMOps", "AI ops"],
+        "seed_queries": [
+          "MLOps tools new entrants",
+          "LLMOps platforms emerging",
+          "model observability tools trending"
+        ]
+      },
+      "ai_dev_tools": {
+        "name": "AI-Native Dev Tools",
+        "aliases": ["AI code generation", "AI code review", "AI debugging", "copilot alternatives", "AI coding assistant", "AI pair programming"],
+        "seed_queries": [
+          "AI coding assistant alternatives copilot",
+          "AI code generation tools new",
+          "AI-native developer tools emerging"
+        ]
+      }
+    },
+    "discovery_queries": [
+      "AI infrastructure trends emerging 2026",
+      "AI infra startups gaining traction funded",
+      "LLM infrastructure new tools",
+      "AI agent tooling trending hacker news",
+      "AI infrastructure landscape changes",
+      "most interesting AI infra companies"
+    ],
+    "negative_terms": ["AI art generator", "ChatGPT tips", "AI writing tool review", "best AI chatbot", "AI image generator"]
+  }
+}
