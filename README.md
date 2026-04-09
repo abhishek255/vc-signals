@@ -81,20 +81,28 @@ Claude will start running web searches and produce your first investor brief. No
 
 ## Optional: Enhanced Setup
 
-The basic version uses Claude's built-in web search. For **much better results** — with independent Reddit, Hacker News, X/Twitter, and YouTube searches — run the setup wizard:
+The basic version uses Claude's built-in web search, which works fine. But if you want **much better results** — with independent searches across Reddit, Hacker News, X/Twitter, and YouTube — just run:
 
 ```
 /vc-signals setup
 ```
 
-The wizard walks you through each API key one at a time. Here's what's available:
+That's it. Claude handles everything from there:
+- Installs the research engine behind the scenes
+- Walks you through each API key one at a time, in plain English
+- You paste each key when prompted (or type "skip" to skip it)
+- Saves your config automatically
+
+You don't need to clone anything, edit config files, or run terminal commands. The wizard does it all.
+
+Here's what each key unlocks:
 
 | API Key | What it Unlocks | Cost | Required? |
 |---------|----------------|------|-----------|
 | **GitHub PAT** | Trending repos by star velocity | Free | Recommended |
 | **Brave Search** | Broader web search coverage | Free (2,000/month) | Optional |
 | **ScrapeCreators** | TikTok, Instagram, YouTube search | ~$29/month | Optional |
-| **OpenAI or Gemini** | Query planning for last30days engine | Pay-per-use / Free | Optional |
+| **OpenAI or Gemini** | Smarter query planning and ranking | Pay-per-use / Free | Optional |
 | **X/Twitter tokens** | X/Twitter developer discussions | Free (your account) | Optional |
 
 **You can skip any key** — the skill works with whatever you have and tells you what you're missing.
@@ -252,21 +260,6 @@ You type: /vc-signals weekly devtools
 ```
 
 **Claude is the intelligence engine.** The Python scripts just handle API calls and file storage. Claude does all the thinking.
-
----
-
-## How It Differs from last30days
-
-| | last30days | vc-signals |
-|---|-----------|------------|
-| **Purpose** | General research on any topic | VC-specific theme discovery |
-| **Output** | Evidence clusters with citations | Investor brief with scoring |
-| **Company mapping** | None | Theme → company mapping with roles |
-| **Momentum scoring** | None | 1-10 score with transparent factors |
-| **Persistence** | Optional save | Week-over-week comparison |
-| **GitHub trending** | Basic search | Star velocity + commercial entity mapping |
-
-vc-signals uses last30days as an optional retrieval engine and adds the VC intelligence layer on top.
 
 ---
 
