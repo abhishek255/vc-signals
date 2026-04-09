@@ -1,0 +1,242 @@
+{
+  "Blacksmith": {
+    "aliases": ["blacksmith", "useblacksmith", "blacksmith.sh"],
+    "oss_projects": [],
+    "sectors": ["devtools"],
+    "themes": ["CI/CD acceleration", "GitHub Actions optimization"]
+  },
+  "CircleCI": {
+    "aliases": ["circleci", "circle ci"],
+    "oss_projects": [],
+    "sectors": ["devtools"],
+    "themes": ["CI/CD platforms"]
+  },
+  "GitHub": {
+    "aliases": ["github", "github.com"],
+    "oss_projects": ["GitHub Actions"],
+    "sectors": ["devtools"],
+    "themes": ["source control", "CI/CD platforms", "AI coding assistants"]
+  },
+  "GitLab": {
+    "aliases": ["gitlab", "gitlab.com"],
+    "oss_projects": ["GitLab CE"],
+    "sectors": ["devtools"],
+    "themes": ["DevOps platforms", "CI/CD platforms"]
+  },
+  "Buildkite": {
+    "aliases": ["buildkite"],
+    "oss_projects": [],
+    "sectors": ["devtools"],
+    "themes": ["CI/CD platforms", "build infrastructure"]
+  },
+  "Vercel": {
+    "aliases": ["vercel", "vercel.com"],
+    "oss_projects": ["Next.js", "Turbopack", "Turborepo"],
+    "sectors": ["devtools"],
+    "themes": ["frontend deployment", "developer experience"]
+  },
+  "Netlify": {
+    "aliases": ["netlify", "netlify.com"],
+    "oss_projects": [],
+    "sectors": ["devtools"],
+    "themes": ["frontend deployment", "Jamstack"]
+  },
+  "Datadog": {
+    "aliases": ["datadog", "datadoghq"],
+    "oss_projects": [],
+    "sectors": ["devtools"],
+    "themes": ["observability", "APM", "cloud monitoring"]
+  },
+  "Grafana Labs": {
+    "aliases": ["grafana", "grafana labs"],
+    "oss_projects": ["Grafana", "Loki", "Tempo", "Mimir"],
+    "sectors": ["devtools"],
+    "themes": ["observability", "open-source monitoring"]
+  },
+  "HashiCorp": {
+    "aliases": ["hashicorp"],
+    "oss_projects": ["Terraform", "Vault", "Consul", "Nomad"],
+    "sectors": ["devtools"],
+    "themes": ["infrastructure as code", "secrets management"]
+  },
+  "Pulumi": {
+    "aliases": ["pulumi"],
+    "oss_projects": ["Pulumi"],
+    "sectors": ["devtools"],
+    "themes": ["infrastructure as code", "platform engineering"]
+  },
+  "JetBrains": {
+    "aliases": ["jetbrains"],
+    "oss_projects": ["IntelliJ IDEA CE", "Kotlin"],
+    "sectors": ["devtools"],
+    "themes": ["IDEs", "developer experience"]
+  },
+  "Cursor": {
+    "aliases": ["cursor", "cursor.sh", "cursor.com"],
+    "oss_projects": [],
+    "sectors": ["devtools", "ai-infra"],
+    "themes": ["AI coding assistants", "AI-native IDEs"]
+  },
+  "CodeRabbit": {
+    "aliases": ["coderabbit"],
+    "oss_projects": [],
+    "sectors": ["devtools"],
+    "themes": ["AI code review", "automated code review"]
+  },
+  "Snyk": {
+    "aliases": ["snyk", "snyk.io"],
+    "oss_projects": [],
+    "sectors": ["devtools", "cybersecurity"],
+    "themes": ["developer security", "software composition analysis", "supply chain security"]
+  },
+  "CrowdStrike": {
+    "aliases": ["crowdstrike"],
+    "oss_projects": [],
+    "sectors": ["cybersecurity"],
+    "themes": ["endpoint security", "XDR", "threat intelligence"]
+  },
+  "Palo Alto Networks": {
+    "aliases": ["palo alto", "paloalto", "panw"],
+    "oss_projects": [],
+    "sectors": ["cybersecurity"],
+    "themes": ["network security", "cloud security", "SASE"]
+  },
+  "Wiz": {
+    "aliases": ["wiz", "wiz.io"],
+    "oss_projects": [],
+    "sectors": ["cybersecurity"],
+    "themes": ["cloud security", "CNAPP", "cloud security posture management"]
+  },
+  "SentinelOne": {
+    "aliases": ["sentinelone", "sentinel one", "s1"],
+    "oss_projects": [],
+    "sectors": ["cybersecurity"],
+    "themes": ["endpoint security", "XDR", "AI-powered threat detection"]
+  },
+  "Orca Security": {
+    "aliases": ["orca", "orca security"],
+    "oss_projects": [],
+    "sectors": ["cybersecurity"],
+    "themes": ["cloud security", "agentless security"]
+  },
+  "Chainguard": {
+    "aliases": ["chainguard"],
+    "oss_projects": ["Wolfi", "apko"],
+    "sectors": ["cybersecurity"],
+    "themes": ["supply chain security", "container security", "secure base images"]
+  },
+  "Semgrep": {
+    "aliases": ["semgrep", "r2c"],
+    "oss_projects": ["Semgrep"],
+    "sectors": ["cybersecurity", "devtools"],
+    "themes": ["static analysis", "code scanning", "developer security"]
+  },
+  "Endor Labs": {
+    "aliases": ["endor labs", "endorlabs"],
+    "oss_projects": [],
+    "sectors": ["cybersecurity"],
+    "themes": ["dependency security", "software composition analysis", "OSS risk management"]
+  },
+  "Teleport": {
+    "aliases": ["teleport", "goteleport"],
+    "oss_projects": ["Teleport"],
+    "sectors": ["cybersecurity"],
+    "themes": ["identity-based access", "zero trust", "infrastructure access"]
+  },
+  "Pangea": {
+    "aliases": ["pangea", "pangea.cloud"],
+    "oss_projects": [],
+    "sectors": ["cybersecurity"],
+    "themes": ["security APIs", "security-as-a-service"]
+  },
+  "Confluent": {
+    "aliases": ["confluent", "confluent.io"],
+    "oss_projects": ["Apache Kafka"],
+    "sectors": ["devtools", "ai-infra"],
+    "themes": ["streaming data infrastructure", "event-driven architecture"]
+  },
+  "Pinecone": {
+    "aliases": ["pinecone", "pinecone.io"],
+    "oss_projects": [],
+    "sectors": ["ai-infra"],
+    "themes": ["vector databases", "RAG infrastructure", "embeddings"]
+  },
+  "Weaviate": {
+    "aliases": ["weaviate"],
+    "oss_projects": ["Weaviate"],
+    "sectors": ["ai-infra"],
+    "themes": ["vector databases", "semantic search"]
+  },
+  "Chroma": {
+    "aliases": ["chroma", "chromadb", "trychroma"],
+    "oss_projects": ["Chroma"],
+    "sectors": ["ai-infra"],
+    "themes": ["vector databases", "embeddings", "RAG infrastructure"]
+  },
+  "Modal": {
+    "aliases": ["modal", "modal.com"],
+    "oss_projects": [],
+    "sectors": ["ai-infra"],
+    "themes": ["serverless GPU compute", "ML infrastructure"]
+  },
+  "Anyscale": {
+    "aliases": ["anyscale"],
+    "oss_projects": ["Ray"],
+    "sectors": ["ai-infra"],
+    "themes": ["distributed compute", "model serving", "training infrastructure"]
+  },
+  "Together AI": {
+    "aliases": ["together ai", "together.ai", "togetherai"],
+    "oss_projects": [],
+    "sectors": ["ai-infra"],
+    "themes": ["inference APIs", "open-source model serving"]
+  },
+  "Fireworks AI": {
+    "aliases": ["fireworks ai", "fireworks.ai"],
+    "oss_projects": [],
+    "sectors": ["ai-infra"],
+    "themes": ["inference optimization", "model serving"]
+  },
+  "Weights & Biases": {
+    "aliases": ["wandb", "weights and biases", "weights & biases"],
+    "oss_projects": [],
+    "sectors": ["ai-infra"],
+    "themes": ["experiment tracking", "MLOps", "model evaluation"]
+  },
+  "LangChain": {
+    "aliases": ["langchain", "langsmith"],
+    "oss_projects": ["LangChain", "LangGraph", "LangSmith"],
+    "sectors": ["ai-infra"],
+    "themes": ["agent frameworks", "LLM orchestration", "agent evaluation"]
+  },
+  "CrewAI": {
+    "aliases": ["crewai", "crew ai"],
+    "oss_projects": ["CrewAI"],
+    "sectors": ["ai-infra"],
+    "themes": ["multi-agent orchestration", "agent frameworks"]
+  },
+  "Braintrust": {
+    "aliases": ["braintrust", "braintrustdata"],
+    "oss_projects": [],
+    "sectors": ["ai-infra"],
+    "themes": ["AI evaluation", "LLM observability", "prompt engineering"]
+  },
+  "Humanloop": {
+    "aliases": ["humanloop"],
+    "oss_projects": [],
+    "sectors": ["ai-infra"],
+    "themes": ["LLM ops", "prompt management", "AI evaluation"]
+  },
+  "Elastic": {
+    "aliases": ["elastic", "elasticsearch"],
+    "oss_projects": ["Elasticsearch", "Kibana"],
+    "sectors": ["devtools", "cybersecurity"],
+    "themes": ["search infrastructure", "observability", "SIEM"]
+  },
+  "Supabase": {
+    "aliases": ["supabase"],
+    "oss_projects": ["Supabase"],
+    "sectors": ["devtools"],
+    "themes": ["backend-as-a-service", "open-source Firebase alternative", "developer experience"]
+  }
+}
