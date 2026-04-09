@@ -216,19 +216,21 @@ def fetch_star_timestamps(
 
     link_header = resp.headers.get("Link", "")
     last_page = 1
+    parsed_last_page = False
     if 'rel="last"' in link_header:
         for part in link_header.split(","):
             if 'rel="last"' in part:
                 try:
                     last_page = int(part.split("page=")[-1].split(">")[0])
+                    parsed_last_page = True
                 except (ValueError, IndexError):
                     pass
-
-    if last_page == 1 and resp.json():
-        print(
-            json.dumps({"warning": f"Could not parse Link header for {full_name}; velocity data may be incomplete"}),
-            file=sys.stderr,
-        )
+        # Only warn if Link header contained rel="last" but we failed to parse it
+        if not parsed_last_page:
+            print(
+                json.dumps({"warning": f"Could not parse Link header for {full_name}; velocity data may be incomplete"}),
+                file=sys.stderr,
+            )
 
     for page_num in range(max(1, last_page - sample_pages + 1), last_page + 1):
         try:
@@ -298,7 +300,7 @@ def _cli_main() -> None:
 
     sector = args.get("sector", "")
     config_path = Path(args["config"]) if "config" in args else None
-    token = args.get("token") or os.environ.get("GITHUB_TOKEN")
+    token = None
     try:
         limit = int(args.get("limit", "15"))
         if limit <= 0:
@@ -307,7 +309,7 @@ def _cli_main() -> None:
         limit = 15
 
     if not sector:
-        print(json.dumps({"error": "Usage: github_trending.py --sector <sector> [--config <path>] [--token <token>] [--limit N]"}))
+        print(json.dumps({"error": "Usage: github_trending.py --sector <sector> [--config <path>] [--limit N]"}))
         sys.exit(1)
 
     result = run_trending(sector, config_path, token, limit)
