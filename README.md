@@ -185,6 +185,7 @@ The setup wizard handles all of this for you. But if you want to know what each 
 | **Brave Search** | Broader web search coverage | $5/1K queries ($5 free credit/month) | Optional |
 | **ScrapeCreators** | TikTok, Instagram, YouTube search | ~$29/month | Optional |
 | **OpenAI or Gemini** | Smarter query planning and ranking | Pay-per-use / Free | Optional |
+| **OpenRouter** | Deep research with Perplexity (50+ citation synthesis for theme drill-downs) | ~$0.90/query | Optional |
 | **X/Twitter tokens** | X/Twitter developer discussions | Free (your account) | Optional |
 
 **You can skip any key** — the skill works with whatever you have and tells you what you're missing.
@@ -245,6 +246,19 @@ This enables TikTok, Instagram, and YouTube searches via the last30days engine.
 </details>
 
 <details>
+<summary><strong>OpenRouter API Key (for deep research)</strong></summary>
+
+1. Go to https://openrouter.ai/keys
+2. Sign up or log in
+3. Click **"Create Key"**
+4. Copy the key (starts with `sk-or-`)
+5. Add credits under **Billing** (~$0.90 per deep research query)
+
+This enables Perplexity Sonar Pro synthesis for theme drill-downs — 50+ citations per query. Optional but significantly improves theme analysis quality.
+
+</details>
+
+<details>
 <summary><strong>X/Twitter Auth Tokens</strong></summary>
 
 1. Log into X/Twitter in your browser (Chrome or Firefox)
@@ -289,13 +303,13 @@ Returns 8-12 ranked themes like:
 ```
 /vc-signals theme "agent evals"
 ```
-Deep analysis: what it is, why now, subthemes, companies solving it, OSS projects, hype vs durable verdict.
+Deep analysis: what it is, why now, subthemes, companies solving it, OSS projects, hype vs durable verdict. Uses Perplexity deep research (50+ citations) when available.
 
 **Company Backtrace:**
 ```
 /vc-signals company "Confluent"
 ```
-Which rising themes Confluent maps to, its role (solver vs beneficiary), evidence, and competitive context.
+Which rising themes Confluent maps to, its role (solver vs beneficiary), evidence, and competitive context. Searches the company's GitHub repos, founder activity, and X/Twitter presence when available.
 
 **GitHub Trending:**
 ```
@@ -384,8 +398,9 @@ You can also manually add a sector by editing `sectors.json` following the exist
 - **WebSearch path** gives less structured data than last30days (no per-source isolation)
 - **GitHub star velocity** is approximated — no historical time series without a third-party service
 - **Company seed map** starts with ~40 entries — coverage improves as you add companies
-- **No automated scheduling** — you run scans manually each week
+- **Scheduling** requires manual setup via `/schedule` — the skill guides you through it but can't auto-schedule itself
 - **Momentum scoring** is heuristic, not statistically rigorous — transparency over precision
+- **Deep research** requires OpenRouter API key and costs ~$0.90 per query
 
 ## Why This Exists
 
@@ -399,12 +414,11 @@ The result: a weekly forcing function to explore categories you might not have f
 
 ## Roadmap
 
-1. **Automated weekly scheduling** — cron or Claude remote triggers, so the brief lands in your inbox every Monday
-2. **Google Docs export** — save briefings directly to Google Drive for sharing with partners
-3. **Richer GitHub signals** — contributor velocity, issue activity, fork growth
-4. **Slack delivery** — weekly briefs pushed to a channel
-5. **Historical trend charts** — visualize theme momentum over time
-6. **Custom sectors** — add your own focus areas (fintech, healthtech, etc.)
+1. **Google Docs export** — save briefings directly to Google Drive for sharing with partners
+2. **Slack delivery** — weekly briefs pushed to a channel
+3. **Historical trend charts** — visualize theme momentum over time
+4. **Compare mode** — `/vc-signals compare "Snyk" "Socket"` for head-to-head theme exposure comparison
+5. **View past results** — `/vc-signals history devtools` to browse and search past scans
 
 ---
 
