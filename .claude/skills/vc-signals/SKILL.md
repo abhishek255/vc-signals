@@ -270,9 +270,9 @@ Run each source type separately for best results:
 python3 <skill_dir>/scripts/last30days_adapter.py query --topic "<specific theme query>" --sources "hackernews"
 ```
 
-**Reddit** (2-3 queries — best with targeted subreddits):
+**Reddit** (2-3 queries — use the sector's `subreddits` list from sectors.json):
 ```bash
-python3 <skill_dir>/scripts/last30days_adapter.py query --topic "<specific theme query>" --sources "reddit" --subreddits "programming,devops,ExperiencedDevs,sre"
+python3 <skill_dir>/scripts/last30days_adapter.py query --topic "<specific theme query>" --sources "reddit" --subreddits "<sector.subreddits from config, comma-separated>"
 ```
 
 **X/Twitter** (1-2 queries — good for real-time buzz):
@@ -478,6 +478,25 @@ Run 5-8 targeted queries about the specific theme. Include:
 - "[topic] why now 2026"
 - "[topic] problems challenges"
 
+**last30days path (if available):**
+
+Run source-specific queries for the theme:
+
+Hacker News:
+```bash
+python3 <skill_dir>/scripts/last30days_adapter.py query --topic "<topic-specific query>" --sources "hackernews"
+```
+
+Reddit (use the sector's subreddits from config, or general dev subreddits if no sector match):
+```bash
+python3 <skill_dir>/scripts/last30days_adapter.py query --topic "<topic-specific query>" --sources "reddit" --subreddits "<relevant subreddits>"
+```
+
+X/Twitter:
+```bash
+python3 <skill_dir>/scripts/last30days_adapter.py query --topic "<topic-specific query>" --sources "x"
+```
+
 Also run GitHub trending for related keywords:
 ```bash
 python3 .claude/skills/vc-signals/scripts/github_trending.py --sector all --limit 10
@@ -548,6 +567,10 @@ MD_EOF
 
 Read `company_aliases.json`. Check if the company exists. If yes, note its known themes, sectors, and OSS projects.
 
+### Step 1.5: Select Retrieval Path
+
+Check if last30days is available (same as weekly scan Step 3). If available, use it for source-specific searches in Step 2.
+
 ### Step 2: Retrieve Evidence
 
 Run 4-6 queries:
@@ -556,6 +579,14 @@ Run 4-6 queries:
 - "[company name] competitors market"
 - "[company name] open source projects"
 - "[company name] funding investment"
+
+**last30days path (if available):**
+
+Search for the company across sources:
+```bash
+python3 <skill_dir>/scripts/last30days_adapter.py query --topic "<company name>" --sources "hackernews" --quick
+python3 <skill_dir>/scripts/last30days_adapter.py query --topic "<company name>" --sources "reddit" --subreddits "programming,devops,ExperiencedDevs" --quick
+```
 
 If the company has known OSS projects from the seed map, also search for those.
 
