@@ -182,7 +182,7 @@ The setup wizard handles all of this for you. But if you want to know what each 
 | API Key | What it Unlocks | Cost | Required? |
 |---------|----------------|------|-----------|
 | **GitHub PAT** | Trending repos by star velocity | Free | Recommended |
-| **Brave Search** | Broader web search coverage | Free (2,000/month) | Optional |
+| **Brave Search** | Broader web search coverage | $5/1K queries ($5 free credit/month) | Optional |
 | **ScrapeCreators** | TikTok, Instagram, YouTube search | ~$29/month | Optional |
 | **OpenAI or Gemini** | Smarter query planning and ranking | Pay-per-use / Free | Optional |
 | **X/Twitter tokens** | X/Twitter developer discussions | Free (your account) | Optional |
@@ -211,7 +211,7 @@ The setup wizard handles all of this for you. But if you want to know what each 
 3. Create an account
 4. Go to **API Keys** → copy your key
 
-Free tier gives you 2,000 queries/month — more than enough for weekly scans.
+You get $5 in free credits each month (~1,000 queries) — more than enough for weekly scans.
 
 </details>
 
