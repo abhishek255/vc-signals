@@ -1,0 +1,10 @@
+{
+  "name": "vc-signals-marketplace",
+  "description": "VC Signals — investment theme discovery",
+  "plugins": [
+    {
+      "name": "vc-signals",
+      "path": "."
+    }
+  ]
+}
