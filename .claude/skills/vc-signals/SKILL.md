@@ -169,6 +169,17 @@ Then walk them through API keys one at a time:
 >
 > "Paste your key here, or type 'skip' to skip (web search mode only)."
 
+**OpenRouter API Key (optional -- for deep research):**
+> "OpenRouter gives us access to Perplexity Sonar Pro for deep research. When you drill down into a specific theme, it produces a comprehensive report with 50+ citations. Costs about $0.90 per deep query."
+>
+> 1. Go to https://openrouter.ai/keys
+> 2. Sign up or log in
+> 3. Click "Create Key"
+> 4. Copy the key (starts with `sk-or-`)
+> 5. Add credits under Billing (~$5 is enough for many queries)
+>
+> "Paste your key here, or type 'skip'. Theme drill-downs still work without it -- just uses regular search instead of deep synthesis."
+
 **X/Twitter Auth Tokens (optional):**
 > "To search X/Twitter for trending developer discussions, we need your browser auth tokens."
 >
@@ -226,9 +237,13 @@ python3 .claude/skills/vc-signals/scripts/last30days_adapter.py check
 Print what's configured and what each unlocks:
 
 > **Setup complete. Here's what's active:**
-> - [x] Web search (Brave) -- broad internet coverage
-> - [x] GitHub API -- trending repo discovery
-> - [ ] last30days (skipped) -- Reddit, HN, X/Twitter, YouTube
+> - [x/skip] Web search (Brave) -- broad internet coverage
+> - [x/skip] GitHub API -- trending repo discovery
+> - [x/skip] last30days -- Reddit, HN, X/Twitter, YouTube
+> - [x/skip] Deep research (OpenRouter) -- Perplexity synthesis for theme drill-downs
+> - [x/skip] X/Twitter -- developer discussions
+>
+> (Show [x] for configured items, [ ] for skipped items, based on what the user actually set up.)
 >
 > **You can run `/vc-signals setup` again anytime to add more capabilities.**
 > **Try it out: `/vc-signals weekly devtools`**
