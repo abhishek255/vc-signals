@@ -4,7 +4,7 @@
 
 A skill for [Claude Code](https://docs.anthropic.com/en/docs/claude-code) and [Claude Co-Work](https://claude.com/product/cowork) that turns noisy public internet chatter into ranked, investor-oriented briefs. Run one command per week — get the top emerging themes in **devtools**, **cybersecurity**, and **AI infrastructure** with company mapping, momentum scoring, and a blunt hype-vs-durable verdict.
 
-**[See how it works (interactive visual guide)](https://htmlpreview.github.io/?https://github.com/abhishek255/vc-signals/blob/main/docs/vc-signals-explainer.html)**
+**[See how it works (interactive visual guide)](https://abhishek255.github.io/vc-signals/)**
 
 ---
 
@@ -343,7 +343,7 @@ You type: /vc-signals weekly devtools
 
 **Claude is the intelligence engine.** The Python scripts just handle API calls and file storage. Claude does all the thinking.
 
-**Want the full picture?** Open the **[interactive visual explainer](https://htmlpreview.github.io/?https://github.com/abhishek255/vc-signals/blob/main/docs/vc-signals-explainer.html)** — covers architecture, scoring rubric, company mapping layers, persistence, and graceful degradation with interactive diagrams.
+**Want the full picture?** Open the **[interactive visual explainer](https://abhishek255.github.io/vc-signals/)** — covers architecture, scoring rubric, company mapping layers, persistence, and graceful degradation with interactive diagrams.
 
 ---
 
