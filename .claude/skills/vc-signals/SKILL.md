@@ -149,7 +149,7 @@ Then walk them through API keys one at a time:
 > 4. Paste it here
 
 **Web Search API Key (pick one -- Brave recommended):**
-> "We need a web search API for broader coverage. Brave Search is the easiest -- it has a free tier with 2,000 searches/month."
+> "We need a web search API for broader coverage. Brave Search is the easiest -- you get $5 in free credits each month, which covers about 1,000 searches. More than enough for weekly scans."
 >
 > 1. Go to https://brave.com/search/api/
 > 2. Click "Get Started for Free"
@@ -167,7 +167,7 @@ Then walk them through API keys one at a time:
 > **Gemini:**
 > 1. Go to https://aistudio.google.com/apikey
 > 2. Create a new API key
-> 3. Free tier available
+> 3. You get $5 free credits/month (~1,000 queries)
 >
 > "Paste your key here, or type 'skip' to skip (web search mode only)."
 
