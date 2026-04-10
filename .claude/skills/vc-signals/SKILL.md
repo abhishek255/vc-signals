@@ -25,6 +25,52 @@ Parse the user's input to determine the mode and arguments:
 
 If no arguments or unrecognized arguments, show this help and ask what they'd like to do.
 
+## First-Run Detection (ALWAYS check this before anything else)
+
+**Before executing ANY mode** (including setup), check if this is a first run:
+
+```bash
+cat ~/.config/last30days/.env 2>/dev/null | grep -q "SETUP_COMPLETE=true" && echo "configured" || echo "not_configured"
+```
+
+**If NOT configured — and the user did NOT explicitly run `/vc-signals setup`:**
+
+Say this to the user:
+
+> "Welcome to VC Signals! This is your first run. I need about 2 minutes to set things up — I'll install the research engine and ask you for a couple of optional API keys. You can skip any you don't have."
+>
+> "Want me to run setup now, or would you rather jump straight in with basic web search? (Setup gives you Reddit, Hacker News, X/Twitter, YouTube, and GitHub trending coverage.)"
+
+If they choose setup → run the Setup Wizard (below), then continue to their original command.
+If they choose to skip → proceed with their command using WebSearch path. Note: "Running with basic web search. You can run `/vc-signals setup` anytime to unlock more sources."
+
+**Auto-install last30days during setup:**
+
+As part of setup Step 3, ALWAYS clone last30days if it's not already installed — don't ask the user. Just do it:
+
+```bash
+# Find the skill directory first
+if [ -d ".claude/skills/vc-signals" ]; then
+  SKILL_ROOT="."
+elif [ -d "$HOME/.claude/skills/vc-signals" ]; then
+  SKILL_ROOT="$HOME/.claude/skills"
+fi
+
+# Clone last30days next to the skill (or into vendor/ if in a project)
+if [ -d "vendor" ] || [ -d ".claude" ]; then
+  git clone --quiet --depth 1 https://github.com/mvanhorn/last30days-skill.git vendor/last30days-skill 2>/dev/null || true
+else
+  git clone --quiet --depth 1 https://github.com/mvanhorn/last30days-skill.git ~/.claude/vendor/last30days-skill 2>/dev/null || true
+fi
+```
+
+Then install requests:
+```bash
+python3 -m pip install requests 2>/dev/null || python3 -m pip install --user requests 2>/dev/null || true
+```
+
+If either fails, continue — the skill works without them (WebSearch fallback, no GitHub trending). Tell the user what succeeded and what didn't.
+
 ## Script Paths
 
 Before running any script, determine the skill directory. Check these locations in order:

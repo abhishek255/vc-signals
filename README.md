@@ -62,151 +62,122 @@ For each emerging theme, you get:
 - **Hype vs durable** — blunt, one-sentence assessment
 - **Company mapping** — who's solving this, who benefits, with confidence tags
 
+<details>
+<summary><strong>See a real output example (from a live scan on April 10, 2026)</strong></summary>
+
+---
+
+### 1. MCP Protocol & Agent Infrastructure
+
+**Momentum: 9/10** | **Confidence: High** | **Timing: Early-Mid**
+
+**Why it's rising:** MCP (Model Context Protocol) crossed 97 million monthly SDK downloads and has been adopted by every major AI provider — Anthropic, OpenAI, Google, Microsoft, Amazon. 50+ official servers and 150+ community implementations. The protocol just crossed from developer tooling into consumer hardware: Elgato's Stream Deck shipped with native MCP support. MCP Gateways are emerging as a new infrastructure category.
+
+**Why investors should care:** MCP is becoming the TCP/IP of AI agents — the universal protocol layer. The gateway/proxy category is the enterprise play: auth, governance, audit trails.
+
+**Hype vs Durable:** Durable — protocol adoption at 97M/month with every major vendor onboard is past the hype phase.
+
+| Name | Role | Confidence | Notes |
+|------|------|------------|-------|
+| Anthropic | Beneficiary | Confirmed | Created MCP, driving adoption |
+| MintMCP | Direct solver | Likely | First SOC 2 Type II certified MCP gateway |
+
+---
+
+### 2. Agentic Coding Race
+
+**Momentum: 9/10** | **Confidence: High** | **Timing: Mid**
+
+**Why it's rising:** Every IDE is racing to become "agentic." Cursor reached $29.3B valuation with 50% Fortune 500 adoption. Claude Code overtook traditional leaders. Windsurf hit 1M+ users. Google Antigravity launched with multi-agent orchestration. 55% of developers now use autonomous agents for bug fixing and PR generation.
+
+**Why investors should care:** Largest TAM shift in developer tools in a decade. Second-order bets on inference infrastructure, eval frameworks, and context management systems.
+
+**Hype vs Durable:** Durable but competitive — the question is who captures margin vs. who races to the bottom.
+
+| Name | Role | Confidence | Notes |
+|------|------|------------|-------|
+| Anysphere (Cursor) | Direct solver | Confirmed | $29.3B valuation |
+| Windsurf | Direct solver | Confirmed | 1M+ users |
+| Claude Code (Anthropic) | Direct solver | Confirmed | Most-used by engineers |
+| Google Antigravity | Direct solver | Confirmed | Multi-agent, new entrant |
+
+---
+
+### 3. AI Developer Tool Supply Chain Attacks
+
+**Momentum: 8/10** | **Confidence: High** | **Timing: Early**
+
+**Why it's rising:** The LiteLLM supply chain attack (March 24, 2026) was a watershed. Attackers compromised Trivy (a security scanner), exfiltrated PyPI tokens, and pushed malicious packages. LiteLLM gets 3.4M downloads/day. Simultaneously, North Korean operators disguising RATs as developer tools across npm, PyPI, Go, and crates.io.
+
+**Why investors should care:** This is the "SolarWinds moment" for developer tools. Every company running AI agents now has a new class of supply chain risk.
+
+**Hype vs Durable:** Durable — structural and worsening. AI tool adoption = more attack surface.
+
+| Name | Role | Confidence | Notes |
+|------|------|------------|-------|
+| Snyk | Direct solver | Confirmed | Published LiteLLM analysis |
+| Socket | Direct solver | Likely | Package analysis |
+| Chainguard | Direct solver | Confirmed | Secure base images |
+
+---
+
+*...5 more themes in the full brief (AI Code Review, AI Testing, Secrets Management, AI Observability, Platform Engineering)...*
+
+</details>
+
 ---
 
 ## Installation
 
-Choose your setup based on how you use Claude:
+Three ways to install, from easiest to most manual:
 
-- **Option A** — [Claude Code](#option-a-claude-code) (CLI, desktop app, or IDE)
-- **Option B** — [Claude Co-Work](#option-b-claude-co-work) (desktop app for knowledge work)
+### Option A: One-Command Plugin Install (recommended)
 
-Both options give you the same skill with the same features.
+If you already have Claude Code or Co-Work, just run this inside Claude:
 
-### Prerequisites
-
-Before you start, make sure you have:
-
-- **Python 3.12 or newer** — Check with:
-  ```bash
-  python3 --version
-  ```
-  If you need to install it (Mac):
-  ```bash
-  brew install python@3.13
-  ```
-
-- **Git** — to clone this repo
-
-- **One Python library:**
-  ```bash
-  pip install requests
-  ```
-
----
-
-### Option A: Claude Code
-
-Use this if you have Claude Code installed (CLI, desktop app, VS Code, or JetBrains).
-
-**Step 1: Install Claude Code** (if you don't have it yet)
-
-```bash
-npm install -g @anthropic-ai/claude-code
+```
+/plugin marketplace add https://github.com/abhishek255/vc-signals
 ```
 
-Then run `claude` once to sign in with your Anthropic account.
+Done. Type `/vc-signals weekly devtools` to start. On first run, the skill auto-detects that it's your first time and walks you through a 2-minute setup.
 
-**Step 2: Clone the repo**
+### Option B: One-Line Terminal Install
+
+If you prefer a terminal command (works for both Claude Code and Co-Work):
+
+```bash
+curl -sL https://raw.githubusercontent.com/abhishek255/vc-signals/main/install.sh | bash
+```
+
+This installs the skill globally. Open Claude Code or Co-Work and type `/vc-signals weekly devtools`.
+
+### Option C: Clone the Repo
+
+For developers who want to inspect the code or contribute:
 
 ```bash
 git clone https://github.com/abhishek255/vc-signals.git
 cd vc-signals
-```
-
-**Step 3: Open Claude Code inside the project folder**
-
-```bash
 claude
 ```
 
-The skill is automatically detected from the `.claude/skills/` folder — no extra setup needed.
+The skill is auto-detected from `.claude/skills/`. Type `/vc-signals weekly devtools` to start.
 
-**Step 4: Verify it works**
+### What Happens on First Run
 
-Inside Claude Code, type:
+No matter which install method you use, on your first run the skill:
 
-```
-/vc-signals weekly devtools
-```
+1. **Detects it's your first time** and asks if you want to run setup (2 minutes) or jump straight in with basic web search
+2. **If you choose setup:** Claude installs the research engine, then asks for API keys one at a time — in plain English, with links. You paste each key or say "skip"
+3. **If you skip setup:** You get results immediately via web search. Run `/vc-signals setup` anytime later to unlock more sources
 
-Claude will run web searches and produce your first investor brief. No API keys needed.
-
-**Step 5 (optional): Unlock deeper research**
-
-```
-/vc-signals setup
-```
-
-This walks you through adding API keys for Reddit, Hacker News, X/Twitter, YouTube, and GitHub star tracking. Claude handles everything — clones the research engine, saves your keys, verifies it works. Takes about 5 minutes. You can skip any key you don't have.
+**Prerequisites:** Python 3.12+ (`brew install python@3.13` on Mac if needed). Everything else is handled by the skill.
 
 ---
 
-### Option B: Claude Co-Work
+## Optional API Keys
 
-Use this if you use [Claude Co-Work](https://claude.com/product/cowork) — Anthropic's desktop app for knowledge work. Co-Work supports the same skills as Claude Code.
-
-**Step 1: Clone the repo**
-
-Open your terminal and run:
-
-```bash
-git clone https://github.com/abhishek255/vc-signals.git
-```
-
-**Step 2: Install the skill globally**
-
-Skills need to live in your home folder for Co-Work to find them. Run this to copy the skill there:
-
-```bash
-cp -r vc-signals/.claude/skills/vc-signals ~/.claude/skills/vc-signals
-```
-
-This copies the skill, its scripts, and config files to `~/.claude/skills/vc-signals/` where Co-Work automatically discovers it.
-
-**Step 3: Open Claude Co-Work**
-
-Open the Claude desktop app. The skill is now available — Co-Work picks it up automatically from `~/.claude/skills/`.
-
-**Step 4: Verify it works**
-
-In Co-Work, type:
-
-```
-/vc-signals weekly devtools
-```
-
-Claude will run web searches and produce your first investor brief. No API keys needed.
-
-**Step 5 (optional): Unlock deeper research**
-
-```
-/vc-signals setup
-```
-
-Same as Claude Code — walks you through API keys and installs the research engine for Reddit, HN, X, YouTube, and GitHub coverage.
-
-> **Note:** Briefings and weekly history are saved to `~/.claude/skills/vc-signals/data/`. Keep Co-Work open while a scan is running — closing the app stops active tasks.
-
----
-
-## Optional: Enhanced Setup
-
-The basic version uses Claude's built-in web search, which works fine. But if you want **much better results** — with independent searches across Reddit, Hacker News, X/Twitter, and YouTube — just run:
-
-```
-/vc-signals setup
-```
-
-That's it. Claude handles everything from there:
-- Installs the research engine behind the scenes
-- Walks you through each API key one at a time, in plain English
-- You paste each key when prompted (or type "skip" to skip it)
-- Saves your config automatically
-
-You don't need to clone anything, edit config files, or run terminal commands. The wizard does it all.
-
-Here's what each key unlocks:
+The setup wizard handles all of this for you. But if you want to know what each key does:
 
 | API Key | What it Unlocks | Cost | Required? |
 |---------|----------------|------|-----------|
