@@ -48,6 +48,10 @@ mkdir -p "$HOME/.claude/skills"
 rm -rf "$SKILL_DIR"
 cp -r "$TMP_DIR/vc-signals/.claude/skills/vc-signals" "$SKILL_DIR"
 
+# Pre-create vendor directory for last30days (cloned during setup wizard)
+mkdir -p "$HOME/.claude/vendor"
+echo "  Vendor directory ready at $HOME/.claude/vendor/"
+
 # Try to install requests (optional — skill works without it)
 echo "  Installing Python dependencies..."
 $PYTHON -m pip install requests >/dev/null 2>&1 || \

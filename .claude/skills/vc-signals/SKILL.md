@@ -21,6 +21,7 @@ Parse the user's input to determine the mode and arguments:
 - `/vc-signals theme "<topic>"` → Theme drill-down
 - `/vc-signals company "<name>"` → Company backtrace
 - `/vc-signals github <sector>` → GitHub trending repos (sectors: `devtools`, `cybersecurity`, `ai-infra`, `all`)
+- `/vc-signals add-sector <name>` → Add a new sector (guided)
 - `/vc-signals compare "<company1>" "<company2>"` → Head-to-head comparison (stretch)
 
 If no arguments or unrecognized arguments, show this help and ask what they'd like to do.
@@ -49,18 +50,15 @@ If they choose to skip → proceed with their command using WebSearch path. Note
 As part of setup Step 3, ALWAYS clone last30days if it's not already installed — don't ask the user. Just do it:
 
 ```bash
-# Find the skill directory first
+# Determine where to clone last30days
 if [ -d ".claude/skills/vc-signals" ]; then
-  SKILL_ROOT="."
-elif [ -d "$HOME/.claude/skills/vc-signals" ]; then
-  SKILL_ROOT="$HOME/.claude/skills"
-fi
-
-# Clone last30days next to the skill (or into vendor/ if in a project)
-if [ -d "vendor" ] || [ -d ".claude" ]; then
+  # Project-level install — clone to vendor/
+  mkdir -p vendor
   git clone --quiet --depth 1 https://github.com/mvanhorn/last30days-skill.git vendor/last30days-skill 2>/dev/null || true
-else
-  git clone --quiet --depth 1 https://github.com/mvanhorn/last30days-skill.git ~/.claude/vendor/last30days-skill 2>/dev/null || true
+elif [ -d "$HOME/.claude/skills/vc-signals" ]; then
+  # Global install (Co-Work) — clone to ~/.claude/vendor/
+  mkdir -p "$HOME/.claude/vendor"
+  git clone --quiet --depth 1 https://github.com/mvanhorn/last30days-skill.git "$HOME/.claude/vendor/last30days-skill" 2>/dev/null || true
 fi
 ```
 
@@ -751,6 +749,73 @@ cat <<'MD_EOF' | python3 <skill_dir>/scripts/persistence.py save-markdown --subd
 [the markdown content goes here]
 MD_EOF
 ```
+
+---
+
+## Mode: Add Sector
+
+**Trigger:** `/vc-signals add-sector <name>` (e.g., `/vc-signals add-sector fintech`)
+
+This mode lets users add a new sector without editing JSON manually.
+
+### Step 1: Get Sector Details
+
+Ask the user for:
+- Sector name (slug, lowercase, hyphens ok): use what they provided or ask
+- Display name: suggest one based on the slug, let them confirm
+
+### Step 2: Generate Taxonomy
+
+Based on the sector name, propose 4-6 subcategories. For example, if the user says "fintech":
+
+> "Here are the subcategories I'd suggest for **Fintech**:
+> 1. Payments Infrastructure
+> 2. Neobanking & Digital Banking
+> 3. Lending & Credit Platforms
+> 4. Regtech & Compliance
+> 5. Embedded Finance
+> 6. Crypto & DeFi Infrastructure
+>
+> Want to add, remove, or rename any of these?"
+
+For each subcategory, generate:
+- `name`: display name
+- `aliases`: 4-6 relevant search terms
+- `seed_queries`: 2-3 search queries
+- `github_topics`: 2-3 GitHub topic tags (if applicable)
+
+Also generate:
+- `subreddits`: 5-8 relevant subreddits for the sector
+- `hn_queries`: 4-6 HN-optimized short queries
+- `discovery_queries`: 4-6 broad discovery queries
+- `negative_terms`: 3-5 noise filters
+
+### Step 3: Confirm and Save
+
+Show the user the complete sector JSON and ask for confirmation. Then:
+
+```bash
+cat <skill_dir>/config/sectors.json
+```
+
+Read the current config, add the new sector, and write it back:
+
+```bash
+python3 -c "
+import json
+from pathlib import Path
+config_path = Path('<skill_dir>/config/sectors.json')
+config = json.loads(config_path.read_text())
+config['<sector_slug>'] = <new_sector_dict>
+config_path.write_text(json.dumps(config, indent=2))
+print('Sector added successfully')
+"
+```
+
+### Step 4: Confirm
+
+> "Added **<Display Name>** with <N> subcategories. Try it out:
+> `/vc-signals weekly <sector-slug>`"
 
 ---
 
