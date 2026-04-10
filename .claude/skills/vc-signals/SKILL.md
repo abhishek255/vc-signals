@@ -249,18 +249,45 @@ For each query, use WebSearch. Collect titles, URLs, snippets.
 
 **last30days path:**
 
-Run 3-5 queries through the adapter. Include `x` (X/Twitter) in sources if configured:
+Run 5-8 queries through the adapter. Include `x` (X/Twitter) in sources if configured.
+
+**IMPORTANT: Query strategy matters.** Hacker News search works best with specific, concise queries — NOT broad category dumps. Use 2-4 focused keywords per query.
+
+Good queries (specific, get results):
+- "AI coding agent Cursor Claude Code"
+- "supply chain attack secrets security"
+- "AI code review tools"
+- "platform engineering internal developer portal"
+
+Bad queries (too broad, return 0):
+- "CI CD testing observability platform engineering" (too many unrelated keywords)
+- "emerging developer tools trends 2026" (too generic)
+
+Run each source type separately for best results:
+
+**Hacker News** (2-3 queries — best for technical signal and engagement data):
 ```bash
-python3 <skill_dir>/scripts/last30days_adapter.py query --topic "<query>" --sources "reddit,hackernews,x,grounding"
+python3 <skill_dir>/scripts/last30days_adapter.py query --topic "<specific theme query>" --sources "hackernews"
 ```
 
-Use the sector's discovery_queries as topics. For Reddit, target specific subreddits by adding relevant ones to the query (e.g., "CI/CD testing site:reddit.com/r/programming OR site:reddit.com/r/devops"). Collect the normalized items.
+**Reddit** (2-3 queries — best with targeted subreddits):
+```bash
+python3 <skill_dir>/scripts/last30days_adapter.py query --topic "<specific theme query>" --sources "reddit" --subreddits "programming,devops,ExperiencedDevs,sre"
+```
 
-**Improving Reddit quality:** If Reddit results are noisy (generic posts, spam), try these approaches:
-1. Use more specific topic queries rather than broad sector queries
-2. Add the `--subreddits` flag for targeted subreddit search: `--subreddits "programming,devops,ExperiencedDevs,golang,rust,node"`
-3. Filter results by engagement — prioritize items with score > 10 or num_comments > 5
-4. Fall back to WebSearch with `site:reddit.com/r/programming` for specific subreddit targeting
+**X/Twitter** (1-2 queries — good for real-time buzz):
+```bash
+python3 <skill_dir>/scripts/last30days_adapter.py query --topic "<specific theme query>" --sources "x"
+```
+
+After collecting results, filter by engagement:
+- HN: prioritize items with points > 20 or comments > 10
+- Reddit: prioritize items with score > 10 or num_comments > 5
+- X: prioritize items with high engagement
+
+If last30days results are thin for a source, supplement with WebSearch using `site:` targeting:
+- `"<topic> site:news.ycombinator.com"`
+- `"<topic> site:reddit.com/r/programming"`
 
 ### Step 5: Retrieve GitHub Trending Data
 
