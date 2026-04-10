@@ -86,6 +86,8 @@ def run_query(
     sources: str | None = None,
     lookback_days: int = 30,
     emit: str = "json",
+    subreddits: str | None = None,
+    quick: bool = False,
 ) -> dict:
     """Run a query through last30days CLI and return parsed results."""
     vendor_path = vendor_path or DEFAULT_VENDOR_PATH
@@ -101,6 +103,10 @@ def run_query(
     cmd = [python_cmd, str(script_path), topic, f"--emit={emit}", f"--lookback-days={lookback_days}"]
     if sources:
         cmd.append(f"--search={sources}")
+    if subreddits:
+        cmd.append(f"--subreddits={subreddits}")
+    if quick:
+        cmd.append("--quick")
 
     try:
         result = subprocess.run(
@@ -184,6 +190,8 @@ def _cli_main() -> None:
             vendor_path=vendor,
             sources=args.get("sources"),
             lookback_days=int(args.get("lookback-days", "30")),
+            subreddits=args.get("subreddits"),
+            quick="quick" in args,
         )
         print(json.dumps(result, indent=2))
 
