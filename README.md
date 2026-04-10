@@ -271,8 +271,9 @@ These expire periodically — you'll need to re-extract them every few weeks.
 | `/vc-signals theme "<topic>"` | Deep-dive into a specific theme |
 | `/vc-signals company "<name>"` | Which rising themes is a company exposed to? |
 | `/vc-signals github <sector>` | Top repos by star velocity — spot fast-growing OSS projects |
+| `/vc-signals add-sector <name>` | Add a new sector with guided taxonomy generation |
 
-**Sectors:** `devtools`, `cybersecurity`, `ai-infra`
+**Sectors:** `devtools`, `cybersecurity`, `ai-infra` (add your own with `add-sector`)
 
 ### Examples
 
@@ -368,7 +369,13 @@ Edit `.claude/skills/vc-signals/config/sectors.json` — add a new entry under a
 
 ### Add a New Sector
 
-Add a new top-level key to `sectors.json` following the existing structure (display_name, subcategories, discovery_queries, negative_terms).
+```
+/vc-signals add-sector fintech
+```
+
+Claude will propose subcategories, generate search queries, subreddits, and negative terms — then save it to the config. No JSON editing needed.
+
+You can also manually add a sector by editing `sectors.json` following the existing structure.
 
 ---
 
