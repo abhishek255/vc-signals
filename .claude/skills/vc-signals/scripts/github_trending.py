@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import json
+import math
 import os
 import subprocess
 import sys
@@ -148,7 +149,9 @@ def search_repos(
             break
 
         six_months_ago = (datetime.now(timezone.utc) - timedelta(days=180)).strftime("%Y-%m-%d")
-        full_query = f"{query} pushed:>{six_months_ago} stars:>50"
+        one_year_ago = (datetime.now(timezone.utc) - timedelta(days=365)).strftime("%Y-%m-%d")
+        # Filter for repos created in the last year AND recently active — surfaces emerging projects
+        full_query = f"{query} created:>{one_year_ago} pushed:>{six_months_ago} stars:>20"
 
         try:
             resp = requests.get(
@@ -232,7 +235,10 @@ def fetch_star_timestamps(
                 file=sys.stderr,
             )
 
-    for page_num in range(max(1, last_page - sample_pages + 1), last_page + 1):
+    # Convert last_page from per_page=1 pagination to per_page=100 pagination
+    last_page_100 = math.ceil(last_page / 100)
+
+    for page_num in range(max(1, last_page_100 - sample_pages + 1), last_page_100 + 1):
         try:
             page_resp = requests.get(
                 f"{GITHUB_API}/repos/{full_name}/stargazers",

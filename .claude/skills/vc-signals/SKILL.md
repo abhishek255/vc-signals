@@ -249,12 +249,18 @@ For each query, use WebSearch. Collect titles, URLs, snippets.
 
 **last30days path:**
 
-Run 3-5 queries through the adapter:
+Run 3-5 queries through the adapter. Include `x` (X/Twitter) in sources if configured:
 ```bash
-python3 .claude/skills/vc-signals/scripts/last30days_adapter.py query --topic "<query>" --sources "reddit,hackernews,grounding"
+python3 <skill_dir>/scripts/last30days_adapter.py query --topic "<query>" --sources "reddit,hackernews,x,grounding"
 ```
 
-Use the sector's discovery_queries as topics. Collect the normalized items.
+Use the sector's discovery_queries as topics. For Reddit, target specific subreddits by adding relevant ones to the query (e.g., "CI/CD testing site:reddit.com/r/programming OR site:reddit.com/r/devops"). Collect the normalized items.
+
+**Improving Reddit quality:** If Reddit results are noisy (generic posts, spam), try these approaches:
+1. Use more specific topic queries rather than broad sector queries
+2. Add the `--subreddits` flag for targeted subreddit search: `--subreddits "programming,devops,ExperiencedDevs,golang,rust,node"`
+3. Filter results by engagement — prioritize items with score > 10 or num_comments > 5
+4. Fall back to WebSearch with `site:reddit.com/r/programming` for specific subreddit targeting
 
 ### Step 5: Retrieve GitHub Trending Data
 
