@@ -281,13 +281,15 @@ These expire periodically — you'll need to re-extract them every few weeks.
 | Command | What It Does |
 |---------|-------------|
 | `/vc-signals setup` | Guided setup wizard — walks you through API keys step by step |
-| `/vc-signals weekly <sector>` | Weekly scan — top 8-12 emerging themes with company mapping |
-| `/vc-signals theme "<topic>"` | Deep-dive into a specific theme |
-| `/vc-signals company "<name>"` | Which rising themes is a company exposed to? |
+| `/vc-signals weekly <sector> [time]` | Weekly scan — top 8-12 emerging themes with company mapping |
+| `/vc-signals theme "<topic>" [time]` | Deep-dive into a specific theme |
+| `/vc-signals company "<name>" [time]` | Which rising themes is a company exposed to? |
 | `/vc-signals github <sector>` | Top repos by star velocity — spot fast-growing OSS projects |
 | `/vc-signals add-sector <name>` | Add a new sector with guided taxonomy generation |
 
 **Sectors:** `devtools`, `cybersecurity`, `ai-infra` (add your own with `add-sector`)
+
+**Time window:** Append `7d`, `14d`, `30d`, `60d`, or `90d` to control how far back to search. Defaults: weekly = 14 days, theme/company = 30 days.
 
 ### Examples
 
