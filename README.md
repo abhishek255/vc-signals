@@ -4,6 +4,45 @@
 
 A skill for [Claude Code](https://docs.anthropic.com/en/docs/claude-code) and [Claude Co-Work](https://claude.com/product/cowork) that turns noisy public internet chatter into ranked, investor-oriented briefs. Run one command per week — get the top emerging themes in **devtools**, **cybersecurity**, and **AI infrastructure** with company mapping, momentum scoring, and a blunt hype-vs-durable verdict.
 
+**[See how it works (interactive visual guide)](https://htmlpreview.github.io/?https://github.com/abhishek255/vc-signals/blob/main/docs/vc-signals-explainer.html)**
+
+---
+
+## The Problem
+
+Every week, thousands of signals about emerging technology trends are scattered across Hacker News, Reddit, X/Twitter, GitHub, blogs, and funding announcements. As a VC, you need to:
+
+- Spot trends **before** they become consensus
+- Separate **real signal** from hype
+- Map trends to **investable companies**
+- Track which themes are **accelerating** vs fading
+- Do all of this in **under an hour**, not a full day of research
+
+VC Signals does this in one command.
+
+---
+
+## What You Get
+
+```
+/vc-signals weekly devtools
+```
+
+In 3-5 minutes, you get a ranked brief like this:
+
+| # | Theme | Momentum | Timing | Key Companies |
+|---|-------|----------|--------|---------------|
+| 1 | MCP Protocol & Agent Infra | 9/10 | Early-Mid | MintMCP, Anthropic, Perforce |
+| 2 | Agentic Coding Race | 9/10 | Mid | Cursor ($29.3B), Windsurf, Claude Code |
+| 3 | AI Code Review | 8/10 | Mid | CodeRabbit (2M repos), Qodo, Greptile |
+| 4 | Supply Chain Attacks on Dev Tools | 8/10 | Early | Snyk, Socket, Chainguard |
+| 5 | AI Testing Automation | 8/10 | Early-Mid | Playwright, Applitools, BaseRock |
+| ... | *8-12 themes total* | | | |
+
+Each theme includes **why it's rising** (with citations), **confidence rating**, **hype vs durable verdict**, and **company mapping with roles** (solver, beneficiary, adjacent).
+
+Run it again next week and you see what's **new**, what's **accelerating**, and what's **fading**.
+
 ---
 
 ## What is this?
@@ -317,6 +356,8 @@ You type: /vc-signals weekly devtools
 
 **Claude is the intelligence engine.** The Python scripts just handle API calls and file storage. Claude does all the thinking.
 
+**Want the full picture?** Open the **[interactive visual explainer](https://htmlpreview.github.io/?https://github.com/abhishek255/vc-signals/blob/main/docs/vc-signals-explainer.html)** — covers architecture, scoring rubric, company mapping layers, persistence, and graceful degradation with interactive diagrams.
+
 ---
 
 ## Customization
@@ -352,13 +393,24 @@ Add a new top-level key to `sectors.json` following the existing structure (disp
 - **No automated scheduling** — you run scans manually each week
 - **Momentum scoring** is heuristic, not statistically rigorous — transparency over precision
 
-## What's Next
+## Why This Exists
 
-1. **Automated weekly scheduling** — cron or Claude remote triggers
-2. **Google Docs export** — save briefings directly to Google Drive
+VCs spend hours each week reading Hacker News, scrolling X, checking GitHub trending, and scanning funding announcements — trying to spot the next wave before it becomes consensus.
+
+Most of that time is spent on **retrieval**, not **thinking**. VC Signals flips that ratio: automated retrieval, human judgment on the output.
+
+The result: a weekly forcing function to explore categories you might not have found on your own, with enough evidence and company mapping to decide in 5 minutes whether something is worth a deeper look.
+
+---
+
+## Roadmap
+
+1. **Automated weekly scheduling** — cron or Claude remote triggers, so the brief lands in your inbox every Monday
+2. **Google Docs export** — save briefings directly to Google Drive for sharing with partners
 3. **Richer GitHub signals** — contributor velocity, issue activity, fork growth
-4. **Slack/email delivery** — weekly briefs pushed to you
+4. **Slack delivery** — weekly briefs pushed to a channel
 5. **Historical trend charts** — visualize theme momentum over time
+6. **Custom sectors** — add your own focus areas (fintech, healthtech, etc.)
 
 ---
 
