@@ -1,6 +1,15 @@
 {
   "devtools": {
     "display_name": "Developer Tools",
+    "subreddits": ["programming", "devops", "ExperiencedDevs", "sre", "golang", "rust", "node", "webdev", "softwareengineering"],
+    "hn_queries": [
+      "Show HN developer tool",
+      "AI code review",
+      "CI CD pipeline",
+      "platform engineering",
+      "developer productivity",
+      "testing framework"
+    ],
     "subcategories": {
       "ci_cd": {
         "name": "CI/CD & Build Systems",
@@ -70,6 +79,15 @@
   },
   "cybersecurity": {
     "display_name": "Cybersecurity",
+    "subreddits": ["netsec", "cybersecurity", "AskNetsec", "blueteamsec", "ReverseEngineering", "InfoSecIndustry"],
+    "hn_queries": [
+      "supply chain attack",
+      "zero day vulnerability",
+      "AI security",
+      "secrets management",
+      "cloud security",
+      "identity access"
+    ],
     "subcategories": {
       "appsec": {
         "name": "Application Security",
@@ -139,6 +157,15 @@
   },
   "ai-infra": {
     "display_name": "AI Infrastructure",
+    "subreddits": ["MachineLearning", "LocalLLaMA", "artificial", "mlops", "LangChain", "ChatGPTCoding"],
+    "hn_queries": [
+      "LLM inference",
+      "AI agent framework",
+      "vector database",
+      "model context protocol MCP",
+      "GPU compute",
+      "AI evaluation"
+    ],
     "subcategories": {
       "model_serving": {
         "name": "Model Serving & Inference",
