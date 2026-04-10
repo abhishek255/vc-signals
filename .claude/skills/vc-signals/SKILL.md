@@ -17,12 +17,23 @@ Turn noisy public internet chatter into ranked, investor-oriented theme briefs w
 Parse the user's input to determine the mode and arguments:
 
 - `/vc-signals setup` → Setup wizard mode
-- `/vc-signals weekly <sector>` → Weekly sector scan (sectors: `devtools`, `cybersecurity`, `ai-infra`)
-- `/vc-signals theme "<topic>"` → Theme drill-down
-- `/vc-signals company "<name>"` → Company backtrace
+- `/vc-signals weekly <sector> [time]` → Weekly sector scan (sectors: `devtools`, `cybersecurity`, `ai-infra`)
+- `/vc-signals theme "<topic>" [time]` → Theme drill-down
+- `/vc-signals company "<name>" [time]` → Company backtrace
 - `/vc-signals github <sector>` → GitHub trending repos (sectors: `devtools`, `cybersecurity`, `ai-infra`, `all`)
 - `/vc-signals add-sector <name>` → Add a new sector (guided)
 - `/vc-signals compare "<company1>" "<company2>"` → Head-to-head comparison (stretch)
+
+**Time window (optional):** Users can append a time window like `7d`, `14d`, `30d`, `60d`, `90d` to control how far back to search. Examples:
+- `/vc-signals weekly devtools` → default 14 days
+- `/vc-signals weekly devtools 7d` → last 7 days only
+- `/vc-signals weekly devtools 30d` → last 30 days
+- `/vc-signals theme "agent evals" 90d` → last 90 days of evidence
+
+**Defaults by mode:**
+- `weekly`: 14 days (focused on recent signal)
+- `theme`: 30 days (broader context for deep analysis)
+- `company`: 30 days
 
 If no arguments or unrecognized arguments, show this help and ask what they'd like to do.
 
@@ -317,8 +328,10 @@ For each query, use WebSearch. Collect titles, URLs, snippets.
 
 Run 3-5 queries through the adapter with auto-resolve enabled. Auto-resolve discovers the right subreddits, X handles, and GitHub context automatically — no hardcoded lists needed.
 
+Use `--lookback-days` to control the time window. Default for weekly scans is 14 days. If the user specified a time window (e.g., `7d`, `30d`), use that number instead.
+
 ```bash
-python3 <skill_dir>/scripts/last30days_adapter.py query --topic "<specific theme query>" --sources "reddit,hackernews,x" --auto-resolve
+python3 <skill_dir>/scripts/last30days_adapter.py query --topic "<specific theme query>" --sources "reddit,hackernews,x" --auto-resolve --lookback-days <LOOKBACK>
 ```
 
 Run each of the sector's `hn_queries` from the config, plus 2-3 discovery queries. Auto-resolve handles subreddit and handle targeting.
@@ -535,10 +548,10 @@ Run 5-8 targeted queries about the specific theme. Include:
 
 **last30days path (if available):**
 
-Run 3-5 queries through the adapter with auto-resolve enabled:
+Run 3-5 queries through the adapter with auto-resolve enabled. Default lookback for theme drill-downs is 30 days. If user specified a time window, use that.
 
 ```bash
-python3 <skill_dir>/scripts/last30days_adapter.py query --topic "<topic-specific query>" --sources "reddit,hackernews,x" --auto-resolve
+python3 <skill_dir>/scripts/last30days_adapter.py query --topic "<topic-specific query>" --sources "reddit,hackernews,x" --auto-resolve --lookback-days <LOOKBACK>
 ```
 
 Auto-resolve discovers the right subreddits, X handles, and GitHub context automatically for the theme.
@@ -548,7 +561,7 @@ Auto-resolve discovers the right subreddits, X handles, and GitHub context autom
 For theme drill-downs, use the deep research mode for comprehensive synthesis with 50+ citations:
 
 ```bash
-python3 <skill_dir>/scripts/last30days_adapter.py query --topic "<topic> emerging trends companies" --deep-research --auto-resolve
+python3 <skill_dir>/scripts/last30days_adapter.py query --topic "<topic> emerging trends companies" --deep-research --auto-resolve --lookback-days <LOOKBACK>
 ```
 
 This uses Perplexity Sonar Pro (~$0.90 per query) to produce a structured research report with citations. If deep research is not available (no OPENROUTER_API_KEY), fall back to the standard multi-query approach above.
@@ -638,9 +651,9 @@ Run 4-6 queries:
 
 **last30days path (if available):**
 
-Search for the company across sources with auto-resolve:
+Search for the company across sources with auto-resolve. Default lookback for company backtrace is 30 days. If user specified a time window, use that.
 ```bash
-python3 <skill_dir>/scripts/last30days_adapter.py query --topic "<company name>" --sources "hackernews,reddit,x" --auto-resolve --quick
+python3 <skill_dir>/scripts/last30days_adapter.py query --topic "<company name>" --sources "hackernews,reddit,x" --auto-resolve --quick --lookback-days <LOOKBACK>
 ```
 
 If the company has known OSS projects from the seed map, also search for those.
@@ -649,7 +662,7 @@ If the company has known OSS projects from the seed map, also search for those.
 
 If the company has known OSS projects from the seed map, search for the repo directly:
 ```bash
-python3 <skill_dir>/scripts/last30days_adapter.py query --topic "<company name>" --github-repo "<owner/repo>" --auto-resolve --quick
+python3 <skill_dir>/scripts/last30days_adapter.py query --topic "<company name>" --github-repo "<owner/repo>" --auto-resolve --quick --lookback-days <LOOKBACK>
 ```
 
 If you can identify a founder's GitHub username, search their activity:
