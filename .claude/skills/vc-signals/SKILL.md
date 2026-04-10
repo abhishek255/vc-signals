@@ -209,6 +209,13 @@ Write the .env file with all provided keys. Also save GITHUB_TOKEN to a local co
 
 Add `SETUP_COMPLETE=true` at the end.
 
+Then lock down the file permissions:
+```bash
+chmod 600 ~/.config/last30days/.env
+```
+
+Setting secure file permissions so only your user can read the keys.
+
 ### Step 6: Verify
 
 Run a quick test:
