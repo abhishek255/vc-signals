@@ -12,7 +12,7 @@ import pytest
 def test_check_not_installed(tmp_path):
     from last30days_adapter import check_availability
 
-    result = check_availability(vendor_path=tmp_path / "nonexistent")
+    result = check_availability(vendor_path=tmp_path / "nonexistent", config_path=tmp_path / "no-such-env")
     assert result["installed"] is False
     assert result["configured"] is False
 
@@ -25,7 +25,7 @@ def test_check_installed_not_configured(tmp_path):
     (vendor / "scripts" / "last30days.py").write_text("# stub")
     (vendor / "scripts" / "lib" / "__init__.py").write_text("")
 
-    result = check_availability(vendor_path=vendor)
+    result = check_availability(vendor_path=vendor, config_path=tmp_path / "no-such-env")
     assert result["installed"] is True
     assert result["configured"] is False
 
