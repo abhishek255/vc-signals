@@ -298,9 +298,15 @@ For each query, use WebSearch. Collect titles, URLs, snippets.
 
 **Filtering noise:** Check the sector's `negative_terms` list from the taxonomy config. Skip or deprioritize results that are clearly tutorial content, beginner guides, or consumer product reviews. These terms exist to reduce noise — use them when evaluating search results.
 
-**last30days path:**
+**last30days path (if available):**
 
-Run 5-8 queries through the adapter. Include `x` (X/Twitter) in sources if configured.
+Run 3-5 queries through the adapter with auto-resolve enabled. Auto-resolve discovers the right subreddits, X handles, and GitHub context automatically — no hardcoded lists needed.
+
+```bash
+python3 <skill_dir>/scripts/last30days_adapter.py query --topic "<specific theme query>" --sources "reddit,hackernews,x" --auto-resolve
+```
+
+Run each of the sector's `hn_queries` from the config, plus 2-3 discovery queries. Auto-resolve handles subreddit and handle targeting.
 
 **IMPORTANT: Query strategy matters.** Hacker News search works best with specific, concise queries — NOT broad category dumps. Use 2-4 focused keywords per query.
 
@@ -314,29 +320,12 @@ Bad queries (too broad, return 0):
 - "CI CD testing observability platform engineering" (too many unrelated keywords)
 - "emerging developer tools trends 2026" (too generic)
 
-Run each source type separately for best results:
-
-**Hacker News** (2-3 queries — best for technical signal and engagement data):
-```bash
-python3 <skill_dir>/scripts/last30days_adapter.py query --topic "<specific theme query>" --sources "hackernews"
-```
-
-**Reddit** (2-3 queries — use the sector's `subreddits` list from sectors.json):
-```bash
-python3 <skill_dir>/scripts/last30days_adapter.py query --topic "<specific theme query>" --sources "reddit" --subreddits "<sector.subreddits from config, comma-separated>"
-```
-
-**X/Twitter** (1-2 queries — good for real-time buzz):
-```bash
-python3 <skill_dir>/scripts/last30days_adapter.py query --topic "<specific theme query>" --sources "x"
-```
-
 After collecting results, filter by engagement:
 - HN: prioritize items with points > 20 or comments > 10
 - Reddit: prioritize items with score > 10 or num_comments > 5
 - X: prioritize items with high engagement
 
-If last30days results are thin for a source, supplement with WebSearch using `site:` targeting:
+If auto-resolve fails or last30days results are thin, supplement with WebSearch using `site:` targeting:
 - `"<topic> site:news.ycombinator.com"`
 - `"<topic> site:reddit.com/r/programming"`
 
@@ -531,22 +520,23 @@ Run 5-8 targeted queries about the specific theme. Include:
 
 **last30days path (if available):**
 
-Run source-specific queries for the theme:
+Run 3-5 queries through the adapter with auto-resolve enabled:
 
-Hacker News:
 ```bash
-python3 <skill_dir>/scripts/last30days_adapter.py query --topic "<topic-specific query>" --sources "hackernews"
+python3 <skill_dir>/scripts/last30days_adapter.py query --topic "<topic-specific query>" --sources "reddit,hackernews,x" --auto-resolve
 ```
 
-Reddit (use the sector's subreddits from config, or general dev subreddits if no sector match):
+Auto-resolve discovers the right subreddits, X handles, and GitHub context automatically for the theme.
+
+**Deep research (if OPENROUTER_API_KEY is configured):**
+
+For theme drill-downs, use the deep research mode for comprehensive synthesis with 50+ citations:
+
 ```bash
-python3 <skill_dir>/scripts/last30days_adapter.py query --topic "<topic-specific query>" --sources "reddit" --subreddits "<relevant subreddits>"
+python3 <skill_dir>/scripts/last30days_adapter.py query --topic "<topic> emerging trends companies" --deep-research --auto-resolve
 ```
 
-X/Twitter:
-```bash
-python3 <skill_dir>/scripts/last30days_adapter.py query --topic "<topic-specific query>" --sources "x"
-```
+This uses Perplexity Sonar Pro (~$0.90 per query) to produce a structured research report with citations. If deep research is not available (no OPENROUTER_API_KEY), fall back to the standard multi-query approach above.
 
 Also run GitHub trending for related keywords:
 ```bash
@@ -633,13 +623,31 @@ Run 4-6 queries:
 
 **last30days path (if available):**
 
-Search for the company across sources:
+Search for the company across sources with auto-resolve:
 ```bash
-python3 <skill_dir>/scripts/last30days_adapter.py query --topic "<company name>" --sources "hackernews" --quick
-python3 <skill_dir>/scripts/last30days_adapter.py query --topic "<company name>" --sources "reddit" --subreddits "programming,devops,ExperiencedDevs" --quick
+python3 <skill_dir>/scripts/last30days_adapter.py query --topic "<company name>" --sources "hackernews,reddit,x" --auto-resolve --quick
 ```
 
 If the company has known OSS projects from the seed map, also search for those.
+
+**GitHub deep search (if company has known GitHub org or repos):**
+
+If the company has known OSS projects from the seed map, search for the repo directly:
+```bash
+python3 <skill_dir>/scripts/last30days_adapter.py query --topic "<company name>" --github-repo "<owner/repo>" --auto-resolve --quick
+```
+
+If you can identify a founder's GitHub username, search their activity:
+```bash
+python3 <skill_dir>/scripts/last30days_adapter.py query --topic "<founder name>" --github-user "<username>" --quick
+```
+
+**X/Twitter deep search:**
+
+If the company or founder has a known X handle, search their timeline:
+```bash
+python3 <skill_dir>/scripts/last30days_adapter.py query --topic "<company name>" --x-handle "<handle>" --sources "x" --quick
+```
 
 Check GitHub:
 ```bash

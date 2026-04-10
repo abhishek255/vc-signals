@@ -51,7 +51,7 @@ def check_availability(
             pass
         content = config_path.read_text()
         if "SETUP_COMPLETE=true" in content:
-            for key_name in ("OPENAI_API_KEY", "GEMINI_API_KEY", "GOOGLE_API_KEY", "XAI_API_KEY"):
+            for key_name in ("OPENAI_API_KEY", "GEMINI_API_KEY", "GOOGLE_API_KEY", "XAI_API_KEY", "OPENROUTER_API_KEY"):
                 for line in content.splitlines():
                     stripped = line.strip()
                     if stripped.startswith(f"{key_name}=") and len(stripped.split("=", 1)[1]) > 0:
@@ -64,6 +64,7 @@ def check_availability(
         "vendor_path": str(vendor_path),
         "config_path": str(config_path),
         "available_keys": available_keys,
+        "deep_research_available": "OPENROUTER_API_KEY" in available_keys,
     }
 
 
@@ -95,6 +96,13 @@ def run_query(
     emit: str = "json",
     subreddits: str | None = None,
     quick: bool = False,
+    deep_research: bool = False,
+    auto_resolve: bool = False,
+    store: bool = False,
+    github_user: str | None = None,
+    github_repo: str | None = None,
+    x_handle: str | None = None,
+    plan: str | None = None,
 ) -> dict:
     """Run a query through last30days CLI and return parsed results."""
     vendor_path = vendor_path or DEFAULT_VENDOR_PATH
@@ -114,6 +122,20 @@ def run_query(
         cmd.append(f"--subreddits={subreddits}")
     if quick:
         cmd.append("--quick")
+    if deep_research:
+        cmd.append("--deep-research")
+    if auto_resolve:
+        cmd.append("--auto-resolve")
+    if store:
+        cmd.append("--store")
+    if github_user:
+        cmd.append(f"--github-user={github_user}")
+    if github_repo:
+        cmd.append(f"--github-repo={github_repo}")
+    if x_handle:
+        cmd.append(f"--x-handle={x_handle}")
+    if plan:
+        cmd.append(f"--plan={plan}")
 
     try:
         result = subprocess.run(
@@ -199,6 +221,13 @@ def _cli_main() -> None:
             lookback_days=int(args.get("lookback-days", "30")),
             subreddits=args.get("subreddits"),
             quick="quick" in args,
+            deep_research="deep-research" in args,
+            auto_resolve="auto-resolve" in args,
+            store="store" in args,
+            github_user=args.get("github-user"),
+            github_repo=args.get("github-repo"),
+            x_handle=args.get("x-handle"),
+            plan=args.get("plan"),
         )
         print(json.dumps(result, indent=2))
 
