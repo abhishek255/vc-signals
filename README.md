@@ -130,7 +130,15 @@ Inside Claude Code, type:
 /vc-signals weekly devtools
 ```
 
-Claude will run web searches and produce your first investor brief. No API keys needed for the basic version.
+Claude will run web searches and produce your first investor brief. No API keys needed.
+
+**Step 5 (optional): Unlock deeper research**
+
+```
+/vc-signals setup
+```
+
+This walks you through adding API keys for Reddit, Hacker News, X/Twitter, YouTube, and GitHub star tracking. Claude handles everything — clones the research engine, saves your keys, verifies it works. Takes about 5 minutes. You can skip any key you don't have.
 
 ---
 
@@ -168,7 +176,15 @@ In Co-Work, type:
 /vc-signals weekly devtools
 ```
 
-Claude will run web searches and produce your first investor brief. No API keys needed for the basic version.
+Claude will run web searches and produce your first investor brief. No API keys needed.
+
+**Step 5 (optional): Unlock deeper research**
+
+```
+/vc-signals setup
+```
+
+Same as Claude Code — walks you through API keys and installs the research engine for Reddit, HN, X, YouTube, and GitHub coverage.
 
 > **Note:** Briefings and weekly history are saved to `~/.claude/skills/vc-signals/data/`. Keep Co-Work open while a scan is running — closing the app stops active tasks.
 
