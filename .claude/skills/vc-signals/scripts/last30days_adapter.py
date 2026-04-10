@@ -42,6 +42,13 @@ def check_availability(
     available_keys = []
 
     if config_path.exists():
+        # Warn if config file is world-readable
+        try:
+            mode = config_path.stat().st_mode
+            if mode & 0o077:  # group or other have read access
+                print(json.dumps({"warning": f"Config file {config_path} is world-readable. Run: chmod 600 {config_path}"}), file=sys.stderr)
+        except OSError:
+            pass
         content = config_path.read_text()
         if "SETUP_COMPLETE=true" in content:
             for key_name in ("OPENAI_API_KEY", "GEMINI_API_KEY", "GOOGLE_API_KEY", "XAI_API_KEY"):

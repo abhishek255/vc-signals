@@ -116,10 +116,8 @@ def estimate_velocity_fallback(total_stars: int, age_days: int) -> dict:
 
 
 def _get_token() -> str | None:
-    """Resolve GitHub token from env, then gh CLI."""
-    token = os.environ.get("GITHUB_TOKEN")
-    if token:
-        return token
+    """Resolve GitHub token: gh CLI first (keychain-backed), env var as fallback."""
+    # Prefer gh CLI — uses system keychain, more secure
     try:
         result = subprocess.run(
             ["gh", "auth", "token"],
@@ -131,7 +129,8 @@ def _get_token() -> str | None:
             return result.stdout.strip()
     except (FileNotFoundError, subprocess.TimeoutExpired):
         pass
-    return None
+    # Fallback to env var
+    return os.environ.get("GITHUB_TOKEN")
 
 
 def search_repos(
