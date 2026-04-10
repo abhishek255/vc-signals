@@ -259,7 +259,7 @@ Companies: MintMCP, Anthropic, Perforce</div>
     <div class="mode">
       <span class="cmd">/vc-signals theme "agent evals"</span>
       <h3>Theme Drill-Down</h3>
-      <p>Deep analysis: why now, subthemes, companies solving it, OSS projects, durable vs hype verdict.</p>
+      <p>Deep analysis with Perplexity synthesis (50+ citations) when available. Why now, subthemes, companies, OSS projects, durable vs hype.</p>
       <div class="preview">## Why Now?
 As AI agents move from demos to
 production, evaluation frameworks
@@ -268,7 +268,7 @@ became the critical gap...</div>
     <div class="mode">
       <span class="cmd">/vc-signals company "Confluent"</span>
       <h3>Company Backtrace</h3>
-      <p>Which rising themes is a company exposed to? Role classification, evidence, competitive context.</p>
+      <p>Theme exposure mapping with GitHub repo/founder search and X/Twitter handle targeting. Role classification, evidence, competitive context.</p>
       <div class="preview">Theme Exposure:
 Streaming Infra   | Direct solver
 AI Data Pipeline   | Beneficiary
@@ -284,10 +284,17 @@ Event Architecture | Adjacent</div>
 3 | agents-radar    | +39  |   613</div>
     </div>
   </div>
-  <div class="mode" style="margin-top:1.25rem;">
-    <span class="cmd">/vc-signals setup</span>
-    <h3>Setup Wizard</h3>
-    <p>Guided walkthrough for API keys. Claude handles cloning repos, writing config files, and verification. Plain English, one step at a time. Also runs automatically on first use.</p>
+  <div class="g2" style="margin-top:1.25rem;">
+    <div class="mode">
+      <span class="cmd">/vc-signals setup</span>
+      <h3>Setup Wizard</h3>
+      <p>Guided walkthrough for API keys. Claude clones the research engine, walks you through each key, saves config. Runs automatically on first use.</p>
+    </div>
+    <div class="mode">
+      <span class="cmd">/vc-signals add-sector fintech</span>
+      <h3>Add Sector</h3>
+      <p>Claude proposes subcategories, generates search queries, subreddits, and filters. Saves to config. No JSON editing.</p>
+    </div>
   </div>
 </section>
 
@@ -307,19 +314,21 @@ Event Architecture | Adjacent</div>
     </div>
     <div class="card" style="border-color:var(--accent)">
       <h3 style="color:var(--accent)">Enhanced Path (after setup)</h3>
-      <p>Uses last30days engine for independent Reddit, HN, X/Twitter, and YouTube searches with engagement data.</p>
-      <p style="margin-top:0.5rem; font-size:0.82rem;"><strong style="color:var(--green)">What you get:</strong> Source-level diversity, upvote/comment counts, targeted subreddits per sector, X/Twitter developer buzz.</p>
+      <p>Uses last30days engine with <strong>auto-resolve</strong> — automatically discovers relevant subreddits, X handles, and GitHub context for each query. No hardcoded lists.</p>
+      <p style="margin-top:0.5rem; font-size:0.82rem;"><strong style="color:var(--green)">What you get:</strong> Source-level diversity, engagement data, auto-discovered subreddits/handles, GitHub person/project search, X handle targeting.</p>
+      <p style="font-size:0.82rem;"><strong style="color:var(--purple)">Deep research:</strong> Theme drill-downs use Perplexity Sonar Pro (50+ citations) when OpenRouter key is configured.</p>
     </div>
   </div>
 
   <h3 style="margin-bottom:1rem;">Data Sources</h3>
-  <div style="display:grid; grid-template-columns:repeat(6,1fr); gap:0.8rem;">
+  <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:0.8rem;">
     <div class="src on"><div class="si">&#127760;</div><div class="sn">Web Search</div><div class="st">Built-in</div></div>
     <div class="src on"><div class="si">&#128240;</div><div class="sn">Hacker News</div><div class="st">After setup (free)</div></div>
-    <div class="src on"><div class="si">&#128172;</div><div class="sn">Reddit</div><div class="st">After setup (free)</div></div>
-    <div class="src opt"><div class="si">&#128038;</div><div class="sn">X / Twitter</div><div class="st">Browser tokens</div></div>
+    <div class="src on"><div class="si">&#128172;</div><div class="sn">Reddit</div><div class="st">Auto-resolve discovers subreddits</div></div>
+    <div class="src on"><div class="si">&#128025;</div><div class="sn">GitHub</div><div class="st">PAT or gh CLI, person/project mode</div></div>
+    <div class="src opt"><div class="si">&#128038;</div><div class="sn">X / Twitter</div><div class="st">Browser tokens, handle targeting</div></div>
     <div class="src opt"><div class="si">&#127909;</div><div class="sn">YouTube</div><div class="st">ScrapeCreators</div></div>
-    <div class="src on"><div class="si">&#128025;</div><div class="sn">GitHub</div><div class="st">PAT or gh CLI</div></div>
+    <div class="src opt"><div class="si">&#128270;</div><div class="sn">Perplexity</div><div class="st">OpenRouter key, deep research</div></div>
   </div>
   <p style="font-size:0.78rem; color:var(--muted); margin-top:0.75rem;"><span style="color:var(--green);">&#9679;</span> Green border = works after basic setup &nbsp;&nbsp; <span style="color:var(--orange);">&#9679;</span> Orange border = needs extra credentials (optional)</p>
 </section>
