@@ -11,7 +11,11 @@ import sys
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
-import requests
+try:
+    import requests
+    HAS_REQUESTS = True
+except ImportError:
+    HAS_REQUESTS = False
 
 DEFAULT_CONFIG_PATH = Path(__file__).parent.parent / "config" / "sectors.json"
 GITHUB_API = "https://api.github.com"
@@ -136,6 +140,8 @@ def search_repos(
     limit: int = 30,
 ) -> list[dict]:
     """Search GitHub repos using the search API. Returns parsed repo dicts."""
+    if not HAS_REQUESTS:
+        return []
     token = token or _get_token()
     headers = {"Accept": "application/vnd.github+json"}
     if token:
@@ -195,6 +201,8 @@ def fetch_star_timestamps(
     sample_pages: int = 2,
 ) -> list[str]:
     """Fetch recent stargazer timestamps for a repo. Samples last N pages."""
+    if not HAS_REQUESTS:
+        return []
     token = token or _get_token()
     headers = {
         "Accept": "application/vnd.github.v3.star+json",
@@ -266,6 +274,8 @@ def run_trending(
     limit: int = 15,
 ) -> dict:
     """Full pipeline: search repos for a sector, compute velocity, return ranked results."""
+    if not HAS_REQUESTS:
+        return {"error": "GitHub trending requires the 'requests' library. Run: pip install requests", "repos": [], "warnings": ["requests library not installed"]}
     config_path = config_path or DEFAULT_CONFIG_PATH
     queries = build_search_queries(sector, config_path)
 
@@ -302,6 +312,9 @@ def run_trending(
 
 def _cli_main() -> None:
     """CLI entry point."""
+    if not HAS_REQUESTS:
+        print(json.dumps({"error": "GitHub trending requires the 'requests' library. Run: pip install requests", "repos": []}))
+        sys.exit(0)  # exit cleanly, not with error code
     args = _parse_cli_args(sys.argv[1:])
 
     sector = args.get("sector", "")
