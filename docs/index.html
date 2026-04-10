@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VC Signals — How It Works</title>
+<style>
+  :root {
+    --bg: #0d1117;
+    --surface: #161b22;
+    --surface2: #1c2333;
+    --border: #30363d;
+    --text: #e6edf3;
+    --muted: #8b949e;
+    --accent: #58a6ff;
+    --green: #3fb950;
+    --orange: #d29922;
+    --red: #f85149;
+    --purple: #bc8cff;
+    --pink: #f778ba;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif; background: var(--bg); color: var(--text); line-height: 1.6; }
+  .wrap { max-width: 1100px; margin: 0 auto; padding: 0 2rem; }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+
+  /* Hero */
+  .hero { text-align: center; padding: 4rem 2rem 3rem; }
+  .hero h1 { font-size: 3rem; font-weight: 700; background: linear-gradient(135deg, var(--accent), var(--purple)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .hero .sub { font-size: 1.2rem; color: var(--muted); max-width: 620px; margin: 0.75rem auto 0; }
+  .badges { display: flex; gap: 0.6rem; justify-content: center; margin-top: 1.5rem; flex-wrap: wrap; }
+  .badge { padding: 0.3rem 0.8rem; border-radius: 2rem; font-size: 0.8rem; font-weight: 600; border: 1px solid; }
+  .b-blue { border-color: var(--accent); color: var(--accent); }
+  .b-green { border-color: var(--green); color: var(--green); }
+  .b-purple { border-color: var(--purple); color: var(--purple); }
+
+  /* Sections */
+  section { margin: 3rem 0; }
+  section h2 { font-size: 1.6rem; margin-bottom: 0.4rem; }
+  section h2 .n { color: var(--accent); font-weight: 400; margin-right: 0.4rem; }
+  .sdesc { color: var(--muted); margin-bottom: 1.5rem; }
+
+  /* Cards */
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1.4rem; margin-bottom: 1.25rem; }
+  .card h3 { font-size: 1.05rem; margin-bottom: 0.6rem; color: var(--accent); }
+  .card p, .card li { color: var(--muted); font-size: 0.92rem; }
+
+  /* Grid helpers */
+  .g2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; }
+  .g3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.25rem; }
+  .g4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; }
+  @media(max-width:900px) { .g3 { grid-template-columns: 1fr; } }
+  @media(max-width:700px) { .g2, .g4 { grid-template-columns: 1fr 1fr; } }
+  @media(max-width:500px) { .g2, .g4 { grid-template-columns: 1fr; } }
+
+  /* Code blocks */
+  .code { font-family: 'SF Mono', 'Fira Code', 'Consolas', monospace; font-size: 0.82rem; background: var(--bg); padding: 0.5rem 0.75rem; border-radius: 6px; display: block; margin-top: 0.5rem; overflow-x: auto; }
+  .code.green { color: var(--green); }
+  .code.blue { color: var(--accent); }
+  .code.purple { color: var(--purple); }
+
+  /* Flow diagram — pure CSS */
+  .flow { display: flex; flex-direction: column; align-items: center; gap: 0; }
+  .flow-node { background: var(--surface); border: 2px solid var(--border); border-radius: 10px; padding: 1rem 1.5rem; text-align: center; min-width: 280px; max-width: 400px; position: relative; }
+  .flow-node h4 { font-size: 0.95rem; margin-bottom: 0.3rem; }
+  .flow-node p { font-size: 0.82rem; color: var(--muted); }
+  .flow-node.blue { border-color: var(--accent); }
+  .flow-node.green { border-color: var(--green); }
+  .flow-node.purple { border-color: var(--purple); }
+  .flow-node.orange { border-color: var(--orange); }
+  .flow-node.pink { border-color: var(--pink); }
+  .flow-node.filled-green { background: var(--green); border-color: var(--green); color: var(--bg); }
+  .flow-node.filled-green p { color: var(--bg); }
+  .flow-arrow { width: 2px; height: 28px; background: var(--border); position: relative; }
+  .flow-arrow::after { content: ''; position: absolute; bottom: -4px; left: -4px; width: 0; height: 0; border-left: 5px solid transparent; border-right: 5px solid transparent; border-top: 6px solid var(--border); }
+
+  /* Horizontal flow */
+  .hflow { display: flex; align-items: center; gap: 0; flex-wrap: wrap; justify-content: center; }
+  .hflow-node { background: var(--surface); border: 2px solid var(--border); border-radius: 10px; padding: 0.8rem 1.2rem; text-align: center; }
+  .hflow-arrow { width: 32px; height: 2px; background: var(--border); position: relative; flex-shrink: 0; }
+  .hflow-arrow::after { content: ''; position: absolute; right: -4px; top: -4px; width: 0; height: 0; border-top: 5px solid transparent; border-bottom: 5px solid transparent; border-left: 6px solid var(--border); }
+
+  /* Split flow */
+  .split { display: flex; gap: 1.25rem; justify-content: center; margin: 0.5rem 0; flex-wrap: wrap; }
+
+  /* Score bars */
+  .sbar { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.6rem; }
+  .sbar .lbl { width: 150px; font-size: 0.85rem; color: var(--muted); flex-shrink: 0; }
+  .sbar .bar { flex: 1; height: 8px; background: var(--bg); border-radius: 4px; overflow: hidden; }
+  .sbar .fill { height: 100%; border-radius: 4px; }
+  .sbar .wt { width: 50px; font-size: 0.75rem; color: var(--muted); text-align: right; }
+
+  /* Rubric */
+  .rubric { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-top: 1rem; }
+  .rubric > div { padding: 1rem; border-radius: 8px; text-align: center; }
+  .rubric .num { font-size: 1.5rem; font-weight: 700; }
+  .rubric .label { font-size: 0.8rem; font-weight: 600; }
+  .rubric .desc { font-size: 0.73rem; color: var(--muted); margin-top: 0.25rem; }
+  @media(max-width:600px) { .rubric { grid-template-columns: 1fr 1fr; } }
+
+  /* Layer stack */
+  .layers { display: flex; flex-direction: column; }
+  .layer { padding: 1.2rem 1.5rem; border: 1px solid var(--border); display: flex; align-items: center; gap: 1rem; }
+  .layer:first-child { border-radius: 12px 12px 0 0; }
+  .layer:last-child { border-radius: 0 0 12px 12px; }
+  .layer + .layer { border-top: none; }
+  .layer .ln { width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.85rem; flex-shrink: 0; color: var(--bg); }
+  .layer .lc h4 { font-size: 0.95rem; margin-bottom: 0.2rem; }
+  .layer .lc p { font-size: 0.82rem; color: var(--muted); }
+  .layer.l1 { background: rgba(63,185,80,0.06); } .layer.l1 .ln { background: var(--green); }
+  .layer.l2 { background: rgba(88,166,255,0.06); } .layer.l2 .ln { background: var(--accent); }
+  .layer.l3 { background: rgba(188,140,255,0.06); } .layer.l3 .ln { background: var(--purple); }
+
+  /* Confidence */
+  .conf { text-align: center; padding: 1.1rem 0.8rem; border-radius: 10px; border: 1px solid var(--border); background: var(--surface); }
+  .conf .cl { font-weight: 700; font-size: 0.92rem; margin-bottom: 0.2rem; }
+  .conf .cd { font-size: 0.78rem; color: var(--muted); }
+
+  /* Sources grid */
+  .src { text-align: center; padding: 1.1rem; border-radius: 10px; border: 1px solid var(--border); background: var(--surface); }
+  .src .si { font-size: 1.5rem; margin-bottom: 0.4rem; }
+  .src .sn { font-weight: 600; font-size: 0.88rem; }
+  .src .st { font-size: 0.73rem; color: var(--muted); }
+  .src.on { border-color: var(--green); }
+  .src.opt { border-color: var(--orange); }
+
+  /* Mode cards */
+  .mode { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1.4rem; transition: border-color 0.2s; }
+  .mode:hover { border-color: var(--accent); }
+  .mode .cmd { font-family: 'SF Mono', monospace; font-size: 0.82rem; color: var(--green); background: var(--bg); padding: 0.3rem 0.6rem; border-radius: 6px; display: inline-block; margin-bottom: 0.6rem; }
+  .mode h3 { font-size: 1.05rem; margin-bottom: 0.4rem; }
+  .mode p { color: var(--muted); font-size: 0.88rem; }
+  .mode .preview { margin-top: 0.8rem; padding: 0.6rem; background: var(--bg); border-radius: 8px; font-family: monospace; font-size: 0.72rem; color: var(--muted); line-height: 1.5; white-space: pre; overflow-x: auto; }
+
+  /* Timeline */
+  .tl { padding-left: 1.5rem; border-left: 2px solid var(--border); }
+  .tl-item { margin-bottom: 1.25rem; position: relative; padding-left: 1.25rem; }
+  .tl-item::before { content: ''; position: absolute; left: -1.6rem; top: 0.45rem; width: 10px; height: 10px; border-radius: 50%; background: var(--accent); border: 2px solid var(--bg); }
+  .tl-item .td { font-size: 0.78rem; color: var(--accent); font-weight: 600; }
+  .tl-item .tc { font-size: 0.88rem; color: var(--muted); }
+
+  /* Divider */
+  hr { border: none; border-top: 1px solid var(--border); margin: 3rem 0; }
+
+  /* Footer */
+  footer { text-align: center; padding: 2rem; color: var(--muted); font-size: 0.85rem; border-top: 1px solid var(--border); margin-top: 2rem; }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <h1>VC Signals</h1>
+  <p class="sub">Turn noisy internet chatter into ranked investor briefs.<br>One command per week. 8 emerging themes with company mapping.</p>
+  <div class="badges">
+    <span class="badge b-blue">Claude Code</span>
+    <span class="badge b-green">Co-Work Compatible</span>
+    <span class="badge b-purple">Works Out of the Box</span>
+  </div>
+</div>
+
+<div class="wrap">
+
+<!-- 00 GET STARTED -->
+<section>
+  <h2><span class="n">00</span> Get Started</h2>
+  <p class="sdesc">Three install methods. The skill walks you through setup on first run.</p>
+  <div class="g3">
+    <div class="card">
+      <h3 style="color:var(--green)">Plugin Install (easiest)</h3>
+      <p>Inside Claude Code or Co-Work, type:</p>
+      <span class="code green">/plugin marketplace add https://github.com/abhishek255/vc-signals</span>
+    </div>
+    <div class="card">
+      <h3 style="color:var(--accent)">Terminal Install</h3>
+      <p>One command in your terminal:</p>
+      <span class="code blue">curl -sL https://raw.githubusercontent.com/abhishek255/vc-signals/main/install.sh | bash</span>
+    </div>
+    <div class="card">
+      <h3 style="color:var(--purple)">Clone the Repo</h3>
+      <p>For developers who want to inspect or contribute:</p>
+      <span class="code purple">git clone https://github.com/abhishek255/vc-signals.git
+cd vc-signals && claude</span>
+    </div>
+  </div>
+  <div class="card" style="border-color:var(--green); margin-top:0;">
+    <h3 style="color:var(--green)">First Run: Auto-Setup</h3>
+    <p>On your first command, the skill detects it's new and offers a guided 2-minute setup. Claude installs the research engine, walks you through API keys one at a time (paste or skip), and saves your config. Skip setup entirely to get results immediately via web search.</p>
+  </div>
+</section>
+
+<hr>
+
+<!-- 01 ARCHITECTURE -->
+<section>
+  <h2><span class="n">01</span> Architecture</h2>
+  <p class="sdesc">Three layers. Claude is the brain. Python scripts handle API calls. SKILL.md ties it together.</p>
+
+  <div class="flow">
+    <div class="flow-node blue">
+      <h4>You type a command</h4>
+      <p>/vc-signals weekly devtools</p>
+    </div>
+    <div class="flow-arrow"></div>
+    <div class="flow-node purple">
+      <h4>SKILL.md (Orchestrator)</h4>
+      <p>Parse args, load config, select retrieval path</p>
+    </div>
+    <div class="flow-arrow"></div>
+
+    <div class="split">
+      <div class="flow-node green" style="min-width:200px">
+        <h4>Retrieval</h4>
+        <p>WebSearch (default)<br>or last30days (Reddit, HN, X, YouTube)</p>
+      </div>
+      <div class="flow-node orange" style="min-width:200px">
+        <h4>GitHub Trending</h4>
+        <p>Star velocity API<br>Fast-growing repos</p>
+      </div>
+    </div>
+
+    <div class="flow-arrow"></div>
+    <div class="flow-node purple">
+      <h4>Claude's Brain</h4>
+      <p>Extract themes, cluster, score momentum, map companies, frame for investors</p>
+    </div>
+    <div class="flow-arrow"></div>
+
+    <div class="split">
+      <div class="flow-node filled-green" style="min-width:200px">
+        <h4>Investor Brief</h4>
+        <p>Printed inline</p>
+      </div>
+      <div class="flow-node pink" style="min-width:200px">
+        <h4>Saved Locally</h4>
+        <p>JSON + Markdown for week-over-week tracking</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr>
+
+<!-- 02 FIVE MODES -->
+<section>
+  <h2><span class="n">02</span> Five Modes</h2>
+  <p class="sdesc">Each mode serves a different part of the VC research workflow.</p>
+  <div class="g2">
+    <div class="mode">
+      <span class="cmd">/vc-signals weekly devtools</span>
+      <h3>Weekly Sector Scan</h3>
+      <p>Top 8-12 emerging themes. Ranked by momentum with company mapping and hype-vs-durable verdicts.</p>
+      <div class="preview">### 1. MCP Protocol & Agent Infra
+Momentum: 9/10 | Confidence: High
+Timing: Early-Mid
+
+Companies: MintMCP, Anthropic, Perforce</div>
+    </div>
+    <div class="mode">
+      <span class="cmd">/vc-signals theme "agent evals"</span>
+      <h3>Theme Drill-Down</h3>
+      <p>Deep analysis: why now, subthemes, companies solving it, OSS projects, durable vs hype verdict.</p>
+      <div class="preview">## Why Now?
+As AI agents move from demos to
+production, evaluation frameworks
+became the critical gap...</div>
+    </div>
+    <div class="mode">
+      <span class="cmd">/vc-signals company "Confluent"</span>
+      <h3>Company Backtrace</h3>
+      <p>Which rising themes is a company exposed to? Role classification, evidence, competitive context.</p>
+      <div class="preview">Theme Exposure:
+Streaming Infra   | Direct solver
+AI Data Pipeline   | Beneficiary
+Event Architecture | Adjacent</div>
+    </div>
+    <div class="mode">
+      <span class="cmd">/vc-signals github ai-infra</span>
+      <h3>GitHub Trending</h3>
+      <p>Top repos by star velocity. Maps fast-growing OSS projects to commercial entities.</p>
+      <div class="preview"># | Repo            | 7d   | Stars
+1 | macos-iso-build | +116 | 1,041
+2 | claude-security | +82  | 4,198
+3 | agents-radar    | +39  |   613</div>
+    </div>
+  </div>
+  <div class="mode" style="margin-top:1.25rem;">
+    <span class="cmd">/vc-signals setup</span>
+    <h3>Setup Wizard</h3>
+    <p>Guided walkthrough for API keys. Claude handles cloning repos, writing config files, and verification. Plain English, one step at a time. Also runs automatically on first use.</p>
+  </div>
+</section>
+
+<hr>
+
+<!-- 03 RETRIEVAL -->
+<section>
+  <h2><span class="n">03</span> Retrieval Pipeline</h2>
+  <p class="sdesc">Two paths, selected automatically. WebSearch works day one. Setup unlocks source-level diversity.</p>
+
+  <div class="g2" style="margin-bottom:1.5rem;">
+    <div class="card" style="border-color:var(--green)">
+      <h3 style="color:var(--green)">Zero-Config Path</h3>
+      <p>Uses Claude's built-in WebSearch. 8-12 targeted queries per sector. Works immediately, no API keys needed.</p>
+      <p style="margin-top:0.5rem; font-size:0.82rem;"><strong style="color:var(--green)">What you get:</strong> Broad web coverage, blog posts, news articles, some forum content.</p>
+      <p style="font-size:0.82rem;"><strong style="color:var(--orange)">What you miss:</strong> Per-source engagement data, subreddit targeting, X/Twitter discussions.</p>
+    </div>
+    <div class="card" style="border-color:var(--accent)">
+      <h3 style="color:var(--accent)">Enhanced Path (after setup)</h3>
+      <p>Uses last30days engine for independent Reddit, HN, X/Twitter, and YouTube searches with engagement data.</p>
+      <p style="margin-top:0.5rem; font-size:0.82rem;"><strong style="color:var(--green)">What you get:</strong> Source-level diversity, upvote/comment counts, targeted subreddits per sector, X/Twitter developer buzz.</p>
+    </div>
+  </div>
+
+  <h3 style="margin-bottom:1rem;">Data Sources</h3>
+  <div style="display:grid; grid-template-columns:repeat(6,1fr); gap:0.8rem;">
+    <div class="src on"><div class="si">&#127760;</div><div class="sn">Web Search</div><div class="st">Built-in</div></div>
+    <div class="src on"><div class="si">&#128240;</div><div class="sn">Hacker News</div><div class="st">After setup (free)</div></div>
+    <div class="src on"><div class="si">&#128172;</div><div class="sn">Reddit</div><div class="st">After setup (free)</div></div>
+    <div class="src opt"><div class="si">&#128038;</div><div class="sn">X / Twitter</div><div class="st">Browser tokens</div></div>
+    <div class="src opt"><div class="si">&#127909;</div><div class="sn">YouTube</div><div class="st">ScrapeCreators</div></div>
+    <div class="src on"><div class="si">&#128025;</div><div class="sn">GitHub</div><div class="st">PAT or gh CLI</div></div>
+  </div>
+  <p style="font-size:0.78rem; color:var(--muted); margin-top:0.75rem;"><span style="color:var(--green);">&#9679;</span> Green border = works after basic setup &nbsp;&nbsp; <span style="color:var(--orange);">&#9679;</span> Orange border = needs extra credentials (optional)</p>
+</section>
+
+<hr>
+
+<!-- 04 SCORING -->
+<section>
+  <h2><span class="n">04</span> Momentum Scoring</h2>
+  <p class="sdesc">Each theme gets a 1-10 score. Transparent and explainable — Claude justifies every number.</p>
+
+  <div class="card">
+    <h3>Scoring Factors</h3>
+    <div class="sbar"><span class="lbl">Recency</span><div class="bar"><div class="fill" style="width:95%;background:var(--green)"></div></div><span class="wt">High</span></div>
+    <div class="sbar"><span class="lbl">Source Diversity</span><div class="bar"><div class="fill" style="width:90%;background:var(--green)"></div></div><span class="wt">High</span></div>
+    <div class="sbar"><span class="lbl">Repetition Density</span><div class="bar"><div class="fill" style="width:65%;background:var(--accent)"></div></div><span class="wt">Medium</span></div>
+    <div class="sbar"><span class="lbl">Engagement Signals</span><div class="bar"><div class="fill" style="width:60%;background:var(--accent)"></div></div><span class="wt">Medium</span></div>
+    <div class="sbar"><span class="lbl">Novelty</span><div class="bar"><div class="fill" style="width:55%;background:var(--accent)"></div></div><span class="wt">Medium</span></div>
+    <div class="sbar"><span class="lbl">Technical Specificity</span><div class="bar"><div class="fill" style="width:35%;background:var(--orange)"></div></div><span class="wt">Low</span></div>
+    <div class="sbar"><span class="lbl">GitHub Velocity</span><div class="bar"><div class="fill" style="width:30%;background:var(--orange)"></div></div><span class="wt">Low</span></div>
+  </div>
+
+  <div class="rubric">
+    <div style="background:rgba(63,185,80,0.1)"><div class="num" style="color:var(--green)">8-10</div><div class="label" style="color:var(--green)">Breakout</div><div class="desc">Multiple sources, very recent, high engagement, new conversation</div></div>
+    <div style="background:rgba(88,166,255,0.1)"><div class="num" style="color:var(--accent)">5-7</div><div class="label" style="color:var(--accent)">Rising</div><div class="desc">Clear signal but fewer sources, or overlaps with known trends</div></div>
+    <div style="background:rgba(210,153,34,0.1)"><div class="num" style="color:var(--orange)">3-4</div><div class="label" style="color:var(--orange)">Ambient</div><div class="desc">Mentioned but not clearly accelerating, could be noise</div></div>
+    <div style="background:rgba(248,81,73,0.1)"><div class="num" style="color:var(--red)">1-2</div><div class="label" style="color:var(--red)">Faint</div><div class="desc">Single source, low engagement, possibly stale</div></div>
+  </div>
+</section>
+
+<hr>
+
+<!-- 05 COMPANY MAPPING -->
+<section>
+  <h2><span class="n">05</span> Company Mapping</h2>
+  <p class="sdesc">Three layers from most to least reliable. Every mapping gets a confidence tag.</p>
+
+  <div class="layers">
+    <div class="layer l1"><div class="ln">1</div><div class="lc"><h4>Curated Seed Map</h4><p>40 hand-maintained entries in company_aliases.json. Known companies, OSS projects, sectors, themes. Users can edit.</p></div></div>
+    <div class="layer l2"><div class="ln">2</div><div class="lc"><h4>Evidence-Based Extraction</h4><p>Claude identifies companies mentioned in search results. Captures context, source URL, and role classification.</p></div></div>
+    <div class="layer l3"><div class="ln">3</div><div class="lc"><h4>GitHub to Commercial Entity</h4><p>Maps trending repos to companies via org ownership, README links, pricing pages.</p></div></div>
+  </div>
+
+  <div style="margin-top:2rem;">
+    <h3 style="margin-bottom:0.75rem;">Confidence Tags</h3>
+    <div class="g4">
+      <div class="conf"><div class="cl" style="color:var(--green)">Confirmed</div><div class="cd">In seed map or multiple sources corroborate</div></div>
+      <div class="conf"><div class="cl" style="color:var(--accent)">Likely</div><div class="cd">Strong contextual evidence, one clear source</div></div>
+      <div class="conf"><div class="cl" style="color:var(--orange)">Inferred</div><div class="cd">Claude's judgment on limited evidence</div></div>
+      <div class="conf"><div class="cl" style="color:var(--red)">Speculative</div><div class="cd">Thin signal, flagged as uncertain</div></div>
+    </div>
+  </div>
+
+  <div style="margin-top:2rem;">
+    <h3 style="margin-bottom:0.75rem;">Role Classification</h3>
+    <div class="hflow">
+      <div class="hflow-node" style="border-color:var(--purple); min-width:160px;"><strong style="color:var(--purple)">Rising Theme</strong><br><span style="font-size:0.82rem;color:var(--muted)">e.g., AI Code Review</span></div>
+      <div class="hflow-arrow"></div>
+      <div style="display:flex; flex-direction:column; gap:0.5rem;">
+        <div class="hflow-node" style="border-color:var(--green);"><strong style="color:var(--green)">Direct Solver</strong><br><span style="font-size:0.78rem;color:var(--muted)">CodeRabbit, Qodo</span></div>
+        <div class="hflow-node" style="border-color:var(--accent);"><strong style="color:var(--accent)">Beneficiary</strong><br><span style="font-size:0.78rem;color:var(--muted)">GitHub, GitLab</span></div>
+        <div class="hflow-node" style="border-color:var(--orange);"><strong style="color:var(--orange)">Adjacent</strong><br><span style="font-size:0.78rem;color:var(--muted)">Datadog, Snyk</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr>
+
+<!-- 06 PERSISTENCE -->
+<section>
+  <h2><span class="n">06</span> Week-over-Week Tracking</h2>
+  <p class="sdesc">Every scan is saved. Future runs compare against previous scans to surface what's changing.</p>
+
+  <div class="g2">
+    <div>
+      <div class="tl">
+        <div class="tl-item"><div class="td">Week 1</div><div class="tc">First scan — baseline. 8 themes identified.</div></div>
+        <div class="tl-item"><div class="td">Week 2</div><div class="tc">2 new themes, 1 fading, "AI Code Review" momentum 6 &#8594; 8.</div></div>
+        <div class="tl-item"><div class="td">Week 3</div><div class="tc">"MCP Protocol" appears 3rd consecutive week &#8594; marked <strong>Durable</strong>.</div></div>
+        <div class="tl-item"><div class="td">Week 4</div><div class="tc">"WebAssembly Runtimes" dropped out. 1 new breakout signal.</div></div>
+      </div>
+    </div>
+    <div>
+      <div class="card">
+        <h3>What Gets Compared</h3>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.5rem; margin-top:0.5rem;">
+          <div style="padding:0.6rem; background:rgba(63,185,80,0.1); border-radius:6px; text-align:center;"><strong style="color:var(--green); font-size:0.85rem;">New</strong><br><span style="font-size:0.78rem; color:var(--muted);">Themes that weren't in last scan</span></div>
+          <div style="padding:0.6rem; background:rgba(88,166,255,0.1); border-radius:6px; text-align:center;"><strong style="color:var(--accent); font-size:0.85rem;">Accelerating</strong><br><span style="font-size:0.78rem; color:var(--muted);">Momentum gained +2 or more</span></div>
+          <div style="padding:0.6rem; background:rgba(248,81,73,0.1); border-radius:6px; text-align:center;"><strong style="color:var(--red); font-size:0.85rem;">Fading</strong><br><span style="font-size:0.78rem; color:var(--muted);">Dropped out or lost 3+ momentum</span></div>
+          <div style="padding:0.6rem; background:rgba(188,140,255,0.1); border-radius:6px; text-align:center;"><strong style="color:var(--purple); font-size:0.85rem;">Durable</strong><br><span style="font-size:0.78rem; color:var(--muted);">3+ consecutive weeks &#8594; real signal</span></div>
+        </div>
+      </div>
+      <div class="card" style="margin-top:0;">
+        <h3>Theme Index</h3>
+        <span class="code" style="color:var(--muted); font-size:0.78rem; line-height:1.6;">"AI-Powered Code Review": {
+  "first_seen": "2026-03-15",
+  "last_seen": "2026-04-10",
+  "appearances": 4,
+  "momentum_history": [6, 7, 7, 8],
+  "peak_momentum": 8
+}</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<hr>
+
+<!-- 07 SECTORS -->
+<section>
+  <h2><span class="n">07</span> Sector Coverage</h2>
+  <p class="sdesc">Three sectors, six subcategories each. Editable via sectors.json. Add your own sectors.</p>
+  <div class="g3">
+    <div class="card">
+      <h3 style="color:var(--green)">devtools</h3>
+      <ul style="list-style:none; font-size:0.85rem; color:var(--muted); line-height:2;"><li>CI/CD &amp; Build Systems</li><li>Testing &amp; Quality</li><li>IDEs &amp; Developer Experience</li><li>Observability &amp; Debugging</li><li>Infrastructure as Code</li><li>Source Control &amp; Code Mgmt</li></ul>
+    </div>
+    <div class="card">
+      <h3 style="color:var(--accent)">cybersecurity</h3>
+      <ul style="list-style:none; font-size:0.85rem; color:var(--muted); line-height:2;"><li>Application Security</li><li>Cloud &amp; Infra Security</li><li>Identity &amp; Access</li><li>SOC &amp; Detection</li><li>AI &amp; LLM Security</li><li>Data Security &amp; Privacy</li></ul>
+    </div>
+    <div class="card">
+      <h3 style="color:var(--purple)">ai-infra</h3>
+      <ul style="list-style:none; font-size:0.85rem; color:var(--muted); line-height:2;"><li>Model Serving &amp; Inference</li><li>Training &amp; Compute</li><li>Data &amp; Feature Pipelines</li><li>Agent Infrastructure</li><li>MLOps &amp; Experiment Mgmt</li><li>AI-Native Dev Tools</li></ul>
+    </div>
+  </div>
+</section>
+
+<hr>
+
+<!-- 08 DEGRADATION -->
+<section>
+  <h2><span class="n">08</span> Graceful Degradation</h2>
+  <p class="sdesc">The skill never crashes. Every failure has a fallback.</p>
+  <div class="g2">
+    <div class="card" style="border-left: 3px solid var(--red);">
+      <h3 style="color:var(--red)">What Can Fail</h3>
+      <ul style="list-style:none; font-size:0.88rem; color:var(--muted); line-height:2.2;">
+        <li>last30days not configured</li>
+        <li>GitHub rate limited</li>
+        <li>GitHub token missing</li>
+        <li>File system not writable</li>
+        <li>WebSearch returns thin results</li>
+        <li>requests library not installed</li>
+      </ul>
+    </div>
+    <div class="card" style="border-left: 3px solid var(--green);">
+      <h3 style="color:var(--green)">What Happens Instead</h3>
+      <ul style="list-style:none; font-size:0.88rem; color:var(--muted); line-height:2.2;">
+        <li>Falls back to WebSearch (still works)</li>
+        <li>Returns partial results + warning</li>
+        <li>Skips GitHub trending, suggests /setup</li>
+        <li>Prints brief inline, skips save</li>
+        <li>Notes limited coverage, lowers confidence</li>
+        <li>Skips GitHub trending, returns clean JSON</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+</div>
+
+<footer>
+  <p><strong>VC Signals</strong> &mdash; <a href="https://github.com/abhishek255/vc-signals">github.com/abhishek255/vc-signals</a></p>
+  <p style="margin-top:0.4rem;">Built with Claude Code</p>
+</footer>
+
+</body>
+</html>
