@@ -133,7 +133,17 @@ Pick your setup based on how you use Claude:
 
 ### Claude Co-Work (desktop app)
 
-Open **Terminal** on your Mac and paste this single command:
+**Option 1: Download and upload (easiest — no terminal needed)**
+
+1. **[Download vc-signals.zip](https://github.com/abhishek255/vc-signals/releases/latest/download/vc-signals.zip)**
+2. Open Claude Co-Work → click **Customize** in the left sidebar
+3. Go to **Skills** → click **Upload**
+4. Select the downloaded `vc-signals.zip`
+5. Type `/vc-signals weekly devtools` to start
+
+**Option 2: Terminal command**
+
+If you're comfortable with Terminal, paste this single command:
 
 ```bash
 git clone https://github.com/abhishek255/vc-signals.git /tmp/vc-signals && mkdir -p ~/.claude/skills && cp -r /tmp/vc-signals/.claude/skills/vc-signals ~/.claude/skills/vc-signals && rm -rf /tmp/vc-signals && echo "Done! Restart Claude and type: /vc-signals weekly devtools"
