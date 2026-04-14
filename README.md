@@ -129,39 +129,33 @@ For each emerging theme, you get:
 
 ## Installation
 
-Three ways to install, from easiest to most manual:
+Pick your setup based on how you use Claude:
 
-### Option A: One-Command Plugin Install (recommended)
+### Claude Co-Work (desktop app)
 
-If you already have Claude Code or Co-Work, just run this inside Claude:
+Open **Terminal** on your Mac and paste this single command:
 
+```bash
+git clone https://github.com/abhishek255/vc-signals.git /tmp/vc-signals && mkdir -p ~/.claude/skills && cp -r /tmp/vc-signals/.claude/skills/vc-signals ~/.claude/skills/vc-signals && rm -rf /tmp/vc-signals && echo "Done! Restart Claude and type: /vc-signals weekly devtools"
+```
+
+Then **close and reopen Claude Co-Work**. Type `/vc-signals weekly devtools` to start.
+
+### Claude Code (CLI, VS Code, JetBrains)
+
+**Option A: Plugin install** (inside Claude Code):
 ```
 /plugin marketplace add https://github.com/abhishek255/vc-signals
 ```
 
-Done. Type `/vc-signals weekly devtools` to start. On first run, the skill auto-detects that it's your first time and walks you through a 2-minute setup.
-
-### Option B: One-Line Terminal Install
-
-If you prefer a terminal command (works for both Claude Code and Co-Work):
-
-```bash
-curl -sL https://raw.githubusercontent.com/abhishek255/vc-signals/main/install.sh | bash
-```
-
-This installs the skill globally. Open Claude Code or Co-Work and type `/vc-signals weekly devtools`.
-
-### Option C: Clone the Repo
-
-For developers who want to inspect the code or contribute:
-
+**Option B: Clone and open** (for developers):
 ```bash
 git clone https://github.com/abhishek255/vc-signals.git
 cd vc-signals
 claude
 ```
 
-The skill is auto-detected from `.claude/skills/`. Type `/vc-signals weekly devtools` to start.
+The skill is auto-detected. Type `/vc-signals weekly devtools` to start.
 
 ### What Happens on First Run
 
