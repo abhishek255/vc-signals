@@ -131,25 +131,26 @@ For each emerging theme, you get:
 
 Pick your setup based on how you use Claude:
 
-### Claude Co-Work (desktop app)
+### Claude.ai / Co-Work (web)
 
-**Option 1: Download and upload (easiest — no terminal needed)**
+Works out of the box — just paste the SKILL.md content into your conversation, or upload the skill ZIP.
 
 1. **[Download vc-signals.zip](https://github.com/abhishek255/vc-signals/releases/latest/download/vc-signals.zip)**
-2. Open Claude Co-Work → click **Customize** in the left sidebar
-3. Go to **Skills** → click **Upload**
-4. Select the downloaded `vc-signals.zip`
-5. Type `/vc-signals weekly devtools` to start
+2. Open Claude Co-Work → click **Customize** → **Skills** → **Upload**
+3. Select the downloaded `vc-signals.zip`
+4. Type `/vc-signals weekly devtools` to start
 
-**Option 2: Terminal command**
+> **Note:** The web version uses Claude's built-in web search only. External APIs (Reddit, HN, X, GitHub trending) are blocked by the web sandbox. You still get a full investor brief — just without per-source engagement data. For full source coverage, use Claude Code locally (see below).
 
-If you're comfortable with Terminal, paste this single command:
+### Claude Co-Work Desktop (with terminal access)
+
+If you have the Claude desktop app with terminal access, you get full functionality. Paste this in Terminal:
 
 ```bash
 git clone https://github.com/abhishek255/vc-signals.git /tmp/vc-signals && mkdir -p ~/.claude/skills && cp -r /tmp/vc-signals/.claude/skills/vc-signals ~/.claude/skills/vc-signals && rm -rf /tmp/vc-signals && echo "Done! Restart Claude and type: /vc-signals weekly devtools"
 ```
 
-Then **close and reopen Claude Co-Work**. Type `/vc-signals weekly devtools` to start.
+Then **close and reopen Claude Co-Work**. Type `/vc-signals weekly devtools` to start. Run `/vc-signals setup` to configure API keys for Reddit, HN, X, GitHub, and Perplexity.
 
 ### Claude Code (CLI, VS Code, JetBrains)
 

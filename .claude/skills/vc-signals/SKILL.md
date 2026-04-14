@@ -37,7 +37,30 @@ Parse the user's input to determine the mode and arguments:
 
 If no arguments or unrecognized arguments, show this help and ask what they'd like to do.
 
-## First-Run Detection (ALWAYS check this before anything else)
+## Environment Detection (ALWAYS check this FIRST)
+
+Before anything else, detect whether you're running in a sandboxed web environment (Claude.ai, Co-Work web) or a local environment (Claude Code CLI, Co-Work desktop with terminal access).
+
+**Quick test:** Try running a simple Bash command:
+```bash
+echo "env_check"
+```
+
+If Bash is not available, or if you get network errors (403 Forbidden) when running Python scripts, you are in a **web sandbox**. In this case:
+
+**Web sandbox mode:**
+- Use ONLY WebSearch for retrieval (built-in, always works)
+- Do NOT run any Python scripts (persistence.py, github_trending.py, last30days_adapter.py) — they will fail with network errors
+- Do NOT run setup wizard — API keys can't be used in the sandbox
+- Skip GitHub trending entirely
+- Skip persistence (save/load) — just print the full brief inline
+- Tell the user: "Running in web mode — using web search only. For full coverage (Reddit, HN, X, GitHub trending), install Claude Code locally and run from there."
+
+**Local mode:**
+- Full access — run all Python scripts, use last30days if configured, save results locally
+- Proceed with the normal flow below
+
+## First-Run Detection (check this after environment detection)
 
 **Before executing ANY mode** (including setup), check if this is a first run:
 
