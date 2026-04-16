@@ -199,6 +199,17 @@ def _validate_slug(value: str, name: str) -> None:
         sys.exit(1)
 
 
+def _validate_date(value: str, name: str) -> None:
+    """Validate that a value is an ISO date (YYYY-MM-DD).
+
+    Used to prevent path traversal via the --date or --before CLI args,
+    which flow directly into filenames like f"{date}-{sector}.json".
+    """
+    if not re.match(r'^\d{4}-\d{2}-\d{2}$', value):
+        print(json.dumps({"error": f"Invalid {name}: '{value}'. Expected YYYY-MM-DD."}))
+        sys.exit(1)
+
+
 def _cli_main() -> None:
     """CLI entry point. Commands: save-briefing, load-briefing, load-previous, diff, update-index, save-markdown."""
     if len(sys.argv) < 2:
@@ -212,6 +223,8 @@ def _cli_main() -> None:
     if command == "save-briefing":
         _require_args(args, "sector")
         _validate_slug(args["sector"], "sector")
+        if "date" in args:
+            _validate_date(args["date"], "date")
         if sys.stdin.isatty():
             print(json.dumps({"error": "No data piped to stdin. Usage: echo '<json>' | persistence.py <command> ..."}))
             sys.exit(1)
@@ -227,16 +240,22 @@ def _cli_main() -> None:
 
     elif command == "load-briefing":
         _require_args(args, "sector", "date")
+        _validate_slug(args["sector"], "sector")
+        _validate_date(args["date"], "date")
         result = load_briefing(args["sector"], args["date"], data_dir)
         print(json.dumps(result))
 
     elif command == "load-previous":
         _require_args(args, "sector", "before")
+        _validate_slug(args["sector"], "sector")
+        _validate_date(args["before"], "before")
         result = load_previous_briefing(args["sector"], args["before"], data_dir)
         print(json.dumps(result))
 
     elif command == "diff":
         _require_args(args, "sector", "date")
+        _validate_slug(args["sector"], "sector")
+        _validate_date(args["date"], "date")
         current = load_briefing(args["sector"], args["date"], data_dir)
         previous = load_previous_briefing(args["sector"], args["date"], data_dir)
         if current and previous:
@@ -247,6 +266,8 @@ def _cli_main() -> None:
     elif command == "update-index":
         _require_args(args, "sector")
         _validate_slug(args["sector"], "sector")
+        if "date" in args:
+            _validate_date(args["date"], "date")
         if sys.stdin.isatty():
             print(json.dumps({"error": "No data piped to stdin. Usage: echo '<json>' | persistence.py <command> ..."}))
             sys.exit(1)
@@ -258,6 +279,8 @@ def _cli_main() -> None:
         _require_args(args, "subdir", "slug")
         _validate_slug(args["subdir"], "subdir")
         _validate_slug(args["slug"], "slug")
+        if "date" in args:
+            _validate_date(args["date"], "date")
         if sys.stdin.isatty():
             print(json.dumps({"error": "No data piped to stdin. Usage: echo '<json>' | persistence.py <command> ..."}))
             sys.exit(1)

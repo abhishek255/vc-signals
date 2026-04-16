@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import subprocess
 from pathlib import Path
 
 import pytest
@@ -168,3 +169,37 @@ def test_save_markdown(data_dir):
     assert md_path.exists()
     assert md_path.read_text() == content
     assert result["saved"] == str(md_path)
+
+
+def test_validate_date_accepts_iso_date():
+    from persistence import _validate_date
+    _validate_date("2026-04-16", "date")  # should not raise
+
+
+def test_validate_date_rejects_path_traversal():
+    from persistence import _validate_date
+
+    with pytest.raises(SystemExit):
+        _validate_date("../../etc/passwd", "date")
+
+
+def test_validate_date_rejects_wrong_format():
+    from persistence import _validate_date
+
+    for bad in ["2026/04/16", "20260416", "April 16", ""]:
+        with pytest.raises(SystemExit):
+            _validate_date(bad, "date")
+
+
+def test_cli_load_briefing_rejects_traversal_date(data_dir):
+    script = Path(__file__).parent.parent / "scripts" / "persistence.py"
+    result = subprocess.run(
+        ["python3", str(script), "load-briefing",
+         "--sector", "devtools",
+         "--date", "../../etc/passwd",
+         "--data-dir", str(data_dir)],
+        capture_output=True,
+        text=True,
+    )
+    assert result.returncode == 1
+    assert "Invalid date" in result.stdout
