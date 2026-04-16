@@ -151,7 +151,7 @@
 
 <div class="hero">
   <h1>VC Signals</h1>
-  <p class="sub">Turn noisy internet chatter into ranked investor briefs.<br>One command per week. 8 emerging themes with company mapping.</p>
+  <p class="sub">Turn noisy internet chatter into a weekly company radar.<br>30-50 investable companies organized by emerging theme. Tagged NEW / RETURNING / PERSISTENT week-over-week.</p>
   <div class="badges">
     <span class="badge b-blue">Claude Code</span>
     <span class="badge b-green">Co-Work Compatible</span>
@@ -199,7 +199,7 @@ cd vc-signals && claude</span>
   <div class="flow">
     <div class="flow-node blue">
       <h4>You type a command</h4>
-      <p>/vc-signals weekly devtools</p>
+      <p>/vc-signals radar devtools</p>
     </div>
     <div class="flow-arrow"></div>
     <div class="flow-node purple">
@@ -243,13 +243,13 @@ cd vc-signals && claude</span>
 
 <!-- 02 FIVE MODES -->
 <section>
-  <h2><span class="n">02</span> Five Modes</h2>
+  <h2><span class="n">02</span> Modes</h2>
   <p class="sdesc">Each mode serves a different part of the VC research workflow.</p>
   <div class="g2">
     <div class="mode">
-      <span class="cmd">/vc-signals weekly devtools</span>
-      <h3>Weekly Sector Scan</h3>
-      <p>Top 8-12 emerging themes. Ranked by momentum with company mapping and hype-vs-durable verdicts.</p>
+      <span class="cmd">/vc-signals radar devtools</span>
+      <h3>Company Radar (Weekly)</h3>
+      <p>30-50 investable companies organized by 6-8 emerging themes, with NEW/RETURNING/PERSISTENT tags showing week-over-week changes. Drops themes that produce fewer than 3 companies.</p>
       <div class="preview">### 1. MCP Protocol & Agent Infra
 Momentum: 9/10 | Confidence: High
 Timing: Early-Mid
@@ -365,6 +365,7 @@ Event Architecture | Adjacent</div>
 <section>
   <h2><span class="n">05</span> Company Mapping</h2>
   <p class="sdesc">Three layers from most to least reliable. Every mapping gets a confidence tag.</p>
+  <p style="color:var(--accent); margin-top:0.5rem;"><strong>Phase 1 update:</strong> Companies are now deduplicated across themes. A company that appears in multiple themes shows up once in the radar with one primary_theme; secondary themes are tracked separately.</p>
 
   <div class="layers">
     <div class="layer l1"><div class="ln">1</div><div class="lc"><h4>Curated Seed Map</h4><p>40 hand-maintained entries in company_aliases.json. Known companies, OSS projects, sectors, themes. Users can edit.</p></div></div>
@@ -431,6 +432,10 @@ Event Architecture | Adjacent</div>
   "momentum_history": [6, 7, 7, 8],
   "peak_momentum": 8
 }</span>
+      </div>
+      <div class="card" style="margin-top:0;">
+        <h3>Company Index</h3>
+        <p>Each company is keyed by its normalized name (so "Anysphere (Cursor)" and "anysphere.com" resolve to the same record). Stores first_seen, last_seen, weeks_seen, missed_weeks, and themes_history. Drives the NEW/RETURNING/PERSISTENT tags shown in every weekly radar.</p>
       </div>
     </div>
   </div>
