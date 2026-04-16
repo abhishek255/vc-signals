@@ -1,7 +1,7 @@
 ---
 name: vc-signals
 description: "VC signal-to-thesis skill. Discover emerging investable themes in devtools, cybersecurity, and AI infrastructure. Weekly sector scans, theme drill-downs, company backtrace, and GitHub trending repos."
-argument-hint: 'vc-signals weekly devtools, vc-signals theme "agent evals", vc-signals company "Confluent", vc-signals github ai-infra, vc-signals setup'
+argument-hint: 'vc-signals radar devtools, vc-signals theme "agent evals", vc-signals company "Confluent", vc-signals github ai-infra, vc-signals setup'
 allowed-tools: Bash, Read, Write, WebSearch, AskUserQuestion
 user-invocable: true
 ---
@@ -17,7 +17,8 @@ Turn noisy public internet chatter into ranked, investor-oriented theme briefs w
 Parse the user's input to determine the mode and arguments:
 
 - `/vc-signals setup` → Setup wizard mode
-- `/vc-signals weekly <sector> [time]` → Weekly sector scan (sectors: `devtools`, `cybersecurity`, `ai-infra`)
+- `/vc-signals radar <sector> [time]` → Company-first weekly radar (sectors: `devtools`, `cybersecurity`, `ai-infra`)
+- `/vc-signals weekly <sector> [time]` → Alias for `radar` (kept for backward compatibility)
 - `/vc-signals theme "<topic>" [time]` → Theme drill-down
 - `/vc-signals company "<name>" [time]` → Company backtrace
 - `/vc-signals github <sector>` → GitHub trending repos (sectors: `devtools`, `cybersecurity`, `ai-infra`, `all`)
@@ -284,9 +285,9 @@ Print what's configured and what each unlocks:
 
 ---
 
-## Mode: Weekly Sector Scan
+## Mode: Radar (Weekly Sector Scan)
 
-**Trigger:** `/vc-signals weekly <sector>`
+**Triggers:** `/vc-signals radar <sector>` or `/vc-signals weekly <sector>` (alias)
 
 **Sectors:** `devtools`, `cybersecurity`, `ai-infra`
 
