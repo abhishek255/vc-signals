@@ -14,4 +14,5 @@ build/
 .claude/skills/vc-signals/data/companies/*.md
 .claude/skills/vc-signals/data/github/*.md
 .claude/skills/vc-signals/data/history/theme_index.json
+.claude/skills/vc-signals/data/companies/company_index.json
 vendor/
