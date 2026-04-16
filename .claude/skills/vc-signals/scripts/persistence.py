@@ -157,6 +157,17 @@ def compute_company_diff(
     }
 
 
+def _load_json_index(index_path: Path) -> dict:
+    """Read a JSON index file, returning {} on missing or malformed content."""
+    if not index_path.exists():
+        return {}
+    try:
+        return json.loads(index_path.read_text())
+    except json.JSONDecodeError:
+        print(f"Warning: malformed JSON in {index_path}, starting empty", file=sys.stderr)
+        return {}
+
+
 def update_theme_index(
     themes: list[dict],
     sector: str,
@@ -170,14 +181,7 @@ def update_theme_index(
     index_path = data_dir / "history" / "theme_index.json"
     index_path.parent.mkdir(parents=True, exist_ok=True)
 
-    if index_path.exists():
-        try:
-            index = json.loads(index_path.read_text())
-        except json.JSONDecodeError:
-            print(f"Warning: malformed JSON in {index_path}, starting with empty index", file=sys.stderr)
-            index = {}
-    else:
-        index = {}
+    index = _load_json_index(index_path)
 
     for theme in themes:
         name = theme["name"]
@@ -235,17 +239,7 @@ def update_company_index(
     index_path = data_dir / "companies" / "company_index.json"
     index_path.parent.mkdir(parents=True, exist_ok=True)
 
-    if index_path.exists():
-        try:
-            index = json.loads(index_path.read_text())
-        except json.JSONDecodeError:
-            print(
-                f"Warning: malformed JSON in {index_path}, starting empty",
-                file=sys.stderr,
-            )
-            index = {}
-    else:
-        index = {}
+    index = _load_json_index(index_path)
 
     for company in companies:
         key = _normalize_company_name(company["name"])
@@ -354,16 +348,9 @@ def compute_theme_tag(
 
 
 def load_company_index(data_dir: Path | None = None) -> dict:
-    """Read the company index file, returning {} if it doesn't exist or is malformed."""
+    """Load the company index, or {} if missing or malformed."""
     data_dir = data_dir or DEFAULT_DATA_DIR
-    index_path = data_dir / "companies" / "company_index.json"
-    if not index_path.exists():
-        return {}
-    try:
-        return json.loads(index_path.read_text())
-    except json.JSONDecodeError:
-        print(f"Warning: malformed JSON in {index_path}", file=sys.stderr)
-        return {}
+    return _load_json_index(data_dir / "companies" / "company_index.json")
 
 
 def save_markdown(
@@ -447,7 +434,11 @@ def _normalize_company_name(name: str) -> str:
 
 
 def _cli_main() -> None:
-    """CLI entry point. Commands: save-briefing, load-briefing, load-previous, diff, update-index, save-markdown."""
+    """CLI entry point.
+
+    Commands: save-briefing, load-briefing, load-previous, diff, update-index,
+    save-markdown, update-company-index, load-company-index, company-diff, compute-tags.
+    """
     if len(sys.argv) < 2:
         print(json.dumps({"error": "Usage: persistence.py <command> [args]"}))
         sys.exit(1)
@@ -586,7 +577,7 @@ def _cli_main() -> None:
 
 
 def _parse_cli_args(argv: list[str]) -> dict:
-    """Parse --key value pairs from argv into a dict."""
+    """Parse --key value CLI pairs. Boolean flags (no following value) are set to "true"."""
     result = {}
     i = 0
     while i < len(argv):
