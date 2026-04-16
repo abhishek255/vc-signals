@@ -445,6 +445,27 @@ def test_compute_theme_tag_default_none():
     assert compute_theme_tag("Foo", momentum=6, theme_index=theme_index) is None
 
 
+def test_cli_compute_tags(data_dir):
+    script = Path(__file__).parent.parent / "scripts" / "persistence.py"
+    payload = json.dumps({
+        "themes": [{"name": "MCP Infra", "momentum": 9}],
+        "companies": [{"name": "MintMCP", "primary_theme": "MCP Infra"}],
+        "theme_index": {},
+        "company_index": {},
+    })
+    result = subprocess.run(
+        ["python3", str(script), "compute-tags",
+         "--data-dir", str(data_dir)],
+        input=payload,
+        capture_output=True,
+        text=True,
+    )
+    assert result.returncode == 0, result.stderr
+    out = json.loads(result.stdout)
+    assert out["themes"][0]["tag"] == "NEW"
+    assert out["companies"][0]["tag"] == "NEW"
+
+
 def test_save_briefing_persists_companies(data_dir, sample_themes, sample_companies):
     from persistence import save_briefing, load_briefing
 

@@ -561,6 +561,26 @@ def _cli_main() -> None:
         diff = compute_company_diff(payload.get("current", []), payload.get("previous", []))
         print(json.dumps(diff))
 
+    elif command == "compute-tags":
+        if sys.stdin.isatty():
+            print(json.dumps({"error": "No data piped. Pipe {themes, companies, theme_index, company_index}."}))
+            sys.exit(1)
+        payload = json.loads(sys.stdin.read())
+        themes = payload.get("themes", [])
+        companies = payload.get("companies", [])
+        theme_index = payload.get("theme_index", {})
+        company_index = payload.get("company_index", {})
+
+        tagged_themes = [
+            {**t, "tag": compute_theme_tag(t["name"], t.get("momentum", 0), theme_index)}
+            for t in themes
+        ]
+        tagged_companies = [
+            {**c, "tag": compute_company_tag(c["name"], company_index)}
+            for c in companies
+        ]
+        print(json.dumps({"themes": tagged_themes, "companies": tagged_companies}))
+
     else:
         print(json.dumps({"error": f"Unknown command: {command}"}))
         sys.exit(1)
