@@ -473,6 +473,30 @@ def _cli_main() -> None:
         result = save_markdown(args["subdir"], args["slug"], content, args.get("date"), data_dir)
         print(json.dumps(result))
 
+    elif command == "update-company-index":
+        _require_args(args, "sector")
+        _validate_slug(args["sector"], "sector")
+        if "date" in args:
+            _validate_date(args["date"], "date")
+        if sys.stdin.isatty():
+            print(json.dumps({"error": "No data piped to stdin. Pipe a JSON list of companies."}))
+            sys.exit(1)
+        companies = json.loads(sys.stdin.read())
+        index = update_company_index(companies, args["sector"], args.get("date"), data_dir)
+        print(json.dumps(index))
+
+    elif command == "load-company-index":
+        index = load_company_index(data_dir)
+        print(json.dumps(index))
+
+    elif command == "company-diff":
+        if sys.stdin.isatty():
+            print(json.dumps({"error": "No data piped to stdin. Pipe {current: [...], previous: [...]}."}))
+            sys.exit(1)
+        payload = json.loads(sys.stdin.read())
+        diff = compute_company_diff(payload.get("current", []), payload.get("previous", []))
+        print(json.dumps(diff))
+
     else:
         print(json.dumps({"error": f"Unknown command: {command}"}))
         sys.exit(1)

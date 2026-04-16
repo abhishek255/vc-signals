@@ -443,3 +443,54 @@ def test_cli_save_briefing_still_accepts_bare_list(data_dir):
     saved = json.loads((data_dir / "briefings" / "2026-04-16-devtools.json").read_text())
     assert len(saved["themes"]) == 1
     assert saved["companies"] == []
+
+
+def test_cli_update_company_index(data_dir):
+    script = Path(__file__).parent.parent / "scripts" / "persistence.py"
+    payload = json.dumps([
+        {"name": "MintMCP", "primary_theme": "MCP Infra"}
+    ])
+    result = subprocess.run(
+        ["python3", str(script), "update-company-index",
+         "--sector", "devtools",
+         "--date", "2026-04-16",
+         "--data-dir", str(data_dir)],
+        input=payload,
+        capture_output=True,
+        text=True,
+    )
+    assert result.returncode == 0, result.stderr
+    out = json.loads(result.stdout)
+    assert "mintmcp" in out
+    assert out["mintmcp"]["weeks_seen"] == 1
+
+
+def test_cli_load_company_index_empty(data_dir):
+    script = Path(__file__).parent.parent / "scripts" / "persistence.py"
+    result = subprocess.run(
+        ["python3", str(script), "load-company-index",
+         "--data-dir", str(data_dir)],
+        capture_output=True,
+        text=True,
+    )
+    assert result.returncode == 0
+    assert json.loads(result.stdout) == {}
+
+
+def test_cli_company_diff(data_dir):
+    script = Path(__file__).parent.parent / "scripts" / "persistence.py"
+    payload = json.dumps({
+        "current": [{"name": "MintMCP", "primary_theme": "MCP"}],
+        "previous": [{"name": "OldCo", "primary_theme": "Wasm"}],
+    })
+    result = subprocess.run(
+        ["python3", str(script), "company-diff",
+         "--data-dir", str(data_dir)],
+        input=payload,
+        capture_output=True,
+        text=True,
+    )
+    assert result.returncode == 0, result.stderr
+    diff = json.loads(result.stdout)
+    assert [c["name"] for c in diff["new_companies"]] == ["MintMCP"]
+    assert [c["name"] for c in diff["faded_companies"]] == ["OldCo"]
