@@ -163,6 +163,89 @@ def update_theme_index(
     return index
 
 
+def update_company_index(
+    companies: list[dict],
+    sector: str,
+    date: str | None = None,
+    data_dir: Path | None = None,
+) -> dict:
+    """Update the running company index with this week's companies.
+
+    Mirrors update_theme_index but for companies. The index is keyed by
+    the normalized company name (see _normalize_company_name) and stores:
+
+      - display_name: the most recent display form
+      - first_seen / last_seen: ISO dates
+      - weeks_seen: count of distinct dates this company appeared on
+      - missed_weeks: weeks since last_seen, computed when the company
+        is updated; reset to 0 each time the company appears
+      - sectors: deduped list of sectors that have featured this company
+      - themes_history: append-only list of primary_themes (ordered, deduped
+        consecutively but not globally — same theme back-to-back collapses)
+
+    Returns the full index dict.
+    """
+    date = date or datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    data_dir = data_dir or DEFAULT_DATA_DIR
+
+    index_path = data_dir / "companies" / "company_index.json"
+    index_path.parent.mkdir(parents=True, exist_ok=True)
+
+    if index_path.exists():
+        try:
+            index = json.loads(index_path.read_text())
+        except json.JSONDecodeError:
+            print(
+                f"Warning: malformed JSON in {index_path}, starting empty",
+                file=sys.stderr,
+            )
+            index = {}
+    else:
+        index = {}
+
+    for company in companies:
+        key = _normalize_company_name(company["name"])
+        primary_theme = company.get("primary_theme")
+
+        if key in index:
+            entry = index[key]
+            entry["display_name"] = company["name"]  # refresh to latest
+            entry["last_seen"] = date
+            entry["weeks_seen"] += 1
+            entry["missed_weeks"] = 0
+            if sector not in entry["sectors"]:
+                entry["sectors"].append(sector)
+            if primary_theme and (
+                not entry["themes_history"]
+                or entry["themes_history"][-1] != primary_theme
+            ):
+                entry["themes_history"].append(primary_theme)
+        else:
+            index[key] = {
+                "display_name": company["name"],
+                "first_seen": date,
+                "last_seen": date,
+                "weeks_seen": 1,
+                "missed_weeks": 0,
+                "sectors": [sector],
+                "themes_history": [primary_theme] if primary_theme else [],
+            }
+
+    # Compute missed_weeks for companies NOT in this week's list.
+    # We measure in calendar weeks since last_seen.
+    current_dt = datetime.strptime(date, "%Y-%m-%d")
+    current_keys = {_normalize_company_name(c["name"]) for c in companies}
+    for key, entry in index.items():
+        if key in current_keys:
+            continue
+        last_dt = datetime.strptime(entry["last_seen"], "%Y-%m-%d")
+        weeks_gap = max(0, (current_dt - last_dt).days // 7)
+        entry["missed_weeks"] = weeks_gap
+
+    index_path.write_text(json.dumps(index, indent=2))
+    return index
+
+
 def save_markdown(
     subdir: str,
     slug: str,

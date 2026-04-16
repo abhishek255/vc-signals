@@ -232,3 +232,82 @@ def test_normalize_company_name_strips_domain_suffix():
 def test_normalize_company_name_collapses_whitespace():
     from persistence import _normalize_company_name
     assert _normalize_company_name("  Grafana   Labs  ") == "grafana labs"
+
+
+def test_update_company_index_creates_entry(data_dir, sample_companies):
+    from persistence import update_company_index
+
+    index = update_company_index(
+        sample_companies, sector="devtools", date="2026-04-16", data_dir=data_dir
+    )
+    assert "mintmcp" in index
+    entry = index["mintmcp"]
+    assert entry["display_name"] == "MintMCP"
+    assert entry["first_seen"] == "2026-04-16"
+    assert entry["last_seen"] == "2026-04-16"
+    assert entry["weeks_seen"] == 1
+    assert entry["missed_weeks"] == 0
+    assert entry["sectors"] == ["devtools"]
+    assert entry["themes_history"] == ["MCP Agent Infrastructure"]
+
+
+def test_update_company_index_increments_on_repeat(data_dir, sample_companies):
+    from persistence import update_company_index
+
+    update_company_index(sample_companies, "devtools", "2026-04-09", data_dir)
+    index = update_company_index(sample_companies, "devtools", "2026-04-16", data_dir)
+
+    entry = index["mintmcp"]
+    assert entry["weeks_seen"] == 2
+    assert entry["first_seen"] == "2026-04-09"
+    assert entry["last_seen"] == "2026-04-16"
+    assert entry["missed_weeks"] == 0
+
+
+def test_update_company_index_tracks_missed_weeks(data_dir, sample_companies):
+    """A company absent from week N+1 should have missed_weeks > 0 in the
+    intermediate index, then reset to 0 when it next appears."""
+    from persistence import update_company_index
+
+    update_company_index(sample_companies, "devtools", "2026-04-02", data_dir)
+
+    # Week of 2026-04-09 — only sample_companies[1] (CodeRabbit) seen
+    intermediate = update_company_index(
+        [sample_companies[1]], "devtools", "2026-04-09", data_dir
+    )
+    # MintMCP missed this week — gap should be visible in the intermediate state
+    assert intermediate["mintmcp"]["missed_weeks"] == 1
+    assert intermediate["coderabbit"]["missed_weeks"] == 0
+
+    # Week of 2026-04-16 — MintMCP returns
+    final = update_company_index(sample_companies, "devtools", "2026-04-16", data_dir)
+    # On re-appearance, missed_weeks resets to 0
+    assert final["mintmcp"]["missed_weeks"] == 0
+    assert final["coderabbit"]["missed_weeks"] == 0
+
+
+def test_update_company_index_dedupes_by_normalized_name(data_dir):
+    from persistence import update_company_index
+
+    companies_a = [{"name": "Anysphere (Cursor)", "primary_theme": "Coding"}]
+    companies_b = [{"name": "anysphere", "primary_theme": "Coding"}]
+
+    update_company_index(companies_a, "devtools", "2026-04-09", data_dir)
+    index = update_company_index(companies_b, "devtools", "2026-04-16", data_dir)
+
+    assert "anysphere" in index
+    assert index["anysphere"]["weeks_seen"] == 2
+
+
+def test_update_company_index_appends_new_themes_only(data_dir):
+    from persistence import update_company_index
+
+    week_one = [{"name": "CodeRabbit", "primary_theme": "AI Code Review"}]
+    week_two = [{"name": "CodeRabbit", "primary_theme": "Agentic Coding"}]
+
+    update_company_index(week_one, "devtools", "2026-04-09", data_dir)
+    index = update_company_index(week_two, "devtools", "2026-04-16", data_dir)
+
+    assert index["coderabbit"]["themes_history"] == [
+        "AI Code Review", "Agentic Coding"
+    ]
