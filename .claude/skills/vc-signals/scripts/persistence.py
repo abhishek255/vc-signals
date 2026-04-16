@@ -113,6 +113,35 @@ def compute_diff(current: dict, previous: dict) -> dict:
     }
 
 
+def compute_company_diff(
+    current: list[dict], previous: list[dict]
+) -> dict:
+    """Compute new vs faded companies between two weekly company lists.
+
+    A company is "new" if its normalized name appears in current but not previous.
+    A company is "faded" if its normalized name appeared in previous but not current.
+    Names are matched via _normalize_company_name to handle display variations.
+
+    Returns: {"new_companies": [...], "faded_companies": [...]}
+    where each list contains the original (non-normalized) company dicts.
+    """
+    prev_keys = {_normalize_company_name(c["name"]) for c in previous}
+    curr_keys = {_normalize_company_name(c["name"]) for c in current}
+
+    new_companies = [
+        c for c in current
+        if _normalize_company_name(c["name"]) not in prev_keys
+    ]
+    faded_companies = [
+        c for c in previous
+        if _normalize_company_name(c["name"]) not in curr_keys
+    ]
+    return {
+        "new_companies": new_companies,
+        "faded_companies": faded_companies,
+    }
+
+
 def update_theme_index(
     themes: list[dict],
     sector: str,

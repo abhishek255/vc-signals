@@ -326,3 +326,48 @@ def test_load_company_index_missing_returns_empty(data_dir):
     from persistence import load_company_index
 
     assert load_company_index(data_dir) == {}
+
+
+def test_compute_company_diff_new_companies():
+    from persistence import compute_company_diff
+
+    previous = [{"name": "CodeRabbit", "primary_theme": "AI Code Review"}]
+    current = [
+        {"name": "CodeRabbit", "primary_theme": "AI Code Review"},
+        {"name": "MintMCP", "primary_theme": "MCP Infra"},
+    ]
+    diff = compute_company_diff(current, previous)
+    assert [c["name"] for c in diff["new_companies"]] == ["MintMCP"]
+    assert diff["faded_companies"] == []
+
+
+def test_compute_company_diff_faded_companies():
+    from persistence import compute_company_diff
+
+    previous = [
+        {"name": "CodeRabbit", "primary_theme": "AI Code Review"},
+        {"name": "OldCo", "primary_theme": "WebAssembly"},
+    ]
+    current = [{"name": "CodeRabbit", "primary_theme": "AI Code Review"}]
+    diff = compute_company_diff(current, previous)
+    assert [c["name"] for c in diff["faded_companies"]] == ["OldCo"]
+    assert diff["new_companies"] == []
+
+
+def test_compute_company_diff_uses_normalization():
+    from persistence import compute_company_diff
+
+    previous = [{"name": "Anysphere (Cursor)", "primary_theme": "Coding"}]
+    current = [{"name": "anysphere", "primary_theme": "Coding"}]
+    diff = compute_company_diff(current, previous)
+    assert diff["new_companies"] == []
+    assert diff["faded_companies"] == []
+
+
+def test_compute_company_diff_handles_empty_previous():
+    from persistence import compute_company_diff
+
+    current = [{"name": "MintMCP", "primary_theme": "MCP"}]
+    diff = compute_company_diff(current, [])
+    assert [c["name"] for c in diff["new_companies"]] == ["MintMCP"]
+    assert diff["faded_companies"] == []
