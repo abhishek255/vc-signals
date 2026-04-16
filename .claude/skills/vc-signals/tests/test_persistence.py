@@ -203,3 +203,32 @@ def test_cli_load_briefing_rejects_traversal_date(data_dir):
     )
     assert result.returncode == 1
     assert "Invalid date" in result.stdout
+
+
+def test_normalize_company_name_lowercases():
+    from persistence import _normalize_company_name
+    assert _normalize_company_name("MintMCP") == "mintmcp"
+
+
+def test_normalize_company_name_strips_legal_suffix():
+    from persistence import _normalize_company_name
+    assert _normalize_company_name("Anthropic, Inc.") == "anthropic"
+    assert _normalize_company_name("Datadog Inc") == "datadog"
+    assert _normalize_company_name("Acme Corp.") == "acme"
+    assert _normalize_company_name("Foo LLC") == "foo"
+
+
+def test_normalize_company_name_strips_parenthetical():
+    from persistence import _normalize_company_name
+    assert _normalize_company_name("Anysphere (Cursor)") == "anysphere"
+
+
+def test_normalize_company_name_strips_domain_suffix():
+    from persistence import _normalize_company_name
+    assert _normalize_company_name("Vercel.com") == "vercel"
+    assert _normalize_company_name("baserock.ai") == "baserock"
+
+
+def test_normalize_company_name_collapses_whitespace():
+    from persistence import _normalize_company_name
+    assert _normalize_company_name("  Grafana   Labs  ") == "grafana labs"

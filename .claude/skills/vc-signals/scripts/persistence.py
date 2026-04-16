@@ -210,6 +210,39 @@ def _validate_date(value: str, name: str) -> None:
         sys.exit(1)
 
 
+_LEGAL_SUFFIXES = (", inc.", " inc.", ", inc", " inc",
+                   ", llc", " llc", ", corp.", " corp.", " corp")
+_DOMAIN_SUFFIXES = (".com", ".io", ".ai", ".dev", ".sh", ".net")
+
+
+def _normalize_company_name(name: str) -> str:
+    """Return a canonical key for company dedup across themes and weeks.
+
+    Lowercases, strips legal suffixes ("Inc.", "LLC", "Corp."),
+    strips parenthetical disambiguators ("Anysphere (Cursor)" -> "anysphere"),
+    strips common domain suffixes (".com", ".ai"), and collapses whitespace.
+
+    Two display names that normalize to the same key are treated as
+    the same company by the index, diff, and dedup logic.
+    """
+    s = name.strip().lower()
+    # Drop parenthetical: "anysphere (cursor)" -> "anysphere"
+    s = re.sub(r'\s*\([^)]*\)\s*', '', s)
+    # Drop legal suffixes
+    for suf in _LEGAL_SUFFIXES:
+        if s.endswith(suf):
+            s = s[: -len(suf)]
+            break
+    # Drop trailing domain suffixes
+    for suf in _DOMAIN_SUFFIXES:
+        if s.endswith(suf):
+            s = s[: -len(suf)]
+            break
+    # Collapse internal whitespace
+    s = re.sub(r'\s+', ' ', s).strip()
+    return s
+
+
 def _cli_main() -> None:
     """CLI entry point. Commands: save-briefing, load-briefing, load-previous, diff, update-index, save-markdown."""
     if len(sys.argv) < 2:
