@@ -450,29 +450,47 @@ One blunt sentence. Example: "Durable -- real pain point with multiple well-fund
 
 ### Step 7: Map Companies
 
-For each theme, identify relevant companies using three sources:
+For each surviving theme (after Step 6 filtering), identify 8-12 relevant companies using three sources:
 
-1. **Seed map:** Check `company_aliases.json` -- does any known company map to this theme?
+1. **Seed map:** Check `company_aliases.json` — does any known company map to this theme?
 2. **Evidence:** Were any companies/projects mentioned in the search results for this theme?
 3. **GitHub data:** Do any trending repos from Step 5 relate to this theme?
 
-For each company, classify its role:
-- **Direct solver** -- building a product that addresses the theme head-on
-- **Beneficiary** -- existing company that gains from the trend
-- **Adjacent/ecosystem** -- related but not core
-- **Unclear** -- mentioned but relationship is ambiguous
+**Target: 30-50 total companies across the radar.** This is the centerpiece of the output, not an accessory.
 
-Tag confidence:
-- **Confirmed** -- in seed map or multiple sources corroborate
-- **Likely** -- strong contextual evidence
-- **Inferred** -- your judgment on limited evidence
-- **Speculative** -- thin signal, flag as such
+**Deduplicate across themes:**
+
+A company that appears in evidence for multiple themes (e.g., CodeRabbit in both "AI Code Review" and "Agentic Coding") must appear in the company list ONCE, not twice. Pick the strongest theme as `primary_theme`, list the others in `secondary_themes`. The output table shows only `primary_theme`.
+
+To pick `primary_theme`:
+- Prefer the theme with the most direct evidence
+- If tied, prefer the theme where the company is `direct_solver` over `beneficiary`
+- If still tied, pick the theme with higher momentum
+
+**For each company, capture:**
+
+| Field | Source | Notes |
+|-------|--------|-------|
+| `name` | Display form | "MintMCP", "Anysphere (Cursor)" |
+| `primary_theme` | Picked above | The theme this company most clearly rides |
+| `secondary_themes` | Other themes the company touches | List of theme names |
+| `why_on_radar` | One sentence | The single most concrete reason this is investable. Specific signal, not generic. |
+| `evidence_url` | Best source | URL of the strongest piece of evidence |
+| `role` | direct_solver / beneficiary / adjacent / unclear | Same taxonomy as before |
+| `confidence` | confirmed / likely / inferred / speculative | Same as before |
+| `stage` | null | Phase 2 fills this; leave null for now |
+| `raised` | null | Phase 2 fills this |
+| `headcount` | null | Phase 2 fills this |
+| `founders` | null | Phase 2 fills this |
+
+**The `why_on_radar` field is critical.** It's what Alex reads in the radar table. Bad: "AI testing company". Good: "AI-native test gen, launched 3 weeks ago, ex-Datadog founders". One sentence, specific signal.
+
+**Company tags will be computed in Step 9, AFTER the company index is updated.** Do not pre-compute tags here.
 
 **Do NOT:**
-- Pretend to know things you don't
-- State funding amounts without sourced evidence
-- Claim a company is "leading" without backing
+- Pretend to know things you don't (especially funding amounts — leave null until Phase 2)
 - Map a company to a theme just because the names sound related
+- Duplicate companies across themes — pick one primary
 
 ### Step 8: Format Output
 
