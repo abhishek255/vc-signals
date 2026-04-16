@@ -555,28 +555,47 @@ The output gives `new_companies` and `faded_companies`. Use these to populate th
 
 ### Step 9: Persist Results
 
-Save the briefing:
+**Order matters.** Update both indices FIRST so they reflect this week's data, then compute tags from the updated state, then render markdown, then save the briefing JSON and markdown file.
 
-Prepare a JSON array of theme objects with all scores and company mappings. Write it to a temp file, then pipe it:
+**Step 9a: Update the theme index**
 
-```bash
-cat <<'THEMES_EOF' | python3 <skill_dir>/scripts/persistence.py save-briefing --sector <SECTOR> --retrieval-path <websearch|last30days> --date $(date +%Y-%m-%d)
-[the JSON themes array goes here]
-THEMES_EOF
-```
-
-Save the markdown output:
-```bash
-cat <<'MD_EOF' | python3 <skill_dir>/scripts/persistence.py save-markdown --subdir briefings --slug <SECTOR> --date $(date +%Y-%m-%d)
-[the markdown content goes here]
-MD_EOF
-```
-
-Update the theme index:
 ```bash
 cat <<'THEMES_EOF' | python3 <skill_dir>/scripts/persistence.py update-index --sector <SECTOR> --date $(date +%Y-%m-%d)
 [the JSON themes array goes here]
 THEMES_EOF
+```
+
+**Step 9b: Update the company index** (NEW in Phase 1)
+
+```bash
+cat <<'COMPANIES_EOF' | python3 <skill_dir>/scripts/persistence.py update-company-index --sector <SECTOR> --date $(date +%Y-%m-%d)
+[the JSON companies array goes here]
+COMPANIES_EOF
+```
+
+**Step 9c: Compute tags from the updated indices**
+
+```bash
+echo '{"themes": <THEMES_JSON>, "companies": <COMPANIES_JSON>, "theme_index": <UPDATED_THEME_INDEX>, "company_index": <UPDATED_COMPANY_INDEX>}' | \
+  python3 <skill_dir>/scripts/persistence.py compute-tags
+```
+
+The output enriches each theme and company with a `tag` field (NEW / ACCELERATING / RETURNING / PERSISTENT / null). Use these tags when rendering the markdown for Step 8 — re-render that section using the tagged data before saving.
+
+**Step 9d: Save the briefing JSON** (themes + companies in one call)
+
+```bash
+cat <<'BRIEFING_EOF' | python3 <skill_dir>/scripts/persistence.py save-briefing --sector <SECTOR> --retrieval-path <websearch|last30days> --date $(date +%Y-%m-%d)
+{"themes": [the tagged themes array], "companies": [the tagged companies array]}
+BRIEFING_EOF
+```
+
+**Step 9e: Save the rendered markdown**
+
+```bash
+cat <<'MD_EOF' | python3 <skill_dir>/scripts/persistence.py save-markdown --subdir briefings --slug <SECTOR> --date $(date +%Y-%m-%d)
+[the rendered radar markdown content goes here]
+MD_EOF
 ```
 
 If any persistence step fails, warn the user but still display the full briefing inline. Do not crash.
