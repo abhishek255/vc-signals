@@ -373,6 +373,36 @@ def test_compute_company_diff_handles_empty_previous():
     assert diff["faded_companies"] == []
 
 
+def test_compute_company_tag_new():
+    from persistence import compute_company_tag
+    assert compute_company_tag("MintMCP", index={}) == "NEW"
+
+
+def test_compute_company_tag_persistent():
+    from persistence import compute_company_tag
+    index = {"coderabbit": {"weeks_seen": 4, "missed_weeks": 0}}
+    assert compute_company_tag("CodeRabbit", index) == "PERSISTENT"
+
+
+def test_compute_company_tag_returning():
+    from persistence import compute_company_tag
+    index = {"oldco": {"weeks_seen": 2, "missed_weeks": 3}}
+    assert compute_company_tag("OldCo", index) == "RETURNING"
+
+
+def test_compute_company_tag_default_none():
+    """Seen this week and once before, no missed weeks → no special tag."""
+    from persistence import compute_company_tag
+    index = {"foo": {"weeks_seen": 2, "missed_weeks": 0}}
+    assert compute_company_tag("Foo", index) is None
+
+
+def test_compute_company_tag_uses_normalized_lookup():
+    from persistence import compute_company_tag
+    index = {"anysphere": {"weeks_seen": 5, "missed_weeks": 0}}
+    assert compute_company_tag("Anysphere (Cursor)", index) == "PERSISTENT"
+
+
 def test_save_briefing_persists_companies(data_dir, sample_themes, sample_companies):
     from persistence import save_briefing, load_briefing
 

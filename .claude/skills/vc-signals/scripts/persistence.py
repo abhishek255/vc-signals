@@ -290,6 +290,38 @@ def update_company_index(
     return index
 
 
+PERSISTENT_WEEKS_THRESHOLD = 3
+RETURNING_MISSED_WEEKS_THRESHOLD = 2
+
+
+def compute_company_tag(name: str, index: dict) -> str | None:
+    """Return the tag for a company based on its history in the company index.
+
+    Tags:
+      - "NEW"        — never seen before (no entry in index)
+      - "RETURNING"  — seen before but missed >= RETURNING_MISSED_WEEKS_THRESHOLD weeks
+      - "PERSISTENT" — seen >= PERSISTENT_WEEKS_THRESHOLD consecutive weeks
+      - None         — none of the above (steady but not yet persistent)
+
+    The lookup is normalized via _normalize_company_name so display variants
+    ("Anysphere (Cursor)" vs "anysphere") resolve to the same entry.
+
+    NOTE: This must be called BEFORE update_company_index for the current week,
+    because update_company_index increments weeks_seen and resets missed_weeks.
+    """
+    key = _normalize_company_name(name)
+    entry = index.get(key)
+    if entry is None:
+        return "NEW"
+    if entry.get("missed_weeks", 0) >= RETURNING_MISSED_WEEKS_THRESHOLD:
+        return "RETURNING"
+    if entry.get("weeks_seen", 0) >= PERSISTENT_WEEKS_THRESHOLD:
+        # weeks_seen is the count BEFORE this week's update; >= 3 means
+        # already seen at least PERSISTENT_WEEKS_THRESHOLD times.
+        return "PERSISTENT"
+    return None
+
+
 def load_company_index(data_dir: Path | None = None) -> dict:
     """Read the company index file, returning {} if it doesn't exist or is malformed."""
     data_dir = data_dir or DEFAULT_DATA_DIR
