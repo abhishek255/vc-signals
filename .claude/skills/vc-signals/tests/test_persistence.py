@@ -403,6 +403,23 @@ def test_compute_company_tag_uses_normalized_lookup():
     assert compute_company_tag("Anysphere (Cursor)", index) == "PERSISTENT"
 
 
+def test_compute_company_tag_new_requires_old_snapshot(data_dir, sample_companies):
+    """Regression: tags must be computed from the PRE-update index snapshot.
+
+    If we update first and then compute tags, the entry will exist (just
+    inserted with weeks_seen=1) and NEW won't fire. This test pins the
+    snapshot-then-update ordering required by SKILL.md Step 9.
+    """
+    from persistence import compute_company_tag, load_company_index, update_company_index
+
+    snapshot = load_company_index(data_dir)
+    update_company_index(sample_companies, "devtools", "2026-04-16", data_dir)
+    after = load_company_index(data_dir)
+
+    assert compute_company_tag("MintMCP", snapshot) == "NEW"
+    assert compute_company_tag("MintMCP", after) is None
+
+
 def test_compute_theme_tag_new():
     from persistence import compute_theme_tag
     assert compute_theme_tag("MCP Infra", momentum=8, theme_index={}) == "NEW"

@@ -555,9 +555,25 @@ The output gives `new_companies` and `faded_companies`. Use these to populate th
 
 ### Step 9: Persist Results
 
-**Order matters.** Update both indices FIRST so they reflect this week's data, then compute tags from the updated state, then render markdown, then save the briefing JSON and markdown file.
+**Order matters.** Snapshot the OLD indices, compute tags from the snapshots (so NEW tags fire correctly for first-time entries), THEN update the indices, THEN save. Computing tags after the update breaks NEW: the entry exists in the index by then.
 
-**Step 9a: Update the theme index**
+**Step 9a: Snapshot the OLD indices** (before any updates)
+
+```bash
+OLD_THEME_INDEX=$(cat <skill_dir>/data/history/theme_index.json 2>/dev/null || echo "{}")
+OLD_COMPANY_INDEX=$(python3 <skill_dir>/scripts/persistence.py load-company-index)
+```
+
+**Step 9b: Compute tags from the OLD snapshots**
+
+```bash
+echo '{"themes": <THEMES_JSON>, "companies": <COMPANIES_JSON>, "theme_index": '"$OLD_THEME_INDEX"', "company_index": '"$OLD_COMPANY_INDEX"'}' | \
+  python3 <skill_dir>/scripts/persistence.py compute-tags
+```
+
+The output enriches each theme and company with a `tag` field (NEW / ACCELERATING / RETURNING / PERSISTENT / null). Use these tags when rendering the markdown for Step 8 — re-render that section using the tagged data before saving.
+
+**Step 9c: Update the theme index**
 
 ```bash
 cat <<'THEMES_EOF' | python3 <skill_dir>/scripts/persistence.py update-index --sector <SECTOR> --date $(date +%Y-%m-%d)
@@ -565,7 +581,7 @@ cat <<'THEMES_EOF' | python3 <skill_dir>/scripts/persistence.py update-index --s
 THEMES_EOF
 ```
 
-**Step 9b: Update the company index** (NEW in Phase 1)
+**Step 9d: Update the company index** (NEW in Phase 1)
 
 ```bash
 cat <<'COMPANIES_EOF' | python3 <skill_dir>/scripts/persistence.py update-company-index --sector <SECTOR> --date $(date +%Y-%m-%d)
@@ -573,16 +589,7 @@ cat <<'COMPANIES_EOF' | python3 <skill_dir>/scripts/persistence.py update-compan
 COMPANIES_EOF
 ```
 
-**Step 9c: Compute tags from the updated indices**
-
-```bash
-echo '{"themes": <THEMES_JSON>, "companies": <COMPANIES_JSON>, "theme_index": <UPDATED_THEME_INDEX>, "company_index": <UPDATED_COMPANY_INDEX>}' | \
-  python3 <skill_dir>/scripts/persistence.py compute-tags
-```
-
-The output enriches each theme and company with a `tag` field (NEW / ACCELERATING / RETURNING / PERSISTENT / null). Use these tags when rendering the markdown for Step 8 — re-render that section using the tagged data before saving.
-
-**Step 9d: Save the briefing JSON** (themes + companies in one call)
+**Step 9e: Save the briefing JSON** (themes + companies in one call)
 
 ```bash
 cat <<'BRIEFING_EOF' | python3 <skill_dir>/scripts/persistence.py save-briefing --sector <SECTOR> --retrieval-path <websearch|last30days> --date $(date +%Y-%m-%d)
@@ -590,7 +597,7 @@ cat <<'BRIEFING_EOF' | python3 <skill_dir>/scripts/persistence.py save-briefing 
 BRIEFING_EOF
 ```
 
-**Step 9e: Save the rendered markdown**
+**Step 9f: Save the rendered markdown**
 
 ```bash
 cat <<'MD_EOF' | python3 <skill_dir>/scripts/persistence.py save-markdown --subdir briefings --slug <SECTOR> --date $(date +%Y-%m-%d)
