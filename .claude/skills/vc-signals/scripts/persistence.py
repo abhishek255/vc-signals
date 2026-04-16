@@ -322,6 +322,38 @@ def compute_company_tag(name: str, index: dict) -> str | None:
     return None
 
 
+def compute_theme_tag(
+    name: str, momentum: int, theme_index: dict
+) -> str | None:
+    """Return the tag for a theme based on its history in the theme index.
+
+    Tags:
+      - "NEW"           — not in index (first appearance ever)
+      - "ACCELERATING"  — momentum jumped by ACCELERATING_MOMENTUM_GAIN or more vs last week
+      - "PERSISTENT"    — appeared in PERSISTENT_WEEKS_THRESHOLD or more scans
+      - None            — none of the above
+
+    Theme index is keyed by exact theme name (themes don't have the
+    "Anysphere (Cursor)" problem because they're already canonicalized
+    during synthesis). If we hit theme-name-fragmentation in practice,
+    revisit and add a normalizer.
+    """
+    entry = theme_index.get(name)
+    if entry is None:
+        return "NEW"
+
+    history = entry.get("momentum_history", [])
+    if history:
+        last_momentum = history[-1]
+        if momentum >= last_momentum + ACCELERATING_MOMENTUM_GAIN:
+            return "ACCELERATING"
+
+    if entry.get("appearances", 0) >= PERSISTENT_WEEKS_THRESHOLD - 1:
+        return "PERSISTENT"
+
+    return None
+
+
 def load_company_index(data_dir: Path | None = None) -> dict:
     """Read the company index file, returning {} if it doesn't exist or is malformed."""
     data_dir = data_dir or DEFAULT_DATA_DIR

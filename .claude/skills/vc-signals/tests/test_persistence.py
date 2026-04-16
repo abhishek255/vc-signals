@@ -403,6 +403,48 @@ def test_compute_company_tag_uses_normalized_lookup():
     assert compute_company_tag("Anysphere (Cursor)", index) == "PERSISTENT"
 
 
+def test_compute_theme_tag_new():
+    from persistence import compute_theme_tag
+    assert compute_theme_tag("MCP Infra", momentum=8, theme_index={}) == "NEW"
+
+
+def test_compute_theme_tag_accelerating():
+    from persistence import compute_theme_tag
+    theme_index = {
+        "AI Testing": {
+            "appearances": 2,
+            "momentum_history": [5, 6],
+            "peak_momentum": 6,
+        }
+    }
+    # current momentum 8 vs previous 6 → +2 jump
+    assert compute_theme_tag("AI Testing", momentum=8, theme_index=theme_index) == "ACCELERATING"
+
+
+def test_compute_theme_tag_persistent():
+    from persistence import compute_theme_tag
+    theme_index = {
+        "AI Code Review": {
+            "appearances": 3,
+            "momentum_history": [7, 7, 7],
+            "peak_momentum": 7,
+        }
+    }
+    assert compute_theme_tag("AI Code Review", momentum=7, theme_index=theme_index) == "PERSISTENT"
+
+
+def test_compute_theme_tag_default_none():
+    from persistence import compute_theme_tag
+    theme_index = {
+        "Foo": {
+            "appearances": 1,
+            "momentum_history": [5],
+            "peak_momentum": 5,
+        }
+    }
+    assert compute_theme_tag("Foo", momentum=6, theme_index=theme_index) is None
+
+
 def test_save_briefing_persists_companies(data_dir, sample_themes, sample_companies):
     from persistence import save_briefing, load_briefing
 
