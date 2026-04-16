@@ -246,6 +246,19 @@ def update_company_index(
     return index
 
 
+def load_company_index(data_dir: Path | None = None) -> dict:
+    """Read the company index file, returning {} if it doesn't exist or is malformed."""
+    data_dir = data_dir or DEFAULT_DATA_DIR
+    index_path = data_dir / "companies" / "company_index.json"
+    if not index_path.exists():
+        return {}
+    try:
+        return json.loads(index_path.read_text())
+    except json.JSONDecodeError:
+        print(f"Warning: malformed JSON in {index_path}", file=sys.stderr)
+        return {}
+
+
 def save_markdown(
     subdir: str,
     slug: str,

@@ -311,3 +311,18 @@ def test_update_company_index_appends_new_themes_only(data_dir):
     assert index["coderabbit"]["themes_history"] == [
         "AI Code Review", "Agentic Coding"
     ]
+
+
+def test_load_company_index_returns_data(data_dir, sample_companies):
+    from persistence import load_company_index, update_company_index
+
+    update_company_index(sample_companies, "devtools", "2026-04-16", data_dir)
+    index = load_company_index(data_dir)
+    assert "mintmcp" in index
+    assert index["mintmcp"]["weeks_seen"] == 1
+
+
+def test_load_company_index_missing_returns_empty(data_dir):
+    from persistence import load_company_index
+
+    assert load_company_index(data_dir) == {}
