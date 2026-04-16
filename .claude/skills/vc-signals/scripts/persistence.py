@@ -306,8 +306,9 @@ def compute_company_tag(name: str, index: dict) -> str | None:
     The lookup is normalized via _normalize_company_name so display variants
     ("Anysphere (Cursor)" vs "anysphere") resolve to the same entry.
 
-    NOTE: This must be called BEFORE update_company_index for the current week,
-    because update_company_index increments weeks_seen and resets missed_weeks.
+    NOTE: Call this AFTER update_company_index for the current week. The
+    helper reads weeks_seen as the post-update count (i.e. including this
+    week), so PERSISTENT fires the third week a company is in a row.
     """
     key = _normalize_company_name(name)
     entry = index.get(key)
@@ -316,8 +317,6 @@ def compute_company_tag(name: str, index: dict) -> str | None:
     if entry.get("missed_weeks", 0) >= RETURNING_MISSED_WEEKS_THRESHOLD:
         return "RETURNING"
     if entry.get("weeks_seen", 0) >= PERSISTENT_WEEKS_THRESHOLD:
-        # weeks_seen is the count BEFORE this week's update; >= 3 means
-        # already seen at least PERSISTENT_WEEKS_THRESHOLD times.
         return "PERSISTENT"
     return None
 
