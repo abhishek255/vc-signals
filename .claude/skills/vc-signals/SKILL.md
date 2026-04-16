@@ -494,55 +494,64 @@ To pick `primary_theme`:
 
 ### Step 8: Format Output
 
-Rank themes by momentum score (descending). Output the top 8-12 themes.
+Output uses the radar format: themes are short headers, the company table is the centerpiece, week-over-week diff lives at the top.
 
-**If previous briefing exists, start with the week-over-week comparison:**
+**Begin with the week-over-week diff (only if a previous briefing exists):**
 
-```markdown
-## What Changed Since Last Week (YYYY-MM-DD)
-
-**New signals:**
-- "Theme Name" (momentum: X) -- not seen before
-
-**Gaining steam:**
-- "Theme Name" -- momentum X -> Y
-
-**Fading:**
-- "Theme Name" -- momentum X -> Y (or dropped out)
-
-**Durable (3+ weeks):**
-- "Theme Name" -- Nth consecutive week, steady at X-Y
+```bash
+echo '{"current": <CURRENT_COMPANIES_JSON>, "previous": <PREV_COMPANIES_JSON>}' | \
+  python3 <skill_dir>/scripts/persistence.py company-diff
 ```
 
-**Then output each theme:**
+The output gives `new_companies` and `faded_companies`. Use these to populate the "New To Radar" and "Faded Off Radar" sections below.
 
-```markdown
-## Weekly VC Signal Brief: [Sector] -- YYYY-MM-DD
+**Output template:**
 
-### 1. [Theme Title]
+````markdown
+## VC Radar: {Sector Display Name} — Week of {YYYY-MM-DD}
 
-**Momentum: X/10** | **Confidence: High/Medium/Low** | **Timing: Early/Mid/Late**
+### What's Moving
 
-**Why it's rising:** [2-3 sentences with specific evidence. What changed? Why now?]
+[For each theme, exactly 3 lines:]
+- **{Theme Name}** — {TAG (Nw)}. {one-line why-now in <120 chars}.
+  Companies riding this: {N}
 
-**Evidence:**
-- [Source 1: title, URL, key quote or data point]
-- [Source 2: title, URL, key quote or data point]
-- [Source 3 if available]
+[6-8 themes max. TAG is one of NEW, ACCELERATING (#prev → #curr), PERSISTENT (Nw), or omitted if no tag. (Nw) means "N weeks active".]
 
-**Why investors should care:** [1-2 sentences -- what's the opportunity?]
+### Company Radar ({N} companies)
 
-**Hype vs Durable:** [One blunt sentence]
+| Company | Theme | Tag | Why On Radar |
+|---------|-------|-----|--------------|
+| MintMCP | MCP Infra | NEW | First SOC2-compliant MCP gateway, picking up enterprise pilots |
+| CodeRabbit | AI Code Review | PERSISTENT | 2M repos, 13M PRs reviewed |
+| ... | ... | ... | ... |
 
-**Companies & Projects:**
-| Name | Role | Confidence | Notes |
-|------|------|------------|-------|
-| Company A | Direct solver | Confirmed | Brief note |
-| Company B | Beneficiary | Likely | Brief note |
-| OSS Project C | Adjacent | Inferred | Brief note |
+[30-50 rows, sorted by primary_theme then alphabetically by company name. Tag column shows NEW / RETURNING / PERSISTENT or empty.]
 
----
-```
+### New To Radar This Week ({N} companies)
+
+[Bulleted list, max 10. If more than 10 are new, show top 10 by best evidence and note "+N more in the table above".]
+- {Company} — {primary_theme}. {why_on_radar}
+- ...
+
+### Faded Off Radar ({N} companies)
+
+[Bulleted list, max 10. From company-diff faded_companies.]
+- {Company} — last seen {date}, was in {primary_theme}.
+
+### Theme Detail
+
+[For each theme, 2-3 lines max. NOT the long-form analysis from v1. Pointer to deep-dive.]
+- **{Theme}** ({company_count} companies) — {2-sentence context}.
+  Run `/vc-signals deep "{Theme}"` for full evidence and subthemes.
+````
+
+**Sorting rules:**
+- Themes in "What's Moving" are sorted by tag (NEW → ACCELERATING → PERSISTENT → no-tag), then by momentum descending.
+- Company Radar rows are sorted by primary_theme (matching the order themes appear in "What's Moving"), then alphabetically by company name within each theme.
+- New To Radar is sorted by primary_theme matching above.
+
+**Length budget:** the entire radar should fit in roughly 150-250 lines. If it's longer, the per-theme detail is too verbose — tighten it.
 
 ### Step 9: Persist Results
 
