@@ -405,6 +405,12 @@ Now you have all the evidence. This is where your reasoning does the heavy work.
   - "shift-left security" + "developer-first security" -> "Developer-First Security Tooling"
 - Pick canonical names that are specific enough to be useful, generic enough to cover the cluster
 
+**Filter low-yield themes (Phase 1 radar requirement):**
+
+After clustering, drop any theme that produces fewer than 3 mappable companies in Step 7. A theme without investable companies is signal noise — better to surface 6 themes × 8 companies than 12 themes × 2 companies.
+
+Operationally: do a quick first pass through Step 7's company mapping for each candidate theme. If a theme yields fewer than 3 companies (across seed map, evidence, and GitHub data combined), drop it from the radar before scoring momentum. Note the dropped themes in the persistence record so future scans can detect when a previously-dropped theme starts producing companies.
+
 **Score each theme -- Momentum (1-10):**
 
 Assign a transparent momentum score. For each theme, weigh these factors:
@@ -439,6 +445,8 @@ You MUST explain how you arrived at each score in 1-2 sentences.
 
 **Hype vs Durable verdict:**
 One blunt sentence. Example: "Durable -- real pain point with multiple well-funded solutions." or "Likely hype -- single viral post driving most of the signal, unclear staying power."
+
+**Theme tags will be computed in Step 9, AFTER the theme index is updated** (compute-tags reads post-update counts). Do not pre-compute tags here.
 
 ### Step 7: Map Companies
 
