@@ -51,6 +51,37 @@ def sample_themes() -> list[dict]:
 
 
 @pytest.fixture
+def sample_companies() -> list[dict]:
+    """Sample company list (post-flip schema) for testing."""
+    return [
+        {
+            "name": "MintMCP",
+            "primary_theme": "MCP Agent Infrastructure",
+            "secondary_themes": [],
+            "tag": None,
+            "why_on_radar": "First SOC2-compliant MCP gateway",
+            "evidence_url": "https://example.com/mintmcp",
+            "stage": None,
+            "raised": None,
+            "headcount": None,
+            "founders": None,
+        },
+        {
+            "name": "CodeRabbit",
+            "primary_theme": "AI-Powered Code Review",
+            "secondary_themes": ["Agentic Coding Tools"],
+            "tag": None,
+            "why_on_radar": "2M repos, 13M PRs reviewed",
+            "evidence_url": "https://example.com/coderabbit",
+            "stage": None,
+            "raised": None,
+            "headcount": None,
+            "founders": None,
+        },
+    ]
+
+
+@pytest.fixture
 def sample_config_dir(tmp_path: Path) -> Path:
     """Create a temporary config directory with sectors.json."""
     config_dir = tmp_path / "config"
