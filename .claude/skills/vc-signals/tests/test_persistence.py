@@ -371,3 +371,75 @@ def test_compute_company_diff_handles_empty_previous():
     diff = compute_company_diff(current, [])
     assert [c["name"] for c in diff["new_companies"]] == ["MintMCP"]
     assert diff["faded_companies"] == []
+
+
+def test_save_briefing_persists_companies(data_dir, sample_themes, sample_companies):
+    from persistence import save_briefing, load_briefing
+
+    save_briefing(
+        sector="devtools",
+        themes=sample_themes,
+        retrieval_path="websearch",
+        date="2026-04-16",
+        data_dir=data_dir,
+        companies=sample_companies,
+    )
+    loaded = load_briefing("devtools", "2026-04-16", data_dir)
+    assert "companies" in loaded
+    assert len(loaded["companies"]) == 2
+    assert loaded["companies"][0]["name"] == "MintMCP"
+
+
+def test_save_briefing_companies_default_empty(data_dir, sample_themes):
+    """Old call sites without companies arg still work; companies defaults to []."""
+    from persistence import save_briefing, load_briefing
+
+    save_briefing("devtools", sample_themes, "websearch", "2026-04-16", data_dir)
+    loaded = load_briefing("devtools", "2026-04-16", data_dir)
+    assert loaded["companies"] == []
+
+
+def test_cli_save_briefing_accepts_object_payload(data_dir):
+    """The CLI should accept {themes:[...], companies:[...]} on stdin."""
+    script = Path(__file__).parent.parent / "scripts" / "persistence.py"
+    payload = json.dumps({
+        "themes": [{"name": "MCP Infra", "momentum": 9}],
+        "companies": [{"name": "MintMCP", "primary_theme": "MCP Infra"}],
+    })
+    result = subprocess.run(
+        ["python3", str(script), "save-briefing",
+         "--sector", "devtools",
+         "--retrieval-path", "websearch",
+         "--date", "2026-04-16",
+         "--data-dir", str(data_dir)],
+        input=payload,
+        capture_output=True,
+        text=True,
+    )
+    assert result.returncode == 0, result.stderr
+
+    saved = json.loads((data_dir / "briefings" / "2026-04-16-devtools.json").read_text())
+    assert len(saved["themes"]) == 1
+    assert len(saved["companies"]) == 1
+    assert saved["companies"][0]["name"] == "MintMCP"
+
+
+def test_cli_save_briefing_still_accepts_bare_list(data_dir):
+    """Backward compat: old callers piping a bare list still work."""
+    script = Path(__file__).parent.parent / "scripts" / "persistence.py"
+    payload = json.dumps([{"name": "MCP Infra", "momentum": 9}])
+    result = subprocess.run(
+        ["python3", str(script), "save-briefing",
+         "--sector", "devtools",
+         "--retrieval-path", "websearch",
+         "--date", "2026-04-16",
+         "--data-dir", str(data_dir)],
+        input=payload,
+        capture_output=True,
+        text=True,
+    )
+    assert result.returncode == 0, result.stderr
+
+    saved = json.loads((data_dir / "briefings" / "2026-04-16-devtools.json").read_text())
+    assert len(saved["themes"]) == 1
+    assert saved["companies"] == []

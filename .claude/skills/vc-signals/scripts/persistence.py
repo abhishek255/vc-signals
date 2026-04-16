@@ -21,8 +21,22 @@ def save_briefing(
     retrieval_path: str,
     date: str | None = None,
     data_dir: Path | None = None,
+    companies: list[dict] | None = None,
 ) -> dict:
-    """Save a briefing as JSON. Returns dict with saved path."""
+    """Save a briefing as JSON. Returns dict with saved path.
+
+    The on-disk schema is:
+        {
+          "date": "YYYY-MM-DD",
+          "sector": "devtools",
+          "retrieval_path": "websearch" | "last30days",
+          "themes": [...],
+          "companies": [...]   # added in radar-flip; defaults to [] when not provided
+        }
+
+    Old briefings (pre-radar-flip) loaded back will not have a "companies" key;
+    callers that need it should default to [] when missing.
+    """
     date = date or datetime.now(timezone.utc).strftime("%Y-%m-%d")
     data_dir = data_dir or DEFAULT_DATA_DIR
 
@@ -31,6 +45,7 @@ def save_briefing(
         "sector": sector,
         "retrieval_path": retrieval_path,
         "themes": themes,
+        "companies": companies or [],
     }
 
     briefings_dir = data_dir / "briefings"
@@ -384,15 +399,27 @@ def _cli_main() -> None:
         if "date" in args:
             _validate_date(args["date"], "date")
         if sys.stdin.isatty():
-            print(json.dumps({"error": "No data piped to stdin. Usage: echo '<json>' | persistence.py <command> ..."}))
+            print(json.dumps({"error": "No data piped to stdin. Pipe a JSON list of themes or {themes:[], companies:[]}."}))
             sys.exit(1)
-        themes = json.loads(sys.stdin.read())
+
+        payload = json.loads(sys.stdin.read())
+        if isinstance(payload, list):
+            # Legacy form: bare themes list
+            themes, companies = payload, None
+        elif isinstance(payload, dict):
+            themes = payload.get("themes", [])
+            companies = payload.get("companies")
+        else:
+            print(json.dumps({"error": "stdin payload must be a list (themes) or object {themes, companies}"}))
+            sys.exit(1)
+
         result = save_briefing(
             sector=args["sector"],
             themes=themes,
             retrieval_path=args.get("retrieval-path", "websearch"),
             date=args.get("date"),
             data_dir=data_dir,
+            companies=companies,
         )
         print(json.dumps(result))
 
