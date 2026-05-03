@@ -4,7 +4,7 @@
 
 A skill for [Claude Code](https://docs.anthropic.com/en/docs/claude-code) and [Claude Co-Work](https://claude.com/product/cowork) that turns noisy public internet chatter into a weekly company radar — 30-50 investable companies organized by emerging theme, in devtools, cybersecurity, and AI infrastructure.
 
-**[See how it works (interactive visual guide)](https://abhishek255.github.io/vc-signals/)**
+**[See how it works (visual guide)](https://abhishek255.github.io/vc-signals/)**
 
 ---
 
@@ -325,7 +325,7 @@ You type: /vc-signals radar devtools
 
 **Claude is the intelligence engine.** The Python scripts just handle API calls and file storage. Claude does all the thinking.
 
-**Want the full picture?** Open the **[interactive visual explainer](https://abhishek255.github.io/vc-signals/)** — covers architecture, scoring rubric, company mapping layers, persistence, and graceful degradation with interactive diagrams.
+**Want the full picture?** Open the **[visual explainer](https://abhishek255.github.io/vc-signals/)** — covers architecture, scoring rubric, company mapping layers, persistence, and graceful degradation with diagrams.
 
 ---
 
