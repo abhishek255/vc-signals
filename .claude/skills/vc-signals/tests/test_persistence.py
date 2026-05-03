@@ -684,6 +684,41 @@ def test_cli_load_company_index_empty(data_dir):
     assert json.loads(result.stdout) == {}
 
 
+@pytest.mark.parametrize("command,extra_args", [
+    ("save-briefing", ["--sector", "devtools"]),
+    ("update-index", ["--sector", "devtools"]),
+    ("update-company-index", ["--sector", "devtools"]),
+    ("company-diff", []),
+    ("compute-tags", []),
+    ("save-markdown", ["--subdir", "themes", "--slug", "foo"]),
+])
+def test_cli_malformed_stdin_returns_structured_error(data_dir, command, extra_args):
+    """Every command that reads stdin must respond to malformed JSON with
+    {"error": ...} on stdout and exit code 1, not a Python traceback.
+
+    save-markdown reads text (not JSON) on stdin, so it tolerates any input —
+    we exclude it from the JSON-error contract and instead assert it does
+    NOT crash on arbitrary bytes.
+    """
+    script = Path(__file__).parent.parent / "scripts" / "persistence.py"
+    result = subprocess.run(
+        ["python3", str(script), command,
+         *extra_args, "--data-dir", str(data_dir)],
+        input="not json {{{",
+        capture_output=True, text=True,
+    )
+    if command == "save-markdown":
+        # save-markdown takes raw text, so non-JSON is fine; just no crash.
+        assert "Traceback" not in result.stderr
+        return
+
+    assert result.returncode == 1, f"command={command} stderr={result.stderr}"
+    payload = json.loads(result.stdout)
+    assert "error" in payload
+    assert "json" in payload["error"].lower() or "invalid" in payload["error"].lower()
+    assert "Traceback" not in result.stderr
+
+
 def test_cli_company_diff(data_dir):
     script = Path(__file__).parent.parent / "scripts" / "persistence.py"
     payload = json.dumps({

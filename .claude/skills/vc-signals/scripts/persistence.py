@@ -400,6 +400,26 @@ def save_markdown(
 
 # --- CLI interface for Claude to call via Bash ---
 
+def _read_json_stdin():
+    """Read and parse JSON from stdin. On error: structured stdout + exit 1.
+
+    Centralizes the isatty/JSON-decode error handling that every CLI command
+    needs, so stdout always emits {"error": ...} and stderr never carries a
+    Python traceback for malformed user input.
+    """
+    if sys.stdin.isatty():
+        print(json.dumps({"error": "No data piped to stdin."}))
+        sys.exit(1)
+    raw = sys.stdin.read()
+    try:
+        return json.loads(raw)
+    except json.JSONDecodeError as e:
+        print(json.dumps({
+            "error": f"Invalid JSON on stdin: {e.msg} at line {e.lineno} col {e.colno}"
+        }))
+        sys.exit(1)
+
+
 def _require_args(args: dict, *required: str) -> None:
     missing = [k for k in required if k not in args]
     if missing:
@@ -509,11 +529,8 @@ def _cli_main() -> None:
         _validate_slug(args["sector"], "sector")
         if "date" in args:
             _validate_date(args["date"], "date")
-        if sys.stdin.isatty():
-            print(json.dumps({"error": "No data piped to stdin. Pipe a JSON list of themes or {themes:[], companies:[]}."}))
-            sys.exit(1)
 
-        payload = json.loads(sys.stdin.read())
+        payload = _read_json_stdin()
         if isinstance(payload, list):
             # Legacy form: bare themes list
             themes, companies = payload, None
@@ -565,10 +582,7 @@ def _cli_main() -> None:
         _validate_slug(args["sector"], "sector")
         if "date" in args:
             _validate_date(args["date"], "date")
-        if sys.stdin.isatty():
-            print(json.dumps({"error": "No data piped to stdin. Usage: echo '<json>' | persistence.py <command> ..."}))
-            sys.exit(1)
-        themes = json.loads(sys.stdin.read())
+        themes = _read_json_stdin()
         index = update_theme_index(themes, args["sector"], args.get("date"), data_dir)
         print(json.dumps(index))
 
@@ -607,10 +621,7 @@ def _cli_main() -> None:
         _validate_slug(args["sector"], "sector")
         if "date" in args:
             _validate_date(args["date"], "date")
-        if sys.stdin.isatty():
-            print(json.dumps({"error": "No data piped to stdin. Pipe a JSON list of companies."}))
-            sys.exit(1)
-        companies = json.loads(sys.stdin.read())
+        companies = _read_json_stdin()
         index = update_company_index(companies, args["sector"], args.get("date"), data_dir)
         print(json.dumps(index))
 
@@ -619,18 +630,12 @@ def _cli_main() -> None:
         print(json.dumps(index))
 
     elif command == "company-diff":
-        if sys.stdin.isatty():
-            print(json.dumps({"error": "No data piped to stdin. Pipe {current: [...], previous: [...]}."}))
-            sys.exit(1)
-        payload = json.loads(sys.stdin.read())
+        payload = _read_json_stdin()
         diff = compute_company_diff(payload.get("current", []), payload.get("previous", []))
         print(json.dumps(diff))
 
     elif command == "compute-tags":
-        if sys.stdin.isatty():
-            print(json.dumps({"error": "No data piped. Pipe {themes, companies, theme_index, company_index}."}))
-            sys.exit(1)
-        payload = json.loads(sys.stdin.read())
+        payload = _read_json_stdin()
         themes = payload.get("themes", [])
         companies = payload.get("companies", [])
         theme_index = payload.get("theme_index", {})
