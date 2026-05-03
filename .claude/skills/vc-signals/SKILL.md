@@ -919,7 +919,6 @@ For each subcategory, generate:
 - `name`: display name
 - `aliases`: 4-6 relevant search terms
 - `seed_queries`: 2-3 search queries
-- `github_topics`: 2-3 GitHub topic tags (if applicable)
 
 Also generate:
 - `subreddits`: 5-8 relevant subreddits for the sector
