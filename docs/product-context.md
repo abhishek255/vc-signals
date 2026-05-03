@@ -216,19 +216,12 @@ Themes (3 lines each, brief context)
 ### Resolved
 - **2026-04-16 (Phase 1):** Items #1, #2 — `--date` path traversal hardened in `_validate_date`; data files untracked from git via `.gitignore`.
 - **2026-05-03 (high-priority pass):** Items #3, #4, #5, #6, #7 — see `docs/superpowers/plans/2026-05-03-high-priority-tech-debt.md`. `<LOOKBACK>` replaced with `${LOOKBACK_DAYS}` shell var; hardcoded `.claude/skills/vc-signals/` paths in runtime commands replaced with `<skill_dir>`; `github_trending.py` handles `--sector all` and reads `GITHUB_TOKEN` from `~/.config/last30days/.env`; `persistence.py save-markdown` accepts `--name "Free Text"` and slugifies internally.
+- **2026-05-03 (medium-priority pass):** Items #11–#16 — see `docs/superpowers/plans/2026-05-03-medium-priority-tech-debt.md`. Curated subreddits passed alongside `--auto-resolve`; `compute_diff` now emits `persistent_themes` and matches theme names case- and whitespace-insensitively; all stdin-JSON callsites return structured `{"error": ...}` responses instead of Python tracebacks; `install.sh` checks for `git` and traps `TMP_DIR` cleanup; README dropped overstated "interactive" claim.
 
 ### High (remaining)
 8. HTML explainer says "Five Modes" but shows six
 9. `github_topics` dead schema field — referenced in add-sector but never implemented
 10. ~15 companies from our own briefing missing from seed map
-
-### Medium
-11. Curated subreddits never passed alongside auto-resolve
-12. No "durable" themes computation in compute_diff
-13. Case-sensitive theme matching in compute_diff
-14. No JSON error handling on stdin.read()
-15. install.sh has no git check, no trap for cleanup
-16. README says "interactive diagrams" — HTML has no JS
 
 ### Test Coverage Gaps
 - No CLI tests for any script
