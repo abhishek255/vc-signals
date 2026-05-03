@@ -8,6 +8,7 @@ SKILL_NAME="vc-signals"
 SKILL_DIR="$HOME/.claude/skills/$SKILL_NAME"
 REPO_URL="https://github.com/abhishek255/vc-signals.git"
 TMP_DIR=$(mktemp -d)
+trap 'rm -rf "$TMP_DIR"' EXIT
 
 echo ""
 echo "  VC Signals Installer"
@@ -38,6 +39,15 @@ if [ -z "$PYTHON" ]; then
     exit 1
 fi
 
+# Check git
+if ! command -v git >/dev/null 2>&1; then
+    echo ""
+    echo "  git is required but not found."
+    echo "  Install Xcode Command Line Tools: xcode-select --install"
+    echo ""
+    exit 1
+fi
+
 # Clone repo to temp dir
 echo "  Downloading VC Signals..."
 git clone --quiet --depth 1 "$REPO_URL" "$TMP_DIR/vc-signals" 2>/dev/null
@@ -57,9 +67,6 @@ echo "  Installing Python dependencies..."
 $PYTHON -m pip install requests >/dev/null 2>&1 || \
 $PYTHON -m pip install --user requests >/dev/null 2>&1 || \
 echo "  Note: Could not install 'requests' library. GitHub trending will be limited."
-
-# Clean up
-rm -rf "$TMP_DIR"
 
 echo ""
 echo "  Done! VC Signals is installed."
