@@ -126,3 +126,60 @@ def test_search_repos_rate_limited(mock_get, sample_config_dir):
 
     repos = search_repos(["test query"], token="fake-token", limit=10)
     assert repos == []
+
+
+def test_build_search_queries_all_sector(sample_config_dir):
+    """`all` should aggregate queries across every sector in the config."""
+    from github_trending import build_search_queries
+
+    cfg = json.loads((sample_config_dir / "sectors.json").read_text())
+    cfg["cybersecurity"] = {
+        "display_name": "Cybersecurity",
+        "subcategories": {
+            "appsec": {
+                "name": "AppSec",
+                "aliases": ["SAST", "DAST"],
+                "seed_queries": ["application security tools"],
+            }
+        },
+        "discovery_queries": [],
+        "negative_terms": [],
+    }
+    (sample_config_dir / "sectors.json").write_text(json.dumps(cfg))
+
+    queries = build_search_queries("all", sample_config_dir / "sectors.json")
+    combined = " ".join(queries).lower()
+    assert "continuous integration" in combined or "github actions" in combined
+    assert "sast" in combined or "dast" in combined
+
+
+def test_run_trending_all_sector_dedupes(monkeypatch, sample_config_dir):
+    """When repos appear in queries across sectors, the final list must dedupe."""
+    from github_trending import run_trending, parse_repo_data
+
+    fake_repo = {
+        "full_name": "shared/repo",
+        "description": "",
+        "stargazers_count": 100,
+        "forks_count": 0,
+        "language": "Go",
+        "created_at": "2025-01-01T00:00:00Z",
+        "pushed_at": "2026-04-01T00:00:00Z",
+        "html_url": "https://github.com/shared/repo",
+        "owner": {"login": "shared", "type": "Organization"},
+        "topics": [],
+    }
+
+    def fake_search(queries, token=None, limit=30):
+        return [parse_repo_data(fake_repo)]
+
+    def fake_timestamps(*a, **kw):
+        return []
+
+    monkeypatch.setattr("github_trending.search_repos", fake_search)
+    monkeypatch.setattr("github_trending.fetch_star_timestamps", fake_timestamps)
+
+    result = run_trending("all", config_path=sample_config_dir / "sectors.json", token="x", limit=10)
+    assert result["sector"] == "all"
+    full_names = [r["full_name"] for r in result["repos"]]
+    assert full_names.count("shared/repo") == 1

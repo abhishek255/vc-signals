@@ -22,24 +22,36 @@ GITHUB_API = "https://api.github.com"
 
 
 def build_search_queries(sector: str, config_path: Path | None = None) -> list[str]:
-    """Build GitHub search queries from sector taxonomy."""
+    """Build GitHub search queries from sector taxonomy.
+
+    The special sector "all" aggregates queries across every sector in the
+    config, deduped so identical alias chunks shared between sectors don't
+    multiply requests.
+    """
     config_path = config_path or DEFAULT_CONFIG_PATH
     if not config_path.exists():
         return []
 
     sectors = json.loads(config_path.read_text())
-    if sector not in sectors:
+
+    if sector == "all":
+        target_sectors = list(sectors.keys())
+    elif sector in sectors:
+        target_sectors = [sector]
+    else:
         return []
 
-    sector_data = sectors[sector]
     queries = []
-
-    for _key, subcat in sector_data.get("subcategories", {}).items():
-        aliases = subcat.get("aliases", [])
-        for i in range(0, len(aliases), 2):
-            chunk = aliases[i : i + 2]
-            query_terms = " OR ".join(f'"{a}"' for a in chunk)
-            queries.append(query_terms)
+    seen = set()
+    for s in target_sectors:
+        for _key, subcat in sectors[s].get("subcategories", {}).items():
+            aliases = subcat.get("aliases", [])
+            for i in range(0, len(aliases), 2):
+                chunk = aliases[i : i + 2]
+                query_terms = " OR ".join(f'"{a}"' for a in chunk)
+                if query_terms not in seen:
+                    seen.add(query_terms)
+                    queries.append(query_terms)
 
     return queries
 
