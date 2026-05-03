@@ -115,26 +115,28 @@ def compute_diff(
                            >= PERSISTENT_WEEKS_THRESHOLD. Returns [] if
                            theme_index not supplied.
     """
-    current_themes = {t["name"]: t for t in current["themes"]}
-    previous_themes = {t["name"]: t for t in previous["themes"]}
+    # Match on normalized name keys; preserve raw theme dicts in output.
+    current_themes = {_normalize_theme_name(t["name"]): t for t in current["themes"]}
+    previous_themes = {_normalize_theme_name(t["name"]): t for t in previous["themes"]}
 
-    new_themes = [t for name, t in current_themes.items() if name not in previous_themes]
+    new_themes = [t for k, t in current_themes.items() if k not in previous_themes]
 
     fading_themes = []
-    for name, prev_t in previous_themes.items():
-        if name not in current_themes:
+    for k, prev_t in previous_themes.items():
+        if k not in current_themes:
             fading_themes.append(prev_t)
-        elif current_themes[name].get("momentum", 0) <= prev_t.get("momentum", 0) - FADING_MOMENTUM_DROP:
+        elif current_themes[k].get("momentum", 0) <= prev_t.get("momentum", 0) - FADING_MOMENTUM_DROP:
             fading_themes.append(prev_t)
 
     accelerating_themes = []
-    for name in current_themes:
-        if name in previous_themes:
-            curr_m = current_themes[name].get("momentum", 0)
-            prev_m = previous_themes[name].get("momentum", 0)
+    for k in current_themes:
+        if k in previous_themes:
+            curr_m = current_themes[k].get("momentum", 0)
+            prev_m = previous_themes[k].get("momentum", 0)
             if curr_m >= prev_m + ACCELERATING_MOMENTUM_GAIN:
-                accelerating_themes.append(current_themes[name])
+                accelerating_themes.append(current_themes[k])
 
+    # persistent_themes still keys on raw names to align with theme_index keys.
     persistent_themes = []
     if theme_index:
         for theme in current["themes"]:
@@ -426,6 +428,20 @@ def _validate_date(value: str, name: str) -> None:
 _LEGAL_SUFFIXES = (", inc.", " inc.", ", inc", " inc",
                    ", llc", " llc", ", corp.", " corp.", " corp")
 _DOMAIN_SUFFIXES = (".com", ".io", ".ai", ".dev", ".sh", ".net")
+
+
+def _normalize_theme_name(name: str) -> str:
+    """Return a canonical key for theme matching in `compute_diff`.
+
+    Less aggressive than `_normalize_company_name`: themes are content phrases,
+    not entities, so we only fold case and whitespace. Punctuation and hyphens
+    are preserved (an "AI-Powered" theme is meaningfully different from "AI Powered").
+
+    NOTE: This normalizer is used ONLY for `compute_diff` matching. The
+    `update_theme_index` and `compute_theme_tag` paths still key on raw names
+    to avoid invalidating existing `theme_index.json` files.
+    """
+    return re.sub(r'\s+', ' ', name.strip().lower())
 
 
 def _slugify(text: str) -> str:

@@ -199,6 +199,37 @@ def test_compute_diff_accelerating_themes():
     assert "AI Code Review" in accel_names
 
 
+def test_normalize_theme_name_lowercases_and_collapses_whitespace():
+    from persistence import _normalize_theme_name
+    assert _normalize_theme_name("AI Code Review") == "ai code review"
+    assert _normalize_theme_name("ai code review") == "ai code review"
+    assert _normalize_theme_name("  AI   Code  Review  ") == "ai code review"
+
+
+def test_compute_diff_matches_case_insensitively():
+    """Same theme written with different case must match across weeks."""
+    from persistence import compute_diff
+    previous = {"date": "2026-04-23", "sector": "x",
+                "themes": [{"name": "AI Code Review", "momentum": 5}]}
+    current = {"date": "2026-04-30", "sector": "x",
+               "themes": [{"name": "ai code review", "momentum": 8}]}
+    diff = compute_diff(current, previous)
+    assert diff["new_themes"] == []
+    assert diff["fading_themes"] == []
+    assert [t["name"] for t in diff["accelerating_themes"]] == ["ai code review"]
+
+
+def test_compute_diff_matches_whitespace_insensitively():
+    from persistence import compute_diff
+    previous = {"date": "2026-04-23", "sector": "x",
+                "themes": [{"name": "AI  Code  Review", "momentum": 6}]}
+    current = {"date": "2026-04-30", "sector": "x",
+               "themes": [{"name": "AI Code Review", "momentum": 6}]}
+    diff = compute_diff(current, previous)
+    assert diff["new_themes"] == []
+    assert diff["fading_themes"] == []
+
+
 def test_update_theme_index_new_theme(data_dir, sample_themes):
     from persistence import update_theme_index
 
