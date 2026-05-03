@@ -125,6 +125,8 @@ Config:
 - `<skill_dir>/config/sectors.json` — sector taxonomy
 - `<skill_dir>/config/company_aliases.json` — company seed map
 
+**For free-text identifiers** like company names or theme topics, pass `--name "Free Text"` to `save-markdown`; it slugifies internally (lowercases, replaces non-alphanumeric runs with hyphens, strips leading/trailing hyphens). Use `--slug` only when the value is already a known-safe identifier (sector slug, etc.).
+
 ---
 
 ## Mode: Setup Wizard
@@ -712,7 +714,7 @@ python3 <skill_dir>/scripts/github_trending.py --sector all --limit 10
 ### Step 4: Persist
 
 ```bash
-cat <<'MD_EOF' | python3 <skill_dir>/scripts/persistence.py save-markdown --subdir themes --slug <SLUGIFIED_TOPIC> --date $(date +%Y-%m-%d)
+cat <<'MD_EOF' | python3 <skill_dir>/scripts/persistence.py save-markdown --subdir themes --name "<topic>" --date $(date +%Y-%m-%d)
 [the markdown content goes here]
 MD_EOF
 ```
@@ -812,7 +814,7 @@ Cross-reference the evidence against:
 ### Step 5: Persist
 
 ```bash
-cat <<'MD_EOF' | python3 <skill_dir>/scripts/persistence.py save-markdown --subdir companies --slug <SLUGIFIED_NAME> --date $(date +%Y-%m-%d)
+cat <<'MD_EOF' | python3 <skill_dir>/scripts/persistence.py save-markdown --subdir companies --name "<company name>" --date $(date +%Y-%m-%d)
 [the markdown content goes here]
 MD_EOF
 ```
