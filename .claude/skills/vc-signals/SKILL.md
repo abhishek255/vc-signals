@@ -356,11 +356,16 @@ Run 3-5 queries through the adapter with auto-resolve enabled. Auto-resolve disc
 
 Use `--lookback-days` to control the time window. Default for radar/weekly scans is 14 days. If the user appended a time window like `7d` or `30d` to the command, use that number's digits instead.
 
+Curated subreddits from `sectors.json` are passed alongside `--auto-resolve` so the known-good list is always covered while auto-resolve discovers new sources.
+
 ```bash
 # Set LOOKBACK_DAYS once for this scan, then reuse across all queries below.
 LOOKBACK_DAYS=14   # radar/weekly default; override with the user's time-window digits if specified
 
-python3 <skill_dir>/scripts/last30days_adapter.py query --topic "<specific theme query>" --sources "reddit,hackernews,x" --auto-resolve --lookback-days ${LOOKBACK_DAYS}
+# Read curated subreddits from the sector taxonomy.
+SUBREDDITS=$(python3 -c "import json; print(','.join(json.load(open('<skill_dir>/config/sectors.json'))['<SECTOR>'].get('subreddits', [])))")
+
+python3 <skill_dir>/scripts/last30days_adapter.py query --topic "<specific theme query>" --sources "reddit,hackernews,x" --subreddits "${SUBREDDITS}" --auto-resolve --lookback-days ${LOOKBACK_DAYS}
 ```
 
 Run each of the sector's `hn_queries` from the config, plus 2-3 discovery queries. Auto-resolve handles subreddit and handle targeting.
