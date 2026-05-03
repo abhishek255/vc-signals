@@ -405,6 +405,24 @@ _LEGAL_SUFFIXES = (", inc.", " inc.", ", inc", " inc",
 _DOMAIN_SUFFIXES = (".com", ".io", ".ai", ".dev", ".sh", ".net")
 
 
+def _slugify(text: str) -> str:
+    """Convert free-text to a filesystem-safe slug.
+
+    Rules:
+      - lowercase
+      - replace anything outside [a-z0-9] with a single hyphen
+      - collapse runs of hyphens
+      - strip leading/trailing hyphens
+
+    Output is guaranteed to satisfy `_validate_slug`'s regex when non-empty.
+    Returns "" for inputs that contain no slug-able characters.
+    """
+    s = text.lower()
+    s = re.sub(r'[^a-z0-9]+', '-', s)
+    s = re.sub(r'-+', '-', s)
+    return s.strip('-')
+
+
 def _normalize_company_name(name: str) -> str:
     """Return a canonical key for company dedup across themes and weeks.
 
@@ -515,16 +533,33 @@ def _cli_main() -> None:
         print(json.dumps(index))
 
     elif command == "save-markdown":
-        _require_args(args, "subdir", "slug")
+        _require_args(args, "subdir")
         _validate_slug(args["subdir"], "subdir")
-        _validate_slug(args["slug"], "slug")
+
+        has_slug = "slug" in args
+        has_name = "name" in args
+        if has_slug == has_name:
+            print(json.dumps({"error": "Provide exactly one of --slug or --name."}))
+            sys.exit(1)
+
+        if has_name:
+            slug = _slugify(args["name"])
+            if not slug:
+                print(json.dumps({
+                    "error": f"--name '{args['name']}' slugifies to empty; supply --slug instead."
+                }))
+                sys.exit(1)
+        else:
+            slug = args["slug"]
+        _validate_slug(slug, "slug")
+
         if "date" in args:
             _validate_date(args["date"], "date")
         if sys.stdin.isatty():
             print(json.dumps({"error": "No data piped to stdin. Usage: echo '<json>' | persistence.py <command> ..."}))
             sys.exit(1)
         content = sys.stdin.read()
-        result = save_markdown(args["subdir"], args["slug"], content, args.get("date"), data_dir)
+        result = save_markdown(args["subdir"], slug, content, args.get("date"), data_dir)
         print(json.dumps(result))
 
     elif command == "update-company-index":

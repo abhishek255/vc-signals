@@ -604,3 +604,109 @@ def test_cli_company_diff(data_dir):
     diff = json.loads(result.stdout)
     assert [c["name"] for c in diff["new_companies"]] == ["MintMCP"]
     assert [c["name"] for c in diff["faded_companies"]] == ["OldCo"]
+
+
+# --- _slugify and save-markdown --name ---
+
+def test_slugify_basic_lowercases_and_hyphenates():
+    from persistence import _slugify
+    assert _slugify("AI Code Review") == "ai-code-review"
+
+
+def test_slugify_strips_punctuation():
+    from persistence import _slugify
+    assert _slugify("Anysphere (Cursor)") == "anysphere-cursor"
+    assert _slugify("Hello, world!") == "hello-world"
+
+
+def test_slugify_collapses_runs_of_separators():
+    from persistence import _slugify
+    assert _slugify("AI -- Code   Review") == "ai-code-review"
+
+
+def test_slugify_strips_leading_and_trailing_separators():
+    from persistence import _slugify
+    assert _slugify("--foo--") == "foo"
+    assert _slugify("  hello  ") == "hello"
+
+
+def test_slugify_keeps_digits_and_hyphens():
+    from persistence import _slugify
+    assert _slugify("GPT-4 Turbo 2024") == "gpt-4-turbo-2024"
+
+
+def test_slugify_empty_input_returns_empty():
+    from persistence import _slugify
+    assert _slugify("") == ""
+    assert _slugify("!!!") == ""
+
+
+def test_slugify_output_passes_validate_slug():
+    """Slugify output must satisfy the existing path validator."""
+    from persistence import _slugify, _validate_slug
+    for text in ["Anysphere (Cursor)", "AI / ML Tools", "Foo & Bar, Inc."]:
+        slug = _slugify(text)
+        if slug:
+            _validate_slug(slug, "slug")  # must not raise
+
+
+def test_cli_save_markdown_accepts_name(data_dir):
+    """`--name` should be slugified internally and produce a valid file."""
+    script = Path(__file__).parent.parent / "scripts" / "persistence.py"
+    result = subprocess.run(
+        ["python3", str(script), "save-markdown",
+         "--subdir", "themes",
+         "--name", "Anysphere (Cursor)",
+         "--date", "2026-04-16",
+         "--data-dir", str(data_dir)],
+        input="# content",
+        capture_output=True, text=True,
+    )
+    assert result.returncode == 0, result.stderr + result.stdout
+    expected = data_dir / "themes" / "2026-04-16-anysphere-cursor.md"
+    assert expected.exists(), f"Expected {expected}"
+
+
+def test_cli_save_markdown_rejects_both_name_and_slug(data_dir):
+    script = Path(__file__).parent.parent / "scripts" / "persistence.py"
+    result = subprocess.run(
+        ["python3", str(script), "save-markdown",
+         "--subdir", "themes",
+         "--slug", "foo",
+         "--name", "Foo",
+         "--data-dir", str(data_dir)],
+        input="# content",
+        capture_output=True, text=True,
+    )
+    assert result.returncode == 1
+    assert "exactly one of --slug or --name" in result.stdout
+
+
+def test_cli_save_markdown_rejects_name_that_slugifies_to_empty(data_dir):
+    script = Path(__file__).parent.parent / "scripts" / "persistence.py"
+    result = subprocess.run(
+        ["python3", str(script), "save-markdown",
+         "--subdir", "themes",
+         "--name", "!!!",
+         "--data-dir", str(data_dir)],
+        input="# content",
+        capture_output=True, text=True,
+    )
+    assert result.returncode == 1
+    assert "name" in result.stdout.lower() or "slug" in result.stdout.lower()
+
+
+def test_cli_save_markdown_still_accepts_slug(data_dir):
+    """Backward compat: existing --slug callers must still work."""
+    script = Path(__file__).parent.parent / "scripts" / "persistence.py"
+    result = subprocess.run(
+        ["python3", str(script), "save-markdown",
+         "--subdir", "themes",
+         "--slug", "agent-evals",
+         "--date", "2026-04-16",
+         "--data-dir", str(data_dir)],
+        input="# content",
+        capture_output=True, text=True,
+    )
+    assert result.returncode == 0
+    assert (data_dir / "themes" / "2026-04-16-agent-evals.md").exists()
