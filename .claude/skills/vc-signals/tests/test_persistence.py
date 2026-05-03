@@ -111,6 +111,72 @@ def test_compute_diff_fading_themes():
     assert "WebAssembly Runtimes" in fading_names
 
 
+def test_compute_diff_persistent_themes_with_index():
+    from persistence import compute_diff
+    previous = {"date": "2026-04-23", "sector": "devtools",
+                "themes": [{"name": "AI Code Review", "momentum": 7}]}
+    current = {"date": "2026-04-30", "sector": "devtools",
+               "themes": [
+                   {"name": "AI Code Review", "momentum": 7},
+                   {"name": "Brand New", "momentum": 6},
+               ]}
+    theme_index = {
+        "AI Code Review": {"appearances": 4, "momentum_history": [6, 6, 7, 7]},
+        "Brand New":      {"appearances": 1, "momentum_history": [6]},
+    }
+    diff = compute_diff(current, previous, theme_index=theme_index)
+    persistent_names = [t["name"] for t in diff["persistent_themes"]]
+    assert "AI Code Review" in persistent_names
+    assert "Brand New" not in persistent_names
+
+
+def test_compute_diff_persistent_default_empty_without_index():
+    """Backward compat: omitting theme_index yields empty persistent_themes."""
+    from persistence import compute_diff
+    previous = {"date": "2026-04-23", "sector": "x",
+                "themes": [{"name": "A", "momentum": 5}]}
+    current = {"date": "2026-04-30", "sector": "x",
+               "themes": [{"name": "A", "momentum": 5}]}
+    diff = compute_diff(current, previous)
+    assert diff["persistent_themes"] == []
+
+
+def test_compute_diff_persistent_excludes_themes_not_in_current():
+    """A theme persistent in the index but absent from current must NOT appear."""
+    from persistence import compute_diff
+    previous = {"date": "2026-04-23", "sector": "x",
+                "themes": [{"name": "Old Persistent", "momentum": 7}]}
+    current = {"date": "2026-04-30", "sector": "x",
+               "themes": [{"name": "Other", "momentum": 6}]}
+    theme_index = {
+        "Old Persistent": {"appearances": 5, "momentum_history": [6] * 5},
+        "Other":          {"appearances": 1, "momentum_history": [6]},
+    }
+    diff = compute_diff(current, previous, theme_index=theme_index)
+    assert diff["persistent_themes"] == []
+
+
+def test_cli_diff_loads_theme_index_for_persistent(data_dir, sample_themes):
+    """CLI `diff` command should load theme_index.json and emit persistent."""
+    from persistence import save_briefing, update_theme_index
+    save_briefing("devtools", sample_themes, "websearch", "2026-04-23", data_dir)
+    save_briefing("devtools", sample_themes, "websearch", "2026-04-30", data_dir)
+    for d in ["2026-04-16", "2026-04-23", "2026-04-30"]:
+        update_theme_index(sample_themes, "devtools", d, data_dir)
+
+    script = Path(__file__).parent.parent / "scripts" / "persistence.py"
+    result = subprocess.run(
+        ["python3", str(script), "diff",
+         "--sector", "devtools", "--date", "2026-04-30",
+         "--data-dir", str(data_dir)],
+        capture_output=True, text=True,
+    )
+    assert result.returncode == 0, result.stderr + result.stdout
+    diff = json.loads(result.stdout)
+    persistent_names = [t["name"] for t in diff.get("persistent_themes", [])]
+    assert "AI-Powered Code Review" in persistent_names
+
+
 def test_compute_diff_accelerating_themes():
     from persistence import compute_diff
 

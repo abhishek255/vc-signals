@@ -98,8 +98,23 @@ def load_previous_briefing(
     return None
 
 
-def compute_diff(current: dict, previous: dict) -> dict:
-    """Compute week-over-week diff between two briefings."""
+def compute_diff(
+    current: dict,
+    previous: dict,
+    theme_index: dict | None = None,
+) -> dict:
+    """Compute week-over-week diff between two briefings.
+
+    Returns four categories:
+      - new_themes: in current but not previous
+      - fading_themes: in previous but absent from current, OR momentum dropped
+                       by FADING_MOMENTUM_DROP+
+      - accelerating_themes: present in both, momentum gained
+                             ACCELERATING_MOMENTUM_GAIN+
+      - persistent_themes: present in current AND theme_index[name].appearances
+                           >= PERSISTENT_WEEKS_THRESHOLD. Returns [] if
+                           theme_index not supplied.
+    """
     current_themes = {t["name"]: t for t in current["themes"]}
     previous_themes = {t["name"]: t for t in previous["themes"]}
 
@@ -120,11 +135,19 @@ def compute_diff(current: dict, previous: dict) -> dict:
             if curr_m >= prev_m + ACCELERATING_MOMENTUM_GAIN:
                 accelerating_themes.append(current_themes[name])
 
+    persistent_themes = []
+    if theme_index:
+        for theme in current["themes"]:
+            entry = theme_index.get(theme["name"])
+            if entry and entry.get("appearances", 0) >= PERSISTENT_WEEKS_THRESHOLD:
+                persistent_themes.append(theme)
+
     return {
         "previous_date": previous["date"],
         "new_themes": new_themes,
         "fading_themes": fading_themes,
         "accelerating_themes": accelerating_themes,
+        "persistent_themes": persistent_themes,
     }
 
 
@@ -516,7 +539,8 @@ def _cli_main() -> None:
         current = load_briefing(args["sector"], args["date"], data_dir)
         previous = load_previous_briefing(args["sector"], args["date"], data_dir)
         if current and previous:
-            print(json.dumps(compute_diff(current, previous)))
+            theme_index = _load_json_index(data_dir / "history" / "theme_index.json")
+            print(json.dumps(compute_diff(current, previous, theme_index=theme_index)))
         else:
             print(json.dumps({"error": "Missing current or previous briefing", "current_found": current is not None, "previous_found": previous is not None}))
 
