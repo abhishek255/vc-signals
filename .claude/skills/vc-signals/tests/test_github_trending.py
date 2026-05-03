@@ -232,3 +232,104 @@ def test_get_token_handles_quoted_value(tmp_path, monkeypatch):
     monkeypatch.delenv("GITHUB_TOKEN", raising=False)
 
     assert _get_token(env_path=env_file) == "ghp_quoted"
+
+
+# --- fetch_star_timestamps ---
+
+def _stargazer_response(stars: list[str], headers: dict | None = None, status: int = 200):
+    resp = MagicMock()
+    resp.status_code = status
+    resp.json.return_value = [{"starred_at": s} for s in stars]
+    resp.headers = headers or {}
+    return resp
+
+
+@patch("github_trending.requests.get")
+def test_fetch_star_timestamps_no_link_header_uses_page_one(mock_get):
+    """When the Link header is absent, the function uses last_page=1 (single page)."""
+    from github_trending import fetch_star_timestamps
+
+    probe = _stargazer_response(["2026-04-01T00:00:00Z"])  # per_page=1 probe
+    page = _stargazer_response(["2026-04-01T00:00:00Z", "2026-04-02T00:00:00Z"])
+    mock_get.side_effect = [probe, page]
+
+    timestamps = fetch_star_timestamps("owner/repo", token="x")
+    assert timestamps == ["2026-04-01T00:00:00Z", "2026-04-02T00:00:00Z"]
+
+
+@patch("github_trending.requests.get")
+def test_fetch_star_timestamps_with_last_link_paginates(mock_get):
+    """A Link header with rel=\"last\" should drive pagination by 100s."""
+    from github_trending import fetch_star_timestamps
+
+    # Probe response says last per_page=1 page is 250 → last per_page=100 page is 3.
+    # With sample_pages=2, we fetch pages 2 and 3.
+    link = '<https://api.github.com/repos/o/r/stargazers?page=2>; rel="next", <https://api.github.com/repos/o/r/stargazers?page=250>; rel="last"'
+    probe = _stargazer_response(["2026-01-01T00:00:00Z"], headers={"Link": link})
+    page2 = _stargazer_response(["2026-03-01T00:00:00Z"])
+    page3 = _stargazer_response(["2026-04-01T00:00:00Z"])
+    mock_get.side_effect = [probe, page2, page3]
+
+    timestamps = fetch_star_timestamps("o/r", token="x")
+    assert "2026-03-01T00:00:00Z" in timestamps
+    assert "2026-04-01T00:00:00Z" in timestamps
+    # Probe stargazer is NOT in the result (sampled pages don't include page 1
+    # when last_page > sample_pages).
+
+
+@patch("github_trending.requests.get")
+def test_fetch_star_timestamps_unparseable_link_warns(mock_get, capsys):
+    """Malformed Link header should still proceed (not crash) and emit a warning."""
+    from github_trending import fetch_star_timestamps
+
+    probe = _stargazer_response(
+        ["2026-04-01T00:00:00Z"],
+        headers={"Link": '<bogus>; rel="last"'},  # no page= parameter
+    )
+    page = _stargazer_response(["2026-04-01T00:00:00Z"])
+    mock_get.side_effect = [probe, page]
+
+    timestamps = fetch_star_timestamps("o/r", token="x")
+    assert timestamps == ["2026-04-01T00:00:00Z"]
+    captured = capsys.readouterr()
+    assert "Could not parse" in captured.err or '"warning"' in captured.err
+
+
+@patch("github_trending.requests.get")
+def test_fetch_star_timestamps_404_returns_empty(mock_get):
+    from github_trending import fetch_star_timestamps
+
+    resp = MagicMock(status_code=404, headers={})
+    resp.json.return_value = []
+    mock_get.return_value = resp
+
+    assert fetch_star_timestamps("o/missing", token="x") == []
+
+
+@patch("github_trending.requests.get")
+def test_fetch_star_timestamps_request_exception_returns_empty(mock_get):
+    """Network errors must not propagate; return [] silently."""
+    import requests
+    from github_trending import fetch_star_timestamps
+
+    mock_get.side_effect = requests.RequestException("boom")
+    assert fetch_star_timestamps("o/r", token="x") == []
+
+
+@patch("github_trending.requests.get")
+def test_fetch_star_timestamps_skips_non_dict_items(mock_get):
+    """Defensive: non-dict items in JSON response are silently skipped."""
+    from github_trending import fetch_star_timestamps
+
+    probe = _stargazer_response([])
+    page_resp = MagicMock(status_code=200)
+    page_resp.json.return_value = [
+        "not_a_dict",
+        {"starred_at": "2026-04-01T00:00:00Z"},
+        {"no_starred_at": True},
+    ]
+    page_resp.headers = {}
+    mock_get.side_effect = [probe, page_resp]
+
+    timestamps = fetch_star_timestamps("o/r", token="x")
+    assert timestamps == ["2026-04-01T00:00:00Z"]
