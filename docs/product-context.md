@@ -213,16 +213,11 @@ Themes (3 lines each, brief context)
 
 ## Technical Debt to Fix (from audits)
 
-### Critical/Security
-1. Path traversal via `--date` parameter — no validation in persistence.py
-2. Real data files committed to git (2026-04-10-devtools.json, theme_index.json)
+### Resolved
+- **2026-04-16 (Phase 1):** Items #1, #2 — `--date` path traversal hardened in `_validate_date`; data files untracked from git via `.gitignore`.
+- **2026-05-03 (high-priority pass):** Items #3, #4, #5, #6, #7 — see `docs/superpowers/plans/2026-05-03-high-priority-tech-debt.md`. `<LOOKBACK>` replaced with `${LOOKBACK_DAYS}` shell var; hardcoded `.claude/skills/vc-signals/` paths in runtime commands replaced with `<skill_dir>`; `github_trending.py` handles `--sector all` and reads `GITHUB_TOKEN` from `~/.config/last30days/.env`; `persistence.py save-markdown` accepts `--name "Free Text"` and slugifies internally.
 
-### High
-3. `<LOOKBACK>` is a literal placeholder in SKILL.md — should be actual numbers
-4. Hardcoded `.claude/skills/vc-signals/` paths — breaks Co-Work global installs
-5. `--sector all` not handled by github_trending.py
-6. GITHUB_TOKEN from .env not loaded by github_trending.py
-7. No slugify instruction in SKILL.md
+### High (remaining)
 8. HTML explainer says "Five Modes" but shows six
 9. `github_topics` dead schema field — referenced in add-sector but never implemented
 10. ~15 companies from our own briefing missing from seed map
