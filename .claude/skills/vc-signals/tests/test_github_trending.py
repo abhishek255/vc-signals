@@ -183,3 +183,52 @@ def test_run_trending_all_sector_dedupes(monkeypatch, sample_config_dir):
     assert result["sector"] == "all"
     full_names = [r["full_name"] for r in result["repos"]]
     assert full_names.count("shared/repo") == 1
+
+
+def _raise_filenotfound(*a, **kw):
+    raise FileNotFoundError("gh")
+
+
+def test_get_token_falls_back_to_env_file(tmp_path, monkeypatch):
+    """When gh CLI and GITHUB_TOKEN env var are both absent, read .env."""
+    from github_trending import _get_token
+
+    env_file = tmp_path / ".env"
+    env_file.write_text("SETUP_COMPLETE=true\nGITHUB_TOKEN=ghp_fromenvfile\n")
+
+    monkeypatch.setattr("github_trending.subprocess.run", _raise_filenotfound)
+    monkeypatch.delenv("GITHUB_TOKEN", raising=False)
+
+    assert _get_token(env_path=env_file) == "ghp_fromenvfile"
+
+
+def test_get_token_prefers_env_var_over_env_file(tmp_path, monkeypatch):
+    from github_trending import _get_token
+
+    env_file = tmp_path / ".env"
+    env_file.write_text("GITHUB_TOKEN=ghp_fromfile\n")
+
+    monkeypatch.setattr("github_trending.subprocess.run", _raise_filenotfound)
+    monkeypatch.setenv("GITHUB_TOKEN", "ghp_fromenvvar")
+
+    assert _get_token(env_path=env_file) == "ghp_fromenvvar"
+
+
+def test_get_token_returns_none_when_no_source(tmp_path, monkeypatch):
+    from github_trending import _get_token
+
+    monkeypatch.setattr("github_trending.subprocess.run", _raise_filenotfound)
+    monkeypatch.delenv("GITHUB_TOKEN", raising=False)
+    assert _get_token(env_path=tmp_path / "nonexistent") is None
+
+
+def test_get_token_handles_quoted_value(tmp_path, monkeypatch):
+    """Setup wizard may write quoted values; parser must strip quotes."""
+    from github_trending import _get_token
+
+    env_file = tmp_path / ".env"
+    env_file.write_text('GITHUB_TOKEN="ghp_quoted"\n')
+    monkeypatch.setattr("github_trending.subprocess.run", _raise_filenotfound)
+    monkeypatch.delenv("GITHUB_TOKEN", raising=False)
+
+    assert _get_token(env_path=env_file) == "ghp_quoted"

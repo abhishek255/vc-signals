@@ -18,6 +18,7 @@ except ImportError:
     HAS_REQUESTS = False
 
 DEFAULT_CONFIG_PATH = Path(__file__).parent.parent / "config" / "sectors.json"
+DEFAULT_ENV_PATH = Path.home() / ".config" / "last30days" / ".env"
 GITHUB_API = "https://api.github.com"
 
 
@@ -127,9 +128,26 @@ def estimate_velocity_fallback(total_stars: int, age_days: int) -> dict:
     }
 
 
-def _get_token() -> str | None:
-    """Resolve GitHub token: gh CLI first (keychain-backed), env var as fallback."""
-    # Prefer gh CLI — uses system keychain, more secure
+def _read_token_from_env_file(env_path: Path) -> str | None:
+    """Parse GITHUB_TOKEN from a .env-style file. Returns None on missing/empty."""
+    if not env_path.exists():
+        return None
+    try:
+        for line in env_path.read_text().splitlines():
+            stripped = line.strip()
+            if stripped.startswith("GITHUB_TOKEN="):
+                value = stripped.split("=", 1)[1].strip()
+                if len(value) >= 2 and value[0] == value[-1] and value[0] in ('"', "'"):
+                    value = value[1:-1]
+                return value or None
+    except OSError:
+        return None
+    return None
+
+
+def _get_token(env_path: Path | None = None) -> str | None:
+    """Resolve GitHub token: gh CLI > GITHUB_TOKEN env var > setup wizard's .env."""
+    # 1. gh CLI (keychain-backed, most secure)
     try:
         result = subprocess.run(
             ["gh", "auth", "token"],
@@ -141,8 +159,14 @@ def _get_token() -> str | None:
             return result.stdout.strip()
     except (FileNotFoundError, subprocess.TimeoutExpired):
         pass
-    # Fallback to env var
-    return os.environ.get("GITHUB_TOKEN")
+
+    # 2. GITHUB_TOKEN environment variable
+    env_token = os.environ.get("GITHUB_TOKEN")
+    if env_token:
+        return env_token
+
+    # 3. Setup wizard's .env file (~/.config/last30days/.env by default)
+    return _read_token_from_env_file(env_path or DEFAULT_ENV_PATH)
 
 
 def search_repos(
