@@ -71,11 +71,11 @@
     "sectors": ["devtools"],
     "themes": ["IDEs", "developer experience"]
   },
-  "Cursor": {
-    "aliases": ["cursor", "cursor.sh", "cursor.com"],
+  "Anysphere (Cursor)": {
+    "aliases": ["cursor", "cursor.sh", "cursor.com", "anysphere", "anysphere.com"],
     "oss_projects": [],
     "sectors": ["devtools", "ai-infra"],
-    "themes": ["AI coding assistants", "AI-native IDEs"]
+    "themes": ["AI coding assistants", "AI-native IDEs", "agentic coding"]
   },
   "CodeRabbit": {
     "aliases": ["coderabbit"],
@@ -238,5 +238,47 @@
     "oss_projects": ["Supabase"],
     "sectors": ["devtools"],
     "themes": ["backend-as-a-service", "open-source Firebase alternative", "developer experience"]
+  },
+  "Runlayer": {
+    "aliases": ["runlayer", "runlayer.io"],
+    "oss_projects": [],
+    "sectors": ["ai-infra"],
+    "themes": ["MCP agent infrastructure", "agent runtime", "agent orchestration"]
+  },
+  "ToolHive": {
+    "aliases": ["toolhive", "stacklok"],
+    "oss_projects": ["ToolHive"],
+    "sectors": ["ai-infra", "devtools"],
+    "themes": ["MCP agent infrastructure", "Kubernetes operators", "agent runtime"]
+  },
+  "MintMCP": {
+    "aliases": ["mintmcp", "mint mcp", "mintmcp.com"],
+    "oss_projects": [],
+    "sectors": ["ai-infra", "cybersecurity"],
+    "themes": ["MCP agent infrastructure", "API gateway", "agent security"]
+  },
+  "Greptile": {
+    "aliases": ["greptile", "greptile.com"],
+    "oss_projects": [],
+    "sectors": ["devtools"],
+    "themes": ["AI code review", "automated code review", "codebase indexing"]
+  },
+  "QA Wolf": {
+    "aliases": ["qa wolf", "qawolf", "qawolf.com"],
+    "oss_projects": [],
+    "sectors": ["devtools"],
+    "themes": ["AI testing automation", "end-to-end testing", "test generation"]
+  },
+  "Arize AI": {
+    "aliases": ["arize", "arize ai", "arize.com"],
+    "oss_projects": ["Phoenix"],
+    "sectors": ["ai-infra"],
+    "themes": ["AI observability", "LLM observability", "model monitoring", "AI evaluation"]
+  },
+  "BaseRock": {
+    "aliases": ["baserock", "baserock.ai"],
+    "oss_projects": [],
+    "sectors": ["devtools"],
+    "themes": ["AI testing automation", "test generation", "AI-native QA"]
   }
 }
