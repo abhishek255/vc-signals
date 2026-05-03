@@ -217,18 +217,13 @@ Themes (3 lines each, brief context)
 - **2026-04-16 (Phase 1):** Items #1, #2 — `--date` path traversal hardened in `_validate_date`; data files untracked from git via `.gitignore`.
 - **2026-05-03 (high-priority pass):** Items #3, #4, #5, #6, #7 — see `docs/superpowers/plans/2026-05-03-high-priority-tech-debt.md`. `<LOOKBACK>` replaced with `${LOOKBACK_DAYS}` shell var; hardcoded `.claude/skills/vc-signals/` paths in runtime commands replaced with `<skill_dir>`; `github_trending.py` handles `--sector all` and reads `GITHUB_TOKEN` from `~/.config/last30days/.env`; `persistence.py save-markdown` accepts `--name "Free Text"` and slugifies internally.
 - **2026-05-03 (medium-priority pass):** Items #11–#16 — see `docs/superpowers/plans/2026-05-03-medium-priority-tech-debt.md`. Curated subreddits passed alongside `--auto-resolve`; `compute_diff` now emits `persistent_themes` and matches theme names case- and whitespace-insensitively; all stdin-JSON callsites return structured `{"error": ...}` responses instead of Python tracebacks; `install.sh` checks for `git` and traps `TMP_DIR` cleanup; README dropped overstated "interactive" claim.
+- **2026-05-03 (cleanup pass):** Items #9, #10 + most test-coverage gaps. Dead `github_topics` field removed from add-sector mode; seed map extended with 7 companies from radar examples (Runlayer, ToolHive, MintMCP, Greptile, QA Wolf, Arize AI, BaseRock) and Cursor renamed to "Anysphere (Cursor)" with both aliases; `last30days_adapter` got 7 real `run_query` tests (replacing the tautological one) plus 4 CLI tests; `github_trending` got 6 `fetch_star_timestamps` tests covering Link-header parsing, network errors, and defensive paths.
 
 ### High (remaining)
-8. HTML explainer says "Five Modes" but shows six
-9. `github_topics` dead schema field — referenced in add-sector but never implemented
-10. ~15 companies from our own briefing missing from seed map
+8. HTML explainer says "Five Modes" but shows six — defer until Phase 2 explainer refresh
 
-### Test Coverage Gaps
-- No CLI tests for any script
-- No tests for _validate_slug, _require_args, _parse_cli_args
-- No test for run_query in adapter
-- No test for fetch_star_timestamps
-- 1 tautological test (test_run_query_returns_structure)
+### Test Coverage Gaps (remaining)
+- No tests for `_validate_slug`, `_require_args`, `_parse_cli_args` (low-value, internal helpers exercised indirectly via every CLI test)
 
 ---
 
