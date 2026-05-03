@@ -157,7 +157,7 @@ Say: "Installed the one Python library we need (requests, for GitHub API calls).
 
 Check availability:
 ```bash
-python3 .claude/skills/vc-signals/scripts/last30days_adapter.py check
+python3 <skill_dir>/scripts/last30days_adapter.py check
 ```
 
 If not installed, tell the user:
@@ -264,7 +264,7 @@ Setting secure file permissions so only your user can read the keys.
 
 Run a quick test:
 ```bash
-python3 .claude/skills/vc-signals/scripts/last30days_adapter.py check
+python3 <skill_dir>/scripts/last30days_adapter.py check
 ```
 
 ### Step 7: Summary
@@ -297,18 +297,18 @@ If sector is not recognized, say so and list valid sectors.
 
 Read the sector taxonomy:
 ```bash
-cat .claude/skills/vc-signals/config/sectors.json
+cat <skill_dir>/config/sectors.json
 ```
 
 Read the company alias map:
 ```bash
-cat .claude/skills/vc-signals/config/company_aliases.json
+cat <skill_dir>/config/company_aliases.json
 ```
 
 ### Step 2: Check for Previous Briefing (Week-over-Week)
 
 ```bash
-python3 .claude/skills/vc-signals/scripts/persistence.py load-previous --sector <SECTOR> --before $(date +%Y-%m-%d)
+python3 <skill_dir>/scripts/persistence.py load-previous --sector <SECTOR> --before $(date +%Y-%m-%d)
 ```
 
 If a previous briefing exists, save it for comparison in Step 7.
@@ -323,7 +323,7 @@ Use this to identify themes that have appeared in 3+ consecutive scans — these
 ### Step 3: Select Retrieval Path
 
 ```bash
-python3 .claude/skills/vc-signals/scripts/last30days_adapter.py check
+python3 <skill_dir>/scripts/last30days_adapter.py check
 ```
 
 If `installed` AND `configured` are both true -> use **last30days path**.
@@ -387,7 +387,7 @@ If auto-resolve fails or last30days results are thin, supplement with WebSearch 
 ### Step 5: Retrieve GitHub Trending Data
 
 ```bash
-python3 .claude/skills/vc-signals/scripts/github_trending.py --sector <SECTOR> --limit 15
+python3 <skill_dir>/scripts/github_trending.py --sector <SECTOR> --limit 15
 ```
 
 This runs in addition to the general retrieval. GitHub data feeds into momentum scoring and company mapping.
@@ -659,7 +659,7 @@ This uses Perplexity Sonar Pro (~$0.90 per query) to produce a structured resear
 
 Also run GitHub trending for related keywords:
 ```bash
-python3 .claude/skills/vc-signals/scripts/github_trending.py --sector all --limit 10
+python3 <skill_dir>/scripts/github_trending.py --sector all --limit 10
 ```
 (Filter results to those matching the theme in post-processing.)
 
@@ -773,7 +773,7 @@ python3 <skill_dir>/scripts/last30days_adapter.py query --topic "<company name>"
 
 Check GitHub:
 ```bash
-python3 .claude/skills/vc-signals/scripts/github_trending.py --sector all --limit 30
+python3 <skill_dir>/scripts/github_trending.py --sector all --limit 30
 ```
 Filter for repos owned by or related to the company.
 
@@ -826,7 +826,7 @@ MD_EOF
 ### Step 1: Run GitHub Trending Script
 
 ```bash
-python3 .claude/skills/vc-signals/scripts/github_trending.py --sector <SECTOR> --limit 15
+python3 <skill_dir>/scripts/github_trending.py --sector <SECTOR> --limit 15
 ```
 
 If `sector` is `all`, run for each sector and merge results.
