@@ -1224,6 +1224,69 @@ def test_run_weekly_artifacts_writes_theme_and_sector_intelligence(tmp_path, mon
     assert sectors[0]["status"] == "Pain signal, no company yet"
 
 
+def test_run_weekly_artifacts_writes_synthesis_only_when_enabled(tmp_path, monkeypatch):
+    import sys
+    import radar_run
+    from radar_models import SynthesisResult
+
+    sys.modules.pop("radar_synthesis", None)
+    evidence = {
+        "last30days": {
+            "cybersecurity": {
+                "items": [
+                    {
+                        "source": "hackernews",
+                        "title": "Show HN: BeeSafe AI stops voice phishing for banks",
+                        "url": "https://news.ycombinator.com/item?id=1",
+                    }
+                ],
+                "errors": [],
+            }
+        },
+        "github": [],
+        "warnings": [],
+    }
+    monkeypatch.setattr(radar_run, "collect_live_evidence", lambda **kwargs: evidence)
+    monkeypatch.setattr(radar_run, "load_candidate_history", lambda: {})
+    monkeypatch.setattr(radar_run, "save_candidate_history", lambda history: None)
+    monkeypatch.setattr(radar_run, "apply_candidate_enrichment", lambda candidates: candidates)
+    monkeypatch.setattr(radar_run, "_grounded_search_available", lambda: False)
+
+    default_result = radar_run.run_weekly_artifacts(
+        output_dir=tmp_path / "default",
+        sectors=("cybersecurity",),
+        github_limit=0,
+    )
+
+    assert "synthesis" not in default_result
+    assert not (tmp_path / "default" / "synthesis.json").exists()
+    assert "radar_synthesis" not in sys.modules
+    assert "LLM Synthesis Notes" not in (tmp_path / "default" / "weekly-preview.md").read_text()
+
+    monkeypatch.setattr(
+        radar_run,
+        "run_synthesis",
+        lambda **kwargs: SynthesisResult(
+            enabled=True,
+            model="fake-synthesis",
+            partner_notes=["Synthesis enabled for test."],
+        ),
+    )
+
+    enabled_result = radar_run.run_weekly_artifacts(
+        output_dir=tmp_path / "enabled",
+        sectors=("cybersecurity",),
+        github_limit=0,
+        with_synthesis=True,
+    )
+
+    synthesis_path = tmp_path / "enabled" / "synthesis.json"
+    assert synthesis_path.exists()
+    assert json.loads(synthesis_path.read_text())["enabled"] is True
+    assert enabled_result["synthesis"] == str(synthesis_path)
+    assert "LLM Synthesis Notes" in (tmp_path / "enabled" / "weekly-preview.md").read_text()
+
+
 def test_weekly_radar_keeps_up_to_50_not_just_top_15(tmp_path, monkeypatch):
     import json
     import radar_run
@@ -1346,3 +1409,20 @@ def test_cli_weekly_runs_collect_and_preview(tmp_path, monkeypatch, capsys):
     radar_run._cli_main()
     result = json.loads(capsys.readouterr().out)
     assert result["preview"] == str(tmp_path / "preview.md")
+
+
+def test_cli_weekly_parses_with_synthesis_flag(tmp_path, monkeypatch):
+    import radar_run
+
+    seen = {}
+
+    def fake_run_weekly_artifacts(**kwargs):
+        seen.update(kwargs)
+        return {"raw_evidence": str(tmp_path / "raw.json"), "preview": str(tmp_path / "preview.md"), "companies": 0}
+
+    monkeypatch.setattr(radar_run, "run_weekly_artifacts", fake_run_weekly_artifacts)
+    monkeypatch.setattr("sys.argv", ["radar_run.py", "weekly", "--output-dir", str(tmp_path), "--with-synthesis"])
+
+    radar_run._cli_main()
+
+    assert seen["with_synthesis"] is True

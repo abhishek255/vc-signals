@@ -187,6 +187,12 @@ def _label(score: int) -> str:
     return "Low"
 
 
+def run_synthesis(**kwargs):
+    from radar_synthesis import run_synthesis as _run_synthesis
+
+    return _run_synthesis(**kwargs)
+
+
 def _blob(*parts: object) -> str:
     values = []
     for part in parts:
@@ -1104,6 +1110,7 @@ def _render_weekly_brief(
     theme_signals: list,
     sector_intelligence: list,
     partner_review: list[Candidate],
+    synthesis=None,
 ) -> str:
     kwargs = {"faded": faded}
     accepted = signature(render_weekly_brief).parameters
@@ -1114,6 +1121,8 @@ def _render_weekly_brief(
         kwargs["sector_intelligence"] = sector_intelligence
     if "partner_review" in accepted or accepts_kwargs:
         kwargs["partner_review"] = partner_review
+    if "synthesis" in accepted or accepts_kwargs:
+        kwargs["synthesis"] = synthesis
     return render_weekly_brief(candidates, coverage, rejected, **kwargs)
 
 
@@ -1199,6 +1208,7 @@ def run_weekly_artifacts(
     github_limit: int = 40,
     max_queries_per_sector: int = 3,
     candidate_limit: int = 15,
+    with_synthesis: bool = False,
 ) -> dict:
     """Collect evidence and render a weekly partner preview in one command."""
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -1239,6 +1249,18 @@ def run_weekly_artifacts(
     candidates_path.write_text(json.dumps([candidate.to_dict() for candidate in scored_candidates], indent=2))
     theme_signals_path.write_text(json.dumps([item.to_dict() for item in theme_signals], indent=2))
     sector_intelligence_path.write_text(json.dumps([item.to_dict() for item in sector_intelligence], indent=2))
+    synthesis = None
+    synthesis_path = None
+    if with_synthesis:
+        synthesis = run_synthesis(
+            evidence=evidence,
+            signals=signal_result["signals"],
+            candidates=scored_candidates,
+            sector_intelligence=sector_intelligence,
+            theme_signals=theme_signals,
+        )
+        synthesis_path = output_dir / "synthesis.json"
+        synthesis_path.write_text(json.dumps(synthesis.to_dict(), indent=2))
     preview_path = output_dir / "weekly-preview.md"
     preview_path.write_text(
         _render_weekly_brief(
@@ -1249,9 +1271,10 @@ def run_weekly_artifacts(
             theme_signals=theme_signals,
             sector_intelligence=sector_intelligence,
             partner_review=partner_review,
+            synthesis=synthesis,
         )
     )
-    return {
+    result = {
         "raw_evidence": str(raw_path),
         "signals": str(signals_path),
         "candidates": str(candidates_path),
@@ -1261,6 +1284,9 @@ def run_weekly_artifacts(
         "companies": len(scored_candidates),
         "sectors": list(sectors),
     }
+    if synthesis_path:
+        result["synthesis"] = str(synthesis_path)
+    return result
 
 
 def _read_json_stdin():
@@ -1326,6 +1352,7 @@ def _cli_main() -> None:
             github_limit=int(args.get("github_limit", 40)),
             max_queries_per_sector=int(args.get("max_queries_per_sector", 3)),
             candidate_limit=int(args.get("limit", 15)),
+            with_synthesis=bool(args.get("with_synthesis", False)),
         )
         print(json.dumps(result))
         return
