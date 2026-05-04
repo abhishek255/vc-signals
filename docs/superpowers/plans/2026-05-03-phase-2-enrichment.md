@@ -1,17 +1,21 @@
-# Plan: Phase 2 — Company Enrichment via WebSearch
+# Plan: Phase 2 — Company Enrichment
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Fill the Phase-2-reserved null slots (`stage`, `raised`, `headcount`, `founders`, `founding_year`) on each company in the radar via targeted WebSearch, cached for re-use across weekly scans.
+**Goal:** Fill the Phase-2-reserved null slots (`stage`, `raised`, `headcount`, `founders`, `founding_year`, plus the new `founder_github_activity`) on each company in the radar, cached for re-use across weekly scans.
 
-**Strategy:** Python provides cache CRUD + schema validation. Claude (via SKILL.md) drives WebSearch and field extraction — Python scripts can't call WebSearch directly, that's Claude's tool. The clean architectural split:
+**Strategy:** Two-tier retrieval mirroring the Phase 1 pattern: **last30days `--deep-research` when available, WebSearch as zero-config fallback.** Python provides cache CRUD + schema validation. Claude (via SKILL.md) drives the actual research and field extraction.
 
 | Layer | Responsibility |
 |---|---|
 | `scripts/enrichment.py` | Cache load/save, TTL check, per-company update, merge cached fields into radar companies |
-| SKILL.md Step 7.5 | WebSearch orchestration: query templates, parsing rules, calling `enrichment.py update` |
+| SKILL.md Step 7.5 | Path-select between last30days (preferred) and WebSearch (fallback); per-company research; calling `enrichment.py update` |
 | SKILL.md Step 8 | Radar table template adds Stage / Raised / HC columns |
 | SKILL.md Step 9 | Persist updated cache as the final step |
+
+**Why two-tier?** The original WebSearch-only design was missing the better tool. last30days `--deep-research` returns one citation-backed synthesis per company (Perplexity Sonar, 50+ citations) covering funding, team, history. Auto-resolve handles entity discovery (X handles, GitHub profiles, subreddits) so we don't hand-build queries. Cost is ~$0.90/company but the 14-day TTL means weekly scans are mostly cache hits — only NEW or RETURNING companies trigger fresh research, keeping ongoing cost in the $5-10/week range.
+
+The WebSearch fallback path stays in the plan verbatim so users without `OPENROUTER_API_KEY` still get enrichment, just shallower.
 
 **Tech stack:** No new dependencies. Python 3.12+ runtime; tests work on 3.9+.
 
@@ -30,10 +34,12 @@
     "founders": ["Michael Truell", "Sualeh Asif"],
     "founding_year": 2022,
     "lead_investor": "Thrive Capital",
+    "founder_github_activity": "Michael Truell: 14 PRs merged in last 30 days across 2 repos",
     "evidence": {
       "stage": "https://crunchbase.com/...",
       "raised": "https://techcrunch.com/...",
-      "headcount": "https://linkedin.com/..."
+      "headcount": "https://linkedin.com/...",
+      "founder_github_activity": "https://github.com/mntruell"
     }
   }
 }
@@ -75,7 +81,7 @@
 
 - [ ] **Step 1:** Add `enriched_company` fixture to `conftest.py`.
 - [ ] **Step 2:** Write 4 failing tests (load missing → `{}`, load malformed → `{}` + warning, save+load roundtrip, save creates dir).
-- [ ] **Step 3:** Implement skeleton: import `_normalize_company_name` from `persistence`; define `DEFAULT_DATA_DIR`, `DEFAULT_TTL_DAYS=14`, `ENRICHED_FIELDS = ("stage","raised","headcount","founders","founding_year","lead_investor")`; implement `_cache_path`, `load_enrichment_cache`, `save_enrichment_cache`.
+- [ ] **Step 3:** Implement skeleton: import `_normalize_company_name` from `persistence`; define `DEFAULT_DATA_DIR`, `DEFAULT_TTL_DAYS=14`, `ENRICHED_FIELDS = ("stage","raised","headcount","founders","founding_year","lead_investor","founder_github_activity")`; implement `_cache_path`, `load_enrichment_cache`, `save_enrichment_cache`.
 - [ ] **Step 4:** Run, expect 4 passes.
 - [ ] **Step 5: Commit:** `feat(enrichment): cache load/save scaffolding`.
 
@@ -129,23 +135,122 @@
 
 ### Task 7: Add Step 7.5 (Enrich Companies) to Radar mode
 
-**Why:** Companies are mapped (Step 7) but null-slotted; insert enrichment before output formatting.
+**Why:** Companies are mapped (Step 7) but null-slotted; insert enrichment before output formatting. Use the same dual-path pattern as Phase 1 retrieval (Step 3): last30days when configured, WebSearch as the fallback.
 
-- [ ] **Step 1:** After Step 7, insert "### Step 7.5: Enrich Companies (Phase 2)" with sub-steps:
-  - **a.** `enrichment.py load-cache` to get current cache
-  - **b.** Per-company decision: skip if cached and `fetched_at` within 14 days; else research
-  - **c.** WebSearch query templates table:
-    | Field | Query | Extract |
-    |---|---|---|
-    | stage + raised + lead_investor | `"<co>" funding round investors site:crunchbase.com OR site:techcrunch.com OR site:pitchbook.com` | stage label, USD amount, investor |
-    | headcount | `"<co>" employees linkedin.com` | number/range |
-    | founders | `"<co>" founders CEO CTO founding team` | name list |
-    | founding_year | `"<co>" founded year history` | YYYY |
-  - **d.** `enrichment.py update` per researched company (with optional `evidence` dict)
-  - **e.** `enrichment.py merge` to apply cached fields to the radar companies array
+- [ ] **Step 1:** After Step 7, insert "### Step 7.5: Enrich Companies (Phase 2)" with the structure below. The whole section reads roughly:
 
-- [ ] **Step 2:** Verify `grep -c 'Step 7\.5\|Enrich Companies' SKILL.md` ≥3; `grep -c 'enrichment\.py' SKILL.md` ≥3.
-- [ ] **Step 3: Commit:** `docs(skill): add Step 7.5 (Enrich Companies) for Phase 2`.
+  ````markdown
+  ### Step 7.5: Enrich Companies (Phase 2)
+
+  Each radar company gets enriched with funding stage, total raised, headcount, founders, founding year, and (when last30days is available) recent founder GitHub activity. Results cache for 14 days so weekly scans don't re-research the same company.
+
+  **a. Load the enrichment cache:**
+
+  ```bash
+  python3 <skill_dir>/scripts/enrichment.py load-cache --data-dir <skill_dir>/data
+  ```
+
+  Returns `{}` on first run.
+
+  **b. For each company, decide whether to research:**
+
+  - Cached AND `fetched_at` within 14 days → skip; rely on the cache.
+  - Otherwise → research it via the path selected in Step 3 (last30days vs WebSearch).
+
+  **c. Path selection — same check as Step 3:**
+
+  ```bash
+  python3 <skill_dir>/scripts/last30days_adapter.py check
+  ```
+
+  - `installed=true` AND `configured=true` AND `deep_research_available=true` → **last30days deep-research path** (preferred).
+  - Otherwise → **WebSearch fallback path**.
+
+  Tell the user which path Step 7.5 is using so they understand the fidelity:
+  - "Enriching companies via last30days deep-research (Perplexity Sonar; ~$0.90/company; first scan only — subsequent scans are cache hits)."
+  - "Enriching companies via WebSearch fallback. For citation-backed enrichment, run `/vc-signals setup` and configure OpenRouter."
+
+  **d (last30days path). One deep-research query per cache-miss company:**
+
+  ```bash
+  LOOKBACK_DAYS_ENRICH=90  # funding announcements live in 30-90d windows; longer than radar lookback
+
+  python3 <skill_dir>/scripts/last30days_adapter.py query \
+    --topic "<company name> funding stage employees founders founding year" \
+    --deep-research --auto-resolve --quick \
+    --lookback-days ${LOOKBACK_DAYS_ENRICH} --emit json
+  ```
+
+  Auto-resolve discovers X handles, GitHub profiles, and subreddits without you spelling them out. The synthesis is a single citation-backed report — extract these fields:
+
+  | Field | Where to look in the synthesis |
+  |---|---|
+  | `stage` | First "Series X" / "Seed" / "Pre-seed" mention near the most recent funding event |
+  | `raised` | Total funding to date in USD with magnitude ("$15M", "$2.3B") |
+  | `lead_investor` | Lead investor on the latest round |
+  | `headcount` | Employee count or range from LinkedIn citation |
+  | `founders` | Named individuals with founder/CEO/CTO titles |
+  | `founding_year` | "founded in YYYY" |
+
+  Capture each field's source URL from the citation list and pass it as `evidence`.
+
+  **d.1 (last30days path, optional). Founder GitHub verification:**
+
+  When the deep-research synthesis names a founder AND yields their GitHub username (auto-resolve usually surfaces this), or when the seed map already has known `oss_projects` with traceable owners, run a follow-up:
+
+  ```bash
+  python3 <skill_dir>/scripts/last30days_adapter.py query \
+    --topic "<founder name> recent activity" \
+    --github-user "<github_username>" --quick --emit json
+  ```
+
+  Summarize the result as a short string and write it to the cache as `founder_github_activity`. Examples: "Michael Truell: 14 PRs merged in last 30 days across 2 repos", "No public activity in last 90 days", or null if the username couldn't be confirmed.
+
+  **d (WebSearch fallback path). Four targeted searches per cache-miss company:**
+
+  | Field | Query template | Extract |
+  |---|---|---|
+  | `stage` + `raised` + `lead_investor` | `"<company>" funding round investors site:crunchbase.com OR site:techcrunch.com OR site:pitchbook.com` | stage label, USD amount, investor |
+  | `headcount` | `"<company>" employees linkedin.com` | number or range |
+  | `founders` | `"<company>" founders CEO CTO founding team` | list of names |
+  | `founding_year` | `"<company>" founded year history` | four-digit year |
+
+  Skip `founder_github_activity` on the WebSearch path — it requires last30days `--github-user` person-mode.
+
+  **Extraction rules (both paths):**
+  - Prefer the most recent source (a 2026 article beats 2024 for funding info).
+  - Don't synthesize — if a field isn't on the page, leave it absent.
+  - Use the company's display form (`Anysphere (Cursor)`) for queries; `update` normalizes internally.
+
+  **e. Write each researched company to the cache:**
+
+  ```bash
+  echo '{"name": "<COMPANY NAME>", "fields": {"stage": "Seed", "raised": "$4M", "headcount": "12", "founders": ["Jane Doe"], "founding_year": 2024, "founder_github_activity": "Jane Doe: 8 PRs in last 30d"}, "evidence": {"stage": "https://crunchbase.com/...", "founder_github_activity": "https://github.com/janedoe"}}' | \
+    python3 <skill_dir>/scripts/enrichment.py update --date $(date +%Y-%m-%d) --data-dir <skill_dir>/data
+  ```
+
+  Omit any field you couldn't find. The cache records `fetched_at` regardless, so we don't re-research the same misses every week.
+
+  **f. Apply all cached enrichments to the radar companies:**
+
+  ```bash
+  echo '{"companies": <COMPANIES_JSON>}' | \
+    python3 <skill_dir>/scripts/enrichment.py merge --data-dir <skill_dir>/data
+  ```
+
+  The output `companies` array has the enriched fields populated where the cache had data. Use this enriched array as input to Step 8 and Step 9.
+
+  **Graceful degradation:** If WebSearch is rate-limited or last30days returns nothing for a company, leave that company's enriched fields null. The radar table renders `—` in those cells.
+  ````
+
+- [ ] **Step 2:** Verify checkpoints:
+  - `grep -c 'Step 7\.5\|Enrich Companies' SKILL.md` ≥3
+  - `grep -c 'enrichment\.py' SKILL.md` ≥3
+  - `grep -c '\-\-deep-research' SKILL.md` ≥2 (existing theme drill-down + new enrichment usage)
+  - `grep -nE 'last30days deep-research|WebSearch fallback' SKILL.md` ≥2 (path-selection prose)
+  - `grep -c 'LOOKBACK_DAYS_ENRICH\|founder_github_activity' SKILL.md` ≥2
+
+- [ ] **Step 3: Commit:** `docs(skill): add Step 7.5 with last30days deep-research + WebSearch fallback for Phase 2 enrichment`.
 
 ---
 
@@ -198,9 +303,11 @@
 | 3 | Schema enforcement | smoke Check 2 | unknown field rejected |
 | 4 | Stdin JSON errors structured | smoke Check 3 | exit 1, JSON error, no traceback |
 | 5 | SKILL.md Step 7.5 present | smoke Check 4 | ≥3 mentions |
-| 6 | Radar table expanded | smoke Check 4 | new header present |
-| 7 | Cache excluded from git | smoke Check 5 | 1 match in `.gitignore` |
-| 8 | Coverage on `enrichment.py` | smoke Check 7 | ≥85% |
+| 6 | Both retrieval paths documented | `grep -c '\-\-deep-research\|WebSearch fallback' SKILL.md` | ≥2 last30days, ≥2 fallback |
+| 7 | `founder_github_activity` field plumbed | `grep -c 'founder_github_activity' SKILL.md scripts/enrichment.py` | both ≥1 |
+| 8 | Radar table expanded | smoke Check 4 | new header present |
+| 9 | Cache excluded from git | smoke Check 5 | 1 match in `.gitignore` |
+| 10 | Coverage on `enrichment.py` | smoke Check 7 | ≥85% |
 
 ---
 
@@ -221,7 +328,9 @@
 
 ## Risk callouts
 
-1. **Cache poisoning via bad WebSearch parses.** A wrong value persists 14 days. Mitigation: per-field `evidence` URL traces wrong values; future iteration can add a `--force` reset on a per-company basis.
+1. **Cache poisoning via bad parses (either path).** A wrong value persists 14 days. Mitigation: per-field `evidence` URL traces wrong values; future iteration can add a `--force` per-company reset.
 2. **Cache key collisions across normalization.** Identical normalized names from different companies (rare but possible: "Stripe" the payments co vs "stripe" the npm package). Mitigation: synthesizer disambiguates at Step 7 via role/sector tagging.
 3. **Markdown table width.** 3 added columns may wrap. Mitigation: short column names (`HC` not `Headcount`); enforced `—` for missing data.
-4. **WebSearch rate limits.** 30 companies × 4 queries = 120 searches per scan. Mitigation: 14-day TTL means most companies are cache hits after first scan; only NEW or RETURNING trigger fresh research.
+4. **WebSearch rate limits (fallback path).** 30 companies × 4 queries = 120 searches per scan. Mitigation: 14-day TTL means most companies are cache hits after first scan; only NEW or RETURNING trigger fresh research.
+5. **OpenRouter cost spikes (last30days path).** First scan of a sector with no cache = ~$27 (30 cos × $0.90). Subsequent weekly scans ≈ $5-10 (only new/returning companies). Mitigation: communicate cost in the path-selection prose; users can opt for the WebSearch fallback by skipping `OPENROUTER_API_KEY`.
+6. **Founder GitHub username mis-resolution.** Auto-resolve might attach the wrong GitHub user (common name, multiple matches). Mitigation: only run the person-mode follow-up when the deep-research synthesis surfaces the username with high confidence (e.g., linked from the company's official site or a press release); otherwise leave `founder_github_activity` null.
