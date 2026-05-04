@@ -11,7 +11,7 @@ from __future__ import annotations
 
 import json
 import sys
-from datetime import datetime, timezone
+from datetime import date, datetime, timezone
 from pathlib import Path
 
 # Re-use the existing normalizer from persistence
@@ -54,3 +54,24 @@ def save_enrichment_cache(cache: dict, data_dir: Path | None = None) -> None:
     path = _cache_path(data_dir)
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(cache, indent=2))
+
+
+def is_cache_fresh(
+    entry: dict,
+    ttl_days: int = DEFAULT_TTL_DAYS,
+    *,
+    now: date | None = None,
+) -> bool:
+    """True iff `entry["fetched_at"]` is within `ttl_days` of `now` (inclusive).
+
+    Missing or malformed `fetched_at` → False (forces re-research).
+    """
+    raw = entry.get("fetched_at")
+    if not raw:
+        return False
+    try:
+        fetched = datetime.strptime(raw, "%Y-%m-%d").date()
+    except (ValueError, TypeError):
+        return False
+    today = now or datetime.now(timezone.utc).date()
+    return (today - fetched).days <= ttl_days

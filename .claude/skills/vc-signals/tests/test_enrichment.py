@@ -38,3 +38,37 @@ def test_save_enrichment_cache_creates_directory(tmp_path, enriched_company):
     from enrichment import save_enrichment_cache
     save_enrichment_cache({"x": enriched_company}, tmp_path)
     assert (tmp_path / "companies" / "enrichment_cache.json").exists()
+
+
+# --- Task 2: TTL check ---
+
+def test_is_cache_fresh_within_ttl():
+    from datetime import date
+    from enrichment import is_cache_fresh
+    entry = {"fetched_at": "2026-05-01"}
+    assert is_cache_fresh(entry, ttl_days=14, now=date(2026, 5, 10)) is True
+
+
+def test_is_cache_fresh_at_boundary_inclusive():
+    """Boundary (age == ttl_days) counts as fresh."""
+    from datetime import date
+    from enrichment import is_cache_fresh
+    entry = {"fetched_at": "2026-04-19"}
+    assert is_cache_fresh(entry, ttl_days=14, now=date(2026, 5, 3)) is True
+
+
+def test_is_cache_fresh_beyond_ttl():
+    from datetime import date
+    from enrichment import is_cache_fresh
+    entry = {"fetched_at": "2026-04-18"}
+    assert is_cache_fresh(entry, ttl_days=14, now=date(2026, 5, 3)) is False
+
+
+def test_is_cache_fresh_missing_fetched_at():
+    from enrichment import is_cache_fresh
+    assert is_cache_fresh({"stage": "Series A"}) is False
+
+
+def test_is_cache_fresh_malformed_date():
+    from enrichment import is_cache_fresh
+    assert is_cache_fresh({"fetched_at": "yesterday"}) is False
