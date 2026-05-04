@@ -318,7 +318,9 @@ For deterministic weekly runs, prefer the orchestration helper before doing manu
 python3 <skill_dir>/scripts/radar_run.py weekly --sectors all --output-dir <output_dir>
 ```
 
-This saves both raw evidence JSON and a partner preview. If a native grounded web key (Brave, Parallel, Serper, or Exa) is configured, the run includes grounded company discovery. If not, it automatically uses a stricter HN/GitHub fallback and avoids broad Reddit/company-web queries.
+This saves raw evidence JSON, normalized signals, scored candidates, and a partner preview. If a native grounded web key (Brave, Parallel, Serper, or Exa) is configured, the run includes grounded company discovery. If not, it automatically uses a stricter HN/GitHub fallback plus curated Reddit pain discovery instead of broad noisy company-web queries.
+
+The weekly artifact must not silently omit sectors. If a sector has no qualified candidates, render a sector coverage note explaining whether the cause was no source evidence, source-not-candidate-eligible evidence, weak evidence, or missing grounded web/company enrichment.
 
 For lower-level debugging, run collection and preview separately:
 

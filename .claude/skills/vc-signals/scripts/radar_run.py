@@ -37,10 +37,16 @@ except ImportError:  # pragma: no cover - only for damaged installs
     check_last30days_availability = None
     run_query = None
 
+from radar_models import Candidate, RejectedSignal, SectorCoverage
+from radar_scoring import score_and_tier
+from radar_sources import classify_source_item
+from radar_render import render_weekly_brief
+
 
 DEFAULT_OUTPUT_DIR = Path(__file__).parent.parent / "data" / "radar_runs"
 DEFAULT_SECTORS = ("devtools", "cybersecurity", "ai-infra", "vertical-ai", "data-infra", "oss")
 SECTOR_CONFIG_PATH = Path(__file__).parent.parent / "config" / "sectors.json"
+REDDIT_SOURCES_CONFIG_PATH = Path(__file__).parent.parent / "config" / "reddit_sources.json"
 
 REPO_NOISE_TERMS = (
     "daily digest",
@@ -214,6 +220,12 @@ def load_sector_config(path: Path = SECTOR_CONFIG_PATH) -> dict:
     return json.loads(path.read_text())
 
 
+def load_reddit_sources_config(path: Path = REDDIT_SOURCES_CONFIG_PATH) -> dict:
+    if not path.exists():
+        return {}
+    return json.loads(path.read_text())
+
+
 def _flatten_seed_queries(sector_config: dict) -> list[str]:
     queries = list(sector_config.get("discovery_queries", []))
     for subcategory in sector_config.get("subcategories", {}).values():
@@ -242,6 +254,24 @@ def _sources(*base: str, social_available: bool = False, vertical_social: bool =
     return ",".join(dict.fromkeys(sources))
 
 
+def _reddit_pain_query(sector_slug: str, reddit_config: dict, *, lookback_days: int) -> dict | None:
+    config = reddit_config.get(sector_slug, {})
+    primary = config.get("primary", [])
+    secondary = config.get("secondary", [])
+    pain_queries = config.get("pain_queries", [])
+    if not primary and not pain_queries:
+        return None
+    topic = " OR ".join(pain_queries[:3]) if pain_queries else f"{sector_slug} practitioner pain"
+    return {
+        "kind": "reddit_pain",
+        "topic": topic,
+        "sources": "reddit",
+        "subreddits": ",".join(dict.fromkeys(primary + secondary)),
+        "lookback_days": lookback_days,
+        "candidate_eligible": False,
+    }
+
+
 def build_sector_collection_queries(
     sector_slug: str,
     sector_config: dict,
@@ -254,9 +284,13 @@ def build_sector_collection_queries(
     """Build a small, Marathon-focused query set for one sector."""
     config = sector_config.get(sector_slug, {}) if sector_slug in sector_config else sector_config
     display_name = config.get("display_name", SECTOR_LABELS.get(sector_slug, sector_slug))
+    reddit_pain = _reddit_pain_query(sector_slug, load_reddit_sources_config(), lookback_days=lookback_days)
+    queries: list[dict] = []
+    if reddit_pain:
+        queries.append(reddit_pain)
     if not grounded_available:
         if sector_slug == "vertical-ai":
-            return [
+            queries.extend([
                 {
                     "kind": "vertical_workflow_social",
                     "topic": f"{display_name} AI workflow demos operator pain SMB automation founder product demo",
@@ -275,9 +309,10 @@ def build_sector_collection_queries(
                     "sources": _sources("github", "hackernews", social_available=social_available),
                     "lookback_days": lookback_days,
                 },
-            ][:max_queries]
+            ])
+            return queries[:max_queries]
         if sector_slug == "oss":
-            return [
+            queries.extend([
                 {
                     "kind": "oss_show",
                     "topic": "Show HN open source AI agent MCP security developer tool",
@@ -296,8 +331,9 @@ def build_sector_collection_queries(
                     "sources": _sources("github", "hackernews", social_available=social_available),
                     "lookback_days": lookback_days,
                 },
-            ][:max_queries]
-        return [
+            ])
+            return queries[:max_queries]
+        queries.extend([
             {
                 "kind": "conversation",
                 "topic": f"Show HN {display_name} AI startup developer tool open source",
@@ -316,7 +352,8 @@ def build_sector_collection_queries(
                 "sources": _sources("github", "hackernews", social_available=social_available),
                 "lookback_days": lookback_days,
             },
-        ][:max_queries]
+        ])
+        return queries[:max_queries]
 
     seed_queries = _flatten_seed_queries(config)
     conversation_topic = (
@@ -324,13 +361,6 @@ def build_sector_collection_queries(
         if seed_queries
         else f"{display_name} startups Seed Series A Series B emerging traction"
     )
-    queries = [{
-        "kind": "conversation",
-        "topic": f"{conversation_topic} Seed Series A Series B founder customer traction",
-        "sources": _sources("reddit", "hackernews", "github", social_available=social_available),
-        "lookback_days": lookback_days,
-    }]
-
     if grounded_available:
         queries.extend([
             {
@@ -348,6 +378,13 @@ def build_sector_collection_queries(
                 "lookback_days": lookback_days,
             },
         ])
+
+    queries.append({
+        "kind": "conversation",
+        "topic": f"{conversation_topic} Seed Series A Series B founder customer traction",
+        "sources": _sources("reddit", "hackernews", "github", social_available=social_available),
+        "lookback_days": lookback_days,
+    })
 
     return queries[:max_queries]
 
@@ -797,6 +834,186 @@ def _format_founders(founders: list[dict]) -> str:
     return "; ".join(formatted)
 
 
+def _candidate_from_signal(signal) -> Candidate | None:
+    item = signal.metadata or {}
+    name = None
+    if signal.role == "oss_project":
+        parsed = urlparse(signal.url or "")
+        path_parts = [part for part in parsed.path.split("/") if part]
+        if len(path_parts) >= 2 and "github.com" in parsed.netloc:
+            name = "/".join(path_parts[:2])
+    if not name:
+        name = _candidate_name_from_item(item)
+    if not name:
+        name = _extract_name_from_title(signal.title)
+    if not name:
+        return None
+
+    source = signal.url or item.get("url", "")
+    velocity = item.get("velocity", {}) if isinstance(item.get("velocity"), dict) else {}
+    why = signal.title
+    if velocity.get("stars_last_30d") is not None:
+        why = f"{item.get('description') or signal.title} +{velocity.get('stars_last_30d')} stars in 30d."
+
+    return Candidate(
+        name=name,
+        domain=_candidate_domain_from_item(item),
+        sector=SECTOR_LABELS.get(signal.sector, signal.sector),
+        theme=infer_theme(f"{signal.title} {signal.text}"),
+        source=source,
+        sources=[source] if source else [],
+        source_count=1,
+        candidate_type=signal.role,
+        why_on_radar=why,
+        why_this_may_be_noise="Needs verification across stronger company/founder/customer evidence.",
+        company_linkedin=_profile_url(item, "company_linkedin", "linkedin_url", "linkedin"),
+        company_x=_profile_url(item, "company_x", "x_url", "twitter_url", "twitter"),
+        founder_profiles=_founder_profiles_from_item(item),
+        engagement=item.get("engagement", {}),
+        action="watch" if signal.role == "oss_project" else "assign owner",
+    )
+
+
+def build_signals_from_evidence(evidence: dict) -> dict:
+    signals = []
+    coverage = {}
+
+    for sector, payload in evidence.get("last30days", {}).items():
+        sector_signals = []
+        for item in filter_evidence(payload.get("items", [])):
+            signal = classify_source_item(sector=sector, item=item)
+            signals.append(signal)
+            sector_signals.append(signal)
+        coverage[sector] = SectorCoverage(
+            sector=sector,
+            raw_signals=len(sector_signals),
+            reason="No candidate-eligible signals yet." if not any(signal.can_create_candidate for signal in sector_signals) else "",
+        )
+
+    github_signals = []
+    for repo in filter_repos(evidence.get("github", [])):
+        item = {
+            **repo,
+            "source": "github",
+            "title": repo.get("full_name", ""),
+            "url": repo.get("url", ""),
+            "description": repo.get("description", ""),
+        }
+        signal = classify_source_item(sector="oss", item=item)
+        signals.append(signal)
+        github_signals.append(signal)
+    if github_signals:
+        existing = coverage.get("oss")
+        if existing:
+            existing.raw_signals += len(github_signals)
+            if any(signal.can_create_candidate for signal in github_signals):
+                existing.reason = ""
+        else:
+            coverage["oss"] = SectorCoverage(sector="oss", raw_signals=len(github_signals), reason="")
+
+    return {"signals": signals, "coverage": coverage}
+
+
+def _merge_candidate_model(existing: Candidate, candidate: Candidate) -> None:
+    existing.source_count += 1
+    if candidate.source and candidate.source not in existing.sources:
+        existing.sources.append(candidate.source)
+    if not existing.domain and candidate.domain:
+        existing.domain = candidate.domain
+    if not existing.company_linkedin and candidate.company_linkedin:
+        existing.company_linkedin = candidate.company_linkedin
+    if not existing.company_x and candidate.company_x:
+        existing.company_x = candidate.company_x
+    seen = {(profile.get("name"), profile.get("linkedin"), profile.get("x"), profile.get("github")) for profile in existing.founder_profiles}
+    for profile in candidate.founder_profiles:
+        key = (profile.get("name"), profile.get("linkedin"), profile.get("x"), profile.get("github"))
+        if key not in seen:
+            existing.founder_profiles.append(profile)
+            seen.add(key)
+
+
+def promote_signals_to_candidates(signals: list) -> dict:
+    candidates_by_key: dict[str, Candidate] = {}
+    rejected = []
+
+    for signal in signals:
+        if not signal.can_create_candidate:
+            rejected.append(RejectedSignal(
+                sector=signal.sector,
+                source=signal.source,
+                title=signal.title,
+                url=signal.url,
+                reason="source_not_candidate_eligible",
+            ))
+            continue
+
+        candidate = _candidate_from_signal(signal)
+        if not candidate:
+            rejected.append(RejectedSignal(
+                sector=signal.sector,
+                source=signal.source,
+                title=signal.title,
+                url=signal.url,
+                reason="candidate_name_not_extractable",
+            ))
+            continue
+
+        key = _normalize_candidate_key(candidate.domain or candidate.name)
+        if key in candidates_by_key:
+            _merge_candidate_model(candidates_by_key[key], candidate)
+        else:
+            candidates_by_key[key] = candidate
+
+    return {"candidates": list(candidates_by_key.values()), "rejected": rejected}
+
+
+def _score_sort_limit_candidates(candidates: list[Candidate], candidate_limit: int) -> list[Candidate]:
+    scored = [
+        candidate if candidate.tier and candidate.investment_interest_score else score_and_tier(candidate)
+        for candidate in candidates
+    ]
+    visible = [candidate for candidate in scored if candidate.tier != "Filtered"]
+    return sorted(
+        visible,
+        key=lambda c: (c.tier == "Partner Review", c.investment_interest_score, c.evidence_confidence_score),
+        reverse=True,
+    )[:candidate_limit]
+
+
+def _apply_attio_to_candidates(candidates: list[Candidate], attio_client=None) -> list[Candidate]:
+    enriched = merge_attio_context([candidate.to_dict() for candidate in candidates], attio_client)
+    return [Candidate.from_dict(candidate) for candidate in enriched]
+
+
+def _update_sector_coverage(
+    coverage: dict[str, SectorCoverage],
+    sectors: tuple[str, ...],
+    candidates: list[Candidate],
+    rejected: list[RejectedSignal],
+) -> None:
+    for sector in sectors:
+        coverage.setdefault(sector, SectorCoverage(sector=sector, status="no signal found", reason="No relevant source evidence returned for this sector."))
+
+    for sector, item in coverage.items():
+        sector_label = SECTOR_LABELS.get(sector, sector).lower()
+        sector_candidates = [
+            candidate for candidate in candidates
+            if candidate.sector.lower() == sector_label or candidate.sector.lower().replace(" ", "-") == sector
+        ]
+        sector_rejections = [rejection for rejection in rejected if rejection.sector == sector]
+        item.candidates = len(sector_candidates)
+        item.rejected = len(sector_rejections)
+        if sector_candidates:
+            item.status = "qualified candidates found"
+            item.reason = ""
+        elif item.raw_signals:
+            item.status = "no qualified candidates"
+            item.reason = item.reason or "Signals found, but none met candidate eligibility or evidence quality."
+        else:
+            item.status = "no signal found"
+            item.reason = "No relevant source evidence returned for this sector."
+
+
 def save_raw_evidence(evidence: dict, *, output_dir: Path = DEFAULT_OUTPUT_DIR, run_date: str | None = None) -> Path:
     run_date = run_date or datetime.now(timezone.utc).strftime("%Y-%m-%d")
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -836,6 +1053,7 @@ def collect_live_evidence(
                 result = run_query(
                     query_spec["topic"],
                     sources=query_spec["sources"],
+                    subreddits=query_spec.get("subreddits"),
                     lookback_days=query_spec["lookback_days"],
                     auto_resolve=True,
                     store=True,
@@ -844,6 +1062,7 @@ def collect_live_evidence(
                 for item in result.get("items", []):
                     item.setdefault("query_kind", query_spec["kind"])
                     item.setdefault("query_topic", query_spec["topic"])
+                    item.setdefault("candidate_eligible", query_spec.get("candidate_eligible", True))
                 items.extend(result.get("items", []))
                 clusters.extend(result.get("clusters", []))
                 warnings.extend(result.get("warnings", []))
@@ -879,20 +1098,31 @@ def run_weekly_artifacts(
     candidate_limit: int = 15,
 ) -> dict:
     """Collect evidence and render a weekly partner preview in one command."""
+    output_dir.mkdir(parents=True, exist_ok=True)
     evidence = collect_live_evidence(
         sectors=sectors,
         github_limit=github_limit,
         max_queries_per_sector=max_queries_per_sector,
     )
     raw_path = save_raw_evidence(evidence, output_dir=output_dir)
-    companies = build_scored_preview_from_evidence(evidence, attio_client=_attio_client_from_env(), limit=candidate_limit)
-    themes = sorted({company.get("theme", "") for company in companies if company.get("theme")})
+    signal_result = build_signals_from_evidence(evidence)
+    promotion = promote_signals_to_candidates(signal_result["signals"])
+    scored_candidates = _score_sort_limit_candidates(promotion["candidates"], candidate_limit)
+    scored_candidates = _apply_attio_to_candidates(scored_candidates, _attio_client_from_env())
+    scored_candidates = _score_sort_limit_candidates(scored_candidates, candidate_limit)
+    _update_sector_coverage(signal_result["coverage"], sectors, scored_candidates, promotion["rejected"])
+    signals_path = output_dir / "signals.json"
+    candidates_path = output_dir / "candidates.json"
+    signals_path.write_text(json.dumps([signal.to_dict() for signal in signal_result["signals"]], indent=2))
+    candidates_path.write_text(json.dumps([candidate.to_dict() for candidate in scored_candidates], indent=2))
     preview_path = output_dir / "weekly-preview.md"
-    render_partner_preview(companies, themes, output_path=preview_path)
+    preview_path.write_text(render_weekly_brief(scored_candidates, signal_result["coverage"], promotion["rejected"]))
     return {
         "raw_evidence": str(raw_path),
+        "signals": str(signals_path),
+        "candidates": str(candidates_path),
         "preview": str(preview_path),
-        "companies": len(companies),
+        "companies": len(scored_candidates),
         "sectors": list(sectors),
     }
 
