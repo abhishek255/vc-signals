@@ -13,6 +13,7 @@ def render_weekly_brief(
     sector_intelligence: list | None = None,
     partner_review: list | None = None,
     synthesis=None,
+    company_discovery: dict | None = None,
 ) -> str:
     partner = partner_review if partner_review is not None else [candidate for candidate in candidates if candidate.tier == "Partner Review"][:15]
     if partner_review is None and not partner:
@@ -41,6 +42,8 @@ def render_weekly_brief(
         _sector_intelligence_section(sector_intelligence or _coverage_intelligence_items(coverage)),
         "",
         _theme_signals_table(theme_signals or []),
+        "",
+        _company_discovery_section(company_discovery),
     ])
     synthesis_notes = _synthesis_section(synthesis)
     if synthesis_notes:
@@ -214,6 +217,54 @@ def _theme_signals_table(theme_signals: list) -> str:
 def _markdown_table_cell(value) -> str:
     text = "" if value is None else str(value)
     return text.replace("\n", " ").replace("\t", " ").replace("|", "\\|")
+
+
+def _company_discovery_section(company_discovery: dict | None) -> str:
+    if not company_discovery:
+        return "## Company Discovery From Themes\n\n- Theme-driven company discovery did not run."
+
+    queries = company_discovery.get("queries", [])
+    items = company_discovery.get("items", [])
+    warnings = company_discovery.get("warnings", [])
+    errors = company_discovery.get("errors", [])
+    lines = [
+        "## Company Discovery From Themes",
+        "",
+        f"Searched {len(queries)} targeted theme-company {_plural(len(queries), 'query')} and found {len(items)} qualified evidence {_plural(len(items), 'item')}.",
+    ]
+    if warnings or errors:
+        for warning in warnings[:5]:
+            lines.append(f"- Warning: {warning}")
+        for error in errors[:5]:
+            lines.append(f"- Error: {error}")
+    if not items:
+        lines.append("- No company rows cleared the evidence bar from theme-driven discovery.")
+        return "\n".join(lines)
+
+    lines.extend(
+        [
+            "",
+            "| Company | Market Sector | Theme | Source | Evidence URL | Query |",
+            "|---|---|---|---|---|---|",
+        ]
+    )
+    for item in items[:15]:
+        company = item.get("company_name") or item.get("name") or item.get("title") or "Unknown"
+        lines.append(
+            "| "
+            + " | ".join(
+                [
+                    _markdown_table_cell(company),
+                    _markdown_table_cell(item.get("market_sector")),
+                    _markdown_table_cell(item.get("query_theme")),
+                    _markdown_table_cell(item.get("source")),
+                    _markdown_table_cell(item.get("url")),
+                    _markdown_table_cell(item.get("query_topic")),
+                ]
+            )
+            + " |"
+        )
+    return "\n".join(lines)
 
 
 def _synthesis_section(synthesis) -> str:

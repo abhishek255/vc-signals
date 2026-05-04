@@ -1212,6 +1212,7 @@ def test_run_weekly_artifacts_writes_theme_and_sector_intelligence(tmp_path, mon
     monkeypatch.setattr(radar_run, "save_candidate_history", lambda history: None)
     monkeypatch.setattr(radar_run, "apply_candidate_enrichment", lambda candidates: candidates)
     monkeypatch.setattr(radar_run, "_grounded_search_available", lambda: False)
+    monkeypatch.setattr(radar_run, "run_query", None)
 
     radar_run.run_weekly_artifacts(output_dir=tmp_path, sectors=("cybersecurity",), github_limit=0)
 
@@ -1222,6 +1223,111 @@ def test_run_weekly_artifacts_writes_theme_and_sector_intelligence(tmp_path, mon
     assert themes[0]["market_sector"] == "Cybersecurity"
     assert themes[0]["theme"] == "AI agent security"
     assert sectors[0]["status"] == "Pain signal, no company yet"
+
+
+def test_run_weekly_artifacts_promotes_theme_company_discovery(tmp_path, monkeypatch):
+    import radar_run
+
+    monkeypatch.setattr(
+        radar_run,
+        "collect_live_evidence",
+        lambda **kwargs: {
+            "last30days": {
+                "cybersecurity": {
+                    "items": [
+                        {
+                            "source": "reddit",
+                            "title": "How are teams controlling AI agent permissions?",
+                            "url": "https://reddit.com/1",
+                            "snippet": "Teams need better controls for MCP permissions and autonomous agent security.",
+                        },
+                        {
+                            "source": "hackernews",
+                            "title": "MCP tools are creating security review headaches",
+                            "url": "https://news.ycombinator.com/item?id=1",
+                            "snippet": "MCP tool access creates new security review headaches.",
+                        },
+                    ],
+                    "errors": [],
+                }
+            },
+            "github": [],
+            "warnings": [],
+        },
+    )
+    monkeypatch.setattr(radar_run, "load_candidate_history", lambda: {})
+    monkeypatch.setattr(radar_run, "save_candidate_history", lambda history: None)
+    monkeypatch.setattr(radar_run, "apply_candidate_enrichment", lambda candidates: candidates)
+    monkeypatch.setattr(radar_run, "_grounded_search_available", lambda: True)
+    monkeypatch.setattr(radar_run, "_social_search_available", lambda: False)
+
+    def fake_run_query(topic, **kwargs):
+        if "AI agent security" not in topic:
+            return {"items": []}
+        return {
+            "items": [
+                {
+                    "source": "grounding",
+                    "title": "AgentFence launches AI agent permission firewall",
+                    "url": "https://agentfence.dev",
+                    "snippet": "AgentFence helps teams control MCP tool permissions for AI agents.",
+                    "company_name": "AgentFence",
+                    "domain": "agentfence.dev",
+                    "company_linkedin": "https://www.linkedin.com/company/agentfence",
+                }
+            ],
+            "warnings": [],
+        }
+
+    monkeypatch.setattr(radar_run, "run_query", fake_run_query)
+
+    result = radar_run.run_weekly_artifacts(
+        output_dir=tmp_path,
+        sectors=("cybersecurity",),
+        github_limit=0,
+        candidate_limit=50,
+    )
+
+    assert result["company_discovery"].endswith("company-discovery.json")
+    discovery = json.loads((tmp_path / "company-discovery.json").read_text())
+    assert discovery["items"][0]["company_name"] == "AgentFence"
+
+    candidates = json.loads((tmp_path / "candidates.json").read_text())
+    assert candidates[0]["name"] == "AgentFence"
+    assert candidates[0]["domain"] == "agentfence.dev"
+    assert candidates[0]["source_lane"] == "Grounded web"
+
+    preview = (tmp_path / "weekly-preview.md").read_text()
+    assert "## Company Discovery From Themes" in preview
+    assert "AgentFence" in preview
+
+
+def test_company_discovery_keeps_structured_company_page_with_short_title():
+    from radar_run import build_signals_from_evidence
+
+    evidence = {
+        "last30days": {},
+        "github": [],
+        "company_discovery": {
+            "items": [
+                {
+                    "source": "grounding",
+                    "title": "AgentFence",
+                    "url": "https://agentfence.dev",
+                    "company_name": "AgentFence",
+                    "domain": "agentfence.dev",
+                    "market_sector": "Cybersecurity",
+                    "query_theme": "AI agent security",
+                }
+            ],
+        },
+    }
+
+    result = build_signals_from_evidence(evidence)
+
+    assert len(result["signals"]) == 1
+    assert result["signals"][0].title == "AgentFence"
+    assert result["signals"][0].can_create_candidate is True
 
 
 def test_run_weekly_artifacts_writes_synthesis_only_when_enabled(tmp_path, monkeypatch):

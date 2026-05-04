@@ -39,6 +39,7 @@ except ImportError:  # pragma: no cover - only for damaged installs
     run_query = None
 
 from radar_models import Candidate, RejectedSignal, SectorCoverage
+from radar_company_discovery import collect_company_discovery
 from radar_scoring import score_and_tier
 from radar_sources import classify_source_item
 from radar_sector_intelligence import build_sector_intelligence
@@ -990,7 +991,42 @@ def build_signals_from_evidence(evidence: dict) -> dict:
         else:
             coverage["oss"] = SectorCoverage(sector="oss", raw_signals=len(github_signals), reason="")
 
+    discovery_signals = []
+    for item in _filter_company_discovery_items(evidence.get("company_discovery", {}).get("items", [])):
+        sector = item.get("sector") or _sector_slug_from_label(item.get("market_sector")) or "company-discovery"
+        signal = classify_source_item(sector=sector, item=item)
+        signals.append(signal)
+        discovery_signals.append(signal)
+    for sector in sorted({signal.sector for signal in discovery_signals if signal.sector}):
+        sector_items = [signal for signal in discovery_signals if signal.sector == sector]
+        existing = coverage.get(sector)
+        if existing:
+            existing.raw_signals += len(sector_items)
+            if any(signal.can_create_candidate for signal in sector_items):
+                existing.reason = ""
+        else:
+            coverage[sector] = SectorCoverage(sector=sector, raw_signals=len(sector_items), reason="")
+
     return {"signals": signals, "coverage": coverage}
+
+
+def _sector_slug_from_label(label: str | None) -> str:
+    normalized = (label or "").strip().lower()
+    for slug, sector_label in SECTOR_LABELS.items():
+        if normalized == sector_label.lower():
+            return slug
+    return normalized.replace(" ", "-") if normalized else ""
+
+
+def _filter_company_discovery_items(items: list[dict]) -> list[dict]:
+    kept = []
+    for item in items:
+        has_structured_company = bool((item.get("company_name") or item.get("name") or "").strip()) and bool(
+            (item.get("domain") or item.get("website") or item.get("url") or "").strip()
+        )
+        if has_structured_company or not is_evidence_noise(item):
+            kept.append(item)
+    return kept
 
 
 def _merge_candidate_model(existing: Candidate, candidate: Candidate) -> None:
@@ -1111,6 +1147,7 @@ def _render_weekly_brief(
     sector_intelligence: list,
     partner_review: list[Candidate],
     synthesis=None,
+    company_discovery=None,
 ) -> str:
     kwargs = {"faded": faded}
     accepted = signature(render_weekly_brief).parameters
@@ -1123,6 +1160,8 @@ def _render_weekly_brief(
         kwargs["partner_review"] = partner_review
     if "synthesis" in accepted or accepts_kwargs:
         kwargs["synthesis"] = synthesis
+    if "company_discovery" in accepted or accepts_kwargs:
+        kwargs["company_discovery"] = company_discovery
     return render_weekly_brief(candidates, coverage, rejected, **kwargs)
 
 
@@ -1217,10 +1256,22 @@ def run_weekly_artifacts(
         github_limit=github_limit,
         max_queries_per_sector=max_queries_per_sector,
     )
-    raw_path = save_raw_evidence(evidence, output_dir=output_dir)
+    signal_result = build_signals_from_evidence(evidence)
+    theme_signals = build_theme_signals(signal_result["signals"], sectors=sectors)
+    company_discovery = collect_company_discovery(
+        theme_signals,
+        query_runner=run_query,
+        grounded_available=_grounded_search_available(),
+        social_available=_social_search_available(),
+        max_queries_per_theme=3,
+    )
+    evidence["company_discovery"] = company_discovery
+    for error in company_discovery.get("errors", []):
+        evidence.setdefault("warnings", []).append(f"company-discovery: {error}")
     signal_result = build_signals_from_evidence(evidence)
     promotion = promote_signals_to_candidates(signal_result["signals"])
     theme_signals = build_theme_signals(signal_result["signals"], sectors=sectors)
+    raw_path = save_raw_evidence(evidence, output_dir=output_dir)
     source_errors = _source_errors_from_evidence(evidence)
     scored_candidates = _score_sort_limit_candidates(promotion["candidates"], candidate_limit)
     scored_candidates = apply_candidate_enrichment(scored_candidates)
@@ -1245,10 +1296,12 @@ def run_weekly_artifacts(
     candidates_path = output_dir / "candidates.json"
     theme_signals_path = output_dir / "theme-signals.json"
     sector_intelligence_path = output_dir / "sector-intelligence.json"
+    company_discovery_path = output_dir / "company-discovery.json"
     signals_path.write_text(json.dumps([signal.to_dict() for signal in signal_result["signals"]], indent=2))
     candidates_path.write_text(json.dumps([candidate.to_dict() for candidate in scored_candidates], indent=2))
     theme_signals_path.write_text(json.dumps([item.to_dict() for item in theme_signals], indent=2))
     sector_intelligence_path.write_text(json.dumps([item.to_dict() for item in sector_intelligence], indent=2))
+    company_discovery_path.write_text(json.dumps(company_discovery, indent=2))
     synthesis = None
     synthesis_path = None
     if with_synthesis:
@@ -1272,6 +1325,7 @@ def run_weekly_artifacts(
             sector_intelligence=sector_intelligence,
             partner_review=partner_review,
             synthesis=synthesis,
+            company_discovery=company_discovery,
         )
     )
     result = {
@@ -1280,6 +1334,7 @@ def run_weekly_artifacts(
         "candidates": str(candidates_path),
         "theme_signals": str(theme_signals_path),
         "sector_intelligence": str(sector_intelligence_path),
+        "company_discovery": str(company_discovery_path),
         "preview": str(preview_path),
         "companies": len(scored_candidates),
         "sectors": list(sectors),

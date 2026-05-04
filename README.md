@@ -279,9 +279,10 @@ That Markdown file is the partner-readable artifact. The same folder also contai
 - `candidates.json`: scored candidate companies/projects, including weaker "Needs More Evidence" rows.
 - `sector-intelligence.json`: per-sector status, source gaps, rejected counts, and next-hunt prompts.
 - `theme-signals.json`: useful non-company signal that should guide research but should not become a fake company row.
+- `company-discovery.json`: targeted company-search evidence generated from theme/pain signals, used to reduce OSS-only output when grounded company evidence is available.
 - `synthesis.json`: optional LLM synthesis notes when `--with-synthesis` is used.
 
-If the output is thin, that does not necessarily mean the sector is dead. It means the current run found pain or chatter but not enough candidate-quality company/project evidence. Check `Sector Intelligence`, `Themes With No Company Yet`, and `Weak Evidence / Rejected Summary` before deciding whether to rerun with better keys or do a manual deep dive.
+If the output is thin, that does not necessarily mean the sector is dead. It means the current run found pain or chatter but not enough candidate-quality company/project evidence. Check `Sector Intelligence`, `Themes With No Company Yet`, `Company Discovery From Themes`, and `Weak Evidence / Rejected Summary` before deciding whether to rerun with better keys or do a manual deep dive.
 
 ### All Commands
 
@@ -318,6 +319,7 @@ The artifact contains:
 - Run Summary: candidate count, market-sector coverage, source mix, and an OSS-heavy warning when all qualified rows came from OSS.
 - Sector Intelligence: every requested priority sector, including whether it produced company candidates, OSS/project candidates, pain with no company yet, no meaningful signal, or source failures.
 - Themes With No Company Yet: bounded hunt prompts from non-company evidence, not fake company rows.
+- Company Discovery From Themes: the second-pass company searches triggered by those theme prompts, with evidence rows that can be promoted into the full radar when they include a company/product identity and credible source URL.
 - Weak Evidence Summary: what was filtered out and why, plus "Needs More Evidence" items when there is useful pain/theme signal without enough company verification.
 - Optional `synthesis.json`: advisory LLM notes, source-gap diagnoses, theme hypotheses, and possible leads when `--with-synthesis` is used.
 
