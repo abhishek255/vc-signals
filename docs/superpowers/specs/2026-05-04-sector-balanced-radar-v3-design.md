@@ -48,7 +48,7 @@ Excluded:
 - Attio writeback or owner assignment.
 - Paid data providers for funding/headcount beyond current evidence-backed enrichment.
 - A web dashboard.
-- Fully automated LLM research synthesis inside the deterministic weekly pipeline.
+- Fully automated LLM research synthesis inside the deterministic weekly pipeline. In this spec, that means the weekly command should not automatically run deep LLM-written market memos for every sector/company/theme. The weekly radar should remain auditable evidence collection, scoring, ranking, and rendering. LLM synthesis belongs in drill-down flows after a partner selects a company/theme, or in a later optional "generate memo for selected rows" command.
 
 ## Core Concepts
 
@@ -76,8 +76,15 @@ Where the signal came from:
 - `Funding`
 - `Attio`
 - `Structured seed`
+- `YouTube`
+- `TikTok`
+- `Instagram`
+- `Threads`
+- `Social / Video`
 
 Source lane explains evidence provenance. It should not replace market sector.
+
+Social/video lanes are primarily powered by ScrapeCreators through last30days. They matter most for vertical AI, consumer workflows, SMB tools, creator-led SaaS, founder demos, and early product pull that appears before funding/news coverage. The renderer may group `YouTube`, `TikTok`, `Instagram`, and `Threads` under `Social / Video` in summaries, while preserving the exact source in JSON.
 
 ### Evidence Role
 
@@ -89,6 +96,8 @@ What the signal can support:
 - `launch_signal`
 - `funding_signal`
 - `customer_pull`
+- `product_demo`
+- `founder_signal`
 - `ecosystem_signal`
 - `activity_signal`
 
@@ -227,13 +236,14 @@ Candidate rows can be created from:
 - HN Show/Launch posts with extractable company/project names.
 - Funding/news/company discovery items with domain or credible company name.
 - GitHub/OSS repos as `oss_project`, then classified into market sectors.
+- Social/video evidence when it clearly identifies a company/product name and includes at least one of: founder/company account, product demo, customer/user pull, website, waitlist, or corroborating source.
 - Structured seed input.
 
 Candidate rows should not be created from:
 
 - Reddit pain alone.
 - GitHub issues/PRs alone.
-- Social/video posts alone.
+- Social/video posts that only show generic hype, commentary, memes, personal productivity tips, or unnamed products.
 - Generic news digests.
 - Funding announcements for obvious late-stage/consensus companies unless labeled `likely too late`.
 
@@ -400,4 +410,3 @@ These do not block implementation, but should be revisited after the first V3 ar
 5. Tune Partner Review ranking and diversity.
 6. Add sector-specific company query config.
 7. Update renderer, README, and sample artifacts.
-
