@@ -40,6 +40,7 @@ except ImportError:  # pragma: no cover - only for damaged installs
 from radar_models import Candidate, RejectedSignal, SectorCoverage
 from radar_scoring import score_and_tier
 from radar_sources import classify_source_item
+from radar_sector_classifier import classify_market_sector
 from radar_render import render_weekly_brief
 from radar_history import apply_weekly_tags, load_candidate_history, save_candidate_history
 from radar_enrichment import apply_candidate_enrichment, merge_source_enrichment
@@ -673,10 +674,21 @@ def rank_candidates(candidates: list[dict]) -> list[dict]:
 
 def merge_attio_context(companies: list[dict], attio_client=None) -> list[dict]:
     """Merge Attio match fields into companies, preserving existing fields."""
-    def should_skip_attio(company: dict) -> bool:
+    def is_oss_project(company: dict) -> bool:
         sector = (company.get("sector") or "").lower()
+        source_lane = (company.get("source_lane") or "").lower()
+        candidate_type = (company.get("candidate_type") or "").lower()
+        evidence_role = (company.get("evidence_role") or "").lower()
+        return (
+            "oss" in sector
+            or source_lane == "oss"
+            or candidate_type == "oss_project"
+            or evidence_role == "oss_project"
+        )
+
+    def should_skip_attio(company: dict) -> bool:
         name = company.get("name") or ""
-        return "oss" in sector and "/" in name and not company.get("domain")
+        return is_oss_project(company) and "/" in name and not company.get("domain")
 
     def skipped(company: dict) -> dict:
         return {
@@ -704,8 +716,7 @@ def merge_attio_context(companies: list[dict], attio_client=None) -> list[dict]:
 
     for company in enriched:
         existing_action = company.get("action")
-        sector = (company.get("sector") or "").lower()
-        preserve_oss_action = existing_action and "oss" in sector
+        preserve_oss_action = existing_action and is_oss_project(company)
         preserve_late_label = existing_action == "likely too late"
         if preserve_oss_action or preserve_late_label:
             company["action"] = existing_action
@@ -893,6 +904,19 @@ def _candidate_from_signal(signal) -> Candidate | None:
         engagement=item.get("engagement", {}),
         action="watch" if signal.role == "oss_project" else "assign owner",
     )
+    source_lane = item.get("source_lane") or ("OSS" if signal.role == "oss_project" else signal.source)
+    sector_classification = classify_market_sector(
+        title=name,
+        text=_blob(signal.title, signal.text, item.get("description"), item.get("topics", [])),
+        source_lane=source_lane,
+    )
+    candidate.market_sector = sector_classification.market_sector
+    candidate.source_lane = source_lane
+    candidate.evidence_role = signal.role
+    candidate.sector_confidence = sector_classification.sector_confidence
+    candidate.sector_reason = sector_classification.sector_reason
+    if candidate.market_sector != "Unclassified":
+        candidate.sector = candidate.market_sector
     candidate = merge_source_enrichment(candidate, item)
     return enrich_oss_candidate(candidate, item)
 

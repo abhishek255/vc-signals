@@ -108,6 +108,35 @@ def test_merge_attio_context_preserves_oss_action_vocabulary():
     assert result[0]["action"] == "contact maintainer"
 
 
+def test_merge_attio_context_preserves_reclassified_oss_action(monkeypatch):
+    import radar_run
+    from radar_run import merge_attio_context
+
+    class FakeAttio:
+        def match_company(self, company):
+            return {**company, "attio_status": "no_match", "attio_action": "assign owner"}
+
+    def fake_enrich_companies(companies, attio_client):
+        return [attio_client.match_company(company) for company in companies]
+
+    monkeypatch.setattr(radar_run, "enrich_companies", fake_enrich_companies)
+
+    companies = [
+        {
+            "name": "AgentShield",
+            "sector": "Cybersecurity",
+            "source_lane": "OSS",
+            "evidence_role": "oss_project",
+            "domain": "agentshield.dev",
+            "action": "contact maintainer",
+        }
+    ]
+    result = merge_attio_context(companies, FakeAttio())
+
+    assert result[0]["attio_status"] == "no_match"
+    assert result[0]["action"] == "contact maintainer"
+
+
 def test_merge_attio_context_skips_domainless_oss_repo_names():
     from radar_run import merge_attio_context
 
@@ -357,6 +386,99 @@ def test_extract_company_candidates_from_evidence_items():
     assert candidates[0]["name"] == "BeeSafe AI"
     assert candidates[0]["sector"] == "Cybersecurity"
     assert candidates[0]["source"] == "https://news.ycombinator.com/item?id=1"
+
+
+def test_candidate_promotion_sets_market_sector_and_source_lane_for_oss():
+    from radar_run import build_signals_from_evidence, promote_signals_to_candidates
+
+    evidence = {
+        "last30days": {},
+        "github": [
+            {
+                "full_name": "affaan-m/agentshield",
+                "description": "AI agent security scanner for MCP server permissions and tool risk.",
+                "url": "https://github.com/affaan-m/agentshield",
+                "topics": ["ai-agent", "security", "mcp"],
+            }
+        ],
+    }
+
+    signals = build_signals_from_evidence(evidence)["signals"]
+    result = promote_signals_to_candidates(signals)
+    candidate = result["candidates"][0]
+
+    assert candidate.name == "affaan-m/agentshield"
+    assert candidate.source_lane == "OSS"
+    assert candidate.market_sector == "Cybersecurity"
+    assert candidate.sector == "Cybersecurity"
+    assert candidate.evidence_role == "oss_project"
+    assert candidate.sector_confidence == "High"
+
+
+def test_classified_domainless_oss_candidate_is_not_sent_to_attio(monkeypatch):
+    import radar_run
+    from radar_run import build_signals_from_evidence, merge_attio_context, promote_signals_to_candidates
+
+    class FakeAttio:
+        def match_company(self, company):
+            raise AssertionError("classified domainless OSS repo should not be sent to Attio")
+
+    def fake_enrich_companies(companies, attio_client):
+        return [attio_client.match_company(company) for company in companies]
+
+    monkeypatch.setattr(radar_run, "enrich_companies", fake_enrich_companies)
+
+    evidence = {
+        "last30days": {},
+        "github": [
+            {
+                "full_name": "affaan-m/agentshield",
+                "description": "AI agent security scanner for MCP server permissions and tool risk.",
+                "url": "https://github.com/affaan-m/agentshield",
+                "topics": ["ai-agent", "security", "mcp"],
+            }
+        ],
+    }
+    signals = build_signals_from_evidence(evidence)["signals"]
+    candidate = promote_signals_to_candidates(signals)["candidates"][0]
+
+    assert candidate.sector == "Cybersecurity"
+    assert candidate.source_lane == "OSS"
+    assert candidate.domain == ""
+
+    result = merge_attio_context([candidate.to_dict()], FakeAttio())
+    assert result[0]["attio_status"] == "unknown"
+    assert result[0]["action"] == candidate.action
+
+
+def test_social_product_demo_can_create_candidate_with_source_lane():
+    from radar_run import build_signals_from_evidence, promote_signals_to_candidates
+
+    evidence = {
+        "last30days": {
+            "vertical-ai": {
+                "items": [
+                    {
+                        "source": "tiktok",
+                        "title": "DentalDesk AI demo automates front desk intake for dental clinics",
+                        "url": "https://www.tiktok.com/@dentaldesk/video/1",
+                        "company_name": "DentalDesk AI",
+                        "website": "https://dentaldesk.ai",
+                    }
+                ]
+            }
+        },
+        "github": [],
+    }
+
+    signals = build_signals_from_evidence(evidence)["signals"]
+    result = promote_signals_to_candidates(signals)
+    candidate = result["candidates"][0]
+
+    assert candidate.name == "DentalDesk AI"
+    assert candidate.source_lane == "TikTok"
+    assert candidate.evidence_role == "product_demo"
+    assert candidate.market_sector == "Vertical AI"
 
 
 def test_build_signals_from_evidence_preserves_sector_coverage():
