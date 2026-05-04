@@ -315,6 +315,14 @@ cat <skill_dir>/config/company_aliases.json
 For deterministic weekly runs, prefer the orchestration helper before doing manual synthesis:
 
 ```bash
+python3 <skill_dir>/scripts/radar_run.py weekly --sectors all --output-dir <output_dir>
+```
+
+This saves both raw evidence JSON and a partner preview. If a native grounded web key (Brave, Parallel, Serper, or Exa) is configured, the run includes grounded company discovery. If not, it automatically uses a stricter HN/GitHub fallback and avoids broad Reddit/company-web queries.
+
+For lower-level debugging, run collection and preview separately:
+
+```bash
 python3 <skill_dir>/scripts/radar_run.py collect --output-dir <output_dir>
 ```
 
@@ -327,6 +335,8 @@ python3 <skill_dir>/scripts/radar_run.py preview --from-evidence <output_dir>/<Y
 ```
 
 The automatic preview is intentionally conservative: it extracts candidate companies/projects, applies first-pass Investment Interest and Evidence Confidence scores, merges Attio context when `ATTIO_ACCESS_TOKEN` is present, filters low-interest candidates, and renders only Medium/High-interest rows. If it underfills the table, use Claude synthesis over the raw evidence plus external/web research to add higher-quality candidates rather than lowering the threshold.
+
+The preview schema includes LinkedIn, Founders, and X columns. Fill them only from evidence, Attio/CRM fields, structured seed input, or explicit user-provided data. Do not invent LinkedIn or founder links. Without grounded web or LinkedIn-capable evidence, leave those cells blank and treat them as next diligence.
 
 ### Step 2: Check for Previous Briefing (Week-over-Week)
 

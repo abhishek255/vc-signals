@@ -17,6 +17,9 @@ def test_filter_repo_rejects_bot_digests_and_tutorials():
     assert is_repo_noise({"full_name": "LongQT-sea/macos-iso-builder", "description": "Generate bootable macOS installer ISO"})
     assert is_repo_noise({"full_name": "ziwenhahaha/daily-paper-reader", "description": "daily arXiv paper recommendation platform"})
     assert is_repo_noise({"full_name": "google-github-actions/run-gemini-cli", "description": "A GitHub Action invoking the Gemini CLI"})
+    assert is_repo_noise({"full_name": "github/ai-moderator", "description": "An AI-powered GitHub Action that detects and tags spam in your repository"})
+    assert is_repo_noise({"full_name": "OndCo/Ond-ESG-Intelligence-Platform", "description": "ESG data with Azure Data Factory, Databricks, Azure ML, Power BI dashboards, and GitHub Actions CI/CD"})
+    assert is_repo_noise({"full_name": "mohitmishra786/low-level-dev-skills", "description": "A curated suite of AI agent skills for systems and low-level programming"})
 
 
 def test_filter_repo_keeps_investable_oss_signal():
@@ -124,12 +127,18 @@ def test_render_partner_preview_groups_sections(tmp_path):
             "why_on_radar": "YC W26 company adapting models to proprietary workflows.",
             "why_this_may_be_noise": "Positioning may be too broad.",
             "source": "https://www.ycombinator.com/companies/cascade",
+            "company_linkedin": "https://www.linkedin.com/company/cascade-ai",
+            "company_x": "https://x.com/cascade_ai",
+            "founder_profiles": [
+                {"name": "Asha Rao", "linkedin": "https://www.linkedin.com/in/asharao", "x": "https://x.com/asharao"}
+            ],
         }
     ]
     markdown = render_partner_preview(companies, ["Agent reliability"], output_path=tmp_path / "brief.md")
 
     assert "## Marathon Partner Preview" in markdown
-    assert "| Cascade | AI Infra | Agent reliability | High | High | no_owner | assign owner |" in markdown
+    assert "| Company | Sector | Theme | Interest | Evidence | Attio | Action | LinkedIn | Founders | X | Why On Radar | Why This May Be Noise | Source |" in markdown
+    assert "| Cascade | AI Infra | Agent reliability | High | High | no_owner | assign owner | https://www.linkedin.com/company/cascade-ai | Asha Rao: https://www.linkedin.com/in/asharao, https://x.com/asharao | https://x.com/cascade_ai |" in markdown
     assert "### AI Infra" in markdown
     assert (tmp_path / "brief.md").exists()
 
@@ -289,6 +298,36 @@ def test_extract_company_candidates_rejects_generic_names():
                     {"title": "I built an open-source competitor to Delve"},
                     {"title": "Market Research: AgentClash Competitive Landscape"},
                     {"title": "📡 Tech & AI News — 05 April 2026"},
+                    {"title": "Mozilla Announces \"Thunderbolt\" as an Open-Source, Enterprise AI Client"},
+                    {"title": "Open Source AI Infrastructure"},
+                    {"title": "Asserting American Leadership in Open Source AI"},
+                    {"title": "Free open source AI Editor"},
+                ]
+            }
+        },
+        "github": [],
+    }
+
+    assert extract_company_candidates(evidence) == []
+
+
+def test_extract_company_candidates_skips_oss_github_issue_noise():
+    from radar_run import extract_company_candidates
+
+    evidence = {
+        "last30days": {
+            "oss": {
+                "items": [
+                    {
+                        "title": "[BOUNTY: 25 RTC] Build an MCP Server That Connects Any AI Agent to RustChain",
+                        "url": "https://github.com/Scottcjn/rustchain-bounties/issues/2859",
+                        "source": "github",
+                    },
+                    {
+                        "title": "Add official MCP servers to agents",
+                        "url": "https://github.com/Ven0m0/.github/pull/186",
+                        "source": "github",
+                    },
                 ]
             }
         },
@@ -310,6 +349,15 @@ def test_extract_company_candidates_prefers_structured_company_name_and_domain()
                         "title": "Cascade helps enterprises adapt models to proprietary workflows",
                         "url": "https://runcascade.com",
                         "source": "web",
+                        "linkedin_url": "https://www.linkedin.com/company/cascade-ai",
+                        "x_url": "https://x.com/cascade_ai",
+                        "founders": [
+                            {
+                                "name": "Asha Rao",
+                                "linkedin": "https://www.linkedin.com/in/asharao",
+                                "x": "https://x.com/asharao",
+                            }
+                        ],
                     }
                 ]
             }
@@ -321,6 +369,9 @@ def test_extract_company_candidates_prefers_structured_company_name_and_domain()
     assert candidates[0]["name"] == "Cascade"
     assert candidates[0]["domain"] == "runcascade.com"
     assert candidates[0]["sector"] == "AI Infra"
+    assert candidates[0]["company_linkedin"] == "https://www.linkedin.com/company/cascade-ai"
+    assert candidates[0]["company_x"] == "https://x.com/cascade_ai"
+    assert candidates[0]["founder_profiles"][0]["linkedin"] == "https://www.linkedin.com/in/asharao"
 
 
 def test_extract_company_candidates_from_yc_url_slug():
@@ -365,6 +416,7 @@ def test_extract_company_candidates_aggregates_duplicate_mentions():
                         "url": "https://example.com/beesafe",
                         "source": "web",
                         "engagement": {"comments": 5},
+                        "linkedin_url": "https://www.linkedin.com/company/beesafe-ai",
                     },
                 ]
             }
@@ -377,6 +429,7 @@ def test_extract_company_candidates_aggregates_duplicate_mentions():
     assert candidates[0]["name"] == "BeeSafe AI"
     assert candidates[0]["source_count"] == 2
     assert len(candidates[0]["sources"]) == 2
+    assert candidates[0]["company_linkedin"] == "https://www.linkedin.com/company/beesafe-ai"
 
 
 def test_score_candidate_separates_interest_and_confidence():
@@ -517,3 +570,54 @@ def test_cli_preview_uses_input_json(tmp_path, monkeypatch, capsys):
     result = json.loads(capsys.readouterr().out)
     assert result["saved"] == str(out)
     assert out.exists()
+
+
+def test_run_weekly_artifacts_saves_raw_and_preview(tmp_path, monkeypatch):
+    import radar_run
+
+    monkeypatch.setattr(
+        radar_run,
+        "collect_live_evidence",
+        lambda **kwargs: {
+            "last30days": {
+                "cybersecurity": {
+                    "items": [
+                        {
+                            "title": "Show HN: BeeSafe AI stops AI voice phishing for banks",
+                            "url": "https://news.ycombinator.com/item?id=1",
+                            "source": "hackernews",
+                        }
+                    ]
+                }
+            },
+            "github": [],
+            "warnings": [],
+        },
+    )
+
+    result = radar_run.run_weekly_artifacts(
+        output_dir=tmp_path,
+        sectors=("cybersecurity",),
+        max_queries_per_sector=1,
+        github_limit=0,
+    )
+
+    assert result["raw_evidence"].endswith("raw-evidence.json")
+    assert result["preview"].endswith("weekly-preview.md")
+    assert result["companies"] == 1
+    assert "BeeSafe AI" in (tmp_path / "weekly-preview.md").read_text()
+
+
+def test_cli_weekly_runs_collect_and_preview(tmp_path, monkeypatch, capsys):
+    import radar_run
+
+    monkeypatch.setattr(
+        radar_run,
+        "run_weekly_artifacts",
+        lambda **kwargs: {"raw_evidence": str(tmp_path / "raw.json"), "preview": str(tmp_path / "preview.md"), "companies": 0},
+    )
+    monkeypatch.setattr("sys.argv", ["radar_run.py", "weekly", "--output-dir", str(tmp_path), "--sectors", "oss"])
+
+    radar_run._cli_main()
+    result = json.loads(capsys.readouterr().out)
+    assert result["preview"] == str(tmp_path / "preview.md")

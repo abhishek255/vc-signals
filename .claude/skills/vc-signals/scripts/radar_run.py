@@ -19,10 +19,11 @@ from urllib.parse import urlparse
 sys.path.insert(0, str(Path(__file__).parent))
 
 try:
-    from attio import AttioClient, enrich_companies
+    from attio import AttioClient, enrich_companies, get_access_token
 except ImportError:  # pragma: no cover - only for damaged installs
     AttioClient = None
     enrich_companies = None
+    get_access_token = None
 
 try:
     from github_trending import run_trending
@@ -59,6 +60,14 @@ REPO_NOISE_TERMS = (
     "paper recommendation",
     "arxiv",
     "gemini cli",
+    "github/ai-moderator",
+    "detects and tags spam",
+    "curated suite",
+    "esg data",
+    "power bi dashboards",
+    "azure data factory",
+    "movie studio",
+    "research fork",
     "adreno",
     "driver",
     "cloudflare worker",
@@ -109,6 +118,10 @@ GENERIC_EXTRACTED_NAMES = {
     "salesforce",
     "add it support",
     "ai weekly news",
+    "mozilla announces",
+    "open source ai",
+    "asserting american leadership",
+    "free",
 }
 
 SECTOR_LABELS = {
@@ -400,6 +413,13 @@ def _candidate_name_from_item(item: dict) -> str | None:
     return _extract_name_from_title(item.get("title", ""))
 
 
+def _is_github_issue_or_pr(item: dict) -> bool:
+    if (item.get("source") or "").lower() != "github":
+        return False
+    url = item.get("url") or ""
+    return "/issues/" in url or "/pull/" in url
+
+
 def _candidate_domain_from_item(item: dict) -> str:
     domain = (item.get("domain") or "").strip().lower()
     if domain:
@@ -416,6 +436,29 @@ def _candidate_domain_from_item(item: dict) -> str:
     return domain
 
 
+def _profile_url(item: dict, *keys: str) -> str:
+    for key in keys:
+        value = (item.get(key) or "").strip()
+        if value:
+            return value
+    return ""
+
+
+def _founder_profiles_from_item(item: dict) -> list[dict]:
+    founders = item.get("founders") or item.get("founder_profiles") or []
+    profiles = []
+    if isinstance(founders, list):
+        for founder in founders:
+            if not isinstance(founder, dict):
+                continue
+            name = (founder.get("name") or "").strip()
+            linkedin = _profile_url(founder, "linkedin", "linkedin_url")
+            x_url = _profile_url(founder, "x", "x_url", "twitter", "twitter_url")
+            if name or linkedin or x_url:
+                profiles.append({"name": name, "linkedin": linkedin, "x": x_url})
+    return profiles
+
+
 def _merge_candidate(existing: dict, candidate: dict) -> None:
     existing["source_count"] = int(existing.get("source_count") or 1) + 1
     source = candidate.get("source", "")
@@ -425,6 +468,17 @@ def _merge_candidate(existing: dict, candidate: dict) -> None:
             sources.append(source)
     if not existing.get("domain") and candidate.get("domain"):
         existing["domain"] = candidate["domain"]
+    for key in ("company_linkedin", "company_x"):
+        if not existing.get(key) and candidate.get(key):
+            existing[key] = candidate[key]
+    if candidate.get("founder_profiles"):
+        profiles = existing.setdefault("founder_profiles", [])
+        seen_profiles = {(profile.get("name"), profile.get("linkedin"), profile.get("x")) for profile in profiles}
+        for profile in candidate["founder_profiles"]:
+            key = (profile.get("name"), profile.get("linkedin"), profile.get("x"))
+            if key not in seen_profiles:
+                profiles.append(profile)
+                seen_profiles.add(key)
     existing_engagement = existing.setdefault("engagement", {})
     for key, value in (candidate.get("engagement") or {}).items():
         if isinstance(value, int):
@@ -439,6 +493,8 @@ def extract_company_candidates(evidence: dict) -> list[dict]:
     for sector_slug, sector_payload in evidence.get("last30days", {}).items():
         sector = SECTOR_LABELS.get(sector_slug, sector_slug)
         for item in filter_evidence(sector_payload.get("items", [])):
+            if _is_github_issue_or_pr(item) and not item.get("company_name"):
+                continue
             title = item.get("title", "")
             name = _candidate_name_from_item(item)
             key = _normalize_candidate_key(name or "")
@@ -459,6 +515,15 @@ def extract_company_candidates(evidence: dict) -> list[dict]:
                 "engagement": item.get("engagement", {}),
                 "action": "assign owner",
             }
+            company_linkedin = _profile_url(item, "company_linkedin", "linkedin_url", "linkedin")
+            company_x = _profile_url(item, "company_x", "x_url", "twitter_url", "twitter")
+            founder_profiles = _founder_profiles_from_item(item)
+            if company_linkedin:
+                candidate["company_linkedin"] = company_linkedin
+            if company_x:
+                candidate["company_x"] = company_x
+            if founder_profiles:
+                candidate["founder_profiles"] = founder_profiles
             if key in candidates_by_key:
                 _merge_candidate(candidates_by_key[key], candidate)
             else:
@@ -588,6 +653,7 @@ def build_partner_candidates(
             "why_on_radar": why,
             "why_this_may_be_noise": "Repo traction may not map to company formation or buyer urgency.",
             "source": repo.get("url", ""),
+            "founder_profiles": [{"name": name.split("/", 1)[0], "github": repo.get("url", "").rsplit("/", 1)[0]}],
             "action": "watch",
         })
 
@@ -636,12 +702,12 @@ def render_partner_preview(
     lines.extend([
         "### Top Candidates",
         "",
-        "| Company | Sector | Theme | Interest | Evidence | Attio | Action | Why On Radar | Why This May Be Noise | Source |",
-        "|---|---|---|---|---|---|---|---|---|---|",
+        "| Company | Sector | Theme | Interest | Evidence | Attio | Action | LinkedIn | Founders | X | Why On Radar | Why This May Be Noise | Source |",
+        "|---|---|---|---|---|---|---|---|---|---|---|---|---|",
     ])
     for company in companies:
         lines.append(
-            "| {name} | {sector} | {theme} | {interest} | {evidence} | {attio} | {action} | {why} | {noise} | {source} |".format(
+            "| {name} | {sector} | {theme} | {interest} | {evidence} | {attio} | {action} | {linkedin} | {founders} | {x_url} | {why} | {noise} | {source} |".format(
                 name=company.get("name", ""),
                 sector=company.get("sector", ""),
                 theme=company.get("theme") or company.get("primary_theme", ""),
@@ -649,6 +715,9 @@ def render_partner_preview(
                 evidence=company.get("evidence_confidence", ""),
                 attio=company.get("attio_status", "unknown"),
                 action=company.get("action") or company.get("attio_action", ""),
+                linkedin=company.get("company_linkedin", ""),
+                founders=_format_founders(company.get("founder_profiles", [])),
+                x_url=company.get("company_x", ""),
                 why=company.get("why_on_radar", ""),
                 noise=company.get("why_this_may_be_noise", ""),
                 source=company.get("source") or company.get("evidence_url", ""),
@@ -672,6 +741,19 @@ def render_partner_preview(
         output_path.parent.mkdir(parents=True, exist_ok=True)
         output_path.write_text(markdown)
     return markdown
+
+
+def _format_founders(founders: list[dict]) -> str:
+    formatted = []
+    for founder in founders or []:
+        name = founder.get("name") or "Founder"
+        links = [founder.get("linkedin"), founder.get("x"), founder.get("github")]
+        links = [link for link in links if link]
+        if links:
+            formatted.append(f"{name}: {', '.join(links)}")
+        else:
+            formatted.append(name)
+    return "; ".join(formatted)
 
 
 def save_raw_evidence(evidence: dict, *, output_dir: Path = DEFAULT_OUTPUT_DIR, run_date: str | None = None) -> Path:
@@ -745,6 +827,33 @@ def collect_live_evidence(
     return evidence
 
 
+def run_weekly_artifacts(
+    *,
+    output_dir: Path = DEFAULT_OUTPUT_DIR,
+    sectors: tuple[str, ...] = DEFAULT_SECTORS,
+    github_limit: int = 40,
+    max_queries_per_sector: int = 3,
+    candidate_limit: int = 15,
+) -> dict:
+    """Collect evidence and render a weekly partner preview in one command."""
+    evidence = collect_live_evidence(
+        sectors=sectors,
+        github_limit=github_limit,
+        max_queries_per_sector=max_queries_per_sector,
+    )
+    raw_path = save_raw_evidence(evidence, output_dir=output_dir)
+    companies = build_scored_preview_from_evidence(evidence, attio_client=_attio_client_from_env(), limit=candidate_limit)
+    themes = sorted({company.get("theme", "") for company in companies if company.get("theme")})
+    preview_path = output_dir / "weekly-preview.md"
+    render_partner_preview(companies, themes, output_path=preview_path)
+    return {
+        "raw_evidence": str(raw_path),
+        "preview": str(preview_path),
+        "companies": len(companies),
+        "sectors": list(sectors),
+    }
+
+
 def _read_json_stdin():
     raw = sys.stdin.read()
     if not raw.strip():
@@ -774,6 +883,8 @@ def _parse_args(argv: list[str]) -> dict:
 
 def _attio_client_from_env():
     token = os.environ.get("ATTIO_ACCESS_TOKEN")
+    if not token and get_access_token:
+        token, _source = get_access_token()
     if not token or not AttioClient:
         return None
     return AttioClient(token)
@@ -796,6 +907,18 @@ def _cli_main() -> None:
         )
         path = save_raw_evidence(evidence, output_dir=output_dir)
         print(json.dumps({"saved": str(path), "github_count": len(evidence.get("github", []))}))
+        return
+
+    if command == "weekly":
+        output_dir = Path(args.get("output_dir", DEFAULT_OUTPUT_DIR))
+        result = run_weekly_artifacts(
+            output_dir=output_dir,
+            sectors=parse_sectors_arg(args.get("sectors")),
+            github_limit=int(args.get("github_limit", 40)),
+            max_queries_per_sector=int(args.get("max_queries_per_sector", 3)),
+            candidate_limit=int(args.get("limit", 15)),
+        )
+        print(json.dumps(result))
         return
 
     if command == "preview":

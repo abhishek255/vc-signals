@@ -1,17 +1,17 @@
 {
   "last30days": {
-    "data-infra": {
+    "oss": {
       "queries": [
         {
-          "kind": "conversation",
-          "topic": "Show HN Data Infrastructure AI startup developer tool open source",
+          "kind": "oss_show",
+          "topic": "Show HN open source AI agent MCP security developer tool",
           "sources": "hackernews,github",
           "lookback_days": 30
         },
         {
-          "kind": "hn_show",
-          "topic": "Launch HN Show HN Data Infrastructure startup AI infrastructure",
-          "sources": "hackernews,github",
+          "kind": "oss_github",
+          "topic": "open source AI agent infrastructure GitHub stars MCP security",
+          "sources": "github,hackernews",
           "lookback_days": 30
         }
       ],
@@ -19,558 +19,1259 @@
       "items": [
         {
           "source": "github",
-          "title": "feat: Implement Hierarchical Prediction System (HPS) with comprehensive ML infrastructure",
-          "url": "https://github.com/cbwinslow/retrosheet/pull/138",
-          "snippet": "CodeAnt AI is reviewing your PR.\n\n---\n\n### Thanks for using CodeAnt! \ud83c\udf89\n\nWe're free for open-source projects. if you're enjoying it, help us grow by sharing.\n\n[Share on X](https://twitter.com/intent/tweet?text=Just%20tried%20%40CodeAntAI%20for%20automated%20code%20review%20and%20I%27m%20impressed%21%... <!-- kilo-billing-notice -->\n**Kilo Code Review could not run \u2014 your account is out of credits.**\n\n[Add credits](https://app.kilo.ai/) or [switch to a free model](https://app.kilo.ai/code-reviews)",
-          "published_at": "2026-05-02",
+          "title": "Add official MCP servers to agents",
+          "url": "https://github.com/Ven0m0/.github/pull/186",
+          "snippet": "Added official Model Context Protocol (MCP) servers to the relevant agents to expand their capabilities. The `fetch`, `filesystem`, `git`, `memory`, and `time` servers were added to the relevant agents (`explorer`, `coder`, `git`, `reviewer`, `planner`, etc) under `mcp-servers:` block.\n\n---\n*PR crea",
+          "published_at": "2026-04-29",
           "engagement": {
-            "comments": 7,
+            "comments": 2,
             "reactions": 3
           },
-          "container": "cbwinslow/retrosheet",
-          "author": "cbwinslow",
-          "query_kind": "conversation",
-          "query_topic": "Show HN Data Infrastructure AI startup developer tool open source"
+          "container": "Ven0m0/.github",
+          "author": "Ven0m0",
+          "query_kind": "oss_show",
+          "query_topic": "Show HN open source AI agent MCP security developer tool"
         },
         {
           "source": "github",
-          "title": "feat: Complete Statcast pitch-level data ingestion and comprehensive data acquisition",
-          "url": "https://github.com/cbwinslow/retrosheet/pull/48",
-          "snippet": "CodeAnt AI is reviewing your PR.\n\n---\n\n### Thanks for using CodeAnt! \ud83c\udf89\n\nWe're free for open-source projects. if you're enjoying it, help us grow by sharing.\n\n[Share on X](https://twitter.com/intent/tweet?text=Just%20tried%20%40CodeAntAI%20for%20automated%20code%20review%20and%20I%27m%20impressed%21%... #### \u26a0\ufe0f GitGuardian has uncovered 11 secrets following the scan of your pull request.\n\nPlease consider investigating the findings and remediating the incidents. Failure to do so may lead to compro",
-          "published_at": "2026-04-19",
+          "title": "Add MCP server (v1: session_query)",
+          "url": "https://github.com/0bserver07/StackUnderflow/pull/9",
+          "snippet": "## Summary\n\nAdds a `stackunderflow.mcp` submodule \u2014 a Model Context Protocol server (FastMCP, stdio transport) that exposes session-log queries to MCP clients. v1 ships one tool, `session_query`.\n\n## Design: stateless, adapter-imported\n\nThe MCP imports `stackunderflow.adapters.claude.ClaudeAdapter`",
+          "published_at": "2026-04-29",
+          "engagement": {
+            "comments": 6,
+            "reactions": 2
+          },
+          "container": "0bserver07/StackUnderflow",
+          "author": "zh4ngx",
+          "query_kind": "oss_show",
+          "query_topic": "Show HN open source AI agent MCP security developer tool"
+        },
+        {
+          "source": "github",
+          "title": "[Project Proposal] Agent Governance Toolkit",
+          "url": "https://github.com/aaif/project-proposals/issues/19",
+          "snippet": "### Project Name\r\n\r\nAgent Governance Toolkit\r\n\r\n### Project Description\r\n\r\nThe Agent Governance Toolkit is an open-source, multi-language runtime governance framework for autonomous AI agents, developed by Microsoft and released under the MIT license. It provides deterministic policy enforcement, ze",
+          "published_at": "2026-04-26",
           "engagement": {
             "comments": 8,
             "reactions": 3
           },
-          "container": "cbwinslow/retrosheet",
-          "author": "cbwinslow",
-          "query_kind": "conversation",
-          "query_topic": "Show HN Data Infrastructure AI startup developer tool open source"
+          "container": "aaif/project-proposals",
+          "author": "imran-siddique",
+          "query_kind": "oss_show",
+          "query_topic": "Show HN open source AI agent MCP security developer tool"
         },
         {
           "source": "github",
-          "title": "feat: complete core spam filter backend and frontend implementation",
-          "url": "https://github.com/jmbish04/core-spam-filter/pull/1",
-          "snippet": "Implemented the core spam filter project according to the SWARM specs and PRD.\n\n- Set up the D1 database schemas and applied Drizzle migrations.\n- Implemented `EmailAnalyzerAgent` using `@cloudflare/agents` SDK for AI LLM evaluation and Vectorize embeddings handling.\n- Implemented the Hono REST API",
-          "published_at": "2026-05-02",
-          "engagement": {
-            "comments": 22,
-            "reactions": 1
-          },
-          "container": "jmbish04/core-spam-filter",
-          "author": "jmbish04",
-          "query_kind": "conversation",
-          "query_topic": "Show HN Data Infrastructure AI startup developer tool open source"
-        },
-        {
-          "source": "github",
-          "title": "chore(data-warehouse): Moved source docs from .com to this repo",
-          "url": "https://github.com/PostHog/posthog/pull/56147",
-          "snippet": "<!-- greptile_other_comments_section -->\n\n<sub>Reviews (1): Last reviewed commit: [\"Moved source docs from .com to this repo\"](https://github.com/posthog/posthog/commit/8ac1ad7af9ee635c06595ad0b81e2403c3e3ac9f) | [Re-trigger Greptile](https://app.greptile.com/api/retrigger?id=29590123)</sub> **Size Change:** 0 B \n\n**Total Size:** 132 MB\n\n\n\n<details><summary>\u2139\ufe0f <strong>View Unchanged</strong></summary>\n\n| Filename | Size |\n| :--- | :---: |\n| `frontend/dist/368Hedgehogs` | 5.26 kB |\n| `frontend/di",
-          "published_at": "2026-04-24",
-          "engagement": {
-            "comments": 4,
-            "reactions": 3
-          },
-          "container": "PostHog/posthog",
-          "author": "Gilbert09",
-          "query_kind": "conversation",
-          "query_topic": "Show HN Data Infrastructure AI startup developer tool open source"
-        },
-        {
-          "source": "github",
-          "title": "Microsoft Copilot system prompts?",
-          "url": "https://github.com/elder-plinius/CL4R1T4S/issues/100",
-          "snippet": "It's quite disappointing that this repository doesn't have [Microsoft Copilot's](https://copilot.com) system prompt. We all need to see what drugs Microsoft fed to their AI that gave it the capacity to lie, gaslight and manipulate, encourage users into selling their data, and [say Charlie Kirk never",
-          "published_at": "2026-04-21",
+          "title": "feat(mcp): add @pascal-app/mcp \u2014 Model Context Protocol server",
+          "url": "https://github.com/pascalorg/editor/pull/264",
+          "snippet": "# feat(mcp): add `@pascal-app/mcp` \u2014 Model Context Protocol server\n\n## TL;DR\n\nThis PR adds a new workspace package `@pascal-app/mcp` (v0.1.0) that exposes the Pascal scene graph as MCP **tools**, **resources**, and **prompts** so any MCP-compatible AI host \u2014 Claude Desktop, Claude Code, Cursor, or a",
+          "published_at": "2026-04-19",
           "engagement": {
             "comments": 1,
-            "reactions": 3
+            "reactions": 2
           },
-          "container": "elder-plinius/CL4R1T4S",
-          "author": "uncode0",
-          "query_kind": "conversation",
-          "query_topic": "Show HN Data Infrastructure AI startup developer tool open source"
+          "container": "pascalorg/editor",
+          "author": "AdrianPerez3",
+          "query_kind": "oss_show",
+          "query_topic": "Show HN open source AI agent MCP security developer tool"
         },
         {
           "source": "github",
-          "title": "\ud83d\udee1\ufe0f Sentinel: [MEDIUM] Fix Markdown injection vulnerability",
-          "url": "https://github.com/irfndi/meets-match/pull/100",
-          "snippet": "\ud83d\udc4b Jules, reporting for duty! I'm here to lend a hand with this pull request. When you start a review, I'll add a \ud83d\udc40 emoji to each comment to let you know I've read it. I'll focus on feedback directed at me and will do my best to stay out of conversations between you and other bots or reviewers to ke... <!-- Generated by sourcery-ai[bot]: start review_guide --> ## Reviewer's Guide Adds a Telegram-specific Markdown escaping utility and applies it consistently to user-generated content in match-rela",
-          "published_at": "2026-04-15",
+          "title": "Add npm-info MCP server for package information queries",
+          "url": "https://github.com/kongyo2/npm-info/pull/1",
+          "snippet": "## Summary\nThis PR introduces a new Model Context Protocol (MCP) server that provides npm package information tools for AI agents during TypeScript development. The server exposes multiple tools to query npm registry data and package metadata.\n\n## Key Changes\n- **New MCP Server Implementation** (`sr",
+          "published_at": "2026-04-08",
           "engagement": {
-            "comments": 5,
+            "comments": 0,
+            "reactions": 2
+          },
+          "container": "kongyo2/npm-info",
+          "author": "kongyo2",
+          "query_kind": "oss_show",
+          "query_topic": "Show HN open source AI agent MCP security developer tool"
+        },
+        {
+          "source": "github",
+          "title": "Feature/Architecture Proposal]: OAuth 2.0 Token Exchange (RFC 8693) Support for SaaS MCP Backends via Wasm/ExtensionPolicy",
+          "url": "https://github.com/envoyproxy/ai-gateway/issues/2036",
+          "snippet": "Agree this is needed.\nWondering if we can use a version of this: https://builtonenvoy.io/extensions/token-exchange/ \n\nI wonder if this issue mentions wasm but is ok with dynamic module?",
+          "published_at": "2026-04-09",
+          "engagement": {
+            "comments": 1,
             "reactions": 4
           },
-          "container": "irfndi/meets-match",
-          "author": "irfndi",
-          "query_kind": "conversation",
-          "query_topic": "Show HN Data Infrastructure AI startup developer tool open source"
+          "container": "envoyproxy/ai-gateway",
+          "author": "monali45",
+          "query_kind": "oss_show",
+          "query_topic": "Show HN open source AI agent MCP security developer tool"
         },
         {
           "source": "github",
-          "title": "docs(architecture): amend ADR-042 to scope Python-first to internal automation",
-          "url": "https://github.com/rjmurillo/ai-agents/pull/1647",
-          "snippet": "> [!NOTE]\n> Gemini is unable to generate a review for this pull request due to the file types involved not being currently supported. <!-- PR-VALIDATION -->\n\n## PR Validation Report\n\n> [!NOTE]\n> \u2705 **Status: PASS**\n\n### Description Validation\n\n| Check | Status |\n|:------|:-------|\n| Description matches diff | PASS |\n\n### PR Standards\n\n| Check | Status |\n|:------|:-------|\n| Issue linking keywords | PASS |\n| Template compliance | WA... <!-- AI-PR-QUALITY-GATE -->\n\n## AI Quality Gate Review\n\n> [!TI",
+          "title": "[PROPOSAL] OpenSearch Flux \u2014 CLI and MCP server for migrating Dashboards saved objects between OpenSearch instances",
+          "url": "https://github.com/opensearch-project/.github/issues/499",
+          "snippet": "## Supporting evidence for this proposal I did some research across the OpenSearch ecosystem \u2014 GitHub issues, forum discussions, existing tooling, and official documentation \u2014 and the evidence strongly supports the need for this tool. Here's what I found: ### 1. Community pain points are well-docu... You say the tool is already built and production-tested, where is this magical tool? Great idea but this is very broad and ambitious, so I ask: - Why not a tighter MVP boundary. The proposal current",
           "published_at": "2026-04-13",
           "engagement": {
             "comments": 4,
-            "reactions": 1
+            "reactions": 4
           },
-          "container": "rjmurillo/ai-agents",
-          "author": "rjmurillo-bot",
-          "query_kind": "conversation",
-          "query_topic": "Show HN Data Infrastructure AI startup developer tool open source"
+          "container": "opensearch-project/.github",
+          "author": "Maosaic",
+          "query_kind": "oss_show",
+          "query_topic": "Show HN open source AI agent MCP security developer tool"
         },
         {
           "source": "github",
-          "title": "feat: initialize cloud-migration-poc from ai-repo-template (Prompt 01)",
-          "url": "https://github.com/mikejmckinney/cloud_migration_POC/pull/1",
-          "snippet": "- [x] ISS-01\u201314: All original PR review comments resolved (prior commits)\n- [x] ISS-15\u201317: Snowflake modules: required_providers, updated resource types, S3 lifecycle filter (prior commits)\n- [x] ISS-18: CI failure \u2014 `in_schema` used as block instead of argument in `snowflake-grants/main.tf` (lines",
-          "published_at": "2026-04-15",
+          "title": "[BOUNTY: 25 RTC] Build an MCP Server That Connects Any AI Agent to RustChain",
+          "url": "https://github.com/Scottcjn/rustchain-bounties/issues/2859",
+          "snippet": "## Build a Model Context Protocol (MCP) Server for RustChain\n\n**Reward: 25 RTC (~$2.50 USD)**\n\n### Why This Matters\n\nEvery AI agent running Claude Code, Cursor, Windsurf, or any MCP-compatible IDE can instantly connect to RustChain through an MCP server. This is the single fastest way to onboard tho",
+          "published_at": "2026-04-09",
           "engagement": {
-            "comments": 15,
+            "comments": 38,
             "reactions": 1
           },
-          "container": "mikejmckinney/cloud_migration_POC",
-          "author": "Copilot",
-          "query_kind": "conversation",
-          "query_topic": "Show HN Data Infrastructure AI startup developer tool open source"
+          "container": "Scottcjn/rustchain-bounties",
+          "author": "Scottcjn",
+          "query_kind": "oss_show",
+          "query_topic": "Show HN open source AI agent MCP security developer tool"
         },
         {
           "source": "github",
-          "title": "content: add 10 production articles across AI, Tech, Finance, Startups",
-          "url": "https://github.com/ayxsh678/taketoday/pull/3",
-          "snippet": "## Summary by Sourcery\n\nAdd a new batch of long-form and smart-breakdown editorial articles across AI, tech, finance, and startups to the content library.\n\nNew Features:\n- Introduce an analysis of how AI assistants are reshaping high-intent search economics for Google and challengers.\n- Add a deep d",
-          "published_at": "2026-04-19",
+          "title": "[BOUNTY: 100 RTC] AgentFolio \u2194 Beacon Integration Spec + Reference Implementation",
+          "url": "https://github.com/Scottcjn/rustchain-bounties/issues/2890",
+          "snippet": "/apply\n\nI'm interested in working on this bounty.\n\n**My approach:**\n1. Review the requirements thoroughly\n2. Implement a high-quality solution\n3. Test comprehensively\n4. Submit with clear documentation\n\n**Relevant experience:**\n- python, machine-learning, llm, ai-agents, deep-learning, nlp, computer... The core integration combines Beacon IDs (`bcn_<name>_<hash>` schema) with SATP trust scores via the directory API at `https://bottube.ai/api/beacon/directory`\u2014I'll spec the unified data model and",
+          "published_at": "2026-04-09",
+          "engagement": {
+            "comments": 43,
+            "reactions": 5
+          },
+          "container": "Scottcjn/rustchain-bounties",
+          "author": "Scottcjn",
+          "query_kind": "oss_show",
+          "query_topic": "Show HN open source AI agent MCP security developer tool"
+        },
+        {
+          "source": "github",
+          "title": "ci(chrisdoc-hevy-mcp): add HOL skill-publish validate workflow",
+          "url": "https://github.com/chrisdoc/hevy-mcp/pull/291",
+          "snippet": "I opened this as a small validate-only check for the skill metadata in the repo.\n\nA couple of repo-specific details I checked first:\n- \u26a1 Optimized: Includes in-memory caching for exercise templates to reduce API latency\n- Credits: Model Context Protocol, Hevy Fitness\n- | One-off stdio run | HEVY_API",
+          "published_at": "2026-04-06",
+          "engagement": {
+            "comments": 3,
+            "reactions": 2
+          },
+          "container": "chrisdoc/hevy-mcp",
+          "author": "internet-dot",
+          "query_kind": "oss_show",
+          "query_topic": "Show HN open source AI agent MCP security developer tool"
+        },
+        {
+          "source": "github",
+          "title": "\ud83d\udee1\ufe0f Sentinel: Harden security headers and image privacy",
+          "url": "https://github.com/recursive-ai-dev/catalogoffutility/pull/173",
+          "snippet": "\ud83d\udea8 Severity: HIGH/MEDIUM\n\ud83d\udca1 Vulnerability: Potential XSS exploitation path via 'unsafe-eval' and origin leakage through Referer headers on third-party images.\n\ud83c\udfaf Impact: Exploitation of XSS vulnerabilities could lead to session hijacking or data theft; origin leakage allows third-party asset hosts to t",
+          "published_at": "2026-04-29",
+          "engagement": {
+            "comments": 3,
+            "reactions": 2
+          },
+          "container": "recursive-ai-dev/catalogoffutility",
+          "author": "recursive-ai-dev",
+          "query_kind": "oss_github",
+          "query_topic": "open source AI agent infrastructure GitHub stars MCP security"
+        },
+        {
+          "source": "github",
+          "title": "[BOUNTY: 15 RTC] Create Upstream Contributions Showcase for elyanlabs.ai",
+          "url": "https://github.com/Scottcjn/rustchain-bounties/issues/2958",
+          "snippet": "## Upstream Contributions Showcase Page\n\n**Reward: 15 RTC (~$1.50 USD)**\n\n### Goal\n\nCreate an HTML page or markdown document for elyanlabs.ai that showcases our 44+ merged upstream contributions to major open-source projects.\n\n### Projects to Highlight (All Merged)\n\n| Project | Stars | PR | Impact |",
+          "published_at": "2026-04-10",
+          "engagement": {
+            "comments": 24,
+            "reactions": 2
+          },
+          "container": "Scottcjn/rustchain-bounties",
+          "author": "Scottcjn",
+          "query_kind": "oss_github",
+          "query_topic": "open source AI agent infrastructure GitHub stars MCP security"
+        },
+        {
+          "source": "github",
+          "title": "[Project Proposal] prompts.chat",
+          "url": "https://github.com/aaif/project-proposals/issues/9",
+          "snippet": "### Project Name\n\nprompts.chat\n\n### Project Description\n\nprompts.chat is the world's largest open-source prompt library for AI. It started in December 2022 as a simple curated list of ChatGPT prompts on GitHub and quickly became one of the most-starred repositories on the platform, reaching over 157",
+          "published_at": "2026-04-08",
+          "engagement": {
+            "comments": 0,
+            "reactions": 1
+          },
+          "container": "aaif/project-proposals",
+          "author": "f",
+          "query_kind": "oss_github",
+          "query_topic": "open source AI agent infrastructure GitHub stars MCP security"
+        },
+        {
+          "source": "github",
+          "title": "[Growth] Competitor Research: Layer, Positioning, Users, Channels, Pain Points, Opportunities",
+          "url": "https://github.com/nexu-io/nexu/issues/1155",
+          "snippet": "## Goal\n\nSystematically complete competitive research, answering these 7 core questions for each competitor:\n\n1. **Layer**: Which layer does it sit in (Infrastructure / Agent Framework / End Product / Workspace)?\n2. **Positioning**: What is their core value proposition in public messaging?\n3. **User",
+          "published_at": "2026-04-20",
           "engagement": {
             "comments": 2,
-            "reactions": 0
-          },
-          "container": "ayxsh678/taketoday",
-          "author": "ayxsh678",
-          "query_kind": "hn_show",
-          "query_topic": "Launch HN Show HN Data Infrastructure startup AI infrastructure"
-        },
-        {
-          "source": "github",
-          "title": "Eridu Emerges from Stealth with $200M+ Funding, Claims AI Networking Breakthrough (2026-04-20)",
-          "url": "https://github.com/Deva-me-AI/AI-History-in-the-Making/issues/388",
-          "snippet": "## Eridu Emerges from Stealth with $200M+ Funding, Claims AI Networking Breakthrough\n\n**Date:** 2026-04-20\n**Category:** Infrastructure, Funding\n\n### Description\n\nStartup Eridu announced its official launch with over $200 million in funding, revealing a breakthrough in AI-specific networking technol",
-          "published_at": "2026-04-23",
-          "engagement": {
-            "comments": 4,
-            "reactions": 0
-          },
-          "container": "Deva-me-AI/AI-History-in-the-Making",
-          "author": "epanonymous",
-          "query_kind": "hn_show",
-          "query_topic": "Launch HN Show HN Data Infrastructure startup AI infrastructure"
-        },
-        {
-          "source": "github",
-          "title": "feat(subsystem): add Sovereign OS Termux orchestrator + Kivy APK + MCP bridge",
-          "url": "https://github.com/muffy86/autogen-api-style-agent/pull/38",
-          "snippet": "# CodeCapy Review \u208d\u1422\u2022(\u072b)\u2022\u1422\u208e\n- PR: #38\n- Commit: e713881\n\n## Codebase Summary\nThis repository implements a multi-agent API system that now includes a new self-contained subsystem (Sovereign Intelligence OS) for Termux-hosted Android devices. The subsystem provides a FastAPI-based orchestrator with me... You have reached your Codex usage limits for code reviews. You can see your limits in the [Codex usage dashboard](https://chatgpt.com/codex/cloud/settings/usage). <!-- This is an auto-generated co",
-          "published_at": "2026-04-21",
-          "engagement": {
-            "comments": 29,
             "reactions": 1
           },
-          "container": "muffy86/autogen-api-style-agent",
-          "author": "muffy86",
-          "query_kind": "hn_show",
-          "query_topic": "Launch HN Show HN Data Infrastructure startup AI infrastructure"
+          "container": "nexu-io/nexu",
+          "author": "joeylee12629-star",
+          "query_kind": "oss_github",
+          "query_topic": "open source AI agent infrastructure GitHub stars MCP security"
         },
         {
           "source": "github",
-          "title": "feat: highlight service v2 \u2014 native Gemini 3.1 Pro video analysis + fine-tuning infrastructure",
-          "url": "https://github.com/jlin3/substream-sdk/pull/9",
-          "snippet": "## Summary\n\nUpgrades the highlight generation service from a frame-sampling pipeline to a native-video-first system using Gemini 3.1 Pro. This is a comprehensive rewrite of the AI pipeline while maintaining backward compatibility with existing API consumers.\n\n### What changed\n\n**Core Pipeline (bigge",
+          "title": "[Project Proposal] agentgateway",
+          "url": "https://github.com/aaif/project-proposals/issues/11",
+          "snippet": "Thank you for the proposal!",
+          "published_at": "2026-04-09",
+          "engagement": {
+            "comments": 1,
+            "reactions": 11
+          },
+          "container": "aaif/project-proposals",
+          "author": "linsun",
+          "query_kind": "oss_github",
+          "query_topic": "open source AI agent infrastructure GitHub stars MCP security"
+        },
+        {
+          "source": "github",
+          "title": "[BOUNTY: 3 RTC] Add RustChain to 5 Awesome Lists on GitHub (DePIN, Blockchain, AI)",
+          "url": "https://github.com/Scottcjn/rustchain-bounties/issues/2862",
+          "snippet": "I understand the task: submit PRs to GitHub awesome-* lists to promote RustChain, a Proof-of-Antiquity blockchain that rewards legacy hardware over modern systems. This is a clean discovery/propagation play for a differentiated DePIN project.\n\nMy approach:\n1. Audit 3-5 target lists (awesome-depin, a... /apply\n\nI'm interested in working on this bounty.\n\n**My approach:**\n1. Review the requirements thoroughly\n2. Implement a high-quality solution\n3. Test comprehensively\n4. Submit with clear document",
+          "published_at": "2026-04-09",
+          "engagement": {
+            "comments": 140,
+            "reactions": 8
+          },
+          "container": "Scottcjn/rustchain-bounties",
+          "author": "Scottcjn",
+          "query_kind": "oss_github",
+          "query_topic": "open source AI agent infrastructure GitHub stars MCP security"
+        },
+        {
+          "source": "hackernews",
+          "title": "Mike: open-source legal AI",
+          "url": "https://mikeoss.com/",
+          "snippet": "Mike: open-source legal AI",
+          "published_at": "2026-04-30",
+          "engagement": {
+            "comments": 110,
+            "points": 206
+          },
+          "container": "Hacker News",
+          "author": "noleary",
+          "query_kind": "oss_github",
+          "query_topic": "open source AI agent infrastructure GitHub stars MCP security"
+        },
+        {
+          "source": "hackernews",
+          "title": "VibeVoice: Open-source frontier voice AI",
+          "url": "https://github.com/microsoft/VibeVoice",
+          "snippet": "VibeVoice: Open-source frontier voice AI",
+          "published_at": "2026-04-28",
+          "engagement": {
+            "comments": 181,
+            "points": 386
+          },
+          "container": "Hacker News",
+          "author": "tosh",
+          "query_kind": "oss_github",
+          "query_topic": "open source AI agent infrastructure GitHub stars MCP security"
+        },
+        {
+          "source": "hackernews",
+          "title": "Open Source AI Infrastructure",
+          "url": "https://news.ycombinator.com/item?id=47933263",
+          "snippet": "Open Source AI Infrastructure",
+          "published_at": "2026-04-28",
+          "engagement": {
+            "comments": 0,
+            "points": 3
+          },
+          "container": "Hacker News",
+          "author": "38caveman",
+          "query_kind": "oss_github",
+          "query_topic": "open source AI agent infrastructure GitHub stars MCP security"
+        },
+        {
+          "source": "hackernews",
+          "title": "Asserting American Leadership in Open Source AI",
+          "url": "https://a16zpolicy.substack.com/p/asserting-american-leadership-in",
+          "snippet": "Asserting American Leadership in Open Source AI",
+          "published_at": "2026-04-28",
+          "engagement": {
+            "comments": 1,
+            "points": 4
+          },
+          "container": "Hacker News",
+          "author": "atlasunshrugged",
+          "query_kind": "oss_github",
+          "query_topic": "open source AI agent infrastructure GitHub stars MCP security"
+        },
+        {
+          "source": "hackernews",
+          "title": "Show HN: GoModel \u2013 an open-source AI gateway in Go",
+          "url": "https://github.com/ENTERPILOT/GOModel/",
+          "snippet": "Show HN: GoModel \u2013 an open-source AI gateway in Go",
+          "published_at": "2026-04-21",
+          "engagement": {
+            "comments": 75,
+            "points": 217
+          },
+          "container": "Hacker News",
+          "author": "santiago-pl",
+          "query_kind": "oss_github",
+          "query_topic": "open source AI agent infrastructure GitHub stars MCP security"
+        },
+        {
+          "source": "hackernews",
+          "title": "MenteDB \u2013 open-source memory database for AI agents (Rust)",
+          "url": "https://github.com/nambok/mentedb",
+          "snippet": "MenteDB \u2013 open-source memory database for AI agents (Rust)",
+          "published_at": "2026-04-24",
+          "engagement": {
+            "comments": 2,
+            "points": 20
+          },
+          "container": "Hacker News",
+          "author": "mentedb",
+          "query_kind": "oss_github",
+          "query_topic": "open source AI agent infrastructure GitHub stars MCP security"
+        },
+        {
+          "source": "hackernews",
+          "title": "Frontman is an open-source AI coding agent that lives in the browser",
+          "url": "https://github.com/frontman-ai/frontman",
+          "snippet": "Frontman is an open-source AI coding agent that lives in the browser",
+          "published_at": "2026-04-25",
+          "engagement": {
+            "comments": 3,
+            "points": 4
+          },
+          "container": "Hacker News",
+          "author": "danboarder",
+          "query_kind": "oss_github",
+          "query_topic": "open source AI agent infrastructure GitHub stars MCP security"
+        },
+        {
+          "source": "hackernews",
+          "title": "Show HN: Core \u2013 open-source AI butler that clears your backlog without you",
+          "url": "https://www.getcore.me/",
+          "snippet": "Show HN: Core \u2013 open-source AI butler that clears your backlog without you",
+          "published_at": "2026-04-23",
+          "engagement": {
+            "comments": 0,
+            "points": 3
+          },
+          "container": "Hacker News",
+          "author": "Manik_agg",
+          "query_kind": "oss_github",
+          "query_topic": "open source AI agent infrastructure GitHub stars MCP security"
+        },
+        {
+          "source": "hackernews",
+          "title": "GAIA \u2013 Open-source framework for building AI agents that run on local hardware",
+          "url": "https://amd-gaia.ai/docs",
+          "snippet": "GAIA \u2013 Open-source framework for building AI agents that run on local hardware",
+          "published_at": "2026-04-13",
+          "engagement": {
+            "comments": 37,
+            "points": 156
+          },
+          "container": "Hacker News",
+          "author": "galaxyLogic",
+          "query_kind": "oss_github",
+          "query_topic": "open source AI agent infrastructure GitHub stars MCP security"
+        },
+        {
+          "source": "hackernews",
+          "title": "Free open source AI Editor",
+          "url": "https://github.com/MeepCastana/KubeezCut",
+          "snippet": "Free open source AI Editor",
           "published_at": "2026-04-16",
           "engagement": {
-            "comments": 4,
-            "reactions": 0
+            "comments": 1,
+            "points": 3
           },
-          "container": "jlin3/substream-sdk",
-          "author": "jlin3",
-          "query_kind": "hn_show",
-          "query_topic": "Launch HN Show HN Data Infrastructure startup AI infrastructure"
+          "container": "Hacker News",
+          "author": "Meeeeeep",
+          "query_kind": "oss_github",
+          "query_topic": "open source AI agent infrastructure GitHub stars MCP security"
+        },
+        {
+          "source": "hackernews",
+          "title": "Mozilla Announces \"Thunderbolt\" as an Open-Source, Enterprise AI Client",
+          "url": "https://www.phoronix.com/news/Mozilla-Thunderbolt",
+          "snippet": "Mozilla Announces \"Thunderbolt\" as an Open-Source, Enterprise AI Client",
+          "published_at": "2026-04-16",
+          "engagement": {
+            "comments": 11,
+            "points": 25
+          },
+          "container": "Hacker News",
+          "author": "Palmik",
+          "query_kind": "oss_github",
+          "query_topic": "open source AI agent infrastructure GitHub stars MCP security"
+        },
+        {
+          "source": "hackernews",
+          "title": "Passmark: Open-source Playwright library for AI regression testing",
+          "url": "https://passmark.dev",
+          "snippet": "Passmark: Open-source Playwright library for AI regression testing",
+          "published_at": "2026-04-19",
+          "engagement": {
+            "comments": 1,
+            "points": 5
+          },
+          "container": "Hacker News",
+          "author": "hliyan",
+          "query_kind": "oss_github",
+          "query_topic": "open source AI agent infrastructure GitHub stars MCP security"
         }
       ],
       "clusters": [
         {
           "candidate_ids": [
-            "https://github.com/jmbish04/core-spam-filter/pull/1"
+            "https://github.com/aaif/project-proposals/issues/19"
           ],
           "cluster_id": "cluster-1",
           "representative_ids": [
-            "https://github.com/jmbish04/core-spam-filter/pull/1"
+            "https://github.com/aaif/project-proposals/issues/19"
           ],
-          "score": 56.77619047619048,
+          "score": 54.93492063492063,
           "sources": [
             "github"
           ],
-          "title": "feat: complete core spam filter backend and frontend implementation"
+          "title": "[Project Proposal] Agent Governance Toolkit"
         },
         {
           "candidate_ids": [
-            "https://github.com/muffy86/autonomous-ai-orchestration-agent/pull/49"
+            "https://github.com/envoyproxy/ai-gateway/issues/2036"
           ],
           "cluster_id": "cluster-2",
           "representative_ids": [
-            "https://github.com/muffy86/autonomous-ai-orchestration-agent/pull/49"
+            "https://github.com/envoyproxy/ai-gateway/issues/2036"
           ],
-          "score": 50.06875,
+          "score": 52.30606060606061,
           "sources": [
             "github"
           ],
-          "title": "\ud83e\udd16 Autonomous Agentic Operating System - Complete Implementation"
+          "title": "Feature/Architecture Proposal]: OAuth 2.0 Token Exchange (RFC 8693) Support for SaaS MCP Backends via Wasm/ExtensionPolicy"
         },
         {
           "candidate_ids": [
-            "https://github.com/johnong04/think-n-go/pull/1"
+            "https://github.com/scottcjn/rustchain-bounties/issues/2890"
           ],
           "cluster_id": "cluster-3",
           "representative_ids": [
-            "https://github.com/johnong04/think-n-go/pull/1"
+            "https://github.com/scottcjn/rustchain-bounties/issues/2890"
           ],
-          "score": 43.45454545454545,
+          "score": 34.17142857142858,
           "sources": [
             "github"
           ],
-          "title": "backend setup"
+          "title": "[BOUNTY: 100 RTC] AgentFolio \u2194 Beacon Integration Spec + Reference Implementation"
         },
         {
           "candidate_ids": [
-            "https://github.com/cbwinslow/retrosheet/pull/138"
+            "https://github.com/0bserver07/stackunderflow/pull/9"
           ],
           "cluster_id": "cluster-4",
           "representative_ids": [
-            "https://github.com/cbwinslow/retrosheet/pull/138"
+            "https://github.com/0bserver07/stackunderflow/pull/9"
           ],
-          "score": 29.791803278688526,
+          "score": 28.94516129032258,
           "sources": [
             "github"
           ],
-          "title": "feat: Implement Hierarchical Prediction System (HPS) with comprehensive ML infrastructure"
+          "title": "Add MCP server (v1: session_query)"
         },
         {
           "candidate_ids": [
-            "https://github.com/jstamagal/agents-radar/issues/303"
+            "https://github.com/ven0m0/.github/pull/186"
           ],
           "cluster_id": "cluster-5",
           "representative_ids": [
-            "https://github.com/jstamagal/agents-radar/issues/303"
+            "https://github.com/ven0m0/.github/pull/186"
           ],
-          "score": 25.350404063726625,
+          "score": 26.955737704918036,
           "sources": [
             "github"
           ],
-          "title": "\ud83d\udef0\ufe0f AI Ecosystem Radar 2026-04-15"
+          "title": "Add official MCP servers to agents"
         },
         {
           "candidate_ids": [
-            "https://github.com/cecex-git/bi-research/issues/16"
+            "https://github.com/opensearch-project/.github/issues/499"
           ],
           "cluster_id": "cluster-6",
           "representative_ids": [
-            "https://github.com/cecex-git/bi-research/issues/16"
+            "https://github.com/opensearch-project/.github/issues/499"
           ],
-          "score": 25.091803278688523,
+          "score": 23.597014925373134,
           "sources": [
             "github"
           ],
-          "title": "Weekly Research\u2014 Power BI & Microsoft Fabric: 3 May 2026"
+          "title": "[PROPOSAL] OpenSearch Flux \u2014 CLI and MCP server for migrating Dashboards saved objects between OpenSearch instances"
         },
         {
           "candidate_ids": [
-            "https://github.com/posthog/posthog/pull/56147"
+            "https://github.com/scottcjn/rustchain-bounties/issues/2859"
           ],
           "cluster_id": "cluster-7",
           "representative_ids": [
-            "https://github.com/posthog/posthog/pull/56147"
+            "https://github.com/scottcjn/rustchain-bounties/issues/2859"
           ],
-          "score": 7.220625,
+          "score": 22.188235294117646,
           "sources": [
             "github"
           ],
-          "title": "chore(data-warehouse): Moved source docs from .com to this repo"
+          "title": "[BOUNTY: 25 RTC] Build an MCP Server That Connects Any AI Agent to RustChain"
         },
         {
           "candidate_ids": [
-            "https://github.com/cbwinslow/retrosheet/pull/48"
+            "https://github.com/codecraftersllc/zed/pull/1"
           ],
           "cluster_id": "cluster-8",
           "representative_ids": [
-            "https://github.com/cbwinslow/retrosheet/pull/48"
+            "https://github.com/codecraftersllc/zed/pull/1"
           ],
-          "score": 5.84516129032258,
+          "score": 21.179710144927537,
           "sources": [
             "github"
           ],
-          "title": "feat: Complete Statcast pitch-level data ingestion and comprehensive data acquisition"
+          "title": "Cherrypick/application shell"
         },
         {
           "candidate_ids": [
-            "https://github.com/borq168/big_model_radar/issues/85"
+            "https://github.com/pascalorg/editor/pull/264"
           ],
           "cluster_id": "cluster-9",
           "representative_ids": [
-            "https://github.com/borq168/big_model_radar/issues/85"
+            "https://github.com/pascalorg/editor/pull/264"
           ],
-          "score": 5.425161290322581,
+          "score": 20.625,
           "sources": [
             "github"
           ],
-          "title": "\ud83c\udf10 Official AI Content Report 2026-04-30"
+          "title": "feat(mcp): add @pascal-app/mcp \u2014 Model Context Protocol server"
         },
         {
           "candidate_ids": [
-            "https://github.com/mikejmckinney/cloud_migration_poc/pull/1"
+            "https://github.com/chrisdoc/hevy-mcp/pull/291"
           ],
           "cluster_id": "cluster-10",
           "representative_ids": [
-            "https://github.com/mikejmckinney/cloud_migration_poc/pull/1"
+            "https://github.com/chrisdoc/hevy-mcp/pull/291"
           ],
-          "score": 5.418461538461538,
+          "score": 19.163380281690138,
           "sources": [
             "github"
           ],
-          "title": "feat: initialize cloud-migration-poc from ai-repo-template (Prompt 01)"
+          "title": "ci(chrisdoc-hevy-mcp): add HOL skill-publish validate workflow"
         },
         {
           "candidate_ids": [
-            "https://github.com/elder-plinius/cl4r1t4s/issues/100"
+            "https://github.com/kongyo2/npm-info/pull/1"
           ],
           "cluster_id": "cluster-11",
           "representative_ids": [
-            "https://github.com/elder-plinius/cl4r1t4s/issues/100"
+            "https://github.com/kongyo2/npm-info/pull/1"
           ],
-          "score": 4.478360655737705,
+          "score": 18.715384615384618,
           "sources": [
             "github"
           ],
-          "title": "Microsoft Copilot system prompts?"
+          "title": "Add npm-info MCP server for package information queries"
         },
         {
           "candidate_ids": [
-            "https://github.com/irfndi/meets-match/pull/100"
+            "https://github.com/aaif/project-proposals/issues/19"
+          ],
+          "cluster_id": "cluster-1",
+          "representative_ids": [
+            "https://github.com/aaif/project-proposals/issues/19"
+          ],
+          "score": 55.7344262295082,
+          "sources": [
+            "github"
+          ],
+          "title": "[Project Proposal] Agent Governance Toolkit"
+        },
+        {
+          "candidate_ids": [
+            "https://github.com/jstamagal/agents-radar/issues/179"
+          ],
+          "cluster_id": "cluster-2",
+          "representative_ids": [
+            "https://github.com/jstamagal/agents-radar/issues/179"
+          ],
+          "score": 55.56811594202898,
+          "sources": [
+            "github"
+          ],
+          "title": "\ud83d\udcc8 AI Open Source Trends 2026-04-05"
+        },
+        {
+          "candidate_ids": [
+            "https://github.com/envoyproxy/ai-gateway/issues/2036"
+          ],
+          "cluster_id": "cluster-3",
+          "representative_ids": [
+            "https://github.com/envoyproxy/ai-gateway/issues/2036"
+          ],
+          "score": 51.91129032258065,
+          "sources": [
+            "github"
+          ],
+          "title": "Feature/Architecture Proposal]: OAuth 2.0 Token Exchange (RFC 8693) Support for SaaS MCP Backends via Wasm/ExtensionPolicy"
+        },
+        {
+          "candidate_ids": [
+            "https://github.com/nambok/mentedb"
+          ],
+          "cluster_id": "cluster-4",
+          "representative_ids": [
+            "https://github.com/nambok/mentedb"
+          ],
+          "score": 46.168181818181814,
+          "sources": [
+            "hackernews"
+          ],
+          "title": "MenteDB \u2013 open-source memory database for AI agents (Rust)"
+        },
+        {
+          "candidate_ids": [
+            "https://github.com/frontman-ai/frontman"
+          ],
+          "cluster_id": "cluster-5",
+          "representative_ids": [
+            "https://github.com/frontman-ai/frontman"
+          ],
+          "score": 46.059701492537314,
+          "sources": [
+            "hackernews"
+          ],
+          "title": "Frontman is an open-source AI coding agent that lives in the browser"
+        },
+        {
+          "candidate_ids": [
+            "https://amd-gaia.ai/docs"
+          ],
+          "cluster_id": "cluster-6",
+          "representative_ids": [
+            "https://amd-gaia.ai/docs"
+          ],
+          "score": 45.54347826086956,
+          "sources": [
+            "hackernews"
+          ],
+          "title": "GAIA \u2013 Open-source framework for building AI agents that run on local hardware"
+        },
+        {
+          "candidate_ids": [
+            "https://github.com/enterpilot/gomodel"
+          ],
+          "cluster_id": "cluster-7",
+          "representative_ids": [
+            "https://github.com/enterpilot/gomodel"
+          ],
+          "score": 45.176923076923075,
+          "sources": [
+            "hackernews"
+          ],
+          "title": "Show HN: GoModel \u2013 an open-source AI gateway in Go"
+        },
+        {
+          "candidate_ids": [
+            "https://github.com/riddo9906/niblit/issues/166"
+          ],
+          "cluster_id": "cluster-8",
+          "representative_ids": [
+            "https://github.com/riddo9906/niblit/issues/166"
+          ],
+          "score": 44.30597014925373,
+          "sources": [
+            "github"
+          ],
+          "title": "\ud83d\udd17 Nibblebot AIOS Integration Roadmap \u2014 2026-04-16"
+        },
+        {
+          "candidate_ids": [
+            "https://github.com/nexu-io/nexu/issues/1155"
+          ],
+          "cluster_id": "cluster-9",
+          "representative_ids": [
+            "https://github.com/nexu-io/nexu/issues/1155"
+          ],
+          "score": 40.54615384615385,
+          "sources": [
+            "github"
+          ],
+          "title": "[Growth] Competitor Research: Layer, Positioning, Users, Channels, Pain Points, Opportunities"
+        },
+        {
+          "candidate_ids": [
+            "https://github.com/codecraftersllc/zed/pull/1"
+          ],
+          "cluster_id": "cluster-10",
+          "representative_ids": [
+            "https://github.com/codecraftersllc/zed/pull/1"
+          ],
+          "score": 36.988888888888894,
+          "sources": [
+            "github"
+          ],
+          "title": "Cherrypick/application shell"
+        },
+        {
+          "candidate_ids": [
+            "https://news.ycombinator.com/item?id=47933263"
+          ],
+          "cluster_id": "cluster-11",
+          "representative_ids": [
+            "https://news.ycombinator.com/item?id=47933263"
+          ],
+          "score": 36.595238095238095,
+          "sources": [
+            "hackernews"
+          ],
+          "title": "Open Source AI Infrastructure"
+        },
+        {
+          "candidate_ids": [
+            "https://mikeoss.com"
           ],
           "cluster_id": "cluster-12",
           "representative_ids": [
-            "https://github.com/irfndi/meets-match/pull/100"
+            "https://mikeoss.com"
           ],
-          "score": 4.476774193548387,
+          "score": 36.21475409836066,
           "sources": [
-            "github"
+            "hackernews"
           ],
-          "title": "\ud83d\udee1\ufe0f Sentinel: [MEDIUM] Fix Markdown injection vulnerability"
+          "title": "Mike: open-source legal AI"
         },
         {
           "candidate_ids": [
-            "https://github.com/rjmurillo/ai-agents/pull/1647"
+            "https://github.com/microsoft/vibevoice"
           ],
           "cluster_id": "cluster-13",
           "representative_ids": [
-            "https://github.com/rjmurillo/ai-agents/pull/1647"
+            "https://github.com/microsoft/vibevoice"
           ],
-          "score": 4.328571428571428,
+          "score": 35.60483870967742,
           "sources": [
-            "github"
+            "hackernews"
           ],
-          "title": "docs(architecture): amend ADR-042 to scope Python-first to internal automation"
+          "title": "VibeVoice: Open-source frontier voice AI"
         },
         {
           "candidate_ids": [
-            "https://github.com/ismaelmartinez/repo-butler/pull/89"
+            "https://github.com/recursive-ai-dev/catalogoffutility/pull/173"
           ],
           "cluster_id": "cluster-14",
           "representative_ids": [
-            "https://github.com/ismaelmartinez/repo-butler/pull/89"
+            "https://github.com/recursive-ai-dev/catalogoffutility/pull/173"
           ],
-          "score": 3.016363636363636,
+          "score": 32.5344262295082,
           "sources": [
             "github"
           ],
-          "title": "docs: add local-brain integration research"
+          "title": "\ud83d\udee1\ufe0f Sentinel: Harden security headers and image privacy"
         },
         {
           "candidate_ids": [
-            "https://github.com/deva-me-ai/ai-history-in-the-making/issues/388"
+            "https://github.com/muffy86/autonomous-ai-orchestration-agent/pull/43"
           ],
-          "cluster_id": "cluster-1",
+          "cluster_id": "cluster-15",
           "representative_ids": [
-            "https://github.com/deva-me-ai/ai-history-in-the-making/issues/388"
+            "https://github.com/muffy86/autonomous-ai-orchestration-agent/pull/43"
           ],
-          "score": 71.64615384615385,
+          "score": 32.388888888888886,
           "sources": [
             "github"
           ],
-          "title": "Eridu Emerges from Stealth with $200M+ Funding, Claims AI Networking Breakthrough (2026-04-20)"
+          "title": "feat: Add GitHub and Web Integration Tools"
         },
         {
           "candidate_ids": [
-            "https://github.com/yinwm/agents-radar/issues/274"
+            "https://phoronix.com/news/mozilla-thunderbolt"
           ],
-          "cluster_id": "cluster-2",
+          "cluster_id": "cluster-16",
           "representative_ids": [
-            "https://github.com/yinwm/agents-radar/issues/274"
+            "https://phoronix.com/news/mozilla-thunderbolt"
           ],
-          "score": 53.08387096774194,
+          "score": 31.528169014084508,
           "sources": [
-            "github"
+            "hackernews"
           ],
-          "title": "\ud83d\udcf0 Hacker News AI Digest 2026-04-18"
+          "title": "Mozilla Announces \"Thunderbolt\" as an Open-Source, Enterprise AI Client"
         },
         {
           "candidate_ids": [
-            "https://github.com/manelsen/agents-radar/issues/102"
+            "https://passmark.dev"
           ],
-          "cluster_id": "cluster-3",
+          "cluster_id": "cluster-17",
           "representative_ids": [
-            "https://github.com/manelsen/agents-radar/issues/102"
+            "https://passmark.dev"
           ],
-          "score": 53.076190476190476,
+          "score": 30.820833333333333,
           "sources": [
-            "github"
+            "hackernews"
           ],
-          "title": "\ud83d\udcf0 Hacker News AI Digest 2026-04-18"
+          "title": "Passmark: Open-source Playwright library for AI regression testing"
         },
         {
           "candidate_ids": [
-            "https://github.com/deniszheng/agents-radar/issues/391"
+            "https://github.com/aaif/project-proposals/issues/9"
           ],
-          "cluster_id": "cluster-4",
+          "cluster_id": "cluster-18",
           "representative_ids": [
-            "https://github.com/deniszheng/agents-radar/issues/391"
+            "https://github.com/aaif/project-proposals/issues/9"
           ],
-          "score": 52.76875,
+          "score": 29.6671875,
           "sources": [
             "github"
           ],
-          "title": "\ud83d\udcf0 Hacker News AI Digest 2026-04-17"
+          "title": "[Project Proposal] prompts.chat"
         },
         {
           "candidate_ids": [
-            "https://github.com/jlin3/substream-sdk/pull/9"
+            "https://getcore.me"
           ],
-          "cluster_id": "cluster-5",
+          "cluster_id": "cluster-19",
           "representative_ids": [
-            "https://github.com/jlin3/substream-sdk/pull/9"
+            "https://getcore.me"
           ],
-          "score": 48.3125,
+          "score": 28.851470588235294,
           "sources": [
-            "github"
+            "hackernews"
           ],
-          "title": "feat: highlight service v2 \u2014 native Gemini 3.1 Pro video analysis + fine-tuning infrastructure"
+          "title": "Show HN: Core \u2013 open-source AI butler that clears your backlog without you"
         },
         {
           "candidate_ids": [
-            "https://github.com/cbwinslow/retrosheet/pull/138"
+            "https://github.com/aaif/project-proposals/issues/11"
           ],
-          "cluster_id": "cluster-6",
+          "cluster_id": "cluster-20",
           "representative_ids": [
-            "https://github.com/cbwinslow/retrosheet/pull/138"
+            "https://github.com/aaif/project-proposals/issues/11"
           ],
-          "score": 47.66885245901639,
+          "score": 28.425757575757576,
           "sources": [
             "github"
           ],
-          "title": "feat: Implement Hierarchical Prediction System (HPS) with comprehensive ML infrastructure"
+          "title": "[Project Proposal] agentgateway"
         },
         {
           "candidate_ids": [
-            "https://github.com/johnong04/think-n-go/pull/1"
+            "https://github.com/meepcastana/kubeezcut"
           ],
-          "cluster_id": "cluster-7",
+          "cluster_id": "cluster-21",
           "representative_ids": [
-            "https://github.com/johnong04/think-n-go/pull/1"
+            "https://github.com/meepcastana/kubeezcut"
           ],
-          "score": 37.33582089552239,
+          "score": 28.335714285714285,
           "sources": [
-            "github"
+            "hackernews"
           ],
-          "title": "backend setup"
+          "title": "Free open source AI Editor"
         },
         {
           "candidate_ids": [
-            "https://github.com/urzz/repo_for_report/issues/26"
+            "https://a16zpolicy.substack.com/p/asserting-american-leadership-in"
           ],
-          "cluster_id": "cluster-8",
+          "cluster_id": "cluster-22",
           "representative_ids": [
-            "https://github.com/urzz/repo_for_report/issues/26"
+            "https://a16zpolicy.substack.com/p/asserting-american-leadership-in"
           ],
-          "score": 28.791803278688526,
+          "score": 26.9859375,
           "sources": [
-            "github"
+            "hackernews"
           ],
-          "title": "Miniflux Digest \u00b7 AI \u4fe1\u606f \u00b7 2026-04-26"
+          "title": "Asserting American Leadership in Open Source AI"
         },
         {
           "candidate_ids": [
-            "https://github.com/muffy86/autogen-api-style-agent/pull/38"
+            "https://github.com/scottcjn/rustchain-bounties/issues/2958"
           ],
-          "cluster_id": "cluster-9",
+          "cluster_id": "cluster-23",
           "representative_ids": [
-            "https://github.com/muffy86/autogen-api-style-agent/pull/38"
+            "https://github.com/scottcjn/rustchain-bounties/issues/2958"
           ],
-          "score": 25.94090909090909,
+          "score": 23.311290322580646,
           "sources": [
             "github"
           ],
-          "title": "feat(subsystem): add Sovereign OS Termux orchestrator + Kivy APK + MCP bridge"
+          "title": "[BOUNTY: 15 RTC] Create Upstream Contributions Showcase for elyanlabs.ai"
         },
         {
           "candidate_ids": [
-            "https://github.com/executiveusa/strapi-template-new-world-kids/pull/47"
+            "https://github.com/scottcjn/rustchain-bounties/issues/2862"
           ],
-          "cluster_id": "cluster-10",
+          "cluster_id": "cluster-24",
           "representative_ids": [
-            "https://github.com/executiveusa/strapi-template-new-world-kids/pull/47"
+            "https://github.com/scottcjn/rustchain-bounties/issues/2862"
           ],
-          "score": 25.65714285714286,
+          "score": 5.066029411764705,
           "sources": [
             "github"
           ],
-          "title": "feat: NWKids v1.0 \u2014 Hermes Agent OS + Full Skill Stack"
-        },
-        {
-          "candidate_ids": [
-            "https://github.com/ayxsh678/taketoday/pull/3"
-          ],
-          "cluster_id": "cluster-11",
-          "representative_ids": [
-            "https://github.com/ayxsh678/taketoday/pull/3"
-          ],
-          "score": 23.9515625,
-          "sources": [
-            "github"
-          ],
-          "title": "content: add 10 production articles across AI, Tech, Finance, Startups"
-        },
-        {
-          "candidate_ids": [
-            "https://github.com/nickolai-brennan/__vault/pull/2"
-          ],
-          "cluster_id": "cluster-12",
-          "representative_ids": [
-            "https://github.com/nickolai-brennan/__vault/pull/2"
-          ],
-          "score": 22.962903225806453,
-          "sources": [
-            "github"
-          ],
-          "title": "Bootstrap ai-automation/ framework scaffold"
+          "title": "[BOUNTY: 3 RTC] Add RustChain to 5 Awesome Lists on GitHub (DePIN, Blockchain, AI)"
         }
       ],
       "warnings": [
-        "Top evidence is highly concentrated in one source.",
         "Top evidence is highly concentrated in one source."
       ],
       "errors": []
     }
   },
-  "github": [],
+  "github": [
+    {
+      "full_name": "boostsecurityio/smokedmeat",
+      "description": "A CI/CD Red Team Framework for demonstrating Build Pipeline security risks.",
+      "stars": 252,
+      "forks": 13,
+      "language": "Go",
+      "created_at": "2026-03-27T15:36:54Z",
+      "pushed_at": "2026-05-03T20:21:08Z",
+      "url": "https://github.com/boostsecurityio/smokedmeat",
+      "owner_name": "boostsecurityio",
+      "owner_type": "Organization",
+      "topics": [
+        "ci",
+        "cli",
+        "devops",
+        "devsecops",
+        "exploitation",
+        "github-actions",
+        "golang",
+        "red-team",
+        "security",
+        "supply-chain",
+        "supply-chain-security",
+        "tui"
+      ],
+      "age_days": 37,
+      "velocity": {
+        "stars_last_7d": 30,
+        "stars_last_30d": 152,
+        "acceleration_ratio": 0.11904761904761904,
+        "method": "stargazer_timestamps"
+      }
+    },
+    {
+      "full_name": "affaan-m/agentshield",
+      "description": "AI agent security scanner. Detect vulnerabilities in agent configurations, MCP servers, and tool permissions. Available as CLI, GitHub Action, ECC plugin, and GitHub App integration. \ud83d\udee1\ufe0f",
+      "stars": 584,
+      "forks": 126,
+      "language": "TypeScript",
+      "created_at": "2026-02-11T06:31:44Z",
+      "pushed_at": "2026-04-17T05:30:38Z",
+      "url": "https://github.com/affaan-m/agentshield",
+      "owner_name": "affaan-m",
+      "owner_type": "User",
+      "topics": [
+        "ai-agent",
+        "anthropic",
+        "claude-code",
+        "hackathon",
+        "mcp",
+        "opus",
+        "security"
+      ],
+      "age_days": 81,
+      "velocity": {
+        "stars_last_7d": 27,
+        "stars_last_30d": 184,
+        "acceleration_ratio": 0.046232876712328765,
+        "method": "stargazer_timestamps"
+      }
+    },
+    {
+      "full_name": "redwoodjs/agent-ci",
+      "description": "Agent-CI is local GitHub Actions for your agents.",
+      "stars": 623,
+      "forks": 15,
+      "language": "TypeScript",
+      "created_at": "2026-02-09T20:24:25Z",
+      "pushed_at": "2026-04-29T17:25:32Z",
+      "url": "https://github.com/redwoodjs/agent-ci",
+      "owner_name": "redwoodjs",
+      "owner_type": "Organization",
+      "topics": [
+        "act-alternative",
+        "ai-agent",
+        "ci-cd",
+        "developer-experience",
+        "devtools",
+        "github-actions",
+        "local-runner"
+      ],
+      "age_days": 83,
+      "velocity": {
+        "stars_last_7d": 16,
+        "stars_last_30d": 123,
+        "acceleration_ratio": 0.025682182985553772,
+        "method": "stargazer_timestamps"
+      }
+    },
+    {
+      "full_name": "T-Lab-CUHKSZ/claude-code",
+      "description": "Claude Code Source - Buildable Research Fork. Reverse-engineered build system, runnable with Bun.",
+      "stars": 307,
+      "forks": 599,
+      "language": "TypeScript",
+      "created_at": "2026-03-31T13:30:49Z",
+      "pushed_at": "2026-04-01T07:36:36Z",
+      "url": "https://github.com/T-Lab-CUHKSZ/claude-code",
+      "owner_name": "T-Lab-CUHKSZ",
+      "owner_type": "Organization",
+      "topics": [],
+      "age_days": 33,
+      "velocity": {
+        "stars_last_7d": 12,
+        "stars_last_30d": 47,
+        "acceleration_ratio": 0.03908794788273615,
+        "method": "stargazer_timestamps"
+      }
+    },
+    {
+      "full_name": "Matticusnicholas/KupkaProd-Cinema-Pipeline",
+      "description": "Autonomous AI movie studio \u2014 turn a text prompt into a fully produced video. 100% local, no cloud, no API keys.",
+      "stars": 159,
+      "forks": 35,
+      "language": "Python",
+      "created_at": "2026-04-07T03:46:01Z",
+      "pushed_at": "2026-04-07T03:56:43Z",
+      "url": "https://github.com/Matticusnicholas/KupkaProd-Cinema-Pipeline",
+      "owner_name": "Matticusnicholas",
+      "owner_type": "User",
+      "topics": [],
+      "age_days": 27,
+      "velocity": {
+        "stars_last_7d": 8,
+        "stars_last_30d": 159,
+        "acceleration_ratio": 0.050314465408805034,
+        "method": "stargazer_timestamps"
+      }
+    },
+    {
+      "full_name": "mohitmishra786/low-level-dev-skills",
+      "description": "A curated suite of AI agent skills for systems and low-level programming with C/C++, Rust, and Zig toolchains, covering compilers, debuggers, profilers, build systems, sanitizers, and binary analysis",
+      "stars": 80,
+      "forks": 10,
+      "language": "JavaScript",
+      "created_at": "2026-02-20T13:07:09Z",
+      "pushed_at": "2026-04-18T20:05:21Z",
+      "url": "https://github.com/mohitmishra786/low-level-dev-skills",
+      "owner_name": "mohitmishra786",
+      "owner_type": "User",
+      "topics": [
+        "ai-agent-skills",
+        "build-systems",
+        "c-cpp-toolchain",
+        "compilers",
+        "cross-compilation",
+        "debuggers",
+        "embedded",
+        "low-level-programming",
+        "low-level-programming-language",
+        "profilers",
+        "rust",
+        "rust-lang",
+        "systems-programming",
+        "zig"
+      ],
+      "age_days": 72,
+      "velocity": {
+        "stars_last_7d": 8,
+        "stars_last_30d": 33,
+        "acceleration_ratio": 0.1,
+        "method": "stargazer_timestamps"
+      }
+    },
+    {
+      "full_name": "peakoss/anti-slop",
+      "description": "A GitHub action that detects and automatically closes low-quality and AI slop PRs.",
+      "stars": 625,
+      "forks": 13,
+      "language": "TypeScript",
+      "created_at": "2026-02-09T00:52:40Z",
+      "pushed_at": "2026-04-15T16:37:26Z",
+      "url": "https://github.com/peakoss/anti-slop",
+      "owner_name": "peakoss",
+      "owner_type": "Organization",
+      "topics": [
+        "ai",
+        "ai-slop",
+        "ai-slop-detection",
+        "anti-slop",
+        "anti-spam",
+        "contributor-metrics",
+        "github",
+        "github-action",
+        "pull-request",
+        "pull-requests",
+        "quality",
+        "quality-check",
+        "quality-checker",
+        "quality-checks",
+        "quality-control",
+        "slop-detector",
+        "spam-detection",
+        "spam-filtering",
+        "spam-prevention"
+      ],
+      "age_days": 84,
+      "velocity": {
+        "stars_last_7d": 7,
+        "stars_last_30d": 34,
+        "acceleration_ratio": 0.0112,
+        "method": "stargazer_timestamps"
+      }
+    },
+    {
+      "full_name": "BANANASJIM/rdc-cli",
+      "description": "Scriptable CLI for RenderDoc captures \u2014 built for terminal workflows, CI pipelines, and AI agents",
+      "stars": 100,
+      "forks": 20,
+      "language": "Python",
+      "created_at": "2026-02-18T21:29:05Z",
+      "pushed_at": "2026-04-18T17:03:26Z",
+      "url": "https://github.com/BANANASJIM/rdc-cli",
+      "owner_name": "BANANASJIM",
+      "owner_type": "User",
+      "topics": [
+        "arm",
+        "claude-skills",
+        "cli",
+        "frame-analysis",
+        "gpu-capture",
+        "graphics-debugging",
+        "linux",
+        "opengl",
+        "python",
+        "renderdoc",
+        "renderdoc-api",
+        "shader-debugging",
+        "vulkan"
+      ],
+      "age_days": 74,
+      "velocity": {
+        "stars_last_7d": 7,
+        "stars_last_30d": 22,
+        "acceleration_ratio": 0.07,
+        "method": "stargazer_timestamps"
+      }
+    },
+    {
+      "full_name": "mizchi/actrun",
+      "description": "GitHub Actions compatible local runner",
+      "stars": 633,
+      "forks": 10,
+      "language": "MoonBit",
+      "created_at": "2026-03-12T12:38:13Z",
+      "pushed_at": "2026-04-05T05:31:33Z",
+      "url": "https://github.com/mizchi/actrun",
+      "owner_name": "mizchi",
+      "owner_type": "User",
+      "topics": [
+        "ci",
+        "github",
+        "github-actions",
+        "moonbit"
+      ],
+      "age_days": 52,
+      "velocity": {
+        "stars_last_7d": 4,
+        "stars_last_30d": 30,
+        "acceleration_ratio": 0.00631911532385466,
+        "method": "stargazer_timestamps"
+      }
+    },
+    {
+      "full_name": "OndCo/Ond-ESG-Intelligence-Platform",
+      "description": "Ond ESG Intelligence Platform is a cloud-native solution that ingests ESG data, processes it with Azure Data Factory & Databricks, and applies AI/ML models on Azure ML for predictive insights. Power BI dashboards visualize current and forecasted ESG metrics, while GitHub Actions CI/CD ensures an automated, scalable pipeline.",
+      "stars": 218,
+      "forks": 36,
+      "language": "Python",
+      "created_at": "2025-10-31T06:50:41Z",
+      "pushed_at": "2025-11-07T15:05:47Z",
+      "url": "https://github.com/OndCo/Ond-ESG-Intelligence-Platform",
+      "owner_name": "OndCo",
+      "owner_type": "Organization",
+      "topics": [],
+      "age_days": 184,
+      "velocity": {
+        "stars_last_7d": 3,
+        "stars_last_30d": 23,
+        "acceleration_ratio": 0.013761467889908258,
+        "method": "stargazer_timestamps"
+      }
+    },
+    {
+      "full_name": "github/ai-moderator",
+      "description": "An AI-powered GitHub Action that detects and tags spam in your repository",
+      "stars": 194,
+      "forks": 10,
+      "language": "TypeScript",
+      "created_at": "2025-07-24T03:25:24Z",
+      "pushed_at": "2026-04-29T00:41:09Z",
+      "url": "https://github.com/github/ai-moderator",
+      "owner_name": "github",
+      "owner_type": "Organization",
+      "topics": [
+        "actions",
+        "ai",
+        "spam-detection",
+        "spam-prevention"
+      ],
+      "age_days": 284,
+      "velocity": {
+        "stars_last_7d": 3,
+        "stars_last_30d": 18,
+        "acceleration_ratio": 0.015463917525773196,
+        "method": "stargazer_timestamps"
+      }
+    },
+    {
+      "full_name": "eforge-build/eforge",
+      "description": "Open source agentic build system - transforms specifications into verified source code with blind adversarial review",
+      "stars": 65,
+      "forks": 4,
+      "language": "TypeScript",
+      "created_at": "2026-03-15T14:47:16Z",
+      "pushed_at": "2026-05-03T20:33:47Z",
+      "url": "https://github.com/eforge-build/eforge",
+      "owner_name": "eforge-build",
+      "owner_type": "Organization",
+      "topics": [
+        "agent-sdk",
+        "ai-agents",
+        "claude-code",
+        "cli",
+        "code-review",
+        "typescript"
+      ],
+      "age_days": 49,
+      "velocity": {
+        "stars_last_7d": 3,
+        "stars_last_30d": 47,
+        "acceleration_ratio": 0.046153846153846156,
+        "method": "stargazer_timestamps"
+      }
+    }
+  ],
   "warnings": []
 }

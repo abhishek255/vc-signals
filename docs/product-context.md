@@ -131,7 +131,7 @@ Themes (3 lines each, brief context)
 - Themes as brief headers (3 lines, not 30)
 - Company table as centerpiece (30-50 companies, not 5-6 per theme)
 - One unified all-sector brief, with compact sector sections so partners can skim one artifact and jump to the domains they care about.
-- Columns: Company, Theme, Investment Interest, Evidence Confidence, Stage, Raised, Headcount, Traction Signal, Attio Status, Action, Why This May Be Noise
+- Columns: Company, Theme, Investment Interest, Evidence Confidence, Stage, Raised, Headcount, LinkedIn, Founders, X, Traction Signal, Attio Status, Action, Why This May Be Noise
 - New/Accelerating/Faded tags on COMPANIES, not just themes
 - Trend age on theme headers
 - "Likely too late" label for companies that already look consensus, even if they are still technically within Seed-to-Series-B range

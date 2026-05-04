@@ -66,6 +66,8 @@ In a few minutes, you get a weekly all-sector radar like this:
 
 Each company gets a specific **Why On Radar**, separate **Investment Interest** and **Evidence Confidence** scores, a skeptical **Why This May Be Noise**, and an action label. Tags update week-over-week: NEW for first sightings, RETURNING for ones that disappeared and came back, PERSISTENT for 3+ consecutive weeks.
 
+The generated partner preview also includes **LinkedIn**, **Founders**, and **X** columns when those links are present in grounded evidence, Attio/CRM enrichment, or structured seed input. Without a native web key, the tool does not invent LinkedIn or founder URLs; it leaves those fields blank and treats them as follow-up diligence.
+
 ---
 
 ## What is this?
@@ -152,8 +154,9 @@ The setup wizard handles all of this for you. But if you want to know what each 
 | **OpenAI or Gemini** | Smarter query planning and ranking | Pay-per-use / Free | Optional |
 | **OpenRouter** | Deep research with Perplexity (50+ citation synthesis for theme drill-downs) | ~$0.90/query | Optional |
 | **X/Twitter tokens** | X/Twitter developer discussions | Free (your account) | Optional |
+| **Attio token** | CRM match, stale/no-owner status, passed-company flags | Existing workspace | Recommended for Marathon |
 
-**You can skip any key** — the skill works with whatever you have and tells you what you're missing.
+**You can skip any key** — the skill works with whatever you have and tells you what you're missing. If Brave/Parallel/Serper/Exa is missing, the weekly radar automatically uses a stricter non-grounded HN/GitHub fallback instead of broad noisy web discovery.
 
 ### How to Get Each API Key
 
@@ -248,6 +251,7 @@ These expire periodically — you'll need to re-extract them every few weeks.
 | `/vc-signals setup` | Guided setup wizard — walks you through API keys step by step |
 | `/vc-signals radar <sector\|all> [time]` | **Weekly company radar — 30-50 investable companies organized by sector and emerging theme** |
 | `/vc-signals weekly <sector> [time]` | Alias for radar (kept for backward compatibility) |
+| `python3 .claude/skills/vc-signals/scripts/radar_run.py weekly --sectors oss --output-dir docs/radar-runs` | Deterministic local weekly run: saves raw evidence and a partner preview |
 | `/vc-signals theme "<topic>" [time]` | Deep-dive into a specific theme |
 | `/vc-signals company "<name>" [time]` | Which rising themes is a company exposed to? |
 | `/vc-signals oss <sector> [time]` | OSS radar — fast-growing repos, maintainers, ecosystem maps, and company-formation signals |
