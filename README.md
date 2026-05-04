@@ -40,15 +40,15 @@ In a few minutes, you get a weekly all-sector radar like this:
 ## Run Summary
 
 This run produced 50 qualified rows across 4 market sectors.
-Source mix: 50 OSS.
-Warning: this run is OSS-heavy; non-OSS company discovery did not produce qualified rows.
+Source mix: 18 Grounded web, 16 OSS, 9 Hacker News, 7 Attio-aware.
 
 ## Partner Review
 
 | Company / Project | Market Sector | Source Lane | Theme | Tag | Tier | Interest | Evidence | Attio | Action | Why On Radar | Why This May Be Noise |
 |---|---|---|---|---|---|---|---|---|---|---|---|
-| affaan-m/agentshield | Cybersecurity | OSS | AI agent security | NEW | Partner Review | High | Medium | unknown | track company formation | AI agent security scanner for agent configs, MCP servers, and tool permissions; +187 stars in 30d. | Needs verification across stronger company/founder/customer evidence. |
-| redwoodjs/agent-ci | Devtools | OSS | Emerging technical signal | NEW | Watchlist | Medium | Low | unknown | watch | Local GitHub Actions for coding agents; +124 stars in 30d. | Repo traction may not map to company formation or buyer urgency. |
+| AgentFence | Cybersecurity | Grounded web | AI agent security | NEW | Partner Review | High | Medium | no_match | take meeting / assign owner | New company evidence tied to repeated MCP permission and agent-security pain. | Could be a narrow feature unless customer urgency and founder depth check out. |
+| affaan-m/agentshield | Cybersecurity | OSS | AI agent security | RETURNING | Partner Review | High | Medium | no_match | track company formation | Fast-growing OSS scanner for agent configs, MCP servers, and tool permissions. | Repo traction may not map to company formation or buyer urgency. |
+| RuntimeOps AI | Devtools | Hacker News | Agent runtime infrastructure | NEW | Watchlist | Medium | Medium | stale/no owner | refresh owner | HN launch and developer chatter around production agent runtime reliability. | Launch interest may fade unless there is real usage beyond early adopters. |
 
 ## Full Radar
 
@@ -57,8 +57,8 @@ Up to 50 qualified companies/projects. No filler rows. Full Radar keeps expanded
 ## Sector Intelligence
 
 ### Cybersecurity
-Status: OSS/project candidates found
-Why no more companies: promoted rows are OSS/project evidence; no verified company pages or funding/company discovery rows qualified.
+Status: Company and OSS/project candidates found
+Why no more companies: several pain signals were promoted through grounded company discovery; remaining Reddit/HN chatter did not include enough company identity evidence.
 Next hunt: AI agent security startups Seed Series A founder launch
 
 ## Themes With No Company Yet
@@ -66,6 +66,12 @@ Next hunt: AI agent security startups Seed Series A founder launch
 | Market Sector | Theme | Evidence | Why It Matters | Why No Company Yet | Suggested Search |
 |---|---|---|---|---|---|
 | Data Infra | Emerging technical signal | HTTP/3, storage cleanup, and infrastructure chatter | Repeated non-company signal suggests operator pain. | No verified company/domain/founder evidence appeared in this run. | Data infra startups Seed Series A founder launch |
+
+## Company Discovery From Themes
+
+| Company | Market Sector | Theme | Source | Evidence URL | Query |
+|---|---|---|---|---|---|
+| AgentFence | Cybersecurity | AI agent security | grounding | https://agentfence.dev | AI agent security startups Seed Series A founder launch |
 
 ## Weak Evidence / Rejected Summary
 
@@ -386,37 +392,58 @@ Returns fast-growing open-source projects with star velocity, community discussi
 You type: /vc-signals radar all
                     │
                     ▼
-        ┌───────────────────────┐
-        │      SKILL.md         │  ← Claude reads this as instructions
-        │   (orchestrator)      │
-        └───────────┬───────────┘
+        ┌────────────────────────────┐
+        │ Weekly Radar Orchestrator  │
+        │ sectors + sources + setup  │
+        └──────────────┬─────────────┘
                     │
-        ┌───────────▼───────────┐
-        │   Retrieval Layer     │  ← Goes and finds recent chatter
-        │  WebSearch (default)  │
-        │  or last30days        │
-        │  (Reddit, HN, X...)  │
-        └───────────┬───────────┘
+        ┌──────────────▼─────────────┐
+        │ Source Collection          │
+        │ Reddit/HN/GitHub/social    │
+        │ grounded web if configured │
+        └──────────────┬─────────────┘
                     │
-        ┌───────────▼───────────┐
-        │   GitHub Trending     │  ← Finds fast-growing repos
-        │  (star velocity API)  │
-        └───────────┬───────────┘
+        ┌──────────────▼─────────────┐
+        │ Signal Classification      │
+        │ pain vs launch vs OSS      │
+        │ vs company web evidence    │
+        └───────┬──────────────┬─────┘
+                │              │
+                │              ▼
+                │    ┌──────────────────────┐
+                │    │ Themes With No       │
+                │    │ Company Yet          │
+                │    └──────────┬───────────┘
+                │               │
+                │               ▼
+                │    ┌──────────────────────┐
+                │    │ Company Discovery    │
+                │    │ From Themes          │
+                │    └──────────┬───────────┘
+                │               │
+                └───────────────┘
                     │
-        ┌───────────▼───────────┐
-        │ Signal Pipeline       │  ← Deterministic first pass
-        │ • Classifies sources  │
-        │ • Promotes candidates │
-        │ • Scores/tiers rows   │
-        │ • Renders artifact    │
-        └───────────┬───────────┘
+        ┌──────────────▼─────────────┐
+        │ Candidate Ranking          │
+        │ interest + evidence +      │
+        │ skeptical noise check      │
+        └──────────────┬─────────────┘
+                       │
+        ┌──────────────▼─────────────┐
+        │ Read-only Attio Awareness  │
+        │ match, stale/no owner,     │
+        │ passed-company flags       │
+        └──────────────┬─────────────┘
                     │
                     ▼
+          Weekly Partner Brief
           Partner Review + Full Radar
-          (printed + saved)
+          Sector Intelligence + audit files
 ```
 
-The deterministic Python pipeline handles source classification, candidate promotion, first-pass scoring, artifact generation, and audit files. Claude and the investor still provide judgment: reviewing edge cases, drilling into companies, deciding what to take seriously, and improving prompts/config over time.
+The pipeline first separates **pain/theme evidence** from **candidate evidence**. Reddit pain can create a theme, but not a company row by itself. If a theme looks real, the system runs a second-pass company search and only promotes a company when it finds a credible company/product identity and source URL. Attio is read-only context: it helps the brief say whether Marathon already knows the company, whether it is stale/no-owner, or whether it was previously passed.
+
+If grounded web search is not configured, the run can become OSS-heavy. That is expected: GitHub repos and HN launches are easier to verify without broad web/company search. The brief labels that limitation instead of filling the radar with weak company guesses.
 
 **Want the full picture?** Open the **[visual explainer](https://abhishek255.github.io/vc-signals/)** — covers architecture, scoring rubric, company mapping layers, persistence, and graceful degradation with diagrams.
 
@@ -480,6 +507,8 @@ The result: a weekly forcing function to explore categories you might not have f
 
 ## What's New
 
+**May 2026: Theme-driven company discovery.** The weekly command now uses useful pain/theme evidence to run a second-pass company search, writes `company-discovery.json`, and renders "Company Discovery From Themes" in the partner brief.
+
 **May 2026: Radar V3 sector-balanced artifact.** The weekly command now separates `Market Sector` from `Source Lane`, reclassifies OSS projects into investment categories, renders a top Run Summary, adds Sector Intelligence for every priority sector, and turns non-company signal into "Themes With No Company Yet" hunt prompts.
 
 **May 2026: Radar V2 reliability layer.** The weekly command creates auditable raw evidence, normalized signals, scored candidates, week-over-week tags, faded candidates/projects, evidence-backed enrichment fields, OSS formation scoring, and richer read-only Attio context.
@@ -490,7 +519,7 @@ The result: a weekly forcing function to explore categories you might not have f
 
 **What flipped:**
 - Themes are context; company/project rows are the review surface
-- The weekly artifact starts with Run Summary and Partner Review, then Full Radar, Sector Intelligence, Themes With No Company Yet, and Weak Evidence
+- The weekly artifact starts with Run Summary and Partner Review, then Full Radar, Sector Intelligence, Themes With No Company Yet, Company Discovery From Themes, and Weak Evidence
 - Company/project rows became the primary object of review
 - Weak signal is preserved as "Needs More Evidence" instead of being turned into a fake company row
 - OSS is a source lane, not a default market sector; a security repo can be `Market Sector = Cybersecurity` and `Source Lane = OSS`
@@ -510,10 +539,11 @@ The previous `/vc-signals weekly` command still works as an alias for `/vc-signa
 6. ✅ **Read-only Attio CRM context** — domain/name matching, status labels, stale/no-owner resurfacing, passed-company quiet flags, owner, last touch, staleness reason, CRM URL, and mapped stage/raised/headcount fields.
 7. ✅ **Evidence-backed company enrichment** — stage, raised, headcount, founders, founding year, and lead investor can be merged from fresh cache/source evidence/Attio; blank means no trusted evidence.
 8. ✅ **Radar V3 sector-balanced artifact** — Market Sector and Source Lane are separate, Partner Review is priority-ranked, Sector Intelligence explains quiet sectors, and Themes With No Company Yet preserve non-company signal.
-9. ◐ **Grounded company discovery depth** — sector-specific company queries exist, but broad web/company discovery still depends on configured web keys and better corroboration sources.
-10. ◐ **Ecosystem and contact depth** — still needs richer maintainer contact enrichment, founder background synthesis, and OSS ecosystem map generation.
-11. **Weekly delivery** — Monday 8:00 AM ET Slack teaser with an open/configurable destination and link or artifact for the full radar.
-12. **Theme depth** — drill-down surfaces actual sub-debates and company positioning, not just summaries.
+9. ✅ **Theme-driven company discovery lane** — non-company pain/themes generate targeted company searches, write `company-discovery.json`, and can promote verified company evidence into the radar.
+10. ◐ **Grounded company discovery depth** — the lane is implemented, but broad web/company discovery still depends on configured web keys and better corroboration sources.
+11. ◐ **Ecosystem and contact depth** — still needs richer maintainer contact enrichment, founder background synthesis, and OSS ecosystem map generation.
+12. **Weekly delivery** — Monday 8:00 AM ET Slack teaser with an open/configurable destination and link or artifact for the full radar.
+13. **Theme depth** — drill-down surfaces actual sub-debates and company positioning, not just summaries.
 
 ---
 
@@ -540,6 +570,7 @@ vc-signals/
             │   ├── radar_models.py
             │   ├── radar_sources.py
             │   ├── radar_scoring.py
+            │   ├── radar_company_discovery.py
             │   ├── radar_history.py
             │   ├── radar_enrichment.py
             │   ├── radar_oss.py
