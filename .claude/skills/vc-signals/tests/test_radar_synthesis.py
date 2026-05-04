@@ -53,10 +53,13 @@ def test_build_source_digest_counts_dict_artifact_candidates():
     assert digest["signal_count"] == 1
 
 
-def test_run_synthesis_without_provider_returns_disabled_result(monkeypatch):
+def test_run_synthesis_without_provider_keys_returns_disabled_result(monkeypatch):
     import radar_synthesis
 
     monkeypatch.delenv("OPENAI_API_KEY", raising=False)
+    monkeypatch.delenv("GEMINI_API_KEY", raising=False)
+    monkeypatch.delenv("GOOGLE_API_KEY", raising=False)
+    monkeypatch.setattr(radar_synthesis, "SYNTHESIS_ENV_PATHS", ())
 
     result = radar_synthesis.run_synthesis(
         evidence={},
@@ -68,7 +71,130 @@ def test_run_synthesis_without_provider_returns_disabled_result(monkeypatch):
     )
 
     assert result.enabled is False
-    assert "OPENAI_API_KEY" in result.warnings[0]
+    assert "OPENAI_API_KEY or GEMINI_API_KEY" in result.warnings[0]
+
+
+def test_run_synthesis_auto_uses_gemini_before_openai(monkeypatch):
+    import radar_synthesis
+
+    seen = {}
+    monkeypatch.setenv("GEMINI_API_KEY", "gemini-key")
+    monkeypatch.setenv("OPENAI_API_KEY", "openai-key")
+    monkeypatch.delenv("VC_SIGNALS_SYNTHESIS_PROVIDER", raising=False)
+    monkeypatch.delenv("VC_SIGNALS_SYNTHESIS_MODEL", raising=False)
+    monkeypatch.setattr(radar_synthesis, "SYNTHESIS_ENV_PATHS", ())
+
+    def fake_gemini(payload, *, model, api_key):
+        seen.update({"provider": "gemini", "model": model, "api_key": api_key, "payload": payload})
+        return {
+            "sector_diagnoses": [],
+            "theme_hypotheses": [],
+            "possible_company_leads": [],
+            "partner_notes": [],
+            "warnings": [],
+        }
+
+    def fail_openai(*_args, **_kwargs):
+        raise AssertionError("OpenAI should not be used when Gemini is available")
+
+    monkeypatch.setattr(radar_synthesis, "call_gemini_synthesis", fake_gemini)
+    monkeypatch.setattr(radar_synthesis, "call_openai_synthesis", fail_openai)
+
+    result = radar_synthesis.run_synthesis(
+        evidence={},
+        signals=[_signal()],
+        candidates=[_candidate()],
+        sector_intelligence=[],
+        theme_signals=[],
+    )
+
+    assert result.enabled is True
+    assert result.model == "gemini-2.0-flash"
+    assert seen["provider"] == "gemini"
+    assert seen["api_key"] == "gemini-key"
+
+
+def test_run_synthesis_can_load_gemini_key_from_env_file(tmp_path, monkeypatch):
+    import radar_synthesis
+
+    env_file = tmp_path / ".env"
+    env_file.write_text("GEMINI_API_KEY=gemini-from-file\n")
+    seen = {}
+    monkeypatch.delenv("GEMINI_API_KEY", raising=False)
+    monkeypatch.delenv("GOOGLE_API_KEY", raising=False)
+    monkeypatch.delenv("OPENAI_API_KEY", raising=False)
+    monkeypatch.setattr(radar_synthesis, "SYNTHESIS_ENV_PATHS", (env_file,))
+
+    def fake_gemini(_payload, *, model, api_key):
+        seen.update({"model": model, "api_key": api_key})
+        return {"sector_diagnoses": [], "theme_hypotheses": [], "possible_company_leads": []}
+
+    monkeypatch.setattr(radar_synthesis, "call_gemini_synthesis", fake_gemini)
+
+    result = radar_synthesis.run_synthesis(
+        evidence={},
+        signals=[_signal()],
+        candidates=[_candidate()],
+        sector_intelligence=[],
+        theme_signals=[],
+    )
+
+    assert result.enabled is True
+    assert seen == {"model": "gemini-2.0-flash", "api_key": "gemini-from-file"}
+
+
+def test_call_gemini_synthesis_parses_generate_content_json(monkeypatch):
+    import io
+    import json
+    import radar_synthesis
+
+    captured = {}
+
+    class Response:
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *_args):
+            return False
+
+        def read(self):
+            return json.dumps(
+                {
+                    "candidates": [
+                        {
+                            "content": {
+                                "parts": [
+                                    {
+                                        "text": json.dumps(
+                                            {
+                                                "sector_diagnoses": [],
+                                                "theme_hypotheses": [],
+                                                "possible_company_leads": [],
+                                            }
+                                        )
+                                    }
+                                ]
+                            }
+                        }
+                    ]
+                }
+            ).encode("utf-8")
+
+    def fake_urlopen(req, timeout):
+        captured["url"] = req.full_url
+        captured["headers"] = dict(req.header_items())
+        captured["body"] = json.loads(req.data)
+        captured["timeout"] = timeout
+        return Response()
+
+    monkeypatch.setattr(radar_synthesis.request, "urlopen", fake_urlopen)
+
+    result = radar_synthesis.call_gemini_synthesis({"source_digest": {}}, model="gemini-2.0-flash", api_key="key")
+
+    assert result["possible_company_leads"] == []
+    assert captured["url"].endswith("/v1beta/models/gemini-2.0-flash:generateContent")
+    assert captured["headers"]["X-goog-api-key"] == "key"
+    assert captured["body"]["generationConfig"]["responseMimeType"] == "application/json"
 
 
 def test_run_synthesis_keeps_cited_items_from_fake_provider():

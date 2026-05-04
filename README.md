@@ -337,6 +337,13 @@ python3 .claude/skills/vc-signals/scripts/radar_run.py weekly --sectors all --ou
 
 Synthesis is opt-in and advisory. It can summarize source gaps, suggest next hunts, and list possible leads for verification, but it cannot add uncited facts to `candidates.json`; unsupported claims are dropped before canonical candidate rows are written.
 
+Provider behavior:
+
+- By default, synthesis uses `GEMINI_API_KEY` or `GOOGLE_API_KEY` from the current shell or `~/.config/last30days/.env`.
+- If Gemini is unavailable, it falls back to `OPENAI_API_KEY`.
+- Set `VC_SIGNALS_SYNTHESIS_PROVIDER=openai` or `VC_SIGNALS_SYNTHESIS_PROVIDER=gemini` to force a provider.
+- Set `VC_SIGNALS_SYNTHESIS_MODEL` to override the default model.
+
 ### Examples
 
 **Company Radar:**
@@ -456,7 +463,7 @@ You can also manually add a sector by editing `sectors.json` following the exist
 - **Attio integration is read/match context only** — it matches and enriches records but does not write notes, assign owners, update CRM fields, or create list entries unless a later writeback workflow is built.
 - **Social/video evidence is supporting evidence** — YouTube, TikTok, Instagram, and Threads need clear company/product identity plus corroboration before creating candidate rows.
 - **Slack destination is still open/configurable** — weekly delivery can later target a configurable channel, but the current artifact is generated locally as Markdown/JSON.
-- **LLM synthesis is opt-in and advisory** — unsupported claims are dropped, and possible leads from synthesis require verification before they can be treated as canonical candidates.
+- **LLM synthesis is opt-in and advisory** — unsupported claims are dropped, possible leads from synthesis require verification before they can be treated as canonical candidates, and the selected LLM provider must have working quota/billing.
 - **Deep research** requires OpenRouter API key and costs ~$0.90 per query
 
 ## Why This Exists

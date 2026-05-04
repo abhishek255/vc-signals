@@ -4,6 +4,7 @@ import json
 import os
 import re
 from datetime import datetime, timezone
+from pathlib import Path
 from urllib import request
 
 from radar_models import (
@@ -16,7 +17,10 @@ from radar_models import (
 
 
 DEFAULT_SYNTHESIS_MODEL = "gpt-4.1-mini"
+DEFAULT_GEMINI_SYNTHESIS_MODEL = "gemini-2.0-flash"
 OPENAI_CHAT_COMPLETIONS_URL = "https://api.openai.com/v1/chat/completions"
+GEMINI_GENERATE_CONTENT_URL = "https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent"
+SYNTHESIS_ENV_PATHS = (Path.home() / ".config/last30days/.env",)
 
 SECRET_KEY_RE = re.compile(r"(api[_-]?key|authorization|bearer|password|secret|token)", re.IGNORECASE)
 SECRET_NAME_RE = re.compile(
@@ -148,6 +152,30 @@ def _scrub(value):
     if isinstance(value, str):
         return _safe_text(value)
     return value
+
+
+def _read_env_file_value(key: str) -> str:
+    for path in SYNTHESIS_ENV_PATHS:
+        try:
+            lines = Path(path).read_text(errors="ignore").splitlines()
+        except OSError:
+            continue
+        for line in lines:
+            text = line.strip()
+            if not text or text.startswith("#") or "=" not in text:
+                continue
+            name, _, value = text.replace("export ", "", 1).partition("=")
+            if name.strip() == key:
+                return value.strip().strip('"').strip("'")
+    return ""
+
+
+def _env_value(*keys: str) -> str:
+    for key in keys:
+        value = os.environ.get(key) or _read_env_file_value(key)
+        if value:
+            return value
+    return ""
 
 
 def _safe_projection(item, fields: tuple[str, ...]) -> dict:
@@ -360,6 +388,51 @@ def call_openai_synthesis(payload: dict, *, model: str, api_key: str) -> dict:
     return json.loads(content)
 
 
+def call_gemini_synthesis(payload: dict, *, model: str, api_key: str) -> dict:
+    body = {
+        "system_instruction": {
+            "parts": {
+                "text": (
+                    "You are a skeptical VC research analyst for Marathon Management Partners. "
+                    "Use only supplied evidence. Separate facts, inferences, assumptions, and open questions. "
+                    "Cite evidence_urls for every theme hypothesis or possible company lead. "
+                    "Sector diagnoses may be uncited when describing source gaps, but cited diagnoses must use supplied URLs. "
+                    "Do not invent company domains, funding, headcount, stage, founders, customers, or LinkedIn URLs. "
+                    "Prefer needs-verification language when evidence is weak. "
+                    "Penalize generic activity, tutorials, jobs, bounties, PR chores, resume reviews, and news digests. "
+                    "Return only valid JSON with sector_diagnoses, theme_hypotheses, possible_company_leads, partner_notes, warnings."
+                )
+            }
+        },
+        "contents": [
+            {
+                "parts": [
+                    {
+                        "text": json.dumps(payload, sort_keys=True),
+                    }
+                ]
+            }
+        ],
+        "generationConfig": {
+            "responseMimeType": "application/json",
+        },
+    }
+    req = request.Request(
+        GEMINI_GENERATE_CONTENT_URL.format(model=model),
+        data=json.dumps(body).encode("utf-8"),
+        headers={
+            "x-goog-api-key": api_key,
+            "Content-Type": "application/json",
+        },
+        method="POST",
+    )
+    with request.urlopen(req, timeout=60) as response:
+        data = json.loads(response.read() or b"{}")
+    parts = data["candidates"][0]["content"]["parts"]
+    content = "".join(part.get("text", "") for part in parts)
+    return json.loads(content)
+
+
 def run_synthesis(
     *,
     evidence: dict,
@@ -370,7 +443,6 @@ def run_synthesis(
     provider=None,
     model: str | None = None,
 ) -> SynthesisResult:
-    model = model or os.environ.get("VC_SIGNALS_SYNTHESIS_MODEL", DEFAULT_SYNTHESIS_MODEL)
     payload = build_synthesis_payload(
         evidence=evidence,
         signals=signals,
@@ -382,18 +454,36 @@ def run_synthesis(
     known_urls = _known_urls_from_payload(payload)
 
     if provider is None:
-        api_key = os.environ.get("OPENAI_API_KEY")
-        if not api_key:
+        provider_name = _env_value("VC_SIGNALS_SYNTHESIS_PROVIDER").lower() or "auto"
+        gemini_key = _env_value("GEMINI_API_KEY", "GOOGLE_API_KEY")
+        openai_key = _env_value("OPENAI_API_KEY")
+
+        if provider_name == "auto":
+            provider_name = "gemini" if gemini_key else "openai"
+
+        if provider_name == "gemini" and gemini_key:
+            model = model or _env_value("VC_SIGNALS_SYNTHESIS_MODEL") or DEFAULT_GEMINI_SYNTHESIS_MODEL
+
+            def provider(request_payload):
+                return call_gemini_synthesis(request_payload, model=model, api_key=gemini_key)
+
+        elif provider_name == "openai" and openai_key:
+            model = model or _env_value("VC_SIGNALS_SYNTHESIS_MODEL") or DEFAULT_SYNTHESIS_MODEL
+
+            def provider(request_payload):
+                return call_openai_synthesis(request_payload, model=model, api_key=openai_key)
+
+        else:
+            model = model or _env_value("VC_SIGNALS_SYNTHESIS_MODEL") or DEFAULT_GEMINI_SYNTHESIS_MODEL
             return SynthesisResult(
                 enabled=False,
                 model=model,
                 generated_at=_now_iso(),
                 source_digest=source_digest,
-                warnings=["OPENAI_API_KEY is not set; LLM synthesis skipped."],
+                warnings=["OPENAI_API_KEY or GEMINI_API_KEY is not set; LLM synthesis skipped."],
             )
-
-        def provider(request_payload):
-            return call_openai_synthesis(request_payload, model=model, api_key=api_key)
+    else:
+        model = model or _env_value("VC_SIGNALS_SYNTHESIS_MODEL") or DEFAULT_SYNTHESIS_MODEL
 
     try:
         raw = provider(payload)
