@@ -59,12 +59,75 @@
     "source_lane": "OSS",
     "evidence_role": "oss_project",
     "sector_confidence": "High",
-    "sector_reason": "Matched Cybersecurity keywords: security, scanner, permissions.",
+    "sector_reason": "Matched priority Cybersecurity keywords: security scanner.",
     "partner_priority_score": 133
   },
   {
+    "name": "fzn0x/watchtower",
+    "sector": "Cybersecurity",
+    "theme": "Vertical AI operations",
+    "source": "https://github.com/fzn0x/watchtower",
+    "candidate_type": "oss_project",
+    "stable_key": "repo:github.com/fzn0x/watchtower",
+    "weekly_tag": "NEW",
+    "domain": "",
+    "why_on_radar": "Watchtower is a simple AI-powered penetration testing automation CLI tool that leverages LLMs and LangGraph to orchestrate agentic workflows that you can use to test your websites locally. Generate useful pentest reports for your websites. +80 stars in 30d.",
+    "why_this_may_be_noise": "Needs verification across stronger company/founder/customer evidence.",
+    "sources": [
+      "https://github.com/fzn0x/watchtower"
+    ],
+    "source_count": 1,
+    "company_linkedin": "",
+    "company_x": "",
+    "founder_profiles": [
+      {
+        "name": "fzn0x",
+        "github": "https://github.com/fzn0x"
+      }
+    ],
+    "attio_status": "unknown",
+    "attio_action": "",
+    "attio_lists": [],
+    "action": "watch",
+    "investment_interest_score": 70,
+    "evidence_confidence_score": 40,
+    "investment_interest": "High",
+    "evidence_confidence": "Low",
+    "tier": "Watchlist",
+    "engagement": {},
+    "stage": "",
+    "raised": "",
+    "headcount": "",
+    "founders": [],
+    "founding_year": "",
+    "lead_investor": "",
+    "enrichment_evidence": {},
+    "attio_record_url": "",
+    "attio_owner": "",
+    "attio_last_interaction": "",
+    "attio_staleness_reason": "",
+    "oss_company_formation_score": 50,
+    "oss_action_reason": "+80 stars in 30d; strategic keywords: agent, security, workflow; maintainer identifiable",
+    "license": "",
+    "repo_age_days": 66,
+    "stars": 131,
+    "stars_30d": 80,
+    "maintainer_profiles": [
+      {
+        "name": "fzn0x",
+        "github": "https://github.com/fzn0x"
+      }
+    ],
+    "market_sector": "Cybersecurity",
+    "source_lane": "OSS",
+    "evidence_role": "oss_project",
+    "sector_confidence": "High",
+    "sector_reason": "Matched priority Cybersecurity keywords: penetration testing, red team, pentest.",
+    "partner_priority_score": 113
+  },
+  {
     "name": "boostsecurityio/smokedmeat",
-    "sector": "Devtools",
+    "sector": "Cybersecurity",
     "theme": "AI agent security",
     "source": "https://github.com/boostsecurityio/smokedmeat",
     "candidate_type": "oss_project",
@@ -118,75 +181,12 @@
         "github": "https://github.com/boostsecurityio"
       }
     ],
-    "market_sector": "Devtools",
+    "market_sector": "Cybersecurity",
     "source_lane": "OSS",
     "evidence_role": "oss_project",
     "sector_confidence": "High",
-    "sector_reason": "Matched Devtools keywords: github actions, ci, cd, pipeline, cli.",
+    "sector_reason": "Matched priority Cybersecurity keywords: red team.",
     "partner_priority_score": 116
-  },
-  {
-    "name": "fzn0x/watchtower",
-    "sector": "Devtools",
-    "theme": "Vertical AI operations",
-    "source": "https://github.com/fzn0x/watchtower",
-    "candidate_type": "oss_project",
-    "stable_key": "repo:github.com/fzn0x/watchtower",
-    "weekly_tag": "NEW",
-    "domain": "",
-    "why_on_radar": "Watchtower is a simple AI-powered penetration testing automation CLI tool that leverages LLMs and LangGraph to orchestrate agentic workflows that you can use to test your websites locally. Generate useful pentest reports for your websites. +80 stars in 30d.",
-    "why_this_may_be_noise": "Needs verification across stronger company/founder/customer evidence.",
-    "sources": [
-      "https://github.com/fzn0x/watchtower"
-    ],
-    "source_count": 1,
-    "company_linkedin": "",
-    "company_x": "",
-    "founder_profiles": [
-      {
-        "name": "fzn0x",
-        "github": "https://github.com/fzn0x"
-      }
-    ],
-    "attio_status": "unknown",
-    "attio_action": "",
-    "attio_lists": [],
-    "action": "watch",
-    "investment_interest_score": 65,
-    "evidence_confidence_score": 40,
-    "investment_interest": "Medium",
-    "evidence_confidence": "Low",
-    "tier": "Watchlist",
-    "engagement": {},
-    "stage": "",
-    "raised": "",
-    "headcount": "",
-    "founders": [],
-    "founding_year": "",
-    "lead_investor": "",
-    "enrichment_evidence": {},
-    "attio_record_url": "",
-    "attio_owner": "",
-    "attio_last_interaction": "",
-    "attio_staleness_reason": "",
-    "oss_company_formation_score": 50,
-    "oss_action_reason": "+80 stars in 30d; strategic keywords: agent, security, workflow; maintainer identifiable",
-    "license": "",
-    "repo_age_days": 66,
-    "stars": 131,
-    "stars_30d": 80,
-    "maintainer_profiles": [
-      {
-        "name": "fzn0x",
-        "github": "https://github.com/fzn0x"
-      }
-    ],
-    "market_sector": "Devtools",
-    "source_lane": "OSS",
-    "evidence_role": "oss_project",
-    "sector_confidence": "High",
-    "sector_reason": "Matched Devtools keywords: cli, testing.",
-    "partner_priority_score": 108
   },
   {
     "name": "JoasASantos/NeuroSploit",
@@ -247,8 +247,8 @@
     "market_sector": "Cybersecurity",
     "source_lane": "OSS",
     "evidence_role": "oss_project",
-    "sector_confidence": "Medium",
-    "sector_reason": "Matched Cybersecurity keywords: security.",
+    "sector_confidence": "High",
+    "sector_reason": "Matched priority Cybersecurity keywords: penetration testing.",
     "partner_priority_score": 114
   },
   {
@@ -310,9 +310,72 @@
     "market_sector": "Cybersecurity",
     "source_lane": "OSS",
     "evidence_role": "oss_project",
-    "sector_confidence": "Medium",
-    "sector_reason": "Matched Cybersecurity keywords: security.",
+    "sector_confidence": "High",
+    "sector_reason": "Matched priority Cybersecurity keywords: penetration testing.",
     "partner_priority_score": 107
+  },
+  {
+    "name": "zakirkun/guardian-cli",
+    "sector": "Cybersecurity",
+    "theme": "Vertical AI operations",
+    "source": "https://github.com/zakirkun/guardian-cli",
+    "candidate_type": "oss_project",
+    "stable_key": "repo:github.com/zakirkun/guardian-cli",
+    "weekly_tag": "NEW",
+    "domain": "",
+    "why_on_radar": "Guardian is a production-ready AI-powered penetration testing automation CLI tool that leverages Google Gemini and LangChain to orchestrate intelligent, step-by-step penetration testing workflows while maintaining ethical hacking standards. +55 stars in 30d.",
+    "why_this_may_be_noise": "Needs verification across stronger company/founder/customer evidence.",
+    "sources": [
+      "https://github.com/zakirkun/guardian-cli"
+    ],
+    "source_count": 1,
+    "company_linkedin": "",
+    "company_x": "",
+    "founder_profiles": [
+      {
+        "name": "zakirkun",
+        "github": "https://github.com/zakirkun"
+      }
+    ],
+    "attio_status": "unknown",
+    "attio_action": "",
+    "attio_lists": [],
+    "action": "contact maintainer",
+    "investment_interest_score": 65,
+    "evidence_confidence_score": 40,
+    "investment_interest": "Medium",
+    "evidence_confidence": "Low",
+    "tier": "Watchlist",
+    "engagement": {},
+    "stage": "",
+    "raised": "",
+    "headcount": "",
+    "founders": [],
+    "founding_year": "",
+    "lead_investor": "",
+    "enrichment_evidence": {},
+    "attio_record_url": "",
+    "attio_owner": "",
+    "attio_last_interaction": "",
+    "attio_staleness_reason": "",
+    "oss_company_formation_score": 55,
+    "oss_action_reason": "+55 stars in 30d; 1373 total stars; strategic keywords: workflow; maintainer identifiable",
+    "license": "",
+    "repo_age_days": 133,
+    "stars": 1373,
+    "stars_30d": 55,
+    "maintainer_profiles": [
+      {
+        "name": "zakirkun",
+        "github": "https://github.com/zakirkun"
+      }
+    ],
+    "market_sector": "Cybersecurity",
+    "source_lane": "OSS",
+    "evidence_role": "oss_project",
+    "sector_confidence": "High",
+    "sector_reason": "Matched priority Cybersecurity keywords: penetration testing, pentest.",
+    "partner_priority_score": 113
   },
   {
     "name": "SHAdd0WTAka/Zen-Ai-Pentest",
@@ -374,7 +437,7 @@
     "source_lane": "OSS",
     "evidence_role": "oss_project",
     "sector_confidence": "High",
-    "sector_reason": "Matched Cybersecurity keywords: security, scanner, vulnerability, compliance.",
+    "sector_reason": "Matched priority Cybersecurity keywords: penetration testing, vulnerability, pentest.",
     "partner_priority_score": 113
   },
   {
@@ -441,69 +504,6 @@
     "partner_priority_score": 111
   },
   {
-    "name": "zakirkun/guardian-cli",
-    "sector": "Devtools",
-    "theme": "Vertical AI operations",
-    "source": "https://github.com/zakirkun/guardian-cli",
-    "candidate_type": "oss_project",
-    "stable_key": "repo:github.com/zakirkun/guardian-cli",
-    "weekly_tag": "NEW",
-    "domain": "",
-    "why_on_radar": "Guardian is a production-ready AI-powered penetration testing automation CLI tool that leverages Google Gemini and LangChain to orchestrate intelligent, step-by-step penetration testing workflows while maintaining ethical hacking standards. +55 stars in 30d.",
-    "why_this_may_be_noise": "Needs verification across stronger company/founder/customer evidence.",
-    "sources": [
-      "https://github.com/zakirkun/guardian-cli"
-    ],
-    "source_count": 1,
-    "company_linkedin": "",
-    "company_x": "",
-    "founder_profiles": [
-      {
-        "name": "zakirkun",
-        "github": "https://github.com/zakirkun"
-      }
-    ],
-    "attio_status": "unknown",
-    "attio_action": "",
-    "attio_lists": [],
-    "action": "contact maintainer",
-    "investment_interest_score": 60,
-    "evidence_confidence_score": 40,
-    "investment_interest": "Medium",
-    "evidence_confidence": "Low",
-    "tier": "Watchlist",
-    "engagement": {},
-    "stage": "",
-    "raised": "",
-    "headcount": "",
-    "founders": [],
-    "founding_year": "",
-    "lead_investor": "",
-    "enrichment_evidence": {},
-    "attio_record_url": "",
-    "attio_owner": "",
-    "attio_last_interaction": "",
-    "attio_staleness_reason": "",
-    "oss_company_formation_score": 55,
-    "oss_action_reason": "+55 stars in 30d; 1373 total stars; strategic keywords: workflow; maintainer identifiable",
-    "license": "",
-    "repo_age_days": 133,
-    "stars": 1373,
-    "stars_30d": 55,
-    "maintainer_profiles": [
-      {
-        "name": "zakirkun",
-        "github": "https://github.com/zakirkun"
-      }
-    ],
-    "market_sector": "Devtools",
-    "source_lane": "OSS",
-    "evidence_role": "oss_project",
-    "sector_confidence": "High",
-    "sector_reason": "Matched Devtools keywords: cli, testing.",
-    "partner_priority_score": 108
-  },
-  {
     "name": "Yenn503/Hexstrike-redteam",
     "sector": "Cybersecurity",
     "theme": "AI agent security",
@@ -562,8 +562,8 @@
     "market_sector": "Cybersecurity",
     "source_lane": "OSS",
     "evidence_role": "oss_project",
-    "sector_confidence": "Medium",
-    "sector_reason": "Matched Cybersecurity keywords: security.",
+    "sector_confidence": "High",
+    "sector_reason": "Matched priority Cybersecurity keywords: penetration testing, red team.",
     "partner_priority_score": 97
   },
   {
@@ -815,7 +815,7 @@
     "source_lane": "OSS",
     "evidence_role": "oss_project",
     "sector_confidence": "High",
-    "sector_reason": "Matched Cybersecurity keywords: security, prompt injection.",
+    "sector_reason": "Matched priority Cybersecurity keywords: prompt injection.",
     "partner_priority_score": 90
   },
   {
@@ -941,12 +941,12 @@
     "source_lane": "OSS",
     "evidence_role": "oss_project",
     "sector_confidence": "High",
-    "sector_reason": "Matched Cybersecurity keywords: security, scanner.",
+    "sector_reason": "Matched priority Cybersecurity keywords: penetration testing, security scanner, api security.",
     "partner_priority_score": 90
   },
   {
     "name": "praetorian-inc/hadrian",
-    "sector": "Devtools",
+    "sector": "Cybersecurity",
     "theme": "AI agent security",
     "source": "https://github.com/praetorian-inc/hadrian",
     "candidate_type": "oss_project",
@@ -1000,11 +1000,11 @@
         "github": "https://github.com/praetorian-inc"
       }
     ],
-    "market_sector": "Devtools",
+    "market_sector": "Cybersecurity",
     "source_lane": "OSS",
     "evidence_role": "oss_project",
     "sector_confidence": "High",
-    "sector_reason": "Matched Devtools keywords: api, testing.",
+    "sector_reason": "Matched priority Cybersecurity keywords: penetration testing, api security.",
     "partner_priority_score": 90
   },
   {
@@ -1382,7 +1382,7 @@
     "source_lane": "OSS",
     "evidence_role": "oss_project",
     "sector_confidence": "High",
-    "sector_reason": "Matched Cybersecurity keywords: security, vulnerability.",
+    "sector_reason": "Matched priority Cybersecurity keywords: vulnerability.",
     "partner_priority_score": 85
   },
   {
@@ -1444,8 +1444,8 @@
     "market_sector": "Cybersecurity",
     "source_lane": "OSS",
     "evidence_role": "oss_project",
-    "sector_confidence": "Medium",
-    "sector_reason": "Matched Cybersecurity keywords: prompt injection.",
+    "sector_confidence": "High",
+    "sector_reason": "Matched priority Cybersecurity keywords: prompt injection.",
     "partner_priority_score": 84
   },
   {

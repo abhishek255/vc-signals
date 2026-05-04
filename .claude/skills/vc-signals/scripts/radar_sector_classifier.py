@@ -13,15 +13,24 @@ class SectorClassification:
 
 SECTOR_KEYWORDS = {
     "Cybersecurity": (
+        "penetration testing",
+        "security scanner",
+        "prompt injection",
+        "mcp permissions",
+        "api security",
+        "red team",
         "security",
         "scanner",
         "phishing",
-        "prompt injection",
         "jailbreak",
         "vulnerability",
         "threat",
         "risk",
         "permissions",
+        "pentest",
+        "sast",
+        "secrets",
+        "auth",
         "policy",
         "compliance",
         "identity",
@@ -96,6 +105,21 @@ SECTOR_KEYWORDS = {
     ),
 }
 
+SECURITY_PRIORITY_KEYWORDS = (
+    "penetration testing",
+    "security scanner",
+    "prompt injection",
+    "mcp permissions",
+    "api security",
+    "red team",
+    "vulnerability",
+    "pentest",
+    "sast",
+    "secrets",
+    "auth",
+    "threat",
+)
+
 
 def _keyword_matches(keyword: str, haystack: str) -> bool:
     words = [re.escape(word) for word in keyword.lower().split()]
@@ -106,6 +130,15 @@ def _keyword_matches(keyword: str, haystack: str) -> bool:
 
 def classify_market_sector(title: str = "", text: str = "", source_lane: str = "") -> SectorClassification:
     haystack = " ".join(part for part in (title, text, source_lane) if part).lower()
+    security_priority_matches = [keyword for keyword in SECURITY_PRIORITY_KEYWORDS if _keyword_matches(keyword, haystack)]
+    if security_priority_matches:
+        confidence = "High" if len(security_priority_matches) >= 1 else "Medium"
+        return SectorClassification(
+            market_sector="Cybersecurity",
+            sector_confidence=confidence,
+            sector_reason=f"Matched priority Cybersecurity keywords: {', '.join(security_priority_matches[:5])}.",
+        )
+
     best_sector = "Unclassified"
     best_matches: list[str] = []
     best_keyword_length = 0

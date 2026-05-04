@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from collections import defaultdict
+import re
 
 from radar_models import Signal, ThemeSignal
 from radar_sector_classifier import classify_market_sector
@@ -23,6 +24,10 @@ NOISE_TERMS = (
     "course",
     "tutorial",
     "beginner guide",
+    "bounty:",
+    " bounty",
+    "share your",
+    "share a ",
 )
 
 UNNAMED_SOCIAL_HYPE_TERMS = (
@@ -33,6 +38,55 @@ UNNAMED_SOCIAL_HYPE_TERMS = (
     "you need this",
     "mind blowing",
     "game changer",
+)
+
+GENERIC_ACTIVITY_PATTERN = re.compile(r"^(fix|chore|merge|docs|refactor|test|tests|ci|feat)(?:\(|:|\s)")
+
+MEANINGFUL_INTENT_TERMS = (
+    "api security",
+    "appsec",
+    "audit",
+    "auth",
+    "buyer",
+    "buyers",
+    "can't",
+    "cannot",
+    "compliance",
+    "controlling",
+    "enterprise",
+    "eval",
+    "evaluation",
+    "fail",
+    "failure",
+    "governance",
+    "hard",
+    "headache",
+    "incident",
+    "jailbreak",
+    "leak",
+    "need",
+    "needs",
+    "pain",
+    "penetration testing",
+    "pentest",
+    "permission",
+    "phishing",
+    "problem",
+    "prompt injection",
+    "red team",
+    "reliability",
+    "risk",
+    "sast",
+    "scanner",
+    "secret",
+    "secure",
+    "securing",
+    "security",
+    "soc",
+    "struggling",
+    "threat",
+    "unreliable",
+    "vulnerability",
 )
 
 THEME_KEYWORDS = (
@@ -75,6 +129,9 @@ def _is_noise(signal: Signal) -> bool:
     text = _text(signal).lower()
     if any(term in text for term in NOISE_TERMS):
         return True
+    title = (signal.title or "").strip().lower()
+    if signal.source == "github" and GENERIC_ACTIVITY_PATTERN.search(title):
+        return True
     if signal.source in {"youtube", "tiktok", "instagram", "threads"}:
         has_named_product = bool(
             (signal.metadata.get("company_name") or signal.metadata.get("name") or signal.metadata.get("product_name") or "").strip()
@@ -100,9 +157,26 @@ def _market_sector_for(signal: Signal) -> str:
     return _sector_label(signal.sector) if signal.sector else "Unclassified"
 
 
-def _qualifies(items: list[Signal]) -> bool:
-    urls_or_titles = {item.url or item.title for item in items}
-    sources = {item.source for item in items}
+def _has_meaningful_intent(signal: Signal) -> bool:
+    text = _text(signal).lower()
+    return any(_term_in_text(term, text) for term in MEANINGFUL_INTENT_TERMS)
+
+
+def _term_in_text(term: str, text: str) -> bool:
+    words = [re.escape(word) for word in term.lower().split()]
+    phrase = r"[\s/-]+".join(words)
+    pattern = rf"(?<![a-z0-9]){phrase}(?![a-z0-9])"
+    return bool(re.search(pattern, text))
+
+
+def _qualifies(theme: str, items: list[Signal]) -> bool:
+    if theme == "Emerging technical signal":
+        return False
+    meaningful_items = [item for item in items if _has_meaningful_intent(item)]
+    if len(meaningful_items) < 2:
+        return False
+    urls_or_titles = {item.url or item.title for item in meaningful_items}
+    sources = {item.source for item in meaningful_items}
     if len(urls_or_titles) >= 2:
         return True
     return len(items) >= 2 and len(sources) >= 2
@@ -124,11 +198,16 @@ def build_theme_signals(signals: list[Signal], *, sectors: tuple[str, ...]) -> l
             continue
 
         text = _text(signal)
-        grouped[(_market_sector_for(signal), infer_theme_from_text(text))].append(signal)
+        theme = infer_theme_from_text(text)
+        if theme == "Emerging technical signal":
+            continue
+        if not _has_meaningful_intent(signal):
+            continue
+        grouped[(_market_sector_for(signal), theme)].append(signal)
 
     out: list[ThemeSignal] = []
     for (market_sector, theme), items in grouped.items():
-        if not _qualifies(items):
+        if not _qualifies(theme, items):
             continue
         source_lanes = sorted({item.metadata.get("source_lane", item.source.title()) for item in items if item.source})
         evidence_summary = "; ".join(item.title for item in items[:3])

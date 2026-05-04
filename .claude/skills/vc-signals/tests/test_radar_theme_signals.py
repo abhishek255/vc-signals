@@ -1,5 +1,37 @@
 from __future__ import annotations
 
+import pytest
+
+
+@pytest.mark.parametrize(
+    "items",
+    [
+        [
+            {"source": "github", "title": "Bring Back /buddy", "url": "https://github.com/acme/cmux/issues/1"},
+            {"source": "github", "title": "Restore cmux themes", "url": "https://github.com/acme/cmux/issues/2"},
+        ],
+        [
+            {"source": "reddit", "title": "$100 bounty: write an MCP docs example", "url": "https://reddit.com/bounty-1"},
+            {"source": "hackernews", "title": "Share your MCP server config", "url": "https://news.ycombinator.com/item?id=1"},
+        ],
+        [
+            {"source": "github", "title": "fix: restore theme toggle", "url": "https://github.com/acme/tool/pull/3"},
+            {"source": "github", "title": "chore: merge package update", "url": "https://github.com/acme/tool/pull/4"},
+        ],
+        [
+            {"source": "reddit", "title": "Interesting new helper", "url": "https://reddit.com/generic-1"},
+            {"source": "hackernews", "title": "Tiny utility plugin", "url": "https://news.ycombinator.com/item?id=2"},
+        ],
+    ],
+)
+def test_generic_activity_clusters_do_not_create_theme_signals(items):
+    from radar_sources import classify_source_item
+    from radar_theme_signals import build_theme_signals
+
+    signals = [classify_source_item(sector="devtools", item=item) for item in items]
+
+    assert build_theme_signals(signals, sectors=("devtools",)) == []
+
 
 def test_clustered_reddit_pain_creates_theme_signal():
     from radar_sources import classify_source_item
