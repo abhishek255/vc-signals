@@ -2,13 +2,13 @@
 
 > **AI-Powered Company Radar for Venture Capital**
 
-A skill for [Claude Code](https://docs.anthropic.com/en/docs/claude-code) and [Claude Co-Work](https://claude.com/product/cowork) that turns noisy public internet chatter into a weekly Marathon-style radar — 30-50 investable companies and OSS projects organized by sector and emerging theme.
+A skill for [Claude Code](https://docs.anthropic.com/en/docs/claude-code) and [Claude Co-Work](https://claude.com/product/cowork) that turns noisy public internet chatter into a weekly Marathon-style radar: up to 50 qualified companies and OSS projects organized by sector, theme, evidence quality, and next action.
 
 **[See how it works (visual guide)](https://abhishek255.github.io/vc-signals/)**
 
 ---
 
-> **Phase 1 (April 2026):** Output flipped from theme-centric briefs to a company-first radar. See [Phase 1 changes](#whats-new-april-2026) below.
+> **Current state (May 2026):** VC Signals is a weekly company/project radar for Marathon-style deal discovery. It separates practitioner pain from candidate evidence, scores Investment Interest and Evidence Confidence separately, and explains when a sector has signal but no qualified companies yet.
 
 ---
 
@@ -35,38 +35,33 @@ VC Signals does this in one command.
 In a few minutes, you get a weekly all-sector radar like this:
 
 ```markdown
-## VC Radar: All Sectors — Week of 2026-05-04
+# VC Signals Weekly Radar
 
-### What's Moving
-- **Agent Runtime Infrastructure** — NEW. Fast OSS velocity plus buyer pain around governance, evals, and deployment.
-  Companies riding this: 6
-- **Vertical AI Back Offices** — UP. Narrow workflows showing faster adoption than broad copilots.
-  Companies riding this: 4
-- **Data Observability for AI Pipelines** — PERSISTENT. Teams need trust layers for eval, lineage, and drift.
-  Companies riding this: 4
-[+5 more themes]
+## Partner Review
 
-### Company Radar (38 companies across 6 sectors)
+| Company / Project | Sector | Theme | Tag | Stage | Raised | Headcount | Founders | Tier | Interest | Evidence | Attio | Attio Owner | Staleness | Action | OSS Score | Action Reason | Why On Radar | Why This May Be Noise |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| AgentShield | OSS | AI agent security | NEW |  |  |  | affaan-m | Partner Review | High | Medium | no_match |  |  | track company formation | 70 | +187 stars in 30d; strategic keywords: agent, mcp, security | Fast GitHub momentum around AI agent security scanning | Repo traction may not map to company formation or buyer urgency |
+| BeeSafe AI | Cybersecurity | AI fraud defense | RETURNING | Seed | $4M | 12 | Asha Rao | Partner Review | High | Medium | no_owner | Michael | No MMP owner in Attio | assign owner |  |  | HN launch plus company/domain evidence around voice phishing defense | Early signal may still be founder-led |
 
-| Company | Sector | Theme | Interest | Evidence | Attio | Action | Why On Radar | Why This May Be Noise |
-|---------|--------|-------|----------|----------|-------|--------|--------------|------------------------|
-| ExampleCo | AI Infra | Agent Runtime Infra | High | Medium | No match | Assign owner | New repo velocity plus enterprise workflow pull | Category may be too early for budget |
-| DataStackCo | Data Infra | AI Data Quality | Medium | High | Stale/no owner | Flag quietly | Repeat HN/GitHub mentions and fresh hiring signal | Could be feature, not company |
-| SecureAgentCo | Cybersecurity | Agent Security | High | Low | Passed | Flag quietly | Sharp new signal after prior pass | Evidence is still mostly founder-led |
-| [+24 more rows]
+## Full Radar
 
-### New To Radar This Week
-- Anysphere — AI Coding IDEs. $2.3B Series D, in talks for $5B at $60B.
-- Runlayer — MCP Infra. $11M seed, 8 unicorns as customers.
-- [+8 more]
+Up to 50 qualified companies/projects. No filler rows.
 
-### Faded Off Radar
-(First scan — no prior radar to compare against.)
+## Sector Coverage
+
+- **data-infra: no qualified candidates** - Reddit pain exists, but no verified company/domain/founder evidence yet.
+- **oss: qualified candidates found** - Qualified candidates found.
+
+## Weak Evidence / Rejected Summary
+
+- source_not_candidate_eligible: 38
+- candidate_name_not_extractable: 7
 ```
 
-Each company gets a specific **Why On Radar**, separate **Investment Interest** and **Evidence Confidence** scores, a skeptical **Why This May Be Noise**, and an action label. Tags update week-over-week: NEW for first sightings, RETURNING for ones that disappeared and came back, PERSISTENT for 3+ consecutive weeks.
+Each company or project gets a specific **Why On Radar**, separate **Investment Interest** and **Evidence Confidence** scores, a skeptical **Why This May Be Noise**, and an action label.
 
-The generated partner preview also includes **LinkedIn**, **Founders**, and **X** columns when those links are present in grounded evidence, Attio/CRM enrichment, or structured seed input. Without a native web key, the tool does not invent LinkedIn or founder URLs; it leaves those fields blank and treats them as follow-up diligence.
+The generated partner preview also includes **Tag**, **Stage**, **Raised**, **Headcount**, **Founders**, **LinkedIn**, **X**, **Attio Owner**, **Attio URL**, and **Staleness** columns. These fields are evidence-backed: if the cache, source evidence, or Attio does not provide a trusted value, the cell stays blank instead of being guessed.
 
 ---
 
@@ -78,14 +73,15 @@ VC Signals is a skill (plugin) for Claude that acts as your weekly research anal
 - **Claude Code** — CLI, desktop app, VS Code, JetBrains
 - **Claude Co-Work** — Anthropic's desktop app for knowledge work
 
-For each company on the radar, you get:
+For each company or project on the radar, you get:
 - **Theme it's riding** — which emerging trend places it on the radar
-- **Tag** — NEW (first sighting), RETURNING (came back after 2+ weeks gone), PERSISTENT (3+ consecutive weeks), or empty
-- **Why On Radar** — one specific sentence: funding, traction, founder, product moment
+- **Why On Radar** — one specific sentence: launch, traction, OSS momentum, founder/product moment, or market pain
 - **Investment Interest + Evidence Confidence** — separate scores so a fascinating weak-signal company is not confused with a well-verified obvious one
-- **Attio status + action** — no match, active, passed, stale/no owner; with a suggested next move
+- **Week-over-week tag** — NEW, RETURNING, PERSISTENT, or FADED based on stable company/project history
+- **Attio status + action** — no match, active, passed, stale/no owner; with owner, last touch, staleness, and a direct record URL when available
+- **OSS action reason** — watch, contact maintainer, map ecosystem, track company formation, or ignore, with the score rationale
 - **Why This May Be Noise** — the default skeptical read
-- **Phase 2:** funding stage, headcount, founders, and evidence URLs
+- **Needs More Evidence** — useful pain/theme signal that is not verified enough yet for Watchlist or Partner Review
 
 ---
 
@@ -244,14 +240,39 @@ These expire periodically — you'll need to re-extract them every few weeks.
 
 ## Usage
 
+### Fastest Reliable Path
+
+For the local Marathon-style workflow, use this path:
+
+```bash
+git clone https://github.com/abhishek255/vc-signals.git
+cd vc-signals
+python3 --version
+python3 .claude/skills/vc-signals/scripts/radar_run.py weekly --sectors all --output-dir docs/radar-runs/current --limit 50
+```
+
+Then open:
+
+```text
+docs/radar-runs/current/weekly-preview.md
+```
+
+That Markdown file is the partner-readable artifact. The same folder also contains:
+
+- `raw-evidence.json` or `<date>-raw-evidence.json`: source evidence from collection.
+- `signals.json`: normalized Reddit/HN/GitHub/web/social signals.
+- `candidates.json`: scored candidate companies/projects, including weaker "Needs More Evidence" rows.
+
+If the output is thin, that does not necessarily mean the sector is dead. It means the current run found pain or chatter but not enough candidate-quality company/project evidence. Check `Sector Coverage` and `Weak Evidence / Rejected Summary` before deciding whether to rerun with better keys or do a manual deep dive.
+
 ### All Commands
 
 | Command | What It Does |
 |---------|-------------|
 | `/vc-signals setup` | Guided setup wizard — walks you through API keys step by step |
-| `/vc-signals radar <sector\|all> [time]` | **Weekly company radar — 30-50 investable companies organized by sector and emerging theme** |
+| `/vc-signals radar <sector\|all> [time]` | **Weekly company/project radar — up to 50 qualified rows organized by sector, theme, and evidence quality** |
 | `/vc-signals weekly <sector> [time]` | Alias for radar (kept for backward compatibility) |
-| `python3 .claude/skills/vc-signals/scripts/radar_run.py weekly --sectors oss --output-dir docs/radar-runs` | Deterministic local weekly run: saves raw evidence and a partner preview |
+| `python3 .claude/skills/vc-signals/scripts/radar_run.py weekly --sectors all --output-dir docs/radar-runs/current --limit 50` | Deterministic local weekly run: saves raw evidence, normalized signals, scored candidates, and a partner preview |
 | `/vc-signals theme "<topic>" [time]` | Deep-dive into a specific theme |
 | `/vc-signals company "<name>" [time]` | Which rising themes is a company exposed to? |
 | `/vc-signals oss <sector> [time]` | OSS radar — fast-growing repos, maintainers, ecosystem maps, and company-formation signals |
@@ -274,6 +295,8 @@ The artifact contains:
 
 - Partner Review: top 10-15 ranked candidates.
 - Full Radar: up to 50 qualified companies/projects, with no filler rows.
+- Tag and Faded Off Radar: week-over-week status for current and recently disappeared companies/projects.
+- Evidence-backed enrichment: stage, raised, headcount, founders, Attio owner/staleness, Attio URL, and OSS formation score when trusted evidence exists.
 - Sector Coverage: every requested sector, including no-qualified-candidates reasons.
 - Weak Evidence Summary: what was filtered out and why, plus "Needs More Evidence" items when there is useful pain/theme signal without enough company verification.
 
@@ -285,7 +308,7 @@ Reddit is used primarily for curated pain discovery across devtools, cybersecuri
 ```
 /vc-signals radar all
 ```
-Returns 30-50 investable companies across the configured sectors, with tags showing what's NEW vs PERSISTENT vs ACCELERATING. Themes that produce fewer than 3 mappable companies are dropped — the radar prioritizes investable depth over thematic breadth.
+Returns up to 50 qualified companies/projects across the configured sectors. If a sector has signal but no qualified companies, the artifact says so explicitly instead of silently hiding the sector.
 
 **Theme Drill-Down:**
 ```
@@ -337,20 +360,19 @@ You type: /vc-signals radar all
         └───────────┬───────────┘
                     │
         ┌───────────▼───────────┐
-        │   Claude's Brain      │  ← The magic part
-        │  • Spots patterns     │
-        │  • Clusters themes    │
-        │  • Scores momentum    │
-        │  • Maps companies     │
-        │  • Investor framing   │
+        │ Signal Pipeline       │  ← Deterministic first pass
+        │ • Classifies sources  │
+        │ • Promotes candidates │
+        │ • Scores/tiers rows   │
+        │ • Renders artifact    │
         └───────────┬───────────┘
                     │
                     ▼
-          Company Radar (30-50 cos)
+          Partner Review + Full Radar
           (printed + saved)
 ```
 
-**Claude is the intelligence engine.** The Python scripts just handle API calls and file storage. Claude does all the thinking.
+The deterministic Python pipeline handles source classification, candidate promotion, first-pass scoring, artifact generation, and audit files. Claude and the investor still provide judgment: reviewing edge cases, drilling into companies, deciding what to take seriously, and improving prompts/config over time.
 
 **Want the full picture?** Open the **[visual explainer](https://abhishek255.github.io/vc-signals/)** — covers architecture, scoring rubric, company mapping layers, persistence, and graceful degradation with diagrams.
 
@@ -394,6 +416,8 @@ You can also manually add a sector by editing `sectors.json` following the exist
 - **Company seed map** starts with ~40 entries — coverage improves as you add companies
 - **Scheduling** requires manual setup via `/schedule` — the skill guides you through it but can't auto-schedule itself
 - **Momentum scoring** is heuristic, not statistically rigorous — transparency over precision
+- **Blank enrichment fields** mean no trusted evidence was found. They are follow-up work, not missing formatting.
+- **Attio integration is read-only** — it matches and enriches records but does not write notes, assign owners, or update CRM fields.
 - **Deep research** requires OpenRouter API key and costs ~$0.90 per query
 
 ## Why This Exists
@@ -406,16 +430,20 @@ The result: a weekly forcing function to explore categories you might not have f
 
 ---
 
-## What's New (April 2026)
+## What's New
 
-**Phase 1: Company-first radar.** The previous output was a theme newsletter — 8-12 themes with companies as a sub-table inside each. Real-user feedback (April 14) made it clear the company table was the actual product; themes are the discovery mechanism, not the deliverable.
+**May 2026: Radar V2 reliability layer.** The weekly command now creates auditable raw evidence, normalized signals, scored candidates, week-over-week tags, faded candidates/projects, evidence-backed enrichment fields, OSS formation scoring, and richer read-only Attio context.
+
+**May 2026: Radar V2 signal pipeline.** The weekly command creates auditable raw evidence, normalized signals, scored candidates, and a partner-readable brief. It separates practitioner pain from candidate-eligible evidence, keeps up to 50 qualified rows with no filler, and renders sector coverage notes when a sector has weak signal or no qualified companies.
+
+**April 2026: Company-first radar.** The previous output was a theme newsletter — 8-12 themes with companies as a sub-table inside each. Real-user feedback (April 14) made it clear the company table was the actual product; themes are the discovery mechanism, not the deliverable.
 
 **What flipped:**
-- Themes → 3-line headers (was 30+ lines per theme)
-- Companies → top-level deduplicated table (was buried in per-theme sections)
-- Tags moved from themes to companies (NEW / RETURNING / PERSISTENT)
-- Themes that surface fewer than 3 mappable companies get dropped before scoring
-- Schema additions: companies are first-class entities with stable history (`company_index.json`), Phase 2-ready null slots for funding/headcount/founders
+- Themes are context; company/project rows are the review surface
+- The weekly artifact starts with Partner Review, then Full Radar, then Sector Coverage
+- Company/project rows became the primary object of review
+- Weak signal is preserved as "Needs More Evidence" instead of being turned into a fake company row
+- Schema additions: companies/projects are first-class entities with stable history (`candidate_history.json`) and evidence-backed enrichment fields for stage, raised, headcount, founders, Attio context, and OSS formation scoring
 
 The previous `/vc-signals weekly` command still works as an alias for `/vc-signals radar`. Existing briefings remain readable; week-over-week diffs gracefully degrade for the one-week schema transition.
 
@@ -423,12 +451,16 @@ The previous `/vc-signals weekly` command still works as an alias for `/vc-signa
 
 ## Roadmap
 
-1. ✅ **Phase 1: Company-first radar** (April 2026) — output flipped from theme-centric to company-centric; companies are first-class with tagging and persistence
-2. **Phase 2: Company enrichment** — funding, headcount, founders pulled in via WebSearch + free APIs (Apollo.io tier)
-3. **Phase 3: OSS radar** — first-class OSS mode inspired by Gokul's OSS Startup Radar, adapted for Marathon's Seed-to-Series-B strike zone
-4. **Phase 4: Slack delivery** — Monday 8:00 AM ET teaser with a configurable channel and link or artifact for the full radar
-5. **Phase 5: Attio CRM integration** — Attio status, stale/no-owner resurfacing, passed-company quiet flags, and domain-based matching
-6. **Phase 6: Theme depth** — drill-down surfaces actual sub-debates and company positioning, not just summaries
+1. ✅ **Company-first weekly radar** — output flipped from theme-centric to company/project-centric.
+2. ✅ **Radar V2 signal pipeline** — raw evidence, normalized signals, scored candidates, sector coverage, and weak-evidence summary.
+3. ✅ **Curated Reddit pain discovery** — Reddit supports themes and "Needs More Evidence" but does not directly create company rows.
+4. ✅ **Week-over-week persistence** — NEW / RETURNING / PERSISTENT / FADED tags on companies and projects, based on stable candidate history.
+5. ✅ **OSS radar semantics** — GitHub velocity, OSS project rows, maintainer profiles, license preservation, company-formation score, action vocabulary, and action rationale.
+6. ✅ **Read-only Attio CRM context** — domain/name matching, status labels, stale/no-owner resurfacing, passed-company quiet flags, owner, last touch, staleness reason, CRM URL, and mapped stage/raised/headcount fields.
+7. ✅ **Evidence-backed company enrichment** — stage, raised, headcount, founders, founding year, and lead investor can be merged from fresh cache/source evidence/Attio; blank means no trusted evidence.
+8. ◐ **Ecosystem and contact depth** — still needs richer maintainer contact enrichment, founder background synthesis, and OSS ecosystem map generation.
+9. **Weekly delivery** — Monday 8:00 AM ET Slack teaser with a configurable channel and link or artifact for the full radar.
+10. **Theme depth** — drill-down surfaces actual sub-debates and company positioning, not just summaries.
 
 ---
 
@@ -452,15 +484,23 @@ vc-signals/
             │   ├── github_trending.py
             │   ├── attio.py
             │   ├── radar_run.py
+            │   ├── radar_models.py
+            │   ├── radar_sources.py
+            │   ├── radar_scoring.py
+            │   ├── radar_history.py
+            │   ├── radar_enrichment.py
+            │   ├── radar_oss.py
+            │   ├── radar_render.py
             │   └── last30days_adapter.py
             ├── config/
             │   ├── sectors.json
+            │   ├── reddit_sources.json
             │   └── company_aliases.json
             ├── tests/
             └── data/
                 ├── briefings/     # weekly scan outputs (markdown + JSON)
                 ├── themes/        # theme drill-down outputs
-                ├── companies/     # company_index.json + per-company outputs
+                ├── companies/     # candidate_history.json + enrichment_cache.json
                 ├── github/        # GitHub trending outputs
                 └── history/       # theme_index.json for week-over-week
 ```

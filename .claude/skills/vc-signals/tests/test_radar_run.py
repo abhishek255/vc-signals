@@ -102,10 +102,23 @@ def test_merge_attio_context_preserves_oss_action_vocabulary():
         def match_company(self, company):
             return {"attio_status": "no_match", "attio_action": "assign owner"}
 
-    companies = [{"name": "AgentShield", "sector": "OSS / Cybersecurity", "action": "contact maintainer"}]
+    companies = [{"name": "AgentShield", "sector": "OSS / Cybersecurity", "domain": "agentshield.dev", "action": "contact maintainer"}]
     result = merge_attio_context(companies, FakeAttio())
     assert result[0]["attio_status"] == "no_match"
     assert result[0]["action"] == "contact maintainer"
+
+
+def test_merge_attio_context_skips_domainless_oss_repo_names():
+    from radar_run import merge_attio_context
+
+    class FakeAttio:
+        def match_company(self, company):
+            raise AssertionError("domainless OSS repo should not be sent to Attio")
+
+    companies = [{"name": "php-testo/testo", "sector": "OSS", "domain": "", "action": "watch"}]
+    result = merge_attio_context(companies, FakeAttio())
+    assert result[0]["attio_status"] == "no_match"
+    assert result[0]["action"] == "watch"
 
 
 def test_merge_attio_context_preserves_likely_too_late_label():
@@ -430,6 +443,31 @@ def test_candidate_promotion_keeps_full_github_repo_name():
     assert result["candidates"][0].name == "JoasASantos/NeuroSploit"
 
 
+def test_candidate_promotion_adds_oss_action_reason():
+    from radar_run import promote_signals_to_candidates
+    from radar_sources import classify_source_item
+
+    signals = [
+        classify_source_item(
+            sector="oss",
+            item={
+                "source": "github",
+                "title": "affaan-m/agentshield",
+                "url": "https://github.com/affaan-m/agentshield",
+                "description": "AI agent security scanner for MCP servers",
+                "stars": 1200,
+                "velocity": {"stars_last_30d": 187},
+                "license": "Apache-2.0",
+            },
+        )
+    ]
+
+    candidate = promote_signals_to_candidates(signals)["candidates"][0]
+    assert candidate.action == "track company formation"
+    assert candidate.oss_company_formation_score >= 70
+    assert candidate.oss_action_reason
+
+
 def test_extract_company_candidates_rejects_generic_names():
     from radar_run import extract_company_candidates
 
@@ -514,6 +552,37 @@ def test_extract_company_candidates_prefers_structured_company_name_and_domain()
     assert candidates[0]["company_linkedin"] == "https://www.linkedin.com/company/cascade-ai"
     assert candidates[0]["company_x"] == "https://x.com/cascade_ai"
     assert candidates[0]["founder_profiles"][0]["linkedin"] == "https://www.linkedin.com/in/asharao"
+
+
+def test_candidate_from_signal_applies_evidence_backed_source_enrichment():
+    from radar_run import promote_signals_to_candidates
+    from radar_sources import classify_source_item
+
+    signal = classify_source_item(
+        sector="cybersecurity",
+        item={
+            "source": "web",
+            "company_name": "BeeSafe AI",
+            "title": "BeeSafe AI stops AI voice phishing for banks",
+            "url": "https://beesafe.ai",
+            "stage": "Seed",
+            "raised": "$4M",
+            "headcount": "12",
+            "founders": ["Asha Rao"],
+            "evidence": {
+                "stage": "https://beesafe.ai/about",
+                "raised": "https://beesafe.ai/blog/seed",
+                "founders": "https://beesafe.ai/about",
+            },
+        },
+    )
+
+    candidate = promote_signals_to_candidates([signal])["candidates"][0]
+    assert candidate.stage == "Seed"
+    assert candidate.raised == "$4M"
+    assert candidate.headcount == ""
+    assert candidate.founders == ["Asha Rao"]
+    assert "headcount" not in candidate.enrichment_evidence
 
 
 def test_extract_company_candidates_from_yc_url_slug():
@@ -637,7 +706,8 @@ def test_build_scored_preview_from_evidence_merges_attio():
     candidates = build_scored_preview_from_evidence(evidence, attio_client=FakeAttio(), limit=2)
     assert len(candidates) == 2
     assert all(candidate.get("investment_interest") for candidate in candidates)
-    assert candidates[0]["attio_status"] == "no_owner"
+    assert any(candidate["name"] == "BeeSafe AI" and candidate["attio_status"] == "no_owner" for candidate in candidates)
+    assert any(candidate["name"] == "affaan-m/agentshield" and candidate["attio_status"] == "no_match" for candidate in candidates)
 
 
 def test_build_scored_preview_excludes_low_interest_extractions():
@@ -736,6 +806,10 @@ def test_run_weekly_artifacts_saves_raw_and_preview(tmp_path, monkeypatch):
             "warnings": [],
         },
     )
+    monkeypatch.setattr(radar_run, "load_candidate_history", lambda: {})
+    saved_history = {}
+    monkeypatch.setattr(radar_run, "save_candidate_history", lambda history: saved_history.update(history))
+    monkeypatch.setattr(radar_run, "apply_candidate_enrichment", lambda candidates: candidates)
 
     result = radar_run.run_weekly_artifacts(
         output_dir=tmp_path,
@@ -750,6 +824,10 @@ def test_run_weekly_artifacts_saves_raw_and_preview(tmp_path, monkeypatch):
     assert result["preview"].endswith("weekly-preview.md")
     assert result["companies"] == 1
     assert "BeeSafe AI" in (tmp_path / "weekly-preview.md").read_text()
+    saved = json.loads((tmp_path / "candidates.json").read_text())
+    assert saved[0]["stable_key"]
+    assert saved[0]["weekly_tag"] == "NEW"
+    assert saved_history
 
 
 def test_run_weekly_artifacts_saves_signals_candidates_and_sector_coverage(tmp_path, monkeypatch):
@@ -775,6 +853,9 @@ def test_run_weekly_artifacts_saves_signals_candidates_and_sector_coverage(tmp_p
             "warnings": [],
         },
     )
+    monkeypatch.setattr(radar_run, "load_candidate_history", lambda: {})
+    monkeypatch.setattr(radar_run, "save_candidate_history", lambda history: None)
+    monkeypatch.setattr(radar_run, "apply_candidate_enrichment", lambda candidates: candidates)
 
     result = radar_run.run_weekly_artifacts(output_dir=tmp_path, sectors=("data-infra", "oss"), github_limit=0)
     assert (tmp_path / "signals.json").exists()
@@ -809,6 +890,9 @@ def test_weekly_radar_keeps_up_to_50_not_just_top_15(tmp_path, monkeypatch):
     monkeypatch.setattr(radar_run, "collect_live_evidence", lambda **kwargs: {"last30days": {}, "github": [], "warnings": []})
     monkeypatch.setattr(radar_run, "build_signals_from_evidence", lambda evidence: {"signals": [], "coverage": {}})
     monkeypatch.setattr(radar_run, "promote_signals_to_candidates", lambda signals: {"candidates": candidates, "rejected": []})
+    monkeypatch.setattr(radar_run, "load_candidate_history", lambda: {})
+    monkeypatch.setattr(radar_run, "save_candidate_history", lambda history: None)
+    monkeypatch.setattr(radar_run, "apply_candidate_enrichment", lambda candidates: candidates)
 
     radar_run.run_weekly_artifacts(output_dir=tmp_path, candidate_limit=50)
     saved = json.loads((tmp_path / "candidates.json").read_text())
@@ -839,6 +923,9 @@ def test_weekly_radar_does_not_pad_to_50(tmp_path, monkeypatch):
     monkeypatch.setattr(radar_run, "collect_live_evidence", lambda **kwargs: {"last30days": {}, "github": [], "warnings": []})
     monkeypatch.setattr(radar_run, "build_signals_from_evidence", lambda evidence: {"signals": [], "coverage": {}})
     monkeypatch.setattr(radar_run, "promote_signals_to_candidates", lambda signals: {"candidates": candidates, "rejected": []})
+    monkeypatch.setattr(radar_run, "load_candidate_history", lambda: {})
+    monkeypatch.setattr(radar_run, "save_candidate_history", lambda history: None)
+    monkeypatch.setattr(radar_run, "apply_candidate_enrichment", lambda candidates: candidates)
 
     radar_run.run_weekly_artifacts(output_dir=tmp_path, candidate_limit=50)
     saved = json.loads((tmp_path / "candidates.json").read_text())

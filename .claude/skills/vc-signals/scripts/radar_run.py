@@ -41,6 +41,9 @@ from radar_models import Candidate, RejectedSignal, SectorCoverage
 from radar_scoring import score_and_tier
 from radar_sources import classify_source_item
 from radar_render import render_weekly_brief
+from radar_history import apply_weekly_tags, load_candidate_history, save_candidate_history
+from radar_enrichment import apply_candidate_enrichment, merge_source_enrichment
+from radar_oss import enrich_oss_candidate
 
 
 DEFAULT_OUTPUT_DIR = Path(__file__).parent.parent / "data" / "radar_runs"
@@ -670,9 +673,21 @@ def rank_candidates(candidates: list[dict]) -> list[dict]:
 
 def merge_attio_context(companies: list[dict], attio_client=None) -> list[dict]:
     """Merge Attio match fields into companies, preserving existing fields."""
+    def should_skip_attio(company: dict) -> bool:
+        sector = (company.get("sector") or "").lower()
+        name = company.get("name") or ""
+        return "oss" in sector and "/" in name and not company.get("domain")
+
+    def skipped(company: dict) -> dict:
+        return {
+            **company,
+            "attio_status": company.get("attio_status", "no_match"),
+            "action": company.get("action", "watch"),
+        }
+
     if not attio_client or not enrich_companies:
         return [
-            {
+            skipped(company) if should_skip_attio(company) else {
                 **company,
                 "attio_status": company.get("attio_status", "unknown"),
                 "action": company.get("action", company.get("attio_action", "monitor only")),
@@ -680,7 +695,13 @@ def merge_attio_context(companies: list[dict], attio_client=None) -> list[dict]:
             for company in companies
         ]
 
-    enriched = enrich_companies(companies, attio_client)
+    enriched = []
+    for company in companies:
+        if should_skip_attio(company):
+            enriched.append(skipped(company))
+        else:
+            enriched.extend(enrich_companies([company], attio_client))
+
     for company in enriched:
         existing_action = company.get("action")
         sector = (company.get("sector") or "").lower()
@@ -855,7 +876,7 @@ def _candidate_from_signal(signal) -> Candidate | None:
     if velocity.get("stars_last_30d") is not None:
         why = f"{item.get('description') or signal.title} +{velocity.get('stars_last_30d')} stars in 30d."
 
-    return Candidate(
+    candidate = Candidate(
         name=name,
         domain=_candidate_domain_from_item(item),
         sector=SECTOR_LABELS.get(signal.sector, signal.sector),
@@ -872,6 +893,8 @@ def _candidate_from_signal(signal) -> Candidate | None:
         engagement=item.get("engagement", {}),
         action="watch" if signal.role == "oss_project" else "assign owner",
     )
+    candidate = merge_source_enrichment(candidate, item)
+    return enrich_oss_candidate(candidate, item)
 
 
 def build_signals_from_evidence(evidence: dict) -> dict:
@@ -1108,15 +1131,20 @@ def run_weekly_artifacts(
     signal_result = build_signals_from_evidence(evidence)
     promotion = promote_signals_to_candidates(signal_result["signals"])
     scored_candidates = _score_sort_limit_candidates(promotion["candidates"], candidate_limit)
+    scored_candidates = apply_candidate_enrichment(scored_candidates)
     scored_candidates = _apply_attio_to_candidates(scored_candidates, _attio_client_from_env())
     scored_candidates = _score_sort_limit_candidates(scored_candidates, candidate_limit)
+    run_date = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    history_result = apply_weekly_tags(scored_candidates, load_candidate_history(), run_date=run_date)
+    scored_candidates = history_result.candidates
+    save_candidate_history(history_result.history)
     _update_sector_coverage(signal_result["coverage"], sectors, scored_candidates, promotion["rejected"])
     signals_path = output_dir / "signals.json"
     candidates_path = output_dir / "candidates.json"
     signals_path.write_text(json.dumps([signal.to_dict() for signal in signal_result["signals"]], indent=2))
     candidates_path.write_text(json.dumps([candidate.to_dict() for candidate in scored_candidates], indent=2))
     preview_path = output_dir / "weekly-preview.md"
-    preview_path.write_text(render_weekly_brief(scored_candidates, signal_result["coverage"], promotion["rejected"]))
+    preview_path.write_text(render_weekly_brief(scored_candidates, signal_result["coverage"], promotion["rejected"], faded=history_result.faded))
     return {
         "raw_evidence": str(raw_path),
         "signals": str(signals_path),

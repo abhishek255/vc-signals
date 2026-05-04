@@ -37,6 +37,8 @@ class Candidate:
     theme: str
     source: str
     candidate_type: str
+    stable_key: str = ""
+    weekly_tag: str = ""
     domain: str = ""
     why_on_radar: str = ""
     why_this_may_be_noise: str = ""
@@ -55,6 +57,24 @@ class Candidate:
     evidence_confidence: str = ""
     tier: str = ""
     engagement: dict = field(default_factory=dict)
+    stage: str = ""
+    raised: str = ""
+    headcount: str = ""
+    founders: list[str] = field(default_factory=list)
+    founding_year: str = ""
+    lead_investor: str = ""
+    enrichment_evidence: dict = field(default_factory=dict)
+    attio_record_url: str = ""
+    attio_owner: str = ""
+    attio_last_interaction: str = ""
+    attio_staleness_reason: str = ""
+    oss_company_formation_score: int = 0
+    oss_action_reason: str = ""
+    license: str = ""
+    repo_age_days: int = 0
+    stars: int = 0
+    stars_30d: int = 0
+    maintainer_profiles: list[dict] = field(default_factory=list)
 
     def to_dict(self) -> dict:
         return asdict(self)
