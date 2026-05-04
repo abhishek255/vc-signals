@@ -99,3 +99,83 @@ def test_sector_intelligence_roundtrip_dict():
     )
 
     assert SectorIntelligence.from_dict(intelligence.to_dict()) == intelligence
+
+
+def test_synthesis_result_roundtrip():
+    from radar_models import PossibleCompanyLead, SectorDiagnosis, SynthesisResult, ThemeHypothesis
+
+    result = SynthesisResult(
+        enabled=True,
+        model="fake-synthesis",
+        generated_at="2026-05-04T12:00:00Z",
+        source_digest={"candidate_count": 50, "source_lanes": {"OSS": 50}},
+        sector_diagnoses=[
+            SectorDiagnosis(
+                market_sector="Vertical AI",
+                diagnosis="Source failure / incomplete coverage",
+                evidence_urls=[],
+                recommended_next_queries=["vertical AI workflow automation startup launch"],
+                confidence="High",
+            )
+        ],
+        theme_hypotheses=[
+            ThemeHypothesis(
+                market_sector="Cybersecurity",
+                theme="AI agent permission security",
+                evidence_summary="Operators and OSS projects point to MCP/tool permission risk.",
+                evidence_urls=["https://github.com/affaan-m/agentshield"],
+                why_it_matters="Agent adoption creates new security surfaces.",
+                why_this_may_be_noise="Evidence is mostly OSS.",
+                confidence="Medium",
+            )
+        ],
+        possible_company_leads=[
+            PossibleCompanyLead(
+                name="AgentShield",
+                market_sector="Cybersecurity",
+                source_lane="OSS",
+                domain="",
+                evidence_urls=["https://github.com/affaan-m/agentshield"],
+                why_on_radar="Fast OSS momentum.",
+                verification_needed=["Confirm company formation"],
+                suggested_action="track company formation",
+                confidence="Medium",
+            )
+        ],
+        partner_notes=["This run is OSS-heavy."],
+        warnings=[],
+    )
+
+    restored = SynthesisResult.from_dict(result.to_dict())
+
+    assert restored.enabled is True
+    assert restored.sector_diagnoses[0].market_sector == "Vertical AI"
+    assert restored.theme_hypotheses[0].theme == "AI agent permission security"
+    assert restored.possible_company_leads[0].name == "AgentShield"
+    assert restored.partner_notes == ["This run is OSS-heavy."]
+
+
+def test_synthesis_result_ignores_unknown_payload_fields():
+    from radar_models import SynthesisResult
+
+    restored = SynthesisResult.from_dict(
+        {
+            "enabled": False,
+            "model": "",
+            "unknown_future_field": "ok",
+            "sector_diagnoses": [{"market_sector": "AI Infra", "extra": "ignored"}],
+        }
+    )
+
+    assert restored.enabled is False
+    assert restored.sector_diagnoses[0].market_sector == "AI Infra"
+
+
+def test_synthesis_result_to_dict_copies_source_digest():
+    from radar_models import SynthesisResult
+
+    result = SynthesisResult(source_digest={"source_lanes": {"OSS": 50}})
+    payload = result.to_dict()
+    payload["source_digest"]["source_lanes"]["OSS"] = 0
+
+    assert result.source_digest["source_lanes"]["OSS"] == 50

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from copy import deepcopy
 from dataclasses import asdict, dataclass, field, fields
 
 
@@ -129,6 +130,103 @@ class SectorIntelligence:
     @classmethod
     def from_dict(cls, payload: dict) -> "SectorIntelligence":
         return cls(**_known_payload(cls, payload))
+
+
+@dataclass
+class SectorDiagnosis:
+    market_sector: str
+    diagnosis: str = ""
+    evidence_urls: list[str] = field(default_factory=list)
+    recommended_next_queries: list[str] = field(default_factory=list)
+    confidence: str = "Low"
+
+    def to_dict(self) -> dict:
+        return asdict(self)
+
+    @classmethod
+    def from_dict(cls, payload: dict) -> "SectorDiagnosis":
+        return cls(**_known_payload(cls, payload))
+
+
+@dataclass
+class ThemeHypothesis:
+    market_sector: str
+    theme: str
+    evidence_summary: str = ""
+    evidence_urls: list[str] = field(default_factory=list)
+    why_it_matters: str = ""
+    why_this_may_be_noise: str = ""
+    confidence: str = "Low"
+
+    def to_dict(self) -> dict:
+        return asdict(self)
+
+    @classmethod
+    def from_dict(cls, payload: dict) -> "ThemeHypothesis":
+        return cls(**_known_payload(cls, payload))
+
+
+@dataclass
+class PossibleCompanyLead:
+    name: str
+    market_sector: str = ""
+    source_lane: str = ""
+    domain: str = ""
+    evidence_urls: list[str] = field(default_factory=list)
+    why_on_radar: str = ""
+    verification_needed: list[str] = field(default_factory=list)
+    suggested_action: str = "investigate"
+    confidence: str = "Low"
+
+    def to_dict(self) -> dict:
+        return asdict(self)
+
+    @classmethod
+    def from_dict(cls, payload: dict) -> "PossibleCompanyLead":
+        return cls(**_known_payload(cls, payload))
+
+
+@dataclass
+class SynthesisResult:
+    enabled: bool = False
+    model: str = ""
+    generated_at: str = ""
+    source_digest: dict = field(default_factory=dict)
+    sector_diagnoses: list[SectorDiagnosis] = field(default_factory=list)
+    theme_hypotheses: list[ThemeHypothesis] = field(default_factory=list)
+    possible_company_leads: list[PossibleCompanyLead] = field(default_factory=list)
+    partner_notes: list[str] = field(default_factory=list)
+    warnings: list[str] = field(default_factory=list)
+
+    def to_dict(self) -> dict:
+        return {
+            "enabled": self.enabled,
+            "model": self.model,
+            "generated_at": self.generated_at,
+            "source_digest": deepcopy(self.source_digest),
+            "sector_diagnoses": [item.to_dict() for item in self.sector_diagnoses],
+            "theme_hypotheses": [item.to_dict() for item in self.theme_hypotheses],
+            "possible_company_leads": [item.to_dict() for item in self.possible_company_leads],
+            "partner_notes": list(self.partner_notes),
+            "warnings": list(self.warnings),
+        }
+
+    @classmethod
+    def from_dict(cls, payload: dict) -> "SynthesisResult":
+        known = _known_payload(cls, payload)
+        known["sector_diagnoses"] = [
+            item if isinstance(item, SectorDiagnosis) else SectorDiagnosis.from_dict(item)
+            for item in known.get("sector_diagnoses", [])
+        ]
+        known["theme_hypotheses"] = [
+            item if isinstance(item, ThemeHypothesis) else ThemeHypothesis.from_dict(item)
+            for item in known.get("theme_hypotheses", [])
+        ]
+        known["possible_company_leads"] = [
+            item if isinstance(item, PossibleCompanyLead) else PossibleCompanyLead.from_dict(item)
+            for item in known.get("possible_company_leads", [])
+        ]
+        return cls(**known)
 
 
 @dataclass
