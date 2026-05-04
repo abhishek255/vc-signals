@@ -82,6 +82,25 @@ def sample_companies() -> list[dict]:
 
 
 @pytest.fixture
+def enriched_company() -> dict:
+    """Sample enrichment cache entry."""
+    return {
+        "fetched_at": "2026-05-03",
+        "stage": "Series A",
+        "raised": "$15M",
+        "headcount": "45",
+        "founders": ["Jane Doe", "John Smith"],
+        "founding_year": 2023,
+        "lead_investor": "Andreessen Horowitz",
+        "founder_github_activity": "Jane Doe: 8 PRs in last 30d",
+        "evidence": {
+            "stage": "https://crunchbase.com/example",
+            "raised": "https://techcrunch.com/example",
+        },
+    }
+
+
+@pytest.fixture
 def sample_config_dir(tmp_path: Path) -> Path:
     """Create a temporary config directory with sectors.json."""
     config_dir = tmp_path / "config"
