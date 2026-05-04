@@ -369,7 +369,28 @@ def build_sector_collection_queries(
         if seed_queries
         else f"{display_name} startups Seed Series A Series B emerging traction"
     )
-    if grounded_available:
+    company_queries = config.get("company_discovery_queries", {})
+    if grounded_available and company_queries:
+        for kind, key in (
+            ("yc_company", "yc_queries"),
+            ("funding_company", "funding_queries"),
+            ("company_launch", "company_launch_queries"),
+            ("founder_company", "founder_queries"),
+            ("technical_blog_company", "technical_blog_queries"),
+        ):
+            if len(queries) >= max_queries:
+                break
+            for topic in company_queries.get(key, []):
+                if len(queries) >= max_queries:
+                    break
+                queries.append({
+                    "kind": kind,
+                    "topic": topic,
+                    "sources": _sources("grounding", "hackernews", "github", social_available=social_available),
+                    "web_backend": "auto",
+                    "lookback_days": lookback_days,
+                })
+    elif grounded_available:
         queries.extend([
             {
                 "kind": "yc_company",
@@ -387,12 +408,13 @@ def build_sector_collection_queries(
             },
         ])
 
-    queries.append({
-        "kind": "conversation",
-        "topic": f"{conversation_topic} Seed Series A Series B founder customer traction",
-        "sources": _sources("reddit", "hackernews", "github", social_available=social_available),
-        "lookback_days": lookback_days,
-    })
+    if len(queries) < max_queries:
+        queries.append({
+            "kind": "conversation",
+            "topic": f"{conversation_topic} Seed Series A Series B founder customer traction",
+            "sources": _sources("reddit", "hackernews", "github", social_available=social_available),
+            "lookback_days": lookback_days,
+        })
 
     return queries[:max_queries]
 

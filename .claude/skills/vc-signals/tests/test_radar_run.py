@@ -229,6 +229,198 @@ def test_build_sector_collection_queries_adds_grounded_company_discovery():
     assert queries[1]["sources"] == "grounding,hackernews,github,youtube"
 
 
+def _multi_company_discovery_config():
+    return {
+        "cybersecurity": {
+            "display_name": "Cybersecurity",
+            "discovery_queries": ["generic AI security conversation"],
+            "company_discovery_queries": {
+                "yc_queries": [
+                    "site:ycombinator.com/companies AI security startup first",
+                    "site:ycombinator.com/companies AI security startup second",
+                ],
+                "funding_queries": [
+                    "AI security startup raises seed first",
+                    "AI security startup raises seed second",
+                ],
+                "company_launch_queries": [
+                    "AI security startup launch first",
+                    "AI security startup launch second",
+                ],
+                "founder_queries": [
+                    "AI security startup founder blog first",
+                    "AI security startup founder blog second",
+                ],
+                "technical_blog_queries": [
+                    "AI security startup technical blog first",
+                    "AI security startup technical blog second",
+                ],
+            },
+        }
+    }
+
+
+def test_build_sector_collection_queries_uses_company_discovery_block_when_grounded(monkeypatch):
+    import radar_run
+    from radar_run import build_sector_collection_queries
+
+    monkeypatch.setattr(radar_run, "load_reddit_sources_config", lambda: {})
+    config = {
+        "cybersecurity": {
+            "display_name": "Cybersecurity",
+            "discovery_queries": ["generic AI security conversation"],
+            "company_discovery_queries": {
+                "company_launch_queries": ["AI security startup launch"],
+                "funding_queries": ["AI security startup raises seed"],
+                "yc_queries": ["site:ycombinator.com/companies AI security startup"],
+                "founder_queries": ["AI security startup founder blog"],
+                "technical_blog_queries": ["AI security startup technical blog"],
+            },
+        }
+    }
+
+    queries = build_sector_collection_queries(
+        "cybersecurity",
+        config,
+        grounded_available=True,
+        social_available=False,
+        max_queries=6,
+    )
+
+    assert [query["kind"] for query in queries[:3]] == ["yc_company", "funding_company", "company_launch"]
+    topics = " ".join(query["topic"] for query in queries)
+    assert "site:ycombinator.com/companies AI security startup" in topics
+    assert "AI security startup raises seed" in topics
+    assert "AI security startup launch" in topics
+    assert queries[-1]["kind"] == "conversation"
+    company_queries = [query for query in queries if query["kind"] != "conversation"]
+    assert all(query["sources"] == "grounding,hackernews,github" for query in company_queries)
+    assert all(query["web_backend"] == "auto" for query in company_queries)
+
+
+def test_build_sector_collection_queries_can_emit_second_configured_company_queries(monkeypatch):
+    import radar_run
+    from radar_run import build_sector_collection_queries
+
+    monkeypatch.setattr(radar_run, "load_reddit_sources_config", lambda: {})
+
+    queries = build_sector_collection_queries(
+        "cybersecurity",
+        _multi_company_discovery_config(),
+        grounded_available=True,
+        social_available=False,
+        max_queries=11,
+    )
+
+    assert [query["kind"] for query in queries] == [
+        "yc_company",
+        "yc_company",
+        "funding_company",
+        "funding_company",
+        "company_launch",
+        "company_launch",
+        "founder_company",
+        "founder_company",
+        "technical_blog_company",
+        "technical_blog_company",
+        "conversation",
+    ]
+    topics = [query["topic"] for query in queries]
+    assert "site:ycombinator.com/companies AI security startup second" in topics
+    assert "AI security startup raises seed second" in topics
+    assert "AI security startup launch second" in topics
+    assert "AI security startup founder blog second" in topics
+    assert "AI security startup technical blog second" in topics
+
+
+def test_build_sector_collection_queries_respects_low_company_query_budget(monkeypatch):
+    import radar_run
+    from radar_run import build_sector_collection_queries
+
+    monkeypatch.setattr(radar_run, "load_reddit_sources_config", lambda: {})
+
+    queries = build_sector_collection_queries(
+        "cybersecurity",
+        _multi_company_discovery_config(),
+        grounded_available=True,
+        social_available=False,
+        max_queries=4,
+    )
+
+    assert len(queries) == 4
+    assert [query["kind"] for query in queries] == [
+        "yc_company",
+        "yc_company",
+        "funding_company",
+        "funding_company",
+    ]
+    assert [query["topic"] for query in queries] == [
+        "site:ycombinator.com/companies AI security startup first",
+        "site:ycombinator.com/companies AI security startup second",
+        "AI security startup raises seed first",
+        "AI security startup raises seed second",
+    ]
+
+
+def test_build_sector_collection_queries_adds_conversation_only_when_budget_remains(monkeypatch):
+    import radar_run
+    from radar_run import build_sector_collection_queries
+
+    monkeypatch.setattr(radar_run, "load_reddit_sources_config", lambda: {})
+
+    full_company_budget = build_sector_collection_queries(
+        "cybersecurity",
+        _multi_company_discovery_config(),
+        grounded_available=True,
+        social_available=False,
+        max_queries=10,
+    )
+    with_conversation_budget = build_sector_collection_queries(
+        "cybersecurity",
+        _multi_company_discovery_config(),
+        grounded_available=True,
+        social_available=False,
+        max_queries=11,
+    )
+
+    assert len(full_company_budget) == 10
+    assert all(query["kind"] != "conversation" for query in full_company_budget)
+    assert with_conversation_budget[-1]["kind"] == "conversation"
+
+
+def test_build_sector_collection_queries_skips_company_discovery_block_without_grounding(monkeypatch):
+    import radar_run
+    from radar_run import build_sector_collection_queries
+
+    monkeypatch.setattr(radar_run, "load_reddit_sources_config", lambda: {})
+    config = {
+        "cybersecurity": {
+            "display_name": "Cybersecurity",
+            "discovery_queries": ["generic AI security conversation"],
+            "company_discovery_queries": {
+                "company_launch_queries": ["AI security startup launch"],
+                "funding_queries": ["AI security startup raises seed"],
+                "yc_queries": ["site:ycombinator.com/companies AI security startup"],
+                "founder_queries": ["AI security startup founder blog"],
+                "technical_blog_queries": ["AI security startup technical blog"],
+            },
+        }
+    }
+
+    queries = build_sector_collection_queries(
+        "cybersecurity",
+        config,
+        grounded_available=False,
+        social_available=False,
+        max_queries=3,
+    )
+
+    topics = " ".join(query["topic"] for query in queries)
+    assert "AI security startup raises seed" not in topics
+    assert "site:ycombinator.com/companies AI security startup" not in topics
+    assert all("web_backend" not in query for query in queries)
+
+
 def test_build_sector_collection_queries_uses_youtube_without_grounding_when_social_available():
     from radar_run import build_sector_collection_queries
 
