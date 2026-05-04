@@ -75,3 +75,31 @@ def is_cache_fresh(
         return False
     today = now or datetime.now(timezone.utc).date()
     return (today - fetched).days <= ttl_days
+
+
+def update_enrichment(
+    cache: dict,
+    name: str,
+    fields: dict,
+    *,
+    evidence: dict | None = None,
+    now: date | None = None,
+) -> None:
+    """Merge `fields` into the cache entry for `name`, refreshing `fetched_at`.
+
+    - Keys the entry by `_normalize_company_name(name)` so display variants
+      ("Anysphere (Cursor)" / "Anysphere") share one entry.
+    - Rejects any field outside `ENRICHED_FIELDS` with `ValueError`.
+    - `evidence` (if provided) is merged into the entry's evidence dict.
+    """
+    unknown = set(fields) - set(ENRICHED_FIELDS)
+    if unknown:
+        raise ValueError(f"unknown enrichment fields: {sorted(unknown)}")
+
+    key = _normalize_company_name(name)
+    entry = cache.setdefault(key, {})
+    entry.update(fields)
+    if evidence:
+        entry.setdefault("evidence", {}).update(evidence)
+    today = now or datetime.now(timezone.utc).date()
+    entry["fetched_at"] = today.strftime("%Y-%m-%d")

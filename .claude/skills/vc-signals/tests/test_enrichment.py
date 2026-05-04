@@ -72,3 +72,71 @@ def test_is_cache_fresh_missing_fetched_at():
 def test_is_cache_fresh_malformed_date():
     from enrichment import is_cache_fresh
     assert is_cache_fresh({"fetched_at": "yesterday"}) is False
+
+
+# --- Task 3: update_enrichment ---
+
+def test_update_enrichment_creates_entry_with_fetched_at():
+    from datetime import date
+    from enrichment import update_enrichment
+    cache = {}
+    update_enrichment(cache, "Acme", {"stage": "Seed"}, now=date(2026, 5, 3))
+    assert cache == {"acme": {"fetched_at": "2026-05-03", "stage": "Seed"}}
+
+
+def test_update_enrichment_merges_preserving_old_fields():
+    from datetime import date
+    from enrichment import update_enrichment
+    cache = {"acme": {"fetched_at": "2026-04-01", "stage": "Seed", "raised": "$2M"}}
+    update_enrichment(cache, "Acme", {"headcount": "12"}, now=date(2026, 5, 3))
+    assert cache["acme"] == {
+        "fetched_at": "2026-05-03",
+        "stage": "Seed",
+        "raised": "$2M",
+        "headcount": "12",
+    }
+
+
+def test_update_enrichment_normalized_name_dedup():
+    """Display variants resolve to one cache key."""
+    from datetime import date
+    from enrichment import update_enrichment
+    cache = {}
+    update_enrichment(cache, "Anysphere (Cursor)", {"stage": "Series A"}, now=date(2026, 5, 3))
+    update_enrichment(cache, "Anysphere", {"raised": "$60M"}, now=date(2026, 5, 3))
+    assert list(cache.keys()) == ["anysphere"]
+    assert cache["anysphere"]["stage"] == "Series A"
+    assert cache["anysphere"]["raised"] == "$60M"
+
+
+def test_update_enrichment_rejects_unknown_fields():
+    from enrichment import update_enrichment
+    with pytest.raises(ValueError, match="unknown"):
+        update_enrichment({}, "Acme", {"ceo_pet": "dog"})
+
+
+def test_update_enrichment_overwrites_existing_field():
+    from datetime import date
+    from enrichment import update_enrichment
+    cache = {"acme": {"fetched_at": "2026-04-01", "stage": "Seed"}}
+    update_enrichment(cache, "Acme", {"stage": "Series A"}, now=date(2026, 5, 3))
+    assert cache["acme"]["stage"] == "Series A"
+
+
+def test_update_enrichment_merges_evidence_dict():
+    from datetime import date
+    from enrichment import update_enrichment
+    cache = {"acme": {
+        "fetched_at": "2026-04-01",
+        "stage": "Seed",
+        "evidence": {"stage": "https://old.example.com"},
+    }}
+    update_enrichment(
+        cache, "Acme", {"raised": "$10M"},
+        evidence={"raised": "https://tc.example.com"},
+        now=date(2026, 5, 3),
+    )
+    assert cache["acme"]["evidence"] == {
+        "stage": "https://old.example.com",
+        "raised": "https://tc.example.com",
+    }
