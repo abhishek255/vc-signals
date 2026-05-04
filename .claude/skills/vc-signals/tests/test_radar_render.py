@@ -72,3 +72,54 @@ def test_render_weekly_brief_includes_faded_candidates():
     )
 
     assert "| OldCo | ai-infra | Agent runtime | FADED | 2026-04-27 | https://oldco.ai |" in markdown
+
+
+def test_partner_review_uses_compact_market_sector_source_lane_columns():
+    from radar_models import Candidate
+    from radar_render import render_weekly_brief
+
+    candidate = Candidate(
+        name="AgentShield",
+        sector="Cybersecurity",
+        market_sector="Cybersecurity",
+        source_lane="OSS",
+        theme="AI agent security",
+        source="https://github.com/affaan-m/agentshield",
+        candidate_type="oss_project",
+        tier="Watchlist",
+        investment_interest="High",
+        evidence_confidence="Medium",
+        attio_status="no_match",
+        action="track company formation",
+        why_on_radar="Fast OSS momentum.",
+        why_this_may_be_noise="Repo may not become a company.",
+    )
+
+    markdown = render_weekly_brief([candidate], {}, [], partner_review=[candidate])
+
+    assert "| Company / Project | Market Sector | Source Lane | Theme | Tag | Tier | Interest | Evidence | Attio | Action | Why On Radar | Why This May Be Noise |" in markdown
+    assert "| AgentShield | Cybersecurity | OSS | AI agent security |" in markdown
+    assert "| Company / Project | Sector | Theme | Tag | Stage | Raised | Headcount | Founders | Tier | Interest | Evidence | Attio |" in markdown
+
+
+def test_partner_review_renders_oss_heavy_warning():
+    from radar_models import Candidate
+    from radar_render import render_weekly_brief
+
+    candidates = [
+        Candidate(
+            name=f"OSS {i}",
+            sector="Cybersecurity",
+            market_sector="Cybersecurity",
+            source_lane="OSS",
+            theme="AI agent security",
+            source=f"https://github.com/example/{i}",
+            candidate_type="oss_project",
+            tier="Watchlist",
+        )
+        for i in range(6)
+    ]
+
+    markdown = render_weekly_brief(candidates, {}, [], partner_review=candidates)
+
+    assert "OSS-heavy Partner Review" in markdown

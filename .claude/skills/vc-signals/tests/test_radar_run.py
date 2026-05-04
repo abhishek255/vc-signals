@@ -1065,6 +1065,49 @@ def test_weekly_radar_keeps_up_to_50_not_just_top_15(tmp_path, monkeypatch):
     assert len(saved) == 50
 
 
+def test_weekly_radar_passes_partner_review_selection_to_renderer(tmp_path, monkeypatch):
+    import radar_run
+    from radar_models import Candidate
+
+    candidates = [
+        Candidate(
+            name=f"Company {i}",
+            sector="AI Infra",
+            market_sector="AI Infra",
+            source_lane="Grounded web",
+            theme="Agent runtime",
+            source=f"https://example.com/{i}",
+            candidate_type="company_web",
+            tier="Watchlist",
+            investment_interest="Medium",
+            evidence_confidence="Medium",
+            investment_interest_score=50,
+            evidence_confidence_score=50,
+        )
+        for i in range(12)
+    ]
+    selected = candidates[:10]
+    rendered = {}
+
+    monkeypatch.setattr(radar_run, "collect_live_evidence", lambda **kwargs: {"last30days": {}, "github": [], "warnings": []})
+    monkeypatch.setattr(radar_run, "build_signals_from_evidence", lambda evidence: {"signals": [], "coverage": {}})
+    monkeypatch.setattr(radar_run, "promote_signals_to_candidates", lambda signals: {"candidates": candidates, "rejected": []})
+    monkeypatch.setattr(radar_run, "load_candidate_history", lambda: {})
+    monkeypatch.setattr(radar_run, "save_candidate_history", lambda history: None)
+    monkeypatch.setattr(radar_run, "apply_candidate_enrichment", lambda rows: rows)
+    monkeypatch.setattr(radar_run, "select_partner_review", lambda rows: selected)
+
+    def fake_render(candidates, coverage, rejected, **kwargs):
+        rendered.update(kwargs)
+        return "# preview\n"
+
+    monkeypatch.setattr(radar_run, "render_weekly_brief", fake_render)
+
+    radar_run.run_weekly_artifacts(output_dir=tmp_path, candidate_limit=50)
+
+    assert rendered["partner_review"] == selected
+
+
 def test_weekly_radar_does_not_pad_to_50(tmp_path, monkeypatch):
     import json
     import radar_run

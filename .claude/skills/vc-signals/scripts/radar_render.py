@@ -1,9 +1,18 @@
 from __future__ import annotations
 
 
-def render_weekly_brief(candidates: list, coverage: dict, rejected: list, *, faded: list[dict] | None = None) -> str:
-    partner = [candidate for candidate in candidates if candidate.tier == "Partner Review"][:15]
-    if not partner:
+def render_weekly_brief(
+    candidates: list,
+    coverage: dict,
+    rejected: list,
+    *,
+    faded: list[dict] | None = None,
+    theme_signals: list | None = None,
+    sector_intelligence: list | None = None,
+    partner_review: list | None = None,
+) -> str:
+    partner = partner_review if partner_review is not None else [candidate for candidate in candidates if candidate.tier == "Partner Review"][:15]
+    if partner_review is None and not partner:
         partner = [candidate for candidate in candidates if candidate.tier == "Watchlist"][:15]
 
     lines = [
@@ -11,7 +20,13 @@ def render_weekly_brief(candidates: list, coverage: dict, rejected: list, *, fad
         "",
         "## Partner Review",
         "",
-        _table(partner),
+        _partner_table(partner),
+    ]
+    oss_warning = _oss_heavy_warning(partner)
+    if oss_warning:
+        lines.extend(["", oss_warning])
+
+    lines.extend([
         "",
         "## Full Radar",
         "",
@@ -23,7 +38,7 @@ def render_weekly_brief(candidates: list, coverage: dict, rejected: list, *, fad
         "",
         "## Sector Coverage",
         "",
-    ]
+    ])
 
     for sector, item in coverage.items():
         lines.append(f"- **{sector}: {item.status}** - {item.reason or 'Qualified candidates found.'}")
@@ -62,6 +77,38 @@ def _table(candidates: list) -> str:
             f"{candidate.company_x} | {candidate.why_on_radar} | {candidate.why_this_may_be_noise} | {candidate.source} |"
         )
     return "\n".join(rows)
+
+
+def _partner_table(candidates: list) -> str:
+    rows = [
+        "| Company / Project | Market Sector | Source Lane | Theme | Tag | Tier | Interest | Evidence | Attio | Action | Why On Radar | Why This May Be Noise |",
+        "|---|---|---|---|---|---|---|---|---|---|---|---|",
+    ]
+    for candidate in candidates:
+        rows.append(
+            f"| {candidate.name} | {_market_sector(candidate)} | {_source_lane(candidate)} | {candidate.theme} | "
+            f"{candidate.weekly_tag} | {candidate.tier} | {candidate.investment_interest} | {candidate.evidence_confidence} | "
+            f"{candidate.attio_status} | {candidate.action} | {candidate.why_on_radar} | {candidate.why_this_may_be_noise} |"
+        )
+    return "\n".join(rows)
+
+
+def _market_sector(candidate) -> str:
+    return candidate.market_sector or candidate.sector
+
+
+def _source_lane(candidate) -> str:
+    return candidate.source_lane or candidate.source
+
+
+def _oss_heavy_warning(candidates: list) -> str:
+    if not candidates:
+        return ""
+    oss_rows = [candidate for candidate in candidates if _source_lane(candidate) == "OSS"]
+    non_oss_rows = [candidate for candidate in candidates if _source_lane(candidate) != "OSS"]
+    if len(oss_rows) > 5 and not non_oss_rows:
+        return "_OSS-heavy Partner Review: no qualified non-OSS alternatives were available in the selected rows._"
+    return ""
 
 
 def _faded_table(faded: list[dict]) -> str:

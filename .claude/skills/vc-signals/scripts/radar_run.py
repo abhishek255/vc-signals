@@ -12,7 +12,7 @@ import json
 import os
 import re
 import sys
-from inspect import signature
+from inspect import Parameter, signature
 from datetime import datetime, timezone
 from pathlib import Path
 from urllib.parse import urlparse
@@ -43,6 +43,7 @@ from radar_scoring import score_and_tier
 from radar_sources import classify_source_item
 from radar_sector_intelligence import build_sector_intelligence
 from radar_sector_classifier import classify_market_sector
+from radar_partner_review import select_partner_review
 from radar_render import render_weekly_brief
 from radar_theme_signals import build_theme_signals
 from radar_history import apply_weekly_tags, load_candidate_history, save_candidate_history
@@ -1080,13 +1081,17 @@ def _render_weekly_brief(
     faded: list[dict],
     theme_signals: list,
     sector_intelligence: list,
+    partner_review: list[Candidate],
 ) -> str:
     kwargs = {"faded": faded}
     accepted = signature(render_weekly_brief).parameters
-    if "theme_signals" in accepted:
+    accepts_kwargs = any(parameter.kind == Parameter.VAR_KEYWORD for parameter in accepted.values())
+    if "theme_signals" in accepted or accepts_kwargs:
         kwargs["theme_signals"] = theme_signals
-    if "sector_intelligence" in accepted:
+    if "sector_intelligence" in accepted or accepts_kwargs:
         kwargs["sector_intelligence"] = sector_intelligence
+    if "partner_review" in accepted or accepts_kwargs:
+        kwargs["partner_review"] = partner_review
     return render_weekly_brief(candidates, coverage, rejected, **kwargs)
 
 
@@ -1192,6 +1197,7 @@ def run_weekly_artifacts(
     run_date = datetime.now(timezone.utc).strftime("%Y-%m-%d")
     history_result = apply_weekly_tags(scored_candidates, load_candidate_history(), run_date=run_date)
     scored_candidates = history_result.candidates
+    partner_review = select_partner_review(scored_candidates)
     save_candidate_history(history_result.history)
     _update_sector_coverage(signal_result["coverage"], sectors, scored_candidates, promotion["rejected"])
     sector_intelligence = build_sector_intelligence(
@@ -1220,6 +1226,7 @@ def run_weekly_artifacts(
             faded=history_result.faded,
             theme_signals=theme_signals,
             sector_intelligence=sector_intelligence,
+            partner_review=partner_review,
         )
     )
     return {
