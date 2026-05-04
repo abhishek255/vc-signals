@@ -262,6 +262,23 @@ These expire periodically — you'll need to re-extract them every few weeks.
 
 **Time window:** Append `7d`, `14d`, `30d`, `60d`, or `90d` to control how far back to search. Defaults: weekly = 14 days, theme/company = 30 days.
 
+### Weekly Partner Artifact
+
+The local partner command is:
+
+```bash
+python3 .claude/skills/vc-signals/scripts/radar_run.py weekly --sectors all --output-dir docs/radar-runs/current --limit 50
+```
+
+The artifact contains:
+
+- Partner Review: top 10-15 ranked candidates.
+- Full Radar: up to 50 qualified companies/projects, with no filler rows.
+- Sector Coverage: every requested sector, including no-qualified-candidates reasons.
+- Weak Evidence Summary: what was filtered out and why, plus "Needs More Evidence" items when there is useful pain/theme signal without enough company verification.
+
+Reddit is used primarily for curated pain discovery across devtools, cybersecurity, AI infra, vertical AI, data infra, and OSS. It rarely creates company rows directly. HN Show/Launch, GitHub repos, grounded web/company pages, Attio seeds, and user-provided companies are candidate-eligible sources.
+
 ### Examples
 
 **Company Radar:**

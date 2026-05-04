@@ -1,0 +1,97 @@
+from __future__ import annotations
+
+from dataclasses import asdict, dataclass, field, fields
+
+
+def _known_payload(cls, payload: dict) -> dict:
+    names = {item.name for item in fields(cls)}
+    return {key: value for key, value in payload.items() if key in names}
+
+
+@dataclass(frozen=True)
+class Signal:
+    source: str
+    role: str
+    title: str
+    url: str = ""
+    sector: str = ""
+    theme: str = ""
+    text: str = ""
+    can_create_candidate: bool = False
+    evidence_strength: int = 0
+    reason: str = ""
+    metadata: dict = field(default_factory=dict)
+
+    def to_dict(self) -> dict:
+        return asdict(self)
+
+    @classmethod
+    def from_dict(cls, payload: dict) -> "Signal":
+        return cls(**_known_payload(cls, payload))
+
+
+@dataclass
+class Candidate:
+    name: str
+    sector: str
+    theme: str
+    source: str
+    candidate_type: str
+    domain: str = ""
+    why_on_radar: str = ""
+    why_this_may_be_noise: str = ""
+    sources: list[str] = field(default_factory=list)
+    source_count: int = 1
+    company_linkedin: str = ""
+    company_x: str = ""
+    founder_profiles: list[dict] = field(default_factory=list)
+    attio_status: str = "unknown"
+    attio_action: str = ""
+    attio_lists: list[str] = field(default_factory=list)
+    action: str = "watch"
+    investment_interest_score: int = 0
+    evidence_confidence_score: int = 0
+    investment_interest: str = ""
+    evidence_confidence: str = ""
+    tier: str = ""
+    engagement: dict = field(default_factory=dict)
+
+    def to_dict(self) -> dict:
+        return asdict(self)
+
+    @classmethod
+    def from_dict(cls, payload: dict) -> "Candidate":
+        return cls(**_known_payload(cls, payload))
+
+
+@dataclass
+class RejectedSignal:
+    sector: str
+    source: str
+    title: str
+    reason: str
+    url: str = ""
+
+    def to_dict(self) -> dict:
+        return asdict(self)
+
+    @classmethod
+    def from_dict(cls, payload: dict) -> "RejectedSignal":
+        return cls(**_known_payload(cls, payload))
+
+
+@dataclass
+class SectorCoverage:
+    sector: str
+    raw_signals: int = 0
+    candidates: int = 0
+    rejected: int = 0
+    status: str = "no qualified candidates"
+    reason: str = ""
+
+    def to_dict(self) -> dict:
+        return asdict(self)
+
+    @classmethod
+    def from_dict(cls, payload: dict) -> "SectorCoverage":
+        return cls(**_known_payload(cls, payload))

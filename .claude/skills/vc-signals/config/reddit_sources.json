@@ -1,0 +1,32 @@
+{
+  "devtools": {
+    "primary": ["devops", "sre", "platformengineering", "ExperiencedDevs", "programming"],
+    "secondary": ["kubernetes", "terraform", "cicd", "softwareengineering", "webdev", "selfhosted"],
+    "pain_queries": ["developer productivity pain", "CI/CD frustration", "platform engineering bottleneck", "observability debugging pain", "AI coding workflow failure"]
+  },
+  "cybersecurity": {
+    "primary": ["netsec", "cybersecurity", "blueteamsec", "AskNetsec", "AppSec"],
+    "secondary": ["devsecops", "cloudsecurity", "ReverseEngineering", "Malware", "osint", "privacytoolsIO"],
+    "pain_queries": ["security operations pain", "application security backlog", "cloud security false positives", "AI security prompt injection", "SOC alert fatigue"]
+  },
+  "ai-infra": {
+    "primary": ["LocalLLaMA", "MachineLearning", "mlops", "LangChain", "LLMDevs"],
+    "secondary": ["OpenAI", "ChatGPTCoding", "artificial", "datascience", "DataEngineering"],
+    "pain_queries": ["LLMOps pain", "LLM inference cost", "agent evaluation failure", "RAG quality problem", "model deployment monitoring"]
+  },
+  "vertical-ai": {
+    "primary": ["SaaS", "startups", "sales", "CustomerSuccess", "healthIT", "legaltech", "Accounting"],
+    "secondary": ["smallbusiness", "Entrepreneur", "edtech", "recruiting", "HumanResources", "insurance"],
+    "pain_queries": ["manual workflow pain", "AI agent for operations", "AI SDR frustration", "healthcare admin automation", "legal document automation"]
+  },
+  "data-infra": {
+    "primary": ["dataengineering", "analyticsengineering", "dbt", "snowflake", "databricks"],
+    "secondary": ["Database", "bigdata", "SQL", "dataops", "ETL", "aws", "cloudcomputing"],
+    "pain_queries": ["data pipeline testing pain", "data lineage pain", "data quality incident", "warehouse cost pain", "Airflow orchestration frustration"]
+  },
+  "oss": {
+    "primary": ["opensource", "github", "selfhosted", "programming", "LocalLLaMA"],
+    "secondary": ["MachineLearning", "mcp", "ClaudeCode", "dataengineering", "cybersecurity", "devops"],
+    "pain_queries": ["open source tool adoption", "GitHub repo production use", "maintainer burnout", "open source alternative", "MCP open source"]
+  }
+}

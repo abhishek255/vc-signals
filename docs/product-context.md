@@ -21,10 +21,12 @@ Locked product assumptions:
 - **Customer:** Marathon partners, associates, and affiliated angels.
 - **Cadence:** Weekly all-sector radar to avoid alert fatigue while preserving a consistent research rhythm.
 - **Strike zone:** Seed to Series B.
-- **Output breadth:** 30-50 companies per weekly radar across sectors, optimized for coverage with separate Investment Interest and Evidence Confidence scores.
+- **Output breadth:** Up to 50 qualified companies/projects per weekly radar across sectors, optimized for coverage with separate Investment Interest and Evidence Confidence scores. Do not pad the artifact with filler rows when fewer than 50 candidates qualify.
 - **Late-stage handling:** Do not hide companies that are likely too hot or too late; label companies as "likely too late" when they are already consensus by investor judgment.
 - **CRM:** Attio is the confirmed CRM. Company domain should be the primary matching key when available, and companies already in Attio but stale or without an owner should be resurfaced.
 - **Skepticism:** Default output should include a "Why this may be noise" field so the tool reads like a skeptical investor, not a hype summarizer.
+- **Weak-signal handling:** "Needs More Evidence" should appear in both the Markdown brief and `candidates.json` when a theme or project is interesting but lacks enough company/founder/customer corroboration.
+- **Reddit role:** Reddit is a curated practitioner-pain source across all sectors. It should raise or lower Investment Interest and explain market pull, but Reddit-only evidence should not directly create company rows.
 - **Delivery:** Slack should be the weekly consumption surface at Monday 8:00 AM ET, but as a teaser/digest with the top 10-15 companies and a link or artifact for the full 30-50 company brief.
 - **OSS radar:** Open-source discovery should become a first-class mode because OSS signal quality depends on different ranking rules: star velocity, repo age, contributor quality, company mapping, license, founder activity, and community discussion.
 

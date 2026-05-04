@@ -5,6 +5,15 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+import pytest
+
+
+@pytest.fixture(autouse=True)
+def _no_live_attio(monkeypatch):
+    import radar_run
+
+    monkeypatch.setattr(radar_run, "_attio_client_from_env", lambda: None)
+
 
 def test_filter_repo_rejects_bot_digests_and_tutorials():
     from radar_run import is_repo_noise
@@ -169,11 +178,12 @@ def test_build_sector_collection_queries_adds_grounded_company_discovery():
     queries = build_sector_collection_queries("ai-infra", config, grounded_available=True, social_available=True, max_queries=3)
 
     assert len(queries) == 3
-    assert queries[0]["kind"] == "conversation"
+    assert queries[0]["kind"] == "reddit_pain"
+    assert queries[0]["candidate_eligible"] is False
     assert any("site:ycombinator.com/companies" in query["topic"] for query in queries)
     assert any("Seed Series A Series B" in query["topic"] for query in queries)
     assert all(query["lookback_days"] == 30 for query in queries)
-    assert queries[0]["sources"] == "reddit,hackernews,github,youtube"
+    assert queries[0]["sources"] == "reddit"
     assert queries[1]["sources"] == "grounding,hackernews,github,youtube"
 
 
@@ -184,10 +194,11 @@ def test_build_sector_collection_queries_uses_youtube_without_grounding_when_soc
 
     queries = build_sector_collection_queries("devtools", config, grounded_available=False, social_available=True, max_queries=3)
 
-    assert [query["kind"] for query in queries] == ["conversation", "hn_show", "github_signal"]
+    assert [query["kind"] for query in queries] == ["reddit_pain", "conversation", "hn_show"]
     assert "site:ycombinator.com/companies" not in queries[0]["topic"]
-    assert all(query["sources"] in {"hackernews,github,youtube", "github,hackernews,youtube"} for query in queries)
-    assert all("reddit" not in query["sources"] for query in queries)
+    assert queries[0]["sources"] == "reddit"
+    assert queries[0]["candidate_eligible"] is False
+    assert all(query["sources"] in {"reddit", "hackernews,github,youtube", "github,hackernews,youtube"} for query in queries)
     assert all("funding" not in query["topic"].lower() for query in queries)
 
 
@@ -198,7 +209,28 @@ def test_build_sector_collection_queries_keeps_strict_non_social_fallback():
 
     queries = build_sector_collection_queries("devtools", config, grounded_available=False, social_available=False, max_queries=3)
 
-    assert all(query["sources"] in {"hackernews,github", "github,hackernews"} for query in queries)
+    assert queries[0]["kind"] == "reddit_pain"
+    assert queries[0]["sources"] == "reddit"
+    assert all(query["sources"] in {"reddit", "hackernews,github", "github,hackernews"} for query in queries)
+
+
+def test_curated_reddit_pain_queries_do_not_create_company_rows():
+    from radar_run import build_sector_collection_queries
+
+    config = {
+        "devtools": {
+            "display_name": "Developer Tools",
+            "discovery_queries": ["developer tooling pain"],
+            "reddit_pain_queries": ["platform engineering pain points"],
+        }
+    }
+
+    queries = build_sector_collection_queries("devtools", config, grounded_available=False, social_available=False, max_queries=3)
+
+    reddit_queries = [query for query in queries if query.get("kind") == "reddit_pain"]
+    assert reddit_queries
+    assert all(query["sources"] == "reddit" for query in reddit_queries)
+    assert all(query.get("candidate_eligible") is False for query in reddit_queries)
 
 
 def test_build_sector_collection_queries_uses_youtube_for_oss_fallback():
@@ -208,9 +240,9 @@ def test_build_sector_collection_queries_uses_youtube_for_oss_fallback():
 
     queries = build_sector_collection_queries("oss", config, grounded_available=False, social_available=True, max_queries=3)
 
-    assert [query["kind"] for query in queries] == ["oss_show", "oss_github", "oss_security"]
-    assert all("reddit" not in query["sources"] for query in queries)
-    assert all("youtube" in query["sources"] for query in queries)
+    assert [query["kind"] for query in queries] == ["reddit_pain", "oss_show", "oss_github"]
+    assert queries[0]["sources"] == "reddit"
+    assert all("youtube" in query["sources"] for query in queries[1:])
 
 
 def test_build_sector_collection_queries_uses_social_sources_for_vertical_ai():
@@ -220,8 +252,9 @@ def test_build_sector_collection_queries_uses_social_sources_for_vertical_ai():
 
     queries = build_sector_collection_queries("vertical-ai", config, grounded_available=False, social_available=True, max_queries=3)
 
-    assert queries[0]["sources"] == "reddit,hackernews,youtube,tiktok,instagram,threads"
-    assert "workflow demos" in queries[0]["topic"]
+    assert queries[0]["kind"] == "reddit_pain"
+    assert queries[1]["sources"] == "reddit,hackernews,youtube,tiktok,instagram,threads"
+    assert "workflow demos" in queries[1]["topic"]
     assert all("tiktok" not in query["sources"] for query in build_sector_collection_queries("devtools", config, social_available=True))
 
 
@@ -311,6 +344,90 @@ def test_extract_company_candidates_from_evidence_items():
     assert candidates[0]["name"] == "BeeSafe AI"
     assert candidates[0]["sector"] == "Cybersecurity"
     assert candidates[0]["source"] == "https://news.ycombinator.com/item?id=1"
+
+
+def test_build_signals_from_evidence_preserves_sector_coverage():
+    from radar_run import build_signals_from_evidence
+
+    evidence = {
+        "last30days": {
+            "data-infra": {
+                "items": [
+                    {
+                        "source": "reddit",
+                        "title": "What are people using for data lineage now?",
+                        "url": "https://reddit.com/r/dataengineering/example",
+                    }
+                ]
+            },
+            "oss": {
+                "items": [
+                    {
+                        "source": "hackernews",
+                        "title": "Show HN: MenteDB, an open-source memory database for AI agents",
+                        "url": "https://news.ycombinator.com/item?id=2",
+                    }
+                ]
+            },
+        },
+        "github": [],
+    }
+
+    result = build_signals_from_evidence(evidence)
+    assert len(result["signals"]) == 2
+    assert result["coverage"]["data-infra"].raw_signals == 1
+    assert result["coverage"]["oss"].raw_signals == 1
+
+
+def test_candidate_promotion_ignores_reddit_only_signal():
+    from radar_run import promote_signals_to_candidates
+    from radar_sources import classify_source_item
+
+    signals = [
+        classify_source_item(
+            sector="data-infra",
+            item={"source": "reddit", "title": "What data quality tools are people using?", "url": "https://reddit.com/x"},
+        )
+    ]
+
+    result = promote_signals_to_candidates(signals)
+    assert result["candidates"] == []
+    assert result["rejected"][0].reason == "source_not_candidate_eligible"
+
+
+def test_candidate_promotion_allows_hn_launch():
+    from radar_run import promote_signals_to_candidates
+    from radar_sources import classify_source_item
+
+    signals = [
+        classify_source_item(
+            sector="cybersecurity",
+            item={"source": "hackernews", "title": "Show HN: BeeSafe AI stops voice phishing for banks", "url": "https://news.ycombinator.com/item?id=1"},
+        )
+    ]
+
+    result = promote_signals_to_candidates(signals)
+    assert result["candidates"][0].name == "BeeSafe AI"
+
+
+def test_candidate_promotion_keeps_full_github_repo_name():
+    from radar_run import promote_signals_to_candidates
+    from radar_sources import classify_source_item
+
+    signals = [
+        classify_source_item(
+            sector="oss",
+            item={
+                "source": "github",
+                "title": "JoasASantos/NeuroSploit",
+                "url": "https://github.com/JoasASantos/NeuroSploit",
+                "description": "AI-powered penetration testing framework",
+            },
+        )
+    ]
+
+    result = promote_signals_to_candidates(signals)
+    assert result["candidates"][0].name == "JoasASantos/NeuroSploit"
 
 
 def test_extract_company_candidates_rejects_generic_names():
@@ -628,9 +745,104 @@ def test_run_weekly_artifacts_saves_raw_and_preview(tmp_path, monkeypatch):
     )
 
     assert result["raw_evidence"].endswith("raw-evidence.json")
+    assert result["signals"].endswith("signals.json")
+    assert result["candidates"].endswith("candidates.json")
     assert result["preview"].endswith("weekly-preview.md")
     assert result["companies"] == 1
     assert "BeeSafe AI" in (tmp_path / "weekly-preview.md").read_text()
+
+
+def test_run_weekly_artifacts_saves_signals_candidates_and_sector_coverage(tmp_path, monkeypatch):
+    import radar_run
+
+    monkeypatch.setattr(
+        radar_run,
+        "collect_live_evidence",
+        lambda **kwargs: {
+            "last30days": {
+                "data-infra": {
+                    "items": [
+                        {"source": "reddit", "title": "What lineage tools are people using?", "url": "https://reddit.com/x"}
+                    ]
+                },
+                "oss": {
+                    "items": [
+                        {"source": "hackernews", "title": "Show HN: MenteDB, memory database for AI agents", "url": "https://news.ycombinator.com/item?id=1"}
+                    ]
+                },
+            },
+            "github": [],
+            "warnings": [],
+        },
+    )
+
+    result = radar_run.run_weekly_artifacts(output_dir=tmp_path, sectors=("data-infra", "oss"), github_limit=0)
+    assert (tmp_path / "signals.json").exists()
+    assert (tmp_path / "candidates.json").exists()
+    assert result["signals"].endswith("signals.json")
+    preview = (tmp_path / "weekly-preview.md").read_text()
+    assert "Sector Coverage" in preview
+    assert "data-infra: no qualified candidates" in preview
+
+
+def test_weekly_radar_keeps_up_to_50_not_just_top_15(tmp_path, monkeypatch):
+    import json
+    import radar_run
+    from radar_models import Candidate
+
+    candidates = [
+        Candidate(
+            name=f"Company {i}",
+            sector="AI Infra",
+            theme="Agent runtime",
+            source=f"https://example.com/{i}",
+            candidate_type="company_web",
+            tier="Watchlist",
+            investment_interest="Medium",
+            evidence_confidence="Medium",
+            investment_interest_score=60 - (i % 10),
+            evidence_confidence_score=50,
+        )
+        for i in range(60)
+    ]
+
+    monkeypatch.setattr(radar_run, "collect_live_evidence", lambda **kwargs: {"last30days": {}, "github": [], "warnings": []})
+    monkeypatch.setattr(radar_run, "build_signals_from_evidence", lambda evidence: {"signals": [], "coverage": {}})
+    monkeypatch.setattr(radar_run, "promote_signals_to_candidates", lambda signals: {"candidates": candidates, "rejected": []})
+
+    radar_run.run_weekly_artifacts(output_dir=tmp_path, candidate_limit=50)
+    saved = json.loads((tmp_path / "candidates.json").read_text())
+    assert len(saved) == 50
+
+
+def test_weekly_radar_does_not_pad_to_50(tmp_path, monkeypatch):
+    import json
+    import radar_run
+    from radar_models import Candidate
+
+    candidates = [
+        Candidate(
+            name=f"Company {i}",
+            sector="AI Infra",
+            theme="Agent runtime",
+            source=f"https://example.com/{i}",
+            candidate_type="company_web",
+            tier="Watchlist",
+            investment_interest="Medium",
+            evidence_confidence="Medium",
+            investment_interest_score=50,
+            evidence_confidence_score=50,
+        )
+        for i in range(7)
+    ]
+
+    monkeypatch.setattr(radar_run, "collect_live_evidence", lambda **kwargs: {"last30days": {}, "github": [], "warnings": []})
+    monkeypatch.setattr(radar_run, "build_signals_from_evidence", lambda evidence: {"signals": [], "coverage": {}})
+    monkeypatch.setattr(radar_run, "promote_signals_to_candidates", lambda signals: {"candidates": candidates, "rejected": []})
+
+    radar_run.run_weekly_artifacts(output_dir=tmp_path, candidate_limit=50)
+    saved = json.loads((tmp_path / "candidates.json").read_text())
+    assert len(saved) == 7
 
 
 def test_cli_weekly_runs_collect_and_preview(tmp_path, monkeypatch, capsys):

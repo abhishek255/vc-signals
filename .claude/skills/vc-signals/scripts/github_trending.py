@@ -317,7 +317,7 @@ def run_trending(
     if not queries:
         return {"error": f"No queries for sector '{sector}'", "repos": []}
 
-    repos = search_repos(queries, token=token, limit=limit * 2)
+    repos = search_repos(queries, token=token, limit=limit)
     warnings = []
 
     for repo in repos:
