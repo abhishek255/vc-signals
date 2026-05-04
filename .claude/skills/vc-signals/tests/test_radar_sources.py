@@ -46,3 +46,39 @@ def test_github_issue_cannot_create_candidate():
 
     assert signal.role == "activity"
     assert signal.can_create_candidate is False
+
+
+def test_source_lane_preserves_social_video_sources():
+    from radar_sources import classify_source_item
+
+    signal = classify_source_item(
+        sector="vertical-ai",
+        item={
+            "source": "tiktok",
+            "title": "DentalDesk AI shows automated front desk intake for clinics",
+            "url": "https://www.tiktok.com/@dentaldesk/video/1",
+            "company_name": "DentalDesk AI",
+            "website": "https://dentaldesk.ai",
+        },
+    )
+
+    assert signal.role == "product_demo"
+    assert signal.can_create_candidate is True
+    assert signal.metadata["source_lane"] == "TikTok"
+
+
+def test_generic_social_video_does_not_create_candidate():
+    from radar_sources import classify_source_item
+
+    signal = classify_source_item(
+        sector="vertical-ai",
+        item={
+            "source": "instagram",
+            "title": "AI agents are going to change every local business",
+            "url": "https://www.instagram.com/p/example",
+        },
+    )
+
+    assert signal.role == "social_demo"
+    assert signal.can_create_candidate is False
+    assert signal.metadata["source_lane"] == "Instagram"

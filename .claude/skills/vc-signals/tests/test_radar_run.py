@@ -102,10 +102,52 @@ def test_merge_attio_context_preserves_oss_action_vocabulary():
         def match_company(self, company):
             return {"attio_status": "no_match", "attio_action": "assign owner"}
 
-    companies = [{"name": "AgentShield", "sector": "OSS / Cybersecurity", "action": "contact maintainer"}]
+    companies = [{"name": "AgentShield", "sector": "OSS / Cybersecurity", "domain": "agentshield.dev", "action": "contact maintainer"}]
     result = merge_attio_context(companies, FakeAttio())
     assert result[0]["attio_status"] == "no_match"
     assert result[0]["action"] == "contact maintainer"
+
+
+def test_merge_attio_context_preserves_reclassified_oss_action(monkeypatch):
+    import radar_run
+    from radar_run import merge_attio_context
+
+    class FakeAttio:
+        def match_company(self, company):
+            return {**company, "attio_status": "no_match", "attio_action": "assign owner"}
+
+    def fake_enrich_companies(companies, attio_client):
+        return [attio_client.match_company(company) for company in companies]
+
+    monkeypatch.setattr(radar_run, "enrich_companies", fake_enrich_companies)
+
+    companies = [
+        {
+            "name": "AgentShield",
+            "sector": "Cybersecurity",
+            "source_lane": "OSS",
+            "evidence_role": "oss_project",
+            "domain": "agentshield.dev",
+            "action": "contact maintainer",
+        }
+    ]
+    result = merge_attio_context(companies, FakeAttio())
+
+    assert result[0]["attio_status"] == "no_match"
+    assert result[0]["action"] == "contact maintainer"
+
+
+def test_merge_attio_context_skips_domainless_oss_repo_names():
+    from radar_run import merge_attio_context
+
+    class FakeAttio:
+        def match_company(self, company):
+            raise AssertionError("domainless OSS repo should not be sent to Attio")
+
+    companies = [{"name": "php-testo/testo", "sector": "OSS", "domain": "", "action": "watch"}]
+    result = merge_attio_context(companies, FakeAttio())
+    assert result[0]["attio_status"] == "no_match"
+    assert result[0]["action"] == "watch"
 
 
 def test_merge_attio_context_preserves_likely_too_late_label():
@@ -185,6 +227,198 @@ def test_build_sector_collection_queries_adds_grounded_company_discovery():
     assert all(query["lookback_days"] == 30 for query in queries)
     assert queries[0]["sources"] == "reddit"
     assert queries[1]["sources"] == "grounding,hackernews,github,youtube"
+
+
+def _multi_company_discovery_config():
+    return {
+        "cybersecurity": {
+            "display_name": "Cybersecurity",
+            "discovery_queries": ["generic AI security conversation"],
+            "company_discovery_queries": {
+                "yc_queries": [
+                    "site:ycombinator.com/companies AI security startup first",
+                    "site:ycombinator.com/companies AI security startup second",
+                ],
+                "funding_queries": [
+                    "AI security startup raises seed first",
+                    "AI security startup raises seed second",
+                ],
+                "company_launch_queries": [
+                    "AI security startup launch first",
+                    "AI security startup launch second",
+                ],
+                "founder_queries": [
+                    "AI security startup founder blog first",
+                    "AI security startup founder blog second",
+                ],
+                "technical_blog_queries": [
+                    "AI security startup technical blog first",
+                    "AI security startup technical blog second",
+                ],
+            },
+        }
+    }
+
+
+def test_build_sector_collection_queries_uses_company_discovery_block_when_grounded(monkeypatch):
+    import radar_run
+    from radar_run import build_sector_collection_queries
+
+    monkeypatch.setattr(radar_run, "load_reddit_sources_config", lambda: {})
+    config = {
+        "cybersecurity": {
+            "display_name": "Cybersecurity",
+            "discovery_queries": ["generic AI security conversation"],
+            "company_discovery_queries": {
+                "company_launch_queries": ["AI security startup launch"],
+                "funding_queries": ["AI security startup raises seed"],
+                "yc_queries": ["site:ycombinator.com/companies AI security startup"],
+                "founder_queries": ["AI security startup founder blog"],
+                "technical_blog_queries": ["AI security startup technical blog"],
+            },
+        }
+    }
+
+    queries = build_sector_collection_queries(
+        "cybersecurity",
+        config,
+        grounded_available=True,
+        social_available=False,
+        max_queries=6,
+    )
+
+    assert [query["kind"] for query in queries[:3]] == ["yc_company", "funding_company", "company_launch"]
+    topics = " ".join(query["topic"] for query in queries)
+    assert "site:ycombinator.com/companies AI security startup" in topics
+    assert "AI security startup raises seed" in topics
+    assert "AI security startup launch" in topics
+    assert queries[-1]["kind"] == "conversation"
+    company_queries = [query for query in queries if query["kind"] != "conversation"]
+    assert all(query["sources"] == "grounding,hackernews,github" for query in company_queries)
+    assert all(query["web_backend"] == "auto" for query in company_queries)
+
+
+def test_build_sector_collection_queries_can_emit_second_configured_company_queries(monkeypatch):
+    import radar_run
+    from radar_run import build_sector_collection_queries
+
+    monkeypatch.setattr(radar_run, "load_reddit_sources_config", lambda: {})
+
+    queries = build_sector_collection_queries(
+        "cybersecurity",
+        _multi_company_discovery_config(),
+        grounded_available=True,
+        social_available=False,
+        max_queries=11,
+    )
+
+    assert [query["kind"] for query in queries] == [
+        "yc_company",
+        "yc_company",
+        "funding_company",
+        "funding_company",
+        "company_launch",
+        "company_launch",
+        "founder_company",
+        "founder_company",
+        "technical_blog_company",
+        "technical_blog_company",
+        "conversation",
+    ]
+    topics = [query["topic"] for query in queries]
+    assert "site:ycombinator.com/companies AI security startup second" in topics
+    assert "AI security startup raises seed second" in topics
+    assert "AI security startup launch second" in topics
+    assert "AI security startup founder blog second" in topics
+    assert "AI security startup technical blog second" in topics
+
+
+def test_build_sector_collection_queries_respects_low_company_query_budget(monkeypatch):
+    import radar_run
+    from radar_run import build_sector_collection_queries
+
+    monkeypatch.setattr(radar_run, "load_reddit_sources_config", lambda: {})
+
+    queries = build_sector_collection_queries(
+        "cybersecurity",
+        _multi_company_discovery_config(),
+        grounded_available=True,
+        social_available=False,
+        max_queries=4,
+    )
+
+    assert len(queries) == 4
+    assert [query["kind"] for query in queries] == [
+        "yc_company",
+        "yc_company",
+        "funding_company",
+        "funding_company",
+    ]
+    assert [query["topic"] for query in queries] == [
+        "site:ycombinator.com/companies AI security startup first",
+        "site:ycombinator.com/companies AI security startup second",
+        "AI security startup raises seed first",
+        "AI security startup raises seed second",
+    ]
+
+
+def test_build_sector_collection_queries_adds_conversation_only_when_budget_remains(monkeypatch):
+    import radar_run
+    from radar_run import build_sector_collection_queries
+
+    monkeypatch.setattr(radar_run, "load_reddit_sources_config", lambda: {})
+
+    full_company_budget = build_sector_collection_queries(
+        "cybersecurity",
+        _multi_company_discovery_config(),
+        grounded_available=True,
+        social_available=False,
+        max_queries=10,
+    )
+    with_conversation_budget = build_sector_collection_queries(
+        "cybersecurity",
+        _multi_company_discovery_config(),
+        grounded_available=True,
+        social_available=False,
+        max_queries=11,
+    )
+
+    assert len(full_company_budget) == 10
+    assert all(query["kind"] != "conversation" for query in full_company_budget)
+    assert with_conversation_budget[-1]["kind"] == "conversation"
+
+
+def test_build_sector_collection_queries_skips_company_discovery_block_without_grounding(monkeypatch):
+    import radar_run
+    from radar_run import build_sector_collection_queries
+
+    monkeypatch.setattr(radar_run, "load_reddit_sources_config", lambda: {})
+    config = {
+        "cybersecurity": {
+            "display_name": "Cybersecurity",
+            "discovery_queries": ["generic AI security conversation"],
+            "company_discovery_queries": {
+                "company_launch_queries": ["AI security startup launch"],
+                "funding_queries": ["AI security startup raises seed"],
+                "yc_queries": ["site:ycombinator.com/companies AI security startup"],
+                "founder_queries": ["AI security startup founder blog"],
+                "technical_blog_queries": ["AI security startup technical blog"],
+            },
+        }
+    }
+
+    queries = build_sector_collection_queries(
+        "cybersecurity",
+        config,
+        grounded_available=False,
+        social_available=False,
+        max_queries=3,
+    )
+
+    topics = " ".join(query["topic"] for query in queries)
+    assert "AI security startup raises seed" not in topics
+    assert "site:ycombinator.com/companies AI security startup" not in topics
+    assert all("web_backend" not in query for query in queries)
 
 
 def test_build_sector_collection_queries_uses_youtube_without_grounding_when_social_available():
@@ -346,6 +580,99 @@ def test_extract_company_candidates_from_evidence_items():
     assert candidates[0]["source"] == "https://news.ycombinator.com/item?id=1"
 
 
+def test_candidate_promotion_sets_market_sector_and_source_lane_for_oss():
+    from radar_run import build_signals_from_evidence, promote_signals_to_candidates
+
+    evidence = {
+        "last30days": {},
+        "github": [
+            {
+                "full_name": "affaan-m/agentshield",
+                "description": "AI agent security scanner for MCP server permissions and tool risk.",
+                "url": "https://github.com/affaan-m/agentshield",
+                "topics": ["ai-agent", "security", "mcp"],
+            }
+        ],
+    }
+
+    signals = build_signals_from_evidence(evidence)["signals"]
+    result = promote_signals_to_candidates(signals)
+    candidate = result["candidates"][0]
+
+    assert candidate.name == "affaan-m/agentshield"
+    assert candidate.source_lane == "OSS"
+    assert candidate.market_sector == "Cybersecurity"
+    assert candidate.sector == "Cybersecurity"
+    assert candidate.evidence_role == "oss_project"
+    assert candidate.sector_confidence == "High"
+
+
+def test_classified_domainless_oss_candidate_is_not_sent_to_attio(monkeypatch):
+    import radar_run
+    from radar_run import build_signals_from_evidence, merge_attio_context, promote_signals_to_candidates
+
+    class FakeAttio:
+        def match_company(self, company):
+            raise AssertionError("classified domainless OSS repo should not be sent to Attio")
+
+    def fake_enrich_companies(companies, attio_client):
+        return [attio_client.match_company(company) for company in companies]
+
+    monkeypatch.setattr(radar_run, "enrich_companies", fake_enrich_companies)
+
+    evidence = {
+        "last30days": {},
+        "github": [
+            {
+                "full_name": "affaan-m/agentshield",
+                "description": "AI agent security scanner for MCP server permissions and tool risk.",
+                "url": "https://github.com/affaan-m/agentshield",
+                "topics": ["ai-agent", "security", "mcp"],
+            }
+        ],
+    }
+    signals = build_signals_from_evidence(evidence)["signals"]
+    candidate = promote_signals_to_candidates(signals)["candidates"][0]
+
+    assert candidate.sector == "Cybersecurity"
+    assert candidate.source_lane == "OSS"
+    assert candidate.domain == ""
+
+    result = merge_attio_context([candidate.to_dict()], FakeAttio())
+    assert result[0]["attio_status"] == "unknown"
+    assert result[0]["action"] == candidate.action
+
+
+def test_social_product_demo_can_create_candidate_with_source_lane():
+    from radar_run import build_signals_from_evidence, promote_signals_to_candidates
+
+    evidence = {
+        "last30days": {
+            "vertical-ai": {
+                "items": [
+                    {
+                        "source": "tiktok",
+                        "title": "DentalDesk AI demo automates front desk intake for dental clinics",
+                        "url": "https://www.tiktok.com/@dentaldesk/video/1",
+                        "company_name": "DentalDesk AI",
+                        "website": "https://dentaldesk.ai",
+                    }
+                ]
+            }
+        },
+        "github": [],
+    }
+
+    signals = build_signals_from_evidence(evidence)["signals"]
+    result = promote_signals_to_candidates(signals)
+    candidate = result["candidates"][0]
+
+    assert candidate.name == "DentalDesk AI"
+    assert candidate.source_lane == "TikTok"
+    assert candidate.evidence_role == "product_demo"
+    assert candidate.market_sector == "Vertical AI"
+
+
 def test_build_signals_from_evidence_preserves_sector_coverage():
     from radar_run import build_signals_from_evidence
 
@@ -428,6 +755,31 @@ def test_candidate_promotion_keeps_full_github_repo_name():
 
     result = promote_signals_to_candidates(signals)
     assert result["candidates"][0].name == "JoasASantos/NeuroSploit"
+
+
+def test_candidate_promotion_adds_oss_action_reason():
+    from radar_run import promote_signals_to_candidates
+    from radar_sources import classify_source_item
+
+    signals = [
+        classify_source_item(
+            sector="oss",
+            item={
+                "source": "github",
+                "title": "affaan-m/agentshield",
+                "url": "https://github.com/affaan-m/agentshield",
+                "description": "AI agent security scanner for MCP servers",
+                "stars": 1200,
+                "velocity": {"stars_last_30d": 187},
+                "license": "Apache-2.0",
+            },
+        )
+    ]
+
+    candidate = promote_signals_to_candidates(signals)["candidates"][0]
+    assert candidate.action == "track company formation"
+    assert candidate.oss_company_formation_score >= 70
+    assert candidate.oss_action_reason
 
 
 def test_extract_company_candidates_rejects_generic_names():
@@ -514,6 +866,37 @@ def test_extract_company_candidates_prefers_structured_company_name_and_domain()
     assert candidates[0]["company_linkedin"] == "https://www.linkedin.com/company/cascade-ai"
     assert candidates[0]["company_x"] == "https://x.com/cascade_ai"
     assert candidates[0]["founder_profiles"][0]["linkedin"] == "https://www.linkedin.com/in/asharao"
+
+
+def test_candidate_from_signal_applies_evidence_backed_source_enrichment():
+    from radar_run import promote_signals_to_candidates
+    from radar_sources import classify_source_item
+
+    signal = classify_source_item(
+        sector="cybersecurity",
+        item={
+            "source": "web",
+            "company_name": "BeeSafe AI",
+            "title": "BeeSafe AI stops AI voice phishing for banks",
+            "url": "https://beesafe.ai",
+            "stage": "Seed",
+            "raised": "$4M",
+            "headcount": "12",
+            "founders": ["Asha Rao"],
+            "evidence": {
+                "stage": "https://beesafe.ai/about",
+                "raised": "https://beesafe.ai/blog/seed",
+                "founders": "https://beesafe.ai/about",
+            },
+        },
+    )
+
+    candidate = promote_signals_to_candidates([signal])["candidates"][0]
+    assert candidate.stage == "Seed"
+    assert candidate.raised == "$4M"
+    assert candidate.headcount == ""
+    assert candidate.founders == ["Asha Rao"]
+    assert "headcount" not in candidate.enrichment_evidence
 
 
 def test_extract_company_candidates_from_yc_url_slug():
@@ -637,7 +1020,8 @@ def test_build_scored_preview_from_evidence_merges_attio():
     candidates = build_scored_preview_from_evidence(evidence, attio_client=FakeAttio(), limit=2)
     assert len(candidates) == 2
     assert all(candidate.get("investment_interest") for candidate in candidates)
-    assert candidates[0]["attio_status"] == "no_owner"
+    assert any(candidate["name"] == "BeeSafe AI" and candidate["attio_status"] == "no_owner" for candidate in candidates)
+    assert any(candidate["name"] == "affaan-m/agentshield" and candidate["attio_status"] == "no_match" for candidate in candidates)
 
 
 def test_build_scored_preview_excludes_low_interest_extractions():
@@ -736,6 +1120,10 @@ def test_run_weekly_artifacts_saves_raw_and_preview(tmp_path, monkeypatch):
             "warnings": [],
         },
     )
+    monkeypatch.setattr(radar_run, "load_candidate_history", lambda: {})
+    saved_history = {}
+    monkeypatch.setattr(radar_run, "save_candidate_history", lambda history: saved_history.update(history))
+    monkeypatch.setattr(radar_run, "apply_candidate_enrichment", lambda candidates: candidates)
 
     result = radar_run.run_weekly_artifacts(
         output_dir=tmp_path,
@@ -750,6 +1138,10 @@ def test_run_weekly_artifacts_saves_raw_and_preview(tmp_path, monkeypatch):
     assert result["preview"].endswith("weekly-preview.md")
     assert result["companies"] == 1
     assert "BeeSafe AI" in (tmp_path / "weekly-preview.md").read_text()
+    saved = json.loads((tmp_path / "candidates.json").read_text())
+    assert saved[0]["stable_key"]
+    assert saved[0]["weekly_tag"] == "NEW"
+    assert saved_history
 
 
 def test_run_weekly_artifacts_saves_signals_candidates_and_sector_coverage(tmp_path, monkeypatch):
@@ -775,6 +1167,9 @@ def test_run_weekly_artifacts_saves_signals_candidates_and_sector_coverage(tmp_p
             "warnings": [],
         },
     )
+    monkeypatch.setattr(radar_run, "load_candidate_history", lambda: {})
+    monkeypatch.setattr(radar_run, "save_candidate_history", lambda history: None)
+    monkeypatch.setattr(radar_run, "apply_candidate_enrichment", lambda candidates: candidates)
 
     result = radar_run.run_weekly_artifacts(output_dir=tmp_path, sectors=("data-infra", "oss"), github_limit=0)
     assert (tmp_path / "signals.json").exists()
@@ -783,6 +1178,219 @@ def test_run_weekly_artifacts_saves_signals_candidates_and_sector_coverage(tmp_p
     preview = (tmp_path / "weekly-preview.md").read_text()
     assert "Sector Coverage" in preview
     assert "data-infra: no qualified candidates" in preview
+
+
+def test_run_weekly_artifacts_writes_theme_and_sector_intelligence(tmp_path, monkeypatch):
+    import radar_run
+
+    monkeypatch.setattr(
+        radar_run,
+        "collect_live_evidence",
+        lambda **kwargs: {
+            "last30days": {
+                "cybersecurity": {
+                    "items": [
+                        {
+                            "source": "reddit",
+                            "title": "How are teams controlling AI agent permissions?",
+                            "url": "https://reddit.com/1",
+                        },
+                        {
+                            "source": "reddit",
+                            "title": "MCP tools are creating security review headaches",
+                            "url": "https://reddit.com/2",
+                        },
+                    ],
+                    "errors": [],
+                }
+            },
+            "github": [],
+            "warnings": [],
+        },
+    )
+    monkeypatch.setattr(radar_run, "load_candidate_history", lambda: {})
+    monkeypatch.setattr(radar_run, "save_candidate_history", lambda history: None)
+    monkeypatch.setattr(radar_run, "apply_candidate_enrichment", lambda candidates: candidates)
+    monkeypatch.setattr(radar_run, "_grounded_search_available", lambda: False)
+    monkeypatch.setattr(radar_run, "run_query", None)
+
+    radar_run.run_weekly_artifacts(output_dir=tmp_path, sectors=("cybersecurity",), github_limit=0)
+
+    assert (tmp_path / "theme-signals.json").exists()
+    assert (tmp_path / "sector-intelligence.json").exists()
+    themes = json.loads((tmp_path / "theme-signals.json").read_text())
+    sectors = json.loads((tmp_path / "sector-intelligence.json").read_text())
+    assert themes[0]["market_sector"] == "Cybersecurity"
+    assert themes[0]["theme"] == "AI agent security"
+    assert sectors[0]["status"] == "Pain signal, no company yet"
+
+
+def test_run_weekly_artifacts_promotes_theme_company_discovery(tmp_path, monkeypatch):
+    import radar_run
+
+    monkeypatch.setattr(
+        radar_run,
+        "collect_live_evidence",
+        lambda **kwargs: {
+            "last30days": {
+                "cybersecurity": {
+                    "items": [
+                        {
+                            "source": "reddit",
+                            "title": "How are teams controlling AI agent permissions?",
+                            "url": "https://reddit.com/1",
+                            "snippet": "Teams need better controls for MCP permissions and autonomous agent security.",
+                        },
+                        {
+                            "source": "hackernews",
+                            "title": "MCP tools are creating security review headaches",
+                            "url": "https://news.ycombinator.com/item?id=1",
+                            "snippet": "MCP tool access creates new security review headaches.",
+                        },
+                    ],
+                    "errors": [],
+                }
+            },
+            "github": [],
+            "warnings": [],
+        },
+    )
+    monkeypatch.setattr(radar_run, "load_candidate_history", lambda: {})
+    monkeypatch.setattr(radar_run, "save_candidate_history", lambda history: None)
+    monkeypatch.setattr(radar_run, "apply_candidate_enrichment", lambda candidates: candidates)
+    monkeypatch.setattr(radar_run, "_grounded_search_available", lambda: True)
+    monkeypatch.setattr(radar_run, "_social_search_available", lambda: False)
+
+    def fake_run_query(topic, **kwargs):
+        if "AI agent security" not in topic:
+            return {"items": []}
+        return {
+            "items": [
+                {
+                    "source": "grounding",
+                    "title": "AgentFence launches AI agent permission firewall",
+                    "url": "https://agentfence.dev",
+                    "snippet": "AgentFence helps teams control MCP tool permissions for AI agents.",
+                    "company_name": "AgentFence",
+                    "domain": "agentfence.dev",
+                    "company_linkedin": "https://www.linkedin.com/company/agentfence",
+                }
+            ],
+            "warnings": [],
+        }
+
+    monkeypatch.setattr(radar_run, "run_query", fake_run_query)
+
+    result = radar_run.run_weekly_artifacts(
+        output_dir=tmp_path,
+        sectors=("cybersecurity",),
+        github_limit=0,
+        candidate_limit=50,
+    )
+
+    assert result["company_discovery"].endswith("company-discovery.json")
+    discovery = json.loads((tmp_path / "company-discovery.json").read_text())
+    assert discovery["items"][0]["company_name"] == "AgentFence"
+
+    candidates = json.loads((tmp_path / "candidates.json").read_text())
+    assert candidates[0]["name"] == "AgentFence"
+    assert candidates[0]["domain"] == "agentfence.dev"
+    assert candidates[0]["source_lane"] == "Grounded web"
+
+    preview = (tmp_path / "weekly-preview.md").read_text()
+    assert "## Company Discovery From Themes" in preview
+    assert "AgentFence" in preview
+
+
+def test_company_discovery_keeps_structured_company_page_with_short_title():
+    from radar_run import build_signals_from_evidence
+
+    evidence = {
+        "last30days": {},
+        "github": [],
+        "company_discovery": {
+            "items": [
+                {
+                    "source": "grounding",
+                    "title": "AgentFence",
+                    "url": "https://agentfence.dev",
+                    "company_name": "AgentFence",
+                    "domain": "agentfence.dev",
+                    "market_sector": "Cybersecurity",
+                    "query_theme": "AI agent security",
+                }
+            ],
+        },
+    }
+
+    result = build_signals_from_evidence(evidence)
+
+    assert len(result["signals"]) == 1
+    assert result["signals"][0].title == "AgentFence"
+    assert result["signals"][0].can_create_candidate is True
+
+
+def test_run_weekly_artifacts_writes_synthesis_only_when_enabled(tmp_path, monkeypatch):
+    import sys
+    import radar_run
+    from radar_models import SynthesisResult
+
+    sys.modules.pop("radar_synthesis", None)
+    evidence = {
+        "last30days": {
+            "cybersecurity": {
+                "items": [
+                    {
+                        "source": "hackernews",
+                        "title": "Show HN: BeeSafe AI stops voice phishing for banks",
+                        "url": "https://news.ycombinator.com/item?id=1",
+                    }
+                ],
+                "errors": [],
+            }
+        },
+        "github": [],
+        "warnings": [],
+    }
+    monkeypatch.setattr(radar_run, "collect_live_evidence", lambda **kwargs: evidence)
+    monkeypatch.setattr(radar_run, "load_candidate_history", lambda: {})
+    monkeypatch.setattr(radar_run, "save_candidate_history", lambda history: None)
+    monkeypatch.setattr(radar_run, "apply_candidate_enrichment", lambda candidates: candidates)
+    monkeypatch.setattr(radar_run, "_grounded_search_available", lambda: False)
+
+    default_result = radar_run.run_weekly_artifacts(
+        output_dir=tmp_path / "default",
+        sectors=("cybersecurity",),
+        github_limit=0,
+    )
+
+    assert "synthesis" not in default_result
+    assert not (tmp_path / "default" / "synthesis.json").exists()
+    assert "radar_synthesis" not in sys.modules
+    assert "LLM Synthesis Notes" not in (tmp_path / "default" / "weekly-preview.md").read_text()
+
+    monkeypatch.setattr(
+        radar_run,
+        "run_synthesis",
+        lambda **kwargs: SynthesisResult(
+            enabled=True,
+            model="fake-synthesis",
+            partner_notes=["Synthesis enabled for test."],
+        ),
+    )
+
+    enabled_result = radar_run.run_weekly_artifacts(
+        output_dir=tmp_path / "enabled",
+        sectors=("cybersecurity",),
+        github_limit=0,
+        with_synthesis=True,
+    )
+
+    synthesis_path = tmp_path / "enabled" / "synthesis.json"
+    assert synthesis_path.exists()
+    assert json.loads(synthesis_path.read_text())["enabled"] is True
+    assert enabled_result["synthesis"] == str(synthesis_path)
+    assert "LLM Synthesis Notes" in (tmp_path / "enabled" / "weekly-preview.md").read_text()
 
 
 def test_weekly_radar_keeps_up_to_50_not_just_top_15(tmp_path, monkeypatch):
@@ -809,10 +1417,56 @@ def test_weekly_radar_keeps_up_to_50_not_just_top_15(tmp_path, monkeypatch):
     monkeypatch.setattr(radar_run, "collect_live_evidence", lambda **kwargs: {"last30days": {}, "github": [], "warnings": []})
     monkeypatch.setattr(radar_run, "build_signals_from_evidence", lambda evidence: {"signals": [], "coverage": {}})
     monkeypatch.setattr(radar_run, "promote_signals_to_candidates", lambda signals: {"candidates": candidates, "rejected": []})
+    monkeypatch.setattr(radar_run, "load_candidate_history", lambda: {})
+    monkeypatch.setattr(radar_run, "save_candidate_history", lambda history: None)
+    monkeypatch.setattr(radar_run, "apply_candidate_enrichment", lambda candidates: candidates)
 
     radar_run.run_weekly_artifacts(output_dir=tmp_path, candidate_limit=50)
     saved = json.loads((tmp_path / "candidates.json").read_text())
     assert len(saved) == 50
+
+
+def test_weekly_radar_passes_partner_review_selection_to_renderer(tmp_path, monkeypatch):
+    import radar_run
+    from radar_models import Candidate
+
+    candidates = [
+        Candidate(
+            name=f"Company {i}",
+            sector="AI Infra",
+            market_sector="AI Infra",
+            source_lane="Grounded web",
+            theme="Agent runtime",
+            source=f"https://example.com/{i}",
+            candidate_type="company_web",
+            tier="Watchlist",
+            investment_interest="Medium",
+            evidence_confidence="Medium",
+            investment_interest_score=50,
+            evidence_confidence_score=50,
+        )
+        for i in range(12)
+    ]
+    selected = candidates[:10]
+    rendered = {}
+
+    monkeypatch.setattr(radar_run, "collect_live_evidence", lambda **kwargs: {"last30days": {}, "github": [], "warnings": []})
+    monkeypatch.setattr(radar_run, "build_signals_from_evidence", lambda evidence: {"signals": [], "coverage": {}})
+    monkeypatch.setattr(radar_run, "promote_signals_to_candidates", lambda signals: {"candidates": candidates, "rejected": []})
+    monkeypatch.setattr(radar_run, "load_candidate_history", lambda: {})
+    monkeypatch.setattr(radar_run, "save_candidate_history", lambda history: None)
+    monkeypatch.setattr(radar_run, "apply_candidate_enrichment", lambda rows: rows)
+    monkeypatch.setattr(radar_run, "select_partner_review", lambda rows: selected)
+
+    def fake_render(candidates, coverage, rejected, **kwargs):
+        rendered.update(kwargs)
+        return "# preview\n"
+
+    monkeypatch.setattr(radar_run, "render_weekly_brief", fake_render)
+
+    radar_run.run_weekly_artifacts(output_dir=tmp_path, candidate_limit=50)
+
+    assert rendered["partner_review"] == selected
 
 
 def test_weekly_radar_does_not_pad_to_50(tmp_path, monkeypatch):
@@ -839,6 +1493,9 @@ def test_weekly_radar_does_not_pad_to_50(tmp_path, monkeypatch):
     monkeypatch.setattr(radar_run, "collect_live_evidence", lambda **kwargs: {"last30days": {}, "github": [], "warnings": []})
     monkeypatch.setattr(radar_run, "build_signals_from_evidence", lambda evidence: {"signals": [], "coverage": {}})
     monkeypatch.setattr(radar_run, "promote_signals_to_candidates", lambda signals: {"candidates": candidates, "rejected": []})
+    monkeypatch.setattr(radar_run, "load_candidate_history", lambda: {})
+    monkeypatch.setattr(radar_run, "save_candidate_history", lambda history: None)
+    monkeypatch.setattr(radar_run, "apply_candidate_enrichment", lambda candidates: candidates)
 
     radar_run.run_weekly_artifacts(output_dir=tmp_path, candidate_limit=50)
     saved = json.loads((tmp_path / "candidates.json").read_text())
@@ -858,3 +1515,20 @@ def test_cli_weekly_runs_collect_and_preview(tmp_path, monkeypatch, capsys):
     radar_run._cli_main()
     result = json.loads(capsys.readouterr().out)
     assert result["preview"] == str(tmp_path / "preview.md")
+
+
+def test_cli_weekly_parses_with_synthesis_flag(tmp_path, monkeypatch):
+    import radar_run
+
+    seen = {}
+
+    def fake_run_weekly_artifacts(**kwargs):
+        seen.update(kwargs)
+        return {"raw_evidence": str(tmp_path / "raw.json"), "preview": str(tmp_path / "preview.md"), "companies": 0}
+
+    monkeypatch.setattr(radar_run, "run_weekly_artifacts", fake_run_weekly_artifacts)
+    monkeypatch.setattr("sys.argv", ["radar_run.py", "weekly", "--output-dir", str(tmp_path), "--with-synthesis"])
+
+    radar_run._cli_main()
+
+    assert seen["with_synthesis"] is True

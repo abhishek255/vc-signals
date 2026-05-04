@@ -168,6 +168,8 @@ def test_match_company_uses_domain_before_name(monkeypatch):
     assert calls[0][2]["query"] == "cursor.com"
     assert result["attio_status"] == "no_owner"
     assert result["attio_match"]["record_text"] == "Cursor"
+    assert result["attio_record_url"].endswith("/rec_1")
+    assert result["attio_staleness_reason"] == "No MMP owner in Attio."
 
 
 def test_match_company_rejects_fuzzy_domain_mismatch(monkeypatch):
@@ -209,6 +211,78 @@ def test_enrich_companies_preserves_original_fields():
     assert result[0]["why_on_radar"] == "fresh signal"
     assert result[0]["attio_status"] == "no_match"
     assert result[0]["attio_action"] == "assign owner"
+
+
+def test_match_company_returns_owner_staleness_and_mapped_enrichment_fields():
+    from attio import AttioClient
+
+    list_calls = []
+
+    def fake_request(method, path, payload=None):
+        if path == "/objects/records/search":
+            return {
+                "data": [
+                    {
+                        "id": {"record_id": "rec_123"},
+                        "record_text": "BeeSafe AI",
+                        "object_slug": "companies",
+                    }
+                ]
+            }
+        if path == "/objects/companies/records/rec_123/entries":
+            return {"data": [{"list_api_slug": "pipeline_2"}]}
+        if path == "/objects/companies/records/rec_123/attributes/domains/values":
+            return {"data": [{"domain": "beesafe.ai", "root_domain": "beesafe.ai"}]}
+        if path == "/objects/companies/records/rec_123/attributes/mmp_owner/values":
+            return {"data": [{"referenced_actor": {"name": "Michael"}}]}
+        if path == "/objects/companies/records/rec_123/attributes/last_interaction/values":
+            return {"data": [{"interacted_at": "2026-01-01T00:00:00Z"}]}
+        if path == "/objects/companies/records/rec_123/attributes/last_round_type/values":
+            return {"data": [{"value": "Seed"}]}
+        if path == "/objects/companies/records/rec_123/attributes/headcount/values":
+            return {"data": [{"value": "12"}]}
+        if path == "/objects/companies/records/rec_123/attributes/total_amount_raised_4/values":
+            return {"data": [{"value": "$4M"}]}
+        if path == "/objects/companies/records/rec_123/attributes/employee_range/values":
+            return {"data": []}
+        if path == "/objects/companies/records/rec_123/attributes/status_8/values":
+            return {"data": []}
+        if path == "/lists":
+            list_calls.append(path)
+            return {
+                "data": [
+                    {
+                        "api_slug": "pipeline_2",
+                        "name": "Tier 1 Investors Deal Activity MASTER",
+                        "parent_object": ["companies"],
+                    }
+                ]
+            }
+        raise AssertionError(path)
+
+    client = AttioClient("token", request_fn=fake_request)
+    result = client.match_company({"name": "BeeSafe AI", "domain": "beesafe.ai"})
+
+    assert result["attio_status"] == "active"
+    assert result["attio_owner"] == "Michael"
+    assert result["attio_last_interaction"] == "2026-01-01T00:00:00Z"
+    assert result["attio_record_url"].endswith("/rec_123")
+    assert result["stage"] == "Seed"
+    assert result["raised"] == "$4M"
+    assert result["headcount"] == "12"
+    assert result["enrichment_evidence"] == {"stage": "attio", "raised": "attio", "headcount": "attio"}
+    assert result["attio_staleness_reason"] in {"", "Last interaction is over 90 days old."}
+
+    client.match_company({"name": "BeeSafe AI", "domain": "beesafe.ai"})
+    assert list_calls == ["/lists"]
+
+
+def test_summarize_attributes_extracts_owner_name():
+    from attio import summarize_attributes
+
+    result = summarize_attributes({"mmp_owner": [{"referenced_actor": {"name": "Chase"}}]})
+    assert result["owner"] == "Chase"
+    assert result["has_owner"] is True
 
 
 def test_cli_enrich_reads_companies_json(monkeypatch, capsys):

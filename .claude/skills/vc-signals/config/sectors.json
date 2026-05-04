@@ -75,6 +75,28 @@
       "most interesting devtools startups funded recently",
       "developer tooling landscape changes"
     ],
+    "company_discovery_queries": {
+      "company_launch_queries": [
+        "Show HN developer tools AI coding agents CI testing startup AI",
+        "Launch HN developer tools AI coding agents CI testing Seed Series A"
+      ],
+      "funding_queries": [
+        "developer tools AI coding agents CI testing startup raises seed AI",
+        "developer tools AI coding agents CI testing startup Series A emerging"
+      ],
+      "yc_queries": [
+        "site:ycombinator.com/companies developer tools AI coding agents CI testing startup",
+        "site:ycombinator.com/companies AI developer tools AI coding agents CI testing"
+      ],
+      "founder_queries": [
+        "developer tools AI coding agents CI testing startup founder technical blog",
+        "developer tools AI coding agents CI testing founder launch AI startup"
+      ],
+      "technical_blog_queries": [
+        "developer tools AI coding agents CI testing startup technical blog",
+        "developer tools AI coding agents CI testing product launch engineering blog"
+      ]
+    },
     "negative_terms": ["tutorial", "beginner guide", "how to learn", "free course", "coding bootcamp"]
   },
   "cybersecurity": {
@@ -153,6 +175,28 @@
       "security startup landscape changes",
       "cybersecurity categories emerging investment"
     ],
+    "company_discovery_queries": {
+      "company_launch_queries": [
+        "Show HN AI security MCP agent permissions SOC AppSec startup AI",
+        "Launch HN AI security MCP agent permissions SOC AppSec Seed Series A"
+      ],
+      "funding_queries": [
+        "AI security MCP agent permissions SOC AppSec startup raises seed AI",
+        "AI security MCP agent permissions SOC AppSec startup Series A emerging"
+      ],
+      "yc_queries": [
+        "site:ycombinator.com/companies AI security MCP agent permissions SOC AppSec startup",
+        "site:ycombinator.com/companies cybersecurity AI agents MCP SOC AppSec"
+      ],
+      "founder_queries": [
+        "AI security MCP agent permissions SOC AppSec startup founder technical blog",
+        "AI security MCP agent permissions SOC AppSec founder launch AI startup"
+      ],
+      "technical_blog_queries": [
+        "AI security MCP agent permissions SOC AppSec startup technical blog",
+        "AI security MCP agent permissions SOC AppSec product launch engineering blog"
+      ]
+    },
     "negative_terms": ["antivirus review", "VPN review", "consumer security", "password manager review", "best free antivirus"]
   },
   "ai-infra": {
@@ -231,6 +275,28 @@
       "AI infrastructure landscape changes",
       "most interesting AI infra companies"
     ],
+    "company_discovery_queries": {
+      "company_launch_queries": [
+        "Show HN AI infrastructure agent runtime evals observability inference startup AI",
+        "Launch HN AI infrastructure agent runtime evals observability inference Seed Series A"
+      ],
+      "funding_queries": [
+        "AI infrastructure agent runtime evals observability inference startup raises seed AI",
+        "AI infrastructure agent runtime evals observability inference startup Series A emerging"
+      ],
+      "yc_queries": [
+        "site:ycombinator.com/companies AI infrastructure agent runtime evals observability inference startup",
+        "site:ycombinator.com/companies agent runtime evals observability inference AI infrastructure"
+      ],
+      "founder_queries": [
+        "AI infrastructure agent runtime evals observability inference startup founder technical blog",
+        "AI infrastructure agent runtime evals observability inference founder launch AI startup"
+      ],
+      "technical_blog_queries": [
+        "AI infrastructure agent runtime evals observability inference startup technical blog",
+        "AI infrastructure agent runtime evals observability inference product launch engineering blog"
+      ]
+    },
     "negative_terms": ["AI art generator", "ChatGPT tips", "AI writing tool review", "best AI chatbot", "AI image generator"]
   },
   "vertical-ai": {
@@ -289,6 +355,28 @@
       "AI replacing back office workflows startups",
       "industry-specific AI startups seed series A"
     ],
+    "company_discovery_queries": {
+      "company_launch_queries": [
+        "Show HN vertical AI workflow automation SMB operator startup AI",
+        "Launch HN vertical AI workflow automation SMB operator Seed Series A"
+      ],
+      "funding_queries": [
+        "vertical AI workflow automation SMB operator startup raises seed AI",
+        "vertical AI workflow automation SMB operator startup Series A emerging"
+      ],
+      "yc_queries": [
+        "site:ycombinator.com/companies vertical AI workflow automation SMB operator startup",
+        "site:ycombinator.com/companies AI vertical AI workflow automation SMB operator"
+      ],
+      "founder_queries": [
+        "vertical AI workflow automation SMB operator startup founder technical blog",
+        "vertical AI workflow automation SMB operator founder launch AI startup"
+      ],
+      "technical_blog_queries": [
+        "vertical AI workflow automation SMB operator startup technical blog",
+        "vertical AI workflow automation SMB operator product launch engineering blog"
+      ]
+    },
     "negative_terms": ["generic chatbot", "AI content generator", "prompt pack", "course", "agency directory"]
   },
   "data-infra": {
@@ -347,6 +435,28 @@
       "data infra funding seed series A",
       "developer data tools emerging"
     ],
+    "company_discovery_queries": {
+      "company_launch_queries": [
+        "Show HN data infrastructure AI data pipelines lineage observability startup AI",
+        "Launch HN data infrastructure AI data pipelines lineage observability Seed Series A"
+      ],
+      "funding_queries": [
+        "data infrastructure AI data pipelines lineage observability startup raises seed AI",
+        "data infrastructure AI data pipelines lineage observability startup Series A emerging"
+      ],
+      "yc_queries": [
+        "site:ycombinator.com/companies data infrastructure AI data pipelines lineage observability startup",
+        "site:ycombinator.com/companies AI data infrastructure AI data pipelines lineage observability"
+      ],
+      "founder_queries": [
+        "data infrastructure AI data pipelines lineage observability startup founder technical blog",
+        "data infrastructure AI data pipelines lineage observability founder launch AI startup"
+      ],
+      "technical_blog_queries": [
+        "data infrastructure AI data pipelines lineage observability startup technical blog",
+        "data infrastructure AI data pipelines lineage observability product launch engineering blog"
+      ]
+    },
     "negative_terms": ["SQL tutorial", "data science course", "Excel template", "bootcamp", "Kaggle notebook"]
   },
   "oss": {

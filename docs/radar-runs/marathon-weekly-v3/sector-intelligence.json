@@ -1,0 +1,66 @@
+[
+  {
+    "market_sector": "Devtools",
+    "status": "OSS/project candidates found",
+    "raw_signals": 3,
+    "candidate_eligible_signals": 25,
+    "promoted_candidates": 25,
+    "rejected_signals": 3,
+    "best_evidence": "25 promoted rows from OSS.",
+    "why_no_more_companies": "Promoted rows are OSS/project evidence; no verified company pages or funding/company discovery rows qualified. Grounded company discovery is not configured, so non-OSS company discovery is limited.",
+    "next_hunt": "Devtools startups Seed Series A founder launch",
+    "source_errors": [
+      "last30days query timed out (120s)"
+    ]
+  },
+  {
+    "market_sector": "Cybersecurity",
+    "status": "OSS/project candidates found",
+    "raw_signals": 3,
+    "candidate_eligible_signals": 13,
+    "promoted_candidates": 13,
+    "rejected_signals": 3,
+    "best_evidence": "13 promoted rows from OSS.",
+    "why_no_more_companies": "Promoted rows are OSS/project evidence; no verified company pages or funding/company discovery rows qualified. Grounded company discovery is not configured, so non-OSS company discovery is limited.",
+    "next_hunt": "Cybersecurity startups Seed Series A founder launch",
+    "source_errors": []
+  },
+  {
+    "market_sector": "AI Infra",
+    "status": "OSS/project candidates found",
+    "raw_signals": 17,
+    "candidate_eligible_signals": 6,
+    "promoted_candidates": 6,
+    "rejected_signals": 17,
+    "best_evidence": "6 promoted rows from OSS.",
+    "why_no_more_companies": "Promoted rows are OSS/project evidence; no verified company pages or funding/company discovery rows qualified. Grounded company discovery is not configured, so non-OSS company discovery is limited.",
+    "next_hunt": "AI Infra startups Seed Series A founder launch",
+    "source_errors": []
+  },
+  {
+    "market_sector": "Vertical AI",
+    "status": "Source failure / incomplete coverage",
+    "raw_signals": 0,
+    "candidate_eligible_signals": 0,
+    "promoted_candidates": 0,
+    "rejected_signals": 0,
+    "best_evidence": "Source collection returned errors before enough evidence could be promoted.",
+    "why_no_more_companies": "No verified company/domain/founder evidence appeared in this run. Grounded company discovery is not configured, so non-OSS company discovery is limited.",
+    "next_hunt": "Vertical AI startups Seed Series A founder launch",
+    "source_errors": [
+      "last30days exited with code 1"
+    ]
+  },
+  {
+    "market_sector": "Data Infra",
+    "status": "No meaningful signal this week",
+    "raw_signals": 13,
+    "candidate_eligible_signals": 0,
+    "promoted_candidates": 0,
+    "rejected_signals": 13,
+    "best_evidence": "No promoted candidate evidence.",
+    "why_no_more_companies": "No verified company/domain/founder evidence appeared in this run. Grounded company discovery is not configured, so non-OSS company discovery is limited.",
+    "next_hunt": "Data Infra startups Seed Series A founder launch",
+    "source_errors": []
+  }
+]

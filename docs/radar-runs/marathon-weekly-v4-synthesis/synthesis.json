@@ -1,0 +1,63 @@
+{
+  "enabled": true,
+  "model": "fake-synthesis",
+  "generated_at": "",
+  "source_digest": {
+    "candidate_count": 50,
+    "source_lanes": {
+      "OSS": 50
+    },
+    "market_sectors": {
+      "Cybersecurity": 30,
+      "Devtools": 12,
+      "AI Infra": 6,
+      "Unclassified": 2
+    }
+  },
+  "sector_diagnoses": [
+    {
+      "market_sector": "Vertical AI",
+      "diagnosis": "Source failure / incomplete coverage",
+      "evidence_urls": [],
+      "recommended_next_queries": [
+        "vertical AI workflow automation startup launch"
+      ],
+      "confidence": "High"
+    }
+  ],
+  "theme_hypotheses": [
+    {
+      "market_sector": "Cybersecurity",
+      "theme": "AI agent permission security",
+      "evidence_summary": "OSS projects point to MCP/tool permission risk.",
+      "evidence_urls": [
+        "https://github.com/affaan-m/agentshield"
+      ],
+      "why_it_matters": "Agent adoption creates new runtime permission surfaces.",
+      "why_this_may_be_noise": "Evidence is mostly OSS.",
+      "confidence": "Medium"
+    }
+  ],
+  "possible_company_leads": [
+    {
+      "name": "AgentShield",
+      "market_sector": "Cybersecurity",
+      "source_lane": "OSS",
+      "domain": "",
+      "evidence_urls": [
+        "https://github.com/affaan-m/agentshield"
+      ],
+      "why_on_radar": "Fast OSS momentum around AI agent security.",
+      "verification_needed": [
+        "Confirm company formation"
+      ],
+      "suggested_action": "track company formation",
+      "confidence": "Medium"
+    }
+  ],
+  "partner_notes": [
+    "This synthesis run reviewed 50 candidate rows across 4 market sectors.",
+    "This run is OSS-heavy; treat possible company leads as verification prompts."
+  ],
+  "warnings": []
+}

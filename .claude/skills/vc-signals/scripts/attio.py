@@ -13,6 +13,7 @@ import urllib.error
 import urllib.request
 from pathlib import Path
 from typing import Callable
+from datetime import datetime, timezone
 
 DEFAULT_BASE_URL = "https://api.attio.com/v2"
 TOKEN_ENV = "ATTIO_ACCESS_TOKEN"
@@ -184,6 +185,7 @@ class AttioClient:
         self.token = token
         self.base_url = base_url.rstrip("/")
         self._request_fn = request_fn
+        self._company_list_lookup: dict[str, str] | None = None
 
     def request(self, method: str, path: str, payload: dict | None = None) -> dict:
         if self._request_fn:
@@ -205,6 +207,11 @@ class AttioClient:
 
     def list_company_lists(self) -> list[dict]:
         return parse_lists(self.request("GET", "/lists"))
+
+    def company_list_lookup(self) -> dict[str, str]:
+        if self._company_list_lookup is None:
+            self._company_list_lookup = {item["api_slug"]: item["name"] for item in self.list_company_lists()}
+        return self._company_list_lookup
 
     def search_companies(self, query: str, *, limit: int = 5) -> list[dict]:
         payload = {
@@ -258,19 +265,70 @@ class AttioClient:
             attributes.update(self.company_attributes(record_id))
 
         entries = self.list_record_entries(record_id) if record_id else []
-        list_lookup = {item["api_slug"]: item["name"] for item in self.list_company_lists()}
+        list_lookup = self.company_list_lookup()
         for entry in entries:
             slug = entry.get("list_api_slug")
             entry["list_name"] = list_lookup.get(slug, slug)
 
         classification = classify_match(entries, attributes=attributes)
+        summarized = summarize_attributes(attributes)
         classification["attio_match"] = {
             "record_text": match.get("record_text"),
             "object_slug": match.get("object_slug"),
             "record_id": record_id,
         }
-        classification["attio_attributes"] = summarize_attributes(attributes)
+        classification["attio_record_url"] = f"https://app.attio.com/marathon/companies/record/{record_id}" if record_id else ""
+        classification["attio_owner"] = summarized.get("owner", "")
+        classification["attio_last_interaction"] = summarized.get("last_interaction", "")
+        classification["attio_staleness_reason"] = staleness_reason(classification, summarized)
+        if summarized.get("last_round_type"):
+            classification["stage"] = summarized["last_round_type"]
+        if summarized.get("total_amount_raised"):
+            classification["raised"] = summarized["total_amount_raised"]
+        if summarized.get("headcount") or summarized.get("employee_range"):
+            classification["headcount"] = summarized.get("headcount") or summarized.get("employee_range")
+        evidence = {}
+        for field in ("stage", "raised", "headcount"):
+            if classification.get(field):
+                evidence[field] = "attio"
+        if evidence:
+            classification["enrichment_evidence"] = evidence
+        classification["attio_attributes"] = summarized
         return classification
+
+
+def _owner_name(values: list[dict]) -> str:
+    for value in values or []:
+        for key in ("name", "value"):
+            if value.get(key):
+                return str(value[key])
+        for key in ("referenced_actor", "person", "user", "workspace_member"):
+            nested = value.get(key) or {}
+            if nested.get("name"):
+                return nested["name"]
+            if nested.get("email_address"):
+                return nested["email_address"]
+            if nested.get("email"):
+                return nested["email"]
+    return ""
+
+
+def staleness_reason(classification: dict, attributes: dict, *, now: datetime | None = None) -> str:
+    if classification.get("attio_status") == "no_owner":
+        return "No MMP owner in Attio."
+    if classification.get("attio_status") == "stale":
+        return "Matched an old pipeline list."
+    last = attributes.get("last_interaction")
+    if not last:
+        return "No recent interaction found."
+    try:
+        last_dt = datetime.fromisoformat(last.replace("Z", "+00:00"))
+    except ValueError:
+        return ""
+    today = now or datetime.now(timezone.utc)
+    if (today - last_dt).days > 90:
+        return "Last interaction is over 90 days old."
+    return ""
 
 
 def summarize_attributes(attributes: dict) -> dict:
@@ -279,8 +337,10 @@ def summarize_attributes(attributes: dict) -> dict:
     status = _status_title(attributes)
     if status:
         out["status"] = status
-    if attributes.get("mmp_owner"):
+    owner = _owner_name(attributes.get("mmp_owner") or [])
+    if owner:
         out["has_owner"] = True
+        out["owner"] = owner
     if attributes.get("last_interaction"):
         out["last_interaction"] = attributes["last_interaction"][0].get("interacted_at")
     if attributes.get("last_round_type"):
@@ -301,7 +361,14 @@ def enrich_companies(companies: list[dict], client: AttioClient) -> list[dict]:
     for company in companies:
         out = company.copy()
         try:
-            out.update(client.match_company(company))
+            existing_evidence = out.get("enrichment_evidence") or {}
+            match = client.match_company(company)
+            out.update(match)
+            if existing_evidence or match.get("enrichment_evidence"):
+                out["enrichment_evidence"] = {
+                    **existing_evidence,
+                    **(match.get("enrichment_evidence") or {}),
+                }
         except AttioError as exc:
             out.update({"attio_status": "unknown", "attio_action": "attio error", "attio_error": str(exc)})
         enriched.append(out)

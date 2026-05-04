@@ -29,6 +29,22 @@ def test_each_sector_has_required_discovery_fields():
         assert "negative_terms" in sector, slug
 
 
+def test_priority_sectors_have_company_discovery_queries():
+    sectors = _load_sectors()
+    required_blocks = [
+        "company_launch_queries",
+        "funding_queries",
+        "yc_queries",
+        "founder_queries",
+        "technical_blog_queries",
+    ]
+
+    for sector_slug in ["devtools", "cybersecurity", "ai-infra", "vertical-ai", "data-infra"]:
+        block = sectors[sector_slug].get("company_discovery_queries", {})
+        for key in required_blocks:
+            assert block.get(key), f"{sector_slug}.{key}"
+
+
 def test_oss_sector_has_oss_specific_signal_rules():
     sectors = _load_sectors()
 

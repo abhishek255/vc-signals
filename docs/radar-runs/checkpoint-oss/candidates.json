@@ -1,0 +1,914 @@
+[
+  {
+    "name": "affaan-m/agentshield",
+    "sector": "OSS",
+    "theme": "AI agent security",
+    "source": "https://github.com/affaan-m/agentshield",
+    "candidate_type": "oss_project",
+    "stable_key": "repo:github.com/affaan-m/agentshield",
+    "weekly_tag": "",
+    "domain": "",
+    "why_on_radar": "AI agent security scanner. Detect vulnerabilities in agent configurations, MCP servers, and tool permissions. Available as CLI, GitHub Action, ECC plugin, and GitHub App integration. \ud83d\udee1\ufe0f +187 stars in 30d.",
+    "why_this_may_be_noise": "Needs verification across stronger company/founder/customer evidence.",
+    "sources": [
+      "https://github.com/affaan-m/agentshield"
+    ],
+    "source_count": 1,
+    "company_linkedin": "",
+    "company_x": "",
+    "founder_profiles": [
+      {
+        "name": "affaan-m",
+        "github": "https://github.com/affaan-m"
+      }
+    ],
+    "attio_status": "no_match",
+    "attio_action": "assign owner",
+    "attio_lists": [],
+    "action": "track company formation",
+    "investment_interest_score": 70,
+    "evidence_confidence_score": 45,
+    "investment_interest": "High",
+    "evidence_confidence": "Medium",
+    "tier": "Partner Review",
+    "engagement": {},
+    "stage": "",
+    "raised": "",
+    "headcount": "",
+    "founders": [],
+    "founding_year": "",
+    "lead_investor": "",
+    "enrichment_evidence": {},
+    "attio_record_url": "",
+    "attio_owner": "",
+    "attio_last_interaction": "",
+    "attio_staleness_reason": "",
+    "oss_company_formation_score": 70,
+    "oss_action_reason": "+187 stars in 30d; 587 total stars; strategic keywords: agent, mcp, security; maintainer identifiable",
+    "license": "",
+    "repo_age_days": 82,
+    "stars": 587,
+    "stars_30d": 187,
+    "maintainer_profiles": [
+      {
+        "name": "affaan-m",
+        "github": "https://github.com/affaan-m"
+      }
+    ]
+  },
+  {
+    "name": "boostsecurityio/smokedmeat",
+    "sector": "OSS",
+    "theme": "AI agent security",
+    "source": "https://github.com/boostsecurityio/smokedmeat",
+    "candidate_type": "oss_project",
+    "stable_key": "repo:github.com/boostsecurityio/smokedmeat",
+    "weekly_tag": "NEW",
+    "domain": "",
+    "why_on_radar": "A CI/CD Red Team Framework for demonstrating Build Pipeline security risks. +156 stars in 30d.",
+    "why_this_may_be_noise": "Needs verification across stronger company/founder/customer evidence.",
+    "sources": [
+      "https://github.com/boostsecurityio/smokedmeat"
+    ],
+    "source_count": 1,
+    "company_linkedin": "",
+    "company_x": "",
+    "founder_profiles": [
+      {
+        "name": "boostsecurityio",
+        "github": "https://github.com/boostsecurityio"
+      }
+    ],
+    "attio_status": "no_match",
+    "attio_action": "assign owner",
+    "attio_lists": [],
+    "action": "contact maintainer",
+    "investment_interest_score": 65,
+    "evidence_confidence_score": 45,
+    "investment_interest": "Medium",
+    "evidence_confidence": "Medium",
+    "tier": "Watchlist",
+    "engagement": {},
+    "stage": "",
+    "raised": "",
+    "headcount": "",
+    "founders": [],
+    "founding_year": "",
+    "lead_investor": "",
+    "enrichment_evidence": {},
+    "attio_record_url": "",
+    "attio_owner": "",
+    "attio_last_interaction": "",
+    "attio_staleness_reason": "",
+    "oss_company_formation_score": 60,
+    "oss_action_reason": "+156 stars in 30d; 256 total stars; strategic keywords: security; maintainer identifiable",
+    "license": "",
+    "repo_age_days": 37,
+    "stars": 256,
+    "stars_30d": 156,
+    "maintainer_profiles": [
+      {
+        "name": "boostsecurityio",
+        "github": "https://github.com/boostsecurityio"
+      }
+    ]
+  },
+  {
+    "name": "redwoodjs/agent-ci",
+    "sector": "OSS",
+    "theme": "Emerging technical signal",
+    "source": "https://github.com/redwoodjs/agent-ci",
+    "candidate_type": "oss_project",
+    "stable_key": "repo:github.com/redwoodjs/agent-ci",
+    "weekly_tag": "",
+    "domain": "",
+    "why_on_radar": "Agent-CI is local GitHub Actions for your agents. +124 stars in 30d.",
+    "why_this_may_be_noise": "Needs verification across stronger company/founder/customer evidence.",
+    "sources": [
+      "https://github.com/redwoodjs/agent-ci"
+    ],
+    "source_count": 1,
+    "company_linkedin": "",
+    "company_x": "",
+    "founder_profiles": [
+      {
+        "name": "redwoodjs",
+        "github": "https://github.com/redwoodjs"
+      }
+    ],
+    "attio_status": "no_match",
+    "attio_action": "assign owner",
+    "attio_lists": [],
+    "action": "watch",
+    "investment_interest_score": 55,
+    "evidence_confidence_score": 40,
+    "investment_interest": "Medium",
+    "evidence_confidence": "Low",
+    "tier": "Watchlist",
+    "engagement": {},
+    "stage": "",
+    "raised": "",
+    "headcount": "",
+    "founders": [],
+    "founding_year": "",
+    "lead_investor": "",
+    "enrichment_evidence": {},
+    "attio_record_url": "",
+    "attio_owner": "",
+    "attio_last_interaction": "",
+    "attio_staleness_reason": "",
+    "oss_company_formation_score": 50,
+    "oss_action_reason": "+124 stars in 30d; 624 total stars; strategic keywords: agent; maintainer identifiable",
+    "license": "",
+    "repo_age_days": 83,
+    "stars": 624,
+    "stars_30d": 124,
+    "maintainer_profiles": [
+      {
+        "name": "redwoodjs",
+        "github": "https://github.com/redwoodjs"
+      }
+    ]
+  },
+  {
+    "name": "spaceraccoon/vulnerability-spoiler-alert-action",
+    "sector": "OSS",
+    "theme": "AI agent security",
+    "source": "https://github.com/spaceraccoon/vulnerability-spoiler-alert-action",
+    "candidate_type": "oss_project",
+    "stable_key": "repo:github.com/spaceraccoon/vulnerability-spoiler-alert-action",
+    "weekly_tag": "NEW",
+    "domain": "",
+    "why_on_radar": "GitHub Action to alert on security patches before the CVE drops. +10 stars in 30d.",
+    "why_this_may_be_noise": "Needs verification across stronger company/founder/customer evidence.",
+    "sources": [
+      "https://github.com/spaceraccoon/vulnerability-spoiler-alert-action"
+    ],
+    "source_count": 1,
+    "company_linkedin": "",
+    "company_x": "",
+    "founder_profiles": [
+      {
+        "name": "spaceraccoon",
+        "github": "https://github.com/spaceraccoon"
+      }
+    ],
+    "attio_status": "no_match",
+    "attio_action": "assign owner",
+    "attio_lists": [],
+    "action": "map ecosystem",
+    "investment_interest_score": 50,
+    "evidence_confidence_score": 35,
+    "investment_interest": "Medium",
+    "evidence_confidence": "Low",
+    "tier": "Watchlist",
+    "engagement": {},
+    "stage": "",
+    "raised": "",
+    "headcount": "",
+    "founders": [],
+    "founding_year": "",
+    "lead_investor": "",
+    "enrichment_evidence": {},
+    "attio_record_url": "",
+    "attio_owner": "",
+    "attio_last_interaction": "",
+    "attio_staleness_reason": "",
+    "oss_company_formation_score": 28,
+    "oss_action_reason": "+10 stars in 30d; strategic keywords: security; maintainer identifiable",
+    "license": "",
+    "repo_age_days": 86,
+    "stars": 199,
+    "stars_30d": 10,
+    "maintainer_profiles": [
+      {
+        "name": "spaceraccoon",
+        "github": "https://github.com/spaceraccoon"
+      }
+    ]
+  },
+  {
+    "name": "SKYLENAGE-AI/SWE-CI",
+    "sector": "OSS",
+    "theme": "Agent reliability and evals",
+    "source": "https://github.com/SKYLENAGE-AI/SWE-CI",
+    "candidate_type": "oss_project",
+    "stable_key": "repo:github.com/skylenage-ai/swe-ci",
+    "weekly_tag": "",
+    "domain": "",
+    "why_on_radar": "SWE-CI: Evaluating Agent Capabilities in Maintaining Codebases via Continuous Integration +24 stars in 30d.",
+    "why_this_may_be_noise": "Needs verification across stronger company/founder/customer evidence.",
+    "sources": [
+      "https://github.com/SKYLENAGE-AI/SWE-CI"
+    ],
+    "source_count": 1,
+    "company_linkedin": "",
+    "company_x": "",
+    "founder_profiles": [
+      {
+        "name": "SKYLENAGE-AI",
+        "github": "https://github.com/SKYLENAGE-AI"
+      }
+    ],
+    "attio_status": "no_match",
+    "attio_action": "assign owner",
+    "attio_lists": [],
+    "action": "map ecosystem",
+    "investment_interest_score": 45,
+    "evidence_confidence_score": 35,
+    "investment_interest": "Medium",
+    "evidence_confidence": "Low",
+    "tier": "Watchlist",
+    "engagement": {},
+    "stage": "",
+    "raised": "",
+    "headcount": "",
+    "founders": [],
+    "founding_year": "",
+    "lead_investor": "",
+    "enrichment_evidence": {},
+    "attio_record_url": "",
+    "attio_owner": "",
+    "attio_last_interaction": "",
+    "attio_staleness_reason": "",
+    "oss_company_formation_score": 33,
+    "oss_action_reason": "+24 stars in 30d; strategic keywords: agent, eval; maintainer identifiable",
+    "license": "",
+    "repo_age_days": 84,
+    "stars": 164,
+    "stars_30d": 24,
+    "maintainer_profiles": [
+      {
+        "name": "SKYLENAGE-AI",
+        "github": "https://github.com/SKYLENAGE-AI"
+      }
+    ]
+  },
+  {
+    "name": "cisco-open/forge",
+    "sector": "OSS",
+    "theme": "Emerging technical signal",
+    "source": "https://github.com/cisco-open/forge",
+    "candidate_type": "oss_project",
+    "stable_key": "repo:github.com/cisco-open/forge",
+    "weekly_tag": "NEW",
+    "domain": "",
+    "why_on_radar": "ForgeMT is a secure, scalable GitHub Actions runner platform for ephemeral workloads. Designed for multi-tenant environments, it automates isolated runner provisioning on Kubernetes or EC2, with built-in OIDC, IAM, cost optimization, and deep observability. +2 stars in 30d.",
+    "why_this_may_be_noise": "Needs verification across stronger company/founder/customer evidence.",
+    "sources": [
+      "https://github.com/cisco-open/forge"
+    ],
+    "source_count": 1,
+    "company_linkedin": "",
+    "company_x": "",
+    "founder_profiles": [
+      {
+        "name": "cisco-open",
+        "github": "https://github.com/cisco-open"
+      }
+    ],
+    "attio_status": "no_match",
+    "attio_action": "assign owner",
+    "attio_lists": [],
+    "action": "map ecosystem",
+    "investment_interest_score": 45,
+    "evidence_confidence_score": 35,
+    "investment_interest": "Medium",
+    "evidence_confidence": "Low",
+    "tier": "Watchlist",
+    "engagement": {},
+    "stage": "",
+    "raised": "",
+    "headcount": "",
+    "founders": [],
+    "founding_year": "",
+    "lead_investor": "",
+    "enrichment_evidence": {},
+    "attio_record_url": "",
+    "attio_owner": "",
+    "attio_last_interaction": "",
+    "attio_staleness_reason": "",
+    "oss_company_formation_score": 28,
+    "oss_action_reason": "+2 stars in 30d; strategic keywords: infrastructure; maintainer identifiable",
+    "license": "",
+    "repo_age_days": 357,
+    "stars": 202,
+    "stars_30d": 2,
+    "maintainer_profiles": [
+      {
+        "name": "cisco-open",
+        "github": "https://github.com/cisco-open"
+      }
+    ]
+  },
+  {
+    "name": "inview-club/devops-cases",
+    "sector": "OSS",
+    "theme": "Emerging technical signal",
+    "source": "https://github.com/inview-club/devops-cases",
+    "candidate_type": "oss_project",
+    "stable_key": "repo:github.com/inview-club/devops-cases",
+    "weekly_tag": "",
+    "domain": "",
+    "why_on_radar": "Practical DevOps cases for learning automation, infrastructure management, and continuous delivery +0 stars in 30d.",
+    "why_this_may_be_noise": "Needs verification across stronger company/founder/customer evidence.",
+    "sources": [
+      "https://github.com/inview-club/devops-cases"
+    ],
+    "source_count": 1,
+    "company_linkedin": "",
+    "company_x": "",
+    "founder_profiles": [
+      {
+        "name": "inview-club",
+        "github": "https://github.com/inview-club"
+      }
+    ],
+    "attio_status": "no_match",
+    "attio_action": "assign owner",
+    "attio_lists": [],
+    "action": "map ecosystem",
+    "investment_interest_score": 45,
+    "evidence_confidence_score": 35,
+    "investment_interest": "Medium",
+    "evidence_confidence": "Low",
+    "tier": "Watchlist",
+    "engagement": {},
+    "stage": "",
+    "raised": "",
+    "headcount": "",
+    "founders": [],
+    "founding_year": "",
+    "lead_investor": "",
+    "enrichment_evidence": {},
+    "attio_record_url": "",
+    "attio_owner": "",
+    "attio_last_interaction": "",
+    "attio_staleness_reason": "",
+    "oss_company_formation_score": 20,
+    "oss_action_reason": "strategic keywords: infrastructure; maintainer identifiable",
+    "license": "",
+    "repo_age_days": 271,
+    "stars": 64,
+    "stars_30d": 0,
+    "maintainer_profiles": [
+      {
+        "name": "inview-club",
+        "github": "https://github.com/inview-club"
+      }
+    ]
+  },
+  {
+    "name": "peakoss/anti-slop",
+    "sector": "OSS",
+    "theme": "Emerging technical signal",
+    "source": "https://github.com/peakoss/anti-slop",
+    "candidate_type": "oss_project",
+    "stable_key": "repo:github.com/peakoss/anti-slop",
+    "weekly_tag": "",
+    "domain": "",
+    "why_on_radar": "A GitHub action that detects and automatically closes low-quality and AI slop PRs. +34 stars in 30d.",
+    "why_this_may_be_noise": "Needs verification across stronger company/founder/customer evidence.",
+    "sources": [
+      "https://github.com/peakoss/anti-slop"
+    ],
+    "source_count": 1,
+    "company_linkedin": "",
+    "company_x": "",
+    "founder_profiles": [
+      {
+        "name": "peakoss",
+        "github": "https://github.com/peakoss"
+      }
+    ],
+    "attio_status": "no_match",
+    "attio_action": "assign owner",
+    "attio_lists": [],
+    "action": "map ecosystem",
+    "investment_interest_score": 40,
+    "evidence_confidence_score": 35,
+    "investment_interest": "Low",
+    "evidence_confidence": "Low",
+    "tier": "Needs More Evidence",
+    "engagement": {},
+    "stage": "",
+    "raised": "",
+    "headcount": "",
+    "founders": [],
+    "founding_year": "",
+    "lead_investor": "",
+    "enrichment_evidence": {},
+    "attio_record_url": "",
+    "attio_owner": "",
+    "attio_last_interaction": "",
+    "attio_staleness_reason": "",
+    "oss_company_formation_score": 33,
+    "oss_action_reason": "+34 stars in 30d; 625 total stars; maintainer identifiable",
+    "license": "",
+    "repo_age_days": 84,
+    "stars": 625,
+    "stars_30d": 34,
+    "maintainer_profiles": [
+      {
+        "name": "peakoss",
+        "github": "https://github.com/peakoss"
+      }
+    ]
+  },
+  {
+    "name": "mizchi/actrun",
+    "sector": "OSS",
+    "theme": "Emerging technical signal",
+    "source": "https://github.com/mizchi/actrun",
+    "candidate_type": "oss_project",
+    "stable_key": "repo:github.com/mizchi/actrun",
+    "weekly_tag": "",
+    "domain": "",
+    "why_on_radar": "GitHub Actions compatible local runner +26 stars in 30d.",
+    "why_this_may_be_noise": "Needs verification across stronger company/founder/customer evidence.",
+    "sources": [
+      "https://github.com/mizchi/actrun"
+    ],
+    "source_count": 1,
+    "company_linkedin": "",
+    "company_x": "",
+    "founder_profiles": [
+      {
+        "name": "mizchi",
+        "github": "https://github.com/mizchi"
+      }
+    ],
+    "attio_status": "no_match",
+    "attio_action": "assign owner",
+    "attio_lists": [],
+    "action": "map ecosystem",
+    "investment_interest_score": 40,
+    "evidence_confidence_score": 35,
+    "investment_interest": "Low",
+    "evidence_confidence": "Low",
+    "tier": "Needs More Evidence",
+    "engagement": {},
+    "stage": "",
+    "raised": "",
+    "headcount": "",
+    "founders": [],
+    "founding_year": "",
+    "lead_investor": "",
+    "enrichment_evidence": {},
+    "attio_record_url": "",
+    "attio_owner": "",
+    "attio_last_interaction": "",
+    "attio_staleness_reason": "",
+    "oss_company_formation_score": 33,
+    "oss_action_reason": "+26 stars in 30d; 633 total stars; maintainer identifiable",
+    "license": "",
+    "repo_age_days": 53,
+    "stars": 633,
+    "stars_30d": 26,
+    "maintainer_profiles": [
+      {
+        "name": "mizchi",
+        "github": "https://github.com/mizchi"
+      }
+    ]
+  },
+  {
+    "name": "azat-io/actions-up",
+    "sector": "OSS",
+    "theme": "Emerging technical signal",
+    "source": "https://github.com/azat-io/actions-up",
+    "candidate_type": "oss_project",
+    "stable_key": "repo:github.com/azat-io/actions-up",
+    "weekly_tag": "",
+    "domain": "",
+    "why_on_radar": "\ud83c\udf0a Interactive CLI tool to update GitHub Actions to latest versions with SHA pinning +21 stars in 30d.",
+    "why_this_may_be_noise": "Needs verification across stronger company/founder/customer evidence.",
+    "sources": [
+      "https://github.com/azat-io/actions-up"
+    ],
+    "source_count": 1,
+    "company_linkedin": "",
+    "company_x": "",
+    "founder_profiles": [
+      {
+        "name": "azat-io",
+        "github": "https://github.com/azat-io"
+      }
+    ],
+    "attio_status": "no_match",
+    "attio_action": "assign owner",
+    "attio_lists": [],
+    "action": "watch",
+    "investment_interest_score": 40,
+    "evidence_confidence_score": 35,
+    "investment_interest": "Low",
+    "evidence_confidence": "Low",
+    "tier": "Needs More Evidence",
+    "engagement": {},
+    "stage": "",
+    "raised": "",
+    "headcount": "",
+    "founders": [],
+    "founding_year": "",
+    "lead_investor": "",
+    "enrichment_evidence": {},
+    "attio_record_url": "",
+    "attio_owner": "",
+    "attio_last_interaction": "",
+    "attio_staleness_reason": "",
+    "oss_company_formation_score": 43,
+    "oss_action_reason": "+21 stars in 30d; 519 total stars; strategic keywords: security, workflow; maintainer identifiable",
+    "license": "",
+    "repo_age_days": 250,
+    "stars": 519,
+    "stars_30d": 21,
+    "maintainer_profiles": [
+      {
+        "name": "azat-io",
+        "github": "https://github.com/azat-io"
+      }
+    ]
+  },
+  {
+    "name": "SawyerHood/gitclaw",
+    "sector": "OSS",
+    "theme": "Emerging technical signal",
+    "source": "https://github.com/SawyerHood/gitclaw",
+    "candidate_type": "oss_project",
+    "stable_key": "repo:github.com/sawyerhood/gitclaw",
+    "weekly_tag": "",
+    "domain": "",
+    "why_on_radar": "OpenClaw but it runs entirely on github actions +5 stars in 30d.",
+    "why_this_may_be_noise": "Needs verification across stronger company/founder/customer evidence.",
+    "sources": [
+      "https://github.com/SawyerHood/gitclaw"
+    ],
+    "source_count": 1,
+    "company_linkedin": "",
+    "company_x": "",
+    "founder_profiles": [
+      {
+        "name": "SawyerHood",
+        "github": "https://github.com/SawyerHood"
+      }
+    ],
+    "attio_status": "no_match",
+    "attio_action": "assign owner",
+    "attio_lists": [],
+    "action": "watch",
+    "investment_interest_score": 40,
+    "evidence_confidence_score": 35,
+    "investment_interest": "Low",
+    "evidence_confidence": "Low",
+    "tier": "Needs More Evidence",
+    "engagement": {},
+    "stage": "",
+    "raised": "",
+    "headcount": "",
+    "founders": [],
+    "founding_year": "",
+    "lead_investor": "",
+    "enrichment_evidence": {},
+    "attio_record_url": "",
+    "attio_owner": "",
+    "attio_last_interaction": "",
+    "attio_staleness_reason": "",
+    "oss_company_formation_score": 38,
+    "oss_action_reason": "+5 stars in 30d; 257 total stars; strategic keywords: agent; maintainer identifiable",
+    "license": "",
+    "repo_age_days": 87,
+    "stars": 257,
+    "stars_30d": 5,
+    "maintainer_profiles": [
+      {
+        "name": "SawyerHood",
+        "github": "https://github.com/SawyerHood"
+      }
+    ]
+  },
+  {
+    "name": "ritwiktiwari/copier-astral",
+    "sector": "OSS",
+    "theme": "Emerging technical signal",
+    "source": "https://github.com/ritwiktiwari/copier-astral",
+    "candidate_type": "oss_project",
+    "stable_key": "repo:github.com/ritwiktiwari/copier-astral",
+    "weekly_tag": "NEW",
+    "domain": "",
+    "why_on_radar": "Fast Python project template with Astral's toolchain (uv, ruff, ty) + pytest, MkDocs, Typer, GitHub Actions, Docker  +5 stars in 30d.",
+    "why_this_may_be_noise": "Needs verification across stronger company/founder/customer evidence.",
+    "sources": [
+      "https://github.com/ritwiktiwari/copier-astral"
+    ],
+    "source_count": 1,
+    "company_linkedin": "",
+    "company_x": "",
+    "founder_profiles": [
+      {
+        "name": "ritwiktiwari",
+        "github": "https://github.com/ritwiktiwari"
+      }
+    ],
+    "attio_status": "no_match",
+    "attio_action": "assign owner",
+    "attio_lists": [],
+    "action": "map ecosystem",
+    "investment_interest_score": 40,
+    "evidence_confidence_score": 35,
+    "investment_interest": "Low",
+    "evidence_confidence": "Low",
+    "tier": "Needs More Evidence",
+    "engagement": {},
+    "stage": "",
+    "raised": "",
+    "headcount": "",
+    "founders": [],
+    "founding_year": "",
+    "lead_investor": "",
+    "enrichment_evidence": {},
+    "attio_record_url": "",
+    "attio_owner": "",
+    "attio_last_interaction": "",
+    "attio_staleness_reason": "",
+    "oss_company_formation_score": 23,
+    "oss_action_reason": "+5 stars in 30d; maintainer identifiable",
+    "license": "",
+    "repo_age_days": 95,
+    "stars": 173,
+    "stars_30d": 5,
+    "maintainer_profiles": [
+      {
+        "name": "ritwiktiwari",
+        "github": "https://github.com/ritwiktiwari"
+      }
+    ]
+  },
+  {
+    "name": "dlvhdr/gh-enhance",
+    "sector": "OSS",
+    "theme": "Emerging technical signal",
+    "source": "https://github.com/dlvhdr/gh-enhance",
+    "candidate_type": "oss_project",
+    "stable_key": "repo:github.com/dlvhdr/gh-enhance",
+    "weekly_tag": "NEW",
+    "domain": "",
+    "why_on_radar": "A Blazingly Fast Terminal UI for GitHub Actions +16 stars in 30d.",
+    "why_this_may_be_noise": "Needs verification across stronger company/founder/customer evidence.",
+    "sources": [
+      "https://github.com/dlvhdr/gh-enhance"
+    ],
+    "source_count": 1,
+    "company_linkedin": "",
+    "company_x": "",
+    "founder_profiles": [
+      {
+        "name": "dlvhdr",
+        "github": "https://github.com/dlvhdr"
+      }
+    ],
+    "attio_status": "no_match",
+    "attio_action": "assign owner",
+    "attio_lists": [],
+    "action": "map ecosystem",
+    "investment_interest_score": 40,
+    "evidence_confidence_score": 35,
+    "investment_interest": "Low",
+    "evidence_confidence": "Low",
+    "tier": "Needs More Evidence",
+    "engagement": {},
+    "stage": "",
+    "raised": "",
+    "headcount": "",
+    "founders": [],
+    "founding_year": "",
+    "lead_investor": "",
+    "enrichment_evidence": {},
+    "attio_record_url": "",
+    "attio_owner": "",
+    "attio_last_interaction": "",
+    "attio_staleness_reason": "",
+    "oss_company_formation_score": 23,
+    "oss_action_reason": "+16 stars in 30d; maintainer identifiable",
+    "license": "",
+    "repo_age_days": 214,
+    "stars": 172,
+    "stars_30d": 16,
+    "maintainer_profiles": [
+      {
+        "name": "dlvhdr",
+        "github": "https://github.com/dlvhdr"
+      }
+    ]
+  },
+  {
+    "name": "geomys/sandboxed-step",
+    "sector": "OSS",
+    "theme": "Emerging technical signal",
+    "source": "https://github.com/geomys/sandboxed-step",
+    "candidate_type": "oss_project",
+    "stable_key": "repo:github.com/geomys/sandboxed-step",
+    "weekly_tag": "NEW",
+    "domain": "",
+    "why_on_radar": "A GitHub Action that runs a command in a gVisor sandbox +8 stars in 30d.",
+    "why_this_may_be_noise": "Needs verification across stronger company/founder/customer evidence.",
+    "sources": [
+      "https://github.com/geomys/sandboxed-step"
+    ],
+    "source_count": 1,
+    "company_linkedin": "",
+    "company_x": "",
+    "founder_profiles": [
+      {
+        "name": "geomys",
+        "github": "https://github.com/geomys"
+      }
+    ],
+    "attio_status": "no_match",
+    "attio_action": "assign owner",
+    "attio_lists": [],
+    "action": "map ecosystem",
+    "investment_interest_score": 40,
+    "evidence_confidence_score": 35,
+    "investment_interest": "Low",
+    "evidence_confidence": "Low",
+    "tier": "Needs More Evidence",
+    "engagement": {},
+    "stage": "",
+    "raised": "",
+    "headcount": "",
+    "founders": [],
+    "founding_year": "",
+    "lead_investor": "",
+    "enrichment_evidence": {},
+    "attio_record_url": "",
+    "attio_owner": "",
+    "attio_last_interaction": "",
+    "attio_staleness_reason": "",
+    "oss_company_formation_score": 23,
+    "oss_action_reason": "+8 stars in 30d; maintainer identifiable",
+    "license": "",
+    "repo_age_days": 193,
+    "stars": 220,
+    "stars_30d": 8,
+    "maintainer_profiles": [
+      {
+        "name": "geomys",
+        "github": "https://github.com/geomys"
+      }
+    ]
+  },
+  {
+    "name": "dkamm/pr-quiz",
+    "sector": "OSS",
+    "theme": "Emerging technical signal",
+    "source": "https://github.com/dkamm/pr-quiz",
+    "candidate_type": "oss_project",
+    "stable_key": "repo:github.com/dkamm/pr-quiz",
+    "weekly_tag": "NEW",
+    "domain": "",
+    "why_on_radar": "A GitHub Action that uses AI to generate a quiz from your pull request +1 stars in 30d.",
+    "why_this_may_be_noise": "Needs verification across stronger company/founder/customer evidence.",
+    "sources": [
+      "https://github.com/dkamm/pr-quiz"
+    ],
+    "source_count": 1,
+    "company_linkedin": "",
+    "company_x": "",
+    "founder_profiles": [
+      {
+        "name": "dkamm",
+        "github": "https://github.com/dkamm"
+      }
+    ],
+    "attio_status": "no_match",
+    "attio_action": "assign owner",
+    "attio_lists": [],
+    "action": "map ecosystem",
+    "investment_interest_score": 40,
+    "evidence_confidence_score": 35,
+    "investment_interest": "Low",
+    "evidence_confidence": "Low",
+    "tier": "Needs More Evidence",
+    "engagement": {},
+    "stage": "",
+    "raised": "",
+    "headcount": "",
+    "founders": [],
+    "founding_year": "",
+    "lead_investor": "",
+    "enrichment_evidence": {},
+    "attio_record_url": "",
+    "attio_owner": "",
+    "attio_last_interaction": "",
+    "attio_staleness_reason": "",
+    "oss_company_formation_score": 23,
+    "oss_action_reason": "+1 stars in 30d; maintainer identifiable",
+    "license": "",
+    "repo_age_days": 318,
+    "stars": 208,
+    "stars_30d": 1,
+    "maintainer_profiles": [
+      {
+        "name": "dkamm",
+        "github": "https://github.com/dkamm"
+      }
+    ]
+  },
+  {
+    "name": "ready-to-release/eac",
+    "sector": "OSS",
+    "theme": "Emerging technical signal",
+    "source": "https://github.com/ready-to-release/eac",
+    "candidate_type": "oss_project",
+    "stable_key": "repo:github.com/ready-to-release/eac",
+    "weekly_tag": "",
+    "domain": "",
+    "why_on_radar": " Audit-ready Continuous Delivery for regulated industries. +1 stars in 30d.",
+    "why_this_may_be_noise": "Needs verification across stronger company/founder/customer evidence.",
+    "sources": [
+      "https://github.com/ready-to-release/eac"
+    ],
+    "source_count": 1,
+    "company_linkedin": "",
+    "company_x": "",
+    "founder_profiles": [
+      {
+        "name": "ready-to-release",
+        "github": "https://github.com/ready-to-release"
+      }
+    ],
+    "attio_status": "no_match",
+    "attio_action": "assign owner",
+    "attio_lists": [],
+    "action": "map ecosystem",
+    "investment_interest_score": 40,
+    "evidence_confidence_score": 35,
+    "investment_interest": "Low",
+    "evidence_confidence": "Low",
+    "tier": "Needs More Evidence",
+    "engagement": {},
+    "stage": "",
+    "raised": "",
+    "headcount": "",
+    "founders": [],
+    "founding_year": "",
+    "lead_investor": "",
+    "enrichment_evidence": {},
+    "attio_record_url": "",
+    "attio_owner": "",
+    "attio_last_interaction": "",
+    "attio_staleness_reason": "",
+    "oss_company_formation_score": 23,
+    "oss_action_reason": "+1 stars in 30d; maintainer identifiable",
+    "license": "",
+    "repo_age_days": 192,
+    "stars": 27,
+    "stars_30d": 1,
+    "maintainer_profiles": [
+      {
+        "name": "ready-to-release",
+        "github": "https://github.com/ready-to-release"
+      }
+    ]
+  }
+]

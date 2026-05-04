@@ -12,6 +12,7 @@ import json
 import os
 import re
 import sys
+from inspect import Parameter, signature
 from datetime import datetime, timezone
 from pathlib import Path
 from urllib.parse import urlparse
@@ -38,9 +39,17 @@ except ImportError:  # pragma: no cover - only for damaged installs
     run_query = None
 
 from radar_models import Candidate, RejectedSignal, SectorCoverage
+from radar_company_discovery import collect_company_discovery
 from radar_scoring import score_and_tier
 from radar_sources import classify_source_item
+from radar_sector_intelligence import build_sector_intelligence
+from radar_sector_classifier import classify_market_sector
+from radar_partner_review import select_partner_review
 from radar_render import render_weekly_brief
+from radar_theme_signals import build_theme_signals
+from radar_history import apply_weekly_tags, load_candidate_history, save_candidate_history
+from radar_enrichment import apply_candidate_enrichment, merge_source_enrichment
+from radar_oss import enrich_oss_candidate
 
 
 DEFAULT_OUTPUT_DIR = Path(__file__).parent.parent / "data" / "radar_runs"
@@ -177,6 +186,12 @@ def _label(score: int) -> str:
     if score >= 45:
         return "Medium"
     return "Low"
+
+
+def run_synthesis(**kwargs):
+    from radar_synthesis import run_synthesis as _run_synthesis
+
+    return _run_synthesis(**kwargs)
 
 
 def _blob(*parts: object) -> str:
@@ -361,7 +376,28 @@ def build_sector_collection_queries(
         if seed_queries
         else f"{display_name} startups Seed Series A Series B emerging traction"
     )
-    if grounded_available:
+    company_queries = config.get("company_discovery_queries", {})
+    if grounded_available and company_queries:
+        for kind, key in (
+            ("yc_company", "yc_queries"),
+            ("funding_company", "funding_queries"),
+            ("company_launch", "company_launch_queries"),
+            ("founder_company", "founder_queries"),
+            ("technical_blog_company", "technical_blog_queries"),
+        ):
+            if len(queries) >= max_queries:
+                break
+            for topic in company_queries.get(key, []):
+                if len(queries) >= max_queries:
+                    break
+                queries.append({
+                    "kind": kind,
+                    "topic": topic,
+                    "sources": _sources("grounding", "hackernews", "github", social_available=social_available),
+                    "web_backend": "auto",
+                    "lookback_days": lookback_days,
+                })
+    elif grounded_available:
         queries.extend([
             {
                 "kind": "yc_company",
@@ -379,12 +415,13 @@ def build_sector_collection_queries(
             },
         ])
 
-    queries.append({
-        "kind": "conversation",
-        "topic": f"{conversation_topic} Seed Series A Series B founder customer traction",
-        "sources": _sources("reddit", "hackernews", "github", social_available=social_available),
-        "lookback_days": lookback_days,
-    })
+    if len(queries) < max_queries:
+        queries.append({
+            "kind": "conversation",
+            "topic": f"{conversation_topic} Seed Series A Series B founder customer traction",
+            "sources": _sources("reddit", "hackernews", "github", social_available=social_available),
+            "lookback_days": lookback_days,
+        })
 
     return queries[:max_queries]
 
@@ -670,9 +707,32 @@ def rank_candidates(candidates: list[dict]) -> list[dict]:
 
 def merge_attio_context(companies: list[dict], attio_client=None) -> list[dict]:
     """Merge Attio match fields into companies, preserving existing fields."""
+    def is_oss_project(company: dict) -> bool:
+        sector = (company.get("sector") or "").lower()
+        source_lane = (company.get("source_lane") or "").lower()
+        candidate_type = (company.get("candidate_type") or "").lower()
+        evidence_role = (company.get("evidence_role") or "").lower()
+        return (
+            "oss" in sector
+            or source_lane == "oss"
+            or candidate_type == "oss_project"
+            or evidence_role == "oss_project"
+        )
+
+    def should_skip_attio(company: dict) -> bool:
+        name = company.get("name") or ""
+        return is_oss_project(company) and "/" in name and not company.get("domain")
+
+    def skipped(company: dict) -> dict:
+        return {
+            **company,
+            "attio_status": company.get("attio_status", "no_match"),
+            "action": company.get("action", "watch"),
+        }
+
     if not attio_client or not enrich_companies:
         return [
-            {
+            skipped(company) if should_skip_attio(company) else {
                 **company,
                 "attio_status": company.get("attio_status", "unknown"),
                 "action": company.get("action", company.get("attio_action", "monitor only")),
@@ -680,11 +740,16 @@ def merge_attio_context(companies: list[dict], attio_client=None) -> list[dict]:
             for company in companies
         ]
 
-    enriched = enrich_companies(companies, attio_client)
+    enriched = []
+    for company in companies:
+        if should_skip_attio(company):
+            enriched.append(skipped(company))
+        else:
+            enriched.extend(enrich_companies([company], attio_client))
+
     for company in enriched:
         existing_action = company.get("action")
-        sector = (company.get("sector") or "").lower()
-        preserve_oss_action = existing_action and "oss" in sector
+        preserve_oss_action = existing_action and is_oss_project(company)
         preserve_late_label = existing_action == "likely too late"
         if preserve_oss_action or preserve_late_label:
             company["action"] = existing_action
@@ -855,7 +920,7 @@ def _candidate_from_signal(signal) -> Candidate | None:
     if velocity.get("stars_last_30d") is not None:
         why = f"{item.get('description') or signal.title} +{velocity.get('stars_last_30d')} stars in 30d."
 
-    return Candidate(
+    candidate = Candidate(
         name=name,
         domain=_candidate_domain_from_item(item),
         sector=SECTOR_LABELS.get(signal.sector, signal.sector),
@@ -872,6 +937,21 @@ def _candidate_from_signal(signal) -> Candidate | None:
         engagement=item.get("engagement", {}),
         action="watch" if signal.role == "oss_project" else "assign owner",
     )
+    source_lane = item.get("source_lane") or ("OSS" if signal.role == "oss_project" else signal.source)
+    sector_classification = classify_market_sector(
+        title=name,
+        text=_blob(signal.title, signal.text, item.get("description"), item.get("topics", [])),
+        source_lane=source_lane,
+    )
+    candidate.market_sector = sector_classification.market_sector
+    candidate.source_lane = source_lane
+    candidate.evidence_role = signal.role
+    candidate.sector_confidence = sector_classification.sector_confidence
+    candidate.sector_reason = sector_classification.sector_reason
+    if candidate.market_sector != "Unclassified":
+        candidate.sector = candidate.market_sector
+    candidate = merge_source_enrichment(candidate, item)
+    return enrich_oss_candidate(candidate, item)
 
 
 def build_signals_from_evidence(evidence: dict) -> dict:
@@ -911,7 +991,42 @@ def build_signals_from_evidence(evidence: dict) -> dict:
         else:
             coverage["oss"] = SectorCoverage(sector="oss", raw_signals=len(github_signals), reason="")
 
+    discovery_signals = []
+    for item in _filter_company_discovery_items(evidence.get("company_discovery", {}).get("items", [])):
+        sector = item.get("sector") or _sector_slug_from_label(item.get("market_sector")) or "company-discovery"
+        signal = classify_source_item(sector=sector, item=item)
+        signals.append(signal)
+        discovery_signals.append(signal)
+    for sector in sorted({signal.sector for signal in discovery_signals if signal.sector}):
+        sector_items = [signal for signal in discovery_signals if signal.sector == sector]
+        existing = coverage.get(sector)
+        if existing:
+            existing.raw_signals += len(sector_items)
+            if any(signal.can_create_candidate for signal in sector_items):
+                existing.reason = ""
+        else:
+            coverage[sector] = SectorCoverage(sector=sector, raw_signals=len(sector_items), reason="")
+
     return {"signals": signals, "coverage": coverage}
+
+
+def _sector_slug_from_label(label: str | None) -> str:
+    normalized = (label or "").strip().lower()
+    for slug, sector_label in SECTOR_LABELS.items():
+        if normalized == sector_label.lower():
+            return slug
+    return normalized.replace(" ", "-") if normalized else ""
+
+
+def _filter_company_discovery_items(items: list[dict]) -> list[dict]:
+    kept = []
+    for item in items:
+        has_structured_company = bool((item.get("company_name") or item.get("name") or "").strip()) and bool(
+            (item.get("domain") or item.get("website") or item.get("url") or "").strip()
+        )
+        if has_structured_company or not is_evidence_noise(item):
+            kept.append(item)
+    return kept
 
 
 def _merge_candidate_model(existing: Candidate, candidate: Candidate) -> None:
@@ -1014,6 +1129,42 @@ def _update_sector_coverage(
             item.reason = "No relevant source evidence returned for this sector."
 
 
+def _source_errors_from_evidence(evidence: dict) -> dict[str, list[str]]:
+    return {
+        sector: payload.get("errors", [])
+        for sector, payload in evidence.get("last30days", {}).items()
+        if payload.get("errors")
+    }
+
+
+def _render_weekly_brief(
+    candidates: list[Candidate],
+    coverage: dict[str, SectorCoverage],
+    rejected: list[RejectedSignal],
+    *,
+    faded: list[dict],
+    theme_signals: list,
+    sector_intelligence: list,
+    partner_review: list[Candidate],
+    synthesis=None,
+    company_discovery=None,
+) -> str:
+    kwargs = {"faded": faded}
+    accepted = signature(render_weekly_brief).parameters
+    accepts_kwargs = any(parameter.kind == Parameter.VAR_KEYWORD for parameter in accepted.values())
+    if "theme_signals" in accepted or accepts_kwargs:
+        kwargs["theme_signals"] = theme_signals
+    if "sector_intelligence" in accepted or accepts_kwargs:
+        kwargs["sector_intelligence"] = sector_intelligence
+    if "partner_review" in accepted or accepts_kwargs:
+        kwargs["partner_review"] = partner_review
+    if "synthesis" in accepted or accepts_kwargs:
+        kwargs["synthesis"] = synthesis
+    if "company_discovery" in accepted or accepts_kwargs:
+        kwargs["company_discovery"] = company_discovery
+    return render_weekly_brief(candidates, coverage, rejected, **kwargs)
+
+
 def save_raw_evidence(evidence: dict, *, output_dir: Path = DEFAULT_OUTPUT_DIR, run_date: str | None = None) -> Path:
     run_date = run_date or datetime.now(timezone.utc).strftime("%Y-%m-%d")
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -1096,6 +1247,7 @@ def run_weekly_artifacts(
     github_limit: int = 40,
     max_queries_per_sector: int = 3,
     candidate_limit: int = 15,
+    with_synthesis: bool = False,
 ) -> dict:
     """Collect evidence and render a weekly partner preview in one command."""
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -1104,27 +1256,92 @@ def run_weekly_artifacts(
         github_limit=github_limit,
         max_queries_per_sector=max_queries_per_sector,
     )
-    raw_path = save_raw_evidence(evidence, output_dir=output_dir)
+    signal_result = build_signals_from_evidence(evidence)
+    theme_signals = build_theme_signals(signal_result["signals"], sectors=sectors)
+    company_discovery = collect_company_discovery(
+        theme_signals,
+        query_runner=run_query,
+        grounded_available=_grounded_search_available(),
+        social_available=_social_search_available(),
+        max_queries_per_theme=3,
+    )
+    evidence["company_discovery"] = company_discovery
+    for error in company_discovery.get("errors", []):
+        evidence.setdefault("warnings", []).append(f"company-discovery: {error}")
     signal_result = build_signals_from_evidence(evidence)
     promotion = promote_signals_to_candidates(signal_result["signals"])
+    theme_signals = build_theme_signals(signal_result["signals"], sectors=sectors)
+    raw_path = save_raw_evidence(evidence, output_dir=output_dir)
+    source_errors = _source_errors_from_evidence(evidence)
     scored_candidates = _score_sort_limit_candidates(promotion["candidates"], candidate_limit)
+    scored_candidates = apply_candidate_enrichment(scored_candidates)
     scored_candidates = _apply_attio_to_candidates(scored_candidates, _attio_client_from_env())
     scored_candidates = _score_sort_limit_candidates(scored_candidates, candidate_limit)
+    run_date = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    history_result = apply_weekly_tags(scored_candidates, load_candidate_history(), run_date=run_date)
+    scored_candidates = history_result.candidates
+    partner_review = select_partner_review(scored_candidates)
+    save_candidate_history(history_result.history)
     _update_sector_coverage(signal_result["coverage"], sectors, scored_candidates, promotion["rejected"])
+    sector_intelligence = build_sector_intelligence(
+        sectors=sectors,
+        coverage=signal_result["coverage"],
+        candidates=scored_candidates,
+        rejected=promotion["rejected"],
+        theme_signals=theme_signals,
+        source_errors=source_errors,
+        grounded_available=_grounded_search_available(),
+    )
     signals_path = output_dir / "signals.json"
     candidates_path = output_dir / "candidates.json"
+    theme_signals_path = output_dir / "theme-signals.json"
+    sector_intelligence_path = output_dir / "sector-intelligence.json"
+    company_discovery_path = output_dir / "company-discovery.json"
     signals_path.write_text(json.dumps([signal.to_dict() for signal in signal_result["signals"]], indent=2))
     candidates_path.write_text(json.dumps([candidate.to_dict() for candidate in scored_candidates], indent=2))
+    theme_signals_path.write_text(json.dumps([item.to_dict() for item in theme_signals], indent=2))
+    sector_intelligence_path.write_text(json.dumps([item.to_dict() for item in sector_intelligence], indent=2))
+    company_discovery_path.write_text(json.dumps(company_discovery, indent=2))
+    synthesis = None
+    synthesis_path = None
+    if with_synthesis:
+        synthesis = run_synthesis(
+            evidence=evidence,
+            signals=signal_result["signals"],
+            candidates=scored_candidates,
+            sector_intelligence=sector_intelligence,
+            theme_signals=theme_signals,
+        )
+        synthesis_path = output_dir / "synthesis.json"
+        synthesis_path.write_text(json.dumps(synthesis.to_dict(), indent=2))
     preview_path = output_dir / "weekly-preview.md"
-    preview_path.write_text(render_weekly_brief(scored_candidates, signal_result["coverage"], promotion["rejected"]))
-    return {
+    preview_path.write_text(
+        _render_weekly_brief(
+            scored_candidates,
+            signal_result["coverage"],
+            promotion["rejected"],
+            faded=history_result.faded,
+            theme_signals=theme_signals,
+            sector_intelligence=sector_intelligence,
+            partner_review=partner_review,
+            synthesis=synthesis,
+            company_discovery=company_discovery,
+        )
+    )
+    result = {
         "raw_evidence": str(raw_path),
         "signals": str(signals_path),
         "candidates": str(candidates_path),
+        "theme_signals": str(theme_signals_path),
+        "sector_intelligence": str(sector_intelligence_path),
+        "company_discovery": str(company_discovery_path),
         "preview": str(preview_path),
         "companies": len(scored_candidates),
         "sectors": list(sectors),
     }
+    if synthesis_path:
+        result["synthesis"] = str(synthesis_path)
+    return result
 
 
 def _read_json_stdin():
@@ -1190,6 +1407,7 @@ def _cli_main() -> None:
             github_limit=int(args.get("github_limit", 40)),
             max_queries_per_sector=int(args.get("max_queries_per_sector", 3)),
             candidate_limit=int(args.get("limit", 15)),
+            with_synthesis=bool(args.get("with_synthesis", False)),
         )
         print(json.dumps(result))
         return

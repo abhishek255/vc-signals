@@ -1,0 +1,411 @@
+{
+  "last30days": {
+    "cybersecurity": {
+      "queries": [
+        {
+          "kind": "reddit_pain",
+          "topic": "security operations pain OR application security backlog OR cloud security false positives",
+          "sources": "reddit",
+          "subreddits": "netsec,cybersecurity,blueteamsec,AskNetsec,AppSec,devsecops,cloudsecurity,ReverseEngineering,Malware,osint,privacytoolsIO",
+          "lookback_days": 30,
+          "candidate_eligible": false
+        }
+      ],
+      "query_count": 1,
+      "items": [
+        {
+          "source": "reddit",
+          "title": "California\u2019s Republican Governor Frontrunner Steve Hilton has campaign donors with documented ties to Jeffrey Epstein\u2019s inner circle. His own name appears in the files too. Why isn\u2019t the California press asking any questions?",
+          "url": "https://www.reddit.com/r/Epstein/comments/1t2osko/californias_republican_governor_frontrunner_steve/",
+          "snippet": "Cali going to elect a Fox News host?? Wtf. Wake up people. Because the California press will make a lot more money with a trump sycophant ruining everything there. I bet the pool of republican candidates who don't have ties to Epstein is embarrassingly small.",
+          "published_at": "2026-05-03",
+          "engagement": {
+            "num_comments": 35,
+            "score": 1107,
+            "upvote_ratio": 1.0
+          },
+          "container": "Epstein",
+          "author": "",
+          "query_kind": "reddit_pain",
+          "query_topic": "security operations pain OR application security backlog OR cloud security false positives",
+          "candidate_eligible": false
+        },
+        {
+          "source": "reddit",
+          "title": "The most useful Claude skill I ever created: humanizer",
+          "url": "https://www.reddit.com/r/ClaudeCode/comments/1sy4137/the_most_useful_claude_skill_i_ever_created/",
+          "snippet": "Recently saw this (not mine) which is nice too: https://github.com/Anbeeld/WRITING.md/blob/main/WRITING.md Whats interesting, is ya'll are using this as Post Generation Editing.\n\nJust have this be a constraint on the generation itself. You'll use less tokens. Wikipedia : Make a guideline on how to detect it's AI.\n\nRandom user : Here is the guideline, become more human\n\n\nI know we gonna get cooked by robots",
+          "published_at": "2026-04-28",
+          "engagement": {
+            "num_comments": 101,
+            "score": 584,
+            "upvote_ratio": 0.93
+          },
+          "container": "ClaudeCode",
+          "author": "",
+          "query_kind": "reddit_pain",
+          "query_topic": "security operations pain OR application security backlog OR cloud security false positives",
+          "candidate_eligible": false
+        },
+        {
+          "source": "reddit",
+          "title": "[Humans for Hire] - Part 164",
+          "url": "https://www.reddit.com/r/HFY/comments/1t0vvvn/humans_for_hire_part_164/",
+          "snippet": "\\[[First](https://www.reddit.com/r/HFY/comments/1fqu23z/humans_for_hire/)\\] \\[[Prev](https://www.reddit.com/r/HFY/comments/1sy3wx6/humans_for_hire_part_163/)\\] \\[Next\\] \\[[Royal Road](https://www.royalroad.com/fiction/95169/humans-for-hire/chapter/3341248/chapter-164)\\]\n\n*Author note:* An award. In accordance with the ancient prophecy, y'all are awesome.\n\n\\_\\_\\_\\_\\_\\_\\_\\_\\_\\_\\_\\_\\_\n\n*Vilantia Prim",
+          "published_at": "2026-05-01",
+          "engagement": {
+            "num_comments": 49,
+            "score": 108,
+            "upvote_ratio": 0.99
+          },
+          "container": "HFY",
+          "author": "",
+          "query_kind": "reddit_pain",
+          "query_topic": "security operations pain OR application security backlog OR cloud security false positives",
+          "candidate_eligible": false
+        },
+        {
+          "source": "reddit",
+          "title": "From $49 to $80K in two years - then wiped out. Binance\u2019s story that erased everything",
+          "url": "https://www.reddit.com/r/Trading/comments/1t1tt87/from_49_to_80k_in_two_years_then_wiped_out/",
+          "snippet": "I'm continuing from the previous short post.\n\n**It was January 2023,**\u00a0New Year\u2019s time, when I deposited funds and $49 appeared on the exchange. Back then I was still on MEX Global. For scalping, it wasn\u2019t a bad exchange. That\u2019s how I started \u2014 just having fun with scalping. I picked one volatile asset to trade, and little by little I noticed that $1\u20132 was being added each day. I began to understa",
+          "published_at": "2026-05-02",
+          "engagement": {
+            "num_comments": 21,
+            "score": 36,
+            "upvote_ratio": 0.93
+          },
+          "container": "Trading",
+          "author": "",
+          "query_kind": "reddit_pain",
+          "query_topic": "security operations pain OR application security backlog OR cloud security false positives",
+          "candidate_eligible": false
+        },
+        {
+          "source": "reddit",
+          "title": "The murders of Miriam, To\u00f1i and Desir\u00e9e in Alc\u00e0sser, Spain in 1992. One killer is still free. DNA from seven unknown people was found at the scene. A media circus swallowed the truth whole. And thirty-four years later, the full picture still isn't clear.",
+          "url": "https://www.reddit.com/r/UnresolvedMysteries/comments/1sx75jh/the_murders_of_miriam_to\u00f1i_and_desir\u00e9e_in/",
+          "snippet": "Content warning before anything else: this post covers the torture and murder of three teenage girls in graphic forensic detail. I have tried to handle it with care and to present the facts as reported without dwelling unnecessarily, but the reality of what happened at La Romana on the night of November 13th, 1992 is extreme, and I think people deserve to know what they are walking into before the",
+          "published_at": "2026-04-27",
+          "engagement": {
+            "num_comments": 148,
+            "score": 411,
+            "upvote_ratio": 0.94
+          },
+          "container": "UnresolvedMysteries",
+          "author": "",
+          "query_kind": "reddit_pain",
+          "query_topic": "security operations pain OR application security backlog OR cloud security false positives",
+          "candidate_eligible": false
+        },
+        {
+          "source": "reddit",
+          "title": "Human bureaucracy vs xeno firepower. Hilarity ensues.",
+          "url": "https://www.reddit.com/r/HFY/comments/1sqbhfh/human_bureaucracy_vs_xeno_firepower_hilarity/",
+          "snippet": "Spock:  In chess, when one is out-matched, the game is over.  Checkmate.\n\nKirk:  Not chess, Spock.  Poker! You can kill them with kindness or baffle them with bullshit. \n\nVery good, OP, I don't think I've ever read a story quite like this. It was a fresh perspective on the meeting aliens/first contact trop I approve of everything about this story, love the world building. :)",
+          "published_at": "2026-04-20",
+          "engagement": {
+            "num_comments": 20,
+            "score": 317,
+            "upvote_ratio": 0.98
+          },
+          "container": "HFY",
+          "author": "",
+          "query_kind": "reddit_pain",
+          "query_topic": "security operations pain OR application security backlog OR cloud security false positives",
+          "candidate_eligible": false
+        },
+        {
+          "source": "reddit",
+          "title": "[Gravity of the Situation (OoCS)] - Chapter 32",
+          "url": "https://www.reddit.com/r/HFY/comments/1swsv4g/gravity_of_the_situation_oocs_chapter_32/",
+          "snippet": "Much thanks to [u/KyleKKent](https://www.reddit.com/user/KyleKKent/) for allowing me to play in his world.\n\nAuthor's Note: Sorry about the length of time between posts. Finishing up a Master's degree with three projects in the fire, and only two weeks to finish them before walking the stage. Also, trying to find a job and catch a last minute certification on top of it all.\n\n\u00a0\n\n[\\[First\\]](https://",
+          "published_at": "2026-04-27",
+          "engagement": {
+            "num_comments": 39,
+            "score": 42,
+            "upvote_ratio": 1.0
+          },
+          "container": "HFY",
+          "author": "",
+          "query_kind": "reddit_pain",
+          "query_topic": "security operations pain OR application security backlog OR cloud security false positives",
+          "candidate_eligible": false
+        },
+        {
+          "source": "reddit",
+          "title": "It\u2019s pretty obvious America is in a active Civil War right now and we have been in one for the last 10 years.",
+          "url": "https://www.reddit.com/r/PowerfulJRE/comments/1svr5e3/its_pretty_obvious_america_is_in_a_active_civil/",
+          "snippet": "Let\u2019s look at the facts:\n\nObama has James Comey Spy on Trumps Campaign in 2016 via Operation Crossfire Hurricane.\n\nLisa Page and Peter Strok have a \u201cInsurance Policy\u201d to usurp the will of the American people and have Hillary Clinton pay a MI6 Spy to start the fake Russia Gate.\n\nRussia Gate fails and they start impeachment Hoax 1 based on information from the CIA leaking a phone call Trump had with",
+          "published_at": "2026-04-25",
+          "engagement": {
+            "num_comments": 41,
+            "score": 53,
+            "upvote_ratio": 0.68
+          },
+          "container": "PowerfulJRE",
+          "author": "",
+          "query_kind": "reddit_pain",
+          "query_topic": "security operations pain OR application security backlog OR cloud security false positives",
+          "candidate_eligible": false
+        },
+        {
+          "source": "reddit",
+          "title": "1 year experience, resume review, what's wrong",
+          "url": "https://www.reddit.com/r/jobsearchhacks/comments/1suj183/1_year_experience_resume_review_whats_wrong/",
+          "snippet": "1 year experience, resume review, what's wrong",
+          "published_at": "2026-04-24",
+          "engagement": {
+            "num_comments": 96,
+            "score": 30,
+            "upvote_ratio": 0.82
+          },
+          "container": "jobsearchhacks",
+          "author": "",
+          "query_kind": "reddit_pain",
+          "query_topic": "security operations pain OR application security backlog OR cloud security false positives",
+          "candidate_eligible": false
+        },
+        {
+          "source": "reddit",
+          "title": "Control is the key to fix everything in the game: player snowballing, difficulty, role playing, etc",
+          "url": "https://www.reddit.com/r/EU5/comments/1ssi0mz/control_is_the_key_to_fix_everything_in_the_game/",
+          "snippet": "Control is the key to fix everything in the game: player snowballing, difficulty, role playing, etc\n\n\n\nI believe that the control mechanic is under-utilized currently and it has higher potential to improve the game on most fronts. This inspiration also comes from this other startegy game, that I have yet to play, but I like the concept: Kings orders  [https://store.steampowered.com/app/1369690/Kin",
+          "published_at": "2026-04-22",
+          "engagement": {
+            "num_comments": 72,
+            "score": 124,
+            "upvote_ratio": 0.78
+          },
+          "container": "EU5",
+          "author": "",
+          "query_kind": "reddit_pain",
+          "query_topic": "security operations pain OR application security backlog OR cloud security false positives",
+          "candidate_eligible": false
+        },
+        {
+          "source": "reddit",
+          "title": "Boost 1.91 Released: New Decimal Library, SIMD UUID, Redis Sentinel, C++26 Reflection in PFR",
+          "url": "https://www.reddit.com/r/cpp/comments/1ssrnzf/boost_191_released_new_decimal_library_simd_uuid/",
+          "snippet": "Boost 1.91 is out. Here's a rundown of what's notable.\n\n**New Library**\n\nBoost.Decimal: A full IEEE 754 / ISO 24733 implementation of decimal floating point types (decimal32\\_t, decimal64\\_t, decimal128\\_t) plus non-conformant fast variants. Significands stored in base-10, so 0.1 + 0.2 actually equals 0.3. Header only, no dependencies, C++14. Comes with <cmath>, <charconv>, <format>, rounding mode",
+          "published_at": "2026-04-22",
+          "engagement": {
+            "num_comments": 19,
+            "score": 114,
+            "upvote_ratio": 0.99
+          },
+          "container": "cpp",
+          "author": "",
+          "query_kind": "reddit_pain",
+          "query_topic": "security operations pain OR application security backlog OR cloud security false positives",
+          "candidate_eligible": false
+        },
+        {
+          "source": "reddit",
+          "title": "Donbass to Odessa, Russia's Next Move After the War's Most Important Battle | The Duran",
+          "url": "https://www.reddit.com/r/WayOfTheBern/comments/1sulngu/donbass_to_odessa_russias_next_move_after_the/",
+          "snippet": "From Kimi K2.6\n\n-----\n\n## **Introduction: Zelensky's Media Posture vs. Gerasimov's Frontline Updates** [00:00]\n\nThe video opens with an analysis of President Zelensky's recent media strategy, which the commentators characterize as increasingly grandiose and detached from the realities unfolding on the battlefield. In numerous interviews, Zelensky has declared himself \"done with the United States\"",
+          "published_at": "2026-04-24",
+          "engagement": {
+            "num_comments": 79,
+            "score": 9,
+            "upvote_ratio": 0.74
+          },
+          "container": "WayOfTheBern",
+          "author": "",
+          "query_kind": "reddit_pain",
+          "query_topic": "security operations pain OR application security backlog OR cloud security false positives",
+          "candidate_eligible": false
+        }
+      ],
+      "clusters": [
+        {
+          "candidate_ids": [
+            "https://reddit.com/r/epstein/comments/1t2osko/californias_republican_governor_frontrunner_steve"
+          ],
+          "cluster_id": "cluster-1",
+          "representative_ids": [
+            "https://reddit.com/r/epstein/comments/1t2osko/californias_republican_governor_frontrunner_steve"
+          ],
+          "score": 6.509508196721312,
+          "sources": [
+            "reddit"
+          ],
+          "title": "California\u2019s Republican Governor Frontrunner Steve Hilton has campaign donors with documented ties to Jeffrey Epstein\u2019s inner circle. His own name appears in the files too. Why isn\u2019t the California press asking any questions?",
+          "uncertainty": "single-source"
+        },
+        {
+          "candidate_ids": [
+            "https://reddit.com/r/trading/comments/1t1tt87/from_49_to_80k_in_two_years_then_wiped_out"
+          ],
+          "cluster_id": "cluster-2",
+          "representative_ids": [
+            "https://reddit.com/r/trading/comments/1t1tt87/from_49_to_80k_in_two_years_then_wiped_out"
+          ],
+          "score": 6.361875,
+          "sources": [
+            "reddit"
+          ],
+          "title": "From $49 to $80K in two years - then wiped out. Binance\u2019s story that erased everything",
+          "uncertainty": "single-source"
+        },
+        {
+          "candidate_ids": [
+            "https://reddit.com/r/hfy/comments/1t0vvvn/humans_for_hire_part_164"
+          ],
+          "cluster_id": "cluster-3",
+          "representative_ids": [
+            "https://reddit.com/r/hfy/comments/1t0vvvn/humans_for_hire_part_164"
+          ],
+          "score": 6.29047619047619,
+          "sources": [
+            "reddit"
+          ],
+          "title": "[Humans for Hire] - Part 164",
+          "uncertainty": "single-source"
+        },
+        {
+          "candidate_ids": [
+            "https://reddit.com/r/claudecode/comments/1sy4137/the_most_useful_claude_skill_i_ever_created"
+          ],
+          "cluster_id": "cluster-4",
+          "representative_ids": [
+            "https://reddit.com/r/claudecode/comments/1sy4137/the_most_useful_claude_skill_i_ever_created"
+          ],
+          "score": 6.009677419354838,
+          "sources": [
+            "reddit"
+          ],
+          "title": "The most useful Claude skill I ever created: humanizer",
+          "uncertainty": "single-source"
+        },
+        {
+          "candidate_ids": [
+            "https://reddit.com/r/unresolvedmysteries/comments/1sx75jh/the_murders_of_miriam_to\u00f1i_and_desir\u00e9e_in"
+          ],
+          "cluster_id": "cluster-5",
+          "representative_ids": [
+            "https://reddit.com/r/unresolvedmysteries/comments/1sx75jh/the_murders_of_miriam_to\u00f1i_and_desir\u00e9e_in"
+          ],
+          "score": 5.833846153846154,
+          "sources": [
+            "reddit"
+          ],
+          "title": "The murders of Miriam, To\u00f1i and Desir\u00e9e in Alc\u00e0sser, Spain in 1992. One killer is still free. DNA from seven unknown people was found at the scene. A media circus swallowed the truth whole. And thirty-four years later, the full picture still isn't clear.",
+          "uncertainty": "single-source"
+        },
+        {
+          "candidate_ids": [
+            "https://reddit.com/r/hfy/comments/1swsv4g/gravity_of_the_situation_oocs_chapter_32"
+          ],
+          "cluster_id": "cluster-6",
+          "representative_ids": [
+            "https://reddit.com/r/hfy/comments/1swsv4g/gravity_of_the_situation_oocs_chapter_32"
+          ],
+          "score": 5.807883310719132,
+          "sources": [
+            "reddit"
+          ],
+          "title": "[Gravity of the Situation (OoCS)] - Chapter 32",
+          "uncertainty": "single-source"
+        },
+        {
+          "candidate_ids": [
+            "https://reddit.com/r/powerfuljre/comments/1svr5e3/its_pretty_obvious_america_is_in_a_active_civil"
+          ],
+          "cluster_id": "cluster-7",
+          "representative_ids": [
+            "https://reddit.com/r/powerfuljre/comments/1svr5e3/its_pretty_obvious_america_is_in_a_active_civil"
+          ],
+          "score": 5.611172080772607,
+          "sources": [
+            "reddit"
+          ],
+          "title": "It\u2019s pretty obvious America is in a active Civil War right now and we have been in one for the last 10 years.",
+          "uncertainty": "single-source"
+        },
+        {
+          "candidate_ids": [
+            "https://reddit.com/r/jobsearchhacks/comments/1suj183/1_year_experience_resume_review_whats_wrong"
+          ],
+          "cluster_id": "cluster-8",
+          "representative_ids": [
+            "https://reddit.com/r/jobsearchhacks/comments/1suj183/1_year_experience_resume_review_whats_wrong"
+          ],
+          "score": 5.47494884910486,
+          "sources": [
+            "reddit"
+          ],
+          "title": "1 year experience, resume review, what's wrong",
+          "uncertainty": "single-source"
+        },
+        {
+          "candidate_ids": [
+            "https://reddit.com/r/wayofthebern/comments/1sulngu/donbass_to_odessa_russias_next_move_after_the"
+          ],
+          "cluster_id": "cluster-9",
+          "representative_ids": [
+            "https://reddit.com/r/wayofthebern/comments/1sulngu/donbass_to_odessa_russias_next_move_after_the"
+          ],
+          "score": 5.421666666666667,
+          "sources": [
+            "reddit"
+          ],
+          "title": "Donbass to Odessa, Russia's Next Move After the War's Most Important Battle | The Duran",
+          "uncertainty": "single-source"
+        },
+        {
+          "candidate_ids": [
+            "https://reddit.com/r/eu5/comments/1ssi0mz/control_is_the_key_to_fix_everything_in_the_game"
+          ],
+          "cluster_id": "cluster-10",
+          "representative_ids": [
+            "https://reddit.com/r/eu5/comments/1ssi0mz/control_is_the_key_to_fix_everything_in_the_game"
+          ],
+          "score": 5.27919254658385,
+          "sources": [
+            "reddit"
+          ],
+          "title": "Control is the key to fix everything in the game: player snowballing, difficulty, role playing, etc",
+          "uncertainty": "single-source"
+        },
+        {
+          "candidate_ids": [
+            "https://reddit.com/r/cpp/comments/1ssrnzf/boost_191_released_new_decimal_library_simd_uuid"
+          ],
+          "cluster_id": "cluster-11",
+          "representative_ids": [
+            "https://reddit.com/r/cpp/comments/1ssrnzf/boost_191_released_new_decimal_library_simd_uuid"
+          ],
+          "score": 5.263883299798793,
+          "sources": [
+            "reddit"
+          ],
+          "title": "Boost 1.91 Released: New Decimal Library, SIMD UUID, Redis Sentinel, C++26 Reflection in PFR",
+          "uncertainty": "single-source"
+        },
+        {
+          "candidate_ids": [
+            "https://reddit.com/r/hfy/comments/1sqbhfh/human_bureaucracy_vs_xeno_firepower_hilarity"
+          ],
+          "cluster_id": "cluster-12",
+          "representative_ids": [
+            "https://reddit.com/r/hfy/comments/1sqbhfh/human_bureaucracy_vs_xeno_firepower_hilarity"
+          ],
+          "score": 5.086350832266325,
+          "sources": [
+            "reddit"
+          ],
+          "title": "Human bureaucracy vs xeno firepower. Hilarity ensues.",
+          "uncertainty": "single-source"
+        }
+      ],
+      "warnings": [
+        "Top evidence is highly concentrated in one source."
+      ],
+      "errors": []
+    }
+  },
+  "github": [],
+  "warnings": []
+}
