@@ -12,6 +12,7 @@ def render_weekly_brief(
     theme_signals: list | None = None,
     sector_intelligence: list | None = None,
     partner_review: list | None = None,
+    synthesis=None,
 ) -> str:
     partner = partner_review if partner_review is not None else [candidate for candidate in candidates if candidate.tier == "Partner Review"][:15]
     if partner_review is None and not partner:
@@ -41,6 +42,9 @@ def render_weekly_brief(
         "",
         _theme_signals_table(theme_signals or []),
     ])
+    synthesis_notes = _synthesis_section(synthesis)
+    if synthesis_notes:
+        lines.extend(["", synthesis_notes])
     if coverage:
         lines.extend(["", _legacy_sector_coverage_section(coverage)])
 
@@ -205,6 +209,121 @@ def _theme_signals_table(theme_signals: list) -> str:
             f"{item.why_no_company_yet} | {item.suggested_search} |"
         )
     return "\n".join(rows)
+
+
+def _markdown_table_cell(value) -> str:
+    text = "" if value is None else str(value)
+    return text.replace("\n", " ").replace("\t", " ").replace("|", "\\|")
+
+
+def _synthesis_section(synthesis) -> str:
+    if not synthesis or not getattr(synthesis, "enabled", False):
+        return ""
+
+    has_content = any(
+        [
+            getattr(synthesis, "partner_notes", []),
+            getattr(synthesis, "sector_diagnoses", []),
+            getattr(synthesis, "theme_hypotheses", []),
+            getattr(synthesis, "possible_company_leads", []),
+            getattr(synthesis, "warnings", []),
+        ]
+    )
+    if not has_content:
+        return ""
+
+    lines = ["## LLM Synthesis Notes", ""]
+    model = getattr(synthesis, "model", "")
+    if model:
+        lines.extend([f"Model: {model}", ""])
+
+    partner_notes = getattr(synthesis, "partner_notes", [])
+    if partner_notes:
+        for note in partner_notes:
+            lines.append(f"- {note}")
+        lines.append("")
+
+    sector_diagnoses = getattr(synthesis, "sector_diagnoses", [])
+    if sector_diagnoses:
+        lines.extend(["### Source Gap Diagnosis", ""])
+        for item in sector_diagnoses:
+            line = f"- {item.market_sector}: {item.diagnosis}"
+            confidence = getattr(item, "confidence", "")
+            if confidence:
+                line += f" ({confidence})"
+            next_queries = getattr(item, "recommended_next_queries", [])
+            if next_queries:
+                line += f"; next queries: {'; '.join(next_queries)}"
+            evidence_urls = getattr(item, "evidence_urls", [])
+            if evidence_urls:
+                line += f"; evidence: {', '.join(evidence_urls)}"
+            lines.append(line)
+        lines.append("")
+
+    theme_hypotheses = getattr(synthesis, "theme_hypotheses", [])
+    if theme_hypotheses:
+        lines.extend(
+            [
+                "### Theme Hypotheses",
+                "",
+                "| Market Sector | Theme | Evidence | Evidence URLs | Why It Matters | Why This May Be Noise | Confidence |",
+                "|---|---|---|---|---|---|---|",
+            ]
+        )
+        for theme in theme_hypotheses:
+            lines.append(
+                "| "
+                + " | ".join(
+                    [
+                        _markdown_table_cell(getattr(theme, "market_sector", "")),
+                        _markdown_table_cell(getattr(theme, "theme", "")),
+                        _markdown_table_cell(getattr(theme, "evidence_summary", "")),
+                        _markdown_table_cell(", ".join(getattr(theme, "evidence_urls", []))),
+                        _markdown_table_cell(getattr(theme, "why_it_matters", "")),
+                        _markdown_table_cell(getattr(theme, "why_this_may_be_noise", "")),
+                        _markdown_table_cell(getattr(theme, "confidence", "")),
+                    ]
+                )
+                + " |"
+            )
+        lines.append("")
+
+    possible_leads = getattr(synthesis, "possible_company_leads", [])
+    if possible_leads:
+        lines.extend(
+            [
+                "### Possible Companies Requiring Verification",
+                "",
+                "| Company | Market Sector | Source Lane | Evidence | Why On Radar | Verification Needed | Suggested Action | Confidence |",
+                "|---|---|---|---|---|---|---|---|",
+            ]
+        )
+        for lead in possible_leads:
+            lines.append(
+                "| "
+                + " | ".join(
+                    [
+                        _markdown_table_cell(getattr(lead, "name", "")),
+                        _markdown_table_cell(getattr(lead, "market_sector", "")),
+                        _markdown_table_cell(getattr(lead, "source_lane", "")),
+                        _markdown_table_cell(", ".join(getattr(lead, "evidence_urls", []))),
+                        _markdown_table_cell(getattr(lead, "why_on_radar", "")),
+                        _markdown_table_cell("; ".join(getattr(lead, "verification_needed", []))),
+                        _markdown_table_cell(getattr(lead, "suggested_action", "")),
+                        _markdown_table_cell(getattr(lead, "confidence", "")),
+                    ]
+                )
+                + " |"
+            )
+        lines.append("")
+
+    warnings = getattr(synthesis, "warnings", [])
+    if warnings:
+        lines.extend(["### Synthesis Warnings", ""])
+        for warning in warnings:
+            lines.append(f"- {warning}")
+
+    return "\n".join(lines).rstrip()
 
 
 def _faded_table(faded: list[dict]) -> str:

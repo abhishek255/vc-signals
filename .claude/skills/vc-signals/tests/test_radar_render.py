@@ -323,3 +323,117 @@ def test_render_weekly_brief_has_clear_empty_theme_state():
 
     assert "## Themes With No Company Yet" in markdown
     assert "- No meaningful non-company themes met the evidence bar." in markdown
+
+
+def test_render_weekly_brief_includes_synthesis_notes_when_enabled():
+    from radar_models import PossibleCompanyLead, SectorDiagnosis, SynthesisResult
+    from radar_render import render_weekly_brief
+
+    synthesis = SynthesisResult(
+        enabled=True,
+        model="fake-synthesis",
+        sector_diagnoses=[
+            SectorDiagnosis(
+                market_sector="Vertical AI",
+                diagnosis="Source failure / incomplete coverage",
+                recommended_next_queries=["vertical AI workflow automation startup launch"],
+                confidence="High",
+            )
+        ],
+        possible_company_leads=[
+            PossibleCompanyLead(
+                name="AgentShield",
+                market_sector="Cybersecurity",
+                source_lane="OSS",
+                evidence_urls=["https://github.com/affaan-m/agentshield"],
+                why_on_radar="Fast OSS momentum around AI agent security.",
+                verification_needed=["Confirm company formation"],
+                suggested_action="track company formation",
+                confidence="Medium",
+            )
+        ],
+        partner_notes=["This run is OSS-heavy because grounded company discovery is unavailable."],
+    )
+
+    markdown = render_weekly_brief([], {}, [], synthesis=synthesis)
+
+    assert "## LLM Synthesis Notes" in markdown
+    assert "This run is OSS-heavy because grounded company discovery is unavailable." in markdown
+    assert "### Possible Companies Requiring Verification" in markdown
+    assert "| AgentShield | Cybersecurity | OSS | https://github.com/affaan-m/agentshield |" in markdown
+    assert "Vertical AI: Source failure / incomplete coverage" in markdown
+
+
+def test_render_weekly_brief_omits_synthesis_notes_by_default():
+    from radar_render import render_weekly_brief
+
+    markdown = render_weekly_brief([], {}, [])
+
+    assert "## LLM Synthesis Notes" not in markdown
+
+
+def test_render_weekly_brief_includes_theme_only_synthesis_without_changing_full_radar():
+    from radar_models import SynthesisResult, ThemeHypothesis
+    from radar_render import render_weekly_brief
+
+    synthesis = SynthesisResult(
+        enabled=True,
+        model="fake-synthesis",
+        theme_hypotheses=[
+            ThemeHypothesis(
+                market_sector="AI Infrastructure",
+                theme="Agent memory observability",
+                evidence_summary="Teams are debugging long-context recall failures.",
+                evidence_urls=["https://example.com/agent-memory"],
+                why_it_matters="Memory bugs are becoming production blockers.",
+                why_this_may_be_noise="Could be framework churn, not budget owner pain.",
+                confidence="Medium",
+            )
+        ],
+    )
+
+    markdown = render_weekly_brief([], {}, [], synthesis=synthesis)
+    full_radar = markdown.split("## Full Radar", 1)[1].split("## Faded Off Radar", 1)[0]
+
+    assert "## LLM Synthesis Notes" in markdown
+    assert "### Theme Hypotheses" in markdown
+    assert "Agent memory observability" in markdown
+    assert "https://example.com/agent-memory" in markdown
+    assert "Agent memory observability" not in full_radar
+
+
+def test_render_weekly_brief_escapes_synthesis_table_cells():
+    from radar_models import PossibleCompanyLead, SynthesisResult, ThemeHypothesis
+    from radar_render import render_weekly_brief
+
+    synthesis = SynthesisResult(
+        enabled=True,
+        theme_hypotheses=[
+            ThemeHypothesis(
+                market_sector="AI|Infra",
+                theme="Agent\nmemory",
+                evidence_summary="Line one\nLine two\twith tabs",
+                evidence_urls=["https://example.com/a|b"],
+                why_it_matters="Budget | urgency",
+                why_this_may_be_noise="Noise\nor platform spillover",
+                confidence="Medium|Low",
+            )
+        ],
+        possible_company_leads=[
+            PossibleCompanyLead(
+                name="Pipe|Co",
+                market_sector="Cyber\nsecurity",
+                source_lane="OSS\tGitHub",
+                evidence_urls=["https://example.com/a|b"],
+                why_on_radar="Line one\nLine two | with pipe",
+                verification_needed=["Check | domain", "Confirm\nfounder"],
+                suggested_action="track | verify",
+                confidence="High\nMedium",
+            )
+        ],
+    )
+
+    markdown = render_weekly_brief([], {}, [], synthesis=synthesis)
+
+    assert "| AI\\|Infra | Agent memory | Line one Line two with tabs | https://example.com/a\\|b |" in markdown
+    assert "| Pipe\\|Co | Cyber security | OSS GitHub | https://example.com/a\\|b | Line one Line two \\| with pipe | Check \\| domain; Confirm founder | track \\| verify | High Medium |" in markdown
