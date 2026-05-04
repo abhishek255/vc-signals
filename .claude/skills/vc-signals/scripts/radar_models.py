@@ -75,12 +75,59 @@ class Candidate:
     stars: int = 0
     stars_30d: int = 0
     maintainer_profiles: list[dict] = field(default_factory=list)
+    market_sector: str = ""
+    source_lane: str = ""
+    evidence_role: str = ""
+    sector_confidence: str = ""
+    sector_reason: str = ""
+    partner_priority_score: int = 0
 
     def to_dict(self) -> dict:
         return asdict(self)
 
     @classmethod
     def from_dict(cls, payload: dict) -> "Candidate":
+        return cls(**_known_payload(cls, payload))
+
+
+@dataclass
+class ThemeSignal:
+    market_sector: str
+    theme: str
+    source_lanes: list[str] = field(default_factory=list)
+    evidence_count: int = 0
+    evidence_summary: str = ""
+    why_it_matters: str = ""
+    why_no_company_yet: str = ""
+    suggested_search: str = ""
+    confidence: str = "Low"
+
+    def to_dict(self) -> dict:
+        return asdict(self)
+
+    @classmethod
+    def from_dict(cls, payload: dict) -> "ThemeSignal":
+        return cls(**_known_payload(cls, payload))
+
+
+@dataclass
+class SectorIntelligence:
+    market_sector: str
+    status: str = "No meaningful signal this week"
+    raw_signals: int = 0
+    candidate_eligible_signals: int = 0
+    promoted_candidates: int = 0
+    rejected_signals: int = 0
+    best_evidence: str = ""
+    why_no_more_companies: str = ""
+    next_hunt: str = ""
+    source_errors: list[str] = field(default_factory=list)
+
+    def to_dict(self) -> dict:
+        return asdict(self)
+
+    @classmethod
+    def from_dict(cls, payload: dict) -> "SectorIntelligence":
         return cls(**_known_payload(cls, payload))
 
 
