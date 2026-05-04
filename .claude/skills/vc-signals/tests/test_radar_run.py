@@ -988,6 +988,50 @@ def test_run_weekly_artifacts_saves_signals_candidates_and_sector_coverage(tmp_p
     assert "data-infra: no qualified candidates" in preview
 
 
+def test_run_weekly_artifacts_writes_theme_and_sector_intelligence(tmp_path, monkeypatch):
+    import radar_run
+
+    monkeypatch.setattr(
+        radar_run,
+        "collect_live_evidence",
+        lambda **kwargs: {
+            "last30days": {
+                "cybersecurity": {
+                    "items": [
+                        {
+                            "source": "reddit",
+                            "title": "How are teams controlling AI agent permissions?",
+                            "url": "https://reddit.com/1",
+                        },
+                        {
+                            "source": "reddit",
+                            "title": "MCP tools are creating security review headaches",
+                            "url": "https://reddit.com/2",
+                        },
+                    ],
+                    "errors": [],
+                }
+            },
+            "github": [],
+            "warnings": [],
+        },
+    )
+    monkeypatch.setattr(radar_run, "load_candidate_history", lambda: {})
+    monkeypatch.setattr(radar_run, "save_candidate_history", lambda history: None)
+    monkeypatch.setattr(radar_run, "apply_candidate_enrichment", lambda candidates: candidates)
+    monkeypatch.setattr(radar_run, "_grounded_search_available", lambda: False)
+
+    radar_run.run_weekly_artifacts(output_dir=tmp_path, sectors=("cybersecurity",), github_limit=0)
+
+    assert (tmp_path / "theme-signals.json").exists()
+    assert (tmp_path / "sector-intelligence.json").exists()
+    themes = json.loads((tmp_path / "theme-signals.json").read_text())
+    sectors = json.loads((tmp_path / "sector-intelligence.json").read_text())
+    assert themes[0]["market_sector"] == "Cybersecurity"
+    assert themes[0]["theme"] == "AI agent security"
+    assert sectors[0]["status"] == "Pain signal, no company yet"
+
+
 def test_weekly_radar_keeps_up_to_50_not_just_top_15(tmp_path, monkeypatch):
     import json
     import radar_run

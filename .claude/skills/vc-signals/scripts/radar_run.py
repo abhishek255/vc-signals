@@ -12,6 +12,7 @@ import json
 import os
 import re
 import sys
+from inspect import signature
 from datetime import datetime, timezone
 from pathlib import Path
 from urllib.parse import urlparse
@@ -40,8 +41,10 @@ except ImportError:  # pragma: no cover - only for damaged installs
 from radar_models import Candidate, RejectedSignal, SectorCoverage
 from radar_scoring import score_and_tier
 from radar_sources import classify_source_item
+from radar_sector_intelligence import build_sector_intelligence
 from radar_sector_classifier import classify_market_sector
 from radar_render import render_weekly_brief
+from radar_theme_signals import build_theme_signals
 from radar_history import apply_weekly_tags, load_candidate_history, save_candidate_history
 from radar_enrichment import apply_candidate_enrichment, merge_source_enrichment
 from radar_oss import enrich_oss_candidate
@@ -1061,6 +1064,32 @@ def _update_sector_coverage(
             item.reason = "No relevant source evidence returned for this sector."
 
 
+def _source_errors_from_evidence(evidence: dict) -> dict[str, list[str]]:
+    return {
+        sector: payload.get("errors", [])
+        for sector, payload in evidence.get("last30days", {}).items()
+        if payload.get("errors")
+    }
+
+
+def _render_weekly_brief(
+    candidates: list[Candidate],
+    coverage: dict[str, SectorCoverage],
+    rejected: list[RejectedSignal],
+    *,
+    faded: list[dict],
+    theme_signals: list,
+    sector_intelligence: list,
+) -> str:
+    kwargs = {"faded": faded}
+    accepted = signature(render_weekly_brief).parameters
+    if "theme_signals" in accepted:
+        kwargs["theme_signals"] = theme_signals
+    if "sector_intelligence" in accepted:
+        kwargs["sector_intelligence"] = sector_intelligence
+    return render_weekly_brief(candidates, coverage, rejected, **kwargs)
+
+
 def save_raw_evidence(evidence: dict, *, output_dir: Path = DEFAULT_OUTPUT_DIR, run_date: str | None = None) -> Path:
     run_date = run_date or datetime.now(timezone.utc).strftime("%Y-%m-%d")
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -1154,6 +1183,8 @@ def run_weekly_artifacts(
     raw_path = save_raw_evidence(evidence, output_dir=output_dir)
     signal_result = build_signals_from_evidence(evidence)
     promotion = promote_signals_to_candidates(signal_result["signals"])
+    theme_signals = build_theme_signals(signal_result["signals"], sectors=sectors)
+    source_errors = _source_errors_from_evidence(evidence)
     scored_candidates = _score_sort_limit_candidates(promotion["candidates"], candidate_limit)
     scored_candidates = apply_candidate_enrichment(scored_candidates)
     scored_candidates = _apply_attio_to_candidates(scored_candidates, _attio_client_from_env())
@@ -1163,16 +1194,40 @@ def run_weekly_artifacts(
     scored_candidates = history_result.candidates
     save_candidate_history(history_result.history)
     _update_sector_coverage(signal_result["coverage"], sectors, scored_candidates, promotion["rejected"])
+    sector_intelligence = build_sector_intelligence(
+        sectors=sectors,
+        coverage=signal_result["coverage"],
+        candidates=scored_candidates,
+        rejected=promotion["rejected"],
+        theme_signals=theme_signals,
+        source_errors=source_errors,
+        grounded_available=_grounded_search_available(),
+    )
     signals_path = output_dir / "signals.json"
     candidates_path = output_dir / "candidates.json"
+    theme_signals_path = output_dir / "theme-signals.json"
+    sector_intelligence_path = output_dir / "sector-intelligence.json"
     signals_path.write_text(json.dumps([signal.to_dict() for signal in signal_result["signals"]], indent=2))
     candidates_path.write_text(json.dumps([candidate.to_dict() for candidate in scored_candidates], indent=2))
+    theme_signals_path.write_text(json.dumps([item.to_dict() for item in theme_signals], indent=2))
+    sector_intelligence_path.write_text(json.dumps([item.to_dict() for item in sector_intelligence], indent=2))
     preview_path = output_dir / "weekly-preview.md"
-    preview_path.write_text(render_weekly_brief(scored_candidates, signal_result["coverage"], promotion["rejected"], faded=history_result.faded))
+    preview_path.write_text(
+        _render_weekly_brief(
+            scored_candidates,
+            signal_result["coverage"],
+            promotion["rejected"],
+            faded=history_result.faded,
+            theme_signals=theme_signals,
+            sector_intelligence=sector_intelligence,
+        )
+    )
     return {
         "raw_evidence": str(raw_path),
         "signals": str(signals_path),
         "candidates": str(candidates_path),
+        "theme_signals": str(theme_signals_path),
+        "sector_intelligence": str(sector_intelligence_path),
         "preview": str(preview_path),
         "companies": len(scored_candidates),
         "sectors": list(sectors),
