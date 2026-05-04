@@ -37,29 +37,44 @@ In a few minutes, you get a weekly all-sector radar like this:
 ```markdown
 # VC Signals Weekly Radar
 
+## Run Summary
+
+This run produced 50 qualified rows across 4 market sectors.
+Source mix: 50 OSS.
+Warning: this run is OSS-heavy; non-OSS company discovery did not produce qualified rows.
+
 ## Partner Review
 
-| Company / Project | Sector | Theme | Tag | Stage | Raised | Headcount | Founders | Tier | Interest | Evidence | Attio | Attio Owner | Staleness | Action | OSS Score | Action Reason | Why On Radar | Why This May Be Noise |
-|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
-| AgentShield | OSS | AI agent security | NEW |  |  |  | affaan-m | Partner Review | High | Medium | no_match |  |  | track company formation | 70 | +187 stars in 30d; strategic keywords: agent, mcp, security | Fast GitHub momentum around AI agent security scanning | Repo traction may not map to company formation or buyer urgency |
-| BeeSafe AI | Cybersecurity | AI fraud defense | RETURNING | Seed | $4M | 12 | Asha Rao | Partner Review | High | Medium | no_owner | Michael | No MMP owner in Attio | assign owner |  |  | HN launch plus company/domain evidence around voice phishing defense | Early signal may still be founder-led |
+| Company / Project | Market Sector | Source Lane | Theme | Tag | Tier | Interest | Evidence | Attio | Action | Why On Radar | Why This May Be Noise |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| affaan-m/agentshield | Cybersecurity | OSS | AI agent security | NEW | Partner Review | High | Medium | unknown | track company formation | AI agent security scanner for agent configs, MCP servers, and tool permissions; +187 stars in 30d. | Needs verification across stronger company/founder/customer evidence. |
+| redwoodjs/agent-ci | Devtools | OSS | Emerging technical signal | NEW | Watchlist | Medium | Low | unknown | watch | Local GitHub Actions for coding agents; +124 stars in 30d. | Repo traction may not map to company formation or buyer urgency. |
 
 ## Full Radar
 
-Up to 50 qualified companies/projects. No filler rows.
+Up to 50 qualified companies/projects. No filler rows. Full Radar keeps expanded fields like Stage, Raised, Headcount, Founders, LinkedIn, X, Attio URL, OSS Score, and Best Source when evidence supports them.
 
-## Sector Coverage
+## Sector Intelligence
 
-- **data-infra: no qualified candidates** - Reddit pain exists, but no verified company/domain/founder evidence yet.
-- **oss: qualified candidates found** - Qualified candidates found.
+### Cybersecurity
+Status: OSS/project candidates found
+Why no more companies: promoted rows are OSS/project evidence; no verified company pages or funding/company discovery rows qualified.
+Next hunt: AI agent security startups Seed Series A founder launch
+
+## Themes With No Company Yet
+
+| Market Sector | Theme | Evidence | Why It Matters | Why No Company Yet | Suggested Search |
+|---|---|---|---|---|---|
+| Data Infra | Emerging technical signal | HTTP/3, storage cleanup, and infrastructure chatter | Repeated non-company signal suggests operator pain. | No verified company/domain/founder evidence appeared in this run. | Data infra startups Seed Series A founder launch |
 
 ## Weak Evidence / Rejected Summary
 
-- source_not_candidate_eligible: 38
-- candidate_name_not_extractable: 7
+- source_not_candidate_eligible: 44
 ```
 
 Each company or project gets a specific **Why On Radar**, separate **Investment Interest** and **Evidence Confidence** scores, a skeptical **Why This May Be Noise**, and an action label.
+
+**Market Sector vs Source Lane:** Market Sector is the investment category, such as Cybersecurity or AI Infra. Source Lane is where the evidence came from, such as OSS, Reddit, HN, Grounded Web, or TikTok. An OSS repo can therefore be `Market Sector = Cybersecurity` and `Source Lane = OSS`.
 
 The generated partner preview also includes **Tag**, **Stage**, **Raised**, **Headcount**, **Founders**, **LinkedIn**, **X**, **Attio Owner**, **Attio URL**, and **Staleness** columns. These fields are evidence-backed: if the cache, source evidence, or Attio does not provide a trusted value, the cell stays blank instead of being guessed.
 
@@ -262,8 +277,10 @@ That Markdown file is the partner-readable artifact. The same folder also contai
 - `raw-evidence.json` or `<date>-raw-evidence.json`: source evidence from collection.
 - `signals.json`: normalized Reddit/HN/GitHub/web/social signals.
 - `candidates.json`: scored candidate companies/projects, including weaker "Needs More Evidence" rows.
+- `sector-intelligence.json`: per-sector status, source gaps, rejected counts, and next-hunt prompts.
+- `theme-signals.json`: useful non-company signal that should guide research but should not become a fake company row.
 
-If the output is thin, that does not necessarily mean the sector is dead. It means the current run found pain or chatter but not enough candidate-quality company/project evidence. Check `Sector Coverage` and `Weak Evidence / Rejected Summary` before deciding whether to rerun with better keys or do a manual deep dive.
+If the output is thin, that does not necessarily mean the sector is dead. It means the current run found pain or chatter but not enough candidate-quality company/project evidence. Check `Sector Intelligence`, `Themes With No Company Yet`, and `Weak Evidence / Rejected Summary` before deciding whether to rerun with better keys or do a manual deep dive.
 
 ### All Commands
 
@@ -297,10 +314,16 @@ The artifact contains:
 - Full Radar: up to 50 qualified companies/projects, with no filler rows.
 - Tag and Faded Off Radar: week-over-week status for current and recently disappeared companies/projects.
 - Evidence-backed enrichment: stage, raised, headcount, founders, Attio owner/staleness, Attio URL, and OSS formation score when trusted evidence exists.
-- Sector Coverage: every requested sector, including no-qualified-candidates reasons.
+- Run Summary: candidate count, market-sector coverage, source mix, and an OSS-heavy warning when all qualified rows came from OSS.
+- Sector Intelligence: every requested priority sector, including whether it produced company candidates, OSS/project candidates, pain with no company yet, no meaningful signal, or source failures.
+- Themes With No Company Yet: bounded hunt prompts from non-company evidence, not fake company rows.
 - Weak Evidence Summary: what was filtered out and why, plus "Needs More Evidence" items when there is useful pain/theme signal without enough company verification.
 
+Market Sector is the investment category, such as Cybersecurity or AI Infra. Source Lane is where the evidence came from, such as OSS, Reddit, HN, Grounded Web, or TikTok. An OSS repo can therefore be `Market Sector = Cybersecurity` and `Source Lane = OSS`.
+
 Reddit is used primarily for curated pain discovery across devtools, cybersecurity, AI infra, vertical AI, data infra, and OSS. It rarely creates company rows directly. HN Show/Launch, GitHub repos, grounded web/company pages, Attio seeds, and user-provided companies are candidate-eligible sources.
+
+YouTube, TikTok, Instagram, and Threads are supporting source lanes through ScrapeCreators/last30days. They can create a candidate only when the company/product identity is clear and corroborated by a founder/company account, demo, website, waitlist, or another source.
 
 ### Examples
 
@@ -412,12 +435,15 @@ You can also manually add a sector by editing `sectors.json` following the exist
 ## Known Limitations
 
 - **WebSearch path** gives less structured data than last30days (no per-source isolation)
+- **Grounded company discovery** depends on a configured web search key. Without it, the run still uses OSS/HN/available sources, but non-OSS company discovery is intentionally limited and labeled.
 - **GitHub star velocity** is approximated — no historical time series without a third-party service
 - **Company seed map** starts with ~40 entries — coverage improves as you add companies
 - **Scheduling** requires manual setup via `/schedule` — the skill guides you through it but can't auto-schedule itself
 - **Momentum scoring** is heuristic, not statistically rigorous — transparency over precision
-- **Blank enrichment fields** mean no trusted evidence was found. They are follow-up work, not missing formatting.
-- **Attio integration is read-only** — it matches and enriches records but does not write notes, assign owners, or update CRM fields.
+- **Funding, headcount, founder, stage, and lead-investor fields** are evidence-backed when available, not guaranteed. Blank cells mean no trusted source, cache, or Attio value was found.
+- **Attio integration is read/match context only** — it matches and enriches records but does not write notes, assign owners, update CRM fields, or create list entries unless a later writeback workflow is built.
+- **Social/video evidence is supporting evidence** — YouTube, TikTok, Instagram, and Threads need clear company/product identity plus corroboration before creating candidate rows.
+- **Slack destination is still open/configurable** — weekly delivery can later target a configurable channel, but the current artifact is generated locally as Markdown/JSON.
 - **Deep research** requires OpenRouter API key and costs ~$0.90 per query
 
 ## Why This Exists
@@ -432,7 +458,9 @@ The result: a weekly forcing function to explore categories you might not have f
 
 ## What's New
 
-**May 2026: Radar V2 reliability layer.** The weekly command now creates auditable raw evidence, normalized signals, scored candidates, week-over-week tags, faded candidates/projects, evidence-backed enrichment fields, OSS formation scoring, and richer read-only Attio context.
+**May 2026: Radar V3 sector-balanced artifact.** The weekly command now separates `Market Sector` from `Source Lane`, reclassifies OSS projects into investment categories, renders a top Run Summary, adds Sector Intelligence for every priority sector, and turns non-company signal into "Themes With No Company Yet" hunt prompts.
+
+**May 2026: Radar V2 reliability layer.** The weekly command creates auditable raw evidence, normalized signals, scored candidates, week-over-week tags, faded candidates/projects, evidence-backed enrichment fields, OSS formation scoring, and richer read-only Attio context.
 
 **May 2026: Radar V2 signal pipeline.** The weekly command creates auditable raw evidence, normalized signals, scored candidates, and a partner-readable brief. It separates practitioner pain from candidate-eligible evidence, keeps up to 50 qualified rows with no filler, and renders sector coverage notes when a sector has weak signal or no qualified companies.
 
@@ -440,9 +468,10 @@ The result: a weekly forcing function to explore categories you might not have f
 
 **What flipped:**
 - Themes are context; company/project rows are the review surface
-- The weekly artifact starts with Partner Review, then Full Radar, then Sector Coverage
+- The weekly artifact starts with Run Summary and Partner Review, then Full Radar, Sector Intelligence, Themes With No Company Yet, and Weak Evidence
 - Company/project rows became the primary object of review
 - Weak signal is preserved as "Needs More Evidence" instead of being turned into a fake company row
+- OSS is a source lane, not a default market sector; a security repo can be `Market Sector = Cybersecurity` and `Source Lane = OSS`
 - Schema additions: companies/projects are first-class entities with stable history (`candidate_history.json`) and evidence-backed enrichment fields for stage, raised, headcount, founders, Attio context, and OSS formation scoring
 
 The previous `/vc-signals weekly` command still works as an alias for `/vc-signals radar`. Existing briefings remain readable; week-over-week diffs gracefully degrade for the one-week schema transition.
@@ -458,9 +487,11 @@ The previous `/vc-signals weekly` command still works as an alias for `/vc-signa
 5. ✅ **OSS radar semantics** — GitHub velocity, OSS project rows, maintainer profiles, license preservation, company-formation score, action vocabulary, and action rationale.
 6. ✅ **Read-only Attio CRM context** — domain/name matching, status labels, stale/no-owner resurfacing, passed-company quiet flags, owner, last touch, staleness reason, CRM URL, and mapped stage/raised/headcount fields.
 7. ✅ **Evidence-backed company enrichment** — stage, raised, headcount, founders, founding year, and lead investor can be merged from fresh cache/source evidence/Attio; blank means no trusted evidence.
-8. ◐ **Ecosystem and contact depth** — still needs richer maintainer contact enrichment, founder background synthesis, and OSS ecosystem map generation.
-9. **Weekly delivery** — Monday 8:00 AM ET Slack teaser with a configurable channel and link or artifact for the full radar.
-10. **Theme depth** — drill-down surfaces actual sub-debates and company positioning, not just summaries.
+8. ✅ **Radar V3 sector-balanced artifact** — Market Sector and Source Lane are separate, Partner Review is priority-ranked, Sector Intelligence explains quiet sectors, and Themes With No Company Yet preserve non-company signal.
+9. ◐ **Grounded company discovery depth** — sector-specific company queries exist, but broad web/company discovery still depends on configured web keys and better corroboration sources.
+10. ◐ **Ecosystem and contact depth** — still needs richer maintainer contact enrichment, founder background synthesis, and OSS ecosystem map generation.
+11. **Weekly delivery** — Monday 8:00 AM ET Slack teaser with an open/configurable destination and link or artifact for the full radar.
+12. **Theme depth** — drill-down surfaces actual sub-debates and company positioning, not just summaries.
 
 ---
 

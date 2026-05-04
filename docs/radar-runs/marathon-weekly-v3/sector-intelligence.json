@@ -1,0 +1,66 @@
+[
+  {
+    "market_sector": "Devtools",
+    "status": "OSS/project candidates found",
+    "raw_signals": 3,
+    "candidate_eligible_signals": 29,
+    "promoted_candidates": 29,
+    "rejected_signals": 3,
+    "best_evidence": "29 promoted rows from OSS.",
+    "why_no_more_companies": "Promoted rows are OSS/project evidence; no verified company pages or funding/company discovery rows qualified. Grounded company discovery is not configured, so non-OSS company discovery is limited.",
+    "next_hunt": "Emerging technical signal startups Seed Series A founder launch",
+    "source_errors": [
+      "last30days query timed out (120s)"
+    ]
+  },
+  {
+    "market_sector": "Cybersecurity",
+    "status": "OSS/project candidates found",
+    "raw_signals": 3,
+    "candidate_eligible_signals": 9,
+    "promoted_candidates": 9,
+    "rejected_signals": 3,
+    "best_evidence": "9 promoted rows from OSS.",
+    "why_no_more_companies": "Promoted rows are OSS/project evidence; no verified company pages or funding/company discovery rows qualified. Grounded company discovery is not configured, so non-OSS company discovery is limited.",
+    "next_hunt": "AI agent security startups Seed Series A founder launch",
+    "source_errors": []
+  },
+  {
+    "market_sector": "AI Infra",
+    "status": "OSS/project candidates found",
+    "raw_signals": 17,
+    "candidate_eligible_signals": 6,
+    "promoted_candidates": 6,
+    "rejected_signals": 17,
+    "best_evidence": "6 promoted rows from OSS.",
+    "why_no_more_companies": "Promoted rows are OSS/project evidence; no verified company pages or funding/company discovery rows qualified. Grounded company discovery is not configured, so non-OSS company discovery is limited.",
+    "next_hunt": "Emerging technical signal startups Seed Series A founder launch",
+    "source_errors": []
+  },
+  {
+    "market_sector": "Vertical AI",
+    "status": "Source failure / incomplete coverage",
+    "raw_signals": 0,
+    "candidate_eligible_signals": 0,
+    "promoted_candidates": 0,
+    "rejected_signals": 0,
+    "best_evidence": "Source collection returned errors before enough evidence could be promoted.",
+    "why_no_more_companies": "No verified company/domain/founder evidence appeared in this run. Grounded company discovery is not configured, so non-OSS company discovery is limited.",
+    "next_hunt": "Vertical AI startups Seed Series A founder launch",
+    "source_errors": [
+      "last30days exited with code 1"
+    ]
+  },
+  {
+    "market_sector": "Data Infra",
+    "status": "Pain signal, no company yet",
+    "raw_signals": 13,
+    "candidate_eligible_signals": 0,
+    "promoted_candidates": 0,
+    "rejected_signals": 13,
+    "best_evidence": "Bun.serve: HTTP/3 (QUIC) support via `h3: true`; Remake app as AI storage cleaner and Drive offloader MVP; A Large Thank You",
+    "why_no_more_companies": "No verified company/domain/founder evidence appeared in this run. Grounded company discovery is not configured, so non-OSS company discovery is limited.",
+    "next_hunt": "Emerging technical signal startups Seed Series A founder launch",
+    "source_errors": []
+  }
+]

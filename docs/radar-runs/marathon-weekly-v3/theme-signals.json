@@ -1,0 +1,81 @@
+[
+  {
+    "market_sector": "AI Infra",
+    "theme": "Emerging technical signal",
+    "source_lanes": [
+      "OSS"
+    ],
+    "evidence_count": 10,
+    "evidence_summary": "Bring Back /buddy: 511 Reasons Why; Bun.serve: HTTP/3 (QUIC) support via `h3: true`; [Project Proposal] agentgateway",
+    "why_it_matters": "Repeated non-company signal suggests buyer/operator pain around Emerging technical signal.",
+    "why_no_company_yet": "No verified company/domain/founder evidence appeared in this run.",
+    "suggested_search": "Emerging technical signal startups Seed Series A founder launch",
+    "confidence": "Medium"
+  },
+  {
+    "market_sector": "AI Infra",
+    "theme": "Agent runtime infrastructure",
+    "source_lanes": [
+      "OSS"
+    ],
+    "evidence_count": 7,
+    "evidence_summary": "Add Rust context engine and Go runtime bridge; Codex/review pr and app; [Project Proposal] Agent Governance Toolkit",
+    "why_it_matters": "Repeated non-company signal suggests buyer/operator pain around Agent runtime infrastructure.",
+    "why_no_company_yet": "No verified company/domain/founder evidence appeared in this run.",
+    "suggested_search": "Agent runtime infrastructure startups Seed Series A founder launch",
+    "confidence": "Medium"
+  },
+  {
+    "market_sector": "Devtools",
+    "theme": "Emerging technical signal",
+    "source_lanes": [
+      "OSS"
+    ],
+    "evidence_count": 5,
+    "evidence_summary": "Restore cmux themes Enter apply; Add Venturalitica SDK to Evidence Automation; merge: resolve master conflicts for ai-interview-coach",
+    "why_it_matters": "Repeated non-company signal suggests buyer/operator pain around Emerging technical signal.",
+    "why_no_company_yet": "No verified company/domain/founder evidence appeared in this run.",
+    "suggested_search": "Emerging technical signal startups Seed Series A founder launch",
+    "confidence": "Medium"
+  },
+  {
+    "market_sector": "Data Infra",
+    "theme": "Emerging technical signal",
+    "source_lanes": [
+      "OSS"
+    ],
+    "evidence_count": 5,
+    "evidence_summary": "Bun.serve: HTTP/3 (QUIC) support via `h3: true`; Remake app as AI storage cleaner and Drive offloader MVP; A Large Thank You",
+    "why_it_matters": "Repeated non-company signal suggests buyer/operator pain around Emerging technical signal.",
+    "why_no_company_yet": "No verified company/domain/founder evidence appeared in this run.",
+    "suggested_search": "Emerging technical signal startups Seed Series A founder launch",
+    "confidence": "Medium"
+  },
+  {
+    "market_sector": "Cybersecurity",
+    "theme": "AI agent security",
+    "source_lanes": [
+      "Hacker News",
+      "OSS"
+    ],
+    "evidence_count": 3,
+    "evidence_summary": "fix(security): RGS-008 \u2014 replace direct secret interpolation in run blocks with env var references; fix(claude): replace bypassPermissions with acceptEdits and fix missing MCP server tools in --allowed-tools; How are you handling security for AI agents that use MCP tools?",
+    "why_it_matters": "Repeated non-company signal suggests buyer/operator pain around AI agent security.",
+    "why_no_company_yet": "No verified company/domain/founder evidence appeared in this run.",
+    "suggested_search": "AI agent security startups Seed Series A founder launch",
+    "confidence": "Medium"
+  },
+  {
+    "market_sector": "AI Infra",
+    "theme": "AI agent security",
+    "source_lanes": [
+      "OSS"
+    ],
+    "evidence_count": 3,
+    "evidence_summary": "feat(browser): add Obscura as a browser provider (Rust headless browser with CDP); [BOUNTY: 3 RTC] Share elyanlabs.ai Launch on Social Media (With Proof); [BOUNTY: 3 RTC] Share elyanlabs.ai Launch on Social Media (With Proof)",
+    "why_it_matters": "Repeated non-company signal suggests buyer/operator pain around AI agent security.",
+    "why_no_company_yet": "No verified company/domain/founder evidence appeared in this run.",
+    "suggested_search": "AI agent security startups Seed Series A founder launch",
+    "confidence": "Medium"
+  }
+]

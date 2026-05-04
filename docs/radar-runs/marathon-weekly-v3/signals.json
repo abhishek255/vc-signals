@@ -24,7 +24,8 @@
       "author": "lawrencecchen",
       "query_kind": "conversation",
       "query_topic": "Show HN Developer Tools AI startup developer tool open source",
-      "candidate_eligible": true
+      "candidate_eligible": true,
+      "source_lane": "OSS"
     }
   },
   {
@@ -52,7 +53,8 @@
       "author": "KB01111",
       "query_kind": "conversation",
       "query_topic": "Show HN Developer Tools AI startup developer tool open source",
-      "candidate_eligible": true
+      "candidate_eligible": true,
+      "source_lane": "OSS"
     }
   },
   {
@@ -80,7 +82,8 @@
       "author": "KB01111",
       "query_kind": "conversation",
       "query_topic": "Show HN Developer Tools AI startup developer tool open source",
-      "candidate_eligible": true
+      "candidate_eligible": true,
+      "source_lane": "OSS"
     }
   },
   {
@@ -109,7 +112,8 @@
       "author": "",
       "query_kind": "reddit_pain",
       "query_topic": "security operations pain OR application security backlog OR cloud security false positives",
-      "candidate_eligible": false
+      "candidate_eligible": false,
+      "source_lane": "Reddit"
     }
   },
   {
@@ -137,7 +141,8 @@
       "author": "morganrcu",
       "query_kind": "conversation",
       "query_topic": "Show HN Cybersecurity AI startup developer tool open source",
-      "candidate_eligible": true
+      "candidate_eligible": true,
+      "source_lane": "OSS"
     }
   },
   {
@@ -165,7 +170,8 @@
       "author": "mabrown040",
       "query_kind": "conversation",
       "query_topic": "Show HN Cybersecurity AI startup developer tool open source",
-      "candidate_eligible": true
+      "candidate_eligible": true,
+      "source_lane": "OSS"
     }
   },
   {
@@ -193,7 +199,8 @@
       "author": "imran-siddique",
       "query_kind": "conversation",
       "query_topic": "Show HN AI Infrastructure AI startup developer tool open source",
-      "candidate_eligible": true
+      "candidate_eligible": true,
+      "source_lane": "OSS"
     }
   },
   {
@@ -221,7 +228,8 @@
       "author": "willy-scr",
       "query_kind": "conversation",
       "query_topic": "Show HN AI Infrastructure AI startup developer tool open source",
-      "candidate_eligible": true
+      "candidate_eligible": true,
+      "source_lane": "OSS"
     }
   },
   {
@@ -249,7 +257,8 @@
       "author": "balandari",
       "query_kind": "conversation",
       "query_topic": "Show HN AI Infrastructure AI startup developer tool open source",
-      "candidate_eligible": true
+      "candidate_eligible": true,
+      "source_lane": "OSS"
     }
   },
   {
@@ -277,7 +286,8 @@
       "author": "arivero",
       "query_kind": "conversation",
       "query_topic": "Show HN AI Infrastructure AI startup developer tool open source",
-      "candidate_eligible": true
+      "candidate_eligible": true,
+      "source_lane": "OSS"
     }
   },
   {
@@ -305,7 +315,8 @@
       "author": "Scottcjn",
       "query_kind": "conversation",
       "query_topic": "Show HN AI Infrastructure AI startup developer tool open source",
-      "candidate_eligible": true
+      "candidate_eligible": true,
+      "source_lane": "OSS"
     }
   },
   {
@@ -333,7 +344,8 @@
       "author": "Jarred-Sumner",
       "query_kind": "conversation",
       "query_topic": "Show HN AI Infrastructure AI startup developer tool open source",
-      "candidate_eligible": true
+      "candidate_eligible": true,
+      "source_lane": "OSS"
     }
   },
   {
@@ -361,7 +373,8 @@
       "author": "linsun",
       "query_kind": "conversation",
       "query_topic": "Show HN AI Infrastructure AI startup developer tool open source",
-      "candidate_eligible": true
+      "candidate_eligible": true,
+      "source_lane": "OSS"
     }
   },
   {
@@ -389,7 +402,8 @@
       "author": "jasonelsontxt",
       "query_kind": "conversation",
       "query_topic": "Show HN AI Infrastructure AI startup developer tool open source",
-      "candidate_eligible": true
+      "candidate_eligible": true,
+      "source_lane": "OSS"
     }
   },
   {
@@ -417,7 +431,8 @@
       "author": "Jarred-Sumner",
       "query_kind": "conversation",
       "query_topic": "Show HN AI Infrastructure AI startup developer tool open source",
-      "candidate_eligible": true
+      "candidate_eligible": true,
+      "source_lane": "OSS"
     }
   },
   {
@@ -445,7 +460,8 @@
       "author": "yurishkuro",
       "query_kind": "conversation",
       "query_topic": "Show HN AI Infrastructure AI startup developer tool open source",
-      "candidate_eligible": true
+      "candidate_eligible": true,
+      "source_lane": "OSS"
     }
   },
   {
@@ -473,7 +489,8 @@
       "author": "tranquillum",
       "query_kind": "conversation",
       "query_topic": "Show HN AI Infrastructure AI startup developer tool open source",
-      "candidate_eligible": true
+      "candidate_eligible": true,
+      "source_lane": "OSS"
     }
   },
   {
@@ -501,7 +518,8 @@
       "author": "Scottcjn",
       "query_kind": "conversation",
       "query_topic": "Show HN AI Infrastructure AI startup developer tool open source",
-      "candidate_eligible": true
+      "candidate_eligible": true,
+      "source_lane": "OSS"
     }
   },
   {
@@ -529,7 +547,8 @@
       "author": "Scottcjn",
       "query_kind": "conversation",
       "query_topic": "Show HN AI Infrastructure AI startup developer tool open source",
-      "candidate_eligible": true
+      "candidate_eligible": true,
+      "source_lane": "OSS"
     }
   },
   {
@@ -557,7 +576,8 @@
       "author": "GabrieleAncillai",
       "query_kind": "conversation",
       "query_topic": "Show HN AI Infrastructure AI startup developer tool open source",
-      "candidate_eligible": true
+      "candidate_eligible": true,
+      "source_lane": "OSS"
     }
   },
   {
@@ -585,7 +605,8 @@
       "author": "innotelinc",
       "query_kind": "conversation",
       "query_topic": "Show HN AI Infrastructure AI startup developer tool open source",
-      "candidate_eligible": true
+      "candidate_eligible": true,
+      "source_lane": "OSS"
     }
   },
   {
@@ -613,7 +634,8 @@
       "author": "TaylorBeeston",
       "query_kind": "conversation",
       "query_topic": "Show HN AI Infrastructure AI startup developer tool open source",
-      "candidate_eligible": true
+      "candidate_eligible": true,
+      "source_lane": "OSS"
     }
   },
   {
@@ -641,7 +663,8 @@
       "author": "bodongiee",
       "query_kind": "conversation",
       "query_topic": "Show HN AI Infrastructure AI startup developer tool open source",
-      "candidate_eligible": true
+      "candidate_eligible": true,
+      "source_lane": "OSS"
     }
   },
   {
@@ -670,7 +693,8 @@
       "author": "",
       "query_kind": "reddit_pain",
       "query_topic": "data pipeline testing pain OR data lineage pain OR data quality incident",
-      "candidate_eligible": false
+      "candidate_eligible": false,
+      "source_lane": "Reddit"
     }
   },
   {
@@ -699,7 +723,8 @@
       "author": "",
       "query_kind": "reddit_pain",
       "query_topic": "data pipeline testing pain OR data lineage pain OR data quality incident",
-      "candidate_eligible": false
+      "candidate_eligible": false,
+      "source_lane": "Reddit"
     }
   },
   {
@@ -728,7 +753,8 @@
       "author": "",
       "query_kind": "reddit_pain",
       "query_topic": "data pipeline testing pain OR data lineage pain OR data quality incident",
-      "candidate_eligible": false
+      "candidate_eligible": false,
+      "source_lane": "Reddit"
     }
   },
   {
@@ -757,7 +783,8 @@
       "author": "",
       "query_kind": "reddit_pain",
       "query_topic": "data pipeline testing pain OR data lineage pain OR data quality incident",
-      "candidate_eligible": false
+      "candidate_eligible": false,
+      "source_lane": "Reddit"
     }
   },
   {
@@ -786,7 +813,8 @@
       "author": "",
       "query_kind": "reddit_pain",
       "query_topic": "data pipeline testing pain OR data lineage pain OR data quality incident",
-      "candidate_eligible": false
+      "candidate_eligible": false,
+      "source_lane": "Reddit"
     }
   },
   {
@@ -814,7 +842,8 @@
       "author": "arivero",
       "query_kind": "conversation",
       "query_topic": "Show HN Data Infrastructure AI startup developer tool open source",
-      "candidate_eligible": true
+      "candidate_eligible": true,
+      "source_lane": "OSS"
     }
   },
   {
@@ -842,7 +871,8 @@
       "author": "Jarred-Sumner",
       "query_kind": "conversation",
       "query_topic": "Show HN Data Infrastructure AI startup developer tool open source",
-      "candidate_eligible": true
+      "candidate_eligible": true,
+      "source_lane": "OSS"
     }
   },
   {
@@ -870,7 +900,8 @@
       "author": "KB01111",
       "query_kind": "conversation",
       "query_topic": "Show HN Data Infrastructure AI startup developer tool open source",
-      "candidate_eligible": true
+      "candidate_eligible": true,
+      "source_lane": "OSS"
     }
   },
   {
@@ -898,7 +929,8 @@
       "author": "KB01111",
       "query_kind": "conversation",
       "query_topic": "Show HN Data Infrastructure AI startup developer tool open source",
-      "candidate_eligible": true
+      "candidate_eligible": true,
+      "source_lane": "OSS"
     }
   },
   {
@@ -926,7 +958,8 @@
       "author": "Scottcjn",
       "query_kind": "conversation",
       "query_topic": "Show HN Data Infrastructure AI startup developer tool open source",
-      "candidate_eligible": true
+      "candidate_eligible": true,
+      "source_lane": "OSS"
     }
   },
   {
@@ -954,7 +987,8 @@
       "author": "duskfallcrew",
       "query_kind": "conversation",
       "query_topic": "Show HN Data Infrastructure AI startup developer tool open source",
-      "candidate_eligible": true
+      "candidate_eligible": true,
+      "source_lane": "OSS"
     }
   },
   {
@@ -982,7 +1016,8 @@
       "author": "Scottcjn",
       "query_kind": "conversation",
       "query_topic": "Show HN Data Infrastructure AI startup developer tool open source",
-      "candidate_eligible": true
+      "candidate_eligible": true,
+      "source_lane": "OSS"
     }
   },
   {
@@ -1010,7 +1045,8 @@
       "author": "tranquillum",
       "query_kind": "conversation",
       "query_topic": "Show HN Data Infrastructure AI startup developer tool open source",
-      "candidate_eligible": true
+      "candidate_eligible": true,
+      "source_lane": "OSS"
     }
   },
   {
@@ -1038,7 +1074,8 @@
       "author": "umikato",
       "query_kind": "oss_show",
       "query_topic": "Show HN open source AI agent MCP security developer tool",
-      "candidate_eligible": true
+      "candidate_eligible": true,
+      "source_lane": "OSS"
     }
   },
   {
@@ -1066,7 +1103,8 @@
       "author": "Copilot",
       "query_kind": "oss_show",
       "query_topic": "Show HN open source AI agent MCP security developer tool",
-      "candidate_eligible": true
+      "candidate_eligible": true,
+      "source_lane": "OSS"
     }
   },
   {
@@ -1094,7 +1132,8 @@
       "author": "imran-siddique",
       "query_kind": "oss_show",
       "query_topic": "Show HN open source AI agent MCP security developer tool",
-      "candidate_eligible": true
+      "candidate_eligible": true,
+      "source_lane": "OSS"
     }
   },
   {
@@ -1122,7 +1161,8 @@
       "author": "Copilot",
       "query_kind": "oss_show",
       "query_topic": "Show HN open source AI agent MCP security developer tool",
-      "candidate_eligible": true
+      "candidate_eligible": true,
+      "source_lane": "OSS"
     }
   },
   {
@@ -1150,7 +1190,8 @@
       "author": "Copilot",
       "query_kind": "oss_show",
       "query_topic": "Show HN open source AI agent MCP security developer tool",
-      "candidate_eligible": true
+      "candidate_eligible": true,
+      "source_lane": "OSS"
     }
   },
   {
@@ -1178,7 +1219,8 @@
       "author": "linsun",
       "query_kind": "oss_show",
       "query_topic": "Show HN open source AI agent MCP security developer tool",
-      "candidate_eligible": true
+      "candidate_eligible": true,
+      "source_lane": "OSS"
     }
   },
   {
@@ -1206,7 +1248,8 @@
       "author": "karlhepler",
       "query_kind": "oss_show",
       "query_topic": "Show HN open source AI agent MCP security developer tool",
-      "candidate_eligible": true
+      "candidate_eligible": true,
+      "source_lane": "OSS"
     }
   },
   {
@@ -1234,7 +1277,8 @@
       "author": "bdhobson",
       "query_kind": "oss_show",
       "query_topic": "Show HN open source AI agent MCP security developer tool",
-      "candidate_eligible": true
+      "candidate_eligible": true,
+      "source_lane": "Hacker News"
     }
   },
   {
@@ -1278,7 +1322,8 @@
         "method": "stargazer_timestamps"
       },
       "source": "github",
-      "title": "fzn0x/watchtower"
+      "title": "fzn0x/watchtower",
+      "source_lane": "OSS"
     }
   },
   {
@@ -1312,7 +1357,8 @@
         "method": "stargazer_timestamps"
       },
       "source": "github",
-      "title": "Ronchy2000/epic-freebies-helper"
+      "title": "Ronchy2000/epic-freebies-helper",
+      "source_lane": "OSS"
     }
   },
   {
@@ -1353,7 +1399,8 @@
         "method": "stargazer_timestamps"
       },
       "source": "github",
-      "title": "JoasASantos/NeuroSploit"
+      "title": "JoasASantos/NeuroSploit",
+      "source_lane": "OSS"
     }
   },
   {
@@ -1400,7 +1447,8 @@
         "method": "stargazer_timestamps"
       },
       "source": "github",
-      "title": "boostsecurityio/smokedmeat"
+      "title": "boostsecurityio/smokedmeat",
+      "source_lane": "OSS"
     }
   },
   {
@@ -1442,7 +1490,8 @@
         "method": "stargazer_timestamps"
       },
       "source": "github",
-      "title": "affaan-m/agentshield"
+      "title": "affaan-m/agentshield",
+      "source_lane": "OSS"
     }
   },
   {
@@ -1476,7 +1525,8 @@
         "method": "stargazer_timestamps"
       },
       "source": "github",
-      "title": "LambdaTest/agent-skills"
+      "title": "LambdaTest/agent-skills",
+      "source_lane": "OSS"
     }
   },
   {
@@ -1518,7 +1568,8 @@
         "method": "stargazer_timestamps"
       },
       "source": "github",
-      "title": "redwoodjs/agent-ci"
+      "title": "redwoodjs/agent-ci",
+      "source_lane": "OSS"
     }
   },
   {
@@ -1552,7 +1603,8 @@
         "method": "stargazer_timestamps"
       },
       "source": "github",
-      "title": "MGdaasLab/WHartTest"
+      "title": "MGdaasLab/WHartTest",
+      "source_lane": "OSS"
     }
   },
   {
@@ -1586,7 +1638,8 @@
         "method": "stargazer_timestamps"
       },
       "source": "github",
-      "title": "yohannesgk/blacksmith"
+      "title": "yohannesgk/blacksmith",
+      "source_lane": "OSS"
     }
   },
   {
@@ -1630,7 +1683,8 @@
         "method": "stargazer_timestamps"
       },
       "source": "github",
-      "title": "devicelab-dev/maestro-runner"
+      "title": "devicelab-dev/maestro-runner",
+      "source_lane": "OSS"
     }
   },
   {
@@ -1667,7 +1721,8 @@
         "method": "stargazer_timestamps"
       },
       "source": "github",
-      "title": "praetorian-inc/augustus"
+      "title": "praetorian-inc/augustus",
+      "source_lane": "OSS"
     }
   },
   {
@@ -1721,7 +1776,8 @@
         "method": "stargazer_timestamps"
       },
       "source": "github",
-      "title": "peakoss/anti-slop"
+      "title": "peakoss/anti-slop",
+      "source_lane": "OSS"
     }
   },
   {
@@ -1764,7 +1820,8 @@
         "method": "stargazer_timestamps"
       },
       "source": "github",
-      "title": "fugazi/test-automation-skills-agents"
+      "title": "fugazi/test-automation-skills-agents",
+      "source_lane": "OSS"
     }
   },
   {
@@ -1812,7 +1869,8 @@
         "method": "stargazer_timestamps"
       },
       "source": "github",
-      "title": "BANANASJIM/rdc-cli"
+      "title": "BANANASJIM/rdc-cli",
+      "source_lane": "OSS"
     }
   },
   {
@@ -1851,7 +1909,8 @@
         "method": "stargazer_timestamps"
       },
       "source": "github",
-      "title": "zakirkun/guardian-cli"
+      "title": "zakirkun/guardian-cli",
+      "source_lane": "OSS"
     }
   },
   {
@@ -1890,7 +1949,8 @@
         "method": "stargazer_timestamps"
       },
       "source": "github",
-      "title": "mizchi/actrun"
+      "title": "mizchi/actrun",
+      "source_lane": "OSS"
     }
   },
   {
@@ -1926,7 +1986,8 @@
         "method": "stargazer_timestamps"
       },
       "source": "github",
-      "title": "php-testo/testo"
+      "title": "php-testo/testo",
+      "source_lane": "OSS"
     }
   },
   {
@@ -1960,7 +2021,8 @@
         "method": "stargazer_timestamps"
       },
       "source": "github",
-      "title": "informalsystems/quint-connect"
+      "title": "informalsystems/quint-connect",
+      "source_lane": "OSS"
     }
   },
   {
@@ -2007,7 +2069,8 @@
         "method": "stargazer_timestamps"
       },
       "source": "github",
-      "title": "SHAdd0WTAka/Zen-Ai-Pentest"
+      "title": "SHAdd0WTAka/Zen-Ai-Pentest",
+      "source_lane": "OSS"
     }
   },
   {
@@ -2048,7 +2111,8 @@
         "method": "stargazer_timestamps"
       },
       "source": "github",
-      "title": "eforge-build/eforge"
+      "title": "eforge-build/eforge",
+      "source_lane": "OSS"
     }
   },
   {
@@ -2082,7 +2146,8 @@
         "method": "stargazer_timestamps"
       },
       "source": "github",
-      "title": "kenny589/gtm-flywheel"
+      "title": "kenny589/gtm-flywheel",
+      "source_lane": "OSS"
     }
   },
   {
@@ -2123,7 +2188,8 @@
         "method": "stargazer_timestamps"
       },
       "source": "github",
-      "title": "azat-io/actions-up"
+      "title": "azat-io/actions-up",
+      "source_lane": "OSS"
     }
   },
   {
@@ -2161,7 +2227,8 @@
         "method": "stargazer_timestamps"
       },
       "source": "github",
-      "title": "SawyerHood/gitclaw"
+      "title": "SawyerHood/gitclaw",
+      "source_lane": "OSS"
     }
   },
   {
@@ -2195,7 +2262,8 @@
         "method": "stargazer_timestamps"
       },
       "source": "github",
-      "title": "block/trailblaze"
+      "title": "block/trailblaze",
+      "source_lane": "OSS"
     }
   },
   {
@@ -2250,7 +2318,8 @@
         "method": "stargazer_timestamps"
       },
       "source": "github",
-      "title": "slowql/slowql"
+      "title": "slowql/slowql",
+      "source_lane": "OSS"
     }
   },
   {
@@ -2284,7 +2353,8 @@
         "method": "stargazer_timestamps"
       },
       "source": "github",
-      "title": "tayyabakmal1/qa-prompt-library"
+      "title": "tayyabakmal1/qa-prompt-library",
+      "source_lane": "OSS"
     }
   },
   {
@@ -2318,7 +2388,8 @@
         "method": "stargazer_timestamps"
       },
       "source": "github",
-      "title": "Yenn503/Hexstrike-redteam"
+      "title": "Yenn503/Hexstrike-redteam",
+      "source_lane": "OSS"
     }
   },
   {
@@ -2354,7 +2425,8 @@
         "method": "stargazer_timestamps"
       },
       "source": "github",
-      "title": "allyourcodebase/SDL3"
+      "title": "allyourcodebase/SDL3",
+      "source_lane": "OSS"
     }
   },
   {
@@ -2402,7 +2474,8 @@
         "method": "stargazer_timestamps"
       },
       "source": "github",
-      "title": "srclight/srclight"
+      "title": "srclight/srclight",
+      "source_lane": "OSS"
     }
   },
   {
@@ -2436,7 +2509,8 @@
         "method": "stargazer_timestamps"
       },
       "source": "github",
-      "title": "spaceraccoon/vulnerability-spoiler-alert-action"
+      "title": "spaceraccoon/vulnerability-spoiler-alert-action",
+      "source_lane": "OSS"
     }
   },
   {
@@ -2482,7 +2556,8 @@
         "method": "stargazer_timestamps"
       },
       "source": "github",
-      "title": "ritwiktiwari/copier-astral"
+      "title": "ritwiktiwari/copier-astral",
+      "source_lane": "OSS"
     }
   },
   {
@@ -2516,7 +2591,8 @@
         "method": "stargazer_timestamps"
       },
       "source": "github",
-      "title": "dlvhdr/gh-enhance"
+      "title": "dlvhdr/gh-enhance",
+      "source_lane": "OSS"
     }
   },
   {
@@ -2554,7 +2630,8 @@
         "method": "stargazer_timestamps"
       },
       "source": "github",
-      "title": "SKYLENAGE-AI/SWE-CI"
+      "title": "SKYLENAGE-AI/SWE-CI",
+      "source_lane": "OSS"
     }
   },
   {
@@ -2588,7 +2665,8 @@
         "method": "stargazer_timestamps"
       },
       "source": "github",
-      "title": "tuist/magnolia"
+      "title": "tuist/magnolia",
+      "source_lane": "OSS"
     }
   },
   {
@@ -2622,7 +2700,8 @@
         "method": "stargazer_timestamps"
       },
       "source": "github",
-      "title": "alicecaml/alice"
+      "title": "alicecaml/alice",
+      "source_lane": "OSS"
     }
   },
   {
@@ -2656,7 +2735,8 @@
         "method": "stargazer_timestamps"
       },
       "source": "github",
-      "title": "cjohansen/nexus"
+      "title": "cjohansen/nexus",
+      "source_lane": "OSS"
     }
   },
   {
@@ -2690,7 +2770,8 @@
         "method": "stargazer_timestamps"
       },
       "source": "github",
-      "title": "YehorYehorychev/Playwright-UI-API-Framework"
+      "title": "YehorYehorychev/Playwright-UI-API-Framework",
+      "source_lane": "OSS"
     }
   },
   {
@@ -2724,7 +2805,8 @@
         "method": "stargazer_timestamps"
       },
       "source": "github",
-      "title": "infocyn/oxtrace"
+      "title": "infocyn/oxtrace",
+      "source_lane": "OSS"
     }
   },
   {
@@ -2761,7 +2843,8 @@
         "method": "stargazer_timestamps"
       },
       "source": "github",
-      "title": "Davilarek/BetterVencordPatchset"
+      "title": "Davilarek/BetterVencordPatchset",
+      "source_lane": "OSS"
     }
   },
   {
@@ -2795,7 +2878,8 @@
         "method": "stargazer_timestamps"
       },
       "source": "github",
-      "title": "geomys/sandboxed-step"
+      "title": "geomys/sandboxed-step",
+      "source_lane": "OSS"
     }
   },
   {
@@ -2833,7 +2917,8 @@
         "method": "stargazer_timestamps"
       },
       "source": "github",
-      "title": "dkamm/pr-quiz"
+      "title": "dkamm/pr-quiz",
+      "source_lane": "OSS"
     }
   },
   {
@@ -2886,7 +2971,8 @@
         "method": "stargazer_timestamps"
       },
       "source": "github",
-      "title": "cisco-open/forge"
+      "title": "cisco-open/forge",
+      "source_lane": "OSS"
     }
   },
   {
@@ -2920,7 +3006,8 @@
         "method": "stargazer_timestamps"
       },
       "source": "github",
-      "title": "Hellsender01/LLMMap"
+      "title": "Hellsender01/LLMMap",
+      "source_lane": "OSS"
     }
   },
   {
@@ -2962,7 +3049,8 @@
         "method": "stargazer_timestamps"
       },
       "source": "github",
-      "title": "hashgraph-online/skill-publish"
+      "title": "hashgraph-online/skill-publish",
+      "source_lane": "OSS"
     }
   },
   {
@@ -3001,7 +3089,8 @@
         "method": "stargazer_timestamps"
       },
       "source": "github",
-      "title": "bearcove/vixen"
+      "title": "bearcove/vixen",
+      "source_lane": "OSS"
     }
   },
   {
@@ -3035,7 +3124,8 @@
         "method": "stargazer_timestamps"
       },
       "source": "github",
-      "title": "tmkook/vchat"
+      "title": "tmkook/vchat",
+      "source_lane": "OSS"
     }
   },
   {
@@ -3082,7 +3172,8 @@
         "method": "stargazer_timestamps"
       },
       "source": "github",
-      "title": "inview-club/devops-cases"
+      "title": "inview-club/devops-cases",
+      "source_lane": "OSS"
     }
   },
   {
@@ -3136,7 +3227,8 @@
         "method": "stargazer_timestamps"
       },
       "source": "github",
-      "title": "cortex-works/cortex-scout"
+      "title": "cortex-works/cortex-scout",
+      "source_lane": "OSS"
     }
   },
   {
@@ -3170,7 +3262,8 @@
         "method": "stargazer_timestamps"
       },
       "source": "github",
-      "title": "QuesmaOrg/CompileBench"
+      "title": "QuesmaOrg/CompileBench",
+      "source_lane": "OSS"
     }
   },
   {
@@ -3204,7 +3297,8 @@
         "method": "stargazer_timestamps"
       },
       "source": "github",
-      "title": "SysSec-KAIST/LLFuzz"
+      "title": "SysSec-KAIST/LLFuzz",
+      "source_lane": "OSS"
     }
   },
   {
@@ -3250,7 +3344,8 @@
         "method": "stargazer_timestamps"
       },
       "source": "github",
-      "title": "jaktestowac/rolnopol"
+      "title": "jaktestowac/rolnopol",
+      "source_lane": "OSS"
     }
   },
   {
@@ -3284,7 +3379,8 @@
         "method": "stargazer_timestamps"
       },
       "source": "github",
-      "title": "Nuralyio/the-agent"
+      "title": "Nuralyio/the-agent",
+      "source_lane": "OSS"
     }
   },
   {
@@ -3333,7 +3429,8 @@
         "method": "stargazer_timestamps"
       },
       "source": "github",
-      "title": "praetorian-inc/hadrian"
+      "title": "praetorian-inc/hadrian",
+      "source_lane": "OSS"
     }
   },
   {
@@ -3367,7 +3464,8 @@
         "method": "stargazer_timestamps"
       },
       "source": "github",
-      "title": "twerkmeister/tokenflood"
+      "title": "twerkmeister/tokenflood",
+      "source_lane": "OSS"
     }
   },
   {
@@ -3401,7 +3499,8 @@
         "method": "stargazer_timestamps"
       },
       "source": "github",
-      "title": "OpenGamingCollective/kernel-packages"
+      "title": "OpenGamingCollective/kernel-packages",
+      "source_lane": "OSS"
     }
   },
   {
@@ -3448,7 +3547,8 @@
         "method": "stargazer_timestamps"
       },
       "source": "github",
-      "title": "ready-to-release/eac"
+      "title": "ready-to-release/eac",
+      "source_lane": "OSS"
     }
   },
   {
@@ -3482,7 +3582,8 @@
         "method": "stargazer_timestamps"
       },
       "source": "github",
-      "title": "jason-2911/bonearmor"
+      "title": "jason-2911/bonearmor",
+      "source_lane": "OSS"
     }
   },
   {
@@ -3523,7 +3624,8 @@
         "method": "stargazer_timestamps"
       },
       "source": "github",
-      "title": "mmiscool/screencap.me"
+      "title": "mmiscool/screencap.me",
+      "source_lane": "OSS"
     }
   }
 ]
