@@ -9,6 +9,26 @@ import subprocess
 import sys
 from pathlib import Path
 
+
+def _resolve_skill_root(vendor_path: Path) -> Path:
+    """Return the runnable last30days skill root for flat or current nested layouts."""
+    nested = vendor_path / "skills" / "last30days"
+    if (nested / "scripts" / "last30days.py").exists():
+        return nested
+    return vendor_path
+
+
+def _resolve_script_path(vendor_path: Path) -> Path:
+    """Return the last30days CLI script path for flat or current nested layouts."""
+    return _resolve_skill_root(vendor_path) / "scripts" / "last30days.py"
+
+
+def _has_engine(vendor_path: Path) -> bool:
+    script = _resolve_script_path(vendor_path)
+    lib = script.parent / "lib" / "__init__.py"
+    return script.exists() and lib.exists()
+
+
 def _find_vendor_path() -> Path:
     """Find last30days-skill in multiple candidate locations."""
     candidates = [
@@ -17,12 +37,19 @@ def _find_vendor_path() -> Path:
         Path.home() / ".claude" / "vendor" / "last30days-skill",  # claude config dir
     ]
     for candidate in candidates:
-        if (candidate / "scripts" / "last30days.py").exists():
+        if _resolve_script_path(candidate).exists():
             return candidate
     return candidates[0]  # return first as default even if not found
 
+
 DEFAULT_VENDOR_PATH = _find_vendor_path()
 DEFAULT_CONFIG_PATH = Path.home() / ".config" / "last30days" / ".env"
+PLACEHOLDER_VALUES = {"", "...", "TODO", "YOUR_KEY", "YOUR_API_KEY", "<YOUR_API_KEY>"}
+
+
+def _configured_value(value: str) -> bool:
+    normalized = value.strip().strip("\"'")
+    return normalized not in PLACEHOLDER_VALUES
 
 
 def check_availability(
@@ -33,10 +60,9 @@ def check_availability(
     vendor_path = vendor_path or DEFAULT_VENDOR_PATH
     config_path = config_path or DEFAULT_CONFIG_PATH
 
-    installed = (
-        (vendor_path / "scripts" / "last30days.py").exists()
-        and (vendor_path / "scripts" / "lib" / "__init__.py").exists()
-    )
+    skill_root = _resolve_skill_root(vendor_path)
+    script_path = _resolve_script_path(vendor_path)
+    installed = _has_engine(vendor_path)
 
     configured = False
     available_keys = []
@@ -51,19 +77,47 @@ def check_availability(
             pass
         content = config_path.read_text()
         if "SETUP_COMPLETE=true" in content:
-            for key_name in ("OPENAI_API_KEY", "GEMINI_API_KEY", "GOOGLE_API_KEY", "XAI_API_KEY", "OPENROUTER_API_KEY"):
+            for key_name in (
+                "OPENAI_API_KEY",
+                "GEMINI_API_KEY",
+                "GOOGLE_API_KEY",
+                "XAI_API_KEY",
+                "OPENROUTER_API_KEY",
+                "SCRAPECREATORS_API_KEY",
+                "AUTH_TOKEN",
+                "CT0",
+                "BRAVE_API_KEY",
+                "PARALLEL_API_KEY",
+            ):
                 for line in content.splitlines():
                     stripped = line.strip()
-                    if stripped.startswith(f"{key_name}=") and len(stripped.split("=", 1)[1]) > 0:
+                    if stripped.startswith(f"{key_name}=") and _configured_value(stripped.split("=", 1)[1]):
                         available_keys.append(key_name)
             configured = len(available_keys) > 0
+
+    social_sources = []
+    if "AUTH_TOKEN" in available_keys or "XAI_API_KEY" in available_keys:
+        social_sources.append("x")
+    if "SCRAPECREATORS_API_KEY" in available_keys:
+        social_sources.extend(["youtube", "tiktok", "instagram", "threads", "pinterest"])
+    grounded_sources = []
+    if any(key in available_keys for key in ("BRAVE_API_KEY", "EXA_API_KEY", "SERPER_API_KEY", "PARALLEL_API_KEY")):
+        grounded_sources.append("web")
 
     return {
         "installed": installed,
         "configured": configured,
         "vendor_path": str(vendor_path),
+        "skill_root": str(skill_root),
+        "script_path": str(script_path),
         "config_path": str(config_path),
         "available_keys": available_keys,
+        "free_sources_available": installed,
+        "source_capabilities": {
+            "free": ["reddit", "hackernews", "github", "polymarket"] if installed else [],
+            "social": social_sources,
+            "grounded": grounded_sources,
+        },
         "deep_research_available": "OPENROUTER_API_KEY" in available_keys,
     }
 
@@ -99,16 +153,26 @@ def run_query(
     deep_research: bool = False,
     auto_resolve: bool = False,
     store: bool = False,
+    deep: bool = False,
     github_user: str | None = None,
     github_repo: str | None = None,
     x_handle: str | None = None,
+    x_related: str | None = None,
     plan: str | None = None,
+    tiktok_hashtags: str | None = None,
+    tiktok_creators: str | None = None,
+    ig_creators: str | None = None,
+    polymarket_keywords: str | None = None,
+    web_backend: str | None = None,
+    save_dir: str | None = None,
+    save_suffix: str | None = None,
 ) -> dict:
     """Run a query through last30days CLI and return parsed results."""
     vendor_path = vendor_path or DEFAULT_VENDOR_PATH
-    script_path = vendor_path / "scripts" / "last30days.py"
+    skill_root = _resolve_skill_root(vendor_path)
+    script_path = _resolve_script_path(vendor_path)
 
-    if not script_path.exists():
+    if not _has_engine(vendor_path):
         return {"error": "last30days not installed", "items": []}
 
     python_cmd = _find_python()
@@ -124,6 +188,8 @@ def run_query(
         cmd.append("--quick")
     if deep_research:
         cmd.append("--deep-research")
+    if deep:
+        cmd.append("--deep")
     if auto_resolve:
         cmd.append("--auto-resolve")
     if store:
@@ -134,8 +200,24 @@ def run_query(
         cmd.append(f"--github-repo={github_repo}")
     if x_handle:
         cmd.append(f"--x-handle={x_handle}")
+    if x_related:
+        cmd.append(f"--x-related={x_related}")
     if plan:
         cmd.append(f"--plan={plan}")
+    if tiktok_hashtags:
+        cmd.append(f"--tiktok-hashtags={tiktok_hashtags}")
+    if tiktok_creators:
+        cmd.append(f"--tiktok-creators={tiktok_creators}")
+    if ig_creators:
+        cmd.append(f"--ig-creators={ig_creators}")
+    if polymarket_keywords:
+        cmd.append(f"--polymarket-keywords={polymarket_keywords}")
+    if web_backend:
+        cmd.append(f"--web-backend={web_backend}")
+    if save_dir:
+        cmd.append(f"--save-dir={save_dir}")
+    if save_suffix:
+        cmd.append(f"--save-suffix={save_suffix}")
 
     try:
         result = subprocess.run(
@@ -143,7 +225,7 @@ def run_query(
             capture_output=True,
             text=True,
             timeout=120,
-            cwd=str(vendor_path),
+            cwd=str(skill_root),
         )
     except subprocess.TimeoutExpired:
         return {"error": "last30days query timed out (120s)", "items": []}
@@ -179,7 +261,18 @@ def run_query(
 
 def _find_python() -> str | None:
     """Find Python 3.12+ interpreter."""
-    for candidate in ("python3.14", "python3.13", "python3.12", "python3"):
+    candidates = []
+    env_candidate = os.environ.get("CODEX_BUNDLED_PYTHON")
+    if env_candidate:
+        candidates.append(env_candidate)
+    candidates.extend([
+        str(Path.home() / ".cache" / "codex-runtimes" / "codex-primary-runtime" / "dependencies" / "python" / "bin" / "python3"),
+        "python3.14",
+        "python3.13",
+        "python3.12",
+        "python3",
+    ])
+    for candidate in candidates:
         try:
             result = subprocess.run(
                 [candidate, "-c", "import sys; raise SystemExit(0 if sys.version_info >= (3, 12) else 1)"],
@@ -224,10 +317,19 @@ def _cli_main() -> None:
             deep_research="deep-research" in args,
             auto_resolve="auto-resolve" in args,
             store="store" in args,
+            deep="deep" in args,
             github_user=args.get("github-user"),
             github_repo=args.get("github-repo"),
             x_handle=args.get("x-handle"),
+            x_related=args.get("x-related"),
             plan=args.get("plan"),
+            tiktok_hashtags=args.get("tiktok-hashtags"),
+            tiktok_creators=args.get("tiktok-creators"),
+            ig_creators=args.get("ig-creators"),
+            polymarket_keywords=args.get("polymarket-keywords"),
+            web_backend=args.get("web-backend"),
+            save_dir=args.get("save-dir"),
+            save_suffix=args.get("save-suffix"),
         )
         print(json.dumps(result, indent=2))
 

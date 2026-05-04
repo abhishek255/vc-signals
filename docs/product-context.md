@@ -1,17 +1,32 @@
 # VC Signals — Product Context & Roadmap
 
-**Last updated:** 2026-04-16
-**Status:** Pivoting from trend newsletter to company radar
+**Last updated:** 2026-05-04
+**Status:** Marathon weekly deal radar with company-first enrichment
 
 ---
 
 ## The Product
 
-VC Signals is a Claude Code skill (`/vc-signals`) that helps VCs and angel investors discover emerging investable themes and companies in devtools, cybersecurity, and AI infrastructure.
+VC Signals is a Claude Code skill (`/vc-signals`) that helps VCs and angel investors discover emerging investable themes and companies in devtools, cybersecurity, AI infrastructure, vertical AI, data infrastructure, and open source.
 
 **Repo:** https://github.com/abhishek255/vc-signals
-**Primary user:** Alex (VC at a fund), uses Claude Code locally
-**Secondary users:** Other VCs/angels, some on Claude Co-Work (web)
+**Primary users:** Marathon Management Partners partners and associates
+**Secondary users:** Angel investors, operator-angels, technical advisors, and other small VC teams
+
+### Marathon Operating Context (May 2026)
+
+VC Signals is starting as an internal Marathon workflow tool. The near-term goal is to help Marathon partners and associates find new markets and investable companies before they are obvious, while giving Abhishek a concrete way to demonstrate technical/product leverage in an active advisory relationship.
+
+Locked product assumptions:
+- **Customer:** Marathon partners, associates, and affiliated angels.
+- **Cadence:** Weekly all-sector radar to avoid alert fatigue while preserving a consistent research rhythm.
+- **Strike zone:** Seed to Series B.
+- **Output breadth:** 30-50 companies per weekly radar across sectors, optimized for coverage with separate Investment Interest and Evidence Confidence scores.
+- **Late-stage handling:** Do not hide companies that are likely too hot or too late; label companies as "likely too late" when they are already consensus by investor judgment.
+- **CRM:** Attio is the confirmed CRM. Company domain should be the primary matching key when available, and companies already in Attio but stale or without an owner should be resurfaced.
+- **Skepticism:** Default output should include a "Why this may be noise" field so the tool reads like a skeptical investor, not a hype summarizer.
+- **Delivery:** Slack should be the weekly consumption surface at Monday 8:00 AM ET, but as a teaser/digest with the top 10-15 companies and a link or artifact for the full 30-50 company brief.
+- **OSS radar:** Open-source discovery should become a first-class mode because OSS signal quality depends on different ranking rules: star velocity, repo age, contributor quality, company mapping, license, founder activity, and community discussion.
 
 ---
 
@@ -107,17 +122,20 @@ Themes (3 lines each, brief context)
         → Deep dives on demand (any company or theme)
 ```
 
-### Three modes (new)
+### Four modes (new)
 
-**1. Weekly Radar** (restructured weekly scan)
+**1. Weekly Radar** (company-first scan)
 ```
-/vc-signals radar devtools
+/vc-signals radar all
 ```
 - Themes as brief headers (3 lines, not 30)
 - Company table as centerpiece (30-50 companies, not 5-6 per theme)
-- Columns: Company, Theme, Stage, Raised, Headcount, Traction Signal, In Pipeline?
+- One unified all-sector brief, with compact sector sections so partners can skim one artifact and jump to the domains they care about.
+- Columns: Company, Theme, Investment Interest, Evidence Confidence, Stage, Raised, Headcount, Traction Signal, Attio Status, Action, Why This May Be Noise
 - New/Accelerating/Faded tags on COMPANIES, not just themes
 - Trend age on theme headers
+- "Likely too late" label for companies that already look consensus, even if they are still technically within Seed-to-Series-B range
+- Passed Attio companies should be flagged quietly when new signal appears. The tool should not reopen the deal by itself; it should explain what changed, why it might matter, and let a partner decide.
 
 **2. Thesis Search** (new, inspired by Showrun)
 ```
@@ -137,9 +155,18 @@ Themes (3 lines each, brief context)
 - Company: founder background, funding history, product, competition
 - Theme: subthemes, why now, full company landscape
 
+**4. OSS Radar** (new, first-class mode)
+```
+/vc-signals oss ai-infra
+/vc-signals oss devtools
+```
+- Ranks OSS-native companies and projects using star velocity, project age, contributor/founder quality, community discussion, license, repo ownership, and company mapping.
+- Separates "interesting repo" from "investable company" so high-star projects without a credible company do not pollute the company radar.
+- Uses explicit actions: watch, contact maintainer, map ecosystem, track company formation, or ignore.
+
 ### Ideal weekly output format
 ```
-## VC Radar: Devtools — Week of April 14
+## VC Radar: Devtools — May 4, 2026
 
 ### What's Moving (3 lines per theme)
 - MCP Agent Infrastructure — NEW. 97M SDK downloads, every AI vendor adopted.
@@ -148,11 +175,11 @@ Themes (3 lines each, brief context)
 
 ### Company Radar (38 companies across 8 themes)
 
-| Company | Theme | Stage | Raised | Headcount | Traction Signal | In Pipeline? |
-|---------|-------|-------|--------|-----------|----------------|--------------|
-| MintMCP | MCP Infra | Seed | $4M | 12 | First SOC2 MCP gateway | No |
-| CodeRabbit | AI Review | Series A | $15M | 45 | 2M repos, 13M PRs | Met 3/15 |
-| BaseRock.ai | AI Testing | Pre-seed | $2M | 8 | Launched 2 weeks ago | No |
+| Company | Theme | Interest | Evidence | Stage | Raised | Headcount | Traction Signal | Attio | Action | Why This May Be Noise |
+|---------|-------|----------|----------|-------|--------|-----------|----------------|-------|--------|------------------------|
+| MintMCP | MCP Infra | High | Medium | Seed | $4M | 12 | First SOC2 MCP gateway | No match | Assign owner | New category; buyer urgency unproven |
+| CodeRabbit | AI Review | Medium | High | Series A | $15M | 45 | 2M repos, 13M PRs | Active | Monitor only | Crowded category; may be consensus |
+| BaseRock.ai | AI Testing | Medium | Low | Pre-seed | $2M | 8 | Launched 2 weeks ago | Passed | Flag quietly | Limited public customer evidence |
 
 ### New to Radar
 - MintMCP: MCP gateway — enterprise auth/governance for AI agents
@@ -173,13 +200,22 @@ Themes (3 lines each, brief context)
 - Add NEW/Accelerating/Faded tags on companies
 - Add trend age to theme headers
 
-### Phase 2: Company enrichment via WebSearch (3-5 days)
-- For each company found, run targeted WebSearch queries:
+### Phase 2: Company enrichment via last30days deep research + WebSearch fallback (3-5 days)
+- For each company found, use cached enrichment to populate:
+  - Stage
+  - Raised
+  - Headcount
+  - Founders
+  - Founding year
+  - Lead investor
+  - Founder GitHub activity where available
+- Prefer last30days deep research when configured, with WebSearch as the zero-setup fallback.
+- Cache results for reproducibility, cost control, and evidence auditability.
+- For WebSearch fallback, run targeted queries:
   - `"company name" crunchbase funding` → extract funding data
   - `"company name" linkedin headcount` → extract headcount signals
   - `"company name" founded year` → founding date
   - `"company name" founder CTO` → founder names
-- No API keys needed — just smarter search queries
 - This closes the biggest gap vs Showrun without requiring PitchBook
 
 ### Phase 3: Natural language thesis search (1-2 days)
@@ -197,8 +233,10 @@ Themes (3 lines each, brief context)
 
 ### Phase 5: Slack delivery (1-2 days)
 - Schedule weekly radar via `/schedule`
-- Post summary + full brief to Slack channel
-- Monday AM delivery
+- Deliver Monday at 8:00 AM ET.
+- Post a Slack digest with top 10-15 companies, Investment Interest, Evidence Confidence, Attio status, and noise warning
+- Link to or attach the full 30-50 company brief
+- Avoid dumping the full radar directly into Slack by default
 
 ---
 
@@ -254,7 +292,9 @@ Themes (3 lines each, brief context)
 | `.claude/skills/vc-signals/scripts/persistence.py` | Save/load briefings, week-over-week diffs, theme index |
 | `.claude/skills/vc-signals/scripts/github_trending.py` | GitHub star velocity search |
 | `.claude/skills/vc-signals/scripts/last30days_adapter.py` | Bridge to last30days research engine |
-| `.claude/skills/vc-signals/config/sectors.json` | Sector taxonomy (3 sectors, 18 subcategories) |
+| `.claude/skills/vc-signals/scripts/attio.py` | Read-only Attio CRM matching and status/action enrichment |
+| `.claude/skills/vc-signals/scripts/radar_run.py` | Weekly raw evidence collection, noise filtering, candidate extraction, scoring, Attio merge, and partner-preview rendering |
+| `.claude/skills/vc-signals/config/sectors.json` | Sector taxonomy for devtools, cybersecurity, AI infra, vertical AI, data infra, and OSS |
 | `.claude/skills/vc-signals/config/company_aliases.json` | Curated company seed map (40 entries) |
 | `vendor/last30days-skill/` | Research engine (Reddit, HN, X, YouTube, web) |
 | `docs/vc-signals-explainer.html` | Visual explainer (GitHub Pages) |

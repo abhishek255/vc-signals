@@ -123,6 +123,50 @@ def test_update_enrichment_overwrites_existing_field():
     assert cache["acme"]["stage"] == "Series A"
 
 
+# --- Task 4: merge_into_company ---
+
+def test_merge_into_company_applies_cached_fields():
+    from enrichment import merge_into_company
+    cache = {"acme": {"fetched_at": "2026-05-03", "stage": "Series A", "raised": "$15M"}}
+    company = {"name": "Acme", "stage": None, "raised": None, "headcount": None}
+    out = merge_into_company(company, cache)
+    assert out["stage"] == "Series A"
+    assert out["raised"] == "$15M"
+
+
+def test_merge_into_company_uses_normalized_lookup():
+    from enrichment import merge_into_company
+    cache = {"anysphere": {"fetched_at": "2026-05-03", "stage": "Series C"}}
+    company = {"name": "Anysphere (Cursor)", "stage": None}
+    out = merge_into_company(company, cache)
+    assert out["stage"] == "Series C"
+
+
+def test_merge_into_company_does_not_overwrite_truthy():
+    """Claude's inferences (truthy existing values) win over cache."""
+    from enrichment import merge_into_company
+    cache = {"acme": {"fetched_at": "2026-05-03", "stage": "Series A", "raised": "$15M"}}
+    company = {"name": "Acme", "stage": "Seed", "raised": None}
+    out = merge_into_company(company, cache)
+    assert out["stage"] == "Seed"  # preserved
+    assert out["raised"] == "$15M"  # filled from cache
+
+
+def test_merge_into_company_no_cache_entry_keeps_nulls():
+    from enrichment import merge_into_company
+    company = {"name": "Unknown", "stage": None, "raised": None}
+    out = merge_into_company(company, {})
+    assert out == company
+
+
+def test_merge_into_company_does_not_mutate_input():
+    from enrichment import merge_into_company
+    cache = {"acme": {"fetched_at": "2026-05-03", "stage": "Series A"}}
+    company = {"name": "Acme", "stage": None}
+    merge_into_company(company, cache)
+    assert company["stage"] is None
+
+
 def test_update_enrichment_merges_evidence_dict():
     from datetime import date
     from enrichment import update_enrichment
@@ -140,3 +184,90 @@ def test_update_enrichment_merges_evidence_dict():
         "stage": "https://old.example.com",
         "raised": "https://tc.example.com",
     }
+
+
+# --- Task 5: CLI commands ---
+
+def _run_enrichment_cli(args, *, stdin: str | None = None):
+    script = Path(__file__).parent.parent / "scripts" / "enrichment.py"
+    return subprocess.run(
+        ["python3", str(script), *args],
+        input=stdin,
+        capture_output=True,
+        text=True,
+    )
+
+
+def test_cli_load_cache_empty(data_dir):
+    result = _run_enrichment_cli(["load-cache", "--data-dir", str(data_dir)])
+    assert result.returncode == 0
+    assert json.loads(result.stdout) == {}
+
+
+def test_cli_update_creates_entry(data_dir):
+    payload = {"name": "Acme", "fields": {"stage": "Seed"}}
+    result = _run_enrichment_cli(
+        ["update", "--date", "2026-05-03", "--data-dir", str(data_dir)],
+        stdin=json.dumps(payload),
+    )
+    assert result.returncode == 0
+    body = json.loads(result.stdout)
+    assert body["updated"] == "acme"
+    assert body["entry"]["stage"] == "Seed"
+    assert body["entry"]["fetched_at"] == "2026-05-03"
+
+
+def test_cli_update_with_evidence(data_dir):
+    payload = {
+        "name": "Acme",
+        "fields": {"raised": "$10M"},
+        "evidence": {"raised": "https://techcrunch.com/acme"},
+    }
+    result = _run_enrichment_cli(
+        ["update", "--date", "2026-05-03", "--data-dir", str(data_dir)],
+        stdin=json.dumps(payload),
+    )
+    assert result.returncode == 0
+    body = json.loads(result.stdout)
+    assert body["entry"]["evidence"]["raised"] == "https://techcrunch.com/acme"
+
+
+def test_cli_update_rejects_unknown_field(data_dir):
+    payload = {"name": "Acme", "fields": {"ceo_pet": "dog"}}
+    result = _run_enrichment_cli(
+        ["update", "--data-dir", str(data_dir)],
+        stdin=json.dumps(payload),
+    )
+    assert result.returncode == 0
+    assert "unknown" in json.loads(result.stdout)["error"]
+
+
+def test_cli_merge_applies_fields(data_dir):
+    update_payload = {"name": "Acme", "fields": {"stage": "Series A"}}
+    _run_enrichment_cli(
+        ["update", "--date", "2026-05-03", "--data-dir", str(data_dir)],
+        stdin=json.dumps(update_payload),
+    )
+
+    merge_payload = {"companies": [{"name": "Acme", "stage": None}]}
+    result = _run_enrichment_cli(
+        ["merge", "--data-dir", str(data_dir)],
+        stdin=json.dumps(merge_payload),
+    )
+    assert result.returncode == 0
+    assert json.loads(result.stdout)["companies"][0]["stage"] == "Series A"
+
+
+def test_cli_malformed_stdin_returns_structured_error(data_dir):
+    result = _run_enrichment_cli(
+        ["merge", "--data-dir", str(data_dir)],
+        stdin="not json{",
+    )
+    assert result.returncode == 0
+    assert "error" in json.loads(result.stdout)
+
+
+def test_cli_unknown_command_returns_error(data_dir):
+    result = _run_enrichment_cli(["bogus", "--data-dir", str(data_dir)])
+    assert result.returncode == 0
+    assert json.loads(result.stdout)["error"] == "Unknown command: bogus"

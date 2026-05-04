@@ -1,0 +1,576 @@
+{
+  "last30days": {
+    "data-infra": {
+      "queries": [
+        {
+          "kind": "conversation",
+          "topic": "Show HN Data Infrastructure AI startup developer tool open source",
+          "sources": "hackernews,github",
+          "lookback_days": 30
+        },
+        {
+          "kind": "hn_show",
+          "topic": "Launch HN Show HN Data Infrastructure startup AI infrastructure",
+          "sources": "hackernews,github",
+          "lookback_days": 30
+        }
+      ],
+      "query_count": 2,
+      "items": [
+        {
+          "source": "github",
+          "title": "feat: Implement Hierarchical Prediction System (HPS) with comprehensive ML infrastructure",
+          "url": "https://github.com/cbwinslow/retrosheet/pull/138",
+          "snippet": "CodeAnt AI is reviewing your PR.\n\n---\n\n### Thanks for using CodeAnt! \ud83c\udf89\n\nWe're free for open-source projects. if you're enjoying it, help us grow by sharing.\n\n[Share on X](https://twitter.com/intent/tweet?text=Just%20tried%20%40CodeAntAI%20for%20automated%20code%20review%20and%20I%27m%20impressed%21%... <!-- kilo-billing-notice -->\n**Kilo Code Review could not run \u2014 your account is out of credits.**\n\n[Add credits](https://app.kilo.ai/) or [switch to a free model](https://app.kilo.ai/code-reviews)",
+          "published_at": "2026-05-02",
+          "engagement": {
+            "comments": 7,
+            "reactions": 3
+          },
+          "container": "cbwinslow/retrosheet",
+          "author": "cbwinslow",
+          "query_kind": "conversation",
+          "query_topic": "Show HN Data Infrastructure AI startup developer tool open source"
+        },
+        {
+          "source": "github",
+          "title": "feat: Complete Statcast pitch-level data ingestion and comprehensive data acquisition",
+          "url": "https://github.com/cbwinslow/retrosheet/pull/48",
+          "snippet": "CodeAnt AI is reviewing your PR.\n\n---\n\n### Thanks for using CodeAnt! \ud83c\udf89\n\nWe're free for open-source projects. if you're enjoying it, help us grow by sharing.\n\n[Share on X](https://twitter.com/intent/tweet?text=Just%20tried%20%40CodeAntAI%20for%20automated%20code%20review%20and%20I%27m%20impressed%21%... #### \u26a0\ufe0f GitGuardian has uncovered 11 secrets following the scan of your pull request.\n\nPlease consider investigating the findings and remediating the incidents. Failure to do so may lead to compro",
+          "published_at": "2026-04-19",
+          "engagement": {
+            "comments": 8,
+            "reactions": 3
+          },
+          "container": "cbwinslow/retrosheet",
+          "author": "cbwinslow",
+          "query_kind": "conversation",
+          "query_topic": "Show HN Data Infrastructure AI startup developer tool open source"
+        },
+        {
+          "source": "github",
+          "title": "feat: complete core spam filter backend and frontend implementation",
+          "url": "https://github.com/jmbish04/core-spam-filter/pull/1",
+          "snippet": "Implemented the core spam filter project according to the SWARM specs and PRD.\n\n- Set up the D1 database schemas and applied Drizzle migrations.\n- Implemented `EmailAnalyzerAgent` using `@cloudflare/agents` SDK for AI LLM evaluation and Vectorize embeddings handling.\n- Implemented the Hono REST API",
+          "published_at": "2026-05-02",
+          "engagement": {
+            "comments": 22,
+            "reactions": 1
+          },
+          "container": "jmbish04/core-spam-filter",
+          "author": "jmbish04",
+          "query_kind": "conversation",
+          "query_topic": "Show HN Data Infrastructure AI startup developer tool open source"
+        },
+        {
+          "source": "github",
+          "title": "chore(data-warehouse): Moved source docs from .com to this repo",
+          "url": "https://github.com/PostHog/posthog/pull/56147",
+          "snippet": "<!-- greptile_other_comments_section -->\n\n<sub>Reviews (1): Last reviewed commit: [\"Moved source docs from .com to this repo\"](https://github.com/posthog/posthog/commit/8ac1ad7af9ee635c06595ad0b81e2403c3e3ac9f) | [Re-trigger Greptile](https://app.greptile.com/api/retrigger?id=29590123)</sub> **Size Change:** 0 B \n\n**Total Size:** 132 MB\n\n\n\n<details><summary>\u2139\ufe0f <strong>View Unchanged</strong></summary>\n\n| Filename | Size |\n| :--- | :---: |\n| `frontend/dist/368Hedgehogs` | 5.26 kB |\n| `frontend/di",
+          "published_at": "2026-04-24",
+          "engagement": {
+            "comments": 4,
+            "reactions": 3
+          },
+          "container": "PostHog/posthog",
+          "author": "Gilbert09",
+          "query_kind": "conversation",
+          "query_topic": "Show HN Data Infrastructure AI startup developer tool open source"
+        },
+        {
+          "source": "github",
+          "title": "Microsoft Copilot system prompts?",
+          "url": "https://github.com/elder-plinius/CL4R1T4S/issues/100",
+          "snippet": "It's quite disappointing that this repository doesn't have [Microsoft Copilot's](https://copilot.com) system prompt. We all need to see what drugs Microsoft fed to their AI that gave it the capacity to lie, gaslight and manipulate, encourage users into selling their data, and [say Charlie Kirk never",
+          "published_at": "2026-04-21",
+          "engagement": {
+            "comments": 1,
+            "reactions": 3
+          },
+          "container": "elder-plinius/CL4R1T4S",
+          "author": "uncode0",
+          "query_kind": "conversation",
+          "query_topic": "Show HN Data Infrastructure AI startup developer tool open source"
+        },
+        {
+          "source": "github",
+          "title": "\ud83d\udee1\ufe0f Sentinel: [MEDIUM] Fix Markdown injection vulnerability",
+          "url": "https://github.com/irfndi/meets-match/pull/100",
+          "snippet": "\ud83d\udc4b Jules, reporting for duty! I'm here to lend a hand with this pull request. When you start a review, I'll add a \ud83d\udc40 emoji to each comment to let you know I've read it. I'll focus on feedback directed at me and will do my best to stay out of conversations between you and other bots or reviewers to ke... <!-- Generated by sourcery-ai[bot]: start review_guide --> ## Reviewer's Guide Adds a Telegram-specific Markdown escaping utility and applies it consistently to user-generated content in match-rela",
+          "published_at": "2026-04-15",
+          "engagement": {
+            "comments": 5,
+            "reactions": 4
+          },
+          "container": "irfndi/meets-match",
+          "author": "irfndi",
+          "query_kind": "conversation",
+          "query_topic": "Show HN Data Infrastructure AI startup developer tool open source"
+        },
+        {
+          "source": "github",
+          "title": "docs(architecture): amend ADR-042 to scope Python-first to internal automation",
+          "url": "https://github.com/rjmurillo/ai-agents/pull/1647",
+          "snippet": "> [!NOTE]\n> Gemini is unable to generate a review for this pull request due to the file types involved not being currently supported. <!-- PR-VALIDATION -->\n\n## PR Validation Report\n\n> [!NOTE]\n> \u2705 **Status: PASS**\n\n### Description Validation\n\n| Check | Status |\n|:------|:-------|\n| Description matches diff | PASS |\n\n### PR Standards\n\n| Check | Status |\n|:------|:-------|\n| Issue linking keywords | PASS |\n| Template compliance | WA... <!-- AI-PR-QUALITY-GATE -->\n\n## AI Quality Gate Review\n\n> [!TI",
+          "published_at": "2026-04-13",
+          "engagement": {
+            "comments": 4,
+            "reactions": 1
+          },
+          "container": "rjmurillo/ai-agents",
+          "author": "rjmurillo-bot",
+          "query_kind": "conversation",
+          "query_topic": "Show HN Data Infrastructure AI startup developer tool open source"
+        },
+        {
+          "source": "github",
+          "title": "feat: initialize cloud-migration-poc from ai-repo-template (Prompt 01)",
+          "url": "https://github.com/mikejmckinney/cloud_migration_POC/pull/1",
+          "snippet": "- [x] ISS-01\u201314: All original PR review comments resolved (prior commits)\n- [x] ISS-15\u201317: Snowflake modules: required_providers, updated resource types, S3 lifecycle filter (prior commits)\n- [x] ISS-18: CI failure \u2014 `in_schema` used as block instead of argument in `snowflake-grants/main.tf` (lines",
+          "published_at": "2026-04-15",
+          "engagement": {
+            "comments": 15,
+            "reactions": 1
+          },
+          "container": "mikejmckinney/cloud_migration_POC",
+          "author": "Copilot",
+          "query_kind": "conversation",
+          "query_topic": "Show HN Data Infrastructure AI startup developer tool open source"
+        },
+        {
+          "source": "github",
+          "title": "content: add 10 production articles across AI, Tech, Finance, Startups",
+          "url": "https://github.com/ayxsh678/taketoday/pull/3",
+          "snippet": "## Summary by Sourcery\n\nAdd a new batch of long-form and smart-breakdown editorial articles across AI, tech, finance, and startups to the content library.\n\nNew Features:\n- Introduce an analysis of how AI assistants are reshaping high-intent search economics for Google and challengers.\n- Add a deep d",
+          "published_at": "2026-04-19",
+          "engagement": {
+            "comments": 2,
+            "reactions": 0
+          },
+          "container": "ayxsh678/taketoday",
+          "author": "ayxsh678",
+          "query_kind": "hn_show",
+          "query_topic": "Launch HN Show HN Data Infrastructure startup AI infrastructure"
+        },
+        {
+          "source": "github",
+          "title": "Eridu Emerges from Stealth with $200M+ Funding, Claims AI Networking Breakthrough (2026-04-20)",
+          "url": "https://github.com/Deva-me-AI/AI-History-in-the-Making/issues/388",
+          "snippet": "## Eridu Emerges from Stealth with $200M+ Funding, Claims AI Networking Breakthrough\n\n**Date:** 2026-04-20\n**Category:** Infrastructure, Funding\n\n### Description\n\nStartup Eridu announced its official launch with over $200 million in funding, revealing a breakthrough in AI-specific networking technol",
+          "published_at": "2026-04-23",
+          "engagement": {
+            "comments": 4,
+            "reactions": 0
+          },
+          "container": "Deva-me-AI/AI-History-in-the-Making",
+          "author": "epanonymous",
+          "query_kind": "hn_show",
+          "query_topic": "Launch HN Show HN Data Infrastructure startup AI infrastructure"
+        },
+        {
+          "source": "github",
+          "title": "feat(subsystem): add Sovereign OS Termux orchestrator + Kivy APK + MCP bridge",
+          "url": "https://github.com/muffy86/autogen-api-style-agent/pull/38",
+          "snippet": "# CodeCapy Review \u208d\u1422\u2022(\u072b)\u2022\u1422\u208e\n- PR: #38\n- Commit: e713881\n\n## Codebase Summary\nThis repository implements a multi-agent API system that now includes a new self-contained subsystem (Sovereign Intelligence OS) for Termux-hosted Android devices. The subsystem provides a FastAPI-based orchestrator with me... You have reached your Codex usage limits for code reviews. You can see your limits in the [Codex usage dashboard](https://chatgpt.com/codex/cloud/settings/usage). <!-- This is an auto-generated co",
+          "published_at": "2026-04-21",
+          "engagement": {
+            "comments": 29,
+            "reactions": 1
+          },
+          "container": "muffy86/autogen-api-style-agent",
+          "author": "muffy86",
+          "query_kind": "hn_show",
+          "query_topic": "Launch HN Show HN Data Infrastructure startup AI infrastructure"
+        },
+        {
+          "source": "github",
+          "title": "feat: highlight service v2 \u2014 native Gemini 3.1 Pro video analysis + fine-tuning infrastructure",
+          "url": "https://github.com/jlin3/substream-sdk/pull/9",
+          "snippet": "## Summary\n\nUpgrades the highlight generation service from a frame-sampling pipeline to a native-video-first system using Gemini 3.1 Pro. This is a comprehensive rewrite of the AI pipeline while maintaining backward compatibility with existing API consumers.\n\n### What changed\n\n**Core Pipeline (bigge",
+          "published_at": "2026-04-16",
+          "engagement": {
+            "comments": 4,
+            "reactions": 0
+          },
+          "container": "jlin3/substream-sdk",
+          "author": "jlin3",
+          "query_kind": "hn_show",
+          "query_topic": "Launch HN Show HN Data Infrastructure startup AI infrastructure"
+        }
+      ],
+      "clusters": [
+        {
+          "candidate_ids": [
+            "https://github.com/jmbish04/core-spam-filter/pull/1"
+          ],
+          "cluster_id": "cluster-1",
+          "representative_ids": [
+            "https://github.com/jmbish04/core-spam-filter/pull/1"
+          ],
+          "score": 56.77619047619048,
+          "sources": [
+            "github"
+          ],
+          "title": "feat: complete core spam filter backend and frontend implementation"
+        },
+        {
+          "candidate_ids": [
+            "https://github.com/muffy86/autonomous-ai-orchestration-agent/pull/49"
+          ],
+          "cluster_id": "cluster-2",
+          "representative_ids": [
+            "https://github.com/muffy86/autonomous-ai-orchestration-agent/pull/49"
+          ],
+          "score": 50.06875,
+          "sources": [
+            "github"
+          ],
+          "title": "\ud83e\udd16 Autonomous Agentic Operating System - Complete Implementation"
+        },
+        {
+          "candidate_ids": [
+            "https://github.com/johnong04/think-n-go/pull/1"
+          ],
+          "cluster_id": "cluster-3",
+          "representative_ids": [
+            "https://github.com/johnong04/think-n-go/pull/1"
+          ],
+          "score": 43.45454545454545,
+          "sources": [
+            "github"
+          ],
+          "title": "backend setup"
+        },
+        {
+          "candidate_ids": [
+            "https://github.com/cbwinslow/retrosheet/pull/138"
+          ],
+          "cluster_id": "cluster-4",
+          "representative_ids": [
+            "https://github.com/cbwinslow/retrosheet/pull/138"
+          ],
+          "score": 29.791803278688526,
+          "sources": [
+            "github"
+          ],
+          "title": "feat: Implement Hierarchical Prediction System (HPS) with comprehensive ML infrastructure"
+        },
+        {
+          "candidate_ids": [
+            "https://github.com/jstamagal/agents-radar/issues/303"
+          ],
+          "cluster_id": "cluster-5",
+          "representative_ids": [
+            "https://github.com/jstamagal/agents-radar/issues/303"
+          ],
+          "score": 25.350404063726625,
+          "sources": [
+            "github"
+          ],
+          "title": "\ud83d\udef0\ufe0f AI Ecosystem Radar 2026-04-15"
+        },
+        {
+          "candidate_ids": [
+            "https://github.com/cecex-git/bi-research/issues/16"
+          ],
+          "cluster_id": "cluster-6",
+          "representative_ids": [
+            "https://github.com/cecex-git/bi-research/issues/16"
+          ],
+          "score": 25.091803278688523,
+          "sources": [
+            "github"
+          ],
+          "title": "Weekly Research\u2014 Power BI & Microsoft Fabric: 3 May 2026"
+        },
+        {
+          "candidate_ids": [
+            "https://github.com/posthog/posthog/pull/56147"
+          ],
+          "cluster_id": "cluster-7",
+          "representative_ids": [
+            "https://github.com/posthog/posthog/pull/56147"
+          ],
+          "score": 7.220625,
+          "sources": [
+            "github"
+          ],
+          "title": "chore(data-warehouse): Moved source docs from .com to this repo"
+        },
+        {
+          "candidate_ids": [
+            "https://github.com/cbwinslow/retrosheet/pull/48"
+          ],
+          "cluster_id": "cluster-8",
+          "representative_ids": [
+            "https://github.com/cbwinslow/retrosheet/pull/48"
+          ],
+          "score": 5.84516129032258,
+          "sources": [
+            "github"
+          ],
+          "title": "feat: Complete Statcast pitch-level data ingestion and comprehensive data acquisition"
+        },
+        {
+          "candidate_ids": [
+            "https://github.com/borq168/big_model_radar/issues/85"
+          ],
+          "cluster_id": "cluster-9",
+          "representative_ids": [
+            "https://github.com/borq168/big_model_radar/issues/85"
+          ],
+          "score": 5.425161290322581,
+          "sources": [
+            "github"
+          ],
+          "title": "\ud83c\udf10 Official AI Content Report 2026-04-30"
+        },
+        {
+          "candidate_ids": [
+            "https://github.com/mikejmckinney/cloud_migration_poc/pull/1"
+          ],
+          "cluster_id": "cluster-10",
+          "representative_ids": [
+            "https://github.com/mikejmckinney/cloud_migration_poc/pull/1"
+          ],
+          "score": 5.418461538461538,
+          "sources": [
+            "github"
+          ],
+          "title": "feat: initialize cloud-migration-poc from ai-repo-template (Prompt 01)"
+        },
+        {
+          "candidate_ids": [
+            "https://github.com/elder-plinius/cl4r1t4s/issues/100"
+          ],
+          "cluster_id": "cluster-11",
+          "representative_ids": [
+            "https://github.com/elder-plinius/cl4r1t4s/issues/100"
+          ],
+          "score": 4.478360655737705,
+          "sources": [
+            "github"
+          ],
+          "title": "Microsoft Copilot system prompts?"
+        },
+        {
+          "candidate_ids": [
+            "https://github.com/irfndi/meets-match/pull/100"
+          ],
+          "cluster_id": "cluster-12",
+          "representative_ids": [
+            "https://github.com/irfndi/meets-match/pull/100"
+          ],
+          "score": 4.476774193548387,
+          "sources": [
+            "github"
+          ],
+          "title": "\ud83d\udee1\ufe0f Sentinel: [MEDIUM] Fix Markdown injection vulnerability"
+        },
+        {
+          "candidate_ids": [
+            "https://github.com/rjmurillo/ai-agents/pull/1647"
+          ],
+          "cluster_id": "cluster-13",
+          "representative_ids": [
+            "https://github.com/rjmurillo/ai-agents/pull/1647"
+          ],
+          "score": 4.328571428571428,
+          "sources": [
+            "github"
+          ],
+          "title": "docs(architecture): amend ADR-042 to scope Python-first to internal automation"
+        },
+        {
+          "candidate_ids": [
+            "https://github.com/ismaelmartinez/repo-butler/pull/89"
+          ],
+          "cluster_id": "cluster-14",
+          "representative_ids": [
+            "https://github.com/ismaelmartinez/repo-butler/pull/89"
+          ],
+          "score": 3.016363636363636,
+          "sources": [
+            "github"
+          ],
+          "title": "docs: add local-brain integration research"
+        },
+        {
+          "candidate_ids": [
+            "https://github.com/deva-me-ai/ai-history-in-the-making/issues/388"
+          ],
+          "cluster_id": "cluster-1",
+          "representative_ids": [
+            "https://github.com/deva-me-ai/ai-history-in-the-making/issues/388"
+          ],
+          "score": 71.64615384615385,
+          "sources": [
+            "github"
+          ],
+          "title": "Eridu Emerges from Stealth with $200M+ Funding, Claims AI Networking Breakthrough (2026-04-20)"
+        },
+        {
+          "candidate_ids": [
+            "https://github.com/yinwm/agents-radar/issues/274"
+          ],
+          "cluster_id": "cluster-2",
+          "representative_ids": [
+            "https://github.com/yinwm/agents-radar/issues/274"
+          ],
+          "score": 53.08387096774194,
+          "sources": [
+            "github"
+          ],
+          "title": "\ud83d\udcf0 Hacker News AI Digest 2026-04-18"
+        },
+        {
+          "candidate_ids": [
+            "https://github.com/manelsen/agents-radar/issues/102"
+          ],
+          "cluster_id": "cluster-3",
+          "representative_ids": [
+            "https://github.com/manelsen/agents-radar/issues/102"
+          ],
+          "score": 53.076190476190476,
+          "sources": [
+            "github"
+          ],
+          "title": "\ud83d\udcf0 Hacker News AI Digest 2026-04-18"
+        },
+        {
+          "candidate_ids": [
+            "https://github.com/deniszheng/agents-radar/issues/391"
+          ],
+          "cluster_id": "cluster-4",
+          "representative_ids": [
+            "https://github.com/deniszheng/agents-radar/issues/391"
+          ],
+          "score": 52.76875,
+          "sources": [
+            "github"
+          ],
+          "title": "\ud83d\udcf0 Hacker News AI Digest 2026-04-17"
+        },
+        {
+          "candidate_ids": [
+            "https://github.com/jlin3/substream-sdk/pull/9"
+          ],
+          "cluster_id": "cluster-5",
+          "representative_ids": [
+            "https://github.com/jlin3/substream-sdk/pull/9"
+          ],
+          "score": 48.3125,
+          "sources": [
+            "github"
+          ],
+          "title": "feat: highlight service v2 \u2014 native Gemini 3.1 Pro video analysis + fine-tuning infrastructure"
+        },
+        {
+          "candidate_ids": [
+            "https://github.com/cbwinslow/retrosheet/pull/138"
+          ],
+          "cluster_id": "cluster-6",
+          "representative_ids": [
+            "https://github.com/cbwinslow/retrosheet/pull/138"
+          ],
+          "score": 47.66885245901639,
+          "sources": [
+            "github"
+          ],
+          "title": "feat: Implement Hierarchical Prediction System (HPS) with comprehensive ML infrastructure"
+        },
+        {
+          "candidate_ids": [
+            "https://github.com/johnong04/think-n-go/pull/1"
+          ],
+          "cluster_id": "cluster-7",
+          "representative_ids": [
+            "https://github.com/johnong04/think-n-go/pull/1"
+          ],
+          "score": 37.33582089552239,
+          "sources": [
+            "github"
+          ],
+          "title": "backend setup"
+        },
+        {
+          "candidate_ids": [
+            "https://github.com/urzz/repo_for_report/issues/26"
+          ],
+          "cluster_id": "cluster-8",
+          "representative_ids": [
+            "https://github.com/urzz/repo_for_report/issues/26"
+          ],
+          "score": 28.791803278688526,
+          "sources": [
+            "github"
+          ],
+          "title": "Miniflux Digest \u00b7 AI \u4fe1\u606f \u00b7 2026-04-26"
+        },
+        {
+          "candidate_ids": [
+            "https://github.com/muffy86/autogen-api-style-agent/pull/38"
+          ],
+          "cluster_id": "cluster-9",
+          "representative_ids": [
+            "https://github.com/muffy86/autogen-api-style-agent/pull/38"
+          ],
+          "score": 25.94090909090909,
+          "sources": [
+            "github"
+          ],
+          "title": "feat(subsystem): add Sovereign OS Termux orchestrator + Kivy APK + MCP bridge"
+        },
+        {
+          "candidate_ids": [
+            "https://github.com/executiveusa/strapi-template-new-world-kids/pull/47"
+          ],
+          "cluster_id": "cluster-10",
+          "representative_ids": [
+            "https://github.com/executiveusa/strapi-template-new-world-kids/pull/47"
+          ],
+          "score": 25.65714285714286,
+          "sources": [
+            "github"
+          ],
+          "title": "feat: NWKids v1.0 \u2014 Hermes Agent OS + Full Skill Stack"
+        },
+        {
+          "candidate_ids": [
+            "https://github.com/ayxsh678/taketoday/pull/3"
+          ],
+          "cluster_id": "cluster-11",
+          "representative_ids": [
+            "https://github.com/ayxsh678/taketoday/pull/3"
+          ],
+          "score": 23.9515625,
+          "sources": [
+            "github"
+          ],
+          "title": "content: add 10 production articles across AI, Tech, Finance, Startups"
+        },
+        {
+          "candidate_ids": [
+            "https://github.com/nickolai-brennan/__vault/pull/2"
+          ],
+          "cluster_id": "cluster-12",
+          "representative_ids": [
+            "https://github.com/nickolai-brennan/__vault/pull/2"
+          ],
+          "score": 22.962903225806453,
+          "sources": [
+            "github"
+          ],
+          "title": "Bootstrap ai-automation/ framework scaffold"
+        }
+      ],
+      "warnings": [
+        "Top evidence is highly concentrated in one source.",
+        "Top evidence is highly concentrated in one source."
+      ],
+      "errors": []
+    }
+  },
+  "github": [],
+  "warnings": []
+}

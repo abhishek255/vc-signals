@@ -1,7 +1,7 @@
 ---
 name: vc-signals
-description: "VC signal-to-thesis skill. Discover emerging investable themes in devtools, cybersecurity, and AI infrastructure. Weekly sector scans, theme drill-downs, company backtrace, and GitHub trending repos."
-argument-hint: 'vc-signals radar devtools, vc-signals theme "agent evals", vc-signals company "Confluent", vc-signals github ai-infra, vc-signals setup'
+description: "VC signal-to-thesis skill for Marathon-style deal discovery. Weekly all-sector radar, OSS radar, theme drill-downs, company backtrace, and GitHub trending repos."
+argument-hint: 'vc-signals radar all, vc-signals oss ai-infra, vc-signals theme "agent evals", vc-signals company "Confluent", vc-signals setup'
 allowed-tools: Bash, Read, Write, WebSearch, AskUserQuestion
 user-invocable: true
 ---
@@ -17,11 +17,12 @@ Turn noisy public internet chatter into ranked, investor-oriented theme briefs w
 Parse the user's input to determine the mode and arguments:
 
 - `/vc-signals setup` → Setup wizard mode
-- `/vc-signals radar <sector> [time]` → Company-first weekly radar (sectors: `devtools`, `cybersecurity`, `ai-infra`)
+- `/vc-signals radar <sector|all> [time]` → Company-first weekly radar (sectors: `devtools`, `cybersecurity`, `ai-infra`, `vertical-ai`, `data-infra`, `oss`; `all` runs one unified brief with sector sections)
 - `/vc-signals weekly <sector> [time]` → Alias for `radar` (kept for backward compatibility)
 - `/vc-signals theme "<topic>" [time]` → Theme drill-down
 - `/vc-signals company "<name>" [time]` → Company backtrace
-- `/vc-signals github <sector>` → GitHub trending repos (sectors: `devtools`, `cybersecurity`, `ai-infra`, `all`)
+- `/vc-signals oss <sector> [time]` → OSS-native radar using repo velocity, community signal, contributor quality, and company-formation likelihood
+- `/vc-signals github <sector>` → GitHub trending repos (sectors: `devtools`, `cybersecurity`, `ai-infra`, `vertical-ai`, `data-infra`, `oss`, `all`)
 - `/vc-signals add-sector <name>` → Add a new sector (guided)
 - `/vc-signals compare "<company1>" "<company2>"` → Head-to-head comparison (stretch)
 
@@ -120,6 +121,8 @@ Scripts:
 - `<skill_dir>/scripts/persistence.py` — save/load briefings, diffs, theme index
 - `<skill_dir>/scripts/github_trending.py` — GitHub star velocity search
 - `<skill_dir>/scripts/last30days_adapter.py` — last30days integration
+- `<skill_dir>/scripts/attio.py` — read-only Attio CRM matching from `ATTIO_ACCESS_TOKEN`
+- `<skill_dir>/scripts/radar_run.py` — weekly evidence collection, quality filtering, Attio merge, and partner-preview rendering
 
 Config:
 - `<skill_dir>/config/sectors.json` — sector taxonomy
@@ -283,17 +286,19 @@ Print what's configured and what each unlocks:
 > (Show [x] for configured items, [ ] for skipped items, based on what the user actually set up.)
 >
 > **You can run `/vc-signals setup` again anytime to add more capabilities.**
-> **Try it out: `/vc-signals weekly devtools`**
+> **Try it out: `/vc-signals radar all`**
 
 ---
 
-## Mode: Radar (Weekly Sector Scan)
+## Mode: Radar (Weekly Marathon Scan)
 
-**Triggers:** `/vc-signals radar <sector>` or `/vc-signals weekly <sector>` (alias)
+**Triggers:** `/vc-signals radar <sector|all>` or `/vc-signals weekly <sector|all>` (alias)
 
-**Sectors:** `devtools`, `cybersecurity`, `ai-infra`
+**Sectors:** `devtools`, `cybersecurity`, `ai-infra`, `vertical-ai`, `data-infra`, `oss`. Use `all` for the default Marathon weekly artifact.
 
 If sector is not recognized, say so and list valid sectors.
+
+**Default Marathon output:** one unified all-sector brief delivered Monday 8:00 AM ET when scheduled. Put a cross-sector summary and top 10-15 companies first, then compact sections for each sector. Do not dump 50 rows into Slack; Slack gets the teaser/digest and a link or artifact for the full brief. If no Slack channel is configured yet, produce the Markdown artifact and include instructions to set the channel later.
 
 ### Step 1: Load Configuration
 
@@ -306,6 +311,22 @@ Read the company alias map:
 ```bash
 cat <skill_dir>/config/company_aliases.json
 ```
+
+For deterministic weekly runs, prefer the orchestration helper before doing manual synthesis:
+
+```bash
+python3 <skill_dir>/scripts/radar_run.py collect --output-dir <output_dir>
+```
+
+This writes raw evidence JSON, filters obvious GitHub/reddit noise, uses the bundled Python 3.12 runtime for last30days when available, and keeps collection separate from investor judgment.
+
+To build an automatic scored preview from saved evidence:
+
+```bash
+python3 <skill_dir>/scripts/radar_run.py preview --from-evidence <output_dir>/<YYYY-MM-DD>-raw-evidence.json --output <output_dir>/<YYYY-MM-DD>-auto-scored-preview.md
+```
+
+The automatic preview is intentionally conservative: it extracts candidate companies/projects, applies first-pass Investment Interest and Evidence Confidence scores, merges Attio context when `ATTIO_ACCESS_TOKEN` is present, filters low-interest candidates, and renders only Medium/High-interest rows. If it underfills the table, use Claude synthesis over the raw evidence plus external/web research to add higher-quality candidates rather than lowering the threshold.
 
 ### Step 2: Check for Previous Briefing (Week-over-Week)
 
@@ -328,11 +349,11 @@ Use this to identify themes that have appeared in 3+ consecutive scans — these
 python3 <skill_dir>/scripts/last30days_adapter.py check
 ```
 
-If `installed` AND `configured` are both true -> use **last30days path**.
+If `installed` is true -> use **last30days path**. The engine has useful zero-config free sources (`reddit`, `hackernews`, `github`, `polymarket`) even when no optional keys are configured.
 Otherwise -> use **WebSearch path**.
 
 Tell the user which path you're using:
-- "Using last30days for deep multi-source research (Reddit, HN, X, YouTube, web)."
+- "Using last30days for multi-source research. Free sources are active; optional keys unlock X, YouTube, TikTok/Instagram, and grounded web."
 - "Using web search for research. For deeper coverage across Reddit, HN, X, and YouTube, run `/vc-signals setup`."
 
 ### Step 4: Retrieve Evidence
@@ -365,10 +386,18 @@ LOOKBACK_DAYS=14   # radar/weekly default; override with the user's time-window 
 # Read curated subreddits from the sector taxonomy.
 SUBREDDITS=$(python3 -c "import json; print(','.join(json.load(open('<skill_dir>/config/sectors.json'))['<SECTOR>'].get('subreddits', [])))")
 
-python3 <skill_dir>/scripts/last30days_adapter.py query --topic "<specific theme query>" --sources "reddit,hackernews,x" --subreddits "${SUBREDDITS}" --auto-resolve --lookback-days ${LOOKBACK_DAYS}
+python3 <skill_dir>/scripts/last30days_adapter.py query --topic "<specific theme query>" --sources "reddit,hackernews,x,youtube,github,polymarket,grounding" --subreddits "${SUBREDDITS}" --auto-resolve --store --lookback-days ${LOOKBACK_DAYS}
 ```
 
 Run each of the sector's `hn_queries` from the config, plus 2-3 discovery queries. Auto-resolve handles subreddit and handle targeting.
+
+For `vertical-ai` and prosumer/creator-heavy workflows, add TikTok/Instagram only when they plausibly carry customer pull:
+
+```bash
+python3 <skill_dir>/scripts/last30days_adapter.py query --topic "<vertical AI query>" --sources "reddit,hackernews,x,youtube,tiktok,instagram,github,grounding" --tiktok-hashtags "<tags>" --ig-creators "<handles>" --auto-resolve --store --lookback-days ${LOOKBACK_DAYS}
+```
+
+For infra-heavy sectors (`devtools`, `cybersecurity`, `ai-infra`, `data-infra`, `oss`), keep TikTok/Instagram off by default unless the user asks.
 
 **IMPORTANT: Query strategy matters.** Hacker News search works best with specific, concise queries — NOT broad category dumps. Use 2-4 focused keywords per query.
 
@@ -466,7 +495,7 @@ For each surviving theme (after Step 6 filtering), identify 8-12 relevant compan
 2. **Evidence:** Were any companies/projects mentioned in the search results for this theme?
 3. **GitHub data:** Do any trending repos from Step 5 relate to this theme?
 
-**Target: 30-50 total companies across the radar.** This is the centerpiece of the output, not an accessory.
+**Target: 30-50 total companies across the radar.** This is the centerpiece of the output, not an accessory. For `all`, spread coverage across sector sections and avoid letting AI infra crowd out every other sector.
 
 **Deduplicate across themes:**
 
@@ -492,6 +521,12 @@ To pick `primary_theme`:
 | `raised` | null | Phase 2 fills this |
 | `headcount` | null | Phase 2 fills this |
 | `founders` | null | Phase 2 fills this |
+| `investment_interest` | high / medium / low or 0-100 | How much Marathon should care if the evidence is true |
+| `evidence_confidence` | high / medium / low or 0-100 | How well-supported the claim is |
+| `attio_status` | no_match / stale / no_owner / active / passed / unknown | Phase 4 fills this; use unknown until Attio is connected |
+| `action` | assign owner / refresh note / monitor only / flag quietly / ignore | Use judgment; passed companies get flag quietly |
+| `why_this_may_be_noise` | One sentence | Skeptical counter-case |
+| `source_links` | List | 1-3 supporting URLs |
 
 **The `why_on_radar` field is critical.** It's what Alex reads in the radar table. Bad: "AI testing company". Good: "AI-native test gen, launched 3 weeks ago, ex-Datadog founders". One sentence, specific signal.
 
@@ -501,6 +536,41 @@ To pick `primary_theme`:
 - Pretend to know things you don't (especially funding amounts — leave null until Phase 2)
 - Map a company to a theme just because the names sound related
 - Duplicate companies across themes — pick one primary
+
+### Step 7.5: Match Against Attio
+
+If `ATTIO_ACCESS_TOKEN` is available, enrich the company rows before formatting:
+
+```bash
+python3 <skill_dir>/scripts/attio.py check
+```
+
+Then pass the deduplicated company list:
+
+```bash
+printf '%s' '<companies-json>' | python3 <skill_dir>/scripts/attio.py enrich
+```
+
+Input shape:
+
+```json
+{"companies":[{"name":"Cascade","domain":"runcascade.com"}]}
+```
+
+Use the returned fields:
+- `attio_status`: `no_match`, `no_owner`, `active`, `stale`, `passed`, or `unknown`
+- `attio_action`: `assign owner`, `refresh note`, `monitor only`, `flag quietly`, etc.
+- `attio_lists`: human-readable list names
+- `attio_attributes`: selected CRM fields such as status, last interaction, round, headcount, and amount raised when present
+
+Matching rule: prefer company domain over name. The Attio client verifies stored domains before accepting a domain-based fuzzy search result, because Attio search can return similarly named but wrong companies. If no domain is known, use company name but mark weak matches conservatively.
+
+Status rule:
+- `no_match` -> new discovery; action `assign owner`
+- `no_owner` -> already in Attio but needs assignment; action `assign owner`
+- `stale` -> old pipeline or stale interaction context; action `refresh note`
+- `passed` or `Deprioritized` -> action `flag quietly` and explain what changed
+- `active` -> avoid duplicate outreach; action `monitor only` or enrich existing context
 
 ### Step 8: Format Output
 
@@ -530,13 +600,13 @@ The output gives `new_companies` and `faded_companies`. Use these to populate th
 
 ### Company Radar ({N} companies)
 
-| Company | Theme | Tag | Why On Radar |
-|---------|-------|-----|--------------|
-| MintMCP | MCP Infra | NEW | First SOC2-compliant MCP gateway, picking up enterprise pilots |
-| CodeRabbit | AI Code Review | PERSISTENT | 2M repos, 13M PRs reviewed |
-| ... | ... | ... | ... |
+| Company | Sector | Theme | Interest | Evidence | Attio | Action | Why On Radar | Why This May Be Noise | Sources |
+|---------|--------|-------|----------|----------|-------|--------|--------------|------------------------|---------|
+| MintMCP | AI Infra | MCP Infra | High | Medium | unknown | assign owner | First SOC2-compliant MCP gateway, picking up enterprise pilots | New category; buyer urgency unproven | [1](...) |
+| CodeRabbit | Devtools | AI Code Review | Medium | High | unknown | monitor only | 2M repos, 13M PRs reviewed | Crowded category; likely consensus | [1](...) |
+| ... | ... | ... | ... | ... | ... | ... | ... | ... | ... |
 
-[30-50 rows, sorted by primary_theme then alphabetically by company name. Tag column shows NEW / RETURNING / PERSISTENT or empty.]
+[30-50 rows. For `all`, group by sector after the cross-sector top 10-15. Include NEW / RETURNING / PERSISTENT tags inside Why On Radar when useful instead of adding a separate tag column.]
 
 ### New To Radar This Week ({N} companies)
 
@@ -562,6 +632,16 @@ The output gives `new_companies` and `faded_companies`. Use these to populate th
 - New To Radar is sorted by primary_theme matching above.
 
 **Length budget:** the entire radar should fit in roughly 150-250 lines. If it's longer, the per-theme detail is too verbose — tighten it.
+
+### Slack Delivery Instructions
+
+If the user asks to schedule or post to Slack:
+- Default schedule: Monday 8:00 AM ET.
+- Channel is intentionally not hardcoded. Ask for or read the configured channel name at scheduling time.
+- Slack teaser should include only the top 10-15 cross-sector companies/projects, their sector, Investment Interest, Evidence Confidence, Attio status, action, and one-line noise caveat.
+- Attach or link the full Markdown briefing. Do not paste the full 30-50 row table into Slack by default.
+
+To modify later: change the channel name in the scheduler/Slack connector configuration, not in the radar logic. If no channel is configured, save the briefing and print: "Slack channel not configured yet; set `VC_SIGNALS_SLACK_CHANNEL` or update the scheduler prompt with the desired channel."
 
 ### Step 9: Persist Results
 
@@ -822,6 +902,84 @@ Cross-reference the evidence against:
 cat <<'MD_EOF' | python3 <skill_dir>/scripts/persistence.py save-markdown --subdir companies --name "<company name>" --date $(date +%Y-%m-%d)
 [the markdown content goes here]
 MD_EOF
+```
+
+---
+
+## Mode: OSS Radar
+
+**Trigger:** `/vc-signals oss <sector> [time]`
+
+Use this when the user asks for OSS startup discovery, fast-growing repos, open-source companies, or GitHub-first market signal. This mode is conceptually inspired by Gokul Rajaram's OSS Startup Radar, with permission to reuse ideas/code, but VC Signals should adapt it to Marathon's Seed-to-Series-B workflow.
+
+### Step 1: Scope
+
+Valid sectors: `ai-infra`, `devtools`, `cybersecurity`, `data-infra`, `vertical-ai`, `all`. If no sector is provided, default to `ai-infra` for OSS radar.
+
+### Step 2: Collect Repo Candidates
+
+Use GitHub trending and last30days together:
+
+```bash
+python3 <skill_dir>/scripts/github_trending.py --sector <SECTOR> --limit 50
+```
+
+Then search community signal:
+
+```bash
+python3 <skill_dir>/scripts/last30days_adapter.py query --topic "<repo or theme>" --sources "reddit,hackernews,x,youtube,github" --github-repo "<owner/repo>" --quick --store --lookback-days 30
+```
+
+### Step 3: Rank OSS Signal
+
+Do not rank by total stars alone. Score these separately:
+
+- 30/60/90-day star velocity and stars/day
+- age-adjusted momentum
+- community signal from Reddit, HN, X, YouTube, and GitHub discussions/issues where available
+- contributor/maintainer quality
+- repo quality: installability, docs, releases, issue health, package/demo path
+- license and commercialization path
+- company formation probability
+- star authenticity/noise risk
+
+Use the Alex/Gokul OSS email as the output bar: top themes, top 25 fast-growing projects, 30/60/90 velocity, community signal, funding/stage label, founder/contributor profiles, and clear methodology. Improve it by adding Investment Interest, Evidence Confidence, action, and "Why This May Be Noise."
+
+### Step 4: Assign Repo Type And Action
+
+Repo type must be one of:
+- `company-backed`
+- `founder-likely`
+- `ecosystem signal`
+- `portfolio-support relevant`
+- `high-noise`
+
+Action must be one of:
+- `watch`
+- `contact maintainer`
+- `map ecosystem`
+- `track company formation`
+- `ignore`
+
+### Step 5: Output
+
+```markdown
+## OSS Radar: {Sector} -- {YYYY-MM-DD}
+
+### Top Themes
+- **{Theme}** — {2 sentence why-now}. Key projects: `{repo}`, `{repo}`, `{repo}`.
+
+### Top 25 OSS Projects
+
+| Repo | Type | Action | Interest | Evidence | +30d | +60d | +90d | Community | Why Now | Why This May Be Noise |
+|------|------|--------|----------|----------|------|------|------|-----------|---------|------------------------|
+| owner/repo | founder-likely | contact maintainer | High | Medium | +1.5k | +4.9k | +4.9k | 2r+3hn | Agent memory is emerging | Star spike may be launch hype |
+
+### Founder & Contributor Profiles
+- **owner/repo** — top contributors, GitHub profiles, LinkedIn if found, caveat that identity should be verified before outreach.
+
+### Methodology
+Explain star velocity windows, community source weighting, funding/stage labeling, filtering, and star-authenticity caveats.
 ```
 
 ---

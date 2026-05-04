@@ -232,5 +232,196 @@
       "most interesting AI infra companies"
     ],
     "negative_terms": ["AI art generator", "ChatGPT tips", "AI writing tool review", "best AI chatbot", "AI image generator"]
+  },
+  "vertical-ai": {
+    "display_name": "Vertical AI",
+    "subreddits": ["SaaS", "startups", "Entrepreneur", "sales", "CustomerSuccess", "healthIT", "legaltech", "edtech", "Accounting"],
+    "hn_queries": [
+      "vertical AI",
+      "AI agents for sales",
+      "AI for healthcare workflow",
+      "legal AI startup",
+      "AI back office automation",
+      "AI customer support agents"
+    ],
+    "subcategories": {
+      "ai_sales_gtm": {
+        "name": "AI Sales & GTM",
+        "aliases": ["AI SDR", "sales agents", "outbound automation", "revenue intelligence", "GTM automation"],
+        "seed_queries": [
+          "AI SDR startups gaining traction",
+          "sales agent tools emerging",
+          "AI outbound automation startup"
+        ]
+      },
+      "healthcare_ai": {
+        "name": "Healthcare Workflow AI",
+        "aliases": ["clinical AI", "medical scribe", "prior authorization", "healthcare automation", "provider workflow"],
+        "seed_queries": [
+          "healthcare AI workflow startups",
+          "medical scribe AI emerging companies",
+          "prior authorization AI startups"
+        ]
+      },
+      "legal_finance_ai": {
+        "name": "Legal & Finance AI",
+        "aliases": ["legal AI", "contract review AI", "accounting AI", "finance automation", "tax AI"],
+        "seed_queries": [
+          "legal AI startups emerging",
+          "contract review AI new entrants",
+          "AI accounting automation startups"
+        ]
+      },
+      "operations_ai": {
+        "name": "Operations & Back Office AI",
+        "aliases": ["back office automation", "AI operations", "workflow automation", "AI employees", "agentic operations"],
+        "seed_queries": [
+          "AI back office automation startups",
+          "vertical AI agents operations",
+          "AI employee startup emerging"
+        ]
+      }
+    },
+    "discovery_queries": [
+      "vertical AI startups gaining traction",
+      "AI agents for industry workflows funded recently",
+      "vertical AI categories emerging",
+      "AI replacing back office workflows startups",
+      "industry-specific AI startups seed series A"
+    ],
+    "negative_terms": ["generic chatbot", "AI content generator", "prompt pack", "course", "agency directory"]
+  },
+  "data-infra": {
+    "display_name": "Data Infrastructure",
+    "subreddits": ["dataengineering", "analyticsengineering", "Database", "bigdata", "snowflake", "databricks", "mlops"],
+    "hn_queries": [
+      "data infrastructure",
+      "lakehouse",
+      "data catalog",
+      "streaming data",
+      "data observability",
+      "semantic layer"
+    ],
+    "subcategories": {
+      "modern_data_stack": {
+        "name": "Modern Data Stack",
+        "aliases": ["ETL", "ELT", "reverse ETL", "dbt", "data warehouse", "lakehouse"],
+        "seed_queries": [
+          "modern data stack startups emerging",
+          "ELT tools new entrants",
+          "dbt ecosystem startups gaining traction"
+        ]
+      },
+      "streaming_realtime": {
+        "name": "Streaming & Real-Time Data",
+        "aliases": ["Kafka", "stream processing", "real-time analytics", "event streaming", "CDC"],
+        "seed_queries": [
+          "real-time data infrastructure startups",
+          "Kafka alternatives gaining traction",
+          "change data capture startups emerging"
+        ]
+      },
+      "data_quality_observability": {
+        "name": "Data Quality & Observability",
+        "aliases": ["data observability", "data quality", "lineage", "data contracts", "monitoring"],
+        "seed_queries": [
+          "data observability startups new",
+          "data quality tools emerging",
+          "data contracts startup gaining traction"
+        ]
+      },
+      "semantic_metrics": {
+        "name": "Semantic & Metrics Layers",
+        "aliases": ["semantic layer", "metrics layer", "BI layer", "analytics layer", "headless BI"],
+        "seed_queries": [
+          "semantic layer startups emerging",
+          "metrics layer tools gaining traction",
+          "headless BI startups"
+        ]
+      }
+    },
+    "discovery_queries": [
+      "data infrastructure startups gaining traction",
+      "data engineering tools trending hacker news",
+      "modern data stack new companies",
+      "data infra funding seed series A",
+      "developer data tools emerging"
+    ],
+    "negative_terms": ["SQL tutorial", "data science course", "Excel template", "bootcamp", "Kaggle notebook"]
+  },
+  "oss": {
+    "display_name": "Open Source Radar",
+    "subreddits": ["opensource", "github", "programming", "LocalLLaMA", "MachineLearning", "mcp", "ClaudeCode", "selfhosted", "dataengineering", "cybersecurity"],
+    "hn_queries": [
+      "Show HN open source AI",
+      "open source developer tool",
+      "GitHub trending AI agent",
+      "open source cybersecurity tool",
+      "open source data infrastructure",
+      "MCP open source"
+    ],
+    "subcategories": {
+      "oss_ai_agents": {
+        "name": "OSS AI Agents",
+        "aliases": ["agent framework", "agent runtime", "AI agent", "MCP", "autonomous agent", "agent memory"],
+        "seed_queries": [
+          "fast-growing open source AI agent repos",
+          "open source MCP projects trending",
+          "AI agent framework GitHub star velocity"
+        ]
+      },
+      "oss_devtools": {
+        "name": "OSS Developer Tools",
+        "aliases": ["developer tool", "CLI", "codegen", "testing", "observability", "platform engineering"],
+        "seed_queries": [
+          "open source devtools gaining stars",
+          "GitHub trending developer tools startups",
+          "OSS code generation tools"
+        ]
+      },
+      "oss_security": {
+        "name": "OSS Security",
+        "aliases": ["security scanner", "pentest", "SAST", "SBOM", "supply chain security", "secrets scanning"],
+        "seed_queries": [
+          "open source security tools gaining traction",
+          "AI security GitHub repos trending",
+          "open source pentest automation"
+        ]
+      },
+      "oss_data_infra": {
+        "name": "OSS Data & Infra",
+        "aliases": ["database", "streaming", "vector search", "data pipeline", "observability", "inference"],
+        "seed_queries": [
+          "open source data infrastructure repos trending",
+          "GitHub star velocity data infra",
+          "open source inference serving projects"
+        ]
+      }
+    },
+    "discovery_queries": [
+      "fast growing open source AI ML startups GitHub",
+      "open source startup radar GitHub trending",
+      "developer-first open source startups seed",
+      "OSS projects becoming companies AI infrastructure",
+      "open source repos with fast star velocity"
+    ],
+    "negative_terms": ["awesome list", "tutorial", "course", "prompt collection", "template", "leaked prompts", "personal notes"],
+    "ranking_signals": [
+      "star_velocity",
+      "age_adjusted_momentum",
+      "community_signal",
+      "contributor_quality",
+      "repo_quality",
+      "license_commercialization",
+      "company_formation_probability",
+      "star_authenticity"
+    ],
+    "actions": [
+      "watch",
+      "contact maintainer",
+      "map ecosystem",
+      "track company formation",
+      "ignore"
+    ]
   }
 }

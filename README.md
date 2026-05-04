@@ -2,7 +2,7 @@
 
 > **AI-Powered Company Radar for Venture Capital**
 
-A skill for [Claude Code](https://docs.anthropic.com/en/docs/claude-code) and [Claude Co-Work](https://claude.com/product/cowork) that turns noisy public internet chatter into a weekly company radar — 30-50 investable companies organized by emerging theme, in devtools, cybersecurity, and AI infrastructure.
+A skill for [Claude Code](https://docs.anthropic.com/en/docs/claude-code) and [Claude Co-Work](https://claude.com/product/cowork) that turns noisy public internet chatter into a weekly Marathon-style radar — 30-50 investable companies and OSS projects organized by sector and emerging theme.
 
 **[See how it works (visual guide)](https://abhishek255.github.io/vc-signals/)**
 
@@ -29,33 +29,30 @@ VC Signals does this in one command.
 ## What You Get
 
 ```
-/vc-signals radar devtools
+/vc-signals radar all
 ```
 
-In 3-5 minutes, you get a company radar like this:
+In a few minutes, you get a weekly all-sector radar like this:
 
 ```markdown
-## VC Radar: Developer Tools — Week of 2026-04-16
+## VC Radar: All Sectors — Week of 2026-05-04
 
 ### What's Moving
-- **MCP Agent Infrastructure** — NEW. 97M monthly SDK downloads, Gartner says 75% of API gateways will adopt MCP.
+- **Agent Runtime Infrastructure** — NEW. Fast OSS velocity plus buyer pain around governance, evals, and deployment.
   Companies riding this: 6
-- **AI Coding IDEs & Agents** — NEW. $7B market; Anysphere in talks for $5B at $60B; Cognition+Windsurf consolidation.
+- **Vertical AI Back Offices** — UP. Narrow workflows showing faster adoption than broad copilots.
   Companies riding this: 4
-- **AI-Powered Code Review** — NEW. $1.2B raised category-wide 2024-25; depth-vs-speed shakeout.
+- **Data Observability for AI Pipelines** — PERSISTENT. Teams need trust layers for eval, lineage, and drift.
   Companies riding this: 4
-[+3 more themes]
+[+5 more themes]
 
-### Company Radar (30 companies)
+### Company Radar (38 companies across 6 sectors)
 
-| Company | Theme | Tag | Why On Radar |
-|---------|-------|-----|--------------|
-| Anysphere (Cursor) | AI Coding IDEs | NEW | $2.3B Series D Nov 2025 at $29.3B; in talks for $5B at $60B |
-| Runlayer | MCP Agent Infra | NEW | $11M seed Khosla/Felicis Nov 2025; 8 unicorns as launch customers |
-| ToolHive | MCP Agent Infra | NEW | Led by K8s creator Craig McLuckie; managing MCP servers as K8s resources |
-| Greptile | AI Code Review | NEW | 82% bug catch rate vs CodeRabbit's 44%; full-codebase indexing |
-| QA Wolf | AI Testing | NEW | $56.1M total; Peter Thiel angel; 130+ enterprise customers |
-| Arize AI | AI Observability | NEW | $70M Series C; Uber/PepsiCo/Tripadvisor as customers |
+| Company | Sector | Theme | Interest | Evidence | Attio | Action | Why On Radar | Why This May Be Noise |
+|---------|--------|-------|----------|----------|-------|--------|--------------|------------------------|
+| ExampleCo | AI Infra | Agent Runtime Infra | High | Medium | No match | Assign owner | New repo velocity plus enterprise workflow pull | Category may be too early for budget |
+| DataStackCo | Data Infra | AI Data Quality | Medium | High | Stale/no owner | Flag quietly | Repeat HN/GitHub mentions and fresh hiring signal | Could be feature, not company |
+| SecureAgentCo | Cybersecurity | Agent Security | High | Low | Passed | Flag quietly | Sharp new signal after prior pass | Evidence is still mostly founder-led |
 | [+24 more rows]
 
 ### New To Radar This Week
@@ -67,13 +64,13 @@ In 3-5 minutes, you get a company radar like this:
 (First scan — no prior radar to compare against.)
 ```
 
-Each company gets a one-sentence **Why On Radar** specific signal — funding, traction, founder background, or product moment. Tags update week-over-week: NEW for first sightings, RETURNING for ones that disappeared and came back, PERSISTENT for 3+ consecutive weeks.
+Each company gets a specific **Why On Radar**, separate **Investment Interest** and **Evidence Confidence** scores, a skeptical **Why This May Be Noise**, and an action label. Tags update week-over-week: NEW for first sightings, RETURNING for ones that disappeared and came back, PERSISTENT for 3+ consecutive weeks.
 
 ---
 
 ## What is this?
 
-VC Signals is a skill (plugin) for Claude that acts as your weekly research analyst — focused on producing an actionable company list, not just a trend brief. It scans Hacker News, Reddit, X/Twitter, GitHub, blogs, and other sources — then synthesizes what it finds into a structured investor brief.
+VC Signals is a skill (plugin) for Claude that acts as your weekly research analyst — focused on producing an actionable company and OSS list, not just a trend brief. It scans Hacker News, Reddit, X/Twitter, GitHub, blogs, and other sources — then synthesizes what it finds into a structured investor brief.
 
 **Works with:**
 - **Claude Code** — CLI, desktop app, VS Code, JetBrains
@@ -83,8 +80,10 @@ For each company on the radar, you get:
 - **Theme it's riding** — which emerging trend places it on the radar
 - **Tag** — NEW (first sighting), RETURNING (came back after 2+ weeks gone), PERSISTENT (3+ consecutive weeks), or empty
 - **Why On Radar** — one specific sentence: funding, traction, founder, product moment
-- **Confidence + role** — confirmed/likely/inferred and direct_solver/beneficiary/adjacent
-- **Phase 2 (coming):** funding stage, headcount, founders, evidence URLs
+- **Investment Interest + Evidence Confidence** — separate scores so a fascinating weak-signal company is not confused with a well-verified obvious one
+- **Attio status + action** — no match, active, passed, stale/no owner; with a suggested next move
+- **Why This May Be Noise** — the default skeptical read
+- **Phase 2:** funding stage, headcount, founders, and evidence URLs
 
 ---
 
@@ -99,7 +98,7 @@ Works out of the box — just paste the SKILL.md content into your conversation,
 1. **[Download vc-signals.zip](https://github.com/abhishek255/vc-signals/releases/latest/download/vc-signals.zip)**
 2. Open Claude Co-Work → click **Customize** → **Skills** → **Upload**
 3. Select the downloaded `vc-signals.zip`
-4. Type `/vc-signals radar devtools` to start
+4. Type `/vc-signals radar all` to start
 
 > **Note:** The web version uses Claude's built-in web search only. External APIs (Reddit, HN, X, GitHub trending) are blocked by the web sandbox. You still get a full investor brief — just without per-source engagement data. For full source coverage, use Claude Code locally (see below).
 
@@ -108,10 +107,10 @@ Works out of the box — just paste the SKILL.md content into your conversation,
 If you have the Claude desktop app with terminal access, you get full functionality. Paste this in Terminal:
 
 ```bash
-git clone https://github.com/abhishek255/vc-signals.git /tmp/vc-signals && mkdir -p ~/.claude/skills && cp -r /tmp/vc-signals/.claude/skills/vc-signals ~/.claude/skills/vc-signals && rm -rf /tmp/vc-signals && echo "Done! Restart Claude and type: /vc-signals radar devtools"
+git clone https://github.com/abhishek255/vc-signals.git /tmp/vc-signals && mkdir -p ~/.claude/skills && cp -r /tmp/vc-signals/.claude/skills/vc-signals ~/.claude/skills/vc-signals && rm -rf /tmp/vc-signals && echo "Done! Restart Claude and type: /vc-signals radar all"
 ```
 
-Then **close and reopen Claude Co-Work**. Type `/vc-signals radar devtools` to start. Run `/vc-signals setup` to configure API keys for Reddit, HN, X, GitHub, and Perplexity.
+Then **close and reopen Claude Co-Work**. Type `/vc-signals radar all` to start. Run `/vc-signals setup` to configure API keys for Reddit, HN, X, GitHub, and Perplexity.
 
 ### Claude Code (CLI, VS Code, JetBrains)
 
@@ -127,7 +126,7 @@ cd vc-signals
 claude
 ```
 
-The skill is auto-detected. Type `/vc-signals radar devtools` to start.
+The skill is auto-detected. Type `/vc-signals radar all` to start.
 
 ### What Happens on First Run
 
@@ -247,14 +246,15 @@ These expire periodically — you'll need to re-extract them every few weeks.
 | Command | What It Does |
 |---------|-------------|
 | `/vc-signals setup` | Guided setup wizard — walks you through API keys step by step |
-| `/vc-signals radar <sector> [time]` | **Company radar — 30-50 investable companies organized by emerging theme** (Phase 1 default) |
+| `/vc-signals radar <sector\|all> [time]` | **Weekly company radar — 30-50 investable companies organized by sector and emerging theme** |
 | `/vc-signals weekly <sector> [time]` | Alias for radar (kept for backward compatibility) |
 | `/vc-signals theme "<topic>" [time]` | Deep-dive into a specific theme |
 | `/vc-signals company "<name>" [time]` | Which rising themes is a company exposed to? |
+| `/vc-signals oss <sector> [time]` | OSS radar — fast-growing repos, maintainers, ecosystem maps, and company-formation signals |
 | `/vc-signals github <sector>` | Top repos by star velocity — spot fast-growing OSS projects |
 | `/vc-signals add-sector <name>` | Add a new sector with guided taxonomy generation |
 
-**Sectors:** `devtools`, `cybersecurity`, `ai-infra` (add your own with `add-sector`)
+**Sectors:** `devtools`, `cybersecurity`, `ai-infra`, `vertical-ai`, `data-infra`, `oss`, or `all` (add your own with `add-sector`)
 
 **Time window:** Append `7d`, `14d`, `30d`, `60d`, or `90d` to control how far back to search. Defaults: weekly = 14 days, theme/company = 30 days.
 
@@ -262,9 +262,9 @@ These expire periodically — you'll need to re-extract them every few weeks.
 
 **Company Radar:**
 ```
-/vc-signals radar devtools
+/vc-signals radar all
 ```
-Returns 30-50 investable companies organized by 6-8 themes, with tags showing what's NEW vs PERSISTENT vs ACCELERATING. Themes that produce fewer than 3 mappable companies are dropped — the radar prioritizes investable depth over thematic breadth.
+Returns 30-50 investable companies across the configured sectors, with tags showing what's NEW vs PERSISTENT vs ACCELERATING. Themes that produce fewer than 3 mappable companies are dropped — the radar prioritizes investable depth over thematic breadth.
 
 **Theme Drill-Down:**
 ```
@@ -284,12 +284,18 @@ Which rising themes Confluent maps to, its role (solver vs beneficiary), evidenc
 ```
 Top repos by star velocity — the ones growing fastest relative to their size, with commercial entity mapping.
 
+**OSS Radar:**
+```
+/vc-signals oss ai-infra
+```
+Returns fast-growing open-source projects with star velocity, community discussion, likely company mapping, founder/contributor profiles, and an action: watch, contact maintainer, map ecosystem, track company formation, or ignore.
+
 ---
 
 ## How It Works
 
 ```
-You type: /vc-signals radar devtools
+You type: /vc-signals radar all
                     │
                     ▼
         ┌───────────────────────┐
@@ -398,9 +404,10 @@ The previous `/vc-signals weekly` command still works as an alias for `/vc-signa
 
 1. ✅ **Phase 1: Company-first radar** (April 2026) — output flipped from theme-centric to company-centric; companies are first-class with tagging and persistence
 2. **Phase 2: Company enrichment** — funding, headcount, founders pulled in via WebSearch + free APIs (Apollo.io tier)
-3. **Phase 3: Slack delivery** — weekly radar pushed to a channel, Monday 9 AM
-4. **Phase 4: Attio CRM integration** — "In Pipeline?" column, filter to show only NEW companies
-5. **Phase 5: Theme depth** — drill-down surfaces actual sub-debates and company positioning, not just summaries
+3. **Phase 3: OSS radar** — first-class OSS mode inspired by Gokul's OSS Startup Radar, adapted for Marathon's Seed-to-Series-B strike zone
+4. **Phase 4: Slack delivery** — Monday 8:00 AM ET teaser with a configurable channel and link or artifact for the full radar
+5. **Phase 5: Attio CRM integration** — Attio status, stale/no-owner resurfacing, passed-company quiet flags, and domain-based matching
+6. **Phase 6: Theme depth** — drill-down surfaces actual sub-debates and company positioning, not just summaries
 
 ---
 
@@ -422,6 +429,8 @@ vc-signals/
             ├── scripts/
             │   ├── persistence.py
             │   ├── github_trending.py
+            │   ├── attio.py
+            │   ├── radar_run.py
             │   └── last30days_adapter.py
             ├── config/
             │   ├── sectors.json
