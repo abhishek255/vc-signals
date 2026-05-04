@@ -251,8 +251,23 @@ def _try_from_dict(cls, item: dict, warnings: list[str], label: str):
         return None
 
 
+def _source_digest_partner_notes(source_digest: dict) -> list[str]:
+    candidate_count = int(source_digest.get("candidate_count") or 0)
+    market_sector_count = len(source_digest.get("market_sectors") or {})
+    notes = [
+        f"This synthesis run reviewed {candidate_count} candidate rows across {market_sector_count} market sectors."
+    ]
+    source_lanes = source_digest.get("source_lanes") or {}
+    if source_lanes and len(source_lanes) == 1 and source_lanes.get("OSS") == candidate_count and candidate_count:
+        notes.append("This run is OSS-heavy; treat possible company leads as verification prompts.")
+    return notes
+
+
 def _validate_result(payload: dict, *, known_urls: set[str], model: str, source_digest: dict) -> SynthesisResult:
     warnings = list(_scrub(payload.get("warnings", [])))
+    provider_notes = payload.get("partner_notes", [])
+    if provider_notes:
+        warnings.append("Dropped provider partner_notes because free-form uncited notes are not partner-facing.")
 
     sector_diagnoses = []
     for item in payload.get("sector_diagnoses", []):
@@ -301,7 +316,7 @@ def _validate_result(payload: dict, *, known_urls: set[str], model: str, source_
         sector_diagnoses=sector_diagnoses,
         theme_hypotheses=theme_hypotheses,
         possible_company_leads=possible_company_leads,
-        partner_notes=list(_scrub(payload.get("partner_notes", [])))[:8],
+        partner_notes=_source_digest_partner_notes(source_digest),
         warnings=warnings,
     )
 

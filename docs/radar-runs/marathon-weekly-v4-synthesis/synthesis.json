@@ -3,7 +3,16 @@
   "model": "fake-synthesis",
   "generated_at": "",
   "source_digest": {
-    "candidate_count": 50
+    "candidate_count": 50,
+    "source_lanes": {
+      "OSS": 50
+    },
+    "market_sectors": {
+      "Cybersecurity": 30,
+      "Devtools": 12,
+      "AI Infra": 6,
+      "Unclassified": 2
+    }
   },
   "sector_diagnoses": [
     {
@@ -47,7 +56,8 @@
     }
   ],
   "partner_notes": [
-    "This run is OSS-heavy because grounded company discovery is unavailable."
+    "This synthesis run reviewed 50 candidate rows across 4 market sectors.",
+    "This run is OSS-heavy; treat possible company leads as verification prompts."
   ],
   "warnings": []
 }

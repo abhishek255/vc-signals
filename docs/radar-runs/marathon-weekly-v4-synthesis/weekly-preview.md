@@ -132,7 +132,8 @@ Next hunt: Data Infra startups Seed Series A founder launch
 
 Model: fake-synthesis
 
-- This run is OSS-heavy because grounded company discovery is unavailable.
+- This synthesis run reviewed 50 candidate rows across 4 market sectors.
+- This run is OSS-heavy; treat possible company leads as verification prompts.
 
 ### Source Gap Diagnosis
 
