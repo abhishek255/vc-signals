@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from types import SimpleNamespace
+
 
 def render_weekly_brief(
     candidates: list,
@@ -18,13 +20,12 @@ def render_weekly_brief(
     lines = [
         "# VC Signals Weekly Radar",
         "",
+        _run_summary(candidates),
+        "",
         "## Partner Review",
         "",
         _partner_table(partner),
     ]
-    oss_warning = _oss_heavy_warning(partner)
-    if oss_warning:
-        lines.extend(["", oss_warning])
 
     lines.extend([
         "",
@@ -36,12 +37,12 @@ def render_weekly_brief(
         "",
         _faded_table(faded or []),
         "",
-        "## Sector Coverage",
+        _sector_intelligence_section(sector_intelligence or _coverage_intelligence_items(coverage)),
         "",
+        _theme_signals_table(theme_signals or []),
     ])
-
-    for sector, item in coverage.items():
-        lines.append(f"- **{sector}: {item.status}** - {item.reason or 'Qualified candidates found.'}")
+    if coverage:
+        lines.extend(["", _legacy_sector_coverage_section(coverage)])
 
     lines.extend(["", "## Weak Evidence / Rejected Summary", ""])
     reason_counts = {}
@@ -64,12 +65,12 @@ def render_weekly_brief(
 
 def _table(candidates: list) -> str:
     rows = [
-        "| Company / Project | Sector | Theme | Tag | Stage | Raised | Headcount | Founders | Tier | Interest | Evidence | Attio | Attio Owner | Attio Last Touch | Attio URL | Staleness | Action | OSS Score | Action Reason | LinkedIn | X | Why On Radar | Why This May Be Noise | Best Source |",
-        "|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|",
+        "| Company / Project | Market Sector | Source Lane | Theme | Tag | Stage | Raised | Headcount | Founders | Tier | Interest | Evidence | Attio | Attio Owner | Attio Last Touch | Attio URL | Staleness | Action | OSS Score | Action Reason | LinkedIn | X | Why On Radar | Why This May Be Noise | Best Source |",
+        "|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|",
     ]
     for candidate in candidates:
         rows.append(
-            f"| {candidate.name} | {candidate.sector} | {candidate.theme} | {candidate.weekly_tag} | "
+            f"| {candidate.name} | {_market_sector(candidate)} | {_source_lane(candidate)} | {candidate.theme} | {candidate.weekly_tag} | "
             f"{candidate.stage} | {candidate.raised} | {candidate.headcount} | {_enriched_founders(candidate)} | {candidate.tier} | "
             f"{candidate.investment_interest} | {candidate.evidence_confidence} | {candidate.attio_status} | "
             f"{candidate.attio_owner} | {candidate.attio_last_interaction} | {candidate.attio_record_url} | {candidate.attio_staleness_reason} | "
@@ -77,6 +78,24 @@ def _table(candidates: list) -> str:
             f"{candidate.company_x} | {candidate.why_on_radar} | {candidate.why_this_may_be_noise} | {candidate.source} |"
         )
     return "\n".join(rows)
+
+
+def _run_summary(candidates: list) -> str:
+    market_sectors = sorted({_market_sector(candidate) for candidate in candidates if _market_sector(candidate)})
+    source_counts = {}
+    for candidate in candidates:
+        lane = _source_lane(candidate) or "Unknown"
+        source_counts[lane] = source_counts.get(lane, 0) + 1
+    source_mix = ", ".join(f"{count} {lane}" for lane, count in sorted(source_counts.items(), key=lambda item: item[0]))
+    lines = [
+        "## Run Summary",
+        "",
+        f"This run produced {len(candidates)} qualified {_plural(len(candidates), 'row')} across {len(market_sectors)} market {_plural(len(market_sectors), 'sector')}.",
+        f"Source mix: {source_mix or 'No qualified source lanes.'}.",
+    ]
+    if candidates and all(_source_lane(candidate) == "OSS" for candidate in candidates):
+        lines.append("Warning: this run is OSS-heavy; non-OSS company discovery did not produce qualified rows.")
+    return "\n".join(lines)
 
 
 def _partner_table(candidates: list) -> str:
@@ -94,21 +113,98 @@ def _partner_table(candidates: list) -> str:
 
 
 def _market_sector(candidate) -> str:
-    return candidate.market_sector or candidate.sector
+    return getattr(candidate, "market_sector", "") or getattr(candidate, "sector", "")
 
 
 def _source_lane(candidate) -> str:
-    return candidate.source_lane or candidate.source
+    lane = getattr(candidate, "source_lane", "")
+    if lane:
+        return lane
+
+    source = getattr(candidate, "source", "") or ""
+    sector = getattr(candidate, "sector", "") or ""
+    source_lower = source.lower()
+    if sector == "OSS" or source_lower in {"oss", "github"} or "github.com" in source_lower:
+        return "OSS"
+    if source and not source_lower.startswith(("http://", "https://")):
+        return source
+    return "Unknown"
 
 
-def _oss_heavy_warning(candidates: list) -> str:
-    if not candidates:
-        return ""
-    oss_rows = [candidate for candidate in candidates if _source_lane(candidate) == "OSS"]
-    non_oss_rows = [candidate for candidate in candidates if _source_lane(candidate) != "OSS"]
-    if len(oss_rows) > 5 and not non_oss_rows:
-        return "_OSS-heavy Partner Review: no qualified non-OSS alternatives were available in the selected rows._"
-    return ""
+def _sector_intelligence_section(items: list) -> str:
+    if not items:
+        return "## Sector Intelligence\n\n- No sector intelligence generated."
+
+    lines = ["## Sector Intelligence", ""]
+    for item in items:
+        lines.extend(
+            [
+                f"### {item.market_sector}",
+                f"Status: {item.status}",
+                f"Signals: {item.raw_signals} raw, {item.candidate_eligible_signals} candidate-eligible, {item.promoted_candidates} promoted, {item.rejected_signals} rejected.",
+                f"Best evidence: {item.best_evidence or 'No promoted evidence.'}",
+                f"Why no more companies: {item.why_no_more_companies or 'Qualified candidates were found.'}",
+                f"Next hunt: {item.next_hunt or 'No follow-up search suggested.'}",
+            ]
+        )
+        if item.source_errors:
+            lines.append("Source errors: " + "; ".join(item.source_errors))
+        lines.append("")
+    return "\n".join(lines).rstrip()
+
+
+def _coverage_intelligence_items(coverage: dict) -> list:
+    items = []
+    for sector, item in coverage.items():
+        items.append(
+            SimpleNamespace(
+                market_sector=sector,
+                status=item.status,
+                raw_signals=item.raw_signals,
+                candidate_eligible_signals=item.candidates,
+                promoted_candidates=item.candidates,
+                rejected_signals=item.rejected,
+                best_evidence="",
+                why_no_more_companies=item.reason,
+                next_hunt="",
+                source_errors=[],
+            )
+        )
+    return items
+
+
+def _legacy_sector_coverage_section(coverage: dict) -> str:
+    lines = [
+        "## Sector Coverage",
+        "",
+        "_Compatibility view; see Sector Intelligence for the V3 market map._",
+        "",
+    ]
+    for sector, item in coverage.items():
+        lines.append(f"- **{sector}: {item.status}** - {item.reason or 'Qualified candidates found.'}")
+    return "\n".join(lines)
+
+
+def _plural(count: int, singular: str) -> str:
+    return singular if count == 1 else f"{singular}s"
+
+
+def _theme_signals_table(theme_signals: list) -> str:
+    if not theme_signals:
+        return "## Themes With No Company Yet\n\n- No meaningful non-company themes met the evidence bar."
+
+    rows = [
+        "## Themes With No Company Yet",
+        "",
+        "| Market Sector | Theme | Evidence | Why It Matters | Why No Company Yet | Suggested Search |",
+        "|---|---|---|---|---|---|",
+    ]
+    for item in theme_signals[:8]:
+        rows.append(
+            f"| {item.market_sector} | {item.theme} | {item.evidence_summary} | {item.why_it_matters} | "
+            f"{item.why_no_company_yet} | {item.suggested_search} |"
+        )
+    return "\n".join(rows)
 
 
 def _faded_table(faded: list[dict]) -> str:
