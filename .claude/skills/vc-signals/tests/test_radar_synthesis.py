@@ -163,6 +163,34 @@ def test_run_synthesis_drops_freeform_provider_partner_notes():
     assert any("provider partner_notes" in warning.lower() for warning in result.warnings)
 
 
+def test_run_synthesis_drops_freeform_provider_warnings():
+    from radar_synthesis import run_synthesis
+
+    def fake_provider(_payload):
+        return {
+            "sector_diagnoses": [],
+            "theme_hypotheses": [],
+            "possible_company_leads": [],
+            "partner_notes": [],
+            "warnings": ["MadeUpCo raised $10M and has 80 employees."],
+        }
+
+    result = run_synthesis(
+        evidence={},
+        signals=[_signal()],
+        candidates=[_candidate()],
+        sector_intelligence=[],
+        theme_signals=[],
+        provider=fake_provider,
+    )
+
+    rendered = repr(result.to_dict())
+    assert "MadeUpCo" not in rendered
+    assert "$10M" not in rendered
+    assert result.partner_notes[0] == "This synthesis run reviewed 1 candidate rows across 1 market sectors."
+    assert any("provider warnings" in warning.lower() for warning in result.warnings)
+
+
 def test_run_synthesis_drops_uncited_and_unknown_url_items():
     from radar_synthesis import run_synthesis
 

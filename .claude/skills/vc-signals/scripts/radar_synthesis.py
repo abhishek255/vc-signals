@@ -264,7 +264,10 @@ def _source_digest_partner_notes(source_digest: dict) -> list[str]:
 
 
 def _validate_result(payload: dict, *, known_urls: set[str], model: str, source_digest: dict) -> SynthesisResult:
-    warnings = list(_scrub(payload.get("warnings", [])))
+    warnings = []
+    provider_warnings = payload.get("warnings", [])
+    if provider_warnings:
+        warnings.append("Dropped provider warnings because free-form uncited warnings are not partner-facing.")
     provider_notes = payload.get("partner_notes", [])
     if provider_notes:
         warnings.append("Dropped provider partner_notes because free-form uncited notes are not partner-facing.")
