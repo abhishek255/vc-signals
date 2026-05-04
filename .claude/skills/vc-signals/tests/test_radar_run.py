@@ -166,39 +166,63 @@ def test_build_sector_collection_queries_adds_grounded_company_discovery():
         }
     }
 
-    queries = build_sector_collection_queries("ai-infra", config, grounded_available=True, max_queries=3)
+    queries = build_sector_collection_queries("ai-infra", config, grounded_available=True, social_available=True, max_queries=3)
 
     assert len(queries) == 3
     assert queries[0]["kind"] == "conversation"
-    assert queries[0]["sources"] == "reddit,hackernews,github"
     assert any("site:ycombinator.com/companies" in query["topic"] for query in queries)
     assert any("Seed Series A Series B" in query["topic"] for query in queries)
     assert all(query["lookback_days"] == 30 for query in queries)
+    assert queries[0]["sources"] == "reddit,hackernews,github,youtube"
+    assert queries[1]["sources"] == "grounding,hackernews,github,youtube"
 
 
-def test_build_sector_collection_queries_skips_yc_when_grounding_unavailable():
+def test_build_sector_collection_queries_uses_youtube_without_grounding_when_social_available():
     from radar_run import build_sector_collection_queries
 
     config = {"devtools": {"display_name": "Developer Tools", "discovery_queries": []}}
 
-    queries = build_sector_collection_queries("devtools", config, grounded_available=False, max_queries=3)
+    queries = build_sector_collection_queries("devtools", config, grounded_available=False, social_available=True, max_queries=3)
 
     assert [query["kind"] for query in queries] == ["conversation", "hn_show", "github_signal"]
     assert "site:ycombinator.com/companies" not in queries[0]["topic"]
-    assert all(query["sources"] in {"hackernews,github", "github,hackernews"} for query in queries)
+    assert all(query["sources"] in {"hackernews,github,youtube", "github,hackernews,youtube"} for query in queries)
     assert all("reddit" not in query["sources"] for query in queries)
     assert all("funding" not in query["topic"].lower() for query in queries)
 
 
-def test_build_sector_collection_queries_uses_stricter_oss_fallback_without_grounding():
+def test_build_sector_collection_queries_keeps_strict_non_social_fallback():
+    from radar_run import build_sector_collection_queries
+
+    config = {"devtools": {"display_name": "Developer Tools", "discovery_queries": []}}
+
+    queries = build_sector_collection_queries("devtools", config, grounded_available=False, social_available=False, max_queries=3)
+
+    assert all(query["sources"] in {"hackernews,github", "github,hackernews"} for query in queries)
+
+
+def test_build_sector_collection_queries_uses_youtube_for_oss_fallback():
     from radar_run import build_sector_collection_queries
 
     config = {"oss": {"display_name": "Open Source Radar", "discovery_queries": []}}
 
-    queries = build_sector_collection_queries("oss", config, grounded_available=False, max_queries=3)
+    queries = build_sector_collection_queries("oss", config, grounded_available=False, social_available=True, max_queries=3)
 
     assert [query["kind"] for query in queries] == ["oss_show", "oss_github", "oss_security"]
     assert all("reddit" not in query["sources"] for query in queries)
+    assert all("youtube" in query["sources"] for query in queries)
+
+
+def test_build_sector_collection_queries_uses_social_sources_for_vertical_ai():
+    from radar_run import build_sector_collection_queries
+
+    config = {"vertical-ai": {"display_name": "Vertical AI", "discovery_queries": ["vertical AI startups gaining traction"]}}
+
+    queries = build_sector_collection_queries("vertical-ai", config, grounded_available=False, social_available=True, max_queries=3)
+
+    assert queries[0]["sources"] == "reddit,hackernews,youtube,tiktok,instagram,threads"
+    assert "workflow demos" in queries[0]["topic"]
+    assert all("tiktok" not in query["sources"] for query in build_sector_collection_queries("devtools", config, social_available=True))
 
 
 def test_collect_live_evidence_aggregates_targeted_sector_queries(monkeypatch):
@@ -226,13 +250,14 @@ def test_collect_live_evidence_aggregates_targeted_sector_queries(monkeypatch):
     monkeypatch.setattr(
         radar_run,
         "check_last30days_availability",
-        lambda: {"source_capabilities": {"grounded": ["web"]}},
+        lambda: {"source_capabilities": {"grounded": ["web"], "social": ["youtube"]}},
     )
 
     evidence = radar_run.collect_live_evidence(sectors=("data-infra",), github_limit=0, max_queries_per_sector=2)
 
     assert len(calls) == 2
     assert any("site:ycombinator.com/companies" in topic for topic, _kwargs in calls)
+    assert any("youtube" in kwargs["sources"] for _topic, kwargs in calls)
     assert evidence["last30days"]["data-infra"]["query_count"] == 2
     assert len(evidence["last30days"]["data-infra"]["items"]) == 1
     assert evidence["last30days"]["data-infra"]["items"][0]["company_name"] == "Corelayer"

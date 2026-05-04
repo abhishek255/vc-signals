@@ -233,11 +233,21 @@ def _dedupe_items(items: list[dict]) -> list[dict]:
     return deduped
 
 
+def _sources(*base: str, social_available: bool = False, vertical_social: bool = False) -> str:
+    sources = list(base)
+    if social_available:
+        sources.append("youtube")
+        if vertical_social:
+            sources.extend(["tiktok", "instagram", "threads"])
+    return ",".join(dict.fromkeys(sources))
+
+
 def build_sector_collection_queries(
     sector_slug: str,
     sector_config: dict,
     *,
     grounded_available: bool = False,
+    social_available: bool = False,
     lookback_days: int = 30,
     max_queries: int = 3,
 ) -> list[dict]:
@@ -245,24 +255,45 @@ def build_sector_collection_queries(
     config = sector_config.get(sector_slug, {}) if sector_slug in sector_config else sector_config
     display_name = config.get("display_name", SECTOR_LABELS.get(sector_slug, sector_slug))
     if not grounded_available:
+        if sector_slug == "vertical-ai":
+            return [
+                {
+                    "kind": "vertical_workflow_social",
+                    "topic": f"{display_name} AI workflow demos operator pain SMB automation founder product demo",
+                    "sources": _sources("reddit", "hackernews", social_available=social_available, vertical_social=True),
+                    "lookback_days": lookback_days,
+                },
+                {
+                    "kind": "vertical_hn",
+                    "topic": f"Show HN {display_name} AI agent workflow startup",
+                    "sources": _sources("hackernews", "github", social_available=social_available),
+                    "lookback_days": lookback_days,
+                },
+                {
+                    "kind": "vertical_github",
+                    "topic": f"{display_name} AI workflow automation GitHub agent",
+                    "sources": _sources("github", "hackernews", social_available=social_available),
+                    "lookback_days": lookback_days,
+                },
+            ][:max_queries]
         if sector_slug == "oss":
             return [
                 {
                     "kind": "oss_show",
                     "topic": "Show HN open source AI agent MCP security developer tool",
-                    "sources": "hackernews,github",
+                    "sources": _sources("hackernews", "github", social_available=social_available),
                     "lookback_days": lookback_days,
                 },
                 {
                     "kind": "oss_github",
                     "topic": "open source AI agent infrastructure GitHub stars MCP security",
-                    "sources": "github,hackernews",
+                    "sources": _sources("github", "hackernews", social_available=social_available),
                     "lookback_days": lookback_days,
                 },
                 {
                     "kind": "oss_security",
                     "topic": "open source AI security scanner MCP agent tool GitHub",
-                    "sources": "github,hackernews",
+                    "sources": _sources("github", "hackernews", social_available=social_available),
                     "lookback_days": lookback_days,
                 },
             ][:max_queries]
@@ -270,19 +301,19 @@ def build_sector_collection_queries(
             {
                 "kind": "conversation",
                 "topic": f"Show HN {display_name} AI startup developer tool open source",
-                "sources": "hackernews,github",
+                "sources": _sources("hackernews", "github", social_available=social_available),
                 "lookback_days": lookback_days,
             },
             {
                 "kind": "hn_show",
                 "topic": f"Launch HN Show HN {display_name} startup AI infrastructure",
-                "sources": "hackernews,github",
+                "sources": _sources("hackernews", "github", social_available=social_available),
                 "lookback_days": lookback_days,
             },
             {
                 "kind": "github_signal",
                 "topic": f"{display_name} AI agent infrastructure open source GitHub stars",
-                "sources": "github,hackernews",
+                "sources": _sources("github", "hackernews", social_available=social_available),
                 "lookback_days": lookback_days,
             },
         ][:max_queries]
@@ -296,7 +327,7 @@ def build_sector_collection_queries(
     queries = [{
         "kind": "conversation",
         "topic": f"{conversation_topic} Seed Series A Series B founder customer traction",
-        "sources": "reddit,hackernews,github",
+        "sources": _sources("reddit", "hackernews", "github", social_available=social_available),
         "lookback_days": lookback_days,
     }]
 
@@ -305,14 +336,14 @@ def build_sector_collection_queries(
             {
                 "kind": "yc_company",
                 "topic": f"site:ycombinator.com/companies {display_name} AI startups Seed Series A Series B",
-                "sources": "grounding,hackernews,github",
+                "sources": _sources("grounding", "hackernews", "github", social_available=social_available),
                 "web_backend": "auto",
                 "lookback_days": lookback_days,
             },
             {
                 "kind": "company_discovery",
                 "topic": f"{display_name} startups Seed Series A Series B emerging companies funding founder traction",
-                "sources": "grounding,reddit,hackernews,github",
+                "sources": _sources("grounding", "reddit", "hackernews", "github", social_available=social_available, vertical_social=(sector_slug == "vertical-ai")),
                 "web_backend": "auto",
                 "lookback_days": lookback_days,
             },
@@ -329,6 +360,16 @@ def _grounded_search_available() -> bool:
     except Exception:
         return False
     return bool((availability.get("source_capabilities") or {}).get("grounded"))
+
+
+def _social_search_available() -> bool:
+    if not check_last30days_availability:
+        return False
+    try:
+        availability = check_last30days_availability()
+    except Exception:
+        return False
+    return bool((availability.get("source_capabilities") or {}).get("social"))
 
 
 def parse_sectors_arg(value: str | None) -> tuple[str, ...]:
@@ -775,6 +816,7 @@ def collect_live_evidence(
     evidence = {"last30days": {}, "github": [], "warnings": []}
     sector_config = load_sector_config()
     grounded_available = _grounded_search_available()
+    social_available = _social_search_available()
 
     if run_query:
         for sector in sectors:
@@ -782,6 +824,7 @@ def collect_live_evidence(
                 sector,
                 sector_config,
                 grounded_available=grounded_available,
+                social_available=social_available,
                 lookback_days=lookback_days,
                 max_queries=max_queries_per_sector,
             )
