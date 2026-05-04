@@ -1,7 +1,7 @@
 ---
 name: vc-signals
-description: "VC signal-to-thesis skill for Marathon-style deal discovery. Weekly all-sector radar, OSS radar, theme drill-downs, company backtrace, and GitHub trending repos."
-argument-hint: 'vc-signals radar all, vc-signals oss ai-infra, vc-signals theme "agent evals", vc-signals company "Confluent", vc-signals setup'
+description: "VC signal-to-thesis skill for Marathon-style deal discovery. Weekly all-sector radar, OSS radar, agent-native research workbench, theme drill-downs, company backtrace, and GitHub trending repos."
+argument-hint: 'vc-signals radar all, vc-signals workbench docs/radar-runs/current, vc-signals oss ai-infra, vc-signals theme "agent evals", vc-signals setup'
 allowed-tools: Bash, Read, Write, WebSearch, AskUserQuestion
 user-invocable: true
 ---
@@ -23,6 +23,7 @@ Parse the user's input to determine the mode and arguments:
 - `/vc-signals company "<name>" [time]` → Company backtrace
 - `/vc-signals oss <sector> [time]` → OSS-native radar using repo velocity, community signal, contributor quality, and company-formation likelihood
 - `/vc-signals github <sector>` → GitHub trending repos (sectors: `devtools`, `cybersecurity`, `ai-infra`, `vertical-ai`, `data-infra`, `oss`, `all`)
+- `/vc-signals workbench <run-dir>` → Agent-native research workbench for weak-signal synthesis without promoting unverified leads
 - `/vc-signals add-sector <name>` → Add a new sector (guided)
 - `/vc-signals compare "<company1>" "<company2>"` → Head-to-head comparison (stretch)
 
@@ -708,6 +709,41 @@ MD_EOF
 ```
 
 If any persistence step fails, warn the user but still display the full briefing inline. Do not crash.
+
+---
+
+## Mode: Agent-Native Research Workbench
+
+**Trigger:** `/vc-signals workbench <run-dir>`
+
+Use this when the user wants Codex/Claude's own LLM judgment over a weekly run, especially when grounded company discovery is unavailable or the radar is OSS-heavy.
+
+This mode is a verification workbench, not a canonical radar writer:
+- It may synthesize source gaps, theme hypotheses, possible companies requiring verification, and next searches.
+- It must not add rows to `candidates.json`.
+- It must not claim company domains, funding, headcount, founders, customers, or stage unless those facts appear in the supplied evidence.
+- Possible companies stay "requiring verification" until grounded source URLs support them.
+
+Run:
+
+```bash
+python3 <skill_dir>/scripts/radar_run.py workbench --from-run <run-dir> --output-dir <run-dir>-workbench
+```
+
+Then read:
+
+- `<run-dir>-workbench/research-workbench-prompt.md`
+- `<run-dir>-workbench/research-workbench-input.json`
+
+Use the JSON as the only factual source and produce a concise `research-workbench.md` with:
+
+1. Partner Notes
+2. Source Gap Diagnosis
+3. Theme Hypotheses
+4. Possible Companies Requiring Verification
+5. Recommended Next Searches
+
+If the user wants a lead promoted into the weekly radar, first run or request real verification searches that return credible company/product URLs.
 
 ---
 

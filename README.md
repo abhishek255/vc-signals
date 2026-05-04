@@ -287,6 +287,7 @@ That Markdown file is the partner-readable artifact. The same folder also contai
 - `theme-signals.json`: useful non-company signal that should guide research but should not become a fake company row.
 - `company-discovery.json`: targeted company-search evidence generated from theme/pain signals, used to reduce OSS-only output when grounded company evidence is available.
 - `synthesis.json`: optional LLM synthesis notes when `--with-synthesis` is used.
+- `research-workbench-input.json` and `research-workbench-prompt.md`: optional Codex/Claude workbench pack for weak-signal reasoning without promoting unverified leads.
 
 If the output is thin, that does not necessarily mean the sector is dead. It means the current run found pain or chatter but not enough candidate-quality company/project evidence. Check `Sector Intelligence`, `Themes With No Company Yet`, `Company Discovery From Themes`, and `Weak Evidence / Rejected Summary` before deciding whether to rerun with better keys or do a manual deep dive.
 
@@ -303,6 +304,7 @@ If the output is thin, that does not necessarily mean the sector is dead. It mea
 | `/vc-signals oss <sector> [time]` | OSS radar — fast-growing repos, maintainers, ecosystem maps, and company-formation signals |
 | `/vc-signals github <sector>` | Top repos by star velocity — spot fast-growing OSS projects |
 | `/vc-signals add-sector <name>` | Add a new sector with guided taxonomy generation |
+| `python3 .claude/skills/vc-signals/scripts/radar_run.py workbench --from-run docs/radar-runs/current --output-dir docs/radar-runs/current-workbench` | Agent-native research workbench: creates a Codex/Claude prompt and evidence pack for possible leads requiring verification |
 
 **Sectors:** `devtools`, `cybersecurity`, `ai-infra`, `vertical-ai`, `data-infra`, `oss`, or `all` (add your own with `add-sector`)
 
@@ -328,6 +330,7 @@ The artifact contains:
 - Company Discovery From Themes: the second-pass company searches triggered by those theme prompts, with evidence rows that can be promoted into the full radar when they include a company/product identity and credible source URL.
 - Weak Evidence Summary: what was filtered out and why, plus "Needs More Evidence" items when there is useful pain/theme signal without enough company verification.
 - Optional `synthesis.json`: advisory LLM notes, source-gap diagnoses, theme hypotheses, and possible leads when `--with-synthesis` is used.
+- Optional Research Workbench: a self-contained Codex/Claude prompt and evidence pack for source gaps, theme hypotheses, possible companies requiring verification, and next searches. It does not write to `candidates.json`.
 
 Market Sector is the investment category, such as Cybersecurity or AI Infra. Source Lane is where the evidence came from, such as OSS, Reddit, HN, Grounded Web, or TikTok. An OSS repo can therefore be `Market Sector = Cybersecurity` and `Source Lane = OSS`.
 
@@ -351,6 +354,21 @@ Provider behavior:
 - If Gemini is unavailable, it falls back to `OPENAI_API_KEY`.
 - Set `VC_SIGNALS_SYNTHESIS_PROVIDER=openai` or `VC_SIGNALS_SYNTHESIS_PROVIDER=gemini` to force a provider.
 - Set `VC_SIGNALS_SYNTHESIS_MODEL` to override the default model.
+
+### Agent-Native Research Workbench
+
+If grounded web search is missing or the weekly radar is still OSS-heavy, create a workbench pack:
+
+```bash
+python3 .claude/skills/vc-signals/scripts/radar_run.py workbench --from-run docs/radar-runs/current --output-dir docs/radar-runs/current-workbench
+```
+
+This writes:
+
+- `research-workbench-input.json`: the evidence pack.
+- `research-workbench-prompt.md`: the prompt for Codex/Claude.
+
+Use this when you want the current agent's own LLM judgment to synthesize source gaps, theme hypotheses, possible companies to verify, and next searches. It is deliberately not grounding. It cannot add rows to `candidates.json`, and possible company leads must remain "requiring verification" until a real source URL supports them.
 
 ### Examples
 
@@ -493,6 +511,7 @@ You can also manually add a sector by editing `sectors.json` following the exist
 - **Social/video evidence is supporting evidence** — YouTube, TikTok, Instagram, and Threads need clear company/product identity plus corroboration before creating candidate rows.
 - **Slack destination is still open/configurable** — weekly delivery can later target a configurable channel, but the current artifact is generated locally as Markdown/JSON.
 - **LLM synthesis is opt-in and advisory** — unsupported claims are dropped, possible leads from synthesis require verification before they can be treated as canonical candidates, and the selected LLM provider must have working quota/billing.
+- **Agent-native research workbench is not grounding** — it helps Codex/Claude reason over collected evidence and propose verification leads, but it does not turn unsourced ideas into canonical candidates.
 - **Deep research** requires OpenRouter API key and costs ~$0.90 per query
 
 ## Why This Exists
@@ -541,9 +560,10 @@ The previous `/vc-signals weekly` command still works as an alias for `/vc-signa
 8. ✅ **Radar V3 sector-balanced artifact** — Market Sector and Source Lane are separate, Partner Review is priority-ranked, Sector Intelligence explains quiet sectors, and Themes With No Company Yet preserve non-company signal.
 9. ✅ **Theme-driven company discovery lane** — non-company pain/themes generate targeted company searches, write `company-discovery.json`, and can promote verified company evidence into the radar.
 10. ◐ **Grounded company discovery depth** — the lane is implemented, but broad web/company discovery still depends on configured web keys and better corroboration sources.
-11. ◐ **Ecosystem and contact depth** — still needs richer maintainer contact enrichment, founder background synthesis, and OSS ecosystem map generation.
-12. **Weekly delivery** — Monday 8:00 AM ET Slack teaser with an open/configurable destination and link or artifact for the full radar.
-13. **Theme depth** — drill-down surfaces actual sub-debates and company positioning, not just summaries.
+11. ✅ **Agent-native research workbench** — creates a Codex/Claude evidence pack and prompt for weak-signal synthesis without writing unverified leads into `candidates.json`.
+12. ◐ **Ecosystem and contact depth** — still needs richer maintainer contact enrichment, founder background synthesis, and OSS ecosystem map generation.
+13. **Weekly delivery** — Monday 8:00 AM ET Slack teaser with an open/configurable destination and link or artifact for the full radar.
+14. **Theme depth** — drill-down surfaces actual sub-debates and company positioning, not just summaries.
 
 ---
 
@@ -575,6 +595,8 @@ vc-signals/
             │   ├── radar_enrichment.py
             │   ├── radar_oss.py
             │   ├── radar_render.py
+            │   ├── radar_synthesis.py
+            │   ├── radar_workbench.py
             │   └── last30days_adapter.py
             ├── config/
             │   ├── sectors.json

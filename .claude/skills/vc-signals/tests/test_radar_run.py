@@ -1532,3 +1532,29 @@ def test_cli_weekly_parses_with_synthesis_flag(tmp_path, monkeypatch):
     radar_run._cli_main()
 
     assert seen["with_synthesis"] is True
+
+
+def test_cli_workbench_writes_agent_native_artifacts(tmp_path, monkeypatch, capsys):
+    import radar_run
+
+    seen = {}
+
+    def fake_write_workbench_artifacts(**kwargs):
+        seen.update(kwargs)
+        return {
+            "package": str(tmp_path / "research-workbench-input.json"),
+            "prompt": str(tmp_path / "research-workbench-prompt.md"),
+        }
+
+    monkeypatch.setattr(radar_run, "write_workbench_artifacts", fake_write_workbench_artifacts)
+    monkeypatch.setattr(
+        "sys.argv",
+        ["radar_run.py", "workbench", "--from-run", str(tmp_path / "run"), "--output-dir", str(tmp_path / "out")],
+    )
+
+    radar_run._cli_main()
+
+    result = json.loads(capsys.readouterr().out)
+    assert result["prompt"].endswith("research-workbench-prompt.md")
+    assert seen["run_dir"] == tmp_path / "run"
+    assert seen["output_dir"] == tmp_path / "out"

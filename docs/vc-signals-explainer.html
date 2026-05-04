@@ -246,6 +246,7 @@
       <tr><td>sector-intelligence.json</td><td>Per-sector status, source gaps, rejected counts, and next hunts.</td></tr>
       <tr><td>raw-evidence.json</td><td>Auditable raw source evidence.</td></tr>
       <tr><td>synthesis.json</td><td>Optional LLM synthesis notes when enabled. Advisory only.</td></tr>
+      <tr><td>research-workbench-input.json / prompt.md</td><td>Optional Codex/Claude evidence pack for weak-signal reasoning. Does not promote unverified leads.</td></tr>
     </table>
   </section>
 
@@ -259,6 +260,10 @@
       <div class="card">
         <h3>It does not write to Attio</h3>
         <p>CRM integration is read-only for now. Future Slack or Attio writeback can be added later, but the current product is deliberately conservative.</p>
+      </div>
+      <div class="card">
+        <h3>It does not treat LLM guesses as evidence</h3>
+        <p>The agent-native research workbench can suggest possible companies to verify, but those leads stay out of the canonical radar until a real source supports them.</p>
       </div>
     </div>
   </section>

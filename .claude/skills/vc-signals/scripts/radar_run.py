@@ -47,6 +47,7 @@ from radar_sector_classifier import classify_market_sector
 from radar_partner_review import select_partner_review
 from radar_render import render_weekly_brief
 from radar_theme_signals import build_theme_signals
+from radar_workbench import write_workbench_artifacts
 from radar_history import apply_weekly_tags, load_candidate_history, save_candidate_history
 from radar_enrichment import apply_candidate_enrichment, merge_source_enrichment
 from radar_oss import enrich_oss_candidate
@@ -1409,6 +1410,13 @@ def _cli_main() -> None:
             candidate_limit=int(args.get("limit", 15)),
             with_synthesis=bool(args.get("with_synthesis", False)),
         )
+        print(json.dumps(result))
+        return
+
+    if command == "workbench":
+        run_dir = Path(args.get("from_run", args.get("run_dir", DEFAULT_OUTPUT_DIR)))
+        output_dir = Path(args.get("output_dir", run_dir))
+        result = write_workbench_artifacts(run_dir=run_dir, output_dir=output_dir)
         print(json.dumps(result))
         return
 
