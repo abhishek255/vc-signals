@@ -279,6 +279,7 @@ That Markdown file is the partner-readable artifact. The same folder also contai
 - `candidates.json`: scored candidate companies/projects, including weaker "Needs More Evidence" rows.
 - `sector-intelligence.json`: per-sector status, source gaps, rejected counts, and next-hunt prompts.
 - `theme-signals.json`: useful non-company signal that should guide research but should not become a fake company row.
+- `synthesis.json`: optional LLM synthesis notes when `--with-synthesis` is used.
 
 If the output is thin, that does not necessarily mean the sector is dead. It means the current run found pain or chatter but not enough candidate-quality company/project evidence. Check `Sector Intelligence`, `Themes With No Company Yet`, and `Weak Evidence / Rejected Summary` before deciding whether to rerun with better keys or do a manual deep dive.
 
@@ -318,12 +319,23 @@ The artifact contains:
 - Sector Intelligence: every requested priority sector, including whether it produced company candidates, OSS/project candidates, pain with no company yet, no meaningful signal, or source failures.
 - Themes With No Company Yet: bounded hunt prompts from non-company evidence, not fake company rows.
 - Weak Evidence Summary: what was filtered out and why, plus "Needs More Evidence" items when there is useful pain/theme signal without enough company verification.
+- Optional `synthesis.json`: advisory LLM notes, source-gap diagnoses, theme hypotheses, and possible leads when `--with-synthesis` is used.
 
 Market Sector is the investment category, such as Cybersecurity or AI Infra. Source Lane is where the evidence came from, such as OSS, Reddit, HN, Grounded Web, or TikTok. An OSS repo can therefore be `Market Sector = Cybersecurity` and `Source Lane = OSS`.
 
 Reddit is used primarily for curated pain discovery across devtools, cybersecurity, AI infra, vertical AI, data infra, and OSS. It rarely creates company rows directly. HN Show/Launch, GitHub repos, grounded web/company pages, Attio seeds, and user-provided companies are candidate-eligible sources.
 
 YouTube, TikTok, Instagram, and Threads are supporting source lanes through ScrapeCreators/last30days. They can create a candidate only when the company/product identity is clear and corroborated by a founder/company account, demo, website, waitlist, or another source.
+
+### Optional LLM Synthesis
+
+Add `--with-synthesis` to write `synthesis.json` and render an `LLM Synthesis Notes` section in the weekly preview:
+
+```bash
+python3 .claude/skills/vc-signals/scripts/radar_run.py weekly --sectors all --output-dir docs/radar-runs/current --limit 50 --with-synthesis
+```
+
+Synthesis is opt-in and advisory. It can summarize source gaps, suggest next hunts, and list possible leads for verification, but it cannot add uncited facts to `candidates.json`; unsupported claims are dropped before canonical candidate rows are written.
 
 ### Examples
 
@@ -444,6 +456,7 @@ You can also manually add a sector by editing `sectors.json` following the exist
 - **Attio integration is read/match context only** — it matches and enriches records but does not write notes, assign owners, update CRM fields, or create list entries unless a later writeback workflow is built.
 - **Social/video evidence is supporting evidence** — YouTube, TikTok, Instagram, and Threads need clear company/product identity plus corroboration before creating candidate rows.
 - **Slack destination is still open/configurable** — weekly delivery can later target a configurable channel, but the current artifact is generated locally as Markdown/JSON.
+- **LLM synthesis is opt-in and advisory** — unsupported claims are dropped, and possible leads from synthesis require verification before they can be treated as canonical candidates.
 - **Deep research** requires OpenRouter API key and costs ~$0.90 per query
 
 ## Why This Exists

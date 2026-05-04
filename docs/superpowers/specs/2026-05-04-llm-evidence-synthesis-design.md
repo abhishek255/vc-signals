@@ -305,14 +305,14 @@ Run:
 ```bash
 python3 -m pytest .claude/skills/vc-signals/tests -q
 git diff --check
-rg -n "ATTIO_ACCESS_TOKEN='|Bearer [A-Za-z0-9_-]{20,}|sk-proj-[A-Za-z0-9_-]{20,}|sk-or-[A-Za-z0-9_-]{20,}|AIza[A-Za-z0-9_-]{20,}|fwKR[A-Za-z0-9_-]{10,}" . --glob '!vendor/**' --glob '!.git/**' --glob '!docs/superpowers/plans/**'
+rg -n "ATTIO_ACCESS_TOKEN='|Bearer [A-Za-z0-9_-]{20,}|sk-proj-[A-Za-z0-9_-]{20,}|sk-or-[A-Za-z0-9_-]{20,}|AIza[A-Za-z0-9_-]{20,}|fwKR[A-Za-z0-9_-]{10,}" . --glob '!vendor/**' --glob '!.git/**' --glob '!docs/superpowers/plans/**' --glob '!docs/superpowers/specs/**'
 ```
 
 Expected:
 
 - Full test suite passes.
 - No whitespace errors.
-- Secret scan has no matches.
+- Secret scan has no matches outside the docs that define the scan itself.
 
 ## Success Criteria
 
