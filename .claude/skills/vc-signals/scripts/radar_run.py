@@ -1180,6 +1180,8 @@ def collect_live_evidence(
     lookback_days: int = 30,
     github_limit: int = 40,
     max_queries_per_sector: int = 3,
+    query_timeout_seconds: int = 45,
+    progress: bool = False,
 ) -> dict:
     """Collect raw last30days and GitHub evidence for the weekly radar."""
     evidence = {"last30days": {}, "github": [], "warnings": []}
@@ -1201,7 +1203,14 @@ def collect_live_evidence(
             clusters = []
             warnings = []
             errors = []
-            for query_spec in query_specs:
+            for index, query_spec in enumerate(query_specs, start=1):
+                if progress:
+                    print(
+                        f"[vc-signals] {sector}: query {index}/{len(query_specs)} "
+                        f"({query_spec['kind']})",
+                        file=sys.stderr,
+                        flush=True,
+                    )
                 result = run_query(
                     query_spec["topic"],
                     sources=query_spec["sources"],
@@ -1210,6 +1219,7 @@ def collect_live_evidence(
                     auto_resolve=True,
                     store=True,
                     web_backend=query_spec.get("web_backend"),
+                    timeout_seconds=query_timeout_seconds,
                 )
                 for item in result.get("items", []):
                     item.setdefault("query_kind", query_spec["kind"])
@@ -1232,6 +1242,8 @@ def collect_live_evidence(
             }
 
     if run_trending:
+        if progress:
+            print("[vc-signals] github: collecting trending repos", file=sys.stderr, flush=True)
         github = run_trending("all", limit=github_limit)
         evidence["github"] = filter_repos(github.get("repos", []))
         evidence["warnings"].extend(github.get("warnings", []))
@@ -1249,6 +1261,8 @@ def run_weekly_artifacts(
     max_queries_per_sector: int = 3,
     candidate_limit: int = 15,
     with_synthesis: bool = False,
+    query_timeout_seconds: int = 45,
+    progress: bool = False,
 ) -> dict:
     """Collect evidence and render a weekly partner preview in one command."""
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -1256,6 +1270,8 @@ def run_weekly_artifacts(
         sectors=sectors,
         github_limit=github_limit,
         max_queries_per_sector=max_queries_per_sector,
+        query_timeout_seconds=query_timeout_seconds,
+        progress=progress,
     )
     signal_result = build_signals_from_evidence(evidence)
     theme_signals = build_theme_signals(signal_result["signals"], sectors=sectors)
@@ -1395,6 +1411,8 @@ def _cli_main() -> None:
             sectors=parse_sectors_arg(args.get("sectors")),
             github_limit=int(args.get("github_limit", 40)),
             max_queries_per_sector=int(args.get("max_queries_per_sector", 3)),
+            query_timeout_seconds=int(args.get("query_timeout", args.get("query_timeout_seconds", 45))),
+            progress=bool(args.get("progress", False)),
         )
         path = save_raw_evidence(evidence, output_dir=output_dir)
         print(json.dumps({"saved": str(path), "github_count": len(evidence.get("github", []))}))
@@ -1406,9 +1424,11 @@ def _cli_main() -> None:
             output_dir=output_dir,
             sectors=parse_sectors_arg(args.get("sectors")),
             github_limit=int(args.get("github_limit", 40)),
-            max_queries_per_sector=int(args.get("max_queries_per_sector", 3)),
+            max_queries_per_sector=int(args.get("max_queries_per_sector", 1)),
             candidate_limit=int(args.get("limit", 15)),
             with_synthesis=bool(args.get("with_synthesis", False)),
+            query_timeout_seconds=int(args.get("query_timeout", args.get("query_timeout_seconds", 45))),
+            progress=bool(args.get("progress", True)),
         )
         print(json.dumps(result))
         return

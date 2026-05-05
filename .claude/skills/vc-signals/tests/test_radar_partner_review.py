@@ -99,6 +99,18 @@ def test_partner_review_allows_oss_heavy_when_no_alternative_exists():
     assert sum(1 for item in partner if item.source_lane == "OSS") == 12
 
 
+def test_partner_review_does_not_pad_with_needs_more_evidence():
+    from radar_partner_review import select_partner_review
+
+    candidates = [_candidate(f"Watch {i}", "Devtools", "OSS", 60 - i, 45, tier="Watchlist") for i in range(4)]
+    candidates.extend(_candidate(f"Weak {i}", "Devtools", "OSS", 30 - i, 30, tier="Needs More Evidence") for i in range(10))
+
+    partner = select_partner_review(candidates, min_rows=10, max_rows=15)
+
+    assert len(partner) == 4
+    assert all(item.tier != "Needs More Evidence" for item in partner)
+
+
 def test_partner_priority_rewards_review_ready_and_penalizes_late_unclassified():
     from radar_partner_review import compute_partner_priority
 

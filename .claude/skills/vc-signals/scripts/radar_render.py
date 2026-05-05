@@ -193,6 +193,8 @@ def _legacy_sector_coverage_section(coverage: dict) -> str:
 
 
 def _plural(count: int, singular: str) -> str:
+    if singular == "query":
+        return "query" if count == 1 else "queries"
     return singular if count == 1 else f"{singular}s"
 
 

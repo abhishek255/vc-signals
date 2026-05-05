@@ -372,6 +372,19 @@ def test_render_weekly_brief_omits_synthesis_notes_by_default():
     assert "## LLM Synthesis Notes" not in markdown
 
 
+def test_render_company_discovery_uses_queries_plural():
+    from radar_render import render_weekly_brief
+
+    markdown = render_weekly_brief(
+        [],
+        {},
+        [],
+        company_discovery={"queries": [], "items": [], "warnings": [], "errors": []},
+    )
+
+    assert "0 targeted theme-company queries" in markdown
+
+
 def test_render_weekly_brief_includes_theme_only_synthesis_without_changing_full_radar():
     from radar_models import SynthesisResult, ThemeHypothesis
     from radar_render import render_weekly_brief

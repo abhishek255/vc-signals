@@ -530,6 +530,34 @@ def test_collect_live_evidence_aggregates_targeted_sector_queries(monkeypatch):
     assert evidence["last30days"]["data-infra"]["items"][0]["company_name"] == "Corelayer"
 
 
+def test_collect_live_evidence_passes_query_timeout_and_progress(monkeypatch, capsys):
+    import radar_run
+
+    calls = []
+
+    def fake_run_query(topic, **kwargs):
+        calls.append((topic, kwargs))
+        return {"items": [], "clusters": [], "warnings": []}
+
+    monkeypatch.setattr(radar_run, "run_query", fake_run_query)
+    monkeypatch.setattr(radar_run, "run_trending", lambda sector, limit: {"repos": [], "warnings": []})
+    monkeypatch.setattr(radar_run, "_grounded_search_available", lambda: False)
+    monkeypatch.setattr(radar_run, "_social_search_available", lambda: False)
+
+    radar_run.collect_live_evidence(
+        sectors=("devtools",),
+        github_limit=0,
+        max_queries_per_sector=1,
+        query_timeout_seconds=45,
+        progress=True,
+    )
+
+    assert calls[0][1]["timeout_seconds"] == 45
+    stderr = capsys.readouterr().err
+    assert "[vc-signals] devtools: query 1/1" in stderr
+    assert "[vc-signals] github: collecting trending repos" in stderr
+
+
 def test_parse_sectors_arg_supports_all_and_commas():
     from radar_run import parse_sectors_arg
 

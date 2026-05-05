@@ -166,6 +166,7 @@ def run_query(
     web_backend: str | None = None,
     save_dir: str | None = None,
     save_suffix: str | None = None,
+    timeout_seconds: int = 120,
 ) -> dict:
     """Run a query through last30days CLI and return parsed results."""
     vendor_path = vendor_path or DEFAULT_VENDOR_PATH
@@ -224,11 +225,11 @@ def run_query(
             cmd,
             capture_output=True,
             text=True,
-            timeout=120,
+            timeout=timeout_seconds,
             cwd=str(skill_root),
         )
     except subprocess.TimeoutExpired:
-        return {"error": "last30days query timed out (120s)", "items": []}
+        return {"error": f"last30days query timed out ({timeout_seconds}s)", "items": []}
     except FileNotFoundError:
         return {"error": f"Python not found: {python_cmd}", "items": []}
 

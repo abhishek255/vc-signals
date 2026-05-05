@@ -247,6 +247,26 @@ def test_run_query_uses_nested_script_path_and_skill_root_cwd(tmp_path, monkeypa
     cmd, kwargs = calls[0]
     assert str(skill_root / "scripts" / "last30days.py") in cmd
     assert kwargs["cwd"] == str(skill_root)
+    assert kwargs["timeout"] == 120
+
+
+def test_run_query_accepts_custom_timeout_seconds(tmp_path, monkeypatch):
+    from last30days_adapter import run_query
+
+    vendor = _make_vendor(tmp_path)
+    monkeypatch.setattr("last30days_adapter._find_python", lambda: "python3")
+    completed = MagicMock(returncode=0, stdout=json.dumps({"items_by_source": {}}), stderr="")
+    calls = []
+
+    def fake_run(cmd, **kwargs):
+        calls.append((cmd, kwargs))
+        return completed
+
+    monkeypatch.setattr("last30days_adapter.subprocess.run", fake_run)
+
+    run_query("AI memory", vendor_path=vendor, timeout_seconds=45)
+
+    assert calls[0][1]["timeout"] == 45
 
 
 def test_run_query_passes_new_last30days_flags(tmp_path, monkeypatch):

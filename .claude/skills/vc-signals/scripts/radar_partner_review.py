@@ -93,7 +93,7 @@ def _ranked_qualified(candidates: list[Candidate]) -> list[Candidate]:
     qualified = [
         candidate
         for candidate in candidates
-        if candidate.tier != "Filtered" and candidate.partner_priority_score > 0
+        if candidate.tier not in {"Filtered", "Needs More Evidence"} and candidate.partner_priority_score > 0
     ]
     return sorted(
         qualified,
