@@ -724,24 +724,28 @@ This mode is a verification workbench, not a canonical radar writer:
 - It must not claim company domains, funding, headcount, founders, customers, or stage unless those facts appear in the supplied evidence.
 - Possible companies stay "requiring verification" until grounded source URLs support them.
 
-Run:
+When the user types `/vc-signals workbench <run-dir>`, do the whole flow. Do not make the user run a second prompt.
+
+First create the machine-readable pack:
 
 ```bash
 python3 <skill_dir>/scripts/radar_run.py workbench --from-run <run-dir> --output-dir <run-dir>-workbench
 ```
 
-Then read:
+Then read both generated files yourself:
 
 - `<run-dir>-workbench/research-workbench-prompt.md`
 - `<run-dir>-workbench/research-workbench-input.json`
 
-Use the JSON as the only factual source and produce a concise `research-workbench.md` with:
+Use the JSON as the only factual source and write `<run-dir>-workbench/research-workbench.md` with:
 
 1. Partner Notes
 2. Source Gap Diagnosis
 3. Theme Hypotheses
 4. Possible Companies Requiring Verification
 5. Recommended Next Searches
+
+Finally tell the user where the summary was saved. If the requested run directory is missing, ask them to run `/vc-signals radar all` first.
 
 If the user wants a lead promoted into the weekly radar, first run or request real verification searches that return credible company/product URLs.
 

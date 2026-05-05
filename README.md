@@ -304,7 +304,7 @@ If the output is thin, that does not necessarily mean the sector is dead. It mea
 | `/vc-signals oss <sector> [time]` | OSS radar — fast-growing repos, maintainers, ecosystem maps, and company-formation signals |
 | `/vc-signals github <sector>` | Top repos by star velocity — spot fast-growing OSS projects |
 | `/vc-signals add-sector <name>` | Add a new sector with guided taxonomy generation |
-| `python3 .claude/skills/vc-signals/scripts/radar_run.py workbench --from-run docs/radar-runs/current --output-dir docs/radar-runs/current-workbench` | Agent-native research workbench: creates a Codex/Claude prompt and evidence pack for possible leads requiring verification |
+| `/vc-signals workbench docs/radar-runs/current` | Agent-native research workbench: Claude creates the evidence pack and writes a readable summary of possible leads requiring verification |
 
 **Sectors:** `devtools`, `cybersecurity`, `ai-infra`, `vertical-ai`, `data-infra`, `oss`, or `all` (add your own with `add-sector`)
 
@@ -357,16 +357,18 @@ Provider behavior:
 
 ### Agent-Native Research Workbench
 
-If grounded web search is missing or the weekly radar is still OSS-heavy, create a workbench pack:
+If grounded web search is missing or the weekly radar is still OSS-heavy, run one command in Claude Code:
 
-```bash
-python3 .claude/skills/vc-signals/scripts/radar_run.py workbench --from-run docs/radar-runs/current --output-dir docs/radar-runs/current-workbench
+```text
+/vc-signals workbench docs/radar-runs/current
 ```
 
-This writes:
+Claude should do the whole flow:
 
-- `research-workbench-input.json`: the evidence pack.
-- `research-workbench-prompt.md`: the prompt for Codex/Claude.
+1. Create `docs/radar-runs/current-workbench/research-workbench-input.json`.
+2. Create `docs/radar-runs/current-workbench/research-workbench-prompt.md`.
+3. Read those files itself.
+4. Write `docs/radar-runs/current-workbench/research-workbench.md`.
 
 Use this when you want the current agent's own LLM judgment to synthesize source gaps, theme hypotheses, possible companies to verify, and next searches. It is deliberately not grounding. It cannot add rows to `candidates.json`, and possible company leads must remain "requiring verification" until a real source URL supports them.
 
