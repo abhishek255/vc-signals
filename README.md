@@ -272,6 +272,14 @@ python3 --version
 python3 .claude/skills/vc-signals/scripts/radar_run.py weekly --sectors all --output-dir docs/radar-runs/current --limit 50
 ```
 
+This is the full-quality weekly path: it runs the default sector query plan and lets the `last30days` engine finish rather than cutting it off early. For a lightweight smoke test, add `--first-pass`:
+
+```bash
+python3 .claude/skills/vc-signals/scripts/radar_run.py weekly --sectors all --output-dir docs/radar-runs/current --limit 50 --first-pass
+```
+
+Use `--first-pass` only when someone is trying the workflow and wants a faster sanity check. Do not judge Marathon output quality from that mode.
+
 Then open:
 
 ```text
@@ -299,6 +307,7 @@ If the output is thin, that does not necessarily mean the sector is dead. It mea
 | `/vc-signals radar <sector\|all> [time]` | **Weekly company/project radar — up to 50 qualified rows organized by sector, theme, and evidence quality** |
 | `/vc-signals weekly <sector> [time]` | Alias for radar (kept for backward compatibility) |
 | `python3 .claude/skills/vc-signals/scripts/radar_run.py weekly --sectors all --output-dir docs/radar-runs/current --limit 50` | Deterministic local weekly run: saves raw evidence, normalized signals, scored candidates, and a partner preview |
+| `python3 .claude/skills/vc-signals/scripts/radar_run.py weekly --sectors all --output-dir docs/radar-runs/current --limit 50 --first-pass` | Fast smoke-test run: uses a smaller query budget and bounded per-query wait; useful for trying the flow, not for judging final radar quality |
 | `/vc-signals theme "<topic>" [time]` | Deep-dive into a specific theme |
 | `/vc-signals company "<name>" [time]` | Which rising themes is a company exposed to? |
 | `/vc-signals oss <sector> [time]` | OSS radar — fast-growing repos, maintainers, ecosystem maps, and company-formation signals |
@@ -317,6 +326,8 @@ The local partner command is:
 ```bash
 python3 .claude/skills/vc-signals/scripts/radar_run.py weekly --sectors all --output-dir docs/radar-runs/current --limit 50
 ```
+
+By default, this command uses the fuller query budget for each sector and does not impose a wrapper timeout on `last30days` queries. If you need a quick trial run, append `--first-pass`; that mode uses one query per sector and a 45-second query cap so a new user can see the shape of the artifact quickly.
 
 The artifact contains:
 

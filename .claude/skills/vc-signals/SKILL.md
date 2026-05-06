@@ -319,7 +319,15 @@ For deterministic weekly runs, prefer the orchestration helper before doing manu
 python3 <skill_dir>/scripts/radar_run.py weekly --sectors all --output-dir <output_dir>
 ```
 
-This saves raw evidence JSON, normalized signals, scored candidates, and a partner preview. If a native grounded web key (Brave, Parallel, Serper, or Exa) is configured, the run includes grounded company discovery. If not, it automatically uses a stricter HN/GitHub fallback plus curated Reddit pain discovery instead of broad noisy company-web queries.
+This saves raw evidence JSON, normalized signals, scored candidates, and a partner preview. The default weekly command is the full-quality path: it uses the normal sector query budget and does not impose an artificial wrapper timeout on `last30days`. If a native grounded web key (Brave, Parallel, Serper, or Exa) is configured, the run includes grounded company discovery. If not, it automatically uses a stricter HN/GitHub fallback plus curated Reddit pain discovery instead of broad noisy company-web queries.
+
+For a lightweight smoke test, and only when the user wants to try the flow quickly, run:
+
+```bash
+python3 <skill_dir>/scripts/radar_run.py weekly --sectors all --output-dir <output_dir> --first-pass
+```
+
+`--first-pass` uses one query per sector and a 45-second per-query cap. Do not use first-pass mode to judge final Marathon radar quality.
 
 The weekly artifact must not silently omit sectors. If a sector has no qualified candidates, render a sector coverage note explaining whether the cause was no source evidence, source-not-candidate-eligible evidence, weak evidence, or missing grounded web/company enrichment.
 

@@ -247,7 +247,7 @@ def test_run_query_uses_nested_script_path_and_skill_root_cwd(tmp_path, monkeypa
     cmd, kwargs = calls[0]
     assert str(skill_root / "scripts" / "last30days.py") in cmd
     assert kwargs["cwd"] == str(skill_root)
-    assert kwargs["timeout"] == 120
+    assert kwargs["timeout"] is None
 
 
 def test_run_query_accepts_custom_timeout_seconds(tmp_path, monkeypatch):

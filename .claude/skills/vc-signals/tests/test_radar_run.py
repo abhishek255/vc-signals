@@ -1533,16 +1533,73 @@ def test_weekly_radar_does_not_pad_to_50(tmp_path, monkeypatch):
 def test_cli_weekly_runs_collect_and_preview(tmp_path, monkeypatch, capsys):
     import radar_run
 
+    seen = {}
+
+    def fake_run_weekly_artifacts(**kwargs):
+        seen.update(kwargs)
+        return {"raw_evidence": str(tmp_path / "raw.json"), "preview": str(tmp_path / "preview.md"), "companies": 0}
+
     monkeypatch.setattr(
         radar_run,
         "run_weekly_artifacts",
-        lambda **kwargs: {"raw_evidence": str(tmp_path / "raw.json"), "preview": str(tmp_path / "preview.md"), "companies": 0},
+        fake_run_weekly_artifacts,
     )
     monkeypatch.setattr("sys.argv", ["radar_run.py", "weekly", "--output-dir", str(tmp_path), "--sectors", "oss"])
 
     radar_run._cli_main()
     result = json.loads(capsys.readouterr().out)
     assert result["preview"] == str(tmp_path / "preview.md")
+    assert seen["max_queries_per_sector"] == 3
+    assert seen["query_timeout_seconds"] is None
+
+
+def test_cli_weekly_first_pass_uses_fast_trial_defaults(tmp_path, monkeypatch):
+    import radar_run
+
+    seen = {}
+
+    def fake_run_weekly_artifacts(**kwargs):
+        seen.update(kwargs)
+        return {"raw_evidence": str(tmp_path / "raw.json"), "preview": str(tmp_path / "preview.md"), "companies": 0}
+
+    monkeypatch.setattr(radar_run, "run_weekly_artifacts", fake_run_weekly_artifacts)
+    monkeypatch.setattr("sys.argv", ["radar_run.py", "weekly", "--output-dir", str(tmp_path), "--firstPass"])
+
+    radar_run._cli_main()
+
+    assert seen["max_queries_per_sector"] == 1
+    assert seen["query_timeout_seconds"] == 45
+
+
+def test_cli_weekly_first_pass_respects_explicit_quality_overrides(tmp_path, monkeypatch):
+    import radar_run
+
+    seen = {}
+
+    def fake_run_weekly_artifacts(**kwargs):
+        seen.update(kwargs)
+        return {"raw_evidence": str(tmp_path / "raw.json"), "preview": str(tmp_path / "preview.md"), "companies": 0}
+
+    monkeypatch.setattr(radar_run, "run_weekly_artifacts", fake_run_weekly_artifacts)
+    monkeypatch.setattr(
+        "sys.argv",
+        [
+            "radar_run.py",
+            "weekly",
+            "--output-dir",
+            str(tmp_path),
+            "--first-pass",
+            "--max-queries-per-sector",
+            "2",
+            "--query-timeout",
+            "90",
+        ],
+    )
+
+    radar_run._cli_main()
+
+    assert seen["max_queries_per_sector"] == 2
+    assert seen["query_timeout_seconds"] == 90
 
 
 def test_cli_weekly_parses_with_synthesis_flag(tmp_path, monkeypatch):

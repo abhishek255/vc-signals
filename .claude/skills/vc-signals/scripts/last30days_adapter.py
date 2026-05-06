@@ -166,7 +166,7 @@ def run_query(
     web_backend: str | None = None,
     save_dir: str | None = None,
     save_suffix: str | None = None,
-    timeout_seconds: int = 120,
+    timeout_seconds: int | None = None,
 ) -> dict:
     """Run a query through last30days CLI and return parsed results."""
     vendor_path = vendor_path or DEFAULT_VENDOR_PATH

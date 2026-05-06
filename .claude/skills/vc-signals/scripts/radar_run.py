@@ -1180,7 +1180,7 @@ def collect_live_evidence(
     lookback_days: int = 30,
     github_limit: int = 40,
     max_queries_per_sector: int = 3,
-    query_timeout_seconds: int = 45,
+    query_timeout_seconds: int | None = None,
     progress: bool = False,
 ) -> dict:
     """Collect raw last30days and GitHub evidence for the weekly radar."""
@@ -1261,7 +1261,7 @@ def run_weekly_artifacts(
     max_queries_per_sector: int = 3,
     candidate_limit: int = 15,
     with_synthesis: bool = False,
-    query_timeout_seconds: int = 45,
+    query_timeout_seconds: int | None = None,
     progress: bool = False,
 ) -> dict:
     """Collect evidence and render a weekly partner preview in one command."""
@@ -1388,6 +1388,17 @@ def _parse_args(argv: list[str]) -> dict:
     return args
 
 
+def _get_bool_arg(args: dict, *names: str) -> bool:
+    return any(args.get(name) is True for name in names)
+
+
+def _get_int_arg(args: dict, *names: str, default: int | None = None) -> int | None:
+    for name in names:
+        if name in args:
+            return int(args[name])
+    return default
+
+
 def _attio_client_from_env():
     token = os.environ.get("ATTIO_ACCESS_TOKEN")
     if not token and get_access_token:
@@ -1407,11 +1418,21 @@ def _cli_main() -> None:
 
     if command == "collect":
         output_dir = Path(args.get("output_dir", DEFAULT_OUTPUT_DIR))
+        first_pass = _get_bool_arg(args, "first_pass", "firstPass")
         evidence = collect_live_evidence(
             sectors=parse_sectors_arg(args.get("sectors")),
             github_limit=int(args.get("github_limit", 40)),
-            max_queries_per_sector=int(args.get("max_queries_per_sector", 3)),
-            query_timeout_seconds=int(args.get("query_timeout", args.get("query_timeout_seconds", 45))),
+            max_queries_per_sector=_get_int_arg(
+                args,
+                "max_queries_per_sector",
+                default=1 if first_pass else 3,
+            ),
+            query_timeout_seconds=_get_int_arg(
+                args,
+                "query_timeout",
+                "query_timeout_seconds",
+                default=45 if first_pass else None,
+            ),
             progress=bool(args.get("progress", False)),
         )
         path = save_raw_evidence(evidence, output_dir=output_dir)
@@ -1420,14 +1441,24 @@ def _cli_main() -> None:
 
     if command == "weekly":
         output_dir = Path(args.get("output_dir", DEFAULT_OUTPUT_DIR))
+        first_pass = _get_bool_arg(args, "first_pass", "firstPass")
         result = run_weekly_artifacts(
             output_dir=output_dir,
             sectors=parse_sectors_arg(args.get("sectors")),
             github_limit=int(args.get("github_limit", 40)),
-            max_queries_per_sector=int(args.get("max_queries_per_sector", 1)),
+            max_queries_per_sector=_get_int_arg(
+                args,
+                "max_queries_per_sector",
+                default=1 if first_pass else 3,
+            ),
             candidate_limit=int(args.get("limit", 15)),
             with_synthesis=bool(args.get("with_synthesis", False)),
-            query_timeout_seconds=int(args.get("query_timeout", args.get("query_timeout_seconds", 45))),
+            query_timeout_seconds=_get_int_arg(
+                args,
+                "query_timeout",
+                "query_timeout_seconds",
+                default=45 if first_pass else None,
+            ),
             progress=bool(args.get("progress", True)),
         )
         print(json.dumps(result))
