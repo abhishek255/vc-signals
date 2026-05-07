@@ -91,15 +91,20 @@ The first screen should answer the top market movements, top companies/projects,
 
 ## Current Implementation Status
 
-As of May 7, 2026, Phase 1A/1B is implemented on branch `codex/weekly-focus-market-movement`.
+As of May 7, 2026, Phases 1A, 1B, 2, 2.1, 2.2, and 2.3 are implemented on branch `codex/weekly-focus-market-movement`.
 
 What works now:
 
 - `weekly-focus.json` is generated first.
 - `weekly-focus.md` renders from `weekly-focus.json`.
 - `feedback.json` is scaffolded.
+- `identity-resolution.json` is generated beside the weekly artifacts.
+- `metadata-loss-report.json` is generated as a local run artifact for diagnosing whether identity-useful metadata disappeared upstream, in adapter normalization, in signal promotion, in candidate metadata, or in identity resolution.
 - Partner Focus, Market Movements, New To Marathon, Workflow View, Extended Watchlist, and Appendix exist.
 - Deterministic scoring, basis arrays, Partner Focus gates, and strict `Take meeting` gates exist.
+- Company identity resolution now classifies launch/company/OSS rows as `verified_company`, `launch_style_needs_identity`, `oss_project_watch`, `oss_with_commercial_intent`, or `insufficient_identity`.
+- Evidence metadata now carries compact source fields through candidate promotion.
+- HN launch URL resolution now attempts stored metadata, local HN cache, HN Algolia lookup, HN page fallback, then fails closed with explicit reasons.
 - Executive Snapshot now states when a run is a research queue rather than owner-ready leads.
 - The artifact counts Partner Focus rows, OSS/project-only rows, company/launch-style rows, and rows by action.
 - `Top identity-resolution target` is surfaced so associates know what to verify first.
@@ -110,7 +115,7 @@ The real regenerated artifact currently proves the product shape, but also expos
 - It is useful as research triage.
 - It is not yet owner-ready sourcing.
 - It is still OSS-heavy because the current pipeline finds projects more reliably than verified companies.
-- The next product gap is company identity resolution, not more Markdown formatting.
+- The next product gap is controlled company discovery and stronger source-backed launch/company identity evidence, not more Markdown formatting or more scoring.
 
 Important product interpretation:
 
@@ -642,7 +647,7 @@ Why this phase matters:
 
 ### Phase 1B: Company Identity Quality And Attio Action Overlay
 
-Status: implemented as a first deterministic overlay on branch `codex/weekly-focus-market-movement`; deeper identity resolution remains the next product build.
+Status: implemented as a first deterministic overlay on branch `codex/weekly-focus-market-movement`.
 
 Goal:
 
@@ -667,6 +672,8 @@ Why this phase matters:
 - Alex should be able to hand the artifact to an associate and know what to update or investigate.
 
 ### Phase 2: Company Identity Resolution And Launch Verification
+
+Status: implemented on branch `codex/weekly-focus-market-movement`.
 
 Goal:
 
@@ -701,6 +708,121 @@ Why this phase matters:
 - This is the immediate bottleneck shown by the real Phase 1A/1B artifact.
 - Alex does not only need interesting projects; he needs to know which ones map to real companies, founders, and Marathon workflow actions.
 - Better identity resolution should turn some rows from `Research deeper` into `Assign owner` or `Refresh Attio`.
+
+Current result:
+
+- The identity/action guardrails are working conservatively.
+- Weak OSS/project rows are demoted or kept out of Partner Focus when identity/commercial intent is weak.
+- Launch-style rows without verified domain/founder evidence remain `Research deeper`.
+- The real current artifact still does not produce owner-ready sourcing rows because the collected evidence often lacks outbound company URLs, founder identity, or homepage/domain metadata.
+
+### Phase 2.1: Evidence Metadata Preservation And Controlled Verification
+
+Status: implemented on branch `codex/weekly-focus-market-movement`.
+
+Goal:
+
+- Preserve compact identity-useful metadata from existing evidence and make identity resolution consume stored metadata before live fetching evidence URLs.
+
+Includes:
+
+- `EvidenceMetadata` model.
+- `Candidate.evidence_metadata`.
+- HN/GitHub compact metadata preserved during candidate promotion.
+- Metadata-first identity resolution.
+- GitHub project identity from repo URLs.
+- GitHub homepage as a domain candidate when upstream evidence provides it.
+- Stored HN outbound URL/domain resolving identity without live fetch.
+
+Does not include:
+
+- New sources.
+- Web search.
+- Domain guessing.
+- Attio writeback.
+
+Current result:
+
+- The pipeline can now use identity-useful metadata when it exists.
+- The saved Burrow evidence did not include outbound URL/domain, so Burrow correctly remained `Research deeper`.
+
+### Phase 2.2: Source Metadata Audit And Adapter Upgrade
+
+Status: implemented on branch `codex/weekly-focus-market-movement`.
+
+Goal:
+
+- Determine whether identity-useful fields are missing upstream or dropped by the pipeline, then preserve fields that upstream already provides.
+
+Includes:
+
+- `metadata-loss-report.json` generated as a local run artifact.
+- Loss points:
+  - `upstream_missing`
+  - `adapter_dropped`
+  - `signal_dropped`
+  - `candidate_dropped`
+  - `identity_ignored`
+  - `preserved`
+- last30days normalization preserves identity-useful fields when present:
+  - `outbound_url`
+  - `resolved_url`
+  - `story_url`
+  - `domain`
+  - `homepage`
+  - `owner_name`
+  - `owner_type`
+  - `topics`
+  - `description`
+- GitHub repo parsing preserves `homepage` and identity field provenance.
+
+Does not include:
+
+- New broad source adapters.
+- X, LinkedIn, Product Hunt, package registries.
+- Attio writeback.
+
+Current result:
+
+- Burrow's saved evidence was diagnosed as `upstream_missing` for outbound URL/domain/homepage.
+- GitHub rows such as AgentShield preserve repo owner/type/topics/description; homepage/domain were not present in that saved upstream evidence.
+
+### Phase 2.3: HN Launch URL Resolution
+
+Status: implemented on branch `codex/weekly-focus-market-movement`.
+
+Goal:
+
+- Given an already-captured `news.ycombinator.com/item?id=...` URL, resolve the outbound launch URL/domain if HN exposes one. Cache the result and fail closed.
+
+Resolution order:
+
+1. Stored metadata.
+2. Local HN enrichment cache.
+3. HN Algolia item lookup.
+4. HN page fetch fallback.
+5. Fail closed.
+
+Includes:
+
+- HN item ID parsing.
+- HN Algolia lookup by item ID.
+- HN page fallback parsing.
+- Local HN enrichment cache.
+- Explicit failure reasons such as `hn_no_outbound_url`, `hn_fetch_429`, `hn_algolia_not_found`, and `hn_internal_url_only`.
+- Guardrails so HN/GitHub/social/content domains are not treated as verified company domains.
+
+Does not include:
+
+- Broad web search.
+- Domain guessing.
+- X, LinkedIn, Product Hunt, package registries.
+- Attio writeback.
+
+Current result:
+
+- In test fixtures, HN Algolia/page resolution can populate a source-backed outbound domain.
+- In the current saved run, Burrow still remained `Research deeper` because HN lookup/page fetch failed in the local environment and the resolver failed closed as intended.
 
 ### Phase 3: Signal Role Normalization And Source Adapter Contract
 
@@ -830,19 +952,21 @@ It should help Marathon make sharper, faster decisions about which companies/pro
 
 ## Current Recommendation
 
-Phase 1A/1B should now be pushed for review and then merged if the branch review is clean.
+The branch should be evaluated with a fresh real weekly run before merging.
 
-Do not treat Phase 1A/1B as the full product. Treat it as the new product shell:
+Do not treat the current branch as the full product. Treat it as the new product shell plus identity reliability stack:
 
 - It makes the weekly output easier for Alex to read.
 - It shows the top market movements and focus rows.
 - It is honest when the run is a research queue.
 - It exposes source gaps and missing evidence.
 - It gives associates a first action view.
+- It diagnoses when candidate identity is missing because upstream source evidence lacks outbound URLs/domains.
+- It refuses to manufacture owner-ready leads from weak evidence.
 
-The next implementation should be Phase 2: company identity resolution and launch verification.
+The next implementation should be controlled company discovery and source-backed company identity evidence around market movements.
 
-Specifically, build the ability to take a row like the current `Burrow` lead and answer:
+Specifically, build the ability to produce more rows where the system can answer:
 
 - What is the actual company or project?
 - What is the verified domain?
@@ -851,12 +975,12 @@ Specifically, build the ability to take a row like the current `Burrow` lead and
 - Is it already in Attio under another name/domain?
 - Should Marathon assign an owner, refresh Attio, research deeper, or monitor?
 
-Do not jump straight to X, LinkedIn, Product Hunt, or package registries. Broader sources will help later, but the artifact already shows the first bottleneck: the system needs to turn source-backed projects and launch chatter into verified company/project identities.
+Do not jump straight to X, LinkedIn, Product Hunt, or package registries. Broader sources will help later, but the artifact still shows the first bottleneck: the system needs more source-backed company/project identity evidence from already relevant launch/company contexts.
 
 Near-term order:
 
-1. Push and review `codex/weekly-focus-market-movement`.
-2. Merge Phase 1A/1B if the review is clean.
-3. Implement Phase 2 identity resolution.
-4. Then improve company discovery around movements.
+1. Run a fresh real weekly artifact on `codex/weekly-focus-market-movement`.
+2. Inspect whether HN launch rows resolve outbound domains and whether any rows become credible `Assign owner` or `Refresh Attio`.
+3. Merge the branch if tests pass and the fresh artifact remains honest.
+4. Build controlled company discovery around market movements.
 5. Then add source-role normalization and broader source adapters.
