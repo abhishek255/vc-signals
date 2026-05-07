@@ -1172,6 +1172,49 @@ def test_run_weekly_artifacts_saves_raw_and_preview(tmp_path, monkeypatch):
     assert saved_history
 
 
+def test_run_weekly_artifacts_writes_weekly_focus_without_replacing_preview(tmp_path, monkeypatch):
+    import radar_run
+
+    monkeypatch.setattr(
+        radar_run,
+        "collect_live_evidence",
+        lambda **kwargs: {
+            "last30days": {
+                "cybersecurity": {
+                    "items": [
+                        {
+                            "title": "Show HN: BeeSafe AI stops AI voice phishing for banks",
+                            "url": "https://news.ycombinator.com/item?id=1",
+                            "source": "hackernews",
+                        }
+                    ]
+                }
+            },
+            "github": [],
+            "warnings": [],
+        },
+    )
+    monkeypatch.setattr(radar_run, "load_candidate_history", lambda: {})
+    monkeypatch.setattr(radar_run, "save_candidate_history", lambda history: None)
+    monkeypatch.setattr(radar_run, "apply_candidate_enrichment", lambda candidates: candidates)
+
+    result = radar_run.run_weekly_artifacts(
+        output_dir=tmp_path,
+        sectors=("cybersecurity",),
+        max_queries_per_sector=1,
+        github_limit=0,
+    )
+
+    assert result["weekly_focus_json"].endswith("weekly-focus.json")
+    assert result["weekly_focus"].endswith("weekly-focus.md")
+    assert result["feedback"].endswith("feedback.json")
+    assert (tmp_path / "weekly-focus.json").exists()
+    assert (tmp_path / "weekly-focus.md").exists()
+    assert (tmp_path / "feedback.json").exists()
+    assert "# Marathon Signal Radar: Weekly Focus" in (tmp_path / "weekly-focus.md").read_text()
+    assert "# VC Signals Weekly Radar" in (tmp_path / "weekly-preview.md").read_text()
+
+
 def test_run_weekly_artifacts_saves_signals_candidates_and_sector_coverage(tmp_path, monkeypatch):
     import radar_run
 

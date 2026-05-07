@@ -51,6 +51,12 @@ from radar_workbench import write_workbench_artifacts
 from radar_history import apply_weekly_tags, load_candidate_history, save_candidate_history
 from radar_enrichment import apply_candidate_enrichment, merge_source_enrichment
 from radar_oss import enrich_oss_candidate
+from radar_focus import (
+    build_weekly_focus_artifact,
+    render_weekly_focus_markdown,
+    write_feedback_scaffold,
+    write_weekly_focus_json,
+)
 
 
 DEFAULT_OUTPUT_DIR = Path(__file__).parent.parent / "data" / "radar_runs"
@@ -1345,6 +1351,18 @@ def run_weekly_artifacts(
             company_discovery=company_discovery,
         )
     )
+    weekly_focus = build_weekly_focus_artifact(
+        candidates=scored_candidates,
+        theme_signals=theme_signals,
+        sector_intelligence=sector_intelligence,
+        run_id=run_date,
+    )
+    weekly_focus_json_path = output_dir / "weekly-focus.json"
+    weekly_focus_path = output_dir / "weekly-focus.md"
+    feedback_path = output_dir / "feedback.json"
+    write_weekly_focus_json(weekly_focus, weekly_focus_json_path)
+    weekly_focus_path.write_text(render_weekly_focus_markdown(weekly_focus))
+    write_feedback_scaffold(run_date, weekly_focus.partner_focus, feedback_path)
     result = {
         "raw_evidence": str(raw_path),
         "signals": str(signals_path),
@@ -1353,6 +1371,9 @@ def run_weekly_artifacts(
         "sector_intelligence": str(sector_intelligence_path),
         "company_discovery": str(company_discovery_path),
         "preview": str(preview_path),
+        "weekly_focus_json": str(weekly_focus_json_path),
+        "weekly_focus": str(weekly_focus_path),
+        "feedback": str(feedback_path),
         "companies": len(scored_candidates),
         "sectors": list(sectors),
     }
