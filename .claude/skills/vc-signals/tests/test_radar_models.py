@@ -111,6 +111,44 @@ def test_theme_signal_roundtrip_dict():
     assert ThemeSignal.from_dict(signal.to_dict()) == signal
 
 
+def test_discovery_query_roundtrip():
+    from radar_models import DiscoveryQuery
+
+    query = DiscoveryQuery(
+        id="ai-agent-security-theme-company-search",
+        movement="AI agent security",
+        market_sector="Cybersecurity",
+        source_reason="theme_signal",
+        topic="AI agent security startup company founder launch",
+        sources="grounding",
+        required_terms=["agent", "security"],
+        origin_row_ids=["theme:ai-agent-security"],
+    )
+
+    assert DiscoveryQuery.from_dict(query.to_dict()) == query
+
+
+def test_verified_company_discovery_lead_roundtrip():
+    from radar_models import VerifiedCompanyDiscoveryLead
+
+    lead = VerifiedCompanyDiscoveryLead(
+        name="AgentFence",
+        movement="AI agent security",
+        market_sector="Cybersecurity",
+        source_url="https://agentfence.dev",
+        source="grounding",
+        domain="agentfence.dev",
+        candidate_type="verified_company",
+        verification_status="accepted",
+        verification_basis=["source_backed_domain", "movement_terms_present"],
+        movement_assignment_basis=["title_matches_movement"],
+        query_id="ai-agent-security-theme-company-search",
+        query_topic="AI agent security startup company founder launch",
+    )
+
+    assert VerifiedCompanyDiscoveryLead.from_dict(lead.to_dict()) == lead
+
+
 def test_sector_intelligence_roundtrip_dict():
     from radar_models import SectorIntelligence
 

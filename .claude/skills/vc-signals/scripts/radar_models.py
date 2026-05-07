@@ -130,6 +130,59 @@ class ThemeSignal:
 
 
 @dataclass
+class DiscoveryQuery:
+    id: str
+    movement: str
+    market_sector: str
+    source_reason: str = ""
+    topic: str = ""
+    sources: str = "grounding"
+    lookback_days: int = 30
+    web_backend: str = "auto"
+    candidate_eligible: bool = True
+    origin_row_ids: list[str] = field(default_factory=list)
+    required_terms: list[str] = field(default_factory=list)
+    limited: bool = False
+    reason: str = ""
+
+    def to_dict(self) -> dict:
+        return asdict(self)
+
+    @classmethod
+    def from_dict(cls, payload: dict) -> "DiscoveryQuery":
+        return cls(**_known_payload(cls, payload))
+
+
+@dataclass
+class VerifiedCompanyDiscoveryLead:
+    name: str
+    movement: str
+    market_sector: str
+    source_url: str
+    source: str = ""
+    domain: str = ""
+    founder_or_maintainer: str = ""
+    candidate_type: str = "launch_style_needs_identity"
+    verification_status: str = "rejected"
+    verification_basis: list[str] = field(default_factory=list)
+    missing_evidence: list[str] = field(default_factory=list)
+    movement_assignment_basis: list[str] = field(default_factory=list)
+    query_id: str = ""
+    query_topic: str = ""
+    why_on_radar: str = ""
+    why_this_may_be_noise: str = ""
+    raw_title: str = ""
+    raw_snippet: str = ""
+
+    def to_dict(self) -> dict:
+        return asdict(self)
+
+    @classmethod
+    def from_dict(cls, payload: dict) -> "VerifiedCompanyDiscoveryLead":
+        return cls(**_known_payload(cls, payload))
+
+
+@dataclass
 class SectorIntelligence:
     market_sector: str
     status: str = "No meaningful signal this week"
