@@ -65,7 +65,7 @@ Rows Alex should actually inspect.
 Why those rows surfaced.
 
 ## 3. New To Marathon
-No Attio match, no owner, stale records, or passed records with new signal.
+Rows with `no_match`, `not_found`, or explicitly `new` Attio status.
 
 ## 4. Workflow View
 Assign owner, research deeper, refresh Attio, take meeting, monitor only.
@@ -88,6 +88,35 @@ Strict output limits:
 - Appendix: compact, grouped, and skimmable.
 
 The first screen should answer the top market movements, top companies/projects, and top actions.
+
+## Current Implementation Status
+
+As of May 7, 2026, Phase 1A/1B is implemented on branch `codex/weekly-focus-market-movement`.
+
+What works now:
+
+- `weekly-focus.json` is generated first.
+- `weekly-focus.md` renders from `weekly-focus.json`.
+- `feedback.json` is scaffolded.
+- Partner Focus, Market Movements, New To Marathon, Workflow View, Extended Watchlist, and Appendix exist.
+- Deterministic scoring, basis arrays, Partner Focus gates, and strict `Take meeting` gates exist.
+- Executive Snapshot now states when a run is a research queue rather than owner-ready leads.
+- The artifact counts Partner Focus rows, OSS/project-only rows, company/launch-style rows, and rows by action.
+- `Top identity-resolution target` is surfaced so associates know what to verify first.
+- `weekly-preview.md` remains unchanged.
+
+The real regenerated artifact currently proves the product shape, but also exposes the bottleneck:
+
+- It is useful as research triage.
+- It is not yet owner-ready sourcing.
+- It is still OSS-heavy because the current pipeline finds projects more reliably than verified companies.
+- The next product gap is company identity resolution, not more Markdown formatting.
+
+Important product interpretation:
+
+- `New To Marathon` should mean the system has real Attio evidence that the row is not already known: `no_match`, `not_found`, or `new`.
+- `attio_status="unknown"` means Attio was not checked, not configured, failed, or could not match cleanly. It must not be called new to Marathon.
+- Stale, no-owner, passed, or active Attio records belong in Workflow View and future Marathon Context sections, not in New To Marathon.
 
 ## What Counts As Edge
 
@@ -575,6 +604,8 @@ These are product quality metrics, not vanity usage metrics.
 
 ### Phase 1A: Partner Focus Artifact
 
+Status: implemented on branch `codex/weekly-focus-market-movement`.
+
 Goal:
 
 - Produce `weekly-focus.md` and `weekly-focus.json` from existing weekly artifacts.
@@ -611,6 +642,8 @@ Why this phase matters:
 
 ### Phase 1B: Company Identity Quality And Attio Action Overlay
 
+Status: implemented as a first deterministic overlay on branch `codex/weekly-focus-market-movement`; deeper identity resolution remains the next product build.
+
 Goal:
 
 - Make the first artifact meaningfully actionable for Alex by improving company identity and Attio-driven actions before broader source expansion.
@@ -633,7 +666,43 @@ Why this phase matters:
 - Attio is the edge layer. It should affect the product early, even if writeback is much later.
 - Alex should be able to hand the artifact to an associate and know what to update or investigate.
 
-### Phase 2: Signal Role Normalization And Source Adapter Contract
+### Phase 2: Company Identity Resolution And Launch Verification
+
+Goal:
+
+- Convert promising OSS/project/launch-style rows into verified company or project records that Marathon can act on.
+
+Includes:
+
+- Domain discovery for launch-style and OSS-derived leads.
+- Founder identity discovery from source-backed pages.
+- Company vs OSS project classification.
+- Maintainer-to-founder or maintainer-to-company mapping where evidence supports it.
+- Launch-source enrichment for HN/Show HN, YC/company pages, blogs, and company websites already present in current evidence.
+- Attio-safe matching based on normalized domain/company identity.
+- Identity-resolution confidence and basis fields.
+- Clear output labels:
+  - `verified_company`
+  - `launch_style_needs_identity`
+  - `oss_project_watch`
+  - `oss_with_commercial_intent`
+  - `insufficient_identity`
+- A focused identity-resolution queue, starting with the top identity-resolution target in the Executive Snapshot.
+
+Does not include:
+
+- New social/source adapters.
+- Attio writeback.
+- Slack delivery.
+- Broad market time-series.
+
+Why this phase matters:
+
+- This is the immediate bottleneck shown by the real Phase 1A/1B artifact.
+- Alex does not only need interesting projects; he needs to know which ones map to real companies, founders, and Marathon workflow actions.
+- Better identity resolution should turn some rows from `Research deeper` into `Assign owner` or `Refresh Attio`.
+
+### Phase 3: Signal Role Normalization And Source Adapter Contract
 
 Goal:
 
@@ -651,11 +720,11 @@ Why this phase matters:
 - Source semantics stop being arbitrary JSON.
 - The system can distinguish pain, launch, chatter, adoption, funding, CRM, and skepticism.
 
-### Phase 3: Company Discovery And Identity Resolution
+### Phase 4: Company Discovery Around Market Movements
 
 Goal:
 
-- Improve company/project discovery around market movements.
+- Improve company/project discovery around market movements after identity quality is reliable.
 
 Includes:
 
@@ -663,7 +732,7 @@ Includes:
 - Movement assignment metadata.
 - Company identity quality scoring.
 - Domain-based dedupe.
-- OSS project to company/founder mapping.
+- OSS project to company/founder mapping using the Phase 2 identity-resolution model.
 - Better founder/company/launch evidence handling.
 - Stronger filters so inferred names do not pollute Partner Focus.
 
@@ -671,7 +740,7 @@ Why this phase matters:
 
 - This is where the product moves beyond a better renderer and starts solving Alex's company discovery problem.
 
-### Phase 4: Movement Memory And Time Series
+### Phase 5: Movement Memory And Time Series
 
 Goal:
 
@@ -689,7 +758,7 @@ Why this phase matters:
 - Static reports become movement intelligence.
 - Alex sees what changed, not just what exists.
 
-### Phase 5: Source Expansion
+### Phase 6: Source Expansion
 
 Goal:
 
@@ -710,7 +779,7 @@ Why this phase matters:
 
 - Alex needs chatter, launch, adoption, company formation, and buyer-pain signals in one product.
 
-### Phase 6: Alex Feedback And Ranking Calibration
+### Phase 7: Alex Feedback And Ranking Calibration
 
 Goal:
 
@@ -728,7 +797,7 @@ Why this phase matters:
 - Without feedback, the system stays generic.
 - With feedback, it becomes increasingly Marathon-specific.
 
-### Phase 7: Delivery And Operating Workflow
+### Phase 8: Delivery And Operating Workflow
 
 Goal:
 
@@ -761,19 +830,33 @@ It should help Marathon make sharper, faster decisions about which companies/pro
 
 ## Current Recommendation
 
-Do Phase 1A and Phase 1B next, but design them with the full product model in mind.
+Phase 1A/1B should now be pushed for review and then merged if the branch review is clean.
 
-Specifically:
+Do not treat Phase 1A/1B as the full product. Treat it as the new product shell:
 
-- Build `weekly-focus.md` and `weekly-focus.json` from current artifacts.
-- Use top 10-15 Partner Focus, not 15-30.
-- Put additional rows in Extended Watchlist.
-- Introduce the data models and scoring fields even if some values are initially derived heuristically.
-- Add score-basis fields so heuristic values do not become fake precision.
-- Add Partner Focus gates and strict `Take meeting` rules.
-- Scaffold `feedback.json` immediately.
-- Pull Attio action overlay forward into Phase 1B.
-- Do not block on new sources.
-- Do not pretend Phase 1 is the full edge.
+- It makes the weekly output easier for Alex to read.
+- It shows the top market movements and focus rows.
+- It is honest when the run is a research queue.
+- It exposes source gaps and missing evidence.
+- It gives associates a first action view.
 
-Phase 1A/1B are the bridge. The destination is market movement intelligence with source role normalization, movement time-series, company discovery, Attio overlay, and Alex feedback.
+The next implementation should be Phase 2: company identity resolution and launch verification.
+
+Specifically, build the ability to take a row like the current `Burrow` lead and answer:
+
+- What is the actual company or project?
+- What is the verified domain?
+- Who are the founders or maintainers?
+- Is there evidence of commercial intent?
+- Is it already in Attio under another name/domain?
+- Should Marathon assign an owner, refresh Attio, research deeper, or monitor?
+
+Do not jump straight to X, LinkedIn, Product Hunt, or package registries. Broader sources will help later, but the artifact already shows the first bottleneck: the system needs to turn source-backed projects and launch chatter into verified company/project identities.
+
+Near-term order:
+
+1. Push and review `codex/weekly-focus-market-movement`.
+2. Merge Phase 1A/1B if the review is clean.
+3. Implement Phase 2 identity resolution.
+4. Then improve company discovery around movements.
+5. Then add source-role normalization and broader source adapters.
