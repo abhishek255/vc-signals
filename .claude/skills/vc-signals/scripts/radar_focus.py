@@ -191,6 +191,9 @@ def score_noise_risk(candidate: Candidate, identity_score: int) -> tuple[int, li
     if "hype" in text or "crowded" in text:
         score += 15
         basis.append("explicit_hype_or_crowding_risk")
+    if any(term in text for term in ("epic games", "free titles", "freebies", "captcha solving")):
+        score += 55
+        basis.append("consumer_gaming_automation")
     if not candidate.sources:
         score += 20
         basis.append("no_evidence_url")

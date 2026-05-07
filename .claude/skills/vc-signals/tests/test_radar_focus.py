@@ -337,6 +337,28 @@ def test_extended_watchlist_excludes_noisy_leftovers():
     assert any(row["name"] == "NoisyCo" for row in artifact.appendix["filtered_or_noisy"])
 
 
+def test_consumer_gaming_automation_does_not_enter_partner_focus():
+    from radar_focus import build_weekly_focus_artifact
+
+    artifact = build_weekly_focus_artifact(
+        candidates=[
+            _candidate(
+                name="Ronchy2000/epic-freebies-helper",
+                stable_key="epic-freebies-helper",
+                domain="",
+                sources=["https://github.com/Ronchy2000/epic-freebies-helper"],
+                why_on_radar="Automatically claim Epic Games weekly free titles with GitHub Actions and GLM-powered captcha solving.",
+                evidence_confidence_score=40,
+                investment_interest_score=50,
+            )
+        ],
+        run_id="2026-05-11",
+    )
+
+    assert all(item.name != "Ronchy2000/epic-freebies-helper" for item in artifact.partner_focus)
+    assert any(row["name"] == "Ronchy2000/epic-freebies-helper" for row in artifact.appendix["filtered_or_noisy"])
+
+
 def test_render_weekly_focus_markdown_has_executive_snapshot_and_compact_basis():
     from radar_focus import build_weekly_focus_artifact, render_weekly_focus_markdown
 
