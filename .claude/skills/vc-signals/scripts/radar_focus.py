@@ -38,6 +38,10 @@ def _stable_id(text: str) -> str:
     return slug or "unknown"
 
 
+def _text_blob(*values: object) -> str:
+    return " ".join(str(value) for value in values if value is not None).lower()
+
+
 def score_company_identity(candidate: Candidate) -> tuple[int, list[str], list[str]]:
     basis = []
     missing = []
@@ -189,7 +193,7 @@ def score_noise_risk(candidate: Candidate, identity_score: int) -> tuple[int, li
 def score_consensus_risk(candidate: Candidate) -> tuple[int, list[str]]:
     basis = []
     score = 20
-    text = " ".join([candidate.stage, candidate.raised, candidate.headcount, candidate.why_on_radar]).lower()
+    text = _text_blob(candidate.stage, candidate.raised, candidate.headcount, candidate.why_on_radar)
     if any(term in text for term in ("series c", "series d", "series e")):
         score += 40
         basis.append("series_c_or_later")

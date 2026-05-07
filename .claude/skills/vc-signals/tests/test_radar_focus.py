@@ -35,6 +35,22 @@ def test_company_identity_score_records_basis_and_missing_evidence():
     assert "no verified company domain" not in missing
 
 
+def test_consensus_risk_accepts_numeric_enrichment_fields():
+    from radar_focus import score_consensus_risk
+
+    score, basis = score_consensus_risk(
+        _candidate(
+            stage="Seed",
+            raised=4000000,
+            headcount=12,
+            why_on_radar="Seed-stage AI security product.",
+        )
+    )
+
+    assert score >= 0
+    assert basis
+
+
 def test_partner_focus_requires_evidence_url_and_identity_quality():
     from radar_focus import is_partner_focus_eligible
 
