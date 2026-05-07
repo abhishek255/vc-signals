@@ -651,7 +651,7 @@ def choose_recommended_action(candidate: Candidate, item: FocusItem) -> str:
     if status in ATTIO_NEW_STATUSES or status in ATTIO_NO_OWNER_STATUSES:
         return ACTION_ASSIGN_OWNER
     if status in ATTIO_UNKNOWN_STATUSES:
-        if item.company_identity_quality_score >= 80 and item.evidence_confidence_score >= 60:
+        if item.company_identity_quality_score >= 60 and item.evidence_confidence_score >= 45:
             return ACTION_RESEARCH_DEEPER
         return ACTION_MONITOR_ONLY
     return ACTION_MONITOR_ONLY
@@ -832,7 +832,7 @@ python3 -m pytest .claude/skills/vc-signals/tests/test_radar_focus.py -q
 
 Expected:
 
-- These five tests pass.
+- These six tests pass.
 
 - [ ] **Step 5: Commit**
 
@@ -1000,18 +1000,23 @@ def test_build_focus_item_uses_attio_stale_for_refresh_action():
 
 
 def test_unknown_attio_status_is_not_new_to_marathon_or_assign_owner():
-    from radar_focus import ACTION_ASSIGN_OWNER, build_focus_item
+    from radar_focus import ACTION_ASSIGN_OWNER, ACTION_MONITOR_ONLY, ACTION_RESEARCH_DEEPER, build_focus_item
 
     item = build_focus_item(
         _candidate(
-            domain="agentshield.dev",
+            domain="",
+            sources=["https://github.com/affaan-m/agentshield"],
             attio_status="unknown",
             attio_owner="",
-            evidence_confidence_score=60,
+            evidence_confidence_score=50,
+            maintainer_profiles=[{"name": "affaan-m"}],
+            oss_company_formation_score=60,
         )
     )
 
+    assert item.recommended_action == ACTION_RESEARCH_DEEPER
     assert item.recommended_action != ACTION_ASSIGN_OWNER
+    assert item.recommended_action != ACTION_MONITOR_ONLY
     assert "new_to_attio" not in item.actionability_basis
 ```
 
