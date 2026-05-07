@@ -82,6 +82,23 @@ class Candidate:
     sector_confidence: str = ""
     sector_reason: str = ""
     partner_priority_score: int = 0
+    identity_type: str = ""
+    candidate_domain: str = ""
+    domain_confidence: str = ""
+    verified_domain_basis: list[str] = field(default_factory=list)
+    identity_confidence_score: int = 0
+    identity_confidence: str = ""
+    identity_confidence_basis: list[str] = field(default_factory=list)
+    commercial_intent_score: int = 0
+    commercial_intent_basis: list[str] = field(default_factory=list)
+    attio_match_keys: list[str] = field(default_factory=list)
+    attio_safe_to_match: bool = False
+    recommended_identity_action: str = ""
+    missing_identity_evidence: list[str] = field(default_factory=list)
+    source_outbound_urls: list[str] = field(default_factory=list)
+    source_titles: list[str] = field(default_factory=list)
+    fetch_warnings: list[str] = field(default_factory=list)
+    identity_resolved_from: list[str] = field(default_factory=list)
 
     def to_dict(self) -> dict:
         return asdict(self)
@@ -331,6 +348,47 @@ class ExecutiveSnapshot:
 
     @classmethod
     def from_dict(cls, payload: dict) -> "ExecutiveSnapshot":
+        return cls(**_known_payload(cls, payload))
+
+
+@dataclass
+class IdentityResolution:
+    candidate_key: str
+    original_name: str = ""
+    resolved_name: str = ""
+    identity_type: str = "insufficient_identity"
+    candidate_domain: str = ""
+    verified_domain: str = ""
+    domain_confidence: str = "Low"
+    verified_domain_basis: list[str] = field(default_factory=list)
+    project_url: str = ""
+    company_linkedin: str = ""
+    company_x: str = ""
+    founders: list[str] = field(default_factory=list)
+    founder_profiles: list[dict] = field(default_factory=list)
+    maintainers: list[str] = field(default_factory=list)
+    maintainer_profiles: list[dict] = field(default_factory=list)
+    commercial_intent_score: int = 0
+    commercial_intent_basis: list[str] = field(default_factory=list)
+    identity_confidence_score: int = 0
+    identity_confidence: str = "Low"
+    identity_confidence_basis: list[str] = field(default_factory=list)
+    attio_match_keys: list[str] = field(default_factory=list)
+    attio_safe_to_match: bool = False
+    recommended_identity_action: str = "Research deeper"
+    missing_identity_evidence: list[str] = field(default_factory=list)
+    evidence_urls: list[str] = field(default_factory=list)
+    source_outbound_urls: list[str] = field(default_factory=list)
+    source_titles: list[str] = field(default_factory=list)
+    fetch_warnings: list[str] = field(default_factory=list)
+    resolved_from: list[str] = field(default_factory=list)
+    error: str = ""
+
+    def to_dict(self) -> dict:
+        return asdict(self)
+
+    @classmethod
+    def from_dict(cls, payload: dict) -> "IdentityResolution":
         return cls(**_known_payload(cls, payload))
 
 

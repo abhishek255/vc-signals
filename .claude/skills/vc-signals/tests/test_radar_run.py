@@ -13,6 +13,7 @@ def _no_live_attio(monkeypatch):
     import radar_run
 
     monkeypatch.setattr(radar_run, "_attio_client_from_env", lambda: None)
+    monkeypatch.setattr(radar_run, "apply_identity_resolution", lambda candidates: (candidates, []))
 
 
 def test_filter_repo_rejects_bot_digests_and_tutorials():
@@ -1213,6 +1214,93 @@ def test_run_weekly_artifacts_writes_weekly_focus_without_replacing_preview(tmp_
     assert (tmp_path / "feedback.json").exists()
     assert "# Marathon Signal Radar: Weekly Focus" in (tmp_path / "weekly-focus.md").read_text()
     assert "# VC Signals Weekly Radar" in (tmp_path / "weekly-preview.md").read_text()
+
+
+def test_run_weekly_artifacts_writes_identity_resolution_artifact(tmp_path, monkeypatch):
+    import radar_run
+    from radar_models import IdentityResolution
+
+    monkeypatch.setattr(
+        radar_run,
+        "collect_live_evidence",
+        lambda **kwargs: {
+            "last30days": {
+                "cybersecurity": {
+                    "items": [
+                        {
+                            "title": "Show HN: Burrow - Runtime Security for AI Agents",
+                            "url": "https://news.ycombinator.com/item?id=47761957",
+                            "source": "hackernews",
+                        }
+                    ]
+                }
+            },
+            "github": [],
+            "warnings": [],
+        },
+    )
+    monkeypatch.setattr(radar_run, "load_candidate_history", lambda: {})
+    monkeypatch.setattr(radar_run, "save_candidate_history", lambda history: None)
+    monkeypatch.setattr(radar_run, "apply_candidate_enrichment", lambda candidates: candidates)
+
+    def fake_apply_identity_resolution(candidates):
+        return candidates, [
+            IdentityResolution(
+                candidate_key="hn:47761957",
+                original_name="Burrow",
+                identity_type="launch_style_needs_identity",
+                recommended_identity_action="Research deeper",
+            )
+        ]
+
+    monkeypatch.setattr(radar_run, "apply_identity_resolution", fake_apply_identity_resolution)
+
+    result = radar_run.run_weekly_artifacts(
+        output_dir=tmp_path,
+        sectors=("cybersecurity",),
+        max_queries_per_sector=1,
+        github_limit=0,
+    )
+
+    identity_path = Path(result["identity_resolution_json"])
+    assert identity_path.exists()
+    payload = json.loads(identity_path.read_text())
+    assert payload[0]["original_name"] == "Burrow"
+    assert payload[0]["identity_type"] == "launch_style_needs_identity"
+    assert Path(result["weekly_focus_json"]).exists()
+    assert Path(result["weekly_focus"]).exists()
+
+
+def test_identity_resolution_runs_before_attio_matching(monkeypatch):
+    import radar_run
+
+    calls = []
+
+    def fake_apply_identity_resolution(candidates):
+        for candidate in candidates:
+            candidate.domain = "burrow.security"
+            candidate.attio_safe_to_match = True
+            candidate.attio_match_keys = ["burrow.security", "Burrow"]
+        return candidates, []
+
+    def fake_apply_attio(candidates, attio_client=None):
+        calls.append([candidate.domain for candidate in candidates])
+        return candidates
+
+    monkeypatch.setattr(radar_run, "apply_identity_resolution", fake_apply_identity_resolution)
+    monkeypatch.setattr(radar_run, "_apply_attio_to_candidates", fake_apply_attio)
+
+    candidate = radar_run.Candidate(
+        name="Burrow",
+        sector="Cybersecurity",
+        theme="AI agent security",
+        source="https://news.ycombinator.com/item?id=47761957",
+        candidate_type="company_web",
+    )
+
+    radar_run.prepare_candidates_for_weekly_focus([candidate], attio_client=None)
+
+    assert calls == [["burrow.security"]]
 
 
 def test_run_weekly_artifacts_saves_signals_candidates_and_sector_coverage(tmp_path, monkeypatch):

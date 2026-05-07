@@ -176,6 +176,56 @@ def test_build_focus_item_includes_basis_missing_evidence_and_action():
     assert item.recommended_action in {"Assign owner", "Research deeper", "Refresh Attio", "Monitor only"}
 
 
+def test_resolved_identity_upgrades_no_match_row_to_assign_owner():
+    from radar_focus import ACTION_ASSIGN_OWNER, build_focus_item
+
+    item = build_focus_item(
+        _candidate(
+            name="Burrow",
+            domain="burrow.security",
+            attio_status="no_match",
+            evidence_confidence_score=50,
+            investment_interest_score=65,
+            identity_type="verified_company",
+            identity_confidence_score=78,
+            commercial_intent_score=65,
+            attio_safe_to_match=True,
+            recommended_identity_action="Assign owner",
+            founders=["Jane Founder"],
+            founder_profiles=[{"name": "Jane Founder"}],
+            sources=["https://news.ycombinator.com/item?id=47761957"],
+        )
+    )
+
+    assert item.company_identity_quality_score >= 80
+    assert item.recommended_action == ACTION_ASSIGN_OWNER
+    assert "identity_resolution_verified_company" in item.company_identity_quality_basis
+
+
+def test_weak_identity_demotes_unknown_oss_row_to_monitor_only():
+    from radar_focus import ACTION_MONITOR_ONLY, build_focus_item
+
+    item = build_focus_item(
+        _candidate(
+            name="example/weak-demo",
+            domain="",
+            candidate_type="oss_project",
+            attio_status="unknown",
+            evidence_confidence_score=45,
+            identity_type="oss_project_watch",
+            identity_confidence_score=35,
+            commercial_intent_score=20,
+            recommended_identity_action="Monitor only",
+            sources=["https://github.com/example/weak-demo"],
+            why_on_radar="Example tutorial repo for a toy workflow.",
+        )
+    )
+
+    assert item.recommended_action == ACTION_MONITOR_ONLY
+    assert item.company_identity_quality_score < 60
+    assert "identity_resolution_weak" in item.company_identity_quality_basis
+
+
 def test_build_focus_item_uses_concrete_fallback_instead_of_emerging_technical_signal():
     from radar_focus import build_focus_item
 
@@ -305,6 +355,82 @@ def test_weekly_focus_snapshot_counts_and_research_queue_note():
     assert artifact.executive_snapshot.company_or_launch_style_rows == 1
     assert artifact.executive_snapshot.readiness_note == "This run produced a research queue, not owner-ready leads."
     assert artifact.executive_snapshot.top_identity_resolution_target == "LaunchCo"
+
+
+def test_new_to_marathon_excludes_weak_extracted_names_and_uses_identity_missing_terms():
+    from radar_focus import build_weekly_focus_artifact
+
+    artifact = build_weekly_focus_artifact(
+        candidates=[
+            _candidate(
+                name="A",
+                stable_key="weak-a",
+                domain="",
+                candidate_type="company_web",
+                founder_profiles=[],
+                founders=[],
+                maintainer_profiles=[],
+                attio_status="no_match",
+                evidence_confidence_score=45,
+                investment_interest_score=70,
+            ),
+            _candidate(
+                name="Burrow",
+                stable_key="burrow",
+                domain="",
+                candidate_type="company_web",
+                founder_profiles=[],
+                founders=[],
+                maintainer_profiles=[],
+                attio_status="no_match",
+                evidence_confidence_score=45,
+                investment_interest_score=70,
+                identity_type="launch_style_needs_identity",
+                identity_confidence_score=45,
+                commercial_intent_score=60,
+                recommended_identity_action="Research deeper",
+                missing_identity_evidence=["no verified domain", "no founder or maintainer identity"],
+                sources=["https://news.ycombinator.com/item?id=47761957"],
+            ),
+        ],
+        run_id="2026-05-11",
+    )
+
+    assert [item.name for item in artifact.new_to_marathon] == ["Burrow"]
+    assert artifact.executive_snapshot.top_new_to_marathon == "Burrow"
+    assert artifact.executive_snapshot.top_identity_resolution_target == "Burrow"
+
+
+def test_workflow_view_includes_extended_watchlist_actions_when_focus_empty():
+    from radar_focus import ACTION_RESEARCH_DEEPER, build_weekly_focus_artifact
+
+    artifact = build_weekly_focus_artifact(
+        candidates=[
+            _candidate(
+                name="Burrow",
+                stable_key="burrow",
+                domain="",
+                candidate_type="company_web",
+                founder_profiles=[],
+                founders=[],
+                maintainer_profiles=[],
+                attio_status="no_match",
+                evidence_confidence_score=45,
+                investment_interest_score=70,
+                identity_type="launch_style_needs_identity",
+                identity_confidence_score=45,
+                commercial_intent_score=60,
+                recommended_identity_action="Research deeper",
+                missing_identity_evidence=["no verified domain", "no founder or maintainer identity"],
+                sources=["https://news.ycombinator.com/item?id=47761957"],
+            )
+        ],
+        run_id="2026-05-11",
+    )
+
+    assert not artifact.partner_focus
+    assert artifact.extended_watchlist
+    assert artifact.workflow_view[ACTION_RESEARCH_DEEPER][0].name == "Burrow"
 
 
 def test_build_weekly_focus_artifact_caps_project_only_rows():

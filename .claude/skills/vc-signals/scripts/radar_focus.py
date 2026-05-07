@@ -44,6 +44,21 @@ def _text_blob(*values: object) -> str:
 
 
 def score_company_identity(candidate: Candidate) -> tuple[int, list[str], list[str]]:
+    if candidate.identity_confidence_score:
+        score = candidate.identity_confidence_score
+        basis = [f"identity_resolution_{candidate.identity_type or 'unknown'}"]
+        missing = list(candidate.missing_identity_evidence or [])
+        if candidate.identity_type == "verified_company" and candidate.domain:
+            score = max(score, 85)
+            basis.append("resolved_verified_domain")
+        elif candidate.identity_type == "oss_with_commercial_intent":
+            score = max(score, 65)
+            basis.append("resolved_oss_commercial_intent")
+        elif candidate.identity_type in {"oss_project_watch", "insufficient_identity"}:
+            score = min(score, 45)
+            basis.append("identity_resolution_weak")
+        return _clamp(score), basis, missing
+
     basis = []
     missing = []
     score = 20
@@ -274,6 +289,19 @@ def choose_recommended_action(candidate: Candidate, item: FocusItem) -> str:
     staleness = " ".join([candidate.attio_staleness_reason or "", candidate.attio_action or ""]).lower()
     if can_take_meeting(item):
         return ACTION_TAKE_MEETING
+    if candidate.recommended_identity_action in {
+        ACTION_ASSIGN_OWNER,
+        ACTION_REFRESH_ATTIO,
+        ACTION_RESEARCH_DEEPER,
+        ACTION_MONITOR_ONLY,
+    }:
+        if candidate.recommended_identity_action == ACTION_ASSIGN_OWNER:
+            if item.company_identity_quality_score >= 70 and item.evidence_confidence_score >= 45:
+                return ACTION_ASSIGN_OWNER
+        elif candidate.recommended_identity_action == ACTION_REFRESH_ATTIO:
+            return ACTION_REFRESH_ATTIO
+        elif candidate.recommended_identity_action == ACTION_MONITOR_ONLY:
+            return ACTION_MONITOR_ONLY
     if "stale" in status or "stale" in staleness or "passed" in status or "passed" in staleness:
         return ACTION_REFRESH_ATTIO
     if item.company_identity_quality_score < 60 or item.evidence_confidence_score < 45:
@@ -536,7 +564,8 @@ def _new_to_marathon(items: list[FocusItem]) -> list[FocusItem]:
     selected = []
     for item in items:
         status = item.attio_status.lower()
-        if status in ATTIO_NEW_STATUSES:
+        weak_name = len((item.name or "").strip()) <= 2 and not item.company_domain
+        if status in ATTIO_NEW_STATUSES and not weak_name and "weak_candidate_name" not in item.company_identity_quality_basis:
             selected.append(item)
     return selected[:10]
 
@@ -576,22 +605,29 @@ def _source_gaps(sector_intelligence: list[SectorIntelligence] | None) -> list[s
 def _executive_snapshot(
     *,
     partner_focus: list[FocusItem],
+    action_items: list[FocusItem],
     movements: list[MarketMovement],
     new_to_marathon: list[FocusItem],
     source_gaps: list[str],
 ) -> ExecutiveSnapshot:
-    action_counts = Counter(item.recommended_action for item in partner_focus)
+    action_counts = Counter(item.recommended_action for item in (action_items or partner_focus))
     oss_project_only_rows = sum(1 for item in partner_focus if item.project_url and not item.company_domain)
     company_or_launch_style_rows = len(partner_focus) - oss_project_only_rows
     readiness_note = (
         "This run produced a research queue, not owner-ready leads."
-        if partner_focus and len(action_counts) == 1 and action_counts.get(ACTION_RESEARCH_DEEPER) == len(partner_focus)
+        if action_items and len(action_counts) == 1 and action_counts.get(ACTION_RESEARCH_DEEPER) == len(action_items)
         else ""
     )
+    identity_missing_terms = {
+        "no verified company domain",
+        "no verified domain",
+        "no founder identity",
+        "no founder or maintainer identity",
+    }
     identity_resolution_candidates = [
         item
         for item in new_to_marathon + partner_focus
-        if any(missing in item.missing_evidence for missing in ("no verified company domain", "no founder identity"))
+        if any(missing in item.missing_evidence for missing in identity_missing_terms)
     ]
     identity_resolution_candidates = sorted(
         identity_resolution_candidates,
@@ -604,7 +640,7 @@ def _executive_snapshot(
     )
     top_identity_resolution_target = ""
     for item in identity_resolution_candidates:
-        if any(missing in item.missing_evidence for missing in ("no verified company domain", "no founder identity")):
+        if any(missing in item.missing_evidence for missing in identity_missing_terms):
             top_identity_resolution_target = item.name
             break
     return ExecutiveSnapshot(
@@ -640,7 +676,7 @@ def build_weekly_focus_artifact(
     ][:15]
     movements = build_market_movements(partner_focus or extended_watchlist, theme_signals)
     new_to_marathon = _new_to_marathon(partner_focus + extended_watchlist)
-    workflow_view = _workflow_view(partner_focus)
+    workflow_view = _workflow_view(partner_focus + extended_watchlist)
     gaps = _source_gaps(sector_intelligence)
     focus_and_watchlist_ids = {item.id for item in partner_focus + extended_watchlist}
     appendix = {
@@ -666,6 +702,7 @@ def build_weekly_focus_artifact(
         run_id=run_id,
         executive_snapshot=_executive_snapshot(
             partner_focus=partner_focus,
+            action_items=partner_focus + extended_watchlist,
             movements=movements,
             new_to_marathon=new_to_marathon,
             source_gaps=gaps,

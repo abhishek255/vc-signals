@@ -246,3 +246,43 @@ def test_weekly_focus_artifact_roundtrips_nested_models():
     assert isinstance(restored.partner_focus[0], FocusItem)
     assert isinstance(restored.market_movements[0], MarketMovement)
     assert restored.executive_snapshot.top_movement == "AI agent permission security"
+
+
+def test_identity_resolution_roundtrip_ignores_unknown_fields():
+    from radar_models import IdentityResolution
+
+    payload = {
+        "candidate_key": "launch:burrow",
+        "original_name": "Burrow",
+        "resolved_name": "Burrow",
+        "identity_type": "launch_style_needs_identity",
+        "candidate_domain": "burrow.example",
+        "verified_domain": "burrow.example",
+        "domain_confidence": "Medium",
+        "verified_domain_basis": ["candidate_domain_present"],
+        "founders": ["Jane Founder"],
+        "commercial_intent_score": 65,
+        "commercial_intent_basis": ["launch_source_present"],
+        "identity_confidence_score": 75,
+        "identity_confidence": "Medium",
+        "identity_confidence_basis": ["verified_domain_present"],
+        "attio_match_keys": ["burrow.example", "Burrow"],
+        "attio_safe_to_match": True,
+        "recommended_identity_action": "Assign owner",
+        "missing_identity_evidence": ["no company linkedin"],
+        "evidence_urls": ["https://news.ycombinator.com/item?id=123"],
+        "source_outbound_urls": ["https://burrow.example"],
+        "source_titles": ["Show HN: Burrow"],
+        "fetch_warnings": [],
+        "resolved_from": ["candidate_domain"],
+        "extra_future_field": "ignored",
+    }
+
+    result = IdentityResolution.from_dict(payload)
+
+    assert result.candidate_key == "launch:burrow"
+    assert result.verified_domain == "burrow.example"
+    assert result.domain_confidence == "Medium"
+    assert result.source_titles == ["Show HN: Burrow"]
+    assert result.attio_safe_to_match is True
+    assert "extra_future_field" not in result.to_dict()
