@@ -79,6 +79,16 @@ Needs more evidence, OSS watchlist, themes without companies, source gaps, noisy
 
 `weekly-focus.md` should be the new partner-facing artifact. `weekly-preview.md` remains the broader radar/audit artifact until the new artifact is validated.
 
+Strict output limits:
+
+- Partner Focus: maximum 15 rows.
+- Market Movements: maximum 6.
+- New To Marathon: maximum 10.
+- Extended Watchlist: maximum 15.
+- Appendix: compact, grouped, and skimmable.
+
+The first screen should answer the top market movements, top companies/projects, and top actions.
+
 ## What Counts As Edge
 
 VC Signals creates edge when it does at least one of these:
@@ -119,6 +129,7 @@ class SignalEvent:
     project_name: str
     actor_name: str
     talker_type: str
+    talker_type_confidence: str
     talker_quality: str
     title: str
     summary: str
@@ -168,6 +179,17 @@ Why this matters:
 - `High`: buyer/customer/practitioner/founder with clear relevance.
 - `Medium`: credible maintainer, technical operator, or specific community discussion.
 - `Low`: influencer, generic investor chatter, vague social attention, unclear actor.
+
+`talker_type_confidence` should be `High`, `Medium`, or `Low`. The system must not overstate buyer, founder, or practitioner identity when actor evidence is weak.
+
+Fallback classification rules:
+
+- Known founder or company leadership match -> `founder`.
+- GitHub repo owner/maintainer -> `oss_maintainer`.
+- HN/Reddit technical community plus problem language -> `practitioner`.
+- Attio/company profile leadership or buyer role -> `buyer` or `customer`, only when explicitly supported.
+- High-follower generic social account -> `influencer`.
+- Otherwise -> `unknown`.
 
 ## Market Movement Model
 
@@ -220,6 +242,21 @@ A company/project can attach to a movement only if:
 
 The LLM must not attach companies to movements by vibe. Movement assignment requires evidence.
 
+Each assignment should store:
+
+```python
+movement_assignment_method: str
+movement_assignment_confidence: str
+movement_assignment_evidence_url: str
+```
+
+Allowed assignment methods:
+
+- `direct_match`: company/product text includes the movement's core problem terms.
+- `co_occurrence`: company appears in the same source event as the movement.
+- `backtrace`: company was discovered through a movement-specific search query and evidence matches the movement.
+- `manual`: user or Attio-provided context explicitly links the company to the movement.
+
 ## Focus Item Model
 
 ```python
@@ -236,8 +273,10 @@ class FocusItem:
     why_focus_this_week: str
     who_is_talking: list[str]
     talker_types: list[str]
+    talker_type_confidence: str
     evidence_snapshot: list[str]
     evidence_urls: list[str]
+    missing_evidence: list[str]
     attio_status: str
     attio_owner: str
     attio_last_touch: str
@@ -252,6 +291,17 @@ class FocusItem:
     noise_risk_score: int
     consensus_risk_score: int
     company_identity_quality_score: int
+    company_identity_quality_basis: list[str]
+    focus_priority_basis: list[str]
+    actionability_basis: list[str]
+    freshness_basis: list[str]
+    market_movement_basis: list[str]
+    marathon_fit_basis: list[str]
+    noise_risk_basis: list[str]
+    consensus_risk_basis: list[str]
+    movement_assignment_method: str
+    movement_assignment_confidence: str
+    movement_assignment_evidence_url: str
     first_seen_at: str
     last_seen_at: str
     seen_in_prior_runs: bool
@@ -260,6 +310,17 @@ class FocusItem:
     why_this_may_be_noise: str
     skepticism_events: list[str]
 ```
+
+Every heuristic score must include a basis list. This prevents fake precision in Phase 1, when many values are derived from incomplete artifacts.
+
+`missing_evidence` should disclose row-level gaps, such as:
+
+- no verified company domain
+- no buyer/practitioner evidence
+- no founder identity
+- no Attio match
+- adoption is only GitHub stars
+- chatter is founder-led only
 
 ### Weekly Tags
 
@@ -286,6 +347,15 @@ Suggested scoring:
 | 20 | Inferred name only |
 
 Rows below 60 should generally stay out of Partner Focus unless explicitly routed to `Research deeper`.
+
+The score must include `company_identity_quality_basis`, such as:
+
+- `verified_domain_present`
+- `launch_source_present`
+- `attio_match_present`
+- `maintainer_identity_present`
+- `commercial_intent_unclear`
+- `inferred_name_only`
 
 ## Focus Priority Formula
 
@@ -317,6 +387,41 @@ Examples:
 - `-20`: no company/project identity.
 - `-20`: no plausible Marathon action.
 
+Actionability must include `actionability_basis`, such as:
+
+- `new_to_attio`
+- `attio_stale_with_new_signal`
+- `attio_no_owner`
+- `passed_with_new_signal`
+- `clear_founder_to_investigate`
+- `no_company_identity`
+- `no_clear_action`
+
+### Consensus Risk Guidance
+
+Consensus risk should be explicit, not a blunt penalty.
+
+Consensus risk signals:
+
+- late-stage funding
+- large reported funding total
+- Series C or later
+- large headcount
+- top-tier investor pile-on
+- high volume of investor chatter
+- major press coverage
+- many same-category startups
+- incumbent feature launch
+- already active or passed in Attio
+
+Consensus risk can mean:
+
+- `high_but_actionable`: high consensus, but Attio is stale or no owner exists.
+- `high_monitor_only`: high consensus and little Marathon actionability.
+- `medium_category_forming`: visible category formation, but not yet fully crowded.
+
+The output should explain the interpretation instead of blindly penalizing all consensus.
+
 ## Recommended Actions
 
 The action vocabulary:
@@ -329,11 +434,28 @@ The action vocabulary:
 
 Rules:
 
-- `Take meeting` should require high Evidence Confidence and clear company evidence.
+- `Take meeting` should require `evidence_confidence_score >= 75`, `company_identity_quality_score >= 80`, `actionability_score >= 75`, `noise_risk_score <= 40`, and no active Attio owner already handling the company.
 - `Assign owner` is the main success path for new credible rows.
 - `Refresh Attio` is the main success path for known/stale rows.
 - `Research deeper` is the right action for high-interest but medium/low evidence rows.
 - `Monitor only` is appropriate for likely-too-late or strategically relevant but low-actionability rows.
+
+If a row does not clear the `Take meeting` gate, prefer `Assign owner` or `Research deeper`.
+
+## Partner Focus Gates
+
+A row can enter Partner Focus only if:
+
+- `company_identity_quality_score >= 60`
+- it has at least one `evidence_url`
+- it is not purely inferred from LLM synthesis
+- `noise_risk_score < 70`
+- it has a clear recommended action
+- it has either company/project evidence or Attio relevance
+
+Rows that fail these gates should go to Extended Watchlist or Appendix.
+
+`Monitor only` rows should generally stay out of Partner Focus unless strategically important and explicitly justified.
 
 ## Skepticism And Why Not Now
 
@@ -384,6 +506,23 @@ class AlexFeedback:
 
 Future ranking should learn from this feedback. In the first implementation, this can be a local JSON artifact or manually editable file. It does not need a UI.
 
+Phase 1A should scaffold feedback capture immediately, even if ranking calibration waits until later.
+
+Suggested file:
+
+```json
+{
+  "run_id": "2026-05-11",
+  "feedback": [
+    {
+      "focus_item_id": "agent-permissioning_agentshield",
+      "rating": "research_more",
+      "notes": "Interesting but verify if commercial company exists."
+    }
+  ]
+}
+```
+
 ## Source Adapter Contract
 
 Future sources should plug into a common source adapter model.
@@ -416,9 +555,25 @@ Given `weekly-focus.md`, Alex should be able to answer in under five minutes:
 
 If the artifact does not pass this test, the renderer failed even if the Markdown is technically valid.
 
+## Quality Metrics
+
+Track these metrics over time:
+
+- `precision_at_10`: human-marked `good_lead` or `research_more` among top 10.
+- `unsupported_claim_rate`: claims in focus rows without evidence support.
+- `no_evidence_focus_row_rate`: Partner Focus rows with no evidence URL. Target: 0.
+- `duplicate_company_rate`: duplicated company/domain rows in Focus + Watchlist.
+- `wrong_attio_action_rate`: rows where Attio status/action is wrong.
+- `oss_project_only_pollution_rate`: project-only rows promoted without clear company-formation or strategic rationale.
+- `too_late_promoted_rate`: likely-too-late rows promoted to Partner Focus without a clear action.
+- `clear_action_rate`: rows with a non-empty recommended action.
+- `missing_evidence_disclosed_rate`: rows with material evidence gaps that disclose them.
+
+These are product quality metrics, not vanity usage metrics.
+
 ## Phased Delivery Plan
 
-### Phase 1: Partner Focus Artifact
+### Phase 1A: Partner Focus Artifact
 
 Goal:
 
@@ -434,6 +589,11 @@ Includes:
 - Appendix for weak evidence, OSS watchlist, themes without companies, and source gaps.
 - Explicit focus scoring and action rules.
 - Company identity quality score.
+- Score basis fields for every heuristic score.
+- Partner Focus gates.
+- Row-level `missing_evidence`.
+- Strict `Take meeting` gate.
+- Feedback file scaffold.
 - Basic `SignalEvent`, `FocusItem`, and `MarketMovement` models derived from existing artifacts.
 
 Does not include:
@@ -449,25 +609,47 @@ Why this phase matters:
 - It prevents the current radar from staying a broad table.
 - It establishes the output contract that future intelligence layers must satisfy.
 
-### Phase 2: Signal Role Normalization And Movement Memory
+### Phase 1B: Company Identity Quality And Attio Action Overlay
 
 Goal:
 
-- Turn raw evidence into durable `SignalEvent` records and track movement over time.
+- Make the first artifact meaningfully actionable for Alex by improving company identity and Attio-driven actions before broader source expansion.
 
 Includes:
 
-- Persist signal role, talker type, talker quality, source URL, observed/captured dates.
-- Movement time-series fields.
-- Weekly tags for focus items.
-- New/changing/fading movement logic.
-- `skepticism_events` and `why_not_now`.
+- Stronger company identity quality scoring and basis.
+- Domain-based matching where available.
+- New to Attio.
+- In Attio, no owner.
+- In Attio, stale.
+- In Attio, active deal.
+- Passed with new signal.
+- Likely too late.
+- Recommended action logic based on Attio state.
+- Read-only Attio behavior.
+
+Why this phase matters:
+
+- Attio is the edge layer. It should affect the product early, even if writeback is much later.
+- Alex should be able to hand the artifact to an associate and know what to update or investigate.
+
+### Phase 2: Signal Role Normalization And Source Adapter Contract
+
+Goal:
+
+- Turn raw evidence into durable `SignalEvent` records with source roles and actor classification.
+
+Includes:
+
+- Persist signal role, talker type, talker type confidence, talker quality, source URL, observed/captured dates.
+- Normalize current artifacts into `SignalEvent`.
+- Add source adapter contract.
 - Better "who is talking" summaries from actor types, not platform names.
 
 Why this phase matters:
 
-- Static reports become movement intelligence.
-- Alex sees what changed, not just what exists.
+- Source semantics stop being arbitrary JSON.
+- The system can distinguish pain, launch, chatter, adoption, funding, CRM, and skepticism.
 
 ### Phase 3: Company Discovery And Identity Resolution
 
@@ -478,6 +660,7 @@ Goal:
 Includes:
 
 - Company discovery searches generated from market movements.
+- Movement assignment metadata.
 - Company identity quality scoring.
 - Domain-based dedupe.
 - OSS project to company/founder mapping.
@@ -488,47 +671,44 @@ Why this phase matters:
 
 - This is where the product moves beyond a better renderer and starts solving Alex's company discovery problem.
 
-### Phase 4: Source Expansion
+### Phase 4: Movement Memory And Time Series
+
+Goal:
+
+- Track market movements over time.
+
+Includes:
+
+- Movement time-series fields.
+- Weekly tags for focus items.
+- New/changing/fading movement logic.
+- `skepticism_events` and `why_not_now`.
+
+Why this phase matters:
+
+- Static reports become movement intelligence.
+- Alex sees what changed, not just what exists.
+
+### Phase 5: Source Expansion
 
 Goal:
 
 - Add high-value source adapters behind the common `SignalEvent` contract.
 
-Priority sources:
+Priority source order:
 
-- X for founder/company chatter and launch threads.
-- LinkedIn for company/founder/headcount context where accessible.
-- Product Hunt and launch directories.
-- YC and accelerator pages.
-- Package registries such as npm, PyPI, crates, Docker Hub.
 - GitHub issues/discussions, not just repos.
+- X for founder/company chatter and launch threads.
+- YC, Launch HN, and Product Hunt for company formation.
+- Package registries such as npm, PyPI, crates, Docker Hub, and Libraries.io.
 - Hiring/job-post signals.
 - Funding/company pages and investor portfolio pages.
 - Stack Exchange or practitioner Q&A where sector-relevant.
+- LinkedIn for company/founder/headcount context where accessible, but it should not be foundational because access and automation constraints are painful.
 
 Why this phase matters:
 
 - Alex needs chatter, launch, adoption, company formation, and buyer-pain signals in one product.
-
-### Phase 5: Attio Workflow Intelligence
-
-Goal:
-
-- Make Attio the proprietary workflow layer.
-
-Includes:
-
-- New to Attio.
-- In Attio, no owner.
-- In Attio, stale.
-- In Attio, active deal.
-- Passed with new signal.
-- Recommended action logic based on Attio state.
-- Read-only first; writeback remains later and explicit.
-
-Why this phase matters:
-
-- This is the edge layer. It converts public market intelligence into Marathon-specific action.
 
 ### Phase 6: Alex Feedback And Ranking Calibration
 
@@ -581,7 +761,7 @@ It should help Marathon make sharper, faster decisions about which companies/pro
 
 ## Current Recommendation
 
-Do Phase 1 next, but design it with the full product model in mind.
+Do Phase 1A and Phase 1B next, but design them with the full product model in mind.
 
 Specifically:
 
@@ -589,7 +769,11 @@ Specifically:
 - Use top 10-15 Partner Focus, not 15-30.
 - Put additional rows in Extended Watchlist.
 - Introduce the data models and scoring fields even if some values are initially derived heuristically.
+- Add score-basis fields so heuristic values do not become fake precision.
+- Add Partner Focus gates and strict `Take meeting` rules.
+- Scaffold `feedback.json` immediately.
+- Pull Attio action overlay forward into Phase 1B.
 - Do not block on new sources.
 - Do not pretend Phase 1 is the full edge.
 
-Phase 1 is the bridge. The destination is market movement intelligence with source role normalization, movement time-series, company discovery, Attio overlay, and Alex feedback.
+Phase 1A/1B are the bridge. The destination is market movement intelligence with source role normalization, movement time-series, company discovery, Attio overlay, and Alex feedback.
