@@ -68,6 +68,18 @@ def parse_repo_data(raw: dict) -> dict:
         except ValueError:
             pass
 
+    identity_fields_present = []
+    if raw.get("homepage"):
+        identity_fields_present.append("homepage")
+    if raw.get("owner", {}).get("login"):
+        identity_fields_present.append("owner_name")
+    if raw.get("owner", {}).get("type"):
+        identity_fields_present.append("owner_type")
+    if raw.get("topics"):
+        identity_fields_present.append("topics")
+    if raw.get("description"):
+        identity_fields_present.append("description")
+
     return {
         "full_name": raw.get("full_name", ""),
         "description": raw.get("description", ""),
@@ -77,10 +89,13 @@ def parse_repo_data(raw: dict) -> dict:
         "created_at": created,
         "pushed_at": raw.get("pushed_at", ""),
         "url": raw.get("html_url", ""),
+        "homepage": raw.get("homepage", ""),
         "owner_name": raw.get("owner", {}).get("login", ""),
         "owner_type": raw.get("owner", {}).get("type", ""),
         "topics": raw.get("topics", []),
         "age_days": age_days,
+        "_raw_fields_present": sorted(raw.keys()),
+        "_identity_fields_present_upstream": identity_fields_present,
     }
 
 

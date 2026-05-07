@@ -51,6 +51,7 @@ from radar_workbench import write_workbench_artifacts
 from radar_history import apply_weekly_tags, load_candidate_history, save_candidate_history
 from radar_enrichment import apply_candidate_enrichment, merge_source_enrichment
 from identity_resolution import apply_identity_resolution
+from metadata_loss import build_metadata_loss_report
 from radar_oss import enrich_oss_candidate
 from radar_focus import (
     build_weekly_focus_artifact,
@@ -1366,12 +1367,20 @@ def run_weekly_artifacts(
     sector_intelligence_path = output_dir / "sector-intelligence.json"
     company_discovery_path = output_dir / "company-discovery.json"
     identity_resolution_path = output_dir / "identity-resolution.json"
+    metadata_loss_report_path = output_dir / "metadata-loss-report.json"
     signals_path.write_text(json.dumps([signal.to_dict() for signal in signal_result["signals"]], indent=2))
     candidates_path.write_text(json.dumps([candidate.to_dict() for candidate in scored_candidates], indent=2))
     theme_signals_path.write_text(json.dumps([item.to_dict() for item in theme_signals], indent=2))
     sector_intelligence_path.write_text(json.dumps([item.to_dict() for item in sector_intelligence], indent=2))
     company_discovery_path.write_text(json.dumps(company_discovery, indent=2))
     identity_resolution_path.write_text(json.dumps([item.to_dict() for item in identity_resolutions], indent=2, sort_keys=True))
+    metadata_loss_report = build_metadata_loss_report(
+        evidence=evidence,
+        signals=signal_result["signals"],
+        candidates=scored_candidates,
+        identity_resolutions=identity_resolutions,
+    )
+    metadata_loss_report_path.write_text(json.dumps([item.to_dict() for item in metadata_loss_report], indent=2, sort_keys=True))
     synthesis = None
     synthesis_path = None
     if with_synthesis:
@@ -1418,6 +1427,7 @@ def run_weekly_artifacts(
         "sector_intelligence": str(sector_intelligence_path),
         "company_discovery": str(company_discovery_path),
         "identity_resolution_json": str(identity_resolution_path),
+        "metadata_loss_report": str(metadata_loss_report_path),
         "preview": str(preview_path),
         "weekly_focus_json": str(weekly_focus_json_path),
         "weekly_focus": str(weekly_focus_path),

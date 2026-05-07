@@ -45,6 +45,17 @@ def _find_vendor_path() -> Path:
 DEFAULT_VENDOR_PATH = _find_vendor_path()
 DEFAULT_CONFIG_PATH = Path.home() / ".config" / "last30days" / ".env"
 PLACEHOLDER_VALUES = {"", "...", "TODO", "YOUR_KEY", "YOUR_API_KEY", "<YOUR_API_KEY>"}
+IDENTITY_USEFUL_FIELDS = (
+    "outbound_url",
+    "resolved_url",
+    "story_url",
+    "domain",
+    "homepage",
+    "owner_name",
+    "owner_type",
+    "topics",
+    "description",
+)
 
 
 def _configured_value(value: str) -> bool:
@@ -128,7 +139,7 @@ def normalize_report_items(items_by_source: dict) -> list[dict]:
 
     for source, items in items_by_source.items():
         for item in items:
-            normalized.append({
+            normalized_item = {
                 "source": source,
                 "title": item.get("title", ""),
                 "url": item.get("url", ""),
@@ -137,7 +148,15 @@ def normalize_report_items(items_by_source: dict) -> list[dict]:
                 "engagement": item.get("engagement", {}),
                 "container": item.get("container", ""),
                 "author": item.get("author", ""),
-            })
+                "_raw_fields_present": sorted(item.keys()),
+                "_identity_fields_present_upstream": [
+                    field for field in IDENTITY_USEFUL_FIELDS if item.get(field) not in ("", None, [], {})
+                ],
+            }
+            for field in IDENTITY_USEFUL_FIELDS:
+                if item.get(field) not in ("", None, [], {}):
+                    normalized_item[field] = item[field]
+            normalized.append(normalized_item)
 
     return normalized
 

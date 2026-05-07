@@ -1224,12 +1224,14 @@ def test_run_weekly_artifacts_saves_raw_and_preview(tmp_path, monkeypatch):
     assert result["raw_evidence"].endswith("raw-evidence.json")
     assert result["signals"].endswith("signals.json")
     assert result["candidates"].endswith("candidates.json")
+    assert result["metadata_loss_report"].endswith("metadata-loss-report.json")
     assert result["preview"].endswith("weekly-preview.md")
     assert result["companies"] == 1
     assert "BeeSafe AI" in (tmp_path / "weekly-preview.md").read_text()
     saved = json.loads((tmp_path / "candidates.json").read_text())
     assert saved[0]["stable_key"]
     assert saved[0]["weekly_tag"] == "NEW"
+    assert (tmp_path / "metadata-loss-report.json").exists()
     assert saved_history
 
 

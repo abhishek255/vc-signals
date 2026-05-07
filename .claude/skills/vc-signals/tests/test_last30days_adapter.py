@@ -69,6 +69,8 @@ def test_normalize_report_items():
                 "source": "hackernews",
                 "title": "Show HN: New testing framework",
                 "url": "https://news.ycombinator.com/item?id=999",
+                "outbound_url": "https://testingframework.dev",
+                "domain": "testingframework.dev",
                 "snippet": "Built a new testing tool that uses AI",
                 "published_at": "2026-04-08T14:00:00Z",
                 "engagement": {"points": 200, "comments": 85},
@@ -82,6 +84,11 @@ def test_normalize_report_items():
     assert normalized[0]["source"] in ("reddit", "hackernews")
     assert "title" in normalized[0]
     assert "engagement" in normalized[0]
+    hn_item = next(item for item in normalized if item["source"] == "hackernews")
+    assert hn_item["outbound_url"] == "https://testingframework.dev"
+    assert hn_item["domain"] == "testingframework.dev"
+    assert "outbound_url" in hn_item["_raw_fields_present"]
+    assert hn_item["_identity_fields_present_upstream"] == ["outbound_url", "domain"]
 
 
 # --- run_query: real subprocess-mocked tests ---

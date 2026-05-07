@@ -38,6 +38,7 @@ def test_parse_repo_data():
         "created_at": "2021-06-15T00:00:00Z",
         "pushed_at": "2026-04-08T12:00:00Z",
         "html_url": "https://github.com/vercel/turbo",
+        "homepage": "https://turbo.build",
         "owner": {"login": "vercel", "type": "Organization"},
         "topics": ["build-tool", "monorepo"],
     }
@@ -47,6 +48,9 @@ def test_parse_repo_data():
     assert parsed["language"] == "Rust"
     assert parsed["owner_name"] == "vercel"
     assert parsed["owner_type"] == "Organization"
+    assert parsed["homepage"] == "https://turbo.build"
+    assert "homepage" in parsed["_raw_fields_present"]
+    assert "homepage" in parsed["_identity_fields_present_upstream"]
     assert "age_days" in parsed
     assert parsed["age_days"] > 0
 
