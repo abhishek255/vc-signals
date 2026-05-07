@@ -176,6 +176,39 @@ def test_build_focus_item_includes_basis_missing_evidence_and_action():
     assert item.recommended_action in {"Assign owner", "Research deeper", "Refresh Attio", "Monitor only"}
 
 
+def test_build_focus_item_uses_concrete_fallback_instead_of_emerging_technical_signal():
+    from radar_focus import build_focus_item
+
+    item = build_focus_item(
+        _candidate(
+            sector="Devtools",
+            market_sector="Devtools",
+            theme="Emerging technical signal",
+            why_on_radar="Agent-CI is local GitHub Actions for your agents.",
+        )
+    )
+
+    assert item.market_movement == "Devtools workflow automation"
+
+
+def test_build_focus_item_requires_agent_evidence_for_ai_agent_security_assignment():
+    from radar_focus import build_focus_item
+
+    item = build_focus_item(
+        _candidate(
+            name="slowql/slowql",
+            sector="Devtools",
+            market_sector="Devtools",
+            theme="AI agent security",
+            why_on_radar="SQL static analyzer for performance, security, compliance and cost. 272 rules. Completely offline.",
+            sources=["https://github.com/slowql/slowql"],
+        )
+    )
+
+    assert item.market_movement == "Devtools security/compliance tooling"
+    assert item.market_movement != "AI agent security"
+
+
 def test_build_focus_item_uses_attio_stale_for_refresh_action():
     from radar_focus import ACTION_REFRESH_ATTIO, build_focus_item
 
@@ -233,6 +266,45 @@ def test_build_weekly_focus_artifact_splits_focus_watchlist_and_limits_rows():
     assert len(artifact.extended_watchlist) <= 15
     assert artifact.run_id == "2026-05-11"
     assert artifact.executive_snapshot.top_movement
+
+
+def test_weekly_focus_snapshot_counts_and_research_queue_note():
+    from radar_focus import build_weekly_focus_artifact
+
+    artifact = build_weekly_focus_artifact(
+        candidates=[
+            _candidate(
+                name="RepoOnly",
+                stable_key="repo-only",
+                domain="",
+                sources=["https://github.com/example/repo-only"],
+                evidence_confidence_score=50,
+                investment_interest_score=50,
+                attio_status="unknown",
+            ),
+            _candidate(
+                name="LaunchCo",
+                stable_key="launch-co",
+                domain="",
+                source="https://launch.example/launchco",
+                sources=["https://launch.example/launchco"],
+                candidate_type="company_web",
+                founder_profiles=[],
+                founders=[],
+                maintainer_profiles=[],
+                evidence_confidence_score=30,
+                investment_interest_score=80,
+                attio_status="no_match",
+            ),
+        ],
+        run_id="2026-05-11",
+    )
+
+    assert artifact.executive_snapshot.partner_focus_rows == len(artifact.partner_focus)
+    assert artifact.executive_snapshot.oss_project_only_rows == 1
+    assert artifact.executive_snapshot.company_or_launch_style_rows == 1
+    assert artifact.executive_snapshot.readiness_note == "This run produced a research queue, not owner-ready leads."
+    assert artifact.executive_snapshot.top_identity_resolution_target == "LaunchCo"
 
 
 def test_build_weekly_focus_artifact_caps_project_only_rows():
@@ -377,6 +449,11 @@ def test_render_weekly_focus_markdown_has_executive_snapshot_and_compact_basis()
 
     assert markdown.startswith("# Marathon Signal Radar: Weekly Focus")
     assert "## Executive Snapshot" in markdown
+    assert "Partner Focus rows:" in markdown
+    assert "OSS/project-only rows:" in markdown
+    assert "Company/launch-style rows:" in markdown
+    assert "Readiness note:" in markdown
+    assert "Top identity-resolution target:" in markdown
     assert "## Partner Focus" in markdown
     assert "### Focus Evidence Links" in markdown
     assert "https://agentshield.dev" in markdown

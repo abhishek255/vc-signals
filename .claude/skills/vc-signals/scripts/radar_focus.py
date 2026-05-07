@@ -321,8 +321,57 @@ def _project_url(candidate: Candidate) -> str:
     return ""
 
 
+def _has_ai_agent_security_evidence(candidate: Candidate) -> bool:
+    text = _text_blob(
+        candidate.name,
+        candidate.why_on_radar,
+        candidate.why_this_may_be_noise,
+        candidate.source_lane,
+    )
+    return any(
+        term in text
+        for term in (
+            "ai agent",
+            "agent security",
+            "mcp",
+            "tool permission",
+            "tool permissions",
+            "runtime security for ai agents",
+            "coding agent",
+            "autonomous agent",
+        )
+    )
+
+
+def _sector_fallback_movement(candidate: Candidate) -> str:
+    sector = _market_sector(candidate)
+    text = _text_blob(candidate.name, candidate.why_on_radar, candidate.theme)
+    if sector == "Devtools":
+        if any(term in text for term in ("security", "compliance", "static analyzer", "scanner")):
+            return "Devtools security/compliance tooling"
+        if any(term in text for term in ("github actions", "ci/cd", "ci ", "build pipeline", "yaml")):
+            return "Devtools workflow automation"
+        return "Devtools OSS workflow tooling"
+    if sector == "Cybersecurity":
+        return "Cybersecurity tooling"
+    if sector == "AI Infra":
+        return "AI infrastructure tooling"
+    if sector == "Vertical AI":
+        return "Vertical AI workflow automation"
+    if sector == "Data Infra":
+        return "Data infrastructure tooling"
+    if sector == "OSS":
+        return "OSS company-formation watchlist"
+    return f"{sector} tooling" if sector and sector != "Unclassified" else "Unclassified technical tooling"
+
+
 def _movement_name(candidate: Candidate) -> str:
-    return candidate.theme or _market_sector(candidate)
+    theme = candidate.theme or ""
+    if theme == "Emerging technical signal":
+        return _sector_fallback_movement(candidate)
+    if theme == "AI agent security" and not _has_ai_agent_security_evidence(candidate):
+        return _sector_fallback_movement(candidate)
+    return theme or _sector_fallback_movement(candidate)
 
 
 def _movement_id(candidate: Candidate) -> str:
@@ -532,6 +581,32 @@ def _executive_snapshot(
     source_gaps: list[str],
 ) -> ExecutiveSnapshot:
     action_counts = Counter(item.recommended_action for item in partner_focus)
+    oss_project_only_rows = sum(1 for item in partner_focus if item.project_url and not item.company_domain)
+    company_or_launch_style_rows = len(partner_focus) - oss_project_only_rows
+    readiness_note = (
+        "This run produced a research queue, not owner-ready leads."
+        if partner_focus and len(action_counts) == 1 and action_counts.get(ACTION_RESEARCH_DEEPER) == len(partner_focus)
+        else ""
+    )
+    identity_resolution_candidates = [
+        item
+        for item in new_to_marathon + partner_focus
+        if any(missing in item.missing_evidence for missing in ("no verified company domain", "no founder identity"))
+    ]
+    identity_resolution_candidates = sorted(
+        identity_resolution_candidates,
+        key=lambda item: (
+            item in new_to_marathon,
+            bool(item.company_domain) or not item.project_url,
+            item.focus_priority_score,
+        ),
+        reverse=True,
+    )
+    top_identity_resolution_target = ""
+    for item in identity_resolution_candidates:
+        if any(missing in item.missing_evidence for missing in ("no verified company domain", "no founder identity")):
+            top_identity_resolution_target = item.name
+            break
     return ExecutiveSnapshot(
         top_movement=movements[0].name if movements else "",
         top_new_to_marathon=new_to_marathon[0].name if new_to_marathon else "",
@@ -539,6 +614,11 @@ def _executive_snapshot(
         rows_needing_attio_refresh=action_counts.get(ACTION_REFRESH_ATTIO, 0),
         biggest_source_gap=source_gaps[0] if source_gaps else "",
         top_actions=[f"{action}: {count}" for action, count in action_counts.most_common(5)],
+        partner_focus_rows=len(partner_focus),
+        oss_project_only_rows=oss_project_only_rows,
+        company_or_launch_style_rows=company_or_launch_style_rows,
+        readiness_note=readiness_note,
+        top_identity_resolution_target=top_identity_resolution_target,
     )
 
 
@@ -643,8 +723,13 @@ def render_weekly_focus_markdown(artifact: WeeklyFocusArtifact) -> str:
         "",
         f"- Top movement: {artifact.executive_snapshot.top_movement or 'None'}",
         f"- Top new-to-Marathon row: {artifact.executive_snapshot.top_new_to_marathon or 'None'}",
+        f"- Partner Focus rows: {artifact.executive_snapshot.partner_focus_rows}",
+        f"- OSS/project-only rows: {artifact.executive_snapshot.oss_project_only_rows}",
+        f"- Company/launch-style rows: {artifact.executive_snapshot.company_or_launch_style_rows}",
         f"- Rows needing owner: {artifact.executive_snapshot.rows_needing_owner}",
         f"- Rows needing Attio refresh: {artifact.executive_snapshot.rows_needing_attio_refresh}",
+        f"- Top identity-resolution target: {artifact.executive_snapshot.top_identity_resolution_target or 'None'}",
+        f"- Readiness note: {artifact.executive_snapshot.readiness_note or 'None'}",
         f"- Biggest source gap: {artifact.executive_snapshot.biggest_source_gap or 'None'}",
     ]
     if artifact.executive_snapshot.top_actions:

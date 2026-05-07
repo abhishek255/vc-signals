@@ -320,6 +320,11 @@ class ExecutiveSnapshot:
     rows_needing_attio_refresh: int = 0
     biggest_source_gap: str = ""
     top_actions: list[str] = field(default_factory=list)
+    partner_focus_rows: int = 0
+    oss_project_only_rows: int = 0
+    company_or_launch_style_rows: int = 0
+    readiness_note: str = ""
+    top_identity_resolution_target: str = ""
 
     def to_dict(self) -> dict:
         return asdict(self)
