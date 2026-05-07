@@ -196,6 +196,99 @@ def resolve_from_existing_urls(candidate: Candidate, fetch_cache: dict | None = 
     return hints
 
 
+def _metadata_items(candidate: Candidate) -> list[dict]:
+    return [item for item in candidate.evidence_metadata or [] if isinstance(item, dict)]
+
+
+def resolve_from_evidence_metadata(candidate: Candidate) -> dict:
+    hints = {
+        "verified_domain": "",
+        "domain_confidence": "Low",
+        "verified_domain_basis": [],
+        "project_url": "",
+        "source_outbound_urls": [],
+        "source_titles": [],
+        "maintainers": [],
+        "maintainer_profiles": [],
+        "identity_confidence_basis": [],
+        "resolved_from": [],
+    }
+
+    for item in _metadata_items(candidate):
+        source_url = item.get("source_url") or item.get("url") or ""
+        source = (item.get("source") or "").lower()
+        title = item.get("title") or ""
+        if title:
+            hints["source_titles"].append(title)
+
+        github = parse_github_url(source_url)
+        if github:
+            hints["project_url"] = hints["project_url"] or github["project_url"]
+            hints["identity_confidence_basis"].append("github_project_identity")
+            hints["resolved_from"].append("metadata")
+
+        owner_name = item.get("owner_name") or ""
+        if owner_name:
+            hints["maintainers"].append(owner_name)
+            hints["maintainer_profiles"].append(
+                {
+                    "name": owner_name,
+                    "type": item.get("owner_type") or "",
+                    "url": github.get("project_url", "") if github else source_url,
+                }
+            )
+            hints["identity_confidence_basis"].append("github_owner_metadata")
+            hints["resolved_from"].append("metadata")
+
+        outbound_url = item.get("outbound_url") or ""
+        if outbound_url:
+            hints["source_outbound_urls"].append(outbound_url)
+            outbound_domain = _domain_from_url(outbound_url)
+            if outbound_domain and source in {"hackernews", "hn"}:
+                hints["verified_domain"] = hints["verified_domain"] or outbound_domain
+                hints["domain_confidence"] = "High"
+                hints["verified_domain_basis"].append("hn_outbound_url_metadata")
+                hints["resolved_from"].append("metadata")
+
+        homepage = item.get("homepage") or ""
+        if homepage:
+            homepage_domain = _domain_from_url(homepage)
+            if homepage_domain and not hints["verified_domain"]:
+                hints["verified_domain"] = homepage_domain
+                hints["domain_confidence"] = "Medium"
+                hints["verified_domain_basis"].append("github_homepage_metadata")
+                hints["source_outbound_urls"].append(homepage)
+                hints["resolved_from"].append("metadata")
+
+        direct_domain = _normalize_domain(item.get("domain") or "")
+        if direct_domain and source not in {"github"} and not hints["verified_domain"]:
+            hints["verified_domain"] = direct_domain
+            hints["domain_confidence"] = "High" if source in {"hackernews", "hn"} and outbound_url else "Medium"
+            basis = "hn_outbound_url_metadata" if source in {"hackernews", "hn"} and outbound_url else "source_domain_metadata"
+            hints["verified_domain_basis"].append(basis)
+            hints["resolved_from"].append("metadata")
+
+    for key in (
+        "verified_domain_basis",
+        "source_outbound_urls",
+        "source_titles",
+        "maintainers",
+        "identity_confidence_basis",
+        "resolved_from",
+    ):
+        hints[key] = list(dict.fromkeys(hints[key]))
+
+    seen_profiles = set()
+    profiles = []
+    for profile in hints["maintainer_profiles"]:
+        key = (profile.get("name"), profile.get("type"), profile.get("url"))
+        if key not in seen_profiles:
+            profiles.append(profile)
+            seen_profiles.add(key)
+    hints["maintainer_profiles"] = profiles
+    return hints
+
+
 def score_commercial_intent(
     candidate: Candidate,
     verified_domain: str,
@@ -328,16 +421,38 @@ def choose_identity_action(candidate: Candidate, resolution: IdentityResolution)
 
 def resolve_candidate_identity(candidate: Candidate, fetch_cache: dict | None = None) -> IdentityResolution:
     urls = _source_urls(candidate)
-    url_hints = resolve_from_existing_urls(candidate, fetch_cache=fetch_cache)
+    metadata_hints = resolve_from_evidence_metadata(candidate)
+    has_hn_item_url = any("news.ycombinator.com/item" in url for url in urls)
+    needs_live_hn_fallback = not metadata_hints.get("verified_domain") and has_hn_item_url
+    should_parse_existing_urls = not has_hn_item_url or needs_live_hn_fallback
+    url_hints = resolve_from_existing_urls(candidate, fetch_cache=fetch_cache) if should_parse_existing_urls else {
+        "verified_domain": "",
+        "domain_confidence": "Low",
+        "verified_domain_basis": [],
+        "project_url": "",
+        "source_outbound_urls": [],
+        "source_titles": [],
+        "fetch_warnings": [],
+        "identity_confidence_basis": [],
+        "resolved_from": [],
+    }
     candidate_domain = _normalize_domain(candidate.domain)
-    verified_domain = url_hints.get("verified_domain") or candidate_domain
-    domain_confidence = url_hints.get("domain_confidence") or ("Medium" if candidate_domain else "Low")
-    verified_domain_basis = list(url_hints.get("verified_domain_basis") or [])
+    verified_domain = metadata_hints.get("verified_domain") or url_hints.get("verified_domain") or candidate_domain
+    if metadata_hints.get("verified_domain"):
+        domain_confidence = metadata_hints.get("domain_confidence") or "Medium"
+    elif url_hints.get("verified_domain"):
+        domain_confidence = url_hints.get("domain_confidence") or "Medium"
+    else:
+        domain_confidence = "Medium" if candidate_domain else "Low"
+    verified_domain_basis = list(metadata_hints.get("verified_domain_basis") or []) + list(url_hints.get("verified_domain_basis") or [])
     if candidate_domain and not verified_domain_basis:
         verified_domain_basis.append("candidate_domain_present")
     founders, maintainers = _founder_or_maintainer_names(candidate)
+    for maintainer in metadata_hints.get("maintainers") or []:
+        if maintainer and maintainer not in maintainers:
+            maintainers.append(maintainer)
     attio_match_keys = [key for key in [verified_domain, candidate.name] if key]
-    source_titles = list(url_hints.get("source_titles") or [])
+    source_titles = list(dict.fromkeys(list(metadata_hints.get("source_titles") or []) + list(url_hints.get("source_titles") or [])))
     commercial_score, commercial_basis = score_commercial_intent(
         candidate,
         verified_domain,
@@ -352,7 +467,7 @@ def resolve_candidate_identity(candidate: Candidate, fetch_cache: dict | None = 
         maintainers,
         commercial_score,
         attio_match_keys,
-        extra_basis=list(url_hints.get("identity_confidence_basis") or []),
+        extra_basis=list(metadata_hints.get("identity_confidence_basis") or []) + list(url_hints.get("identity_confidence_basis") or []),
     )
     missing = []
     if not verified_domain:
@@ -369,13 +484,13 @@ def resolve_candidate_identity(candidate: Candidate, fetch_cache: dict | None = 
         verified_domain=verified_domain,
         domain_confidence=domain_confidence,
         verified_domain_basis=verified_domain_basis,
-        project_url=url_hints.get("project_url") or next((url for url in urls if "github.com" in url), ""),
+        project_url=metadata_hints.get("project_url") or url_hints.get("project_url") or next((url for url in urls if "github.com" in url), ""),
         company_linkedin=candidate.company_linkedin,
         company_x=candidate.company_x,
         founders=founders,
         founder_profiles=list(candidate.founder_profiles or []),
         maintainers=maintainers,
-        maintainer_profiles=list(candidate.maintainer_profiles or []),
+        maintainer_profiles=list(candidate.maintainer_profiles or []) + list(metadata_hints.get("maintainer_profiles") or []),
         commercial_intent_score=commercial_score,
         commercial_intent_basis=commercial_basis,
         identity_confidence_score=confidence_score,
@@ -385,10 +500,10 @@ def resolve_candidate_identity(candidate: Candidate, fetch_cache: dict | None = 
         attio_safe_to_match=bool(verified_domain),
         missing_identity_evidence=missing,
         evidence_urls=urls,
-        source_outbound_urls=list(url_hints.get("source_outbound_urls") or []),
+        source_outbound_urls=list(dict.fromkeys(list(metadata_hints.get("source_outbound_urls") or []) + list(url_hints.get("source_outbound_urls") or []))),
         source_titles=source_titles,
         fetch_warnings=list(url_hints.get("fetch_warnings") or []),
-        resolved_from=list(dict.fromkeys(["candidate_fields"] + list(url_hints.get("resolved_from") or []))),
+        resolved_from=list(dict.fromkeys(["candidate_fields"] + list(metadata_hints.get("resolved_from") or []) + list(url_hints.get("resolved_from") or []))),
     )
     resolution.recommended_identity_action = choose_identity_action(candidate, resolution)
     return resolution

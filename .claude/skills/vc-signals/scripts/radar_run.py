@@ -38,7 +38,7 @@ except ImportError:  # pragma: no cover - only for damaged installs
     check_last30days_availability = None
     run_query = None
 
-from radar_models import Candidate, RejectedSignal, SectorCoverage
+from radar_models import Candidate, EvidenceMetadata, RejectedSignal, SectorCoverage
 from radar_company_discovery import collect_company_discovery
 from radar_scoring import score_and_tier
 from radar_sources import classify_source_item
@@ -907,6 +907,28 @@ def _format_founders(founders: list[dict]) -> str:
     return "; ".join(formatted)
 
 
+def _compact_evidence_metadata(candidate_key: str, item: dict) -> dict:
+    metadata = EvidenceMetadata(
+        candidate_key=candidate_key,
+        source_url=item.get("url", ""),
+        source=item.get("source", ""),
+        title=item.get("title") or item.get("full_name") or item.get("name") or "",
+        author=item.get("author", ""),
+        published_at=item.get("published_at", ""),
+        container=item.get("container", ""),
+        query_kind=item.get("query_kind", ""),
+        query_topic=item.get("query_topic", ""),
+        outbound_url=item.get("outbound_url") or item.get("resolved_url") or "",
+        domain=item.get("domain") or item.get("website_domain") or "",
+        owner_name=item.get("owner_name", ""),
+        owner_type=item.get("owner_type", ""),
+        topics=list(item.get("topics") or []),
+        description=item.get("description") or item.get("snippet") or "",
+        homepage=item.get("homepage") or item.get("website") or "",
+    )
+    return metadata.to_dict()
+
+
 def _candidate_from_signal(signal) -> Candidate | None:
     item = signal.metadata or {}
     name = None
@@ -956,6 +978,7 @@ def _candidate_from_signal(signal) -> Candidate | None:
     candidate.evidence_role = signal.role
     candidate.sector_confidence = sector_classification.sector_confidence
     candidate.sector_reason = sector_classification.sector_reason
+    candidate.evidence_metadata = [_compact_evidence_metadata(candidate.stable_key or candidate.name, item)]
     if candidate.market_sector != "Unclassified":
         candidate.sector = candidate.market_sector
     candidate = merge_source_enrichment(candidate, item)
@@ -1041,6 +1064,18 @@ def _merge_candidate_model(existing: Candidate, candidate: Candidate) -> None:
     existing.source_count += 1
     if candidate.source and candidate.source not in existing.sources:
         existing.sources.append(candidate.source)
+    existing_metadata_keys = {
+        (metadata.get("source_url"), metadata.get("title"), metadata.get("outbound_url"))
+        for metadata in existing.evidence_metadata
+        if isinstance(metadata, dict)
+    }
+    for metadata in candidate.evidence_metadata:
+        if not isinstance(metadata, dict):
+            continue
+        key = (metadata.get("source_url"), metadata.get("title"), metadata.get("outbound_url"))
+        if key not in existing_metadata_keys:
+            existing.evidence_metadata.append(metadata)
+            existing_metadata_keys.add(key)
     if not existing.domain and candidate.domain:
         existing.domain = candidate.domain
     if not existing.company_linkedin and candidate.company_linkedin:

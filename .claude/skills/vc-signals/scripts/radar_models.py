@@ -82,6 +82,7 @@ class Candidate:
     sector_confidence: str = ""
     sector_reason: str = ""
     partner_priority_score: int = 0
+    evidence_metadata: list[dict] = field(default_factory=list)
     identity_type: str = ""
     candidate_domain: str = ""
     domain_confidence: str = ""
@@ -348,6 +349,33 @@ class ExecutiveSnapshot:
 
     @classmethod
     def from_dict(cls, payload: dict) -> "ExecutiveSnapshot":
+        return cls(**_known_payload(cls, payload))
+
+
+@dataclass
+class EvidenceMetadata:
+    candidate_key: str = ""
+    source_url: str = ""
+    source: str = ""
+    title: str = ""
+    author: str = ""
+    published_at: str = ""
+    container: str = ""
+    query_kind: str = ""
+    query_topic: str = ""
+    outbound_url: str = ""
+    domain: str = ""
+    owner_name: str = ""
+    owner_type: str = ""
+    topics: list[str] = field(default_factory=list)
+    description: str = ""
+    homepage: str = ""
+
+    def to_dict(self) -> dict:
+        return asdict(self)
+
+    @classmethod
+    def from_dict(cls, payload: dict) -> "EvidenceMetadata":
         return cls(**_known_payload(cls, payload))
 
 

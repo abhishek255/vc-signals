@@ -108,6 +108,35 @@ def test_hn_item_with_outbound_url_improves_identity_domain(monkeypatch):
     assert result.identity_confidence_score >= 55
 
 
+def test_stored_hn_outbound_url_resolves_without_live_fetch(monkeypatch):
+    from identity_resolution import resolve_candidate_identity
+
+    def fail_fetch(url, cache=None, timeout_seconds=8):
+        raise AssertionError("stored metadata should avoid live HN fetch")
+
+    monkeypatch.setattr("identity_resolution.fetch_existing_url", fail_fetch)
+
+    result = resolve_candidate_identity(
+        _candidate(
+            evidence_metadata=[
+                {
+                    "source": "hackernews",
+                    "source_url": "https://news.ycombinator.com/item?id=47761957",
+                    "title": "Show HN: Burrow - Runtime Security for AI Agents",
+                    "outbound_url": "https://burrow.security",
+                    "domain": "burrow.security",
+                }
+            ]
+        )
+    )
+
+    assert result.verified_domain == "burrow.security"
+    assert result.domain_confidence == "High"
+    assert "hn_outbound_url_metadata" in result.verified_domain_basis
+    assert "metadata" in result.resolved_from
+    assert result.fetch_warnings == []
+
+
 def test_hn_fetch_failure_keeps_launch_style_needs_identity(monkeypatch):
     from identity_resolution import resolve_candidate_identity
 
@@ -119,6 +148,31 @@ def test_hn_fetch_failure_keeps_launch_style_needs_identity(monkeypatch):
     result = resolve_candidate_identity(_candidate())
 
     assert result.identity_type == "launch_style_needs_identity"
+    assert result.verified_domain == ""
+    assert result.recommended_identity_action == "Research deeper"
+    assert result.fetch_warnings
+
+
+def test_hn_429_with_no_stored_outbound_url_remains_research_deeper(monkeypatch):
+    from identity_resolution import resolve_candidate_identity
+
+    def fake_fetch(url, cache=None, timeout_seconds=8):
+        raise RuntimeError("HTTP Error 429: Too Many Requests")
+
+    monkeypatch.setattr("identity_resolution.fetch_existing_url", fake_fetch)
+
+    result = resolve_candidate_identity(
+        _candidate(
+            evidence_metadata=[
+                {
+                    "source": "hackernews",
+                    "source_url": "https://news.ycombinator.com/item?id=47761957",
+                    "title": "Show HN: Burrow - Runtime Security for AI Agents",
+                }
+            ]
+        )
+    )
+
     assert result.verified_domain == ""
     assert result.recommended_identity_action == "Research deeper"
     assert result.fetch_warnings
@@ -148,6 +202,67 @@ def test_github_only_row_extracts_project_but_not_company_domain():
     assert result.verified_domain == ""
     assert result.attio_safe_to_match is False
     assert "github_project_identity" in result.identity_confidence_basis
+
+
+def test_github_metadata_produces_project_identity_not_company_domain():
+    from identity_resolution import resolve_candidate_identity
+
+    result = resolve_candidate_identity(
+        _candidate(
+            name="slowql/slowql",
+            stable_key="repo:slowql",
+            candidate_type="oss_project",
+            source="https://github.com/slowql/slowql",
+            sources=["https://github.com/slowql/slowql"],
+            attio_status="unknown",
+            evidence_metadata=[
+                {
+                    "source": "github",
+                    "source_url": "https://github.com/slowql/slowql",
+                    "owner_name": "slowql",
+                    "owner_type": "Organization",
+                    "topics": ["sql", "security", "compliance"],
+                    "description": "SQL static analyzer for performance and compliance",
+                }
+            ],
+        )
+    )
+
+    assert result.project_url == "https://github.com/slowql/slowql"
+    assert result.maintainers == ["slowql"]
+    assert result.verified_domain == ""
+    assert "github_project_identity" in result.identity_confidence_basis
+    assert "github_owner_metadata" in result.identity_confidence_basis
+
+
+def test_github_homepage_is_domain_candidate_not_owner_ready_by_itself():
+    from identity_resolution import resolve_candidate_identity
+
+    result = resolve_candidate_identity(
+        _candidate(
+            name="slowql/slowql",
+            stable_key="repo:slowql",
+            candidate_type="oss_project",
+            source="https://github.com/slowql/slowql",
+            sources=["https://github.com/slowql/slowql"],
+            attio_status="no_match",
+            evidence_metadata=[
+                {
+                    "source": "github",
+                    "source_url": "https://github.com/slowql/slowql",
+                    "owner_name": "slowql",
+                    "owner_type": "Organization",
+                    "homepage": "https://slowql.dev",
+                    "description": "SQL static analyzer for performance and compliance",
+                }
+            ],
+        )
+    )
+
+    assert result.verified_domain == "slowql.dev"
+    assert result.domain_confidence == "Medium"
+    assert "github_homepage_metadata" in result.verified_domain_basis
+    assert result.recommended_identity_action != "Assign owner"
 
 
 def test_apply_identity_resolution_updates_candidate_fields():

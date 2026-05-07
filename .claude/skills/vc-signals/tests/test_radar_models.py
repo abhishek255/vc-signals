@@ -64,6 +64,35 @@ def test_candidate_v3_fields_roundtrip_dict():
     assert Candidate.from_dict(payload) == candidate
 
 
+def test_evidence_metadata_roundtrip_and_candidate_field():
+    from radar_models import Candidate, EvidenceMetadata
+
+    metadata = EvidenceMetadata(
+        candidate_key="candidate:cybersecurity:burrow",
+        source_url="https://news.ycombinator.com/item?id=47761957",
+        source="hackernews",
+        title="Show HN: Burrow - Runtime Security for AI Agents",
+        author="saranshrana",
+        outbound_url="https://burrow.security",
+        domain="burrow.security",
+        query_kind="theme_company_search",
+        query_topic="AI agent security startups Seed Series A founder launch",
+    )
+    restored = EvidenceMetadata.from_dict({**metadata.to_dict(), "future": "ignored"})
+
+    candidate = Candidate(
+        name="Burrow",
+        sector="Cybersecurity",
+        theme="AI agent security",
+        source="https://news.ycombinator.com/item?id=47761957",
+        candidate_type="launch",
+        evidence_metadata=[restored.to_dict()],
+    )
+
+    assert restored.outbound_url == "https://burrow.security"
+    assert Candidate.from_dict(candidate.to_dict()).evidence_metadata[0]["domain"] == "burrow.security"
+
+
 def test_theme_signal_roundtrip_dict():
     from radar_models import ThemeSignal
 

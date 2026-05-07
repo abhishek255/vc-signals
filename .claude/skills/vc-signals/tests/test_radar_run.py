@@ -636,6 +636,66 @@ def test_candidate_promotion_sets_market_sector_and_source_lane_for_oss():
     assert candidate.sector_confidence == "High"
 
 
+def test_candidate_promotion_preserves_compact_hn_evidence_metadata():
+    from radar_run import promote_signals_to_candidates
+    from radar_sources import classify_source_item
+
+    signal = classify_source_item(
+        sector="cybersecurity",
+        item={
+            "source": "hackernews",
+            "title": "Show HN: Burrow - Runtime Security for AI Agents",
+            "url": "https://news.ycombinator.com/item?id=47761957",
+            "author": "saranshrana",
+            "published_at": "2026-04-14",
+            "container": "Hacker News",
+            "query_kind": "theme_company_search",
+            "query_topic": "AI agent security startups Seed Series A founder launch",
+            "outbound_url": "https://burrow.security",
+            "domain": "burrow.security",
+            "snippet": "Large snippet should stay out of compact evidence metadata.",
+        },
+    )
+
+    candidate = promote_signals_to_candidates([signal])["candidates"][0]
+
+    assert candidate.evidence_metadata
+    metadata = candidate.evidence_metadata[0]
+    assert metadata["source"] == "hackernews"
+    assert metadata["author"] == "saranshrana"
+    assert metadata["outbound_url"] == "https://burrow.security"
+    assert metadata["domain"] == "burrow.security"
+    assert "snippet" not in metadata
+
+
+def test_candidate_promotion_preserves_compact_github_evidence_metadata():
+    from radar_run import build_signals_from_evidence, promote_signals_to_candidates
+
+    evidence = {
+        "last30days": {},
+        "github": [
+            {
+                "full_name": "slowql/slowql",
+                "description": "SQL static analyzer for performance and compliance",
+                "url": "https://github.com/slowql/slowql",
+                "owner_name": "slowql",
+                "owner_type": "Organization",
+                "topics": ["sql", "security", "compliance"],
+                "homepage": "https://slowql.dev",
+            }
+        ],
+    }
+
+    candidate = promote_signals_to_candidates(build_signals_from_evidence(evidence)["signals"])["candidates"][0]
+    metadata = candidate.evidence_metadata[0]
+
+    assert metadata["owner_name"] == "slowql"
+    assert metadata["owner_type"] == "Organization"
+    assert metadata["topics"] == ["sql", "security", "compliance"]
+    assert metadata["description"] == "SQL static analyzer for performance and compliance"
+    assert metadata["homepage"] == "https://slowql.dev"
+
+
 def test_classified_domainless_oss_candidate_is_not_sent_to_attio(monkeypatch):
     import radar_run
     from radar_run import build_signals_from_evidence, merge_attio_context, promote_signals_to_candidates
