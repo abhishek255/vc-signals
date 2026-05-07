@@ -785,20 +785,25 @@ def test_take_meeting_blocked_when_attio_unknown_even_when_scores_clear():
     assert choose_recommended_action(candidate, item) != ACTION_TAKE_MEETING
 
 
-def test_unknown_attio_status_is_not_new_to_marathon_or_assign_owner():
-    from radar_focus import ACTION_ASSIGN_OWNER, build_focus_item
+def test_take_meeting_allowed_when_all_gates_clear_and_attio_known():
+    from radar_focus import ACTION_TAKE_MEETING, can_take_meeting, choose_recommended_action
 
-    item = build_focus_item(
-        _candidate(
-            domain="agentshield.dev",
-            attio_status="unknown",
-            attio_owner="",
-            evidence_confidence_score=60,
-        )
+    candidate = _candidate(
+        domain="agentshield.dev",
+        attio_status="no_match",
+        evidence_confidence_score=85,
+    )
+    item = FocusItem(
+        id="agentshield",
+        evidence_confidence_score=85,
+        company_identity_quality_score=90,
+        actionability_score=90,
+        noise_risk_score=20,
+        attio_status="no_match",
     )
 
-    assert item.recommended_action != ACTION_ASSIGN_OWNER
-    assert "new_to_attio" not in item.actionability_basis
+    assert can_take_meeting(item) is True
+    assert choose_recommended_action(candidate, item) == ACTION_TAKE_MEETING
 ```
 
 - [ ] **Step 2: Run tests to verify they fail**
@@ -992,6 +997,22 @@ def test_build_focus_item_uses_attio_stale_for_refresh_action():
 
     assert item.recommended_action == ACTION_REFRESH_ATTIO
     assert "attio_stale_with_new_signal" in item.actionability_basis
+
+
+def test_unknown_attio_status_is_not_new_to_marathon_or_assign_owner():
+    from radar_focus import ACTION_ASSIGN_OWNER, build_focus_item
+
+    item = build_focus_item(
+        _candidate(
+            domain="agentshield.dev",
+            attio_status="unknown",
+            attio_owner="",
+            evidence_confidence_score=60,
+        )
+    )
+
+    assert item.recommended_action != ACTION_ASSIGN_OWNER
+    assert "new_to_attio" not in item.actionability_basis
 ```
 
 - [ ] **Step 2: Run tests to verify failure**
@@ -1000,6 +1021,7 @@ def test_build_focus_item_uses_attio_stale_for_refresh_action():
 python3 -m pytest \
   .claude/skills/vc-signals/tests/test_radar_focus.py::test_build_focus_item_includes_basis_missing_evidence_and_action \
   .claude/skills/vc-signals/tests/test_radar_focus.py::test_build_focus_item_uses_attio_stale_for_refresh_action \
+  .claude/skills/vc-signals/tests/test_radar_focus.py::test_unknown_attio_status_is_not_new_to_marathon_or_assign_owner \
   -q
 ```
 
@@ -1113,6 +1135,8 @@ def build_market_movements(items: list[FocusItem], theme_signals: list[ThemeSign
 
 
 def _new_to_marathon(items: list[FocusItem]) -> list[FocusItem]:
+    # "New To Marathon" means the Attio lookup found no existing record.
+    # Stale, passed, or no-owner records stay actionable through Workflow View.
     selected = []
     for item in items:
         status = item.attio_status.lower()
@@ -1573,7 +1597,14 @@ def test_render_weekly_focus_markdown_has_executive_snapshot_and_compact_basis()
     from radar_focus import build_weekly_focus_artifact, render_weekly_focus_markdown
 
     artifact = build_weekly_focus_artifact(
-        candidates=[_candidate(domain="agentshield.dev", sources=["https://agentshield.dev"])],
+        candidates=[
+            _candidate(
+                domain="agentshield.dev",
+                sources=["https://agentshield.dev"],
+                evidence_confidence_score=70,
+                attio_status="no_match",
+            )
+        ],
         run_id="2026-05-11",
     )
     markdown = render_weekly_focus_markdown(artifact)
@@ -1592,7 +1623,14 @@ def test_write_weekly_focus_json_and_feedback_scaffold(tmp_path):
     from radar_focus import build_weekly_focus_artifact, write_feedback_scaffold, write_weekly_focus_json
 
     artifact = build_weekly_focus_artifact(
-        candidates=[_candidate(domain="agentshield.dev", sources=["https://agentshield.dev"])],
+        candidates=[
+            _candidate(
+                domain="agentshield.dev",
+                sources=["https://agentshield.dev"],
+                evidence_confidence_score=70,
+                attio_status="no_match",
+            )
+        ],
         run_id="2026-05-11",
     )
     focus_path = write_weekly_focus_json(artifact, tmp_path / "weekly-focus.json")
