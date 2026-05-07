@@ -1,8 +1,17 @@
 from __future__ import annotations
 
 import re
+from collections import Counter, defaultdict
 
-from radar_models import Candidate, FocusItem
+from radar_models import (
+    Candidate,
+    ExecutiveSnapshot,
+    FocusItem,
+    MarketMovement,
+    SectorIntelligence,
+    ThemeSignal,
+    WeeklyFocusArtifact,
+)
 
 
 ACTION_ASSIGN_OWNER = "Assign owner"
@@ -384,3 +393,191 @@ def build_focus_item(candidate: Candidate) -> FocusItem:
     )
     item.recommended_action = choose_recommended_action(candidate, item)
     return item
+
+
+WORKFLOW_ACTIONS = [
+    ACTION_ASSIGN_OWNER,
+    ACTION_RESEARCH_DEEPER,
+    ACTION_REFRESH_ATTIO,
+    ACTION_TAKE_MEETING,
+    ACTION_MONITOR_ONLY,
+]
+
+
+def _rank_focus_items(items: list[FocusItem]) -> list[FocusItem]:
+    ranked = sorted(
+        items,
+        key=lambda item: (
+            item.focus_priority_score,
+            item.investment_interest_score,
+            item.evidence_confidence_score,
+        ),
+        reverse=True,
+    )
+    for index, item in enumerate(ranked, start=1):
+        item.rank = index
+    return ranked
+
+
+def _cap_oss_project_only(items: list[FocusItem], *, max_oss: int = 5) -> list[FocusItem]:
+    kept = []
+    oss_count = 0
+    for item in items:
+        is_project_only = bool(item.project_url) and not item.company_domain
+        if is_project_only:
+            if oss_count >= max_oss:
+                continue
+            oss_count += 1
+        kept.append(item)
+    return kept
+
+
+def build_market_movements(items: list[FocusItem], theme_signals: list[ThemeSignal] | None = None) -> list[MarketMovement]:
+    grouped = defaultdict(list)
+    for item in items:
+        grouped[item.market_movement_id].append(item)
+
+    movements = []
+    for movement_id, group in grouped.items():
+        first = group[0]
+        evidence_urls = []
+        for item in group:
+            evidence_urls.extend(item.evidence_urls[:2])
+        evidence_urls = list(dict.fromkeys(evidence_urls))
+        talker_mix = Counter(talker for item in group for talker in item.talker_types)
+        movements.append(
+            MarketMovement(
+                id=movement_id,
+                name=first.market_movement,
+                market_sector=first.market_sector,
+                what_is_moving=f"{first.market_movement} is showing enough signal to attach companies/projects.",
+                why_now=first.why_focus_this_week,
+                why_not_now=first.why_this_may_be_noise,
+                who_is_talking=list(dict.fromkeys(talker for item in group for talker in item.who_is_talking)),
+                talker_mix=dict(talker_mix),
+                companies_or_projects=[item.name for item in group[:6]],
+                evidence_urls=evidence_urls[:5],
+                skepticism_events=[item.why_this_may_be_noise for item in group if item.why_this_may_be_noise][:5],
+                momentum_label="NEW" if any(item.weekly_tag == "NEW" for item in group) else "PERSISTENT",
+                confidence="Medium" if len(group) >= 2 else "Low",
+            )
+        )
+
+    return sorted(movements, key=lambda movement: len(movement.companies_or_projects), reverse=True)[:6]
+
+
+def _new_to_marathon(items: list[FocusItem]) -> list[FocusItem]:
+    selected = []
+    for item in items:
+        status = item.attio_status.lower()
+        if status in ATTIO_NEW_STATUSES:
+            selected.append(item)
+    return selected[:10]
+
+
+def is_extended_watchlist_eligible(item: FocusItem) -> bool:
+    return (
+        bool(item.evidence_urls)
+        and item.noise_risk_score < 85
+        and item.focus_priority_score >= 35
+        and item.recommended_action != ACTION_MONITOR_ONLY
+    )
+
+
+def _themes_without_companies(theme_signals: list[ThemeSignal] | None) -> list[dict]:
+    return [item.to_dict() for item in (theme_signals or [])[:10]]
+
+
+def _workflow_view(items: list[FocusItem]) -> dict[str, list[FocusItem]]:
+    grouped = {action: [] for action in WORKFLOW_ACTIONS}
+    for item in items:
+        grouped.setdefault(item.recommended_action, []).append(item)
+    return {action: rows for action, rows in grouped.items() if rows}
+
+
+def _source_gaps(sector_intelligence: list[SectorIntelligence] | None) -> list[str]:
+    gaps = [
+        "No X/Product Hunt/package-registry adapters in Phase 1A/1B; focus list is based on current candidates, signals, and Attio fields only."
+    ]
+    for item in sector_intelligence or []:
+        if item.source_errors:
+            gaps.append(f"{item.market_sector}: {'; '.join(item.source_errors)}")
+        elif "grounded" in (item.why_no_more_companies or "").lower():
+            gaps.append(f"{item.market_sector}: {item.why_no_more_companies}")
+    return list(dict.fromkeys(gaps))[:8]
+
+
+def _executive_snapshot(
+    *,
+    partner_focus: list[FocusItem],
+    movements: list[MarketMovement],
+    new_to_marathon: list[FocusItem],
+    source_gaps: list[str],
+) -> ExecutiveSnapshot:
+    action_counts = Counter(item.recommended_action for item in partner_focus)
+    return ExecutiveSnapshot(
+        top_movement=movements[0].name if movements else "",
+        top_new_to_marathon=new_to_marathon[0].name if new_to_marathon else "",
+        rows_needing_owner=action_counts.get(ACTION_ASSIGN_OWNER, 0),
+        rows_needing_attio_refresh=action_counts.get(ACTION_REFRESH_ATTIO, 0),
+        biggest_source_gap=source_gaps[0] if source_gaps else "",
+        top_actions=[f"{action}: {count}" for action, count in action_counts.most_common(5)],
+    )
+
+
+def build_weekly_focus_artifact(
+    *,
+    candidates: list[Candidate],
+    theme_signals: list[ThemeSignal] | None = None,
+    sector_intelligence: list[SectorIntelligence] | None = None,
+    run_id: str = "",
+) -> WeeklyFocusArtifact:
+    focus_items = _rank_focus_items([build_focus_item(candidate) for candidate in candidates])
+    eligible = _cap_oss_project_only([item for item in focus_items if is_partner_focus_eligible(item)])
+    partner_focus = eligible[:15]
+    partner_ids = {item.id for item in partner_focus}
+    extended_watchlist = [
+        item
+        for item in focus_items
+        if item.id not in partner_ids and is_extended_watchlist_eligible(item)
+    ][:15]
+    movements = build_market_movements(partner_focus or extended_watchlist, theme_signals)
+    new_to_marathon = _new_to_marathon(partner_focus + extended_watchlist)
+    workflow_view = _workflow_view(partner_focus)
+    gaps = _source_gaps(sector_intelligence)
+    focus_and_watchlist_ids = {item.id for item in partner_focus + extended_watchlist}
+    appendix = {
+        "needs_more_evidence": [
+            item.to_dict()
+            for item in focus_items
+            if item.company_identity_quality_score < 60 or item.evidence_confidence_score < 45
+        ][:10],
+        "oss_project_watchlist": [
+            item.to_dict()
+            for item in extended_watchlist
+            if item.project_url and not item.company_domain
+        ][:10],
+        "themes_without_companies": _themes_without_companies(theme_signals),
+        "source_gaps": gaps,
+        "filtered_or_noisy": [
+            item.to_dict()
+            for item in focus_items
+            if item.id not in focus_and_watchlist_ids
+        ][:10],
+    }
+    return WeeklyFocusArtifact(
+        run_id=run_id,
+        executive_snapshot=_executive_snapshot(
+            partner_focus=partner_focus,
+            movements=movements,
+            new_to_marathon=new_to_marathon,
+            source_gaps=gaps,
+        ),
+        partner_focus=partner_focus,
+        market_movements=movements,
+        new_to_marathon=new_to_marathon,
+        workflow_view=workflow_view,
+        extended_watchlist=extended_watchlist,
+        appendix=appendix,
+        source_gaps=gaps,
+    )

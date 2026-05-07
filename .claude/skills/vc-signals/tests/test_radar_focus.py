@@ -172,3 +172,128 @@ def test_unknown_attio_status_is_not_new_to_marathon_or_assign_owner():
     assert item.recommended_action != ACTION_ASSIGN_OWNER
     assert item.recommended_action != ACTION_MONITOR_ONLY
     assert "new_to_attio" not in item.actionability_basis
+
+
+def test_build_weekly_focus_artifact_splits_focus_watchlist_and_limits_rows():
+    from radar_focus import build_weekly_focus_artifact
+
+    candidates = [
+        _candidate(
+            name=f"Company {i}",
+            stable_key=f"company-{i}",
+            domain=f"company{i}.com",
+            sources=[f"https://company{i}.com"],
+            evidence_confidence_score=70,
+            investment_interest_score=70 - i,
+        )
+        for i in range(20)
+    ]
+
+    artifact = build_weekly_focus_artifact(candidates=candidates, run_id="2026-05-11")
+
+    assert len(artifact.partner_focus) <= 15
+    assert len(artifact.extended_watchlist) <= 15
+    assert artifact.run_id == "2026-05-11"
+    assert artifact.executive_snapshot.top_movement
+
+
+def test_build_weekly_focus_artifact_caps_project_only_rows():
+    from radar_focus import build_weekly_focus_artifact
+
+    candidates = [
+        _candidate(
+            name=f"Repo {i}",
+            stable_key=f"repo-{i}",
+            domain="",
+            sources=[f"https://github.com/example/repo-{i}"],
+            maintainer_profiles=[{"name": f"maintainer-{i}"}],
+            oss_company_formation_score=65,
+            evidence_confidence_score=60,
+            investment_interest_score=80 - i,
+        )
+        for i in range(10)
+    ]
+
+    artifact = build_weekly_focus_artifact(candidates=candidates, run_id="2026-05-11")
+    project_only = [item for item in artifact.partner_focus if item.project_url and not item.company_domain]
+
+    assert len(project_only) <= 5
+
+
+def test_new_to_marathon_and_workflow_view_use_attio_context():
+    from radar_focus import ACTION_REFRESH_ATTIO, build_weekly_focus_artifact
+
+    artifact = build_weekly_focus_artifact(
+        candidates=[
+            _candidate(
+                name="NewCo",
+                stable_key="newco",
+                domain="new.co",
+                sources=["https://new.co"],
+                attio_status="no_match",
+                evidence_confidence_score=75,
+            ),
+            _candidate(
+                name="KnownCo",
+                stable_key="knownco",
+                domain="known.co",
+                sources=["https://known.co"],
+                attio_status="stale",
+                attio_staleness_reason="No interaction in 180 days",
+                evidence_confidence_score=75,
+            ),
+        ],
+        run_id="2026-05-11",
+    )
+
+    assert artifact.new_to_marathon[0].name == "NewCo"
+    assert ACTION_REFRESH_ATTIO in artifact.workflow_view
+
+
+def test_unknown_attio_does_not_populate_new_to_marathon():
+    from radar_focus import build_weekly_focus_artifact
+
+    artifact = build_weekly_focus_artifact(
+        candidates=[
+            _candidate(
+                name="UnknownAttioCo",
+                stable_key="unknown-attio-co",
+                domain="unknownattio.co",
+                sources=["https://unknownattio.co"],
+                attio_status="unknown",
+                evidence_confidence_score=70,
+            )
+        ],
+        run_id="2026-05-11",
+    )
+
+    assert all(item.attio_status != "unknown" for item in artifact.new_to_marathon)
+
+
+def test_extended_watchlist_excludes_noisy_leftovers():
+    from radar_focus import build_weekly_focus_artifact
+
+    artifact = build_weekly_focus_artifact(
+        candidates=[
+            _candidate(
+                name="GoodCo",
+                stable_key="goodco",
+                domain="good.co",
+                sources=["https://good.co"],
+                evidence_confidence_score=75,
+            ),
+            _candidate(
+                name="NoisyCo",
+                stable_key="noisyco",
+                domain="",
+                source="",
+                sources=[],
+                evidence_confidence_score=20,
+                why_this_may_be_noise="No company identity and no source evidence.",
+            ),
+        ],
+        run_id="2026-05-11",
+    )
+
+    assert all(item.name != "NoisyCo" for item in artifact.extended_watchlist)
+    assert any(row["name"] == "NoisyCo" for row in artifact.appendix["filtered_or_noisy"])
