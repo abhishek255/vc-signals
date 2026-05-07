@@ -2,7 +2,7 @@
 
 > **AI-Powered Company Radar for Venture Capital**
 
-A skill for [Claude Code](https://docs.anthropic.com/en/docs/claude-code) and [Claude Co-Work](https://claude.com/product/cowork) that turns noisy public internet chatter into a weekly Marathon-style radar: up to 50 qualified companies and OSS projects organized by sector, theme, evidence quality, and next action.
+A skill/plugin for [Claude Code](https://docs.anthropic.com/en/docs/claude-code), [Claude Co-Work](https://claude.com/product/cowork), and Codex that turns noisy public internet chatter into a weekly Marathon-style radar: up to 50 qualified companies and OSS projects organized by sector, theme, evidence quality, and next action.
 
 **[See how it works (visual guide)](https://abhishek255.github.io/vc-signals/)**
 
@@ -88,11 +88,12 @@ The generated partner preview also includes **Tag**, **Stage**, **Raised**, **He
 
 ## What is this?
 
-VC Signals is a skill (plugin) for Claude that acts as your weekly research analyst — focused on producing an actionable company and OSS list, not just a trend brief. It scans Hacker News, Reddit, X/Twitter, GitHub, blogs, and other sources — then synthesizes what it finds into a structured investor brief.
+VC Signals is a skill/plugin for Claude and Codex that acts as your weekly research analyst — focused on producing an actionable company and OSS list, not just a trend brief. It scans Hacker News, Reddit, X/Twitter, GitHub, blogs, and other sources — then synthesizes what it finds into a structured investor brief.
 
 **Works with:**
 - **Claude Code** — CLI, desktop app, VS Code, JetBrains
 - **Claude Co-Work** — Anthropic's desktop app for knowledge work
+- **Codex** — CLI and desktop plugin marketplace
 
 For each company or project on the radar, you get:
 - **Theme it's riding** — which emerging trend places it on the radar
@@ -133,12 +134,31 @@ Then **close and reopen Claude Co-Work**. Type `/vc-signals radar all` to start.
 
 ### Claude Code (CLI, VS Code, JetBrains)
 
-**Option A: Plugin install** (inside Claude Code):
+**Option A: Plugin marketplace install** (inside Claude Code):
 ```
-/plugin marketplace add https://github.com/abhishek255/vc-signals
+/plugin marketplace add abhishek255/vc-signals
+/plugin install vc-signals@vc-signals-marketplace
 ```
 
-**Option B: Clone and open** (for developers):
+Then run:
+```
+/vc-signals:vc-signals radar all
+```
+
+Plugin-installed skills are namespaced as `/plugin-name:skill-name`. If you install the standalone skill instead, use `/vc-signals radar all`.
+
+### Codex (CLI and Desktop)
+
+Add the public marketplace:
+
+```bash
+codex marketplace add abhishek255/vc-signals
+```
+
+Then install or enable `vc-signals` from the Codex plugin UI. The Codex marketplace metadata lives in `.agents/plugins/marketplace.json`, and the plugin manifest lives in `plugins/vc-signals/.codex-plugin/plugin.json`.
+
+### Clone and Open (for developers)
+
 ```bash
 git clone https://github.com/abhishek255/vc-signals.git
 cd vc-signals

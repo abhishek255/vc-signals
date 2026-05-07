@@ -1,0 +1,23 @@
+{
+  "name": "vc-signals",
+  "version": "1.0.1",
+  "description": "VC signal-to-thesis skill for discovering emerging investable themes, mapping companies and OSS projects, and producing skeptical investor-ready radar briefs.",
+  "author": {
+    "name": "Abhishek Garg",
+    "url": "https://github.com/abhishek255"
+  },
+  "homepage": "https://github.com/abhishek255/vc-signals",
+  "repository": "https://github.com/abhishek255/vc-signals",
+  "license": "MIT",
+  "keywords": [
+    "vc",
+    "venture-capital",
+    "investing",
+    "devtools",
+    "cybersecurity",
+    "ai-infrastructure",
+    "research",
+    "signals"
+  ],
+  "skills": "./skills/"
+}

@@ -1,0 +1,45 @@
+{
+  "name": "vc-signals",
+  "version": "1.0.1",
+  "description": "VC signal-to-thesis skill for discovering emerging investable themes, mapping companies and OSS projects, and producing skeptical investor-ready radar briefs.",
+  "author": {
+    "name": "Abhishek Garg",
+    "url": "https://github.com/abhishek255"
+  },
+  "homepage": "https://github.com/abhishek255/vc-signals",
+  "repository": "https://github.com/abhishek255/vc-signals",
+  "license": "MIT",
+  "keywords": [
+    "vc",
+    "venture-capital",
+    "investing",
+    "devtools",
+    "cybersecurity",
+    "ai-infrastructure",
+    "research",
+    "signals"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "VC Signals",
+    "shortDescription": "Investor-grade company radar for emerging technology themes",
+    "longDescription": "Discover emerging investable themes across devtools, cybersecurity, and AI infrastructure. VC Signals produces company and OSS radars with evidence confidence, investment interest, Attio-aware workflow fields, and skeptical noise checks.",
+    "developerName": "Abhishek Garg",
+    "category": "Productivity",
+    "capabilities": [
+      "Interactive",
+      "Read",
+      "Write"
+    ],
+    "websiteURL": "https://github.com/abhishek255/vc-signals",
+    "privacyPolicyURL": "https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement",
+    "termsOfServiceURL": "https://docs.github.com/en/site-policy/github-terms/github-terms-of-service",
+    "defaultPrompt": [
+      "Run a VC Signals radar for all sectors",
+      "Find emerging AI infrastructure themes",
+      "Backtrace a startup's public signals"
+    ],
+    "brandColor": "#0F766E",
+    "screenshots": []
+  }
+}

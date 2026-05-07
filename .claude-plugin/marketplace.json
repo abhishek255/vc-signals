@@ -1,10 +1,22 @@
 {
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
   "name": "vc-signals-marketplace",
-  "description": "VC Signals — investment theme discovery",
+  "description": "VC Signals - investment theme discovery for venture workflows",
+  "owner": {
+    "name": "Abhishek Garg",
+    "url": "https://github.com/abhishek255"
+  },
   "plugins": [
     {
       "name": "vc-signals",
-      "path": "."
+      "description": "Discover emerging investable themes in devtools, cybersecurity, and AI infrastructure with company mapping, evidence scoring, and skeptical VC-ready analysis.",
+      "author": {
+        "name": "Abhishek Garg",
+        "url": "https://github.com/abhishek255"
+      },
+      "category": "productivity",
+      "source": "./plugins/vc-signals",
+      "homepage": "https://github.com/abhishek255/vc-signals"
     }
   ]
 }

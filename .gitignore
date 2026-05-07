@@ -1,5 +1,7 @@
 .worktrees/
-.agents/
+.agents/*
+!.agents/plugins/
+!.agents/plugins/marketplace.json
 .coverage
 .claude/skills/vc-signals/.coverage
 __pycache__/
