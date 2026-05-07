@@ -297,3 +297,55 @@ def test_extended_watchlist_excludes_noisy_leftovers():
 
     assert all(item.name != "NoisyCo" for item in artifact.extended_watchlist)
     assert any(row["name"] == "NoisyCo" for row in artifact.appendix["filtered_or_noisy"])
+
+
+def test_render_weekly_focus_markdown_has_executive_snapshot_and_compact_basis():
+    from radar_focus import build_weekly_focus_artifact, render_weekly_focus_markdown
+
+    artifact = build_weekly_focus_artifact(
+        candidates=[
+            _candidate(
+                domain="agentshield.dev",
+                sources=["https://agentshield.dev"],
+                evidence_confidence_score=70,
+                attio_status="no_match",
+            )
+        ],
+        run_id="2026-05-11",
+    )
+    markdown = render_weekly_focus_markdown(artifact)
+
+    assert markdown.startswith("# Marathon Signal Radar: Weekly Focus")
+    assert "## Executive Snapshot" in markdown
+    assert "## Partner Focus" in markdown
+    assert "### Focus Evidence Links" in markdown
+    assert "https://agentshield.dev" in markdown
+    assert "company_identity_quality_basis" not in markdown
+    assert "Missing Evidence" in markdown
+
+
+def test_write_weekly_focus_json_and_feedback_scaffold(tmp_path):
+    import json
+    from radar_focus import build_weekly_focus_artifact, write_feedback_scaffold, write_weekly_focus_json
+
+    artifact = build_weekly_focus_artifact(
+        candidates=[
+            _candidate(
+                domain="agentshield.dev",
+                sources=["https://agentshield.dev"],
+                evidence_confidence_score=70,
+                attio_status="no_match",
+            )
+        ],
+        run_id="2026-05-11",
+    )
+    focus_path = write_weekly_focus_json(artifact, tmp_path / "weekly-focus.json")
+    feedback_path = write_feedback_scaffold("2026-05-11", artifact.partner_focus, tmp_path / "feedback.json")
+
+    focus_payload = json.loads(focus_path.read_text())
+    feedback_payload = json.loads(feedback_path.read_text())
+
+    assert focus_payload["run_id"] == "2026-05-11"
+    assert "partner_focus" in focus_payload
+    assert feedback_payload["run_id"] == "2026-05-11"
+    assert feedback_payload["feedback"][0]["focus_item_id"] == artifact.partner_focus[0].id

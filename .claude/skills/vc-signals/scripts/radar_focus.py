@@ -1,9 +1,12 @@
 from __future__ import annotations
 
+import json
 import re
 from collections import Counter, defaultdict
+from pathlib import Path
 
 from radar_models import (
+    AlexFeedback,
     Candidate,
     ExecutiveSnapshot,
     FocusItem,
@@ -581,3 +584,157 @@ def build_weekly_focus_artifact(
         appendix=appendix,
         source_gaps=gaps,
     )
+
+
+def write_weekly_focus_json(artifact: WeeklyFocusArtifact, path: Path) -> Path:
+    path.write_text(json.dumps(artifact.to_dict(), indent=2))
+    return path
+
+
+def _cell(value) -> str:
+    return ("" if value is None else str(value)).replace("\n", " ").replace("|", "\\|")
+
+
+def _item_row(item: FocusItem) -> str:
+    return " | ".join(
+        [
+            str(item.rank),
+            _cell(item.name),
+            _cell(item.market_movement),
+            _cell(item.market_sector),
+            _cell(item.why_focus_this_week),
+            _cell("; ".join(item.who_is_talking[:2])),
+            _cell("; ".join(item.evidence_snapshot[:2])),
+            _cell(item.attio_status),
+            _cell(item.recommended_action),
+            str(item.investment_interest_score),
+            str(item.evidence_confidence_score),
+            _cell("; ".join(item.missing_evidence[:2])),
+            _cell(item.why_this_may_be_noise),
+        ]
+    )
+
+
+def render_weekly_focus_markdown(artifact: WeeklyFocusArtifact) -> str:
+    lines = [
+        "# Marathon Signal Radar: Weekly Focus",
+        "",
+        "## Executive Snapshot",
+        "",
+        f"- Top movement: {artifact.executive_snapshot.top_movement or 'None'}",
+        f"- Top new-to-Marathon row: {artifact.executive_snapshot.top_new_to_marathon or 'None'}",
+        f"- Rows needing owner: {artifact.executive_snapshot.rows_needing_owner}",
+        f"- Rows needing Attio refresh: {artifact.executive_snapshot.rows_needing_attio_refresh}",
+        f"- Biggest source gap: {artifact.executive_snapshot.biggest_source_gap or 'None'}",
+    ]
+    if artifact.executive_snapshot.top_actions:
+        lines.append("- Top actions: " + "; ".join(artifact.executive_snapshot.top_actions))
+
+    lines.extend(
+        [
+            "",
+            "## Partner Focus",
+            "",
+            "| # | Company / Project | Market Movement | Sector | Why Focus This Week | Who Is Talking | Evidence | Attio | Action | Interest | Confidence | Missing Evidence | Why This May Be Noise |",
+            "|---|---|---|---|---|---|---|---|---|---:|---:|---|---|",
+        ]
+    )
+    if artifact.partner_focus:
+        lines.extend(f"| {_item_row(item)} |" for item in artifact.partner_focus)
+    else:
+        lines.append("|  | No rows cleared Partner Focus gates. |  |  |  |  |  |  |  |  |  |  |  |")
+
+    lines.extend(["", "### Focus Evidence Links", ""])
+    if artifact.partner_focus:
+        for item in artifact.partner_focus:
+            if item.evidence_urls:
+                links = ", ".join(item.evidence_urls[:3])
+                lines.append(f"- **{item.name}**: {links}")
+            else:
+                lines.append(f"- **{item.name}**: No evidence links captured.")
+    else:
+        lines.append("- No focus evidence links.")
+
+    lines.extend(["", "## Market Movements", ""])
+    for movement in artifact.market_movements[:6]:
+        lines.extend(
+            [
+                f"### {movement.name}",
+                f"- What is moving: {movement.what_is_moving}",
+                f"- Why now: {movement.why_now}",
+                f"- Why not now: {movement.why_not_now or 'No specific skepticism captured.'}",
+                f"- Who is talking: {', '.join(movement.who_is_talking[:4]) or 'Unknown'}",
+                f"- Companies/projects: {', '.join(movement.companies_or_projects[:6]) or 'None'}",
+                "",
+            ]
+        )
+    if not artifact.market_movements:
+        lines.append("- No market movements generated.")
+
+    lines.extend(["", "## New To Marathon", ""])
+    if artifact.new_to_marathon:
+        for item in artifact.new_to_marathon[:10]:
+            lines.append(f"- **{item.name}** — {item.attio_status}; action: {item.recommended_action}")
+    else:
+        lines.append("- No new-to-Marathon Attio rows surfaced.")
+
+    lines.extend(["", "## Workflow View", ""])
+    if artifact.workflow_view:
+        for action, items in artifact.workflow_view.items():
+            names = ", ".join(item.name for item in items[:10])
+            lines.append(f"- **{action}** ({len(items)}): {names}")
+    else:
+        lines.append("- No workflow actions generated.")
+
+    lines.extend(["", "## Extended Watchlist", ""])
+    if artifact.extended_watchlist:
+        for item in artifact.extended_watchlist[:15]:
+            lines.append(f"- **{item.name}** — {item.recommended_action}; missing: {', '.join(item.missing_evidence[:2]) or 'none'}")
+    else:
+        lines.append("- No extended watchlist rows.")
+
+    lines.extend(["", "## Appendix", ""])
+    gaps = artifact.source_gaps or artifact.appendix.get("source_gaps", [])
+    if gaps:
+        lines.append("### Source Gaps")
+        for gap in gaps[:8]:
+            lines.append(f"- {gap}")
+    needs_more = artifact.appendix.get("needs_more_evidence", [])
+    if needs_more:
+        lines.extend(["", "### Needs More Evidence"])
+        for row in needs_more[:10]:
+            lines.append(f"- **{row.get('name', 'Unknown')}** — {', '.join(row.get('missing_evidence', [])[:2])}")
+    oss_watchlist = artifact.appendix.get("oss_project_watchlist", [])
+    if oss_watchlist:
+        lines.extend(["", "### OSS Project Watchlist"])
+        for row in oss_watchlist[:10]:
+            lines.append(f"- **{row.get('name', 'Unknown')}** — {row.get('recommended_action', 'Research deeper')}")
+    themes_without_companies = artifact.appendix.get("themes_without_companies", [])
+    if themes_without_companies:
+        lines.extend(["", "### Themes Without Companies Yet"])
+        for row in themes_without_companies[:10]:
+            label = row.get("theme") or row.get("name") or row.get("title") or "Unknown theme"
+            lines.append(f"- **{label}**")
+    filtered_or_noisy = artifact.appendix.get("filtered_or_noisy", [])
+    if filtered_or_noisy:
+        lines.extend(["", "### Filtered Or Noisy"])
+        for row in filtered_or_noisy[:10]:
+            lines.append(f"- **{row.get('name', 'Unknown')}** — {row.get('why_this_may_be_noise', 'Failed focus/watchlist gates.')}")
+
+    return "\n".join(lines).rstrip() + "\n"
+
+
+def write_feedback_scaffold(run_id: str, focus_items: list[FocusItem], path: Path) -> Path:
+    payload = AlexFeedback(
+        run_id=run_id,
+        feedback=[
+            {
+                "focus_item_id": item.id,
+                "rating": "",
+                "notes": "",
+            }
+            for item in focus_items[:15]
+        ],
+    )
+    path.write_text(json.dumps(payload.to_dict(), indent=2))
+    return path
