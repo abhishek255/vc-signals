@@ -122,3 +122,53 @@ def test_take_meeting_allowed_when_all_gates_clear_and_attio_known():
 
     assert can_take_meeting(item) is True
     assert choose_recommended_action(candidate, item) == ACTION_TAKE_MEETING
+
+
+def test_build_focus_item_includes_basis_missing_evidence_and_action():
+    from radar_focus import build_focus_item
+
+    item = build_focus_item(_candidate(domain="", attio_status="unknown"))
+
+    assert item.name == "AgentShield"
+    assert item.market_movement == "AI agent permission security"
+    assert item.company_identity_quality_basis
+    assert item.actionability_basis
+    assert item.focus_priority_basis == ["focus_formula_v1"]
+    assert "no verified company domain" in item.missing_evidence
+    assert item.recommended_action in {"Assign owner", "Research deeper", "Refresh Attio", "Monitor only"}
+
+
+def test_build_focus_item_uses_attio_stale_for_refresh_action():
+    from radar_focus import ACTION_REFRESH_ATTIO, build_focus_item
+
+    item = build_focus_item(
+        _candidate(
+            domain="agentshield.dev",
+            attio_status="stale",
+            attio_staleness_reason="No interaction in 180 days",
+        )
+    )
+
+    assert item.recommended_action == ACTION_REFRESH_ATTIO
+    assert "attio_stale_with_new_signal" in item.actionability_basis
+
+
+def test_unknown_attio_status_is_not_new_to_marathon_or_assign_owner():
+    from radar_focus import ACTION_ASSIGN_OWNER, ACTION_MONITOR_ONLY, ACTION_RESEARCH_DEEPER, build_focus_item
+
+    item = build_focus_item(
+        _candidate(
+            domain="",
+            sources=["https://github.com/affaan-m/agentshield"],
+            attio_status="unknown",
+            attio_owner="",
+            evidence_confidence_score=50,
+            maintainer_profiles=[{"name": "affaan-m"}],
+            oss_company_formation_score=60,
+        )
+    )
+
+    assert item.recommended_action == ACTION_RESEARCH_DEEPER
+    assert item.recommended_action != ACTION_ASSIGN_OWNER
+    assert item.recommended_action != ACTION_MONITOR_ONLY
+    assert "new_to_attio" not in item.actionability_basis

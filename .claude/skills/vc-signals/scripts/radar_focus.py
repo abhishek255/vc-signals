@@ -275,3 +275,112 @@ def is_partner_focus_eligible(item: FocusItem) -> bool:
         )
         and not (item.recommended_action == ACTION_MONITOR_ONLY and item.focus_priority_score < 85)
     )
+
+
+def _market_sector(candidate: Candidate) -> str:
+    return candidate.market_sector or candidate.sector or "Unclassified"
+
+
+def _source_urls(candidate: Candidate) -> list[str]:
+    urls = [source for source in candidate.sources if source and source.startswith(("http://", "https://"))]
+    if candidate.source and candidate.source.startswith(("http://", "https://")):
+        urls.append(candidate.source)
+    return list(dict.fromkeys(urls))
+
+
+def _project_url(candidate: Candidate) -> str:
+    for url in _source_urls(candidate):
+        if "github.com" in url:
+            return url
+    return ""
+
+
+def _movement_name(candidate: Candidate) -> str:
+    return candidate.theme or _market_sector(candidate)
+
+
+def _movement_id(candidate: Candidate) -> str:
+    return _stable_id(f"{_market_sector(candidate)}-{_movement_name(candidate)}")
+
+
+def _talker_types(candidate: Candidate) -> tuple[list[str], str, list[str]]:
+    if candidate.founder_profiles:
+        return ["founder"], "Medium", ["founder/company evidence"]
+    if candidate.maintainer_profiles or candidate.candidate_type == "oss_project":
+        return ["oss_maintainer"], "Medium", ["OSS maintainer/project evidence"]
+    if candidate.source_lane in {"Reddit", "Hacker News"}:
+        return ["practitioner"], "Medium", [candidate.source_lane]
+    return ["unknown"], "Low", ["actor unclear"]
+
+
+def build_focus_item(candidate: Candidate) -> FocusItem:
+    identity_score, identity_basis, missing = score_company_identity(candidate)
+    actionability_score, actionability_basis = score_actionability(candidate, identity_score)
+    freshness_score, freshness_basis = score_freshness(candidate)
+    movement_score, movement_basis = score_market_movement(candidate)
+    marathon_fit_score, marathon_fit_basis = score_marathon_fit(candidate)
+    noise_score, noise_basis = score_noise_risk(candidate, identity_score)
+    consensus_score, consensus_basis = score_consensus_risk(candidate)
+    focus_score, focus_basis = compute_focus_priority(
+        investment_interest_score=candidate.investment_interest_score,
+        actionability_score=actionability_score,
+        freshness_score=freshness_score,
+        market_movement_score=movement_score,
+        marathon_fit_score=marathon_fit_score,
+        evidence_confidence_score=candidate.evidence_confidence_score,
+        noise_risk_score=noise_score,
+        consensus_risk_score=consensus_score,
+    )
+    talker_types, talker_confidence, who_is_talking = _talker_types(candidate)
+    urls = _source_urls(candidate)
+    movement_id = _movement_id(candidate)
+    item = FocusItem(
+        id=candidate.stable_key or _stable_id(candidate.name),
+        name=candidate.name,
+        company_domain=candidate.domain,
+        project_url=_project_url(candidate),
+        market_movement_id=movement_id,
+        market_movement=_movement_name(candidate),
+        market_sector=_market_sector(candidate),
+        why_focus_this_week=candidate.why_on_radar,
+        who_is_talking=who_is_talking,
+        talker_types=talker_types,
+        talker_type_confidence=talker_confidence,
+        evidence_snapshot=[candidate.why_on_radar] if candidate.why_on_radar else [],
+        evidence_urls=urls,
+        missing_evidence=missing,
+        attio_status=candidate.attio_status,
+        attio_owner=candidate.attio_owner,
+        attio_last_touch=candidate.attio_last_interaction,
+        investment_interest_score=candidate.investment_interest_score,
+        evidence_confidence_score=candidate.evidence_confidence_score,
+        actionability_score=actionability_score,
+        freshness_score=freshness_score,
+        market_movement_score=movement_score,
+        marathon_fit_score=marathon_fit_score,
+        noise_risk_score=noise_score,
+        consensus_risk_score=consensus_score,
+        company_identity_quality_score=identity_score,
+        company_identity_quality_basis=identity_basis,
+        actionability_basis=actionability_basis,
+        freshness_basis=freshness_basis,
+        market_movement_basis=movement_basis,
+        marathon_fit_basis=marathon_fit_basis,
+        noise_risk_basis=noise_basis,
+        consensus_risk_basis=consensus_basis,
+        focus_priority_score=focus_score,
+        focus_priority_basis=focus_basis,
+        movement_assignment_method="direct_match",
+        movement_assignment_confidence="Medium" if candidate.theme else "Low",
+        movement_assignment_evidence_url=urls[0] if urls else "",
+        first_seen_at="",
+        last_seen_at="",
+        seen_in_prior_runs=bool(candidate.weekly_tag and candidate.weekly_tag != "NEW"),
+        weekly_tag=candidate.weekly_tag,
+        new_evidence_this_week=urls[:2],
+        why_this_may_be_noise=candidate.why_this_may_be_noise,
+        skepticism_events=[candidate.why_this_may_be_noise] if candidate.why_this_may_be_noise else [],
+        source_candidate_id=candidate.stable_key or candidate.name,
+    )
+    item.recommended_action = choose_recommended_action(candidate, item)
+    return item
