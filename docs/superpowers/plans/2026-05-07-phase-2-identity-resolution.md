@@ -119,7 +119,10 @@ class IdentityResolution:
     original_name: str = ""
     resolved_name: str = ""
     identity_type: str = "insufficient_identity"
+    candidate_domain: str = ""
     verified_domain: str = ""
+    domain_confidence: str = "Low"
+    verified_domain_basis: list[str] = field(default_factory=list)
     project_url: str = ""
     company_linkedin: str = ""
     company_x: str = ""
@@ -137,6 +140,9 @@ class IdentityResolution:
     recommended_identity_action: str = "Research deeper"
     missing_identity_evidence: list[str] = field(default_factory=list)
     evidence_urls: list[str] = field(default_factory=list)
+    source_outbound_urls: list[str] = field(default_factory=list)
+    source_titles: list[str] = field(default_factory=list)
+    fetch_warnings: list[str] = field(default_factory=list)
     resolved_from: list[str] = field(default_factory=list)
     error: str = ""
 
@@ -154,6 +160,9 @@ Add these optional fields to `Candidate`:
 
 ```python
 identity_type: str = ""
+candidate_domain: str = ""
+domain_confidence: str = ""
+verified_domain_basis: list[str] = field(default_factory=list)
 identity_confidence_score: int = 0
 identity_confidence: str = ""
 identity_confidence_basis: list[str] = field(default_factory=list)
@@ -163,6 +172,9 @@ attio_match_keys: list[str] = field(default_factory=list)
 attio_safe_to_match: bool = False
 recommended_identity_action: str = ""
 missing_identity_evidence: list[str] = field(default_factory=list)
+source_outbound_urls: list[str] = field(default_factory=list)
+source_titles: list[str] = field(default_factory=list)
+fetch_warnings: list[str] = field(default_factory=list)
 identity_resolved_from: list[str] = field(default_factory=list)
 ```
 
@@ -191,7 +203,7 @@ Start at 20.
 
 Add:
 
-- `+35` verified domain from source URL or existing candidate domain.
+- `+35` verified domain from a source URL or trusted candidate domain provenance.
 - `+20` founder or maintainer identity present.
 - `+15` launch-style evidence present.
 - `+15` company/social profile present from existing candidate fields.
@@ -211,6 +223,23 @@ Confidence labels:
 - `High`: `>= 80`
 - `Medium`: `>= 55`
 - `Low`: `< 55`
+
+Domain terminology must stay conservative:
+
+- `candidate_domain` means a domain already present on the candidate.
+- `verified_domain` means the resolver can explain why the domain is safe to use for Attio matching.
+- `domain_confidence="High"` only when the domain came from an already-present company URL, existing Attio enrichment, or an explicitly trusted structured field.
+- `domain_confidence="Medium"` when the domain came from `candidate.domain` without provenance.
+- `domain_confidence="Low"` when no domain exists.
+- Do not call a GitHub repo URL a verified company domain.
+
+Every `verified_domain` must include `verified_domain_basis`, such as:
+
+- `source_url_domain`
+- `candidate_domain_present`
+- `attio_enrichment_domain`
+- `hn_outbound_url_domain`
+- `company_url_already_present`
 
 ### Commercial Intent
 
@@ -242,7 +271,16 @@ if attio_status in {"stale", "passed"} and identity_confidence_score >= 60:
     return "Refresh Attio"
 
 if attio_status in {"no_match", "not_found", "new"}:
-    if identity_confidence_score >= 70 and commercial_intent_score >= 50 and attio_safe_to_match:
+    has_actionable_identity = bool(verified_domain) or (
+        bool(founders or maintainers)
+        and "launch_source_present" in identity_confidence_basis
+    )
+    if (
+        identity_confidence_score >= 70
+        and commercial_intent_score >= 50
+        and attio_safe_to_match
+        and has_actionable_identity
+    ):
         return "Assign owner"
     return "Research deeper"
 
@@ -280,7 +318,10 @@ def test_identity_resolution_roundtrip_ignores_unknown_fields():
         "original_name": "Burrow",
         "resolved_name": "Burrow",
         "identity_type": "launch_style_needs_identity",
+        "candidate_domain": "burrow.example",
         "verified_domain": "burrow.example",
+        "domain_confidence": "Medium",
+        "verified_domain_basis": ["candidate_domain_present"],
         "founders": ["Jane Founder"],
         "commercial_intent_score": 65,
         "commercial_intent_basis": ["launch_source_present"],
@@ -292,6 +333,9 @@ def test_identity_resolution_roundtrip_ignores_unknown_fields():
         "recommended_identity_action": "Assign owner",
         "missing_identity_evidence": ["no company linkedin"],
         "evidence_urls": ["https://news.ycombinator.com/item?id=123"],
+        "source_outbound_urls": ["https://burrow.example"],
+        "source_titles": ["Show HN: Burrow"],
+        "fetch_warnings": [],
         "resolved_from": ["candidate_domain"],
         "extra_future_field": "ignored",
     }
@@ -300,6 +344,8 @@ def test_identity_resolution_roundtrip_ignores_unknown_fields():
 
     assert result.candidate_key == "launch:burrow"
     assert result.verified_domain == "burrow.example"
+    assert result.domain_confidence == "Medium"
+    assert result.source_titles == ["Show HN: Burrow"]
     assert result.attio_safe_to_match is True
     assert "extra_future_field" not in result.to_dict()
 ```
@@ -589,10 +635,15 @@ def choose_identity_action(candidate: Candidate, resolution: IdentityResolution)
     if status in {"stale", "passed"} and resolution.identity_confidence_score >= 60:
         return ACTION_REFRESH_ATTIO
     if status in {"no_match", "not_found", "new"}:
+        has_actionable_identity = bool(resolution.verified_domain) or (
+            bool(resolution.founders or resolution.maintainers)
+            and "launch_source_present" in resolution.identity_confidence_basis
+        )
         if (
             resolution.identity_confidence_score >= 70
             and resolution.commercial_intent_score >= 50
             and resolution.attio_safe_to_match
+            and has_actionable_identity
         ):
             return ACTION_ASSIGN_OWNER
         return ACTION_RESEARCH_DEEPER
@@ -607,7 +658,10 @@ def choose_identity_action(candidate: Candidate, resolution: IdentityResolution)
 
 def resolve_candidate_identity(candidate: Candidate) -> IdentityResolution:
     urls = _source_urls(candidate)
-    verified_domain = _normalize_domain(candidate.domain)
+    candidate_domain = _normalize_domain(candidate.domain)
+    verified_domain = candidate_domain
+    domain_confidence = "Medium" if candidate_domain else "Low"
+    verified_domain_basis = ["candidate_domain_present"] if candidate_domain else []
     founders, maintainers = _founder_or_maintainer_names(candidate)
     attio_match_keys = [key for key in [verified_domain, candidate.name] if key]
     commercial_score, commercial_basis = score_commercial_intent(candidate, verified_domain, founders, maintainers)
@@ -630,7 +684,10 @@ def resolve_candidate_identity(candidate: Candidate) -> IdentityResolution:
         original_name=candidate.name,
         resolved_name=candidate.name,
         identity_type=identity_type,
+        candidate_domain=candidate_domain,
         verified_domain=verified_domain,
+        domain_confidence=domain_confidence,
+        verified_domain_basis=verified_domain_basis,
         project_url=next((url for url in urls if "github.com" in url), ""),
         company_linkedin=candidate.company_linkedin,
         company_x=candidate.company_x,
@@ -647,6 +704,9 @@ def resolve_candidate_identity(candidate: Candidate) -> IdentityResolution:
         attio_safe_to_match=bool(verified_domain),
         missing_identity_evidence=missing,
         evidence_urls=urls,
+        source_outbound_urls=[],
+        source_titles=[],
+        fetch_warnings=[],
         resolved_from=["candidate_fields"],
     )
     resolution.recommended_identity_action = choose_identity_action(candidate, resolution)
@@ -671,6 +731,310 @@ git commit -m "Add deterministic identity resolver"
 ```
 
 ---
+
+## Task 2.5: Resolve Identity From Existing Evidence URLs
+
+**Files:**
+- Modify: `.claude/skills/vc-signals/scripts/identity_resolution.py`
+- Modify: `.claude/skills/vc-signals/tests/test_identity_resolution.py`
+
+This task is the difference between identity scoring and identity resolution.
+
+Scope is intentionally narrow:
+
+- Inspect only `candidate.source` and `candidate.sources`.
+- Do not run web search.
+- Do not query X, Product Hunt, LinkedIn, package registries, or search APIs.
+- Parse HN item pages for title and outbound URL.
+- Parse GitHub repo URLs for owner/repo and project identity.
+- Use company URLs already present as source evidence.
+- Cache fetch results.
+- Fail closed when fetch/network parsing fails.
+
+- [ ] **Step 1: Add failing tests for existing evidence URL parsing**
+
+Append to `.claude/skills/vc-signals/tests/test_identity_resolution.py`:
+
+```python
+def test_parse_hn_item_extracts_title_and_outbound_url():
+    from identity_resolution import parse_hn_item
+
+    html = """
+    <html>
+      <tr class="athing" id="47761957">
+        <span class="titleline">
+          <a href="https://burrow.security">Show HN: Burrow - Runtime Security for AI Agents</a>
+        </span>
+      </tr>
+    </html>
+    """
+
+    result = parse_hn_item(html)
+
+    assert result["title"] == "Show HN: Burrow - Runtime Security for AI Agents"
+    assert result["outbound_url"] == "https://burrow.security"
+
+
+def test_hn_item_with_outbound_url_improves_identity_domain(monkeypatch):
+    from identity_resolution import resolve_candidate_identity
+
+    html = """
+    <html>
+      <span class="titleline">
+        <a href="https://burrow.security">Show HN: Burrow - Runtime Security for AI Agents</a>
+      </span>
+    </html>
+    """
+
+    def fake_fetch(url, cache=None, timeout_seconds=8):
+        return html
+
+    monkeypatch.setattr("identity_resolution.fetch_existing_url", fake_fetch)
+
+    result = resolve_candidate_identity(_candidate())
+
+    assert result.verified_domain == "burrow.security"
+    assert result.domain_confidence == "High"
+    assert "hn_outbound_url_domain" in result.verified_domain_basis
+    assert "https://burrow.security" in result.source_outbound_urls
+    assert result.identity_confidence_score >= 55
+
+
+def test_hn_fetch_failure_keeps_launch_style_needs_identity(monkeypatch):
+    from identity_resolution import resolve_candidate_identity
+
+    def fake_fetch(url, cache=None, timeout_seconds=8):
+        raise TimeoutError("network timeout")
+
+    monkeypatch.setattr("identity_resolution.fetch_existing_url", fake_fetch)
+
+    result = resolve_candidate_identity(_candidate())
+
+    assert result.identity_type == "launch_style_needs_identity"
+    assert result.verified_domain == ""
+    assert result.recommended_identity_action == "Research deeper"
+    assert result.fetch_warnings
+
+
+def test_github_only_row_extracts_project_but_not_company_domain():
+    from identity_resolution import parse_github_url, resolve_candidate_identity
+
+    parsed = parse_github_url("https://github.com/slowql/slowql")
+    assert parsed["owner"] == "slowql"
+    assert parsed["repo"] == "slowql"
+    assert parsed["project_url"] == "https://github.com/slowql/slowql"
+
+    result = resolve_candidate_identity(
+        _candidate(
+            name="slowql/slowql",
+            stable_key="repo:slowql",
+            candidate_type="oss_project",
+            source="https://github.com/slowql/slowql",
+            sources=["https://github.com/slowql/slowql"],
+            domain="",
+            attio_status="unknown",
+        )
+    )
+
+    assert result.project_url == "https://github.com/slowql/slowql"
+    assert result.verified_domain == ""
+    assert result.attio_safe_to_match is False
+    assert "github_project_identity" in result.identity_confidence_basis
+```
+
+- [ ] **Step 2: Run tests to verify failure**
+
+Run:
+
+```bash
+python3 -m pytest .claude/skills/vc-signals/tests/test_identity_resolution.py::test_parse_hn_item_extracts_title_and_outbound_url .claude/skills/vc-signals/tests/test_identity_resolution.py::test_hn_item_with_outbound_url_improves_identity_domain .claude/skills/vc-signals/tests/test_identity_resolution.py::test_hn_fetch_failure_keeps_launch_style_needs_identity .claude/skills/vc-signals/tests/test_identity_resolution.py::test_github_only_row_extracts_project_but_not_company_domain -q
+```
+
+Expected: FAIL because evidence URL parsing functions do not exist.
+
+- [ ] **Step 3: Implement parsing helpers**
+
+Add to `.claude/skills/vc-signals/scripts/identity_resolution.py`:
+
+```python
+from html.parser import HTMLParser
+from urllib.request import Request, urlopen
+
+
+class _HNTitleParser(HTMLParser):
+    def __init__(self):
+        super().__init__()
+        self.in_titleline = False
+        self.capture_text = False
+        self.title_parts = []
+        self.outbound_url = ""
+
+    def handle_starttag(self, tag, attrs):
+        attrs_dict = dict(attrs)
+        class_value = attrs_dict.get("class", "")
+        if tag == "span" and "titleline" in class_value:
+            self.in_titleline = True
+        elif self.in_titleline and tag == "a":
+            href = attrs_dict.get("href", "")
+            if href and not href.startswith("item?id="):
+                self.outbound_url = href
+            self.capture_text = True
+
+    def handle_endtag(self, tag):
+        if tag == "a":
+            self.capture_text = False
+        elif tag == "span" and self.in_titleline:
+            self.in_titleline = False
+
+    def handle_data(self, data):
+        if self.capture_text:
+            text = data.strip()
+            if text:
+                self.title_parts.append(text)
+
+
+def parse_hn_item(html: str) -> dict:
+    parser = _HNTitleParser()
+    parser.feed(html or "")
+    return {
+        "title": " ".join(parser.title_parts).strip(),
+        "outbound_url": parser.outbound_url.strip(),
+    }
+
+
+def parse_github_url(url: str) -> dict:
+    parsed = urlparse(url)
+    if parsed.netloc.lower() not in {"github.com", "www.github.com"}:
+        return {}
+    parts = [part for part in parsed.path.split("/") if part]
+    if len(parts) < 2:
+        return {}
+    owner, repo = parts[0], parts[1]
+    return {
+        "owner": owner,
+        "repo": repo,
+        "project_url": f"https://github.com/{owner}/{repo}",
+    }
+
+
+def fetch_existing_url(url: str, cache: dict | None = None, timeout_seconds: int = 8) -> str:
+    if cache is not None and url in cache:
+        return cache[url]
+    request = Request(url, headers={"User-Agent": "vc-signals-identity-resolution/1.0"})
+    with urlopen(request, timeout=timeout_seconds) as response:
+        body = response.read().decode("utf-8", errors="replace")
+    if cache is not None:
+        cache[url] = body
+    return body
+
+
+def _domain_from_url(url: str) -> str:
+    parsed = urlparse(url)
+    domain = _normalize_domain(parsed.netloc)
+    if domain in {"github.com", "news.ycombinator.com", "www.github.com"}:
+        return ""
+    return domain
+
+
+def resolve_from_existing_urls(candidate: Candidate, fetch_cache: dict | None = None) -> dict:
+    hints = {
+        "verified_domain": "",
+        "domain_confidence": "Low",
+        "verified_domain_basis": [],
+        "project_url": "",
+        "source_outbound_urls": [],
+        "source_titles": [],
+        "fetch_warnings": [],
+        "identity_confidence_basis": [],
+        "resolved_from": [],
+    }
+
+    for url in _source_urls(candidate):
+        github = parse_github_url(url)
+        if github:
+            hints["project_url"] = hints["project_url"] or github["project_url"]
+            hints["identity_confidence_basis"].append("github_project_identity")
+            hints["resolved_from"].append("github_url")
+            continue
+
+        direct_domain = _domain_from_url(url)
+        if direct_domain and "news.ycombinator.com" not in url:
+            hints["verified_domain"] = hints["verified_domain"] or direct_domain
+            hints["domain_confidence"] = "High"
+            hints["verified_domain_basis"].append("company_url_already_present")
+            hints["resolved_from"].append("source_url")
+
+        if "news.ycombinator.com/item" in url:
+            try:
+                html = fetch_existing_url(url, cache=fetch_cache)
+                parsed = parse_hn_item(html)
+            except Exception as exc:
+                hints["fetch_warnings"].append(f"{url}: {exc}")
+                continue
+            if parsed.get("title"):
+                hints["source_titles"].append(parsed["title"])
+            outbound_url = parsed.get("outbound_url") or ""
+            if outbound_url:
+                hints["source_outbound_urls"].append(outbound_url)
+                outbound_domain = _domain_from_url(outbound_url)
+                if outbound_domain:
+                    hints["verified_domain"] = hints["verified_domain"] or outbound_domain
+                    hints["domain_confidence"] = "High"
+                    hints["verified_domain_basis"].append("hn_outbound_url_domain")
+                    hints["resolved_from"].append("hn_item_outbound_url")
+
+    hints["verified_domain_basis"] = list(dict.fromkeys(hints["verified_domain_basis"]))
+    hints["identity_confidence_basis"] = list(dict.fromkeys(hints["identity_confidence_basis"]))
+    hints["resolved_from"] = list(dict.fromkeys(hints["resolved_from"]))
+    return hints
+```
+
+- [ ] **Step 4: Integrate hints into `resolve_candidate_identity()`**
+
+Update `resolve_candidate_identity()` so it calls:
+
+```python
+url_hints = resolve_from_existing_urls(candidate)
+candidate_domain = _normalize_domain(candidate.domain)
+verified_domain = url_hints.get("verified_domain") or candidate_domain
+domain_confidence = url_hints.get("domain_confidence") or ("Medium" if candidate_domain else "Low")
+verified_domain_basis = list(url_hints.get("verified_domain_basis") or [])
+if candidate_domain and not verified_domain_basis:
+    verified_domain_basis.append("candidate_domain_present")
+```
+
+Also pass these fields into `IdentityResolution`:
+
+```python
+candidate_domain=candidate_domain,
+verified_domain=verified_domain,
+domain_confidence=domain_confidence,
+verified_domain_basis=verified_domain_basis,
+project_url=url_hints.get("project_url") or next((url for url in urls if "github.com" in url), ""),
+source_outbound_urls=list(url_hints.get("source_outbound_urls") or []),
+source_titles=list(url_hints.get("source_titles") or []),
+fetch_warnings=list(url_hints.get("fetch_warnings") or []),
+resolved_from=list(dict.fromkeys(["candidate_fields"] + list(url_hints.get("resolved_from") or []))),
+```
+
+When scoring identity confidence, include `url_hints["identity_confidence_basis"]` in the final basis.
+
+- [ ] **Step 5: Run identity tests**
+
+Run:
+
+```bash
+python3 -m pytest .claude/skills/vc-signals/tests/test_identity_resolution.py -q
+```
+
+Expected: PASS.
+
+- [ ] **Step 6: Commit**
+
+```bash
+git add .claude/skills/vc-signals/scripts/identity_resolution.py .claude/skills/vc-signals/tests/test_identity_resolution.py
+git commit -m "Resolve identity from existing evidence URLs"
+```
 
 ## Task 3: Apply Identity Resolution To Candidates
 
@@ -941,6 +1305,10 @@ git commit -m "Use identity resolution in focus scoring"
 **Files:**
 - Modify: `.claude/skills/vc-signals/scripts/radar_run.py`
 - Modify: `.claude/skills/vc-signals/tests/test_radar_run.py`
+
+Integration guardrail:
+
+> Prefer minimal integration into the existing weekly path. Only extract `write_weekly_artifacts()` if the extraction is clean, regression-tested, and does not change `weekly-preview.md`. Add the regression test before any refactor.
 
 - [ ] **Step 1: Add failing weekly-run test**
 
@@ -1324,8 +1692,12 @@ Phase 2 is done when:
 
 - `IdentityResolution` exists and roundtrips through JSON.
 - Existing focus rows can be resolved without broad new source adapters.
+- The resolver parses already-present evidence URLs, including HN item outbound URLs and GitHub owner/repo URLs.
+- HN fetch or parsing failures fail closed and keep launch-style rows in `Research deeper`.
+- GitHub-only rows can produce project identity but must not infer a company domain.
 - Burrow-style launch rows are explicitly classified as `launch_style_needs_identity` when domain/founder evidence is missing.
 - Rows with verified domain + founder/maintainer + commercial intent can move from `Research deeper` to `Assign owner` when Attio status supports it.
+- `Assign owner` requires actionable identity: verified domain, or founder/maintainer identity plus launch evidence.
 - Stale/passed Attio rows with resolved identity can move to `Refresh Attio`.
 - Weak OSS/project rows are demoted or kept out of Partner Focus when identity/commercial intent is weak.
 - `identity-resolution.json` is written in weekly runs.
@@ -1352,4 +1724,3 @@ Expected:
 - All tests pass.
 - `weekly-preview.md` diff is empty.
 - Generated run artifacts are not committed unless explicitly requested.
-
