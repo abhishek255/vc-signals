@@ -33,8 +33,10 @@ def test_build_company_discovery_queries_from_theme_signal():
     ]
     assert queries[0]["market_sector"] == "Cybersecurity"
     assert queries[0]["theme"] == "AI agent security"
+    assert queries[0]["movement"] == "AI agent security"
+    assert queries[0]["source_reason"] == "theme_signal"
     assert queries[0]["candidate_eligible"] is True
-    assert queries[0]["sources"] == "grounding,hackernews,youtube"
+    assert queries[0]["sources"] == "grounding"
     assert "AI agent security startups Seed Series A founder launch" in queries[0]["topic"]
     assert "founder" in queries[1]["topic"].lower()
     assert "raises" in queries[2]["topic"].lower()
@@ -45,9 +47,110 @@ def test_build_company_discovery_queries_without_grounding_marks_limited_lane():
 
     queries = build_company_discovery_queries([_theme_signal()], grounded_available=False, social_available=False)
 
-    assert queries[0]["sources"] == "hackernews"
+    assert queries[0]["sources"] == ""
     assert queries[0]["limited"] is True
     assert "grounded company discovery unavailable" in queries[0]["reason"].lower()
+
+
+def test_build_company_discovery_queries_uses_theme_and_unresolved_rows():
+    from radar_company_discovery import build_company_discovery_queries
+    from radar_models import Candidate, FocusItem
+
+    theme = _theme_signal()
+    focus = FocusItem(
+        id="burrow",
+        name="Burrow",
+        market_movement="AI agent security",
+        market_sector="Cybersecurity",
+        missing_evidence=["no verified domain", "no founder or maintainer identity"],
+        evidence_urls=["https://news.ycombinator.com/item?id=47761957"],
+        recommended_action="Research deeper",
+        noise_risk_score=40,
+        why_focus_this_week="Show HN: Burrow - Runtime Security for AI Agents",
+    )
+    candidate = Candidate(
+        name="Burrow",
+        sector="Cybersecurity",
+        theme="AI agent security",
+        source="https://news.ycombinator.com/item?id=47761957",
+        candidate_type="company_web",
+        stable_key="burrow",
+        why_on_radar="Show HN: Burrow - Runtime Security for AI Agents",
+        sources=["https://news.ycombinator.com/item?id=47761957"],
+        missing_identity_evidence=["no verified domain"],
+    )
+
+    queries = build_company_discovery_queries(
+        [theme],
+        focus_items=[focus],
+        unresolved_candidates=[candidate],
+        grounded_available=True,
+        social_available=False,
+        max_queries_per_theme=2,
+    )
+
+    assert queries
+    assert all(query["sources"] == "grounding" for query in queries)
+    assert all(query["source_reason"] in {"theme_signal", "needs_more_evidence", "identity_resolution_target"} for query in queries)
+    assert all("AI agent security" in query["movement"] for query in queries)
+    assert all(any(term in query["topic"].lower() for term in ["startup", "company", "founder", "launch", "yc", "seed"]) for query in queries)
+
+
+def test_build_company_discovery_queries_refuses_broad_vibe_queries():
+    from radar_company_discovery import build_company_discovery_queries
+    from radar_models import ThemeSignal
+
+    broad = ThemeSignal(
+        market_sector="AI Infra",
+        theme="AI",
+        evidence_summary="Generic AI chatter.",
+        suggested_search="AI startups",
+    )
+
+    queries = build_company_discovery_queries(
+        [broad],
+        grounded_available=True,
+        social_available=False,
+    )
+
+    assert queries == []
+
+
+def test_build_company_discovery_queries_skips_execution_without_grounding():
+    from radar_company_discovery import build_company_discovery_queries
+
+    queries = build_company_discovery_queries([_theme_signal()], grounded_available=False, social_available=False)
+
+    assert queries
+    assert all(query["limited"] is True for query in queries)
+    assert all(query["sources"] == "" for query in queries)
+    assert "grounded company discovery unavailable" in queries[0]["reason"].lower()
+
+
+def test_weak_unclassified_row_does_not_generate_discovery_query():
+    from radar_company_discovery import build_company_discovery_queries
+    from radar_models import FocusItem
+
+    weak = FocusItem(
+        id="bearcove-vixen",
+        name="bearcove/vixen",
+        market_movement="Unclassified technical tooling",
+        market_sector="Unclassified",
+        missing_evidence=["no verified domain"],
+        evidence_urls=["https://github.com/bearcove/vixen"],
+        recommended_action="Research deeper",
+        noise_risk_score=75,
+    )
+
+    queries = build_company_discovery_queries(
+        [],
+        focus_items=[weak],
+        unresolved_candidates=[],
+        grounded_available=True,
+        social_available=False,
+    )
+
+    assert queries == []
 
 
 def test_collect_company_discovery_annotates_and_dedupes_items():
@@ -94,4 +197,3 @@ def test_collect_company_discovery_annotates_and_dedupes_items():
     assert item["query_theme"] == "AI agent security"
     assert item["market_sector"] == "Cybersecurity"
     assert result["warnings"] == ["minor warning"]
-
