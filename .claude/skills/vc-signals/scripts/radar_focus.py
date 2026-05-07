@@ -26,6 +26,7 @@ ACTION_MONITOR_ONLY = "Monitor only"
 ATTIO_NEW_STATUSES = {"no_match", "not_found", "new"}
 ATTIO_UNKNOWN_STATUSES = {"unknown", ""}
 ATTIO_NO_OWNER_STATUSES = {"no_owner", "no owner"}
+ATTIO_MATCH_STATUSES = {"active", "no_owner", "no owner", "stale", "passed"}
 ATTIO_STALE_TERMS = ("stale", "passed")
 
 
@@ -70,9 +71,15 @@ def score_company_identity(candidate: Candidate) -> tuple[int, list[str], list[s
         score = max(score, 80)
         basis.append("launch_source_present")
 
-    if candidate.attio_status and candidate.attio_status.lower() not in ATTIO_UNKNOWN_STATUSES:
+    status = (candidate.attio_status or "unknown").lower()
+    if status in ATTIO_MATCH_STATUSES:
         score = max(score, 70)
         basis.append("attio_status_present")
+
+    if len((candidate.name or "").strip()) <= 2 and not candidate.domain and "/" not in (candidate.name or ""):
+        score = min(score, 40)
+        basis.append("weak_candidate_name")
+        missing.append("weak candidate name")
 
     if candidate.candidate_type == "oss_project":
         if candidate.maintainer_profiles or candidate.oss_company_formation_score >= 50:

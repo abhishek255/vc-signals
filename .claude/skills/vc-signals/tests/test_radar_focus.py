@@ -51,6 +51,28 @@ def test_consensus_risk_accepts_numeric_enrichment_fields():
     assert basis
 
 
+def test_attio_no_match_does_not_create_company_identity_by_itself():
+    from radar_focus import score_company_identity
+
+    score, basis, missing = score_company_identity(
+        _candidate(
+            name="A",
+            domain="",
+            attio_status="no_match",
+            candidate_type="company_web",
+            founder_profiles=[],
+            founders=[],
+            maintainer_profiles=[],
+            oss_company_formation_score=0,
+        )
+    )
+
+    assert score < 60
+    assert "attio_status_present" not in basis
+    assert "weak_candidate_name" in basis
+    assert "weak candidate name" in missing
+
+
 def test_partner_focus_requires_evidence_url_and_identity_quality():
     from radar_focus import is_partner_focus_eligible
 
