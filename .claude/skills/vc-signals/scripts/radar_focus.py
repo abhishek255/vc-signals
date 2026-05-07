@@ -300,6 +300,8 @@ def choose_recommended_action(candidate: Candidate, item: FocusItem) -> str:
                 return ACTION_ASSIGN_OWNER
         elif candidate.recommended_identity_action == ACTION_REFRESH_ATTIO:
             return ACTION_REFRESH_ATTIO
+        elif candidate.recommended_identity_action == ACTION_RESEARCH_DEEPER:
+            return ACTION_RESEARCH_DEEPER
         elif candidate.recommended_identity_action == ACTION_MONITOR_ONLY:
             return ACTION_MONITOR_ONLY
     if "stale" in status or "stale" in staleness or "passed" in status or "passed" in staleness:
@@ -307,6 +309,8 @@ def choose_recommended_action(candidate: Candidate, item: FocusItem) -> str:
     if item.company_identity_quality_score < 60 or item.evidence_confidence_score < 45:
         return ACTION_RESEARCH_DEEPER
     if status in ATTIO_NEW_STATUSES or status in ATTIO_NO_OWNER_STATUSES:
+        if not candidate.attio_safe_to_match or candidate.identity_type != "verified_company":
+            return ACTION_RESEARCH_DEEPER
         return ACTION_ASSIGN_OWNER
     if status in ATTIO_UNKNOWN_STATUSES:
         if item.company_identity_quality_score >= 60 and item.evidence_confidence_score >= 45:
@@ -455,6 +459,8 @@ def build_focus_item(candidate: Candidate) -> FocusItem:
         attio_status=candidate.attio_status,
         attio_owner=candidate.attio_owner,
         attio_last_touch=candidate.attio_last_interaction,
+        identity_type=candidate.identity_type,
+        attio_safe_to_match=candidate.attio_safe_to_match,
         investment_interest_score=candidate.investment_interest_score,
         evidence_confidence_score=candidate.evidence_confidence_score,
         actionability_score=actionability_score,
@@ -565,7 +571,25 @@ def _new_to_marathon(items: list[FocusItem]) -> list[FocusItem]:
     for item in items:
         status = item.attio_status.lower()
         weak_name = len((item.name or "").strip()) <= 2 and not item.company_domain
-        if status in ATTIO_NEW_STATUSES and not weak_name and "weak_candidate_name" not in item.company_identity_quality_basis:
+        credible_new_identity = (
+            bool(item.company_domain)
+            and (
+                item.identity_type == "verified_company"
+                or not item.identity_type
+            )
+            and (item.attio_safe_to_match or not item.identity_type)
+        )
+        credible_launch_identity = (
+            bool(item.company_domain)
+            and item.attio_safe_to_match
+            and item.identity_type == "launch_style_needs_identity"
+        )
+        if (
+            status in ATTIO_NEW_STATUSES
+            and not weak_name
+            and "weak_candidate_name" not in item.company_identity_quality_basis
+            and (credible_new_identity or credible_launch_identity)
+        ):
             selected.append(item)
     return selected[:10]
 
@@ -606,12 +630,17 @@ def _executive_snapshot(
     *,
     partner_focus: list[FocusItem],
     action_items: list[FocusItem],
+    identity_source_items: list[FocusItem] | None = None,
     movements: list[MarketMovement],
     new_to_marathon: list[FocusItem],
     source_gaps: list[str],
 ) -> ExecutiveSnapshot:
     action_counts = Counter(item.recommended_action for item in (action_items or partner_focus))
-    oss_project_only_rows = sum(1 for item in partner_focus if item.project_url and not item.company_domain)
+    oss_project_only_rows = sum(
+        1
+        for item in partner_focus
+        if item.project_url and item.identity_type in {"oss_project_watch", "oss_with_commercial_intent", ""}
+    )
     company_or_launch_style_rows = len(partner_focus) - oss_project_only_rows
     readiness_note = (
         "This run produced a research queue, not owner-ready leads."
@@ -624,10 +653,17 @@ def _executive_snapshot(
         "no founder identity",
         "no founder or maintainer identity",
     }
+    identity_pool = []
+    seen_identity_ids = set()
+    for item in new_to_marathon + partner_focus + action_items + list(identity_source_items or []):
+        if item.id not in seen_identity_ids:
+            identity_pool.append(item)
+            seen_identity_ids.add(item.id)
     identity_resolution_candidates = [
         item
-        for item in new_to_marathon + partner_focus
+        for item in identity_pool
         if any(missing in item.missing_evidence for missing in identity_missing_terms)
+        and "weak_candidate_name" not in item.company_identity_quality_basis
     ]
     identity_resolution_candidates = sorted(
         identity_resolution_candidates,
@@ -703,6 +739,7 @@ def build_weekly_focus_artifact(
         executive_snapshot=_executive_snapshot(
             partner_focus=partner_focus,
             action_items=partner_focus + extended_watchlist,
+            identity_source_items=focus_items,
             movements=movements,
             new_to_marathon=new_to_marathon,
             source_gaps=gaps,

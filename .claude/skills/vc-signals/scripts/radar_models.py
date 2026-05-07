@@ -267,6 +267,8 @@ class FocusItem:
     attio_status: str = "unknown"
     attio_owner: str = ""
     attio_last_touch: str = ""
+    identity_type: str = ""
+    attio_safe_to_match: bool = False
     recommended_action: str = "Research deeper"
     investment_interest_score: int = 0
     evidence_confidence_score: int = 0

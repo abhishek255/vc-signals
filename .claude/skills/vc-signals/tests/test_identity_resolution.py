@@ -354,7 +354,41 @@ def test_github_homepage_is_domain_candidate_not_owner_ready_by_itself():
 
     assert result.verified_domain == "slowql.dev"
     assert result.domain_confidence == "Medium"
-    assert "github_homepage_metadata" in result.verified_domain_basis
+    assert "github_homepage_verified_project_site" in result.verified_domain_basis
+    assert result.identity_type != "verified_company"
+    assert result.recommended_identity_action != "Assign owner"
+
+
+def test_github_homepage_domain_mismatch_is_not_verified_or_owner_ready():
+    from identity_resolution import resolve_candidate_identity
+
+    result = resolve_candidate_identity(
+        _candidate(
+            name="affaan-m/agentshield",
+            stable_key="repo:agentshield",
+            candidate_type="oss_project",
+            source="https://github.com/affaan-m/agentshield",
+            sources=["https://github.com/affaan-m/agentshield"],
+            attio_status="no_match",
+            why_on_radar="AI agent security scanner with MCP permissions focus.",
+            evidence_metadata=[
+                {
+                    "source": "github",
+                    "source_url": "https://github.com/affaan-m/agentshield",
+                    "owner_name": "affaan-m",
+                    "owner_type": "User",
+                    "homepage": "https://cerebralvalley.ai",
+                    "description": "AI agent security scanner",
+                }
+            ],
+        )
+    )
+
+    assert result.verified_domain == ""
+    assert result.identity_type in {"oss_project_watch", "oss_with_commercial_intent"}
+    assert result.attio_safe_to_match is False
+    assert "github_homepage_present" in result.identity_confidence_basis
+    assert "github_homepage_domain_mismatch" in result.identity_confidence_basis
     assert result.recommended_identity_action != "Assign owner"
 
 

@@ -202,6 +202,33 @@ def test_resolved_identity_upgrades_no_match_row_to_assign_owner():
     assert "identity_resolution_verified_company" in item.company_identity_quality_basis
 
 
+def test_unverified_github_project_with_no_match_stays_research_deeper():
+    from radar_focus import ACTION_ASSIGN_OWNER, ACTION_RESEARCH_DEEPER, build_focus_item
+
+    item = build_focus_item(
+        _candidate(
+            name="affaan-m/agentshield",
+            stable_key="repo:agentshield",
+            domain="",
+            candidate_type="oss_project",
+            attio_status="no_match",
+            evidence_confidence_score=50,
+            identity_type="oss_project_watch",
+            identity_confidence_score=45,
+            commercial_intent_score=55,
+            attio_safe_to_match=False,
+            recommended_identity_action="Research deeper",
+            missing_identity_evidence=["no verified domain"],
+            sources=["https://github.com/affaan-m/agentshield"],
+        )
+    )
+
+    assert item.recommended_action == ACTION_RESEARCH_DEEPER
+    assert item.recommended_action != ACTION_ASSIGN_OWNER
+    assert item.company_domain == ""
+    assert "identity_resolution_weak" in item.company_identity_quality_basis
+
+
 def test_weak_identity_demotes_unknown_oss_row_to_monitor_only():
     from radar_focus import ACTION_MONITOR_ONLY, build_focus_item
 
@@ -396,9 +423,39 @@ def test_new_to_marathon_excludes_weak_extracted_names_and_uses_identity_missing
         run_id="2026-05-11",
     )
 
-    assert [item.name for item in artifact.new_to_marathon] == ["Burrow"]
-    assert artifact.executive_snapshot.top_new_to_marathon == "Burrow"
+    assert artifact.new_to_marathon == []
+    assert artifact.executive_snapshot.top_new_to_marathon == ""
     assert artifact.executive_snapshot.top_identity_resolution_target == "Burrow"
+
+
+def test_new_to_marathon_excludes_unverified_github_project_rows():
+    from radar_focus import ACTION_RESEARCH_DEEPER, build_weekly_focus_artifact
+
+    artifact = build_weekly_focus_artifact(
+        candidates=[
+            _candidate(
+                name="affaan-m/agentshield",
+                stable_key="repo:agentshield",
+                domain="",
+                candidate_type="oss_project",
+                attio_status="no_match",
+                evidence_confidence_score=50,
+                identity_type="oss_project_watch",
+                identity_confidence_score=45,
+                commercial_intent_score=55,
+                attio_safe_to_match=False,
+                recommended_identity_action="Research deeper",
+                missing_identity_evidence=["no verified domain"],
+                sources=["https://github.com/affaan-m/agentshield"],
+            )
+        ],
+        run_id="2026-05-11",
+    )
+
+    assert artifact.new_to_marathon == []
+    assert artifact.executive_snapshot.top_new_to_marathon == ""
+    assert artifact.executive_snapshot.company_or_launch_style_rows == 0
+    assert artifact.workflow_view[ACTION_RESEARCH_DEEPER][0].name == "affaan-m/agentshield"
 
 
 def test_workflow_view_includes_extended_watchlist_actions_when_focus_empty():

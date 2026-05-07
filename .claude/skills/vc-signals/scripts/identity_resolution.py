@@ -25,11 +25,15 @@ BLOCKED_OUTBOUND_DOMAINS = {
     "x.com",
     "twitter.com",
     "linkedin.com",
+    "t.me",
+    "telegram.me",
+    "telegram.org",
     "youtube.com",
     "youtu.be",
     "medium.com",
     "substack.com",
 }
+GITHUB_PAGE_DOMAINS = {"github.io"}
 
 
 def _clamp(score: int) -> int:
@@ -95,6 +99,40 @@ def extract_hn_item_id(url: str) -> str:
 def _is_github_only(candidate: Candidate) -> bool:
     urls = _source_urls(candidate)
     return bool(urls) and all("github.com" in url for url in urls) and not candidate.domain
+
+
+def _slug_tokens(value: str) -> list[str]:
+    return [token for token in "".join(char.lower() if char.isalnum() else "-" for char in value or "").split("-") if token]
+
+
+def _homepage_domain_matches_github_project(domain: str, github: dict, owner_name: str = "") -> bool:
+    normalized = _normalize_domain(domain)
+    if not normalized or _is_blocked_outbound_domain(normalized):
+        return False
+    if any(normalized == blocked or normalized.endswith(f".{blocked}") for blocked in GITHUB_PAGE_DOMAINS):
+        return False
+
+    labels = [label for label in normalized.split(".") if label]
+    if not labels:
+        return False
+    domain_slug = "-".join(labels[:-1] or labels)
+    domain_tokens = set(_slug_tokens(domain_slug))
+    domain_compact = "".join(domain_tokens)
+
+    repo = github.get("repo") or ""
+    owner = github.get("owner") or owner_name or ""
+    repo_tokens = set(_slug_tokens(repo))
+    owner_tokens = set(_slug_tokens(owner))
+    repo_compact = "".join(_slug_tokens(repo))
+    owner_compact = "".join(_slug_tokens(owner))
+
+    if repo and (repo.lower() in domain_slug or repo_compact and repo_compact == domain_compact):
+        return True
+    if repo_tokens and repo_tokens.issubset(domain_tokens):
+        return True
+    if owner and owner_compact and owner_compact == domain_compact:
+        return True
+    return bool(owner_tokens and owner_tokens.issubset(domain_tokens) and len(owner_tokens) >= 2)
 
 
 def _has_launch_evidence(candidate: Candidate) -> bool:
@@ -396,11 +434,21 @@ def resolve_from_evidence_metadata(candidate: Candidate) -> dict:
         homepage = item.get("homepage") or ""
         if homepage:
             homepage_domain = _domain_from_url(homepage)
-            if homepage_domain and not hints["verified_domain"]:
-                hints["verified_domain"] = homepage_domain
-                hints["domain_confidence"] = "Medium"
-                hints["verified_domain_basis"].append("github_homepage_metadata")
+            if homepage_domain:
                 hints["source_outbound_urls"].append(homepage)
+                hints["identity_confidence_basis"].append("github_homepage_present")
+                if source == "github" and github:
+                    if _homepage_domain_matches_github_project(homepage_domain, github, owner_name=owner_name):
+                        if not hints["verified_domain"]:
+                            hints["verified_domain"] = homepage_domain
+                            hints["domain_confidence"] = "Medium"
+                            hints["verified_domain_basis"].append("github_homepage_verified_project_site")
+                        hints["identity_confidence_basis"].append("github_homepage_verified_project_site")
+                    else:
+                        hints["identity_confidence_basis"].append("github_homepage_domain_mismatch")
+                        hints["identity_confidence_basis"].append("github_homepage_unverified")
+                elif source == "github":
+                    hints["identity_confidence_basis"].append("github_homepage_unverified")
                 hints["resolved_from"].append("metadata")
 
         direct_domain = _normalize_domain(item.get("domain") or "")
@@ -525,14 +573,14 @@ def score_identity_confidence(
 
 
 def classify_identity(candidate: Candidate, verified_domain: str, commercial_intent_score: int) -> str:
+    if candidate.candidate_type == "oss_project":
+        if commercial_intent_score >= 60:
+            return IDENTITY_OSS_COMMERCIAL
+        return IDENTITY_OSS_WATCH
     if verified_domain and commercial_intent_score >= 50:
         return IDENTITY_VERIFIED_COMPANY
     if _has_launch_evidence(candidate):
         return IDENTITY_LAUNCH_NEEDS_IDENTITY
-    if candidate.candidate_type == "oss_project" and commercial_intent_score >= 60:
-        return IDENTITY_OSS_COMMERCIAL
-    if candidate.candidate_type == "oss_project":
-        return IDENTITY_OSS_WATCH
     return IDENTITY_INSUFFICIENT
 
 
@@ -546,7 +594,8 @@ def choose_identity_action(candidate: Candidate, resolution: IdentityResolution)
             and "launch_source_present" in resolution.identity_confidence_basis
         )
         if (
-            resolution.identity_confidence_score >= 70
+            resolution.identity_type == IDENTITY_VERIFIED_COMPANY
+            and resolution.identity_confidence_score >= 70
             and resolution.commercial_intent_score >= 50
             and resolution.attio_safe_to_match
             and has_actionable_identity
