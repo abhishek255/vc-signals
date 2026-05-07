@@ -384,6 +384,38 @@ def test_render_weekly_focus_markdown_has_executive_snapshot_and_compact_basis()
     assert "Missing Evidence" in markdown
 
 
+def test_render_weekly_focus_markdown_qualifies_market_movement_headings():
+    from radar_focus import build_weekly_focus_artifact, render_weekly_focus_markdown
+
+    artifact = build_weekly_focus_artifact(
+        candidates=[
+            _candidate(
+                name="SecurityRepo",
+                stable_key="security-repo",
+                market_sector="Cybersecurity",
+                sector="Cybersecurity",
+                theme="AI agent security",
+                sources=["https://github.com/example/security-repo"],
+                evidence_confidence_score=70,
+            ),
+            _candidate(
+                name="DevtoolsRepo",
+                stable_key="devtools-repo",
+                market_sector="Devtools",
+                sector="Devtools",
+                theme="AI agent security",
+                sources=["https://github.com/example/devtools-repo"],
+                evidence_confidence_score=70,
+            ),
+        ],
+        run_id="2026-05-11",
+    )
+    markdown = render_weekly_focus_markdown(artifact)
+
+    assert "### AI agent security (Cybersecurity)" in markdown
+    assert "### AI agent security (Devtools)" in markdown
+
+
 def test_write_weekly_focus_json_and_feedback_scaffold(tmp_path):
     import json
     from radar_focus import build_weekly_focus_artifact, write_feedback_scaffold, write_weekly_focus_json

@@ -629,6 +629,12 @@ def _item_row(item: FocusItem) -> str:
     )
 
 
+def _movement_heading(movement: MarketMovement) -> str:
+    if movement.market_sector and movement.market_sector not in movement.name:
+        return f"{movement.name} ({movement.market_sector})"
+    return movement.name
+
+
 def render_weekly_focus_markdown(artifact: WeeklyFocusArtifact) -> str:
     lines = [
         "# Marathon Signal Radar: Weekly Focus",
@@ -673,7 +679,7 @@ def render_weekly_focus_markdown(artifact: WeeklyFocusArtifact) -> str:
     for movement in artifact.market_movements[:6]:
         lines.extend(
             [
-                f"### {movement.name}",
+                f"### {_movement_heading(movement)}",
                 f"- What is moving: {movement.what_is_moving}",
                 f"- Why now: {movement.why_now}",
                 f"- Why not now: {movement.why_not_now or 'No specific skepticism captured.'}",
