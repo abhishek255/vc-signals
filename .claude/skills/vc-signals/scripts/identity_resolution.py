@@ -1,7 +1,10 @@
 from __future__ import annotations
 
+import json
+from pathlib import Path
 from html.parser import HTMLParser
-from urllib.parse import urlparse
+from urllib.error import HTTPError
+from urllib.parse import parse_qs, urlparse
 from urllib.request import Request, urlopen
 
 from radar_focus import ACTION_ASSIGN_OWNER, ACTION_MONITOR_ONLY, ACTION_REFRESH_ATTIO, ACTION_RESEARCH_DEEPER
@@ -13,6 +16,20 @@ IDENTITY_LAUNCH_NEEDS_IDENTITY = "launch_style_needs_identity"
 IDENTITY_OSS_COMMERCIAL = "oss_with_commercial_intent"
 IDENTITY_OSS_WATCH = "oss_project_watch"
 IDENTITY_INSUFFICIENT = "insufficient_identity"
+HN_ALGOLIA_ITEM_URL = "https://hn.algolia.com/api/v1/items/{item_id}"
+DEFAULT_HN_ENRICHMENT_CACHE_PATH = Path(__file__).parent.parent / "data" / "companies" / "hn_enrichment_cache.json"
+BLOCKED_OUTBOUND_DOMAINS = {
+    "github.com",
+    "news.ycombinator.com",
+    "ycombinator.com",
+    "x.com",
+    "twitter.com",
+    "linkedin.com",
+    "youtube.com",
+    "youtu.be",
+    "medium.com",
+    "substack.com",
+}
 
 
 def _clamp(score: int) -> int:
@@ -50,6 +67,29 @@ def _domain_from_url(url: str) -> str:
     if domain in {"github.com", "news.ycombinator.com", "www.github.com"}:
         return ""
     return domain
+
+
+def _is_blocked_outbound_domain(domain: str) -> bool:
+    normalized = _normalize_domain(domain)
+    return any(normalized == blocked or normalized.endswith(f".{blocked}") for blocked in BLOCKED_OUTBOUND_DOMAINS)
+
+
+def _company_domain_from_outbound_url(url: str) -> tuple[str, str]:
+    parsed = urlparse(url or "")
+    if parsed.scheme not in {"http", "https"}:
+        return "", "hn_internal_url_only"
+    domain = _normalize_domain(parsed.netloc)
+    if not domain or _is_blocked_outbound_domain(domain):
+        return "", "hn_internal_url_only"
+    return domain, ""
+
+
+def extract_hn_item_id(url: str) -> str:
+    parsed = urlparse(url or "")
+    if parsed.netloc.lower() not in {"news.ycombinator.com", "www.news.ycombinator.com"}:
+        return ""
+    item_ids = parse_qs(parsed.query).get("id") or []
+    return item_ids[0] if item_ids else ""
 
 
 def _is_github_only(candidate: Candidate) -> bool:
@@ -143,7 +183,111 @@ def fetch_existing_url(url: str, cache: dict | None = None, timeout_seconds: int
     return body
 
 
-def resolve_from_existing_urls(candidate: Candidate, fetch_cache: dict | None = None) -> dict:
+def load_hn_enrichment_cache(cache_path: Path | None = None) -> dict:
+    path = cache_path or DEFAULT_HN_ENRICHMENT_CACHE_PATH
+    if not path.exists():
+        return {}
+    try:
+        return json.loads(path.read_text())
+    except json.JSONDecodeError:
+        return {}
+
+
+def save_hn_enrichment_cache(cache: dict, cache_path: Path | None = None) -> None:
+    path = cache_path or DEFAULT_HN_ENRICHMENT_CACHE_PATH
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(cache, indent=2, sort_keys=True))
+
+
+def fetch_hn_algolia_item(item_id: str, cache: dict | None = None, timeout_seconds: int = 8) -> dict:
+    url = HN_ALGOLIA_ITEM_URL.format(item_id=item_id)
+    raw = fetch_existing_url(url, cache=cache, timeout_seconds=timeout_seconds)
+    return json.loads(raw)
+
+
+def _hn_hints_from_payload(payload: dict, *, resolved_from: str) -> dict:
+    title = payload.get("title") or payload.get("story_title") or ""
+    outbound_url = payload.get("url") or payload.get("outbound_url") or ""
+    domain, reason = _company_domain_from_outbound_url(outbound_url)
+    hints = {
+        "title": title,
+        "outbound_url": outbound_url if domain else "",
+        "domain": domain,
+        "author": payload.get("author", ""),
+        "points": payload.get("points") or 0,
+        "comments": payload.get("num_comments") or payload.get("comments") or 0,
+        "resolved_from": resolved_from,
+        "failure_reason": "",
+    }
+    if outbound_url and not domain:
+        hints["failure_reason"] = reason
+    elif not outbound_url:
+        hints["failure_reason"] = "hn_no_outbound_url"
+    return hints
+
+
+def resolve_hn_item_url(
+    url: str,
+    *,
+    hn_cache: dict | None = None,
+    fetch_cache: dict | None = None,
+) -> dict:
+    item_id = extract_hn_item_id(url)
+    if not item_id:
+        return {"failure_reason": "hn_algolia_not_found"}
+
+    owns_cache = hn_cache is None
+    cache = hn_cache if hn_cache is not None else load_hn_enrichment_cache()
+    cached = cache.get(item_id)
+    if isinstance(cached, dict):
+        return {**cached, "cache_hit": True}
+
+    warnings = []
+    try:
+        algolia_payload = fetch_hn_algolia_item(item_id, cache=fetch_cache)
+        if not algolia_payload:
+            hints = {"failure_reason": "hn_algolia_not_found"}
+        else:
+            hints = _hn_hints_from_payload(algolia_payload, resolved_from="hn_algolia")
+            if hints.get("domain"):
+                cache[item_id] = hints
+                if owns_cache:
+                    save_hn_enrichment_cache(cache)
+                return {**hints, "cache_hit": False}
+            if hints.get("failure_reason"):
+                warnings.append(hints["failure_reason"])
+    except HTTPError as exc:
+        reason = "hn_fetch_429" if exc.code == 429 else f"hn_algolia_http_{exc.code}"
+        warnings.append(reason)
+    except Exception as exc:
+        warnings.append(f"hn_algolia_error: {exc}")
+
+    try:
+        html = fetch_existing_url(url, cache=fetch_cache)
+        parsed = parse_hn_item(html)
+        hints = _hn_hints_from_payload(parsed, resolved_from="hn_page")
+    except HTTPError as exc:
+        reason = "hn_fetch_429" if exc.code == 429 else f"hn_page_http_{exc.code}"
+        hints = {"failure_reason": reason}
+    except Exception as exc:
+        hints = {"failure_reason": f"hn_page_error: {exc}"}
+
+    if warnings:
+        hints["warnings"] = warnings
+    if hints.get("domain"):
+        cache[item_id] = hints
+        if owns_cache:
+            save_hn_enrichment_cache(cache)
+        return {**hints, "cache_hit": False}
+
+    hints.setdefault("failure_reason", "hn_no_outbound_url")
+    cache[item_id] = hints
+    if owns_cache:
+        save_hn_enrichment_cache(cache)
+    return {**hints, "cache_hit": False}
+
+
+def resolve_from_existing_urls(candidate: Candidate, fetch_cache: dict | None = None, hn_cache: dict | None = None) -> dict:
     hints = {
         "verified_domain": "",
         "domain_confidence": "Low",
@@ -172,23 +316,22 @@ def resolve_from_existing_urls(candidate: Candidate, fetch_cache: dict | None = 
             hints["resolved_from"].append("source_url")
 
         if "news.ycombinator.com/item" in url:
-            try:
-                html = fetch_existing_url(url, cache=fetch_cache)
-                parsed = parse_hn_item(html)
-            except Exception as exc:
-                hints["fetch_warnings"].append(f"{url}: {exc}")
-                continue
+            parsed = resolve_hn_item_url(url, hn_cache=hn_cache, fetch_cache=fetch_cache)
             if parsed.get("title"):
                 hints["source_titles"].append(parsed["title"])
             outbound_url = parsed.get("outbound_url") or ""
-            if outbound_url:
+            outbound_domain = parsed.get("domain") or ""
+            if outbound_url and outbound_domain:
                 hints["source_outbound_urls"].append(outbound_url)
-                outbound_domain = _domain_from_url(outbound_url)
-                if outbound_domain:
-                    hints["verified_domain"] = hints["verified_domain"] or outbound_domain
-                    hints["domain_confidence"] = "High"
-                    hints["verified_domain_basis"].append("hn_outbound_url_domain")
-                    hints["resolved_from"].append("hn_item_outbound_url")
+                hints["verified_domain"] = hints["verified_domain"] or outbound_domain
+                hints["domain_confidence"] = "High"
+                hints["verified_domain_basis"].append("hn_enrichment_outbound_url")
+                hints["resolved_from"].append(parsed.get("resolved_from") or "hn_enrichment")
+            else:
+                reason = parsed.get("failure_reason") or "hn_no_outbound_url"
+                hints["fetch_warnings"].append(f"{url}: {reason}")
+            for warning in parsed.get("warnings") or []:
+                hints["fetch_warnings"].append(f"{url}: {warning}")
 
     hints["verified_domain_basis"] = list(dict.fromkeys(hints["verified_domain_basis"]))
     hints["identity_confidence_basis"] = list(dict.fromkeys(hints["identity_confidence_basis"]))
@@ -419,13 +562,13 @@ def choose_identity_action(candidate: Candidate, resolution: IdentityResolution)
     return ACTION_RESEARCH_DEEPER
 
 
-def resolve_candidate_identity(candidate: Candidate, fetch_cache: dict | None = None) -> IdentityResolution:
+def resolve_candidate_identity(candidate: Candidate, fetch_cache: dict | None = None, hn_cache: dict | None = None) -> IdentityResolution:
     urls = _source_urls(candidate)
     metadata_hints = resolve_from_evidence_metadata(candidate)
     has_hn_item_url = any("news.ycombinator.com/item" in url for url in urls)
     needs_live_hn_fallback = not metadata_hints.get("verified_domain") and has_hn_item_url
     should_parse_existing_urls = not has_hn_item_url or needs_live_hn_fallback
-    url_hints = resolve_from_existing_urls(candidate, fetch_cache=fetch_cache) if should_parse_existing_urls else {
+    url_hints = resolve_from_existing_urls(candidate, fetch_cache=fetch_cache, hn_cache=hn_cache) if should_parse_existing_urls else {
         "verified_domain": "",
         "domain_confidence": "Low",
         "verified_domain_basis": [],
@@ -547,8 +690,10 @@ def apply_identity_resolution(candidates: list[Candidate]) -> tuple[list[Candida
     resolved_candidates = []
     resolutions = []
     fetch_cache: dict[str, str] = {}
+    hn_cache = load_hn_enrichment_cache()
     for candidate in candidates:
-        resolution = resolve_candidate_identity(candidate, fetch_cache=fetch_cache)
+        resolution = resolve_candidate_identity(candidate, fetch_cache=fetch_cache, hn_cache=hn_cache)
         resolutions.append(resolution)
         resolved_candidates.append(apply_identity_to_candidate(candidate, resolution))
+    save_hn_enrichment_cache(hn_cache)
     return resolved_candidates, resolutions

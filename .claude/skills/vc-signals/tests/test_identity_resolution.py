@@ -32,7 +32,7 @@ def test_launch_style_missing_domain_stays_research_deeper(monkeypatch):
 
     monkeypatch.setattr("identity_resolution.fetch_existing_url", fake_fetch)
 
-    result = resolve_candidate_identity(_candidate())
+    result = resolve_candidate_identity(_candidate(), hn_cache={})
 
     assert result.original_name == "Burrow"
     assert result.identity_type == "launch_style_needs_identity"
@@ -52,7 +52,8 @@ def test_launch_style_with_domain_and_founder_can_assign_owner():
             domain="burrow.security",
             founders=["Jane Founder"],
             founder_profiles=[{"name": "Jane Founder", "source": "launch page"}],
-        )
+        ),
+        hn_cache={},
     )
 
     assert result.identity_type == "verified_company"
@@ -99,13 +100,97 @@ def test_hn_item_with_outbound_url_improves_identity_domain(monkeypatch):
 
     monkeypatch.setattr("identity_resolution.fetch_existing_url", fake_fetch)
 
-    result = resolve_candidate_identity(_candidate())
+    result = resolve_candidate_identity(_candidate(), hn_cache={})
 
     assert result.verified_domain == "burrow.security"
     assert result.domain_confidence == "High"
-    assert "hn_outbound_url_domain" in result.verified_domain_basis
+    assert "hn_enrichment_outbound_url" in result.verified_domain_basis
     assert "https://burrow.security" in result.source_outbound_urls
     assert result.identity_confidence_score >= 55
+
+
+def test_hn_algolia_outbound_url_improves_identity_domain(monkeypatch):
+    from identity_resolution import resolve_candidate_identity
+
+    def fake_algolia(item_id, cache=None, timeout_seconds=8):
+        assert item_id == "47761957"
+        return {
+            "title": "Show HN: Burrow - Runtime Security for AI Agents",
+            "url": "https://burrow.security",
+            "author": "saranshrana",
+            "points": 3,
+            "num_comments": 0,
+        }
+
+    def fail_page_fetch(url, cache=None, timeout_seconds=8):
+        raise AssertionError("page fallback should not run after Algolia success")
+
+    monkeypatch.setattr("identity_resolution.fetch_hn_algolia_item", fake_algolia)
+    monkeypatch.setattr("identity_resolution.fetch_existing_url", fail_page_fetch)
+
+    result = resolve_candidate_identity(_candidate(), hn_cache={})
+
+    assert result.verified_domain == "burrow.security"
+    assert result.domain_confidence == "High"
+    assert "hn_enrichment_outbound_url" in result.verified_domain_basis
+    assert "hn_algolia" in result.resolved_from
+    assert result.recommended_identity_action == "Assign owner"
+
+
+def test_hn_cache_hit_avoids_live_fetch(monkeypatch):
+    from identity_resolution import resolve_candidate_identity
+
+    def fail_algolia(item_id, cache=None, timeout_seconds=8):
+        raise AssertionError("Algolia should not run on cache hit")
+
+    def fail_fetch(url, cache=None, timeout_seconds=8):
+        raise AssertionError("page fetch should not run on cache hit")
+
+    monkeypatch.setattr("identity_resolution.fetch_hn_algolia_item", fail_algolia)
+    monkeypatch.setattr("identity_resolution.fetch_existing_url", fail_fetch)
+
+    result = resolve_candidate_identity(
+        _candidate(),
+        hn_cache={
+            "47761957": {
+                "title": "Show HN: Burrow - Runtime Security for AI Agents",
+                "outbound_url": "https://burrow.security",
+                "domain": "burrow.security",
+                "resolved_from": "hn_algolia",
+            }
+        },
+    )
+
+    assert result.verified_domain == "burrow.security"
+    assert result.fetch_warnings == []
+
+
+def test_hn_internal_or_blocked_outbound_url_is_not_verified(monkeypatch):
+    from identity_resolution import resolve_candidate_identity
+
+    def fake_algolia(item_id, cache=None, timeout_seconds=8):
+        return {
+            "title": "Show HN: Burrow - Runtime Security for AI Agents",
+            "url": "https://github.com/example/burrow",
+        }
+
+    def fake_fetch(url, cache=None, timeout_seconds=8):
+        return """
+        <html>
+          <span class="titleline">
+            <a href="https://news.ycombinator.com/item?id=123">Internal</a>
+          </span>
+        </html>
+        """
+
+    monkeypatch.setattr("identity_resolution.fetch_hn_algolia_item", fake_algolia)
+    monkeypatch.setattr("identity_resolution.fetch_existing_url", fake_fetch)
+
+    result = resolve_candidate_identity(_candidate(), hn_cache={})
+
+    assert result.verified_domain == ""
+    assert result.recommended_identity_action == "Research deeper"
+    assert any("hn_internal_url_only" in warning for warning in result.fetch_warnings)
 
 
 def test_stored_hn_outbound_url_resolves_without_live_fetch(monkeypatch):
@@ -127,7 +212,8 @@ def test_stored_hn_outbound_url_resolves_without_live_fetch(monkeypatch):
                     "domain": "burrow.security",
                 }
             ]
-        )
+        ),
+        hn_cache={},
     )
 
     assert result.verified_domain == "burrow.security"
@@ -156,9 +242,15 @@ def test_hn_fetch_failure_keeps_launch_style_needs_identity(monkeypatch):
 def test_hn_429_with_no_stored_outbound_url_remains_research_deeper(monkeypatch):
     from identity_resolution import resolve_candidate_identity
 
-    def fake_fetch(url, cache=None, timeout_seconds=8):
-        raise RuntimeError("HTTP Error 429: Too Many Requests")
+    from urllib.error import HTTPError
 
+    def fake_algolia(item_id, cache=None, timeout_seconds=8):
+        raise HTTPError("https://hn.algolia.com/api/v1/items/47761957", 429, "Too Many Requests", hdrs=None, fp=None)
+
+    def fake_fetch(url, cache=None, timeout_seconds=8):
+        raise HTTPError(url, 429, "Too Many Requests", hdrs=None, fp=None)
+
+    monkeypatch.setattr("identity_resolution.fetch_hn_algolia_item", fake_algolia)
     monkeypatch.setattr("identity_resolution.fetch_existing_url", fake_fetch)
 
     result = resolve_candidate_identity(
@@ -170,12 +262,13 @@ def test_hn_429_with_no_stored_outbound_url_remains_research_deeper(monkeypatch)
                     "title": "Show HN: Burrow - Runtime Security for AI Agents",
                 }
             ]
-        )
+        ),
+        hn_cache={},
     )
 
     assert result.verified_domain == ""
     assert result.recommended_identity_action == "Research deeper"
-    assert result.fetch_warnings
+    assert any("hn_fetch_429" in warning for warning in result.fetch_warnings)
 
 
 def test_github_only_row_extracts_project_but_not_company_domain():
