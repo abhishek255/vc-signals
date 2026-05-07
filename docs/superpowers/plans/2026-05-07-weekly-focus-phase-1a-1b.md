@@ -31,6 +31,10 @@ Implementation principle:
 
 > Build the smallest model/renderer that can produce useful `weekly-focus.json` and `weekly-focus.md` from current artifacts with deterministic tests.
 
+Execution note:
+
+> Commit after each task if git is configured. If commit fails because git identity/config is missing, continue implementation and report changed files instead of blocking Phase 1A/1B.
+
 ## Files And Responsibilities
 
 ### New Files
@@ -398,8 +402,10 @@ ACTION_REFRESH_ATTIO = "Refresh Attio"
 ACTION_TAKE_MEETING = "Take meeting"
 ACTION_MONITOR_ONLY = "Monitor only"
 
-ATTIO_NEW_STATUSES = {"unknown", "", "no_match", "not_found", "new"}
-ATTIO_STALE_TERMS = ("stale", "no owner", "no_owner", "passed")
+ATTIO_NEW_STATUSES = {"no_match", "not_found", "new"}
+ATTIO_UNKNOWN_STATUSES = {"unknown", ""}
+ATTIO_NO_OWNER_STATUSES = {"no_owner", "no owner"}
+ATTIO_STALE_TERMS = ("stale", "passed")
 
 
 def _clamp(score: int) -> int:
@@ -418,7 +424,7 @@ def score_company_identity(candidate: Candidate) -> tuple[int, list[str], list[s
 
     if candidate.domain:
         score = max(score, 80)
-        basis.append("verified_domain_present")
+        basis.append("domain_present")
     else:
         missing.append("no verified company domain")
 
@@ -439,9 +445,9 @@ def score_company_identity(candidate: Candidate) -> tuple[int, list[str], list[s
         score = max(score, 80)
         basis.append("launch_source_present")
 
-    if candidate.attio_status and candidate.attio_status != "unknown":
+    if candidate.attio_status and candidate.attio_status.lower() not in ATTIO_UNKNOWN_STATUSES:
         score = max(score, 70)
-        basis.append("attio_match_present")
+        basis.append("attio_status_present")
 
     if candidate.candidate_type == "oss_project":
         if candidate.maintainer_profiles or candidate.oss_company_formation_score >= 50:
@@ -466,10 +472,12 @@ def score_actionability(candidate: Candidate, identity_score: int) -> tuple[int,
     if status in ATTIO_NEW_STATUSES and identity_score >= 60:
         score += 25
         basis.append("new_to_attio")
+    elif status in ATTIO_UNKNOWN_STATUSES:
+        basis.append("attio_unknown_not_new")
     if "stale" in staleness or "stale" in status:
         score += 20
         basis.append("attio_stale_with_new_signal")
-    if "no owner" in staleness or "no_owner" in status or (candidate.attio_status != "unknown" and not candidate.attio_owner):
+    if "no owner" in staleness or status in ATTIO_NO_OWNER_STATUSES:
         score += 15
         basis.append("attio_no_owner")
     if "passed" in status or "passed" in staleness:
@@ -522,9 +530,12 @@ def score_marathon_fit(candidate: Candidate) -> tuple[int, list[str]]:
     elif not candidate.stage:
         score += 10
         basis.append("stage_unknown_but_not_disqualifying")
-    if candidate.domain or candidate.attio_status != "unknown":
+    if candidate.domain:
         score += 10
-        basis.append("actionable_company_or_attio_context")
+        basis.append("actionable_company_context")
+    elif candidate.attio_status and candidate.attio_status.lower() not in ATTIO_UNKNOWN_STATUSES:
+        score += 10
+        basis.append("actionable_attio_context")
     text = " ".join([candidate.name, candidate.why_on_radar, candidate.theme]).lower()
     if any(term in text for term in ("consumer", "prosumer", "creator")):
         score -= 20
@@ -623,6 +634,7 @@ def can_take_meeting(item: FocusItem) -> bool:
         and item.company_identity_quality_score >= 80
         and item.actionability_score >= 75
         and item.noise_risk_score <= 40
+        and item.attio_status.lower() not in ATTIO_UNKNOWN_STATUSES
         and not (item.attio_status.lower() == "active" and item.attio_owner)
     )
 
@@ -636,8 +648,12 @@ def choose_recommended_action(candidate: Candidate, item: FocusItem) -> str:
         return ACTION_REFRESH_ATTIO
     if item.company_identity_quality_score < 60 or item.evidence_confidence_score < 45:
         return ACTION_RESEARCH_DEEPER
-    if item.attio_status.lower() in ATTIO_NEW_STATUSES or not candidate.attio_owner:
+    if status in ATTIO_NEW_STATUSES or status in ATTIO_NO_OWNER_STATUSES:
         return ACTION_ASSIGN_OWNER
+    if status in ATTIO_UNKNOWN_STATUSES:
+        if item.company_identity_quality_score >= 80 and item.evidence_confidence_score >= 60:
+            return ACTION_RESEARCH_DEEPER
+        return ACTION_MONITOR_ONLY
     return ACTION_MONITOR_ONLY
 
 
@@ -651,7 +667,7 @@ def is_partner_focus_eligible(item: FocusItem) -> bool:
         and (
             bool(item.company_domain)
             or bool(item.project_url)
-            or item.attio_status.lower() in {"no_match", "no_owner", "stale", "passed", "unknown"}
+            or item.attio_status.lower() in {"no_match", "not_found", "new", "no_owner", "stale", "passed"}
         )
         and not (item.recommended_action == ACTION_MONITOR_ONLY and item.focus_priority_score < 85)
     )
@@ -696,7 +712,7 @@ def test_company_identity_score_records_basis_and_missing_evidence():
     score, basis, missing = score_company_identity(_candidate(domain="agentshield.dev"))
 
     assert score >= 80
-    assert "verified_domain_present" in basis
+    assert "domain_present" in basis
     assert "evidence_urls_present" in basis
     assert "no verified company domain" not in missing
 
@@ -752,7 +768,7 @@ def test_take_meeting_gate_is_strict():
     assert choose_recommended_action(candidate, item) != ACTION_TAKE_MEETING
 
 
-def test_take_meeting_allowed_only_when_all_gates_clear():
+def test_take_meeting_blocked_when_attio_unknown_even_when_scores_clear():
     from radar_focus import ACTION_TAKE_MEETING, can_take_meeting, choose_recommended_action
 
     candidate = _candidate(domain="agentshield.dev", evidence_confidence_score=85)
@@ -765,8 +781,24 @@ def test_take_meeting_allowed_only_when_all_gates_clear():
         attio_status="unknown",
     )
 
-    assert can_take_meeting(item) is True
-    assert choose_recommended_action(candidate, item) == ACTION_TAKE_MEETING
+    assert can_take_meeting(item) is False
+    assert choose_recommended_action(candidate, item) != ACTION_TAKE_MEETING
+
+
+def test_unknown_attio_status_is_not_new_to_marathon_or_assign_owner():
+    from radar_focus import ACTION_ASSIGN_OWNER, build_focus_item
+
+    item = build_focus_item(
+        _candidate(
+            domain="agentshield.dev",
+            attio_status="unknown",
+            attio_owner="",
+            evidence_confidence_score=60,
+        )
+    )
+
+    assert item.recommended_action != ACTION_ASSIGN_OWNER
+    assert "new_to_attio" not in item.actionability_basis
 ```
 
 - [ ] **Step 2: Run tests to verify they fail**
@@ -1084,10 +1116,22 @@ def _new_to_marathon(items: list[FocusItem]) -> list[FocusItem]:
     selected = []
     for item in items:
         status = item.attio_status.lower()
-        basis_text = " ".join(item.actionability_basis).lower()
-        if status in ATTIO_NEW_STATUSES or "attio_no_owner" in basis_text or "attio_stale" in basis_text or "passed" in basis_text:
+        if status in ATTIO_NEW_STATUSES:
             selected.append(item)
     return selected[:10]
+
+
+def is_extended_watchlist_eligible(item: FocusItem) -> bool:
+    return (
+        bool(item.evidence_urls)
+        and item.noise_risk_score < 85
+        and item.focus_priority_score >= 35
+        and item.recommended_action != ACTION_MONITOR_ONLY
+    )
+
+
+def _themes_without_companies(theme_signals: list[ThemeSignal] | None) -> list[dict]:
+    return [item.to_dict() for item in (theme_signals or [])[:10]]
 
 
 def _workflow_view(items: list[FocusItem]) -> dict[str, list[FocusItem]]:
@@ -1138,18 +1182,34 @@ def build_weekly_focus_artifact(
     eligible = _cap_oss_project_only([item for item in focus_items if is_partner_focus_eligible(item)])
     partner_focus = eligible[:15]
     partner_ids = {item.id for item in partner_focus}
-    extended_watchlist = [item for item in focus_items if item.id not in partner_ids][:15]
+    extended_watchlist = [
+        item
+        for item in focus_items
+        if item.id not in partner_ids and is_extended_watchlist_eligible(item)
+    ][:15]
     movements = build_market_movements(partner_focus or extended_watchlist, theme_signals)
     new_to_marathon = _new_to_marathon(partner_focus + extended_watchlist)
     workflow_view = _workflow_view(partner_focus)
     gaps = _source_gaps(sector_intelligence)
+    focus_and_watchlist_ids = {item.id for item in partner_focus + extended_watchlist}
     appendix = {
         "needs_more_evidence": [
             item.to_dict()
-            for item in extended_watchlist
+            for item in focus_items
             if item.company_identity_quality_score < 60 or item.evidence_confidence_score < 45
         ][:10],
+        "oss_project_watchlist": [
+            item.to_dict()
+            for item in extended_watchlist
+            if item.project_url and not item.company_domain
+        ][:10],
+        "themes_without_companies": _themes_without_companies(theme_signals),
         "source_gaps": gaps,
+        "filtered_or_noisy": [
+            item.to_dict()
+            for item in focus_items
+            if item.id not in focus_and_watchlist_ids
+        ][:10],
     }
     return WeeklyFocusArtifact(
         run_id=run_id,
@@ -1228,6 +1288,14 @@ def test_new_to_marathon_and_workflow_view_use_attio_context():
     artifact = build_weekly_focus_artifact(
         candidates=[
             _candidate(
+                name="NewCo",
+                stable_key="newco",
+                domain="new.co",
+                sources=["https://new.co"],
+                attio_status="no_match",
+                evidence_confidence_score=75,
+            ),
+            _candidate(
                 name="KnownCo",
                 stable_key="knownco",
                 domain="known.co",
@@ -1240,8 +1308,56 @@ def test_new_to_marathon_and_workflow_view_use_attio_context():
         run_id="2026-05-11",
     )
 
-    assert artifact.new_to_marathon[0].name == "KnownCo"
+    assert artifact.new_to_marathon[0].name == "NewCo"
     assert ACTION_REFRESH_ATTIO in artifact.workflow_view
+
+
+def test_unknown_attio_does_not_populate_new_to_marathon():
+    from radar_focus import build_weekly_focus_artifact
+
+    artifact = build_weekly_focus_artifact(
+        candidates=[
+            _candidate(
+                name="UnknownAttioCo",
+                stable_key="unknown-attio-co",
+                domain="unknownattio.co",
+                sources=["https://unknownattio.co"],
+                attio_status="unknown",
+                evidence_confidence_score=70,
+            )
+        ],
+        run_id="2026-05-11",
+    )
+
+    assert all(item.attio_status != "unknown" for item in artifact.new_to_marathon)
+
+
+def test_extended_watchlist_excludes_noisy_leftovers():
+    from radar_focus import build_weekly_focus_artifact
+
+    artifact = build_weekly_focus_artifact(
+        candidates=[
+            _candidate(
+                name="GoodCo",
+                stable_key="goodco",
+                domain="good.co",
+                sources=["https://good.co"],
+                evidence_confidence_score=75,
+            ),
+            _candidate(
+                name="NoisyCo",
+                stable_key="noisyco",
+                domain="",
+                sources=[],
+                evidence_confidence_score=20,
+                why_this_may_be_noise="No company identity and no source evidence.",
+            ),
+        ],
+        run_id="2026-05-11",
+    )
+
+    assert all(item.name != "NoisyCo" for item in artifact.extended_watchlist)
+    assert any(row["name"] == "NoisyCo" for row in artifact.appendix["filtered_or_noisy"])
 ```
 
 - [ ] **Step 2: Run tests to verify failure**
@@ -1350,6 +1466,17 @@ def render_weekly_focus_markdown(artifact: WeeklyFocusArtifact) -> str:
     else:
         lines.append("|  | No rows cleared Partner Focus gates. |  |  |  |  |  |  |  |  |  |  |  |")
 
+    lines.extend(["", "### Focus Evidence Links", ""])
+    if artifact.partner_focus:
+        for item in artifact.partner_focus:
+            if item.evidence_urls:
+                links = ", ".join(item.evidence_urls[:3])
+                lines.append(f"- **{item.name}**: {links}")
+            else:
+                lines.append(f"- **{item.name}**: No evidence links captured.")
+    else:
+        lines.append("- No focus evidence links.")
+
     lines.extend(["", "## Market Movements", ""])
     for movement in artifact.market_movements[:6]:
         lines.extend(
@@ -1371,7 +1498,7 @@ def render_weekly_focus_markdown(artifact: WeeklyFocusArtifact) -> str:
         for item in artifact.new_to_marathon[:10]:
             lines.append(f"- **{item.name}** — {item.attio_status}; action: {item.recommended_action}")
     else:
-        lines.append("- No new/stale/no-owner Attio rows surfaced.")
+        lines.append("- No new-to-Marathon Attio rows surfaced.")
 
     lines.extend(["", "## Workflow View", ""])
     if artifact.workflow_view:
@@ -1399,6 +1526,22 @@ def render_weekly_focus_markdown(artifact: WeeklyFocusArtifact) -> str:
         lines.extend(["", "### Needs More Evidence"])
         for row in needs_more[:10]:
             lines.append(f"- **{row.get('name', 'Unknown')}** — {', '.join(row.get('missing_evidence', [])[:2])}")
+    oss_watchlist = artifact.appendix.get("oss_project_watchlist", [])
+    if oss_watchlist:
+        lines.extend(["", "### OSS Project Watchlist"])
+        for row in oss_watchlist[:10]:
+            lines.append(f"- **{row.get('name', 'Unknown')}** — {row.get('recommended_action', 'Research deeper')}")
+    themes_without_companies = artifact.appendix.get("themes_without_companies", [])
+    if themes_without_companies:
+        lines.extend(["", "### Themes Without Companies Yet"])
+        for row in themes_without_companies[:10]:
+            label = row.get("theme") or row.get("name") or row.get("title") or "Unknown theme"
+            lines.append(f"- **{label}**")
+    filtered_or_noisy = artifact.appendix.get("filtered_or_noisy", [])
+    if filtered_or_noisy:
+        lines.extend(["", "### Filtered Or Noisy"])
+        for row in filtered_or_noisy[:10]:
+            lines.append(f"- **{row.get('name', 'Unknown')}** — {row.get('why_this_may_be_noise', 'Failed focus/watchlist gates.')}")
 
     return "\n".join(lines).rstrip() + "\n"
 
@@ -1438,6 +1581,8 @@ def test_render_weekly_focus_markdown_has_executive_snapshot_and_compact_basis()
     assert markdown.startswith("# Marathon Signal Radar: Weekly Focus")
     assert "## Executive Snapshot" in markdown
     assert "## Partner Focus" in markdown
+    assert "### Focus Evidence Links" in markdown
+    assert "https://agentshield.dev" in markdown
     assert "company_identity_quality_basis" not in markdown
     assert "Missing Evidence" in markdown
 
@@ -1799,6 +1944,9 @@ Phase 1A/1B is done when:
     - no evidence URL exclusion
     - OSS/project-only cap
     - strict Take Meeting gate
+    - unknown Attio is not treated as new to Marathon
+    - unknown Attio does not default to `Assign owner`
+    - Extended Watchlist excludes noisy leftovers
     - Attio action grouping
     - New To Marathon section
     - missing evidence disclosure
