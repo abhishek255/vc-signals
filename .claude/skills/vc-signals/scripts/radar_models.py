@@ -230,6 +230,185 @@ class SynthesisResult:
 
 
 @dataclass
+class FocusItem:
+    id: str
+    rank: int = 0
+    name: str = ""
+    company_domain: str = ""
+    project_url: str = ""
+    market_movement_id: str = ""
+    market_movement: str = ""
+    market_sector: str = ""
+    why_focus_this_week: str = ""
+    who_is_talking: list[str] = field(default_factory=list)
+    talker_types: list[str] = field(default_factory=list)
+    talker_type_confidence: str = "Low"
+    evidence_snapshot: list[str] = field(default_factory=list)
+    evidence_urls: list[str] = field(default_factory=list)
+    missing_evidence: list[str] = field(default_factory=list)
+    attio_status: str = "unknown"
+    attio_owner: str = ""
+    attio_last_touch: str = ""
+    recommended_action: str = "Research deeper"
+    investment_interest_score: int = 0
+    evidence_confidence_score: int = 0
+    focus_priority_score: int = 0
+    actionability_score: int = 0
+    freshness_score: int = 0
+    market_movement_score: int = 0
+    marathon_fit_score: int = 0
+    noise_risk_score: int = 0
+    consensus_risk_score: int = 0
+    company_identity_quality_score: int = 0
+    company_identity_quality_basis: list[str] = field(default_factory=list)
+    focus_priority_basis: list[str] = field(default_factory=list)
+    actionability_basis: list[str] = field(default_factory=list)
+    freshness_basis: list[str] = field(default_factory=list)
+    market_movement_basis: list[str] = field(default_factory=list)
+    marathon_fit_basis: list[str] = field(default_factory=list)
+    noise_risk_basis: list[str] = field(default_factory=list)
+    consensus_risk_basis: list[str] = field(default_factory=list)
+    movement_assignment_method: str = "direct_match"
+    movement_assignment_confidence: str = "Medium"
+    movement_assignment_evidence_url: str = ""
+    first_seen_at: str = ""
+    last_seen_at: str = ""
+    seen_in_prior_runs: bool = False
+    weekly_tag: str = ""
+    new_evidence_this_week: list[str] = field(default_factory=list)
+    why_this_may_be_noise: str = ""
+    skepticism_events: list[str] = field(default_factory=list)
+    source_candidate_id: str = ""
+
+    def to_dict(self) -> dict:
+        return asdict(self)
+
+    @classmethod
+    def from_dict(cls, payload: dict) -> "FocusItem":
+        return cls(**_known_payload(cls, payload))
+
+
+@dataclass
+class MarketMovement:
+    id: str
+    name: str
+    market_sector: str = ""
+    what_is_moving: str = ""
+    why_now: str = ""
+    why_not_now: str = ""
+    who_is_talking: list[str] = field(default_factory=list)
+    talker_mix: dict = field(default_factory=dict)
+    companies_or_projects: list[str] = field(default_factory=list)
+    evidence_urls: list[str] = field(default_factory=list)
+    skepticism_events: list[str] = field(default_factory=list)
+    momentum_label: str = "provisional"
+    confidence: str = "Low"
+
+    def to_dict(self) -> dict:
+        return asdict(self)
+
+    @classmethod
+    def from_dict(cls, payload: dict) -> "MarketMovement":
+        return cls(**_known_payload(cls, payload))
+
+
+@dataclass
+class ExecutiveSnapshot:
+    top_movement: str = ""
+    top_new_to_marathon: str = ""
+    rows_needing_owner: int = 0
+    rows_needing_attio_refresh: int = 0
+    biggest_source_gap: str = ""
+    top_actions: list[str] = field(default_factory=list)
+
+    def to_dict(self) -> dict:
+        return asdict(self)
+
+    @classmethod
+    def from_dict(cls, payload: dict) -> "ExecutiveSnapshot":
+        return cls(**_known_payload(cls, payload))
+
+
+@dataclass
+class WeeklyFocusArtifact:
+    run_id: str
+    executive_snapshot: ExecutiveSnapshot = field(default_factory=ExecutiveSnapshot)
+    partner_focus: list[FocusItem] = field(default_factory=list)
+    market_movements: list[MarketMovement] = field(default_factory=list)
+    new_to_marathon: list[FocusItem] = field(default_factory=list)
+    workflow_view: dict[str, list[FocusItem]] = field(default_factory=dict)
+    extended_watchlist: list[FocusItem] = field(default_factory=list)
+    appendix: dict = field(default_factory=dict)
+    source_gaps: list[str] = field(default_factory=list)
+
+    def to_dict(self) -> dict:
+        return {
+            "run_id": self.run_id,
+            "executive_snapshot": self.executive_snapshot.to_dict(),
+            "partner_focus": [item.to_dict() for item in self.partner_focus],
+            "market_movements": [item.to_dict() for item in self.market_movements],
+            "new_to_marathon": [item.to_dict() for item in self.new_to_marathon],
+            "workflow_view": {
+                action: [item.to_dict() for item in items]
+                for action, items in self.workflow_view.items()
+            },
+            "extended_watchlist": [item.to_dict() for item in self.extended_watchlist],
+            "appendix": deepcopy(self.appendix),
+            "source_gaps": list(self.source_gaps),
+        }
+
+    @classmethod
+    def from_dict(cls, payload: dict) -> "WeeklyFocusArtifact":
+        known = _known_payload(cls, payload)
+        snapshot = known.get("executive_snapshot", {})
+        known["executive_snapshot"] = (
+            snapshot
+            if isinstance(snapshot, ExecutiveSnapshot)
+            else ExecutiveSnapshot.from_dict(snapshot)
+        )
+        known["partner_focus"] = [
+            item if isinstance(item, FocusItem) else FocusItem.from_dict(item)
+            for item in known.get("partner_focus", [])
+        ]
+        known["market_movements"] = [
+            item if isinstance(item, MarketMovement) else MarketMovement.from_dict(item)
+            for item in known.get("market_movements", [])
+        ]
+        known["new_to_marathon"] = [
+            item if isinstance(item, FocusItem) else FocusItem.from_dict(item)
+            for item in known.get("new_to_marathon", [])
+        ]
+        known["workflow_view"] = {
+            action: [
+                item if isinstance(item, FocusItem) else FocusItem.from_dict(item)
+                for item in items
+            ]
+            for action, items in known.get("workflow_view", {}).items()
+        }
+        known["extended_watchlist"] = [
+            item if isinstance(item, FocusItem) else FocusItem.from_dict(item)
+            for item in known.get("extended_watchlist", [])
+        ]
+        return cls(**known)
+
+
+@dataclass
+class AlexFeedback:
+    run_id: str
+    feedback: list[dict] = field(default_factory=list)
+
+    def to_dict(self) -> dict:
+        return {
+            "run_id": self.run_id,
+            "feedback": deepcopy(self.feedback),
+        }
+
+    @classmethod
+    def from_dict(cls, payload: dict) -> "AlexFeedback":
+        return cls(**_known_payload(cls, payload))
+
+
+@dataclass
 class RejectedSignal:
     sector: str
     source: str

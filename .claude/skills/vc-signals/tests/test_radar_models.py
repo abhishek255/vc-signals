@@ -179,3 +179,70 @@ def test_synthesis_result_to_dict_copies_source_digest():
     payload["source_digest"]["source_lanes"]["OSS"] = 0
 
     assert result.source_digest["source_lanes"]["OSS"] == 50
+
+
+def test_focus_item_roundtrips_and_ignores_extra_fields():
+    from radar_models import FocusItem
+
+    item = FocusItem(
+        id="agentshield",
+        name="AgentShield",
+        market_movement="AI agent permission security",
+        evidence_urls=["https://github.com/affaan-m/agentshield"],
+        company_identity_quality_score=60,
+        company_identity_quality_basis=["oss_project_with_company_formation_signal"],
+        actionability_basis=["attio_unknown_not_new"],
+        missing_evidence=["no verified company domain"],
+        recommended_action="Research deeper",
+    )
+
+    payload = item.to_dict()
+    payload["future_field"] = "ignored"
+    restored = FocusItem.from_dict(payload)
+
+    assert restored == item
+    assert restored.company_identity_quality_basis == ["oss_project_with_company_formation_signal"]
+    assert restored.missing_evidence == ["no verified company domain"]
+
+
+def test_weekly_focus_artifact_roundtrips_nested_models():
+    from radar_models import ExecutiveSnapshot, FocusItem, MarketMovement, WeeklyFocusArtifact
+
+    artifact = WeeklyFocusArtifact(
+        run_id="2026-05-11",
+        executive_snapshot=ExecutiveSnapshot(
+            top_movement="AI agent permission security",
+            top_new_to_marathon="AgentShield",
+            rows_needing_owner=1,
+            rows_needing_attio_refresh=0,
+            biggest_source_gap="No X/Product Hunt/package-registry adapters in Phase 1A/1B.",
+            top_actions=["Research deeper: 1"],
+        ),
+        partner_focus=[
+            FocusItem(
+                id="agentshield",
+                name="AgentShield",
+                evidence_urls=["https://github.com/affaan-m/agentshield"],
+                recommended_action="Research deeper",
+            )
+        ],
+        market_movements=[
+            MarketMovement(
+                id="cybersecurity-ai-agent-permission-security",
+                name="AI agent permission security",
+                market_sector="Cybersecurity",
+                what_is_moving="Security teams are paying attention to MCP/tool permissions.",
+                companies_or_projects=["AgentShield"],
+                evidence_urls=["https://github.com/affaan-m/agentshield"],
+            )
+        ],
+        appendix={"source_gaps": ["No X/Product Hunt/package-registry adapters in Phase 1A/1B."]},
+        source_gaps=["No X/Product Hunt/package-registry adapters in Phase 1A/1B."],
+    )
+
+    restored = WeeklyFocusArtifact.from_dict(artifact.to_dict())
+
+    assert restored == artifact
+    assert isinstance(restored.partner_focus[0], FocusItem)
+    assert isinstance(restored.market_movements[0], MarketMovement)
+    assert restored.executive_snapshot.top_movement == "AI agent permission security"
