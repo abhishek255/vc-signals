@@ -1,12 +1,16 @@
 # Weekly Focus Market Movement Design
 
+**Status:** Phase 1 design under the broader product spec in `docs/superpowers/specs/2026-05-07-market-movement-intelligence-product-spec.md`.
+
+This document should not be treated as the full product destination. It is the first implementation slice: a partner-facing `weekly-focus.md` / `weekly-focus.json` artifact built from current weekly radar artifacts. The product destination is market movement intelligence with source role normalization, movement time-series, company discovery, Attio workflow context, and Alex feedback.
+
 ## Goal
 
 Add a new `weekly-focus.md` artifact that turns VC Signals from a broad radar report into a Marathon partner focus brief.
 
 The product principle is:
 
-> Here are the 15-30 companies/projects Marathon should focus on this week, and the market movement behind each one.
+> Here are the 10-15 companies/projects Marathon should focus on this week, and the market movement behind each one.
 
 This artifact should answer:
 
@@ -53,17 +57,17 @@ Secondary users:
 
 The job:
 
-> Show Alex the top 15-30 companies/projects worth attention this week, explain why each one matters now, show whether Marathon already knows it, and recommend the next action.
+> Show Alex the top 10-15 companies/projects worth attention this week, explain why each one matters now, show whether Marathon already knows it, and recommend the next action.
 
 The artifact should be readable in under ten minutes. It should not require Alex to inspect JSON files or reason through source mechanics.
 
 ## Output Structure
 
-`weekly-focus.md` should have four sections.
+`weekly-focus.md` should have six sections.
 
 ### 1. Focus List
 
-The main section. A ranked list of 15-30 companies/projects Marathon should inspect this week.
+The main section. A ranked list of 10-15 companies/projects Marathon should inspect this week.
 
 Each row should include:
 
@@ -132,7 +136,16 @@ Action:
 - Refresh ToolHive record
 ```
 
-### 3. Marathon Workflow View
+### 3. New To Marathon
+
+Rows that represent Marathon-specific workflow opportunities:
+
+- No Attio match.
+- Attio match with no owner.
+- Attio match with stale last touch.
+- Passed Attio company with new signal.
+
+### 4. Marathon Workflow View
 
 Group focus-list rows by recommended action:
 
@@ -144,7 +157,11 @@ Group focus-list rows by recommended action:
 
 This section exists so Marathon can turn the brief into team workflow.
 
-### 4. Appendix
+### 5. Extended Watchlist
+
+Good but not top-focus rows. The combined Partner Focus + Extended Watchlist should not exceed 30 rows.
+
+### 6. Appendix
 
 Keep lower-confidence material out of Alex's main flow but preserve it for audit and associate research:
 
@@ -173,7 +190,9 @@ The focus list should be mostly companies, with a small number of high-signal OS
 
 Rules:
 
-- Target 15-30 rows.
+- Target 10-15 Partner Focus rows.
+- Allow fewer when fewer rows qualify.
+- Put additional credible rows in Extended Watchlist, up to 30 total across Partner Focus + Extended Watchlist.
 - Do not pad with weak rows.
 - Prefer companies with a domain, founder/company source, launch page, funding signal, Attio match, or strong OSS-to-company evidence.
 - Allow up to 3-5 OSS/project-only rows when the action is clear:
@@ -441,7 +460,7 @@ If `synthesis.json` is missing or disabled, `weekly-focus.md` should still rende
 
 Product acceptance:
 
-- Alex can open `weekly-focus.md` and see the 15-30 companies/projects worth attention first.
+- Alex can open `weekly-focus.md` and see the 10-15 companies/projects worth attention first.
 - Every focus row answers "why focus this week?"
 - Every focus row has an action.
 - Every focus row has at least one evidence snapshot or clearly says evidence is weak.
@@ -474,7 +493,7 @@ This phase does not include:
 
 These decisions keep the first implementation concrete:
 
-1. `weekly-focus.md` should target 15-30 rows, but allow fewer when fewer candidates qualify. Do not pad.
+1. `weekly-focus.md` should target 10-15 Partner Focus rows, but allow fewer when fewer candidates qualify. Do not pad. Additional credible rows go into Extended Watchlist, up to 30 total rows across Focus + Watchlist.
 2. The first implementation should write `weekly-focus.json` alongside Markdown. This makes tests easier and gives future Slack formatting a structured input.
 3. `Take meeting` should require high Evidence Confidence and clear company evidence. Deterministic scores alone are not enough unless the row has credible company/launch/Attio evidence.
 4. Market movement naming should work without `--with-synthesis` by using candidate themes, theme signals, and sector labels. When `synthesis.json` exists, it can improve naming and prose but cannot invent evidence.
