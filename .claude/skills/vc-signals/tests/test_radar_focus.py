@@ -219,6 +219,37 @@ def test_seed_stage_verified_company_without_founder_stays_research_deeper():
     assert item.recommended_next_validation_step == "Find founder/team source"
 
 
+def test_owner_evidence_clears_stale_missing_identity_text():
+    from radar_focus import build_weekly_focus_artifact
+
+    artifact = build_weekly_focus_artifact(
+        candidates=[
+            _candidate(
+                name="Arize",
+                stable_key="company:arize.com",
+                source="https://arize.com/",
+                sources=["https://arize.com/"],
+                candidate_type="company_web",
+                domain="arize.com",
+                identity_type="verified_company",
+                attio_status="no_owner",
+                attio_safe_to_match=True,
+                evidence_confidence_score=70,
+                missing_identity_evidence=["no founder identity", "no stage or funding verification"],
+                founder_team_evidence=["https://arize.com/team"],
+                founder_profiles=[{"name": "source-backed founder/team evidence", "source": "https://arize.com/team"}],
+                maturity_status="unknown",
+                lead_route="research_deeper",
+            )
+        ],
+        run_id="2026-05-08",
+    )
+
+    item = artifact.research_deeper_queue[0]
+    assert "no founder identity" not in item.missing_evidence
+    assert "no stage or funding verification" in item.missing_evidence
+
+
 def test_unknown_attio_blocks_owner_ready_assign_owner():
     from radar_focus import ACTION_RESEARCH_DEEPER, build_weekly_focus_artifact
 

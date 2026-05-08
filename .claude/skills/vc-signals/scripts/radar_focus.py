@@ -280,11 +280,11 @@ def score_market_movement(candidate: Candidate) -> tuple[int, list[str]]:
 
 
 def _has_founder_team_evidence(candidate: Candidate) -> bool:
-    return bool(candidate.founder_profiles or candidate.founders or candidate.maintainer_profiles)
+    return bool(candidate.founder_team_evidence or candidate.founder_profiles or candidate.founders or candidate.maintainer_profiles)
 
 
 def _has_stage_funding_evidence(candidate: Candidate) -> bool:
-    text = _text_blob(candidate.stage, candidate.raised, candidate.why_on_radar, candidate.maturity_basis)
+    text = _text_blob(candidate.stage, candidate.raised, candidate.why_on_radar, candidate.maturity_basis, candidate.stage_funding_evidence)
     return (
         candidate.maturity_status in SOURCING_MATURITY_STATUSES
         or any(term in text for term in ("pre-seed", "pre seed", "seed", "series a", "series b", "funding", "raised"))
@@ -297,12 +297,12 @@ def _has_customer_buyer_pull(candidate: Candidate) -> bool:
         for metadata in candidate.evidence_metadata
         if isinstance(metadata, dict)
     )
-    text = _text_blob(candidate.why_on_radar, candidate.why_this_may_be_noise, metadata_text)
+    text = _text_blob(candidate.why_on_radar, candidate.why_this_may_be_noise, metadata_text, candidate.customer_buyer_evidence)
     return any(term in text for term in CUSTOMER_PULL_TERMS)
 
 
 def _has_commercial_or_funding_evidence(candidate: Candidate) -> bool:
-    text = _text_blob(candidate.why_on_radar, candidate.commercial_intent_basis, candidate.maturity_basis)
+    text = _text_blob(candidate.why_on_radar, candidate.commercial_intent_basis, candidate.maturity_basis, candidate.stage_funding_evidence)
     return (
         _has_stage_funding_evidence(candidate)
         or candidate.commercial_intent_score >= 60
@@ -699,6 +699,12 @@ def build_focus_item(candidate: Candidate) -> FocusItem:
         missing_owner_evidence=missing_owner,
         recommended_owner_action=candidate.recommended_owner_action,
         recommended_next_validation_step=next_validation_step,
+        founder_team_evidence=list(candidate.founder_team_evidence),
+        stage_funding_evidence=list(candidate.stage_funding_evidence or candidate.maturity_evidence_urls[:3]),
+        customer_buyer_evidence=list(candidate.customer_buyer_evidence),
+        attio_confidence=candidate.attio_confidence,
+        attio_confidence_basis=list(candidate.attio_confidence_basis),
+        owner_evidence_status=candidate.owner_evidence_status,
     )
     item.recommended_action = choose_recommended_action(candidate, item)
     _add_route_missing_evidence(item, candidate)
@@ -710,6 +716,24 @@ def _add_route_missing_evidence(item: FocusItem, candidate: Candidate) -> None:
         item.maturity_basis = ["maturity_not_verified"]
     missing = list(item.missing_evidence)
     missing.extend(item.missing_owner_evidence)
+    if item.founder_team_evidence:
+        missing = [
+            evidence
+            for evidence in missing
+            if "founder" not in evidence.lower() and "maintainer" not in evidence.lower()
+        ]
+    if item.stage_funding_evidence:
+        missing = [
+            evidence
+            for evidence in missing
+            if "stage" not in evidence.lower() and "funding" not in evidence.lower()
+        ]
+    if item.customer_buyer_evidence:
+        missing = [
+            evidence
+            for evidence in missing
+            if "customer" not in evidence.lower() and "buyer" not in evidence.lower()
+        ]
     company_or_launch = bool(item.company_domain) and item.identity_type in {"verified_company", "launch_style_needs_identity", ""}
     if company_or_launch and item.lead_route == "research_deeper":
         if not (candidate.founder_profiles or candidate.founders or candidate.maintainer_profiles):
@@ -1093,6 +1117,9 @@ def _item_row(item: FocusItem) -> str:
             str(item.investment_interest_score),
             str(item.evidence_confidence_score),
             str(item.owner_readiness_score),
+            _cell("; ".join(item.founder_team_evidence[:2]) or "missing"),
+            _cell("; ".join(item.stage_funding_evidence[:2]) or "missing"),
+            _cell("; ".join(item.customer_buyer_evidence[:2]) or "missing"),
             _cell("; ".join(item.missing_evidence[:4])),
             _cell(item.recommended_next_validation_step),
             _cell(item.why_this_may_be_noise),
@@ -1109,14 +1136,14 @@ def _movement_heading(movement: MarketMovement) -> str:
 def _append_item_table(lines: list[str], items: list[FocusItem], *, empty_label: str) -> None:
     lines.extend(
         [
-            "| # | Company / Project | Market Movement | Sector | Why Focus This Week | Who Is Talking | Evidence | Attio | Action | Interest | Confidence | Owner Ready | Missing Evidence | Next Validation Step | Why This May Be Noise |",
-            "|---|---|---|---|---|---|---|---|---|---:|---:|---:|---|---|---|",
+            "| # | Company / Project | Market Movement | Sector | Why Focus This Week | Who Is Talking | Evidence | Attio | Action | Interest | Confidence | Owner Ready | Founder/Team Evidence | Stage/Funding Evidence | Customer/Buyer Evidence | Missing Evidence | Next Validation Step | Why This May Be Noise |",
+            "|---|---|---|---|---|---|---|---|---|---:|---:|---:|---|---|---|---|---|---|",
         ]
     )
     if items:
         lines.extend(f"| {_item_row(item)} |" for item in items)
     else:
-        lines.append(f"|  | {empty_label} |  |  |  |  |  |  |  |  |  |  |  |  |  |")
+        lines.append(f"|  | {empty_label} |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |  |")
 
 
 def render_weekly_focus_markdown(artifact: WeeklyFocusArtifact) -> str:

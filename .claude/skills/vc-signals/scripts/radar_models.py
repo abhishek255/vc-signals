@@ -111,6 +111,12 @@ class Candidate:
     missing_owner_evidence: list[str] = field(default_factory=list)
     recommended_owner_action: str = ""
     recommended_next_validation_step: str = ""
+    founder_team_evidence: list[str] = field(default_factory=list)
+    stage_funding_evidence: list[str] = field(default_factory=list)
+    customer_buyer_evidence: list[str] = field(default_factory=list)
+    attio_confidence: str = ""
+    attio_confidence_basis: list[str] = field(default_factory=list)
+    owner_evidence_status: str = ""
 
     def to_dict(self) -> dict:
         return asdict(self)
@@ -391,6 +397,12 @@ class FocusItem:
     missing_owner_evidence: list[str] = field(default_factory=list)
     recommended_owner_action: str = ""
     recommended_next_validation_step: str = ""
+    founder_team_evidence: list[str] = field(default_factory=list)
+    stage_funding_evidence: list[str] = field(default_factory=list)
+    customer_buyer_evidence: list[str] = field(default_factory=list)
+    attio_confidence: str = ""
+    attio_confidence_basis: list[str] = field(default_factory=list)
+    owner_evidence_status: str = ""
 
     def to_dict(self) -> dict:
         return asdict(self)
@@ -538,6 +550,39 @@ class OwnerReadiness:
 
     @classmethod
     def from_dict(cls, payload: dict) -> "OwnerReadiness":
+        return cls(**_known_payload(cls, payload))
+
+
+@dataclass
+class OwnerEvidence:
+    candidate_key: str
+    name: str = ""
+    domain: str = ""
+    eligible: bool = False
+    skip_reason: str = ""
+    founder_team_evidence: list[str] = field(default_factory=list)
+    stage_funding_evidence: list[str] = field(default_factory=list)
+    customer_buyer_evidence: list[str] = field(default_factory=list)
+    official_site_pages_checked: list[str] = field(default_factory=list)
+    official_site_pages_failed: list[str] = field(default_factory=list)
+    funding_query: str = ""
+    funding_query_status: str = ""
+    customer_query: str = ""
+    customer_query_status: str = ""
+    attio_confidence: str = "Low"
+    attio_confidence_basis: list[str] = field(default_factory=list)
+    owner_readiness_score: int = 0
+    owner_readiness_basis: list[str] = field(default_factory=list)
+    missing_owner_evidence: list[str] = field(default_factory=list)
+    recommended_owner_action: str = "Research deeper"
+    recommended_next_validation_step: str = ""
+    evidence_urls: list[str] = field(default_factory=list)
+
+    def to_dict(self) -> dict:
+        return asdict(self)
+
+    @classmethod
+    def from_dict(cls, payload: dict) -> "OwnerEvidence":
         return cls(**_known_payload(cls, payload))
 
 

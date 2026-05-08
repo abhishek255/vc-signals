@@ -146,9 +146,9 @@ def _recommended_owner_action(candidate: Candidate, score: int, missing: list[st
 def _readiness_for_candidate(candidate: Candidate, *, query: str = "", query_status: str = "", payload: dict | None = None) -> tuple[Candidate, OwnerReadiness]:
     scored_candidate = Candidate.from_dict(candidate.to_dict())
     dimensions = {
-        "founder_team_evidence": [],
-        "stage_funding_evidence": [],
-        "customer_buyer_pull_evidence": [],
+        "founder_team_evidence": list(scored_candidate.founder_team_evidence),
+        "stage_funding_evidence": list(scored_candidate.stage_funding_evidence),
+        "customer_buyer_pull_evidence": list(scored_candidate.customer_buyer_evidence),
         "attio_context_evidence": [],
     }
     if payload:

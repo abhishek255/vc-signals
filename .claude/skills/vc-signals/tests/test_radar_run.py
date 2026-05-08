@@ -1309,15 +1309,20 @@ def test_run_weekly_artifacts_writes_weekly_focus_without_replacing_preview(tmp_
 
     assert result["weekly_focus_json"].endswith("weekly-focus.json")
     assert result["weekly_focus"].endswith("weekly-focus.md")
+    assert result["owner_evidence_json"].endswith("owner-evidence.json")
     assert result["owner_readiness_json"].endswith("owner-readiness.json")
     assert result["feedback"].endswith("feedback.json")
     assert (tmp_path / "weekly-focus.json").exists()
     assert (tmp_path / "weekly-focus.md").exists()
+    assert (tmp_path / "owner-evidence.json").exists()
     assert (tmp_path / "owner-readiness.json").exists()
     assert (tmp_path / "feedback.json").exists()
     weekly_focus = (tmp_path / "weekly-focus.md").read_text()
     assert "# Marathon Signal Radar: Weekly Focus" in weekly_focus
     assert "Owner Ready" in weekly_focus
+    assert "Founder/Team Evidence" in weekly_focus
+    assert "Stage/Funding Evidence" in weekly_focus
+    assert "Customer/Buyer Evidence" in weekly_focus
     assert "# VC Signals Weekly Radar" in (tmp_path / "weekly-preview.md").read_text()
 
 
@@ -1789,7 +1794,7 @@ def test_run_weekly_artifacts_feeds_verified_discovery_into_identity_resolution(
 
     def fake_run_query(topic, **kwargs):
         assert kwargs["sources"] == "grounding"
-        if "founder team seed funding customers" in topic:
+        if "funding seed series A series B" in topic:
             return {
                 "items": [
                     {
@@ -1797,6 +1802,18 @@ def test_run_weekly_artifacts_feeds_verified_discovery_into_identity_resolution(
                         "title": "AgentFence founder and seed funding",
                         "url": "https://agentfence.dev/seed",
                         "snippet": "Founder Ada Rao launched AgentFence after enterprise security teams joined design partner pilots.",
+                    }
+                ],
+                "warnings": [],
+            }
+        if "customers users case study enterprise" in topic:
+            return {
+                "items": [
+                    {
+                        "source": "grounding",
+                        "title": "AgentFence enterprise pilots",
+                        "url": "https://agentfence.dev/customers",
+                        "snippet": "Enterprise security teams use AgentFence in design partner pilots.",
                     }
                 ],
                 "warnings": [],
