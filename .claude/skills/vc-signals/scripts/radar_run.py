@@ -39,7 +39,7 @@ except ImportError:  # pragma: no cover - only for damaged installs
     run_query = None
 
 from radar_models import Candidate, EvidenceMetadata, RejectedSignal, SectorCoverage
-from radar_company_discovery import classify_discovery_source, collect_company_discovery
+from radar_company_discovery import DiscoveryRunBudget, classify_discovery_source, collect_company_discovery
 from radar_scoring import score_and_tier
 from radar_sources import classify_source_item
 from radar_sector_intelligence import build_sector_intelligence
@@ -1338,9 +1338,15 @@ def run_weekly_artifacts(
     with_synthesis: bool = False,
     query_timeout_seconds: int | None = None,
     progress: bool = False,
+    discovery_budget: DiscoveryRunBudget | None = None,
+    discovery_budget_mode: str = "weekly",
+    discovery_cache_dir: Path | None = None,
 ) -> dict:
     """Collect evidence and render a weekly partner preview in one command."""
     output_dir.mkdir(parents=True, exist_ok=True)
+    company_discovery_path = output_dir / "company-discovery.json"
+    runtime_ledger_path = output_dir / "runtime-ledger.json"
+    coverage_report_path = output_dir / "coverage-report.json"
     evidence = collect_live_evidence(
         sectors=sectors,
         github_limit=github_limit,
@@ -1353,6 +1359,7 @@ def run_weekly_artifacts(
     initial_promotion = promote_signals_to_candidates(signal_result["signals"])
     provisional_candidates = _score_sort_limit_candidates(initial_promotion["candidates"], candidate_limit)
     provisional_focus_items = [build_focus_item(candidate) for candidate in provisional_candidates]
+    resolved_discovery_budget = discovery_budget or DiscoveryRunBudget.for_mode(discovery_budget_mode)
     company_discovery = collect_company_discovery(
         theme_signals,
         focus_items=provisional_focus_items,
@@ -1361,6 +1368,9 @@ def run_weekly_artifacts(
         grounded_available=_grounded_search_available(),
         social_available=_social_search_available(),
         max_queries_per_theme=3,
+        run_budget=resolved_discovery_budget,
+        partial_output_path=company_discovery_path,
+        query_cache_dir=discovery_cache_dir or output_dir / "provider-query-cache",
     )
     evidence["company_discovery"] = company_discovery
     for error in company_discovery.get("errors", []):
@@ -1396,7 +1406,6 @@ def run_weekly_artifacts(
     candidates_path = output_dir / "candidates.json"
     theme_signals_path = output_dir / "theme-signals.json"
     sector_intelligence_path = output_dir / "sector-intelligence.json"
-    company_discovery_path = output_dir / "company-discovery.json"
     identity_resolution_path = output_dir / "identity-resolution.json"
     metadata_loss_report_path = output_dir / "metadata-loss-report.json"
     signals_path.write_text(json.dumps([signal.to_dict() for signal in signal_result["signals"]], indent=2))
@@ -1404,6 +1413,8 @@ def run_weekly_artifacts(
     theme_signals_path.write_text(json.dumps([item.to_dict() for item in theme_signals], indent=2))
     sector_intelligence_path.write_text(json.dumps([item.to_dict() for item in sector_intelligence], indent=2))
     company_discovery_path.write_text(json.dumps(company_discovery, indent=2))
+    runtime_ledger_path.write_text(json.dumps(company_discovery.get("runtime_ledger", {}), indent=2))
+    coverage_report_path.write_text(json.dumps(company_discovery.get("coverage_report", {}), indent=2))
     identity_resolution_path.write_text(json.dumps([item.to_dict() for item in identity_resolutions], indent=2, sort_keys=True))
     metadata_loss_report = build_metadata_loss_report(
         evidence=evidence,
@@ -1457,6 +1468,8 @@ def run_weekly_artifacts(
         "theme_signals": str(theme_signals_path),
         "sector_intelligence": str(sector_intelligence_path),
         "company_discovery": str(company_discovery_path),
+        "runtime_ledger": str(runtime_ledger_path),
+        "coverage_report": str(coverage_report_path),
         "identity_resolution_json": str(identity_resolution_path),
         "metadata_loss_report": str(metadata_loss_report_path),
         "preview": str(preview_path),
@@ -1507,6 +1520,25 @@ def _get_int_arg(args: dict, *names: str, default: int | None = None) -> int | N
         if name in args:
             return int(args[name])
     return default
+
+
+def _discovery_budget_from_args(args: dict, *, first_pass: bool) -> DiscoveryRunBudget:
+    mode = args.get("discovery_budget_mode") or args.get("budget_mode") or ("smoke" if first_pass else "weekly")
+    overrides = {}
+    for arg_name, field_name in (
+        ("max_runtime_seconds", "max_runtime_seconds"),
+        ("max_company_discovery_queries", "max_company_discovery_queries"),
+        ("max_maturity_queries", "max_maturity_queries"),
+        ("max_article_fetches", "max_article_fetches"),
+        ("max_results_per_query", "max_results_per_query"),
+        ("per_movement_query_cap", "per_movement_query_cap"),
+        ("query_cache_ttl_seconds", "query_cache_ttl_seconds"),
+    ):
+        if arg_name in args:
+            overrides[field_name] = int(args[arg_name])
+    if "allow_stale_cache" in args:
+        overrides["allow_stale_cache"] = _get_bool_arg(args, "allow_stale_cache")
+    return DiscoveryRunBudget.for_mode(mode, **overrides)
 
 
 def _attio_client_from_env():
@@ -1570,6 +1602,7 @@ def _cli_main() -> None:
                 default=45 if first_pass else None,
             ),
             progress=bool(args.get("progress", True)),
+            discovery_budget=_discovery_budget_from_args(args, first_pass=first_pass),
         )
         print(json.dumps(result))
         return

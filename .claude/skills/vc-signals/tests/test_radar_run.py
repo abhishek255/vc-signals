@@ -1566,6 +1566,76 @@ def test_run_weekly_artifacts_promotes_theme_company_discovery(tmp_path, monkeyp
     assert "AgentFence" in preview
 
 
+def test_run_weekly_artifacts_writes_runtime_ledger_and_coverage_report(tmp_path, monkeypatch):
+    import radar_run
+    from radar_company_discovery import DiscoveryRunBudget
+    from radar_models import ThemeSignal
+
+    monkeypatch.setattr(
+        radar_run,
+        "collect_live_evidence",
+        lambda **kwargs: {
+            "last30days": {
+                "cybersecurity": {
+                    "items": [
+                        {
+                            "source": "reddit",
+                            "title": "How are teams controlling AI agent permissions?",
+                            "url": "https://reddit.com/1",
+                            "snippet": "Teams need better controls for MCP permissions and autonomous agent security.",
+                        }
+                    ],
+                    "errors": [],
+                }
+            },
+            "github": [],
+            "warnings": [],
+        },
+    )
+    monkeypatch.setattr(radar_run, "load_candidate_history", lambda: {})
+    monkeypatch.setattr(radar_run, "save_candidate_history", lambda history: None)
+    monkeypatch.setattr(radar_run, "apply_candidate_enrichment", lambda candidates: candidates)
+    monkeypatch.setattr(
+        radar_run,
+        "build_theme_signals",
+        lambda signals, sectors: [
+            ThemeSignal(
+                market_sector="Cybersecurity",
+                theme="AI agent security",
+                evidence_count=3,
+                suggested_search="AI agent security startups Seed Series A founder launch",
+                confidence="Medium",
+            )
+        ],
+    )
+    monkeypatch.setattr(radar_run, "_grounded_search_available", lambda: True)
+    monkeypatch.setattr(radar_run, "_social_search_available", lambda: False)
+    monkeypatch.setattr(radar_run, "run_query", lambda topic, **kwargs: {"items": [], "warnings": []})
+
+    result = radar_run.run_weekly_artifacts(
+        output_dir=tmp_path,
+        sectors=("cybersecurity",),
+        github_limit=0,
+        candidate_limit=10,
+        discovery_budget=DiscoveryRunBudget.for_mode(
+            "smoke",
+            max_company_discovery_queries=1,
+            max_maturity_queries=0,
+            max_article_fetches=0,
+        ),
+    )
+
+    ledger = json.loads((tmp_path / "runtime-ledger.json").read_text())
+    coverage = json.loads((tmp_path / "coverage-report.json").read_text())
+    discovery = json.loads((tmp_path / "company-discovery.json").read_text())
+
+    assert result["runtime_ledger"].endswith("runtime-ledger.json")
+    assert result["coverage_report"].endswith("coverage-report.json")
+    assert ledger["completed_queries"] == 1
+    assert discovery["summary"]["partial"] is True
+    assert coverage["recommended_deep_dive"]
+
+
 def test_run_weekly_artifacts_feeds_verified_discovery_into_identity_resolution(tmp_path, monkeypatch):
     import json
     import radar_run

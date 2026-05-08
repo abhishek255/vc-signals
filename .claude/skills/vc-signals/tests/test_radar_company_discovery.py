@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import json
+
 
 def _theme_signal():
     from radar_models import ThemeSignal
@@ -114,6 +116,123 @@ def test_build_company_discovery_queries_refuses_broad_vibe_queries():
     )
 
     assert queries == []
+
+
+def test_collect_company_discovery_budget_records_skipped_queries_and_partial(tmp_path):
+    from radar_company_discovery import DiscoveryRunBudget, collect_company_discovery
+    from radar_models import ThemeSignal
+
+    calls = []
+
+    def fake_query(topic, **kwargs):
+        calls.append((topic, kwargs))
+        return {"items": [], "warnings": []}
+
+    budget = DiscoveryRunBudget.for_mode(
+        "smoke",
+        max_company_discovery_queries=1,
+        max_maturity_queries=0,
+        max_article_fetches=0,
+    )
+    result = collect_company_discovery(
+        [
+            _theme_signal(),
+            ThemeSignal(
+                market_sector="Devtools",
+                theme="Devtools workflow automation",
+                evidence_count=5,
+                suggested_search="Devtools workflow automation startup company founder launch",
+                confidence="Medium",
+            ),
+        ],
+        query_runner=fake_query,
+        grounded_available=True,
+        social_available=False,
+        max_queries_per_theme=1,
+        run_budget=budget,
+        partial_output_path=tmp_path / "company-discovery.json",
+    )
+
+    assert len(calls) == 1
+    assert result["summary"]["queries_run"] == 1
+    assert result["summary"]["partial"] is True
+    assert result["summary"]["budget_exceeded"] is True
+    assert result["runtime_ledger"]["completed_queries"] == 1
+    assert result["runtime_ledger"]["skipped_queries"] >= 1
+    assert result["runtime_ledger"]["skip_reasons"]["company_discovery_query_budget_exceeded"] >= 1
+    assert (tmp_path / "company-discovery.json").exists()
+
+
+def test_collect_company_discovery_uses_query_cache_before_live_call(tmp_path):
+    from radar_company_discovery import DiscoveryRunBudget, _query_cache_path, collect_company_discovery
+
+    topic = "AI agent security startups Seed Series A founder launch"
+    cache_path = _query_cache_path(tmp_path, topic)
+    cache_path.parent.mkdir(parents=True, exist_ok=True)
+    cache_path.write_text(
+        json.dumps(
+            {
+                "items": [
+                    {
+                        "source": "grounding",
+                        "title": "AgentFence launches AI agent permission firewall",
+                        "url": "https://agentfence.dev",
+                        "snippet": "AgentFence helps teams control MCP tool permissions for AI agents.",
+                        "company_name": "AgentFence",
+                        "domain": "agentfence.dev",
+                    }
+                ],
+                "warnings": [],
+            }
+        )
+    )
+
+    def fake_query(topic, **kwargs):  # pragma: no cover - must not be called
+        raise AssertionError("live query should not run when cache is fresh")
+
+    result = collect_company_discovery(
+        [_theme_signal()],
+        query_runner=fake_query,
+        grounded_available=True,
+        social_available=False,
+        max_queries_per_theme=1,
+        run_budget=DiscoveryRunBudget.for_mode("smoke", max_company_discovery_queries=0, max_maturity_queries=0),
+        query_cache_dir=tmp_path,
+    )
+
+    assert result["summary"]["queries_run"] == 0
+    assert result["summary"]["cache_hits"] == 1
+    assert result["runtime_ledger"]["cache_hits"] == 1
+    assert result["runtime_ledger"]["live_calls"] == 0
+    assert result["items"][0]["company_name"] == "AgentFence"
+
+
+def test_discovery_query_priority_prefers_hot_identity_gaps_over_generic_queries():
+    from radar_company_discovery import prioritize_discovery_queries
+
+    generic = {
+        "id": "generic",
+        "topic": "AI startup company",
+        "movement": "AI",
+        "source_reason": "theme_signal",
+        "missing_identity_evidence": [],
+        "origin_row_ids": [],
+    }
+    identity_gap = {
+        "id": "burrow",
+        "topic": "AI agent security startup company founder launch",
+        "movement": "AI agent security",
+        "source_reason": "identity_resolution_target",
+        "missing_identity_evidence": ["no verified domain", "no founder identity"],
+        "origin_row_ids": ["burrow"],
+        "evidence_count": 4,
+    }
+
+    prioritized = prioritize_discovery_queries([generic, identity_gap])
+
+    assert prioritized[0]["id"] == "burrow"
+    assert prioritized[0]["query_priority"]["missing_identity_evidence"] > 0
+    assert prioritized[1]["query_priority"]["generic_penalty"] > 0
 
 
 def test_build_company_discovery_queries_skips_execution_without_grounding():

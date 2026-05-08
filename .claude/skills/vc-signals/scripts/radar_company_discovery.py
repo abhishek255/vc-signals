@@ -1,10 +1,14 @@
 from __future__ import annotations
 
 import html as html_lib
+import hashlib
 import json
 import re
+import time
 from collections.abc import Callable
+from dataclasses import asdict, dataclass, field
 from html.parser import HTMLParser
+from pathlib import Path
 from urllib.parse import urljoin, urlparse
 from urllib.request import Request, urlopen
 
@@ -107,6 +111,134 @@ ARTICLE_MAX_TEXT_CHARS = 1_200
 ARTICLE_MIN_PARAGRAPH_CHARS = 40
 
 
+@dataclass
+class DiscoveryRunBudget:
+    mode: str = "weekly"
+    max_runtime_seconds: int | None = None
+    max_company_discovery_queries: int | None = None
+    max_maturity_queries: int | None = None
+    max_article_fetches: int | None = None
+    max_results_per_query: int | None = None
+    per_movement_query_cap: int | None = None
+    query_cache_ttl_seconds: int = 24 * 60 * 60
+    allow_stale_cache: bool = True
+
+    @classmethod
+    def for_mode(cls, mode: str = "weekly", **overrides) -> "DiscoveryRunBudget":
+        defaults = {
+            "smoke": {
+                "mode": "smoke",
+                "max_runtime_seconds": 5 * 60,
+                "max_company_discovery_queries": 3,
+                "max_maturity_queries": 1,
+                "max_article_fetches": 2,
+                "max_results_per_query": 5,
+                "per_movement_query_cap": 1,
+            },
+            "weekly": {
+                "mode": "weekly",
+                "max_runtime_seconds": 30 * 60,
+                "max_company_discovery_queries": 12,
+                "max_maturity_queries": 6,
+                "max_article_fetches": 6,
+                "max_results_per_query": 10,
+                "per_movement_query_cap": 2,
+            },
+            "deep_dive": {
+                "mode": "deep_dive",
+                "max_runtime_seconds": 90 * 60,
+                "max_company_discovery_queries": 30,
+                "max_maturity_queries": 15,
+                "max_article_fetches": 12,
+                "max_results_per_query": 20,
+                "per_movement_query_cap": 4,
+            },
+            "unbounded": {
+                "mode": "unbounded",
+                "max_runtime_seconds": None,
+                "max_company_discovery_queries": None,
+                "max_maturity_queries": None,
+                "max_article_fetches": None,
+                "max_results_per_query": None,
+                "per_movement_query_cap": None,
+            },
+        }
+        payload = dict(defaults.get(mode, defaults["weekly"]))
+        for key, value in overrides.items():
+            payload[key] = value
+        return cls(**payload)
+
+
+@dataclass
+class RuntimeLedger:
+    mode: str
+    started_monotonic: float = field(default_factory=time.monotonic)
+    attempted_queries: int = 0
+    completed_queries: int = 0
+    skipped_queries: int = 0
+    skip_reasons: dict[str, int] = field(default_factory=dict)
+    cache_hits: int = 0
+    stale_cache_hits: int = 0
+    live_calls: int = 0
+    budget_exceeded: bool = False
+    partial: bool = False
+    query_events: list[dict] = field(default_factory=list)
+
+    def elapsed(self) -> float:
+        return time.monotonic() - self.started_monotonic
+
+    def remaining_seconds(self, budget: DiscoveryRunBudget) -> int | None:
+        if budget.max_runtime_seconds is None:
+            return None
+        remaining = int(budget.max_runtime_seconds - self.elapsed())
+        return max(1, remaining)
+
+    def record_skip(self, query: dict, reason: str) -> None:
+        self.skipped_queries += 1
+        self.partial = True
+        self.budget_exceeded = self.budget_exceeded or "budget" in reason or "runtime" in reason or "cap" in reason
+        _increment_count(self.skip_reasons, reason)
+        self.query_events.append(
+            {
+                "query_id": query.get("id", ""),
+                "movement": query.get("movement", ""),
+                "topic": query.get("topic", ""),
+                "status": "skipped",
+                "reason": reason,
+            }
+        )
+
+    def record_attempt(self, query: dict, *, cache_status: str = "miss") -> None:
+        self.attempted_queries += 1
+        self.query_events.append(
+            {
+                "query_id": query.get("id", ""),
+                "movement": query.get("movement", ""),
+                "topic": query.get("topic", ""),
+                "status": "attempted",
+                "cache_status": cache_status,
+            }
+        )
+
+    def record_complete(self, query: dict, *, cache_status: str = "miss") -> None:
+        self.completed_queries += 1
+        self.query_events.append(
+            {
+                "query_id": query.get("id", ""),
+                "movement": query.get("movement", ""),
+                "topic": query.get("topic", ""),
+                "status": "completed",
+                "cache_status": cache_status,
+            }
+        )
+
+    def to_dict(self) -> dict:
+        payload = asdict(self)
+        payload["duration_seconds"] = round(self.elapsed(), 3)
+        payload.pop("started_monotonic", None)
+        return payload
+
+
 def build_company_discovery_queries(
     theme_signals: list[ThemeSignal],
     *,
@@ -202,7 +334,47 @@ def build_company_discovery_queries(
             lookback_days=lookback_days,
         )
 
-    return queries
+    return prioritize_discovery_queries(queries)
+
+
+def prioritize_discovery_queries(queries: list[dict]) -> list[dict]:
+    prioritized = []
+    for query in queries:
+        payload = dict(query)
+        priority = _query_priority(payload)
+        payload["query_priority"] = priority
+        payload["priority_score"] = priority["score"]
+        prioritized.append(payload)
+    return sorted(prioritized, key=lambda item: item.get("priority_score", 0), reverse=True)
+
+
+def _query_priority(query: dict) -> dict:
+    movement = query.get("movement", "")
+    source_reason = query.get("source_reason", "")
+    evidence_count = int(query.get("evidence_count") or len(query.get("origin_row_ids") or []) or 1)
+    movement_heat = min(30, evidence_count * 5)
+    source_bonus = {
+        "identity_resolution_target": 25,
+        "needs_more_evidence": 20,
+        "theme_signal": 10,
+    }.get(source_reason, 0)
+    missing_identity = 0
+    missing_text = " ".join(query.get("missing_identity_evidence") or []).lower()
+    if any(term in missing_text for term in IDENTITY_MISSING_TERMS) or source_reason in {"identity_resolution_target", "needs_more_evidence"}:
+        missing_identity = 20
+    attio_gap = 15 if query.get("attio_gap") else 0
+    prior_yield = int(query.get("prior_yield") or 0)
+    generic_penalty = 30 if _is_broad_movement(movement) or (movement or "").lower() in GENERIC_MOVEMENTS else 0
+    score = movement_heat + source_bonus + missing_identity + attio_gap + prior_yield - generic_penalty
+    return {
+        "movement_heat": movement_heat,
+        "source_reason": source_bonus,
+        "missing_identity_evidence": missing_identity,
+        "attio_gap": attio_gap,
+        "prior_yield": prior_yield,
+        "generic_penalty": generic_penalty,
+        "score": score,
+    }
 
 
 def collect_company_discovery(
@@ -217,8 +389,17 @@ def collect_company_discovery(
     max_queries_per_theme: int = 3,
     article_fetcher: Callable | None = None,
     max_article_fetches: int = 8,
+    run_budget: DiscoveryRunBudget | None = None,
+    partial_output_path: Path | str | None = None,
+    query_cache_dir: Path | str | None = None,
 ) -> dict:
     """Run theme-driven company searches and annotate returned evidence."""
+    run_budget = run_budget or DiscoveryRunBudget.for_mode("unbounded")
+    ledger = RuntimeLedger(mode=run_budget.mode)
+    partial_output_path = Path(partial_output_path) if partial_output_path else None
+    query_cache_dir = Path(query_cache_dir) if query_cache_dir else None
+    if run_budget.max_article_fetches is not None:
+        max_article_fetches = min(max_article_fetches, run_budget.max_article_fetches)
     queries = build_company_discovery_queries(
         theme_signals,
         focus_items=focus_items,
@@ -242,6 +423,11 @@ def collect_company_discovery(
             "maturity_queries_run": 0,
             "article_fetches_attempted": 0,
             "provider_items_seen": 0,
+            "cache_hits": 0,
+            "stale_cache_hits": 0,
+            "live_calls": 0,
+            "partial": False,
+            "budget_exceeded": False,
             "source_type_counts": {},
             "accepted": 0,
             "rejected": 0,
@@ -254,6 +440,10 @@ def collect_company_discovery(
             _query_diagnostic(query, status="not_executed", skip_reason="grounded_company_discovery_unavailable")
             for query in queries
         ]
+        for query in queries:
+            ledger.record_skip(query, "grounded_company_discovery_unavailable")
+        _attach_runtime_metadata(result, ledger, queries)
+        _write_partial_discovery_result(partial_output_path, result, ledger, queries)
         return result
     if not query_runner or not queries:
         if queries and not query_runner:
@@ -262,34 +452,94 @@ def collect_company_discovery(
                 _query_diagnostic(query, status="not_executed", skip_reason="query_runner_unavailable")
                 for query in queries
             ]
+            for query in queries:
+                ledger.record_skip(query, "query_runner_unavailable")
+        _attach_runtime_metadata(result, ledger, queries)
+        _write_partial_discovery_result(partial_output_path, result, ledger, queries)
         return result
 
     items = []
     accepted_leads = []
     rejected_leads = []
     maturity_cache: dict[str, dict] = {}
+    movement_attempt_counts: dict[str, int] = {}
     for query in queries:
+        movement = query.get("movement", "")
         diagnostic = _query_diagnostic(query)
         result["query_diagnostics"].append(diagnostic)
-        try:
-            payload = query_runner(
-                query["topic"],
-                sources=query["sources"],
-                lookback_days=query["lookback_days"],
-                auto_resolve=True,
-                store=True,
-                web_backend=query.get("web_backend"),
-            )
-            result["summary"]["queries_run"] += 1
-        except Exception as exc:  # pragma: no cover - defensive boundary around live tools
-            error = f"{query['kind']}: {exc}"
-            result["errors"].append(error)
-            diagnostic["status"] = "error"
-            diagnostic["errors"].append(error)
-            _increment_count(diagnostic["skip_reason_counts"], "query_runner_exception")
+        if _runtime_budget_exceeded(ledger, run_budget):
+            ledger.record_skip(query, "max_runtime_seconds_exceeded")
+            diagnostic["status"] = "skipped"
+            _increment_count(diagnostic["skip_reason_counts"], "max_runtime_seconds_exceeded")
+            _write_partial_discovery_result(partial_output_path, result, ledger, queries)
             continue
 
-        diagnostic["status"] = "processed"
+        cache_payload, cache_status = _read_query_cache(
+            query_cache_dir,
+            query["topic"],
+            ttl_seconds=run_budget.query_cache_ttl_seconds,
+            allow_stale=run_budget.allow_stale_cache,
+        )
+        ledger.record_attempt(query, cache_status=cache_status)
+        if cache_payload is not None:
+            payload = cache_payload
+            ledger.cache_hits += 1
+            result["summary"]["cache_hits"] += 1
+            if cache_status == "stale":
+                ledger.stale_cache_hits += 1
+                result["summary"]["stale_cache_hits"] += 1
+                warning = f"Using stale cached company discovery result for: {query['topic']}"
+                if warning not in result["warnings"]:
+                    result["warnings"].append(warning)
+                diagnostic["warnings"].append(warning)
+            diagnostic["status"] = "processed_cached"
+            diagnostic["cache_status"] = cache_status
+            ledger.record_complete(query, cache_status=cache_status)
+        else:
+            if _query_budget_exceeded(result, run_budget):
+                ledger.record_skip(query, "company_discovery_query_budget_exceeded")
+                diagnostic["status"] = "skipped"
+                _increment_count(diagnostic["skip_reason_counts"], "company_discovery_query_budget_exceeded")
+                _write_partial_discovery_result(partial_output_path, result, ledger, queries)
+                continue
+            if (
+                run_budget.per_movement_query_cap is not None
+                and movement_attempt_counts.get(movement, 0) >= run_budget.per_movement_query_cap
+            ):
+                ledger.record_skip(query, "per_movement_query_cap_exceeded")
+                diagnostic["status"] = "skipped"
+                _increment_count(diagnostic["skip_reason_counts"], "per_movement_query_cap_exceeded")
+                _write_partial_discovery_result(partial_output_path, result, ledger, queries)
+                continue
+            movement_attempt_counts[movement] = movement_attempt_counts.get(movement, 0) + 1
+            ledger.live_calls += 1
+            result["summary"]["live_calls"] += 1
+            query_kwargs = {
+                "sources": query["sources"],
+                "lookback_days": query["lookback_days"],
+                "auto_resolve": True,
+                "store": True,
+                "web_backend": query.get("web_backend"),
+            }
+            timeout_seconds = ledger.remaining_seconds(run_budget)
+            if timeout_seconds is not None:
+                query_kwargs["timeout_seconds"] = timeout_seconds
+            try:
+                payload = query_runner(query["topic"], **query_kwargs)
+                _write_query_cache(query_cache_dir, query["topic"], payload)
+                result["summary"]["queries_run"] += 1
+                ledger.record_complete(query, cache_status="miss")
+            except Exception as exc:  # pragma: no cover - defensive boundary around live tools
+                error = f"{query['kind']}: {exc}"
+                result["errors"].append(error)
+                diagnostic["status"] = "error"
+                diagnostic["errors"].append(error)
+                _increment_count(diagnostic["skip_reason_counts"], "query_runner_exception")
+                _write_partial_discovery_result(partial_output_path, result, ledger, queries)
+                continue
+
+        if diagnostic["status"] == "pending":
+            diagnostic["status"] = "processed"
         diagnostic["payload_keys"] = sorted(payload.keys())
         for warning in payload.get("warnings", []):
             if warning not in result["warnings"]:
@@ -308,11 +558,14 @@ def collect_company_discovery(
             diagnostic["source_errors"][source_name] = source_error
 
         payload_items = payload.get("items", [])
+        if run_budget.max_results_per_query is not None:
+            payload_items = payload_items[: run_budget.max_results_per_query]
         diagnostic["provider_item_count"] = len(payload_items)
         result["summary"]["provider_items_seen"] += len(payload_items)
         if not payload_items:
             diagnostic["status"] = "no_items"
             _increment_count(diagnostic["skip_reason_counts"], "provider_returned_no_items")
+            _write_partial_discovery_result(partial_output_path, result, ledger, queries)
             continue
 
         for item in payload_items:
@@ -329,16 +582,16 @@ def collect_company_discovery(
             enriched.setdefault("discovery_lane", "controlled_company_discovery")
             lead = verify_discovery_item(enriched, query)
             if lead.verification_status == "accepted":
-                lead, maturity_warnings, maturity_errors, maturity_queries = _verify_lead_maturity(lead, query, query_runner, maturity_cache)
-                result["summary"]["maturity_queries_run"] += maturity_queries
-                diagnostic["maturity_queries_run"] += maturity_queries
-                for warning in maturity_warnings:
-                    if warning not in diagnostic["warnings"]:
-                        diagnostic["warnings"].append(warning)
-                    if warning not in result["warnings"]:
-                        result["warnings"].append(warning)
-                result["errors"].extend(maturity_errors)
-                diagnostic["errors"].extend(maturity_errors)
+                lead = _maybe_verify_lead_maturity(
+                    lead,
+                    query,
+                    query_runner,
+                    maturity_cache,
+                    result,
+                    diagnostic,
+                    run_budget,
+                    ledger,
+                )
                 accepted_leads.append(lead.to_dict())
                 items.append(_lead_to_item(lead))
                 diagnostic["accepted_count"] += 1
@@ -365,16 +618,16 @@ def collect_company_discovery(
                 diagnostic["errors"].extend(article_errors)
                 if article_lead:
                     if article_lead.verification_status == "accepted":
-                        article_lead, maturity_warnings, maturity_errors, maturity_queries = _verify_lead_maturity(article_lead, query, query_runner, maturity_cache)
-                        result["summary"]["maturity_queries_run"] += maturity_queries
-                        diagnostic["maturity_queries_run"] += maturity_queries
-                        for warning in maturity_warnings:
-                            if warning not in diagnostic["warnings"]:
-                                diagnostic["warnings"].append(warning)
-                            if warning not in result["warnings"]:
-                                result["warnings"].append(warning)
-                        result["errors"].extend(maturity_errors)
-                        diagnostic["errors"].extend(maturity_errors)
+                        article_lead = _maybe_verify_lead_maturity(
+                            article_lead,
+                            query,
+                            query_runner,
+                            maturity_cache,
+                            result,
+                            diagnostic,
+                            run_budget,
+                            ledger,
+                        )
                         accepted_leads.append(article_lead.to_dict())
                         items.append(_lead_to_item(article_lead))
                         diagnostic["accepted_count"] += 1
@@ -388,12 +641,15 @@ def collect_company_discovery(
                     diagnostic["rejected_count"] += 1
                     for reason in lead.missing_evidence:
                         _increment_count(diagnostic["skip_reason_counts"], reason)
+        _write_partial_discovery_result(partial_output_path, result, ledger, queries)
 
     result["items"] = _dedupe_items(items)
     result["accepted_leads"] = _dedupe_leads(accepted_leads)
     result["rejected_leads"] = _dedupe_leads(rejected_leads)
     result["summary"]["accepted"] = len(result["accepted_leads"])
     result["summary"]["rejected"] = len(result["rejected_leads"])
+    _attach_runtime_metadata(result, ledger, queries)
+    _write_partial_discovery_result(partial_output_path, result, ledger, queries)
     return result
 
 
@@ -487,6 +743,160 @@ def _lead_to_item(lead: VerifiedCompanyDiscoveryLead) -> dict:
         "lead_route": lead.lead_route,
         "action": "monitor only" if lead.lead_route in {"category_context", "monitor_only"} else "",
     }
+
+
+def _maybe_verify_lead_maturity(
+    lead: VerifiedCompanyDiscoveryLead,
+    query: dict,
+    query_runner: Callable,
+    maturity_cache: dict[str, dict],
+    result: dict,
+    diagnostic: dict,
+    run_budget: DiscoveryRunBudget,
+    ledger: RuntimeLedger,
+) -> VerifiedCompanyDiscoveryLead:
+    if run_budget.max_maturity_queries is not None and result["summary"]["maturity_queries_run"] >= run_budget.max_maturity_queries:
+        ledger.record_skip(query, "maturity_query_budget_exceeded")
+        _increment_count(diagnostic["skip_reason_counts"], "maturity_query_budget_exceeded")
+        return lead
+    if _runtime_budget_exceeded(ledger, run_budget):
+        ledger.record_skip(query, "max_runtime_seconds_exceeded")
+        _increment_count(diagnostic["skip_reason_counts"], "max_runtime_seconds_exceeded")
+        return lead
+
+    lead, maturity_warnings, maturity_errors, maturity_queries = _verify_lead_maturity(
+        lead,
+        query,
+        query_runner,
+        maturity_cache,
+        timeout_seconds=ledger.remaining_seconds(run_budget),
+    )
+    result["summary"]["maturity_queries_run"] += maturity_queries
+    diagnostic["maturity_queries_run"] += maturity_queries
+    if maturity_queries:
+        ledger.live_calls += maturity_queries
+        result["summary"]["live_calls"] += maturity_queries
+    for warning in maturity_warnings:
+        if warning not in diagnostic["warnings"]:
+            diagnostic["warnings"].append(warning)
+        if warning not in result["warnings"]:
+            result["warnings"].append(warning)
+    result["errors"].extend(maturity_errors)
+    diagnostic["errors"].extend(maturity_errors)
+    return lead
+
+
+def _runtime_budget_exceeded(ledger: RuntimeLedger, budget: DiscoveryRunBudget) -> bool:
+    return budget.max_runtime_seconds is not None and ledger.elapsed() >= budget.max_runtime_seconds
+
+
+def _query_budget_exceeded(result: dict, budget: DiscoveryRunBudget) -> bool:
+    return (
+        budget.max_company_discovery_queries is not None
+        and result.get("summary", {}).get("queries_run", 0) >= budget.max_company_discovery_queries
+    )
+
+
+def _attach_runtime_metadata(result: dict, ledger: RuntimeLedger, queries: list[dict]) -> None:
+    result["runtime_ledger"] = ledger.to_dict()
+    result["coverage_report"] = _coverage_report(queries, ledger)
+    result["summary"]["partial"] = bool(ledger.partial)
+    result["summary"]["budget_exceeded"] = bool(ledger.budget_exceeded)
+    result["summary"]["cache_hits"] = ledger.cache_hits
+    result["summary"]["stale_cache_hits"] = ledger.stale_cache_hits
+    result["summary"]["live_calls"] = ledger.live_calls
+
+
+def _write_partial_discovery_result(path: Path | None, result: dict, ledger: RuntimeLedger, queries: list[dict]) -> None:
+    if not path:
+        return
+    _attach_runtime_metadata(result, ledger, queries)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(result, indent=2))
+
+
+def _coverage_report(queries: list[dict], ledger: RuntimeLedger) -> dict:
+    movement_rows: dict[str, dict] = {}
+    for query in queries:
+        movement = query.get("movement", "") or "unknown"
+        row = movement_rows.setdefault(
+            movement,
+            {
+                "movement": movement,
+                "total_queries": 0,
+                "completed_queries": 0,
+                "skipped_queries": 0,
+                "status": "skipped",
+            },
+        )
+        row["total_queries"] += 1
+    for event in ledger.query_events:
+        movement = event.get("movement", "") or "unknown"
+        row = movement_rows.setdefault(
+            movement,
+            {
+                "movement": movement,
+                "total_queries": 0,
+                "completed_queries": 0,
+                "skipped_queries": 0,
+                "status": "skipped",
+            },
+        )
+        if event.get("status") == "completed":
+            row["completed_queries"] += 1
+        elif event.get("status") == "skipped":
+            row["skipped_queries"] += 1
+    for row in movement_rows.values():
+        if row["completed_queries"] >= row["total_queries"] and row["total_queries"]:
+            row["status"] = "full"
+        elif row["completed_queries"]:
+            row["status"] = "partial"
+        else:
+            row["status"] = "skipped"
+    rows = list(movement_rows.values())
+    return {
+        "movements": rows,
+        "recommended_deep_dive": [
+            row["movement"]
+            for row in rows
+            if row["status"] in {"partial", "skipped"} and row["total_queries"]
+        ],
+    }
+
+
+def _query_cache_path(cache_dir: Path | str, topic: str) -> Path:
+    digest = hashlib.sha256((topic or "").encode("utf-8")).hexdigest()[:20]
+    return Path(cache_dir) / f"{digest}.json"
+
+
+def _read_query_cache(
+    cache_dir: Path | None,
+    topic: str,
+    *,
+    ttl_seconds: int,
+    allow_stale: bool,
+) -> tuple[dict | None, str]:
+    if not cache_dir:
+        return None, "disabled"
+    path = _query_cache_path(cache_dir, topic)
+    if not path.exists():
+        return None, "miss"
+    age_seconds = max(0, time.time() - path.stat().st_mtime)
+    if age_seconds > ttl_seconds and not allow_stale:
+        return None, "expired"
+    try:
+        payload = json.loads(path.read_text())
+    except json.JSONDecodeError:
+        return None, "corrupt"
+    return payload, "stale" if age_seconds > ttl_seconds else "fresh"
+
+
+def _write_query_cache(cache_dir: Path | None, topic: str, payload: dict) -> None:
+    if not cache_dir:
+        return
+    path = _query_cache_path(cache_dir, topic)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(payload, indent=2))
 
 
 def classify_discovery_source(item: dict) -> str:
@@ -786,6 +1196,7 @@ def _verify_lead_maturity(
     query: dict,
     query_runner: Callable,
     maturity_cache: dict[str, dict] | None = None,
+    timeout_seconds: int | None = None,
 ) -> tuple[VerifiedCompanyDiscoveryLead, list[str], list[str], int]:
     """Run one exact-name maturity lookup for accepted company leads."""
     lookup_name = _maturity_lookup_name(lead)
@@ -803,6 +1214,7 @@ def _verify_lead_maturity(
             auto_resolve=True,
             store=True,
             web_backend=query.get("web_backend") or "auto",
+            timeout_seconds=timeout_seconds,
         )
     except Exception as exc:  # pragma: no cover - defensive live-provider boundary
         maturity = _unknown_maturity()
