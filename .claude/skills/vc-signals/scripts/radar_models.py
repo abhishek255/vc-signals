@@ -504,6 +504,9 @@ class WeeklyFocusArtifact:
     run_id: str
     executive_snapshot: ExecutiveSnapshot = field(default_factory=ExecutiveSnapshot)
     partner_focus: list[FocusItem] = field(default_factory=list)
+    sourcing_candidates: list[FocusItem] = field(default_factory=list)
+    research_deeper_queue: list[FocusItem] = field(default_factory=list)
+    oss_project_watch: list[FocusItem] = field(default_factory=list)
     market_movements: list[MarketMovement] = field(default_factory=list)
     new_to_marathon: list[FocusItem] = field(default_factory=list)
     workflow_view: dict[str, list[FocusItem]] = field(default_factory=dict)
@@ -516,6 +519,9 @@ class WeeklyFocusArtifact:
             "run_id": self.run_id,
             "executive_snapshot": self.executive_snapshot.to_dict(),
             "partner_focus": [item.to_dict() for item in self.partner_focus],
+            "sourcing_candidates": [item.to_dict() for item in self.sourcing_candidates],
+            "research_deeper_queue": [item.to_dict() for item in self.research_deeper_queue],
+            "oss_project_watch": [item.to_dict() for item in self.oss_project_watch],
             "market_movements": [item.to_dict() for item in self.market_movements],
             "new_to_marathon": [item.to_dict() for item in self.new_to_marathon],
             "workflow_view": {
@@ -539,6 +545,18 @@ class WeeklyFocusArtifact:
         known["partner_focus"] = [
             item if isinstance(item, FocusItem) else FocusItem.from_dict(item)
             for item in known.get("partner_focus", [])
+        ]
+        known["sourcing_candidates"] = [
+            item if isinstance(item, FocusItem) else FocusItem.from_dict(item)
+            for item in known.get("sourcing_candidates", [])
+        ]
+        known["research_deeper_queue"] = [
+            item if isinstance(item, FocusItem) else FocusItem.from_dict(item)
+            for item in known.get("research_deeper_queue", [])
+        ]
+        known["oss_project_watch"] = [
+            item if isinstance(item, FocusItem) else FocusItem.from_dict(item)
+            for item in known.get("oss_project_watch", [])
         ]
         known["market_movements"] = [
             item if isinstance(item, MarketMovement) else MarketMovement.from_dict(item)

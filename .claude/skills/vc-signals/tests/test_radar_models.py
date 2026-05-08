@@ -293,6 +293,31 @@ def test_weekly_focus_artifact_roundtrips_nested_models():
                 recommended_action="Research deeper",
             )
         ],
+        sourcing_candidates=[
+            FocusItem(
+                id="agentfence",
+                name="AgentFence",
+                evidence_urls=["https://agentfence.dev"],
+                recommended_action="Assign owner",
+            )
+        ],
+        research_deeper_queue=[
+            FocusItem(
+                id="copperhelm",
+                name="Copperhelm",
+                evidence_urls=["https://copperhelm.com"],
+                recommended_action="Research deeper",
+            )
+        ],
+        oss_project_watch=[
+            FocusItem(
+                id="agent-ci",
+                name="redwoodjs/agent-ci",
+                project_url="https://github.com/redwoodjs/agent-ci",
+                evidence_urls=["https://github.com/redwoodjs/agent-ci"],
+                recommended_action="Research deeper",
+            )
+        ],
         market_movements=[
             MarketMovement(
                 id="cybersecurity-ai-agent-permission-security",
@@ -311,6 +336,9 @@ def test_weekly_focus_artifact_roundtrips_nested_models():
 
     assert restored == artifact
     assert isinstance(restored.partner_focus[0], FocusItem)
+    assert isinstance(restored.sourcing_candidates[0], FocusItem)
+    assert isinstance(restored.research_deeper_queue[0], FocusItem)
+    assert isinstance(restored.oss_project_watch[0], FocusItem)
     assert isinstance(restored.market_movements[0], MarketMovement)
     assert restored.executive_snapshot.top_movement == "AI agent permission security"
 

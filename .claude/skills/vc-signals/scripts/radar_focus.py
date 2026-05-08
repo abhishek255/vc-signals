@@ -24,6 +24,9 @@ ACTION_TAKE_MEETING = "Take meeting"
 ACTION_MONITOR_ONLY = "Monitor only"
 LEAD_ROUTE_CATEGORY_CONTEXT = "category_context"
 LEAD_ROUTE_MONITOR_ONLY = "monitor_only"
+LEAD_ROUTE_SOURCING_CANDIDATE = "sourcing_candidate"
+LATE_OR_CONTEXT_MATURITY_STATUSES = {"likely_too_late", "acquired", "incumbent", "category_leader"}
+SOURCING_MATURITY_STATUSES = {"seed_to_series_b", "pre_seed", "seed", "series_a", "series_b"}
 
 ATTIO_NEW_STATUSES = {"no_match", "not_found", "new"}
 ATTIO_UNKNOWN_STATUSES = {"unknown", ""}
@@ -295,10 +298,33 @@ def can_take_meeting(item: FocusItem) -> bool:
     )
 
 
+def _candidate_is_late_or_context(candidate: Candidate) -> bool:
+    return (
+        candidate.category_anchor
+        or candidate.lead_route in {LEAD_ROUTE_CATEGORY_CONTEXT, LEAD_ROUTE_MONITOR_ONLY}
+        or candidate.maturity_status in LATE_OR_CONTEXT_MATURITY_STATUSES
+    )
+
+
+def _item_is_late_or_context(item: FocusItem) -> bool:
+    return (
+        item.category_anchor
+        or item.lead_route in {LEAD_ROUTE_CATEGORY_CONTEXT, LEAD_ROUTE_MONITOR_ONLY}
+        or item.maturity_status in LATE_OR_CONTEXT_MATURITY_STATUSES
+    )
+
+
+def _candidate_maturity_allows_owner_action(candidate: Candidate) -> bool:
+    return (
+        candidate.lead_route == LEAD_ROUTE_SOURCING_CANDIDATE
+        or candidate.maturity_status in SOURCING_MATURITY_STATUSES
+    ) and not _candidate_is_late_or_context(candidate)
+
+
 def choose_recommended_action(candidate: Candidate, item: FocusItem) -> str:
     status = (candidate.attio_status or "unknown").lower()
     staleness = " ".join([candidate.attio_staleness_reason or "", candidate.attio_action or ""]).lower()
-    if candidate.category_anchor or candidate.lead_route in {LEAD_ROUTE_CATEGORY_CONTEXT, LEAD_ROUTE_MONITOR_ONLY}:
+    if _candidate_is_late_or_context(candidate):
         return ACTION_MONITOR_ONLY
     if can_take_meeting(item):
         return ACTION_TAKE_MEETING
@@ -309,6 +335,8 @@ def choose_recommended_action(candidate: Candidate, item: FocusItem) -> str:
         ACTION_MONITOR_ONLY,
     }:
         if candidate.recommended_identity_action == ACTION_ASSIGN_OWNER:
+            if not _candidate_maturity_allows_owner_action(candidate):
+                return ACTION_RESEARCH_DEEPER
             if item.company_identity_quality_score >= 70 and item.evidence_confidence_score >= 45:
                 return ACTION_ASSIGN_OWNER
         elif candidate.recommended_identity_action == ACTION_REFRESH_ATTIO:
@@ -322,6 +350,8 @@ def choose_recommended_action(candidate: Candidate, item: FocusItem) -> str:
     if item.company_identity_quality_score < 60 or item.evidence_confidence_score < 45:
         return ACTION_RESEARCH_DEEPER
     if status in ATTIO_NEW_STATUSES or status in ATTIO_NO_OWNER_STATUSES:
+        if not _candidate_maturity_allows_owner_action(candidate):
+            return ACTION_RESEARCH_DEEPER
         if not candidate.attio_safe_to_match or candidate.identity_type != "verified_company":
             return ACTION_RESEARCH_DEEPER
         return ACTION_ASSIGN_OWNER
@@ -333,7 +363,7 @@ def choose_recommended_action(candidate: Candidate, item: FocusItem) -> str:
 
 
 def is_partner_focus_eligible(item: FocusItem) -> bool:
-    if item.category_anchor or item.lead_route in {LEAD_ROUTE_CATEGORY_CONTEXT, LEAD_ROUTE_MONITOR_ONLY}:
+    if _item_is_late_or_context(item):
         return False
     return (
         item.company_identity_quality_score >= 60
@@ -513,7 +543,24 @@ def build_focus_item(candidate: Candidate) -> FocusItem:
         lead_route=candidate.lead_route,
     )
     item.recommended_action = choose_recommended_action(candidate, item)
+    _add_route_missing_evidence(item, candidate)
     return item
+
+
+def _add_route_missing_evidence(item: FocusItem, candidate: Candidate) -> None:
+    if item.maturity_status == "unknown" and not item.maturity_basis:
+        item.maturity_basis = ["maturity_not_verified"]
+    missing = list(item.missing_evidence)
+    company_or_launch = bool(item.company_domain) and item.identity_type in {"verified_company", "launch_style_needs_identity", ""}
+    if company_or_launch and item.lead_route == "research_deeper":
+        if not (candidate.founder_profiles or candidate.founders or candidate.maintainer_profiles):
+            missing.append("no founder or maintainer identity")
+        if item.maturity_status == "unknown" or not item.maturity_basis:
+            missing.append("no stage or funding verification")
+        missing.append("no buyer or customer pull evidence")
+        if not item.attio_safe_to_match:
+            missing.append("no Attio-safe identity confirmation")
+    item.missing_evidence = list(dict.fromkeys(missing))
 
 
 WORKFLOW_ACTIONS = [
@@ -590,7 +637,7 @@ def build_market_movements(items: list[FocusItem], theme_signals: list[ThemeSign
 def _new_to_marathon(items: list[FocusItem]) -> list[FocusItem]:
     selected = []
     for item in items:
-        if item.category_anchor or item.lead_route in {LEAD_ROUTE_CATEGORY_CONTEXT, LEAD_ROUTE_MONITOR_ONLY}:
+        if _item_is_late_or_context(item):
             continue
         status = item.attio_status.lower()
         weak_name = len((item.name or "").strip()) <= 2 and not item.company_domain
@@ -600,7 +647,7 @@ def _new_to_marathon(items: list[FocusItem]) -> list[FocusItem]:
                 item.identity_type == "verified_company"
                 or not item.identity_type
             )
-            and (item.attio_safe_to_match or not item.identity_type)
+            and item.attio_safe_to_match
         )
         credible_launch_identity = (
             bool(item.company_domain)
@@ -618,7 +665,7 @@ def _new_to_marathon(items: list[FocusItem]) -> list[FocusItem]:
 
 
 def is_extended_watchlist_eligible(item: FocusItem) -> bool:
-    if item.category_anchor or item.lead_route in {LEAD_ROUTE_CATEGORY_CONTEXT, LEAD_ROUTE_MONITOR_ONLY}:
+    if _item_is_late_or_context(item):
         return False
     return (
         bool(item.evidence_urls)
@@ -637,6 +684,42 @@ def _workflow_view(items: list[FocusItem]) -> dict[str, list[FocusItem]]:
     for item in items:
         grouped.setdefault(item.recommended_action, []).append(item)
     return {action: rows for action, rows in grouped.items() if rows}
+
+
+def _is_oss_project_watch(item: FocusItem) -> bool:
+    return bool(item.project_url) and item.identity_type in {"oss_project_watch", "oss_with_commercial_intent", ""}
+
+
+def _is_oss_project_watch_eligible(item: FocusItem) -> bool:
+    return (
+        _is_oss_project_watch(item)
+        and not _item_is_late_or_context(item)
+        and bool(item.evidence_urls)
+        and item.noise_risk_score < 85
+        and item.recommended_action != ACTION_MONITOR_ONLY
+    )
+
+
+def _is_sourcing_candidate(item: FocusItem) -> bool:
+    return (
+        not _item_is_late_or_context(item)
+        and not _is_oss_project_watch(item)
+        and item.lead_route == LEAD_ROUTE_SOURCING_CANDIDATE
+        and item.maturity_status in SOURCING_MATURITY_STATUSES
+        and item.identity_type == "verified_company"
+        and item.company_domain
+        and item.attio_safe_to_match
+        and item.recommended_action in {ACTION_ASSIGN_OWNER, ACTION_REFRESH_ATTIO, ACTION_TAKE_MEETING}
+    )
+
+
+def _is_research_deeper_candidate(item: FocusItem) -> bool:
+    return (
+        not _item_is_late_or_context(item)
+        and not _is_oss_project_watch(item)
+        and item.recommended_action == ACTION_RESEARCH_DEEPER
+        and bool(item.company_domain or item.evidence_urls)
+    )
 
 
 def _dedupe_focus_items(items: list[FocusItem]) -> list[FocusItem]:
@@ -674,18 +757,16 @@ def _executive_snapshot(
     *,
     partner_focus: list[FocusItem],
     action_items: list[FocusItem],
+    oss_project_watch: list[FocusItem] | None = None,
     identity_source_items: list[FocusItem] | None = None,
     movements: list[MarketMovement],
     new_to_marathon: list[FocusItem],
     source_gaps: list[str],
 ) -> ExecutiveSnapshot:
     action_counts = Counter(item.recommended_action for item in (action_items or partner_focus))
-    oss_project_only_rows = sum(
-        1
-        for item in partner_focus
-        if item.project_url and item.identity_type in {"oss_project_watch", "oss_with_commercial_intent", ""}
-    )
-    company_or_launch_style_rows = len(partner_focus) - oss_project_only_rows
+    oss_project_watch = list(oss_project_watch or [])
+    oss_project_only_rows = len(oss_project_watch)
+    company_or_launch_style_rows = len(partner_focus)
     readiness_note = (
         "This run produced a research queue, not owner-ready leads."
         if action_items and len(action_counts) == 1 and action_counts.get(ACTION_RESEARCH_DEEPER) == len(action_items)
@@ -749,25 +830,43 @@ def build_weekly_focus_artifact(
 ) -> WeeklyFocusArtifact:
     focus_items = _rank_focus_items([build_focus_item(candidate) for candidate in candidates])
     eligible = _cap_oss_project_only([item for item in focus_items if is_partner_focus_eligible(item)])
-    partner_focus = eligible[:15]
+    sourcing_candidates = [item for item in eligible if _is_sourcing_candidate(item)][:15]
+    sourcing_ids = {item.id for item in sourcing_candidates}
+    research_deeper_queue = [
+        item
+        for item in eligible
+        if item.id not in sourcing_ids and _is_research_deeper_candidate(item)
+    ][:15]
+    company_focus_ids = {item.id for item in sourcing_candidates + research_deeper_queue}
+    oss_project_watch = [
+        item
+        for item in focus_items
+        if item.id not in company_focus_ids and _is_oss_project_watch_eligible(item)
+    ][:10]
+    partner_focus = (sourcing_candidates + research_deeper_queue)[:15]
     partner_ids = {item.id for item in partner_focus}
+    oss_ids = {item.id for item in oss_project_watch}
     extended_watchlist = [
         item
         for item in focus_items
-        if item.id not in partner_ids and is_extended_watchlist_eligible(item)
+        if item.id not in partner_ids
+        and item.id not in oss_ids
+        and is_extended_watchlist_eligible(item)
+        and not _is_oss_project_watch(item)
     ][:15]
     category_context = [
         item
         for item in focus_items
-        if item.category_anchor or item.lead_route in {LEAD_ROUTE_CATEGORY_CONTEXT, LEAD_ROUTE_MONITOR_ONLY}
+        if _item_is_late_or_context(item)
     ]
     category_context = _dedupe_focus_items(category_context + list(category_context_items or []))[:10]
-    movement_source_items = partner_focus + extended_watchlist + category_context
+    movement_source_items = partner_focus + extended_watchlist + oss_project_watch + category_context
     movements = build_market_movements(movement_source_items, theme_signals)
     new_to_marathon = _new_to_marathon(partner_focus + extended_watchlist)
-    workflow_view = _workflow_view(partner_focus + extended_watchlist)
+    action_items = partner_focus + extended_watchlist + oss_project_watch
+    workflow_view = _workflow_view(action_items)
     gaps = _source_gaps(sector_intelligence, source_gap_context=source_gap_context)
-    focus_and_watchlist_ids = {item.id for item in partner_focus + extended_watchlist}
+    focus_and_watchlist_ids = {item.id for item in partner_focus + extended_watchlist + oss_project_watch}
     appendix = {
         "needs_more_evidence": [
             item.to_dict()
@@ -776,8 +875,7 @@ def build_weekly_focus_artifact(
         ][:10],
         "oss_project_watchlist": [
             item.to_dict()
-            for item in extended_watchlist
-            if item.project_url and not item.company_domain
+            for item in oss_project_watch
         ][:10],
         "themes_without_companies": _themes_without_companies(theme_signals),
         "category_context": [item.to_dict() for item in category_context],
@@ -792,13 +890,17 @@ def build_weekly_focus_artifact(
         run_id=run_id,
         executive_snapshot=_executive_snapshot(
             partner_focus=partner_focus,
-            action_items=partner_focus + extended_watchlist,
+            action_items=action_items,
+            oss_project_watch=oss_project_watch,
             identity_source_items=focus_items,
             movements=movements,
             new_to_marathon=new_to_marathon,
             source_gaps=gaps,
         ),
         partner_focus=partner_focus,
+        sourcing_candidates=sourcing_candidates,
+        research_deeper_queue=research_deeper_queue,
+        oss_project_watch=oss_project_watch,
         market_movements=movements,
         new_to_marathon=new_to_marathon,
         workflow_view=workflow_view,
@@ -831,7 +933,7 @@ def _item_row(item: FocusItem) -> str:
             _cell(item.recommended_action),
             str(item.investment_interest_score),
             str(item.evidence_confidence_score),
-            _cell("; ".join(item.missing_evidence[:2])),
+            _cell("; ".join(item.missing_evidence[:4])),
             _cell(item.why_this_may_be_noise),
         ]
     )
@@ -841,6 +943,19 @@ def _movement_heading(movement: MarketMovement) -> str:
     if movement.market_sector and movement.market_sector not in movement.name:
         return f"{movement.name} ({movement.market_sector})"
     return movement.name
+
+
+def _append_item_table(lines: list[str], items: list[FocusItem], *, empty_label: str) -> None:
+    lines.extend(
+        [
+            "| # | Company / Project | Market Movement | Sector | Why Focus This Week | Who Is Talking | Evidence | Attio | Action | Interest | Confidence | Missing Evidence | Why This May Be Noise |",
+            "|---|---|---|---|---|---|---|---|---|---:|---:|---|---|",
+        ]
+    )
+    if items:
+        lines.extend(f"| {_item_row(item)} |" for item in items)
+    else:
+        lines.append(f"|  | {empty_label} |  |  |  |  |  |  |  |  |  |  |  |")
 
 
 def render_weekly_focus_markdown(artifact: WeeklyFocusArtifact) -> str:
@@ -868,18 +983,21 @@ def render_weekly_focus_markdown(artifact: WeeklyFocusArtifact) -> str:
             "",
             "## Partner Focus",
             "",
-            "| # | Company / Project | Market Movement | Sector | Why Focus This Week | Who Is Talking | Evidence | Attio | Action | Interest | Confidence | Missing Evidence | Why This May Be Noise |",
-            "|---|---|---|---|---|---|---|---|---|---:|---:|---|---|",
         ]
     )
-    if artifact.partner_focus:
-        lines.extend(f"| {_item_row(item)} |" for item in artifact.partner_focus)
-    else:
-        lines.append("|  | No rows cleared Partner Focus gates. |  |  |  |  |  |  |  |  |  |  |  |")
+    lines.extend(["### Sourcing Candidates", ""])
+    _append_item_table(lines, artifact.sourcing_candidates, empty_label="No sourcing candidates cleared maturity and Attio gates.")
+
+    lines.extend(["", "### Research Deeper Queue", ""])
+    _append_item_table(lines, artifact.research_deeper_queue, empty_label="No company rows need deeper research.")
+
+    lines.extend(["", "### OSS / Project Watch", ""])
+    _append_item_table(lines, artifact.oss_project_watch, empty_label="No OSS/project watch rows.")
 
     lines.extend(["", "### Focus Evidence Links", ""])
-    if artifact.partner_focus:
-        for item in artifact.partner_focus:
+    focus_link_items = artifact.partner_focus + artifact.oss_project_watch
+    if focus_link_items:
+        for item in focus_link_items:
             if item.evidence_urls:
                 links = ", ".join(item.evidence_urls[:3])
                 lines.append(f"- **{item.name}**: {links}")
@@ -903,6 +1021,17 @@ def render_weekly_focus_markdown(artifact: WeeklyFocusArtifact) -> str:
         )
     if not artifact.market_movements:
         lines.append("- No market movements generated.")
+
+    category_context = artifact.appendix.get("category_context", [])
+    lines.extend(["", "## Category Context / Market Anchors", ""])
+    if category_context:
+        for row in category_context[:10]:
+            basis = ", ".join(row.get("maturity_basis", [])[:2]) or row.get("consensus_risk_reason", "")
+            links = row.get("evidence_urls", []) or row.get("maturity_evidence_urls", [])
+            link_text = f" Evidence: {', '.join(links[:2])}" if links else ""
+            lines.append(f"- **{row.get('name', 'Unknown')}** — {row.get('maturity_status', 'unknown')}; {basis}.{link_text}")
+    else:
+        lines.append("- No category anchors surfaced.")
 
     lines.extend(["", "## New To Marathon", ""])
     if artifact.new_to_marathon:
@@ -936,20 +1065,12 @@ def render_weekly_focus_markdown(artifact: WeeklyFocusArtifact) -> str:
     if needs_more:
         lines.extend(["", "### Needs More Evidence"])
         for row in needs_more[:10]:
-            lines.append(f"- **{row.get('name', 'Unknown')}** — {', '.join(row.get('missing_evidence', [])[:2])}")
+            lines.append(f"- **{row.get('name', 'Unknown')}** — {', '.join(row.get('missing_evidence', [])[:4])}")
     oss_watchlist = artifact.appendix.get("oss_project_watchlist", [])
     if oss_watchlist:
         lines.extend(["", "### OSS Project Watchlist"])
         for row in oss_watchlist[:10]:
             lines.append(f"- **{row.get('name', 'Unknown')}** — {row.get('recommended_action', 'Research deeper')}")
-    category_context = artifact.appendix.get("category_context", [])
-    if category_context:
-        lines.extend(["", "### Category Context / Market Anchors"])
-        for row in category_context[:10]:
-            basis = ", ".join(row.get("maturity_basis", [])[:2]) or row.get("consensus_risk_reason", "")
-            links = row.get("evidence_urls", []) or row.get("maturity_evidence_urls", [])
-            link_text = f" Evidence: {', '.join(links[:2])}" if links else ""
-            lines.append(f"- **{row.get('name', 'Unknown')}** — {row.get('maturity_status', 'unknown')}; {basis}.{link_text}")
     themes_without_companies = artifact.appendix.get("themes_without_companies", [])
     if themes_without_companies:
         lines.extend(["", "### Themes Without Companies Yet"])

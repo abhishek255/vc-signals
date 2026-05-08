@@ -107,6 +107,148 @@ def test_partner_focus_accepts_credible_actionable_project():
     assert is_partner_focus_eligible(item) is True
 
 
+def test_unknown_maturity_verified_company_routes_to_research_deeper_queue():
+    from radar_focus import ACTION_RESEARCH_DEEPER, build_weekly_focus_artifact
+
+    artifact = build_weekly_focus_artifact(
+        candidates=[
+            _candidate(
+                name="Copperhelm",
+                stable_key="company:copperhelm.com",
+                source="https://copperhelm.com/",
+                sources=["https://copperhelm.com/"],
+                candidate_type="company_web",
+                domain="copperhelm.com",
+                identity_type="verified_company",
+                attio_status="no_match",
+                attio_safe_to_match=True,
+                recommended_identity_action="Assign owner",
+                evidence_confidence_score=55,
+                maintainer_profiles=[],
+                founder_profiles=[],
+                why_on_radar="Copperhelm is building agentic cloud security.",
+                maturity_status="unknown",
+                maturity_basis=["maturity_not_verified"],
+                lead_route="research_deeper",
+            )
+        ],
+        run_id="2026-05-08",
+    )
+
+    assert artifact.sourcing_candidates == []
+    assert artifact.research_deeper_queue[0].name == "Copperhelm"
+    assert artifact.research_deeper_queue[0].recommended_action == ACTION_RESEARCH_DEEPER
+    assert artifact.research_deeper_queue[0].maturity_basis == ["maturity_not_verified"]
+    assert "no stage or funding verification" in artifact.research_deeper_queue[0].missing_evidence
+    assert "no buyer or customer pull evidence" in artifact.research_deeper_queue[0].missing_evidence
+
+
+def test_seed_stage_verified_company_can_enter_sourcing_candidates():
+    from radar_focus import ACTION_ASSIGN_OWNER, build_weekly_focus_artifact
+
+    artifact = build_weekly_focus_artifact(
+        candidates=[
+            _candidate(
+                name="AgentFence",
+                stable_key="company:agentfence.dev",
+                source="https://agentfence.dev/",
+                sources=["https://agentfence.dev/"],
+                candidate_type="company_web",
+                domain="agentfence.dev",
+                identity_type="verified_company",
+                attio_status="no_match",
+                attio_safe_to_match=True,
+                recommended_identity_action="Assign owner",
+                evidence_confidence_score=70,
+                maintainer_profiles=[],
+                founder_profiles=[{"name": "Ada Founder"}],
+                why_on_radar="AgentFence raised seed funding for AI agent security.",
+                maturity_status="seed_to_series_b",
+                maturity_basis=["seed_or_pre_seed"],
+                maturity_evidence_urls=["https://agentfence.dev/seed"],
+                lead_route="sourcing_candidate",
+            )
+        ],
+        run_id="2026-05-08",
+    )
+
+    assert artifact.sourcing_candidates[0].name == "AgentFence"
+    assert artifact.sourcing_candidates[0].recommended_action == ACTION_ASSIGN_OWNER
+    assert artifact.research_deeper_queue == []
+
+
+def test_late_or_category_anchor_rows_stay_out_of_partner_focus_and_new_to_marathon():
+    from radar_focus import build_weekly_focus_artifact
+
+    artifact = build_weekly_focus_artifact(
+        candidates=[
+            _candidate(
+                name="n8n.io - AI workflow automation platform",
+                stable_key="company:n8n.io",
+                sector="Devtools",
+                market_sector="Devtools",
+                theme="Devtools workflow automation",
+                source="https://n8n.io/",
+                sources=["https://n8n.io/"],
+                candidate_type="company_web",
+                domain="n8n.io",
+                identity_type="verified_company",
+                attio_status="no_match",
+                attio_safe_to_match=True,
+                recommended_identity_action="Assign owner",
+                evidence_confidence_score=70,
+                maintainer_profiles=[],
+                why_on_radar="n8n validates workflow automation demand.",
+                maturity_status="likely_too_late",
+                maturity_basis=["series_c_or_later", "large_round_or_valuation"],
+                maturity_evidence_urls=["https://blog.n8n.io/series-c/"],
+                category_anchor=True,
+                lead_route="category_context",
+            )
+        ],
+        run_id="2026-05-08",
+    )
+
+    assert artifact.partner_focus == []
+    assert artifact.sourcing_candidates == []
+    assert artifact.research_deeper_queue == []
+    assert artifact.new_to_marathon == []
+    assert artifact.appendix["category_context"][0]["name"] == "n8n.io - AI workflow automation platform"
+
+
+def test_oss_project_watch_is_separate_from_company_focus_lanes():
+    from radar_focus import build_weekly_focus_artifact
+
+    artifact = build_weekly_focus_artifact(
+        candidates=[
+            _candidate(
+                name="redwoodjs/agent-ci",
+                stable_key="company:agent-ci.dev",
+                sector="Devtools",
+                market_sector="Devtools",
+                theme="Devtools workflow automation",
+                source="https://github.com/redwoodjs/agent-ci",
+                sources=["https://github.com/redwoodjs/agent-ci"],
+                candidate_type="oss_project",
+                domain="agent-ci.dev",
+                identity_type="oss_with_commercial_intent",
+                attio_status="no_match",
+                attio_safe_to_match=True,
+                evidence_confidence_score=50,
+                why_on_radar="Agent-CI is local GitHub Actions for coding agents.",
+                maturity_status="unknown",
+                lead_route="research_deeper",
+            )
+        ],
+        run_id="2026-05-08",
+    )
+
+    assert artifact.sourcing_candidates == []
+    assert artifact.research_deeper_queue == []
+    assert artifact.oss_project_watch[0].name == "redwoodjs/agent-ci"
+    assert artifact.partner_focus == []
+
+
 def test_take_meeting_gate_is_strict():
     from radar_focus import ACTION_TAKE_MEETING, can_take_meeting, choose_recommended_action
 
@@ -194,6 +336,9 @@ def test_resolved_identity_upgrades_no_match_row_to_assign_owner():
             founders=["Jane Founder"],
             founder_profiles=[{"name": "Jane Founder"}],
             sources=["https://news.ycombinator.com/item?id=47761957"],
+            maturity_status="seed_to_series_b",
+            maturity_basis=["seed_or_pre_seed"],
+            lead_route="sourcing_candidate",
         )
     )
 
@@ -550,6 +695,9 @@ def test_new_to_marathon_and_workflow_view_use_attio_context():
                 stable_key="newco",
                 domain="new.co",
                 sources=["https://new.co"],
+                candidate_type="company_web",
+                identity_type="verified_company",
+                attio_safe_to_match=True,
                 attio_status="no_match",
                 evidence_confidence_score=75,
             ),
@@ -558,6 +706,9 @@ def test_new_to_marathon_and_workflow_view_use_attio_context():
                 stable_key="knownco",
                 domain="known.co",
                 sources=["https://known.co"],
+                candidate_type="company_web",
+                identity_type="verified_company",
+                attio_safe_to_match=True,
                 attio_status="stale",
                 attio_staleness_reason="No interaction in 180 days",
                 evidence_confidence_score=75,
@@ -685,6 +836,10 @@ def test_render_weekly_focus_markdown_has_executive_snapshot_and_compact_basis()
     assert "Readiness note:" in markdown
     assert "Top identity-resolution target:" in markdown
     assert "## Partner Focus" in markdown
+    assert "### Sourcing Candidates" in markdown
+    assert "### Research Deeper Queue" in markdown
+    assert "### OSS / Project Watch" in markdown
+    assert "## Category Context / Market Anchors" in markdown
     assert "### Focus Evidence Links" in markdown
     assert "https://agentshield.dev" in markdown
     assert "company_identity_quality_basis" not in markdown
@@ -797,7 +952,7 @@ def test_category_context_items_can_be_added_without_entering_partner_focus():
     assert artifact.new_to_marathon == []
     assert artifact.appendix["category_context"][0]["name"] == "7AI"
     assert "7AI" in artifact.market_movements[0].companies_or_projects
-    assert "### Category Context / Market Anchors" in markdown
+    assert "## Category Context / Market Anchors" in markdown
     assert "https://7ai.com/" in markdown
 
 
@@ -839,12 +994,18 @@ def test_write_weekly_focus_json_and_feedback_scaffold(tmp_path):
 
     artifact = build_weekly_focus_artifact(
         candidates=[
-            _candidate(
-                domain="agentshield.dev",
-                sources=["https://agentshield.dev"],
-                evidence_confidence_score=70,
-                attio_status="no_match",
-            )
+                _candidate(
+                    domain="agentshield.dev",
+                    sources=["https://agentshield.dev"],
+                    candidate_type="company_web",
+                    identity_type="verified_company",
+                    attio_safe_to_match=True,
+                    evidence_confidence_score=70,
+                    attio_status="no_match",
+                    maturity_status="seed_to_series_b",
+                    maturity_basis=["seed_or_pre_seed"],
+                    lead_route="sourcing_candidate",
+                )
         ],
         run_id="2026-05-11",
     )
