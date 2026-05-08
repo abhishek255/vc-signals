@@ -295,8 +295,58 @@ def test_verify_discovery_item_accepts_source_backed_company_domain():
     assert lead.name == "AgentFence"
     assert lead.domain == "agentfence.dev"
     assert lead.candidate_type == "verified_company"
-    assert "source_backed_domain" in lead.verification_basis
+    assert "official_homepage_domain" in lead.verification_basis
     assert any("movement_terms_present" in item for item in lead.movement_assignment_basis)
+
+
+def test_verify_discovery_item_accepts_official_homepage_domain():
+    from radar_company_discovery import verify_discovery_item
+
+    query = {
+        "id": "agent-reliability-theme-company-search",
+        "movement": "Agent reliability",
+        "market_sector": "AI Infra",
+        "topic": "Agent reliability startup company founder launch",
+        "required_terms": ["agent", "reliability"],
+        "source_reason": "theme_signal",
+    }
+    item = {
+        "source": "grounding",
+        "title": "Take your AI agents to production, faster.",
+        "url": "https://lyzr.ai/",
+        "snippet": "Lyzr helps teams deploy reliable AI agents.",
+    }
+
+    lead = verify_discovery_item(item, query)
+
+    assert lead.verification_status == "accepted"
+    assert lead.domain == "lyzr.ai"
+    assert "official_homepage_domain" in lead.verification_basis
+
+
+def test_verify_discovery_item_rejects_publisher_article_domain_as_company_proof():
+    from radar_company_discovery import verify_discovery_item
+
+    query = {
+        "id": "ai-agent-security-theme-company-search",
+        "movement": "AI agent security",
+        "market_sector": "Cybersecurity",
+        "topic": "AI agent security startup company founder launch",
+        "required_terms": ["agent", "security"],
+        "source_reason": "theme_signal",
+    }
+    item = {
+        "source": "grounding",
+        "title": "General Analysis Raises $10M in Seed Funding to Secure Agentic AI - Las Vegas Sun News",
+        "url": "https://lasvegassun.com/news/2026/apr/29/general-analysis-raises-10m-in-seed-funding-to-sec/",
+        "snippet": "General Analysis is building agentic AI security tools.",
+    }
+
+    lead = verify_discovery_item(item, query)
+
+    assert lead.verification_status == "rejected"
+    assert "source_domain_not_company_proof" in lead.missing_evidence
+    assert lead.domain == ""
 
 
 def test_verify_discovery_item_rejects_vibe_match_without_movement_terms():

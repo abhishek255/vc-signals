@@ -24,7 +24,20 @@ CONTENT_PLATFORM_DOMAINS = {
     "reddit.com",
     "docs.google.com",
     "notion.site",
+    "deepwiki.com",
 }
+PUBLISHER_DOMAIN_HINTS = (
+    "news",
+    "times",
+    "today",
+    "sun",
+    "week",
+    "crunch",
+    "morningstar",
+    "prnewswire",
+    "wire",
+    "press",
+)
 
 
 def build_company_discovery_queries(
@@ -235,12 +248,9 @@ def verify_discovery_item(item: dict, query: dict) -> VerifiedCompanyDiscoveryLe
         missing.append("no_company_name")
     if source == "github" or "github.com" in source_url:
         missing.append("github_only_not_company_proof")
-    if _is_content_platform_domain(domain):
-        missing.append("content_platform_not_company_domain")
-    if domain and source != "github" and "github.com" not in source_url and "content_platform_not_company_domain" not in missing:
-        basis.append("source_backed_domain")
-    else:
-        missing.append("no_source_backed_domain")
+    domain_ok, domain_basis, domain_missing = _company_domain_evidence(item, domain, source_url, source)
+    basis.extend(domain_basis)
+    missing.extend(domain_missing)
 
     movement_ok, movement_reasons = _movement_match_strength(combined_text, required_terms)
     if movement_ok:
@@ -248,7 +258,7 @@ def verify_discovery_item(item: dict, query: dict) -> VerifiedCompanyDiscoveryLe
     else:
         missing.extend(movement_reasons)
 
-    accepted = bool(source_url and name and basis and movement_basis and "github_only_not_company_proof" not in missing)
+    accepted = bool(source_url and name and domain_ok and movement_basis and "github_only_not_company_proof" not in missing)
     return VerifiedCompanyDiscoveryLead(
         name=name,
         movement=query.get("movement", ""),
@@ -316,6 +326,59 @@ def _domain_from_url(url: str) -> str:
 def _is_content_platform_domain(domain: str) -> bool:
     normalized = _normalize_domain(domain)
     return any(normalized == blocked or normalized.endswith(f".{blocked}") for blocked in CONTENT_PLATFORM_DOMAINS)
+
+
+def _company_domain_evidence(item: dict, domain: str, source_url: str, source: str) -> tuple[bool, list[str], list[str]]:
+    """Decide whether a grounded result domain is company evidence, not just the article publisher."""
+    basis: list[str] = []
+    missing: list[str] = []
+    normalized = _normalize_domain(domain)
+    source_domain = _domain_from_url(source_url)
+    if not normalized:
+        return False, basis, ["no_source_backed_domain"]
+    if _is_content_platform_domain(normalized):
+        return False, basis, ["content_platform_not_company_domain", "no_source_backed_domain"]
+    if source == "github" or "github.com" in (source_url or ""):
+        return False, basis, ["github_only_not_company_proof", "no_source_backed_domain"]
+    if _looks_academic_or_government_domain(normalized):
+        return False, basis, ["academic_or_government_domain_not_company_proof", "no_source_backed_domain"]
+
+    declared_name = (item.get("company_name") or item.get("name") or "").strip()
+    title = (item.get("title") or "").strip()
+    homepage_like = _is_homepage_like(source_url)
+    if homepage_like and source_domain == normalized and not _looks_like_publisher_domain(normalized):
+        return True, ["official_homepage_domain"], missing
+
+    if declared_name and declared_name != title and _domain_matches_name(normalized, declared_name):
+        return True, ["declared_company_name_matches_domain"], missing
+
+    if item.get("domain") and source_domain == normalized and _domain_matches_name(normalized, declared_name or title):
+        return True, ["source_backed_domain"], missing
+
+    return False, basis, ["source_domain_not_company_proof", "no_source_backed_domain"]
+
+
+def _is_homepage_like(url: str) -> bool:
+    parsed = urlparse(url or "")
+    path = (parsed.path or "").strip("/")
+    return not path
+
+
+def _looks_academic_or_government_domain(domain: str) -> bool:
+    normalized = _normalize_domain(domain)
+    return normalized.endswith(".edu") or ".edu." in normalized or normalized.endswith(".gov") or ".gov." in normalized
+
+
+def _looks_like_publisher_domain(domain: str) -> bool:
+    first_label = _normalize_domain(domain).split(".", 1)[0]
+    return any(hint in first_label for hint in PUBLISHER_DOMAIN_HINTS)
+
+
+def _domain_matches_name(domain: str, name: str) -> bool:
+    base = _normalize_domain(domain).split(".", 1)[0]
+    name_slug = "".join(char.lower() for char in (name or "") if char.isalnum())
+    base_slug = "".join(char.lower() for char in base if char.isalnum())
+    return bool(base_slug and name_slug and (base_slug in name_slug or name_slug in base_slug))
 
 
 def _append_query(
