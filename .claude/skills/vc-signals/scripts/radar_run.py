@@ -38,7 +38,7 @@ except ImportError:  # pragma: no cover - only for damaged installs
     check_last30days_availability = None
     run_query = None
 
-from radar_models import Candidate, EvidenceMetadata, RejectedSignal, SectorCoverage
+from radar_models import Candidate, EvidenceMetadata, FocusItem, RejectedSignal, SectorCoverage
 from radar_company_discovery import DiscoveryRunBudget, classify_discovery_source, collect_company_discovery
 from radar_scoring import score_and_tier
 from radar_sources import classify_source_item
@@ -1074,6 +1074,79 @@ def _filter_company_discovery_items(items: list[dict]) -> list[dict]:
     return kept
 
 
+def _slug_id(text: str) -> str:
+    slug = re.sub(r"[^a-z0-9]+", "-", (text or "").lower()).strip("-")
+    return slug or "unknown"
+
+
+def _category_context_focus_items_from_company_discovery(company_discovery: dict) -> list[FocusItem]:
+    items: list[FocusItem] = []
+    seen: set[str] = set()
+    for lead in company_discovery.get("accepted_leads", []) or []:
+        if not isinstance(lead, dict):
+            continue
+        if not (lead.get("category_anchor") or lead.get("lead_route") in {"category_context", "monitor_only"}):
+            continue
+        name = lead.get("name") or lead.get("company_name") or lead.get("raw_title") or "Unknown"
+        domain = lead.get("domain") or _domain_from_url(lead.get("source_url", ""))
+        key = domain or name
+        item_id = _slug_id(f"category-context-{key}")
+        if item_id in seen:
+            continue
+        seen.add(item_id)
+        source_url = lead.get("source_url") or ""
+        evidence_urls = [
+            source_url,
+            *(lead.get("supporting_evidence_urls") or []),
+            lead.get("official_domain_verification_url") or "",
+            *(lead.get("maturity_evidence_urls") or []),
+        ]
+        evidence_urls = list(dict.fromkeys(url for url in evidence_urls if url))
+        movement = lead.get("movement") or lead.get("query_theme") or "Category context"
+        sector = lead.get("market_sector") or "Company Discovery"
+        items.append(
+            FocusItem(
+                id=item_id,
+                name=name,
+                company_domain=domain,
+                market_movement_id=_slug_id(f"{sector}-{movement}"),
+                market_movement=movement,
+                market_sector=sector,
+                why_focus_this_week=lead.get("why_on_radar") or lead.get("raw_snippet") or lead.get("raw_title") or "",
+                who_is_talking=["Grounded web evidence"],
+                talker_types=["unknown"],
+                talker_type_confidence="Low",
+                evidence_snapshot=[lead.get("why_on_radar") or lead.get("raw_snippet") or lead.get("raw_title") or ""],
+                evidence_urls=evidence_urls,
+                attio_status="unknown",
+                identity_type=lead.get("candidate_type") or "verified_company",
+                recommended_action="Monitor only",
+                evidence_confidence_score=70 if domain else 45,
+                company_identity_quality_score=90 if domain else 45,
+                company_identity_quality_basis=list(lead.get("verification_basis") or []),
+                focus_priority_basis=["category_context_from_company_discovery"],
+                actionability_basis=["category_context_not_owner_action"],
+                market_movement_basis=list(lead.get("movement_assignment_basis") or []),
+                noise_risk_score=60,
+                consensus_risk_score=90 if lead.get("likely_too_late") or lead.get("category_anchor") else 55,
+                consensus_risk_basis=list(lead.get("maturity_basis") or []),
+                movement_assignment_method="backtrace",
+                movement_assignment_confidence="Medium",
+                movement_assignment_evidence_url=evidence_urls[0] if evidence_urls else "",
+                why_this_may_be_noise=lead.get("why_this_may_be_noise") or lead.get("consensus_risk_reason") or "",
+                skepticism_events=[lead.get("why_this_may_be_noise") or lead.get("consensus_risk_reason") or ""],
+                source_candidate_id=lead.get("query_id") or item_id,
+                maturity_status=lead.get("maturity_status") or "unknown",
+                maturity_basis=list(lead.get("maturity_basis") or []),
+                maturity_evidence_urls=list(lead.get("maturity_evidence_urls") or []),
+                category_anchor=bool(lead.get("category_anchor")),
+                consensus_risk_reason=lead.get("consensus_risk_reason") or "",
+                lead_route=lead.get("lead_route") or "category_context",
+            )
+        )
+    return items
+
+
 def _merge_candidate_model(existing: Candidate, candidate: Candidate) -> None:
     existing.source_count += 1
     if candidate.source and candidate.source not in existing.sources:
@@ -1451,6 +1524,7 @@ def run_weekly_artifacts(
     )
     weekly_focus = build_weekly_focus_artifact(
         candidates=scored_candidates,
+        category_context_items=_category_context_focus_items_from_company_discovery(company_discovery),
         theme_signals=theme_signals,
         sector_intelligence=sector_intelligence,
         run_id=run_date,

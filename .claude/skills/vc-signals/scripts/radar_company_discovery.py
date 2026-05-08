@@ -46,15 +46,15 @@ CONTENT_PLATFORM_DOMAINS = {
     "docs.google.com",
     "notion.site",
     "deepwiki.com",
+    "business.daily.dev",
+    "coursera.org",
+    "hostinger.com",
+    "xda-developers.com",
 }
 PUBLISHER_DOMAINS = {
     "techcrunch.com",
     "morningstar.com",
     "timesofisrael.com",
-    "prnewswire.com",
-    "businesswire.com",
-    "globenewswire.com",
-    "einpresswire.com",
     "venturebeat.com",
     "forbes.com",
     "reuters.com",
@@ -68,6 +68,27 @@ PUBLISHER_DOMAINS = {
     "goerie.com",
     "economictimes.indiatimes.com",
     "zerohedge.com",
+    "siliconangle.com",
+    "calcalistech.com",
+    "cyberscoop.com",
+}
+FUNDING_PRESS_RELEASE_DOMAINS = {
+    "prnewswire.com",
+    "businesswire.com",
+    "globenewswire.com",
+    "einpresswire.com",
+}
+INVESTOR_DOMAINS = {
+    "a16z.com",
+    "sequoiacap.com",
+    "accel.com",
+    "greylock.com",
+    "benchmark.com",
+    "lightspeedvp.com",
+    "indexventures.com",
+    "kleinerperkins.com",
+    "generalcatalyst.com",
+    "bessemer.com",
 }
 DIRECTORY_DOMAINS = {
     "crunchbase.com",
@@ -77,6 +98,9 @@ DIRECTORY_DOMAINS = {
     "capterra.com",
     "vcbacked.co",
     "tracxn.com",
+    "ai-market-watch.com",
+    "vcsheet.com",
+    "microsaashq.com",
 }
 PUBLISHER_DOMAIN_HINTS = (
     "news",
@@ -89,6 +113,21 @@ PUBLISHER_DOMAIN_HINTS = (
     "prnewswire",
     "wire",
     "press",
+)
+LISTICLE_TITLE_TERMS = (
+    "top ",
+    "best ",
+    "how to ",
+    "what is ",
+    "guide",
+    "ideas",
+    "statistics",
+    "examples",
+    "startups to watch",
+    "companies to watch",
+    "tools to watch",
+    "tools & software",
+    "best practices",
 )
 TOO_LATE_TERMS = (
     "acquires",
@@ -685,6 +724,15 @@ def verify_discovery_item(item: dict, query: dict) -> VerifiedCompanyDiscoveryLe
         missing.extend(movement_reasons)
 
     accepted = bool(source_url and name and domain_ok and movement_basis and "github_only_not_company_proof" not in missing)
+    supporting_source_types = {
+        "publisher_article",
+        "funding_press_release",
+        "investor_page",
+        "government_or_academic",
+        "directory_page",
+        "content_platform",
+        "listicle_or_seo",
+    }
     return VerifiedCompanyDiscoveryLead(
         name=name,
         movement=query.get("movement", ""),
@@ -699,6 +747,7 @@ def verify_discovery_item(item: dict, query: dict) -> VerifiedCompanyDiscoveryLe
         missing_evidence=list(dict.fromkeys(missing)),
         movement_assignment_basis=movement_basis,
         source_type=source_type,
+        supporting_evidence_urls=[source_url] if source_url and source_type in supporting_source_types else [],
         query_id=query.get("id", ""),
         query_topic=query.get("topic", ""),
         why_on_radar=snippet or title,
@@ -902,13 +951,22 @@ def _write_query_cache(cache_dir: Path | None, topic: str, payload: dict) -> Non
 def classify_discovery_source(item: dict) -> str:
     source_url = item.get("url") or item.get("source_url") or ""
     source = (item.get("source") or "").lower()
+    title = item.get("title") or ""
     domain = _domain_from_url(source_url) or _normalize_domain(item.get("domain") or item.get("website") or "")
     if source == "github" or domain == "github.com" or domain.endswith(".github.com"):
         return "github_repo"
+    if _is_funding_press_release_domain(domain):
+        return "funding_press_release"
     if _is_content_platform_domain(domain):
         return "content_platform"
     if _is_directory_domain(domain):
         return "directory_page"
+    if _is_investor_page(domain, source_url):
+        return "investor_page"
+    if _looks_academic_or_government_domain(domain):
+        return "government_or_academic"
+    if _looks_like_listicle_or_seo(source_url, title):
+        return "listicle_or_seo"
     if _is_publisher_domain(domain) or (_looks_like_publisher_domain(domain) and not _is_homepage_like(source_url)):
         return "publisher_article"
     if domain and _is_homepage_like(source_url):
@@ -1111,9 +1169,24 @@ def _verify_official_domain_for_extracted_company(
     domain = _normalize_domain(official_item.get("domain") or official_item.get("website") or _domain_from_url(source_url))
     if not source_url or not domain:
         return None
-    if classify_discovery_source(official_item) in {"publisher_article", "directory_page", "github_repo", "content_platform"}:
+    if classify_discovery_source(official_item) in {
+        "publisher_article",
+        "funding_press_release",
+        "directory_page",
+        "investor_page",
+        "government_or_academic",
+        "github_repo",
+        "content_platform",
+        "listicle_or_seo",
+    }:
         return None
-    if _is_publisher_domain(domain) or _is_directory_domain(domain) or _is_content_platform_domain(domain):
+    if (
+        _is_publisher_domain(domain)
+        or _is_funding_press_release_domain(domain)
+        or _is_directory_domain(domain)
+        or _is_content_platform_domain(domain)
+        or _looks_academic_or_government_domain(domain)
+    ):
         return None
     title = official_item.get("title") or ""
     snippet = official_item.get("snippet") or official_item.get("description") or ""
@@ -1454,9 +1527,34 @@ def _is_publisher_domain(domain: str) -> bool:
     return any(normalized == blocked or normalized.endswith(f".{blocked}") for blocked in PUBLISHER_DOMAINS)
 
 
+def _is_funding_press_release_domain(domain: str) -> bool:
+    normalized = _normalize_domain(domain)
+    return any(normalized == blocked or normalized.endswith(f".{blocked}") for blocked in FUNDING_PRESS_RELEASE_DOMAINS)
+
+
 def _is_directory_domain(domain: str) -> bool:
     normalized = _normalize_domain(domain)
     return any(normalized == blocked or normalized.endswith(f".{blocked}") for blocked in DIRECTORY_DOMAINS)
+
+
+def _is_investor_page(domain: str, url: str) -> bool:
+    normalized = _normalize_domain(domain)
+    path = (urlparse(url or "").path or "").lower()
+    investor_domain = any(normalized == blocked or normalized.endswith(f".{blocked}") for blocked in INVESTOR_DOMAINS)
+    return investor_domain and any(marker in path for marker in ("/portfolio", "/companies", "/company"))
+
+
+def _looks_like_listicle_or_seo(url: str, title: str) -> bool:
+    parsed = urlparse(url or "")
+    path = (parsed.path or "").lower()
+    title_lower = (title or "").lower()
+    if _is_homepage_like(url):
+        return False
+    if any(term in title_lower for term in LISTICLE_TITLE_TERMS) and any(
+        term in title_lower for term in ("startup", "startups", "company", "companies", "tools", "vendors")
+    ):
+        return True
+    return bool(re.search(r"/(?:top|best)[-/]", path) and any(term in path for term in ("startup", "company", "tools", "vendors")))
 
 
 def _company_domain_evidence(item: dict, domain: str, source_url: str, source: str) -> tuple[bool, list[str], list[str]]:
@@ -1470,10 +1568,18 @@ def _company_domain_evidence(item: dict, domain: str, source_url: str, source: s
         return False, basis, ["no_source_backed_domain"]
     if _is_content_platform_domain(normalized):
         return False, basis, ["content_platform_not_company_domain", "no_source_backed_domain"]
+    if source_type == "funding_press_release":
+        return False, basis, ["funding_press_release_not_company_domain", "no_source_backed_domain"]
     if source_type == "publisher_article":
         return False, basis, ["source_domain_not_company_proof", "no_source_backed_domain"]
     if source_type == "directory_page":
         return False, basis, ["directory_page_not_company_domain", "no_source_backed_domain"]
+    if source_type == "investor_page":
+        return False, basis, ["investor_page_not_company_domain", "no_source_backed_domain"]
+    if source_type == "government_or_academic":
+        return False, basis, ["government_or_academic_not_company_domain", "no_source_backed_domain"]
+    if source_type == "listicle_or_seo":
+        return False, basis, ["listicle_or_seo_not_company_domain", "no_source_backed_domain"]
     if source == "github" or "github.com" in (source_url or ""):
         return False, basis, ["github_only_not_company_proof", "no_source_backed_domain"]
     if _looks_academic_or_government_domain(normalized):

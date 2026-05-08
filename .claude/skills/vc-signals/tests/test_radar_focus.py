@@ -740,6 +740,47 @@ def test_category_context_contributes_market_movement_without_new_to_marathon():
     assert artifact.appendix["category_context"][0]["name"] == "n8n.io - AI workflow automation platform"
 
 
+def test_category_context_items_can_be_added_without_entering_partner_focus():
+    from radar_focus import ACTION_MONITOR_ONLY, build_weekly_focus_artifact, render_weekly_focus_markdown
+    from radar_models import FocusItem
+
+    category_anchor = FocusItem(
+        id="7ai",
+        name="7AI",
+        company_domain="7ai.com",
+        market_movement_id="cybersecurity-ai-agent-security",
+        market_movement="AI agent security",
+        market_sector="Cybersecurity",
+        why_focus_this_week="7AI validates demand for AI SOC agents and agentic security.",
+        evidence_snapshot=["AI SOC agents and agentic security platform."],
+        evidence_urls=["https://7ai.com/", "https://example.com/7ai-series-c"],
+        identity_type="verified_company",
+        recommended_action=ACTION_MONITOR_ONLY,
+        evidence_confidence_score=70,
+        company_identity_quality_score=90,
+        maturity_status="likely_too_late",
+        maturity_basis=["large_round_or_valuation"],
+        maturity_evidence_urls=["https://example.com/7ai-series-c"],
+        category_anchor=True,
+        consensus_risk_reason="Mature category anchor, not a fresh sourcing lead.",
+        lead_route="category_context",
+    )
+
+    artifact = build_weekly_focus_artifact(
+        candidates=[],
+        category_context_items=[category_anchor],
+        run_id="2026-05-11",
+    )
+    markdown = render_weekly_focus_markdown(artifact)
+
+    assert artifact.partner_focus == []
+    assert artifact.new_to_marathon == []
+    assert artifact.appendix["category_context"][0]["name"] == "7AI"
+    assert "7AI" in artifact.market_movements[0].companies_or_projects
+    assert "### Category Context / Market Anchors" in markdown
+    assert "https://7ai.com/" in markdown
+
+
 def test_render_weekly_focus_markdown_qualifies_market_movement_headings():
     from radar_focus import build_weekly_focus_artifact, render_weekly_focus_markdown
 

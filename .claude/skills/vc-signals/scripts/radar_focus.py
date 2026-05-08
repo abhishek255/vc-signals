@@ -639,6 +639,18 @@ def _workflow_view(items: list[FocusItem]) -> dict[str, list[FocusItem]]:
     return {action: rows for action, rows in grouped.items() if rows}
 
 
+def _dedupe_focus_items(items: list[FocusItem]) -> list[FocusItem]:
+    deduped: list[FocusItem] = []
+    seen: set[str] = set()
+    for item in items:
+        key = item.id or item.company_domain or item.name
+        if key in seen:
+            continue
+        deduped.append(item)
+        seen.add(key)
+    return deduped
+
+
 def _source_gaps(sector_intelligence: list[SectorIntelligence] | None) -> list[str]:
     gaps = [
         "No X/Product Hunt/package-registry adapters in Phase 1A/1B; focus list is based on current candidates, signals, and Attio fields only."
@@ -722,6 +734,7 @@ def _executive_snapshot(
 def build_weekly_focus_artifact(
     *,
     candidates: list[Candidate],
+    category_context_items: list[FocusItem] | None = None,
     theme_signals: list[ThemeSignal] | None = None,
     sector_intelligence: list[SectorIntelligence] | None = None,
     run_id: str = "",
@@ -739,7 +752,8 @@ def build_weekly_focus_artifact(
         item
         for item in focus_items
         if item.category_anchor or item.lead_route in {LEAD_ROUTE_CATEGORY_CONTEXT, LEAD_ROUTE_MONITOR_ONLY}
-    ][:10]
+    ]
+    category_context = _dedupe_focus_items(category_context + list(category_context_items or []))[:10]
     movement_source_items = partner_focus + extended_watchlist + category_context
     movements = build_market_movements(movement_source_items, theme_signals)
     new_to_marathon = _new_to_marathon(partner_focus + extended_watchlist)
@@ -922,10 +936,12 @@ def render_weekly_focus_markdown(artifact: WeeklyFocusArtifact) -> str:
             lines.append(f"- **{row.get('name', 'Unknown')}** — {row.get('recommended_action', 'Research deeper')}")
     category_context = artifact.appendix.get("category_context", [])
     if category_context:
-        lines.extend(["", "### Category Context / Monitor Only"])
+        lines.extend(["", "### Category Context / Market Anchors"])
         for row in category_context[:10]:
             basis = ", ".join(row.get("maturity_basis", [])[:2]) or row.get("consensus_risk_reason", "")
-            lines.append(f"- **{row.get('name', 'Unknown')}** — {row.get('maturity_status', 'unknown')}; {basis}")
+            links = row.get("evidence_urls", []) or row.get("maturity_evidence_urls", [])
+            link_text = f" Evidence: {', '.join(links[:2])}" if links else ""
+            lines.append(f"- **{row.get('name', 'Unknown')}** — {row.get('maturity_status', 'unknown')}; {basis}.{link_text}")
     themes_without_companies = artifact.appendix.get("themes_without_companies", [])
     if themes_without_companies:
         lines.extend(["", "### Themes Without Companies Yet"])

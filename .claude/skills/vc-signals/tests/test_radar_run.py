@@ -1636,6 +1636,103 @@ def test_run_weekly_artifacts_writes_runtime_ledger_and_coverage_report(tmp_path
     assert coverage["recommended_deep_dive"]
 
 
+def test_run_weekly_artifacts_surfaces_category_context_leads_in_weekly_focus(tmp_path, monkeypatch):
+    import radar_run
+    from radar_models import ThemeSignal
+
+    monkeypatch.setattr(
+        radar_run,
+        "collect_live_evidence",
+        lambda **kwargs: {
+            "last30days": {
+                "cybersecurity": {
+                    "items": [
+                        {
+                            "source": "reddit",
+                            "title": "How are teams controlling AI agent permissions?",
+                            "url": "https://reddit.com/1",
+                            "snippet": "Teams need better controls for MCP permissions and autonomous agent security.",
+                        }
+                    ],
+                    "errors": [],
+                }
+            },
+            "github": [],
+            "warnings": [],
+        },
+    )
+    monkeypatch.setattr(radar_run, "load_candidate_history", lambda: {})
+    monkeypatch.setattr(radar_run, "save_candidate_history", lambda history: None)
+    monkeypatch.setattr(radar_run, "apply_candidate_enrichment", lambda candidates: candidates)
+    monkeypatch.setattr(radar_run, "_grounded_search_available", lambda: True)
+    monkeypatch.setattr(radar_run, "_social_search_available", lambda: False)
+    monkeypatch.setattr(
+        radar_run,
+        "build_theme_signals",
+        lambda signals, sectors: [
+            ThemeSignal(
+                market_sector="Cybersecurity",
+                theme="AI agent security",
+                evidence_count=3,
+                suggested_search="AI agent security startups Seed Series A founder launch",
+                confidence="Medium",
+            )
+        ],
+    )
+    monkeypatch.setattr(
+        radar_run,
+        "collect_company_discovery",
+        lambda *args, **kwargs: {
+            "queries": [],
+            "items": [],
+            "accepted_leads": [
+                {
+                    "name": "7AI",
+                    "movement": "AI agent security",
+                    "market_sector": "Cybersecurity",
+                    "source_url": "https://7ai.com/",
+                    "source": "grounding",
+                    "domain": "7ai.com",
+                    "candidate_type": "verified_company",
+                    "verification_status": "accepted",
+                    "verification_basis": ["official_homepage_domain"],
+                    "movement_assignment_basis": ["strong_movement_phrase:ai agent"],
+                    "source_type": "official_company_page",
+                    "why_on_radar": "AI SOC agents and agentic security platform.",
+                    "why_this_may_be_noise": "Likely too late; use as market anchor.",
+                    "maturity_status": "likely_too_late",
+                    "maturity_basis": ["large_round_or_valuation"],
+                    "maturity_evidence_urls": ["https://example.com/7ai-funding"],
+                    "category_anchor": True,
+                    "consensus_risk_reason": "Large funding/valuation signal.",
+                    "lead_route": "category_context",
+                }
+            ],
+            "rejected_leads": [],
+            "warnings": [],
+            "errors": [],
+            "summary": {"accepted": 1, "rejected": 0, "queries_run": 0},
+            "runtime_ledger": {},
+            "coverage_report": {},
+        },
+    )
+
+    radar_run.run_weekly_artifacts(
+        output_dir=tmp_path,
+        sectors=("cybersecurity",),
+        github_limit=0,
+        candidate_limit=10,
+    )
+
+    focus = json.loads((tmp_path / "weekly-focus.json").read_text())
+    category_context = focus["appendix"]["category_context"]
+    assert category_context[0]["name"] == "7AI"
+    assert category_context[0]["recommended_action"] == "Monitor only"
+    assert "7AI" not in [row["name"] for row in focus["partner_focus"]]
+    assert "7AI" not in [row["name"] for row in focus["new_to_marathon"]]
+    assert "7AI" in (tmp_path / "weekly-focus.md").read_text()
+
+
 def test_run_weekly_artifacts_feeds_verified_discovery_into_identity_resolution(tmp_path, monkeypatch):
     import json
     import radar_run

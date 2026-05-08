@@ -664,6 +664,94 @@ def test_classify_discovery_source_marks_publisher_article():
     assert classify_discovery_source(item) == "publisher_article"
 
 
+def test_classify_discovery_source_marks_funding_press_release():
+    from radar_company_discovery import classify_discovery_source, verify_discovery_item
+
+    item = {
+        "source": "grounding",
+        "title": "AgentFence raises $8M seed round for AI agent security",
+        "url": "https://www.prnewswire.com/news-releases/agentfence-raises-seed-round.html",
+        "snippet": "AgentFence raised seed funding to secure AI agent permissions.",
+    }
+    query = {
+        "movement": "AI agent security",
+        "market_sector": "Cybersecurity",
+        "required_terms": ["ai agent", "security"],
+    }
+
+    assert classify_discovery_source(item) == "funding_press_release"
+    lead = verify_discovery_item(item, query)
+    assert lead.verification_status == "rejected"
+    assert lead.source_type == "funding_press_release"
+    assert "funding_press_release_not_company_domain" in lead.missing_evidence
+    assert lead.supporting_evidence_urls == [item["url"]]
+
+
+def test_classify_discovery_source_marks_investor_page_as_supporting_evidence():
+    from radar_company_discovery import classify_discovery_source, verify_discovery_item
+
+    item = {
+        "source": "grounding",
+        "title": "AgentFence | Portfolio",
+        "url": "https://www.sequoiacap.com/companies/agentfence/",
+        "snippet": "AgentFence secures AI agent permissions.",
+    }
+    query = {
+        "movement": "AI agent security",
+        "market_sector": "Cybersecurity",
+        "required_terms": ["ai agent", "security"],
+    }
+
+    assert classify_discovery_source(item) == "investor_page"
+    lead = verify_discovery_item(item, query)
+    assert lead.verification_status == "rejected"
+    assert "investor_page_not_company_domain" in lead.missing_evidence
+    assert lead.supporting_evidence_urls == [item["url"]]
+
+
+def test_classify_discovery_source_marks_government_or_academic_page():
+    from radar_company_discovery import classify_discovery_source, verify_discovery_item
+
+    item = {
+        "source": "grounding",
+        "title": "AI Agent Security Guidance",
+        "url": "https://www.cisa.gov/resources-tools/resources/ai-agent-security",
+        "snippet": "Security guidance for AI agents and tool permissions.",
+    }
+    query = {
+        "movement": "AI agent security",
+        "market_sector": "Cybersecurity",
+        "required_terms": ["ai agent", "security"],
+    }
+
+    assert classify_discovery_source(item) == "government_or_academic"
+    lead = verify_discovery_item(item, query)
+    assert lead.verification_status == "rejected"
+    assert "government_or_academic_not_company_domain" in lead.missing_evidence
+
+
+def test_classify_discovery_source_marks_listicle_or_seo_page():
+    from radar_company_discovery import classify_discovery_source, verify_discovery_item
+
+    item = {
+        "source": "grounding",
+        "title": "Top 10 AI agent security startups to watch",
+        "url": "https://example-seo.com/blog/top-ai-agent-security-startups",
+        "snippet": "A list of companies building AI agent security products.",
+    }
+    query = {
+        "movement": "AI agent security",
+        "market_sector": "Cybersecurity",
+        "required_terms": ["ai agent", "security"],
+    }
+
+    assert classify_discovery_source(item) == "listicle_or_seo"
+    lead = verify_discovery_item(item, query)
+    assert lead.verification_status == "rejected"
+    assert "listicle_or_seo_not_company_domain" in lead.missing_evidence
+    assert lead.supporting_evidence_urls == [item["url"]]
+
+
 def test_extract_company_from_publisher_article_clear_pattern():
     from radar_company_discovery import extract_company_from_publisher_article
 
