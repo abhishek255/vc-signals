@@ -1121,6 +1121,49 @@ def test_article_detail_company_without_verified_domain_is_rejected():
     assert "official_company_domain_not_verified" in rejected["missing_evidence"]
 
 
+def test_article_company_verification_rejects_unknown_article_url_as_official_domain():
+    from radar_company_discovery import collect_company_discovery
+
+    def fake_query(topic, **kwargs):
+        if topic == '"Capsule Security" "AI agent security" official':
+            return {
+                "items": [
+                    {
+                        "source": "grounding",
+                        "title": "Capsule Security Raises $7 Million Seed for AI Agent Security",
+                        "url": "https://ittech-pulse.com/news/capsule-security-raises-7-million-seed-for-ai-agent-security/",
+                        "snippet": "Capsule Security exited stealth with seed funding for AI agent security.",
+                    }
+                ],
+                "warnings": [],
+            }
+        return {
+            "items": [
+                {
+                    "source": "grounding",
+                    "title": "Capsule Security emerges from stealth with $7M seed - Calcalist",
+                    "url": "https://www.calcalistech.com/ctechnews/article/rk900cethzg",
+                    "snippet": "Capsule Security, a cybersecurity startup focused on AI agents, raised seed funding.",
+                }
+            ],
+            "warnings": [],
+        }
+
+    result = collect_company_discovery(
+        [_theme_signal()],
+        query_runner=fake_query,
+        grounded_available=True,
+        social_available=False,
+        max_queries_per_theme=1,
+    )
+
+    assert result["summary"]["accepted"] == 0
+    assert result["summary"]["rejected"] == 1
+    rejected = result["rejected_leads"][0]
+    assert rejected["name"] == "Capsule Security"
+    assert "official_company_domain_not_verified" in rejected["missing_evidence"]
+
+
 def test_publisher_article_without_verified_domain_is_rejected_cleanly():
     from radar_company_discovery import collect_company_discovery
 

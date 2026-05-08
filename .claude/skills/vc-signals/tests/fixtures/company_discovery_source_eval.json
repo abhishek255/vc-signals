@@ -17,6 +17,13 @@
       "source": "grounding"
     },
     {
+      "label": "publisher_article",
+      "title": "Capsule Security Raises $7 Million Seed for AI Agent Security",
+      "url": "https://ittech-pulse.com/news/capsule-security-raises-7-million-seed-for-ai-agent-security/",
+      "snippet": "Article coverage of a seed round; not the company homepage.",
+      "source": "grounding"
+    },
+    {
       "label": "funding_press_release",
       "title": "AgentFence raises $8M seed round for AI agent security",
       "url": "https://www.prnewswire.com/news-releases/agentfence-raises-seed-round.html",

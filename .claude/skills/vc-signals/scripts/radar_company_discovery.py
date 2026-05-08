@@ -114,6 +114,30 @@ PUBLISHER_DOMAIN_HINTS = (
     "wire",
     "press",
 )
+ARTICLE_PATH_HINTS = (
+    "/article",
+    "/articles",
+    "/blog",
+    "/ctechnews",
+    "/news",
+    "/press",
+    "/sites/",
+)
+ARTICLE_TITLE_TERMS = (
+    "acquire",
+    "acquires",
+    "emerge",
+    "emerges",
+    "funding",
+    "launch",
+    "launches",
+    "raise",
+    "raises",
+    "raised",
+    "seed",
+    "series",
+    "stealth",
+)
 LISTICLE_TITLE_TERMS = (
     "top ",
     "best ",
@@ -1049,7 +1073,11 @@ def classify_discovery_source(item: dict) -> str:
         return "government_or_academic"
     if _looks_like_listicle_or_seo(source_url, title):
         return "listicle_or_seo"
-    if _is_publisher_domain(domain) or (_looks_like_publisher_domain(domain) and not _is_homepage_like(source_url)):
+    if (
+        _is_publisher_domain(domain)
+        or (_looks_like_publisher_domain(domain) and not _is_homepage_like(source_url))
+        or _looks_like_article_result(source_url, title)
+    ):
         return "publisher_article"
     if domain and _is_homepage_like(source_url):
         return "official_company_page"
@@ -1286,16 +1314,7 @@ def _verify_official_domain_for_extracted_company(
     domain = _normalize_domain(official_item.get("domain") or official_item.get("website") or _domain_from_url(source_url))
     if not source_url or not domain:
         return None
-    if classify_discovery_source(official_item) in {
-        "publisher_article",
-        "funding_press_release",
-        "directory_page",
-        "investor_page",
-        "government_or_academic",
-        "github_repo",
-        "content_platform",
-        "listicle_or_seo",
-    }:
+    if classify_discovery_source(official_item) != "official_company_page":
         return None
     if (
         _is_publisher_domain(domain)
@@ -1672,6 +1691,14 @@ def _looks_like_listicle_or_seo(url: str, title: str) -> bool:
     ):
         return True
     return bool(re.search(r"/(?:top|best)[-/]", path) and any(term in path for term in ("startup", "company", "tools", "vendors")))
+
+
+def _looks_like_article_result(url: str, title: str) -> bool:
+    if _is_homepage_like(url):
+        return False
+    path = (urlparse(url or "").path or "").lower()
+    title_lower = (title or "").lower()
+    return any(hint in path for hint in ARTICLE_PATH_HINTS) and any(term in title_lower for term in ARTICLE_TITLE_TERMS)
 
 
 def _company_domain_evidence(item: dict, domain: str, source_url: str, source: str) -> tuple[bool, list[str], list[str]]:
