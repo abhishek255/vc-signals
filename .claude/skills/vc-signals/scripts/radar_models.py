@@ -106,6 +106,11 @@ class Candidate:
     category_anchor: bool = False
     consensus_risk_reason: str = ""
     lead_route: str = "research_deeper"
+    owner_readiness_score: int = 0
+    owner_readiness_basis: list[str] = field(default_factory=list)
+    missing_owner_evidence: list[str] = field(default_factory=list)
+    recommended_owner_action: str = ""
+    recommended_next_validation_step: str = ""
 
     def to_dict(self) -> dict:
         return asdict(self)
@@ -185,6 +190,11 @@ class VerifiedCompanyDiscoveryLead:
     category_anchor: bool = False
     consensus_risk_reason: str = ""
     lead_route: str = "research_deeper"
+    owner_readiness_score: int = 0
+    owner_readiness_basis: list[str] = field(default_factory=list)
+    missing_owner_evidence: list[str] = field(default_factory=list)
+    recommended_owner_action: str = ""
+    recommended_next_validation_step: str = ""
     query_id: str = ""
     query_topic: str = ""
     why_on_radar: str = ""
@@ -376,6 +386,11 @@ class FocusItem:
     category_anchor: bool = False
     consensus_risk_reason: str = ""
     lead_route: str = "research_deeper"
+    owner_readiness_score: int = 0
+    owner_readiness_basis: list[str] = field(default_factory=list)
+    missing_owner_evidence: list[str] = field(default_factory=list)
+    recommended_owner_action: str = ""
+    recommended_next_validation_step: str = ""
 
     def to_dict(self) -> dict:
         return asdict(self)
@@ -496,6 +511,33 @@ class IdentityResolution:
 
     @classmethod
     def from_dict(cls, payload: dict) -> "IdentityResolution":
+        return cls(**_known_payload(cls, payload))
+
+
+@dataclass
+class OwnerReadiness:
+    candidate_key: str
+    name: str = ""
+    domain: str = ""
+    eligible: bool = False
+    owner_readiness_score: int = 0
+    owner_readiness_basis: list[str] = field(default_factory=list)
+    missing_owner_evidence: list[str] = field(default_factory=list)
+    recommended_owner_action: str = "Research deeper"
+    recommended_next_validation_step: str = ""
+    founder_team_evidence: list[str] = field(default_factory=list)
+    stage_funding_evidence: list[str] = field(default_factory=list)
+    customer_buyer_pull_evidence: list[str] = field(default_factory=list)
+    attio_context_evidence: list[str] = field(default_factory=list)
+    evidence_urls: list[str] = field(default_factory=list)
+    query: str = ""
+    query_status: str = ""
+
+    def to_dict(self) -> dict:
+        return asdict(self)
+
+    @classmethod
+    def from_dict(cls, payload: dict) -> "OwnerReadiness":
         return cls(**_known_payload(cls, payload))
 
 

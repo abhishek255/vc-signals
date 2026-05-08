@@ -33,6 +33,22 @@ ATTIO_UNKNOWN_STATUSES = {"unknown", ""}
 ATTIO_NO_OWNER_STATUSES = {"no_owner", "no owner"}
 ATTIO_MATCH_STATUSES = {"active", "no_owner", "no owner", "stale", "passed"}
 ATTIO_STALE_TERMS = ("stale", "passed")
+OWNER_READY_THRESHOLD = 80
+OWNER_READY_ACTIONS = {ACTION_ASSIGN_OWNER, ACTION_REFRESH_ATTIO}
+CUSTOMER_PULL_TERMS = (
+    "customer",
+    "customers",
+    "trusted by",
+    "used by",
+    "design partner",
+    "pilot",
+    "pilots",
+    "enterprise",
+    "security teams",
+    "developers use",
+    "buyer",
+    "ciso",
+)
 
 
 def _clamp(score: int) -> int:
@@ -263,6 +279,142 @@ def score_market_movement(candidate: Candidate) -> tuple[int, list[str]]:
     return _clamp(score), basis or ["baseline_market_movement"]
 
 
+def _has_founder_team_evidence(candidate: Candidate) -> bool:
+    return bool(candidate.founder_profiles or candidate.founders or candidate.maintainer_profiles)
+
+
+def _has_stage_funding_evidence(candidate: Candidate) -> bool:
+    text = _text_blob(candidate.stage, candidate.raised, candidate.why_on_radar, candidate.maturity_basis)
+    return (
+        candidate.maturity_status in SOURCING_MATURITY_STATUSES
+        or any(term in text for term in ("pre-seed", "pre seed", "seed", "series a", "series b", "funding", "raised"))
+    )
+
+
+def _has_customer_buyer_pull(candidate: Candidate) -> bool:
+    metadata_text = " ".join(
+        " ".join(str(value) for value in metadata.values())
+        for metadata in candidate.evidence_metadata
+        if isinstance(metadata, dict)
+    )
+    text = _text_blob(candidate.why_on_radar, candidate.why_this_may_be_noise, metadata_text)
+    return any(term in text for term in CUSTOMER_PULL_TERMS)
+
+
+def _has_commercial_or_funding_evidence(candidate: Candidate) -> bool:
+    text = _text_blob(candidate.why_on_radar, candidate.commercial_intent_basis, candidate.maturity_basis)
+    return (
+        _has_stage_funding_evidence(candidate)
+        or candidate.commercial_intent_score >= 60
+        or any(term in text for term in ("platform", "launch", "customer", "seed", "series a", "series b", "funding"))
+    )
+
+
+def score_owner_readiness(candidate: Candidate) -> tuple[int, list[str], list[str], str]:
+    if candidate.owner_readiness_score or candidate.owner_readiness_basis or candidate.missing_owner_evidence:
+        return (
+            _clamp(candidate.owner_readiness_score),
+            list(candidate.owner_readiness_basis),
+            list(candidate.missing_owner_evidence),
+            candidate.recommended_next_validation_step or _next_owner_validation_step(candidate.missing_owner_evidence),
+        )
+
+    basis: list[str] = []
+    missing: list[str] = []
+    score = 0
+    status = (candidate.attio_status or "unknown").lower()
+
+    if _candidate_is_late_or_context(candidate):
+        missing.append("category context or likely too late")
+        return 20, ["category_context_not_owner_ready"], missing, "Monitor as category context"
+    if (
+        candidate.identity_type in {"oss_project_watch", "oss_with_commercial_intent"}
+        or (candidate.candidate_type == "oss_project" and candidate.identity_type != "verified_company")
+    ):
+        missing.append("OSS/project-only row")
+        return 25, ["oss_project_not_owner_ready"], missing, "Track OSS/project formation"
+    if candidate.identity_type == "verified_company" and candidate.domain and candidate.attio_safe_to_match:
+        score += 15
+        basis.append("verified_company_identity")
+    else:
+        missing.append("no verified Attio-safe company identity")
+
+    if _has_founder_team_evidence(candidate):
+        score += 25
+        basis.append("founder_team_evidence")
+    else:
+        missing.append("no founder/team evidence")
+
+    if _has_stage_funding_evidence(candidate):
+        score += 25
+        basis.append("stage_funding_evidence")
+    else:
+        missing.append("no stage/funding evidence")
+
+    if _has_customer_buyer_pull(candidate):
+        score += 15
+        basis.append("customer_buyer_pull_evidence")
+    else:
+        missing.append("no customer/buyer pull evidence")
+
+    if _has_commercial_or_funding_evidence(candidate):
+        score += 10
+        basis.append("commercial_or_funding_evidence")
+    else:
+        missing.append("no commercial/funding evidence")
+
+    if status in ATTIO_NEW_STATUSES or status in ATTIO_NO_OWNER_STATUSES:
+        score += 20
+        basis.append("attio_new_or_no_match")
+    elif status in {"stale", "passed"}:
+        score += 20
+        basis.append("attio_refresh_context")
+    elif status in ATTIO_UNKNOWN_STATUSES:
+        missing.append("Attio status unknown")
+    else:
+        missing.append("Attio status not owner-actionable")
+
+    return _clamp(score), list(dict.fromkeys(basis)), list(dict.fromkeys(missing)), _next_owner_validation_step(missing)
+
+
+def _next_owner_validation_step(missing: list[str]) -> str:
+    if any("founder" in item.lower() for item in missing):
+        return "Find founder/team source"
+    if any("attio" in item.lower() for item in missing):
+        return "Check Attio match/status"
+    if any("stage" in item.lower() or "funding" in item.lower() for item in missing):
+        return "Verify stage/funding source"
+    if any("customer" in item.lower() or "buyer" in item.lower() for item in missing):
+        return "Find buyer/customer pull evidence"
+    if any("identity" in item.lower() for item in missing):
+        return "Verify company identity/domain"
+    if missing:
+        return missing[0]
+    return "Ready for owner assignment"
+
+
+def _candidate_owner_ready_action(candidate: Candidate, item: FocusItem) -> str:
+    if _candidate_is_late_or_context(candidate):
+        return ACTION_MONITOR_ONLY
+    if item.owner_readiness_score < OWNER_READY_THRESHOLD:
+        return ACTION_RESEARCH_DEEPER
+    if _blocking_owner_missing(item.missing_owner_evidence):
+        return ACTION_RESEARCH_DEEPER
+    if item.recommended_owner_action in OWNER_READY_ACTIONS:
+        return item.recommended_owner_action
+    status = (candidate.attio_status or "unknown").lower()
+    if status in {"stale", "passed"}:
+        return ACTION_REFRESH_ATTIO
+    if status in ATTIO_NEW_STATUSES or status in ATTIO_NO_OWNER_STATUSES:
+        return ACTION_ASSIGN_OWNER
+    return ACTION_RESEARCH_DEEPER
+
+
+def _blocking_owner_missing(missing: list[str]) -> list[str]:
+    non_blocking = {"no customer/buyer pull evidence"}
+    return [item for item in missing if item not in non_blocking]
+
+
 def compute_focus_priority(
     *,
     investment_interest_score: int,
@@ -338,7 +490,7 @@ def choose_recommended_action(candidate: Candidate, item: FocusItem) -> str:
             if not _candidate_maturity_allows_owner_action(candidate):
                 return ACTION_RESEARCH_DEEPER
             if item.company_identity_quality_score >= 70 and item.evidence_confidence_score >= 45:
-                return ACTION_ASSIGN_OWNER
+                return _candidate_owner_ready_action(candidate, item)
         elif candidate.recommended_identity_action == ACTION_REFRESH_ATTIO:
             return ACTION_REFRESH_ATTIO
         elif candidate.recommended_identity_action == ACTION_RESEARCH_DEEPER:
@@ -354,7 +506,7 @@ def choose_recommended_action(candidate: Candidate, item: FocusItem) -> str:
             return ACTION_RESEARCH_DEEPER
         if not candidate.attio_safe_to_match or candidate.identity_type != "verified_company":
             return ACTION_RESEARCH_DEEPER
-        return ACTION_ASSIGN_OWNER
+        return _candidate_owner_ready_action(candidate, item)
     if status in ATTIO_UNKNOWN_STATUSES:
         if item.company_identity_quality_score >= 60 and item.evidence_confidence_score >= 45:
             return ACTION_RESEARCH_DEEPER
@@ -473,6 +625,7 @@ def build_focus_item(candidate: Candidate) -> FocusItem:
     marathon_fit_score, marathon_fit_basis = score_marathon_fit(candidate)
     noise_score, noise_basis = score_noise_risk(candidate, identity_score)
     consensus_score, consensus_basis = score_consensus_risk(candidate)
+    owner_score, owner_basis, missing_owner, next_validation_step = score_owner_readiness(candidate)
     focus_score, focus_basis = compute_focus_priority(
         investment_interest_score=candidate.investment_interest_score,
         actionability_score=actionability_score,
@@ -541,6 +694,11 @@ def build_focus_item(candidate: Candidate) -> FocusItem:
         category_anchor=candidate.category_anchor,
         consensus_risk_reason=candidate.consensus_risk_reason,
         lead_route=candidate.lead_route,
+        owner_readiness_score=owner_score,
+        owner_readiness_basis=owner_basis,
+        missing_owner_evidence=missing_owner,
+        recommended_owner_action=candidate.recommended_owner_action,
+        recommended_next_validation_step=next_validation_step,
     )
     item.recommended_action = choose_recommended_action(candidate, item)
     _add_route_missing_evidence(item, candidate)
@@ -551,6 +709,7 @@ def _add_route_missing_evidence(item: FocusItem, candidate: Candidate) -> None:
     if item.maturity_status == "unknown" and not item.maturity_basis:
         item.maturity_basis = ["maturity_not_verified"]
     missing = list(item.missing_evidence)
+    missing.extend(item.missing_owner_evidence)
     company_or_launch = bool(item.company_domain) and item.identity_type in {"verified_company", "launch_style_needs_identity", ""}
     if company_or_launch and item.lead_route == "research_deeper":
         if not (candidate.founder_profiles or candidate.founders or candidate.maintainer_profiles):
@@ -933,7 +1092,9 @@ def _item_row(item: FocusItem) -> str:
             _cell(item.recommended_action),
             str(item.investment_interest_score),
             str(item.evidence_confidence_score),
+            str(item.owner_readiness_score),
             _cell("; ".join(item.missing_evidence[:4])),
+            _cell(item.recommended_next_validation_step),
             _cell(item.why_this_may_be_noise),
         ]
     )
@@ -948,14 +1109,14 @@ def _movement_heading(movement: MarketMovement) -> str:
 def _append_item_table(lines: list[str], items: list[FocusItem], *, empty_label: str) -> None:
     lines.extend(
         [
-            "| # | Company / Project | Market Movement | Sector | Why Focus This Week | Who Is Talking | Evidence | Attio | Action | Interest | Confidence | Missing Evidence | Why This May Be Noise |",
-            "|---|---|---|---|---|---|---|---|---|---:|---:|---|---|",
+            "| # | Company / Project | Market Movement | Sector | Why Focus This Week | Who Is Talking | Evidence | Attio | Action | Interest | Confidence | Owner Ready | Missing Evidence | Next Validation Step | Why This May Be Noise |",
+            "|---|---|---|---|---|---|---|---|---|---:|---:|---:|---|---|---|",
         ]
     )
     if items:
         lines.extend(f"| {_item_row(item)} |" for item in items)
     else:
-        lines.append(f"|  | {empty_label} |  |  |  |  |  |  |  |  |  |  |  |")
+        lines.append(f"|  | {empty_label} |  |  |  |  |  |  |  |  |  |  |  |  |  |")
 
 
 def render_weekly_focus_markdown(artifact: WeeklyFocusArtifact) -> str:

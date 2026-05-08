@@ -52,6 +52,7 @@ from radar_history import apply_weekly_tags, load_candidate_history, save_candid
 from radar_enrichment import apply_candidate_enrichment, merge_source_enrichment
 from identity_resolution import apply_identity_resolution
 from metadata_loss import build_metadata_loss_report
+from owner_readiness import enrich_owner_readiness, write_owner_readiness_json
 from radar_oss import enrich_oss_candidate
 from radar_focus import (
     build_focus_item,
@@ -1460,6 +1461,13 @@ def run_weekly_artifacts(
         _attio_client_from_env(),
     )
     scored_candidates = _score_sort_limit_candidates(scored_candidates, candidate_limit)
+    scored_candidates, owner_readiness_report = enrich_owner_readiness(
+        scored_candidates,
+        query_runner=run_query if _grounded_search_available() else None,
+        cache_dir=output_dir / "owner-readiness-cache",
+        max_queries=5,
+    )
+    scored_candidates = _score_sort_limit_candidates(scored_candidates, candidate_limit)
     run_date = datetime.now(timezone.utc).strftime("%Y-%m-%d")
     history_result = apply_weekly_tags(scored_candidates, load_candidate_history(), run_date=run_date)
     scored_candidates = history_result.candidates
@@ -1481,6 +1489,7 @@ def run_weekly_artifacts(
     sector_intelligence_path = output_dir / "sector-intelligence.json"
     identity_resolution_path = output_dir / "identity-resolution.json"
     metadata_loss_report_path = output_dir / "metadata-loss-report.json"
+    owner_readiness_path = output_dir / "owner-readiness.json"
     signals_path.write_text(json.dumps([signal.to_dict() for signal in signal_result["signals"]], indent=2))
     candidates_path.write_text(json.dumps([candidate.to_dict() for candidate in scored_candidates], indent=2))
     theme_signals_path.write_text(json.dumps([item.to_dict() for item in theme_signals], indent=2))
@@ -1496,6 +1505,7 @@ def run_weekly_artifacts(
         identity_resolutions=identity_resolutions,
     )
     metadata_loss_report_path.write_text(json.dumps([item.to_dict() for item in metadata_loss_report], indent=2, sort_keys=True))
+    write_owner_readiness_json(owner_readiness_report, owner_readiness_path)
     synthesis = None
     synthesis_path = None
     if with_synthesis:
@@ -1547,6 +1557,7 @@ def run_weekly_artifacts(
         "coverage_report": str(coverage_report_path),
         "identity_resolution_json": str(identity_resolution_path),
         "metadata_loss_report": str(metadata_loss_report_path),
+        "owner_readiness_json": str(owner_readiness_path),
         "preview": str(preview_path),
         "weekly_focus_json": str(weekly_focus_json_path),
         "weekly_focus": str(weekly_focus_path),

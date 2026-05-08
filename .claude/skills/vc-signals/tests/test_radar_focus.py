@@ -167,6 +167,10 @@ def test_seed_stage_verified_company_can_enter_sourcing_candidates():
                 maturity_basis=["seed_or_pre_seed"],
                 maturity_evidence_urls=["https://agentfence.dev/seed"],
                 lead_route="sourcing_candidate",
+                owner_readiness_score=85,
+                owner_readiness_basis=["founder_team_evidence", "stage_funding_evidence", "attio_new_or_no_match"],
+                missing_owner_evidence=[],
+                recommended_owner_action="Assign owner",
             )
         ],
         run_id="2026-05-08",
@@ -175,6 +179,116 @@ def test_seed_stage_verified_company_can_enter_sourcing_candidates():
     assert artifact.sourcing_candidates[0].name == "AgentFence"
     assert artifact.sourcing_candidates[0].recommended_action == ACTION_ASSIGN_OWNER
     assert artifact.research_deeper_queue == []
+
+
+def test_seed_stage_verified_company_without_founder_stays_research_deeper():
+    from radar_focus import ACTION_RESEARCH_DEEPER, build_weekly_focus_artifact
+
+    artifact = build_weekly_focus_artifact(
+        candidates=[
+            _candidate(
+                name="Copperhelm",
+                stable_key="company:copperhelm.com",
+                source="https://copperhelm.com/",
+                sources=["https://copperhelm.com/"],
+                candidate_type="company_web",
+                domain="copperhelm.com",
+                identity_type="verified_company",
+                attio_status="no_match",
+                attio_safe_to_match=True,
+                recommended_identity_action="Assign owner",
+                evidence_confidence_score=70,
+                maintainer_profiles=[],
+                founder_profiles=[],
+                why_on_radar="Copperhelm emerged from stealth with $7M seed funding.",
+                maturity_status="seed_to_series_b",
+                maturity_basis=["seed_or_pre_seed"],
+                maturity_evidence_urls=["https://example.com/copperhelm-seed"],
+                lead_route="sourcing_candidate",
+            )
+        ],
+        run_id="2026-05-08",
+    )
+
+    item = artifact.research_deeper_queue[0]
+    assert artifact.sourcing_candidates == []
+    assert item.name == "Copperhelm"
+    assert item.recommended_action == ACTION_RESEARCH_DEEPER
+    assert item.owner_readiness_score < 80
+    assert "no founder/team evidence" in item.missing_owner_evidence
+    assert item.recommended_next_validation_step == "Find founder/team source"
+
+
+def test_unknown_attio_blocks_owner_ready_assign_owner():
+    from radar_focus import ACTION_RESEARCH_DEEPER, build_weekly_focus_artifact
+
+    artifact = build_weekly_focus_artifact(
+        candidates=[
+            _candidate(
+                name="AgentFence",
+                stable_key="company:agentfence.dev",
+                source="https://agentfence.dev/",
+                sources=["https://agentfence.dev/"],
+                candidate_type="company_web",
+                domain="agentfence.dev",
+                identity_type="verified_company",
+                attio_status="unknown",
+                attio_safe_to_match=True,
+                recommended_identity_action="Assign owner",
+                evidence_confidence_score=80,
+                founder_profiles=[{"name": "Ada Founder"}],
+                why_on_radar="AgentFence raised seed funding and has customer pilots for AI agent security.",
+                maturity_status="seed_to_series_b",
+                maturity_basis=["seed_or_pre_seed"],
+                maturity_evidence_urls=["https://agentfence.dev/seed"],
+                lead_route="sourcing_candidate",
+            )
+        ],
+        run_id="2026-05-08",
+    )
+
+    item = artifact.research_deeper_queue[0]
+    assert item.recommended_action == ACTION_RESEARCH_DEEPER
+    assert "Attio status unknown" in item.missing_owner_evidence
+    assert item.recommended_next_validation_step == "Check Attio match/status"
+
+
+def test_customer_pull_improves_owner_readiness_score():
+    from radar_focus import score_owner_readiness
+
+    base = _candidate(
+        name="AgentFence",
+        candidate_type="company_web",
+        domain="agentfence.dev",
+        identity_type="verified_company",
+        attio_status="no_match",
+        attio_safe_to_match=True,
+        founder_profiles=[{"name": "Ada Founder"}],
+        maturity_status="seed_to_series_b",
+        maturity_basis=["seed_or_pre_seed"],
+        lead_route="sourcing_candidate",
+        why_on_radar="AgentFence raised seed funding for AI agent security.",
+    )
+    with_customer = _candidate(
+        name="AgentFence",
+        candidate_type="company_web",
+        domain="agentfence.dev",
+        identity_type="verified_company",
+        attio_status="no_match",
+        attio_safe_to_match=True,
+        founder_profiles=[{"name": "Ada Founder"}],
+        maturity_status="seed_to_series_b",
+        maturity_basis=["seed_or_pre_seed"],
+        lead_route="sourcing_candidate",
+        why_on_radar="AgentFence raised seed funding for AI agent security. Enterprise security teams use it in pilots.",
+    )
+
+    base_score, _, base_missing, _ = score_owner_readiness(base)
+    customer_score, customer_basis, customer_missing, _ = score_owner_readiness(with_customer)
+
+    assert customer_score > base_score
+    assert "customer_buyer_pull_evidence" in customer_basis
+    assert "no customer/buyer pull evidence" not in customer_missing
 
 
 def test_late_or_category_anchor_rows_stay_out_of_partner_focus_and_new_to_marathon():

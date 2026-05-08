@@ -1309,11 +1309,15 @@ def test_run_weekly_artifacts_writes_weekly_focus_without_replacing_preview(tmp_
 
     assert result["weekly_focus_json"].endswith("weekly-focus.json")
     assert result["weekly_focus"].endswith("weekly-focus.md")
+    assert result["owner_readiness_json"].endswith("owner-readiness.json")
     assert result["feedback"].endswith("feedback.json")
     assert (tmp_path / "weekly-focus.json").exists()
     assert (tmp_path / "weekly-focus.md").exists()
+    assert (tmp_path / "owner-readiness.json").exists()
     assert (tmp_path / "feedback.json").exists()
-    assert "# Marathon Signal Radar: Weekly Focus" in (tmp_path / "weekly-focus.md").read_text()
+    weekly_focus = (tmp_path / "weekly-focus.md").read_text()
+    assert "# Marathon Signal Radar: Weekly Focus" in weekly_focus
+    assert "Owner Ready" in weekly_focus
     assert "# VC Signals Weekly Radar" in (tmp_path / "weekly-preview.md").read_text()
 
 
@@ -1785,6 +1789,18 @@ def test_run_weekly_artifacts_feeds_verified_discovery_into_identity_resolution(
 
     def fake_run_query(topic, **kwargs):
         assert kwargs["sources"] == "grounding"
+        if "founder team seed funding customers" in topic:
+            return {
+                "items": [
+                    {
+                        "source": "grounding",
+                        "title": "AgentFence founder and seed funding",
+                        "url": "https://agentfence.dev/seed",
+                        "snippet": "Founder Ada Rao launched AgentFence after enterprise security teams joined design partner pilots.",
+                    }
+                ],
+                "warnings": [],
+            }
         assert "AI agent security" in topic
         return {
             "items": [
