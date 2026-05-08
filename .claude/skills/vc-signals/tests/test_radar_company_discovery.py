@@ -197,3 +197,137 @@ def test_collect_company_discovery_annotates_and_dedupes_items():
     assert item["query_theme"] == "AI agent security"
     assert item["market_sector"] == "Cybersecurity"
     assert result["warnings"] == ["minor warning"]
+
+
+def test_verify_discovery_item_accepts_source_backed_company_domain():
+    from radar_company_discovery import verify_discovery_item
+
+    query = {
+        "id": "ai-agent-security-theme-company-search",
+        "movement": "AI agent security",
+        "market_sector": "Cybersecurity",
+        "topic": "AI agent security startup company founder launch",
+        "required_terms": ["agent", "security"],
+        "source_reason": "theme_signal",
+    }
+    item = {
+        "source": "grounding",
+        "title": "AgentFence launches AI agent permission firewall",
+        "url": "https://agentfence.dev",
+        "snippet": "AgentFence helps security teams control AI agent tool permissions.",
+        "company_name": "AgentFence",
+        "domain": "agentfence.dev",
+    }
+
+    lead = verify_discovery_item(item, query)
+
+    assert lead.verification_status == "accepted"
+    assert lead.name == "AgentFence"
+    assert lead.domain == "agentfence.dev"
+    assert lead.candidate_type == "verified_company"
+    assert "source_backed_domain" in lead.verification_basis
+    assert any("movement_terms_present" in item for item in lead.movement_assignment_basis)
+
+
+def test_verify_discovery_item_rejects_vibe_match_without_movement_terms():
+    from radar_company_discovery import verify_discovery_item
+
+    query = {
+        "id": "ai-agent-security-theme-company-search",
+        "movement": "AI agent security",
+        "market_sector": "Cybersecurity",
+        "topic": "AI agent security startup company founder launch",
+        "required_terms": ["agent", "security"],
+        "source_reason": "theme_signal",
+    }
+    item = {
+        "source": "grounding",
+        "title": "New devtools company launches",
+        "url": "https://generic.dev",
+        "snippet": "A generic developer productivity platform.",
+        "company_name": "GenericDev",
+        "domain": "generic.dev",
+    }
+
+    lead = verify_discovery_item(item, query)
+
+    assert lead.verification_status == "rejected"
+    assert "movement_terms_missing" in lead.missing_evidence
+
+
+def test_verify_discovery_item_rejects_single_generic_term_match():
+    from radar_company_discovery import verify_discovery_item
+
+    query = {
+        "id": "ai-agent-security-theme-company-search",
+        "movement": "AI agent security",
+        "market_sector": "Cybersecurity",
+        "topic": "AI agent security startup company founder launch",
+        "required_terms": ["ai", "agent", "security"],
+        "source_reason": "theme_signal",
+    }
+    item = {
+        "source": "grounding",
+        "title": "Security startup launches",
+        "url": "https://genericsecurity.dev",
+        "snippet": "A security platform for developer teams.",
+        "company_name": "GenericSecurity",
+        "domain": "genericsecurity.dev",
+    }
+
+    lead = verify_discovery_item(item, query)
+
+    assert lead.verification_status == "rejected"
+    assert "movement_terms_missing" in lead.missing_evidence
+
+
+def test_verify_discovery_item_rejects_content_platform_domain():
+    from radar_company_discovery import verify_discovery_item
+
+    query = {
+        "id": "ai-agent-security-theme-company-search",
+        "movement": "AI agent security",
+        "market_sector": "Cybersecurity",
+        "topic": "AI agent security startup company founder launch",
+        "required_terms": ["agent", "security"],
+        "source_reason": "theme_signal",
+    }
+    item = {
+        "source": "grounding",
+        "title": "AgentFence discusses AI agent security",
+        "url": "https://medium.com/@agentfence/ai-agent-security",
+        "snippet": "AgentFence discusses AI agent security and MCP permissions.",
+        "company_name": "AgentFence",
+        "domain": "medium.com",
+    }
+
+    lead = verify_discovery_item(item, query)
+
+    assert lead.verification_status == "rejected"
+    assert "content_platform_not_company_domain" in lead.missing_evidence
+
+
+def test_verify_discovery_item_rejects_github_only_company_proof():
+    from radar_company_discovery import verify_discovery_item
+
+    query = {
+        "id": "ai-agent-security-theme-company-search",
+        "movement": "AI agent security",
+        "market_sector": "Cybersecurity",
+        "topic": "AI agent security startup company founder launch",
+        "required_terms": ["agent", "security"],
+        "source_reason": "needs_more_evidence",
+    }
+    item = {
+        "source": "github",
+        "title": "affaan-m/agentshield",
+        "url": "https://github.com/affaan-m/agentshield",
+        "snippet": "AI agent security scanner for MCP permissions.",
+        "company_name": "AgentShield",
+        "domain": "cerebralvalley.ai",
+    }
+
+    lead = verify_discovery_item(item, query)
+
+    assert lead.verification_status == "rejected"
+    assert "github_only_not_company_proof" in lead.missing_evidence

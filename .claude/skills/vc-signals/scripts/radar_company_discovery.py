@@ -12,6 +12,19 @@ GENERIC_MOVEMENTS = {"emerging technical signal", "unclassified technical toolin
 IDENTITY_MISSING_TERMS = ("domain", "founder", "company", "identity")
 NOISY_OSS_TERMS = ("template", "tutorial", "example", "demo", "boilerplate")
 STRONG_MOVEMENT_PHRASES = ("ai agent", "agent security", "mcp", "tool permissions", "runtime security", "agent permissions")
+CONTENT_PLATFORM_DOMAINS = {
+    "github.com",
+    "news.ycombinator.com",
+    "medium.com",
+    "substack.com",
+    "youtube.com",
+    "x.com",
+    "twitter.com",
+    "linkedin.com",
+    "reddit.com",
+    "docs.google.com",
+    "notion.site",
+}
 
 
 def build_company_discovery_queries(
@@ -170,8 +183,84 @@ def collect_company_discovery(
     return result
 
 
+def verify_discovery_item(item: dict, query: dict) -> VerifiedCompanyDiscoveryLead:
+    source_url = item.get("url") or item.get("source_url") or ""
+    source = (item.get("source") or "").lower()
+    title = item.get("title") or ""
+    snippet = item.get("snippet") or item.get("description") or ""
+    name = item.get("company_name") or item.get("name") or title
+    domain = _normalize_domain(item.get("domain") or item.get("website") or _domain_from_url(source_url))
+    required_terms = query.get("required_terms") or _movement_terms(query.get("movement", ""))
+
+    basis = []
+    missing = []
+    movement_basis = []
+    combined_text = f"{title} {snippet} {name} {domain}".lower()
+
+    if not source_url:
+        missing.append("no_source_url")
+    if not name:
+        missing.append("no_company_name")
+    if source == "github" or "github.com" in source_url:
+        missing.append("github_only_not_company_proof")
+    if _is_content_platform_domain(domain):
+        missing.append("content_platform_not_company_domain")
+    if domain and source != "github" and "github.com" not in source_url and "content_platform_not_company_domain" not in missing:
+        basis.append("source_backed_domain")
+    else:
+        missing.append("no_source_backed_domain")
+
+    movement_ok, movement_reasons = _movement_match_strength(combined_text, required_terms)
+    if movement_ok:
+        movement_basis.extend(movement_reasons)
+    else:
+        missing.extend(movement_reasons)
+
+    accepted = bool(source_url and name and basis and movement_basis and "github_only_not_company_proof" not in missing)
+    return VerifiedCompanyDiscoveryLead(
+        name=name,
+        movement=query.get("movement", ""),
+        market_sector=query.get("market_sector", ""),
+        source_url=source_url,
+        source=item.get("source", ""),
+        domain=domain if accepted else "",
+        founder_or_maintainer=item.get("founder") or item.get("author") or "",
+        candidate_type="verified_company" if accepted and domain else "launch_style_needs_identity",
+        verification_status="accepted" if accepted else "rejected",
+        verification_basis=basis,
+        missing_evidence=list(dict.fromkeys(missing)),
+        movement_assignment_basis=movement_basis,
+        query_id=query.get("id", ""),
+        query_topic=query.get("topic", ""),
+        why_on_radar=snippet or title,
+        why_this_may_be_noise="Needs verification across stronger company/founder/customer evidence.",
+        raw_title=title,
+        raw_snippet=snippet,
+    )
+
+
 def _sources(*, grounded_available: bool, social_available: bool) -> str:
     return "grounding" if grounded_available else ""
+
+
+def _normalize_domain(value: str) -> str:
+    raw = (value or "").strip()
+    if not raw:
+        return ""
+    if raw.startswith(("http://", "https://")):
+        raw = urlparse(raw).netloc
+    raw = raw.lower().strip("/")
+    return raw[4:] if raw.startswith("www.") else raw
+
+
+def _domain_from_url(url: str) -> str:
+    parsed = urlparse(url or "")
+    return _normalize_domain(parsed.netloc)
+
+
+def _is_content_platform_domain(domain: str) -> bool:
+    normalized = _normalize_domain(domain)
+    return any(normalized == blocked or normalized.endswith(f".{blocked}") for blocked in CONTENT_PLATFORM_DOMAINS)
 
 
 def _append_query(
