@@ -1,8 +1,12 @@
 from __future__ import annotations
 
+import html as html_lib
+import json
 import re
 from collections.abc import Callable
-from urllib.parse import urlparse
+from html.parser import HTMLParser
+from urllib.parse import urljoin, urlparse
+from urllib.request import Request, urlopen
 
 from radar_models import Candidate, DiscoveryQuery, FocusItem, ThemeSignal, VerifiedCompanyDiscoveryLead
 
@@ -95,6 +99,12 @@ TOO_LATE_TERMS = (
     "$100m",
     "$200m",
 )
+ARTICLE_FETCH_TIMEOUT_SECONDS = 8
+ARTICLE_FETCH_MAX_BYTES = 200_000
+ARTICLE_MAX_PARAGRAPHS = 5
+ARTICLE_MAX_LINKS = 20
+ARTICLE_MAX_TEXT_CHARS = 1_200
+ARTICLE_MIN_PARAGRAPH_CHARS = 40
 
 
 def build_company_discovery_queries(
@@ -205,6 +215,8 @@ def collect_company_discovery(
     social_available: bool,
     lookback_days: int = 30,
     max_queries_per_theme: int = 3,
+    article_fetcher: Callable | None = None,
+    max_article_fetches: int = 8,
 ) -> dict:
     """Run theme-driven company searches and annotate returned evidence."""
     queries = build_company_discovery_queries(
@@ -226,6 +238,7 @@ def collect_company_discovery(
         "summary": {
             "queries_run": 0,
             "verification_queries_run": 0,
+            "article_fetches_attempted": 0,
             "accepted": 0,
             "rejected": 0,
             "grounded_available": grounded_available,
@@ -276,14 +289,19 @@ def collect_company_discovery(
                 accepted_leads.append(lead.to_dict())
                 items.append(_lead_to_item(lead))
             else:
+                can_fetch_article = result["summary"]["article_fetches_attempted"] < max_article_fetches
                 article_lead, article_warnings, article_errors, verification_queries = _verify_publisher_article_company(
                     enriched,
                     query,
                     query_runner,
+                    article_fetcher=article_fetcher,
+                    allow_article_fetch=can_fetch_article,
                 )
                 result["summary"]["verification_queries_run"] += verification_queries
+                if article_warnings and any(warning.startswith("article-detail: fetched") for warning in article_warnings):
+                    result["summary"]["article_fetches_attempted"] += 1
                 for warning in article_warnings:
-                    if warning not in result["warnings"]:
+                    if not warning.startswith("article-detail: fetched") and warning not in result["warnings"]:
                         result["warnings"].append(warning)
                 result["errors"].extend(article_errors)
                 if article_lead:
@@ -406,9 +424,116 @@ def classify_discovery_source(item: dict) -> str:
     return "unknown"
 
 
+class _PublisherArticleParser(HTMLParser):
+    def __init__(self, base_url: str):
+        super().__init__(convert_charrefs=True)
+        self.base_url = base_url
+        self.title = ""
+        self.description = ""
+        self.metadata_texts: list[str] = []
+        self.structured_texts: list[str] = []
+        self.paragraphs: list[str] = []
+        self.outbound_links: list[dict] = []
+        self._tag = ""
+        self._buffer: list[str] = []
+        self._script_type = ""
+        self._href = ""
+
+    def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
+        attr = {key.lower(): value or "" for key, value in attrs}
+        if tag == "title":
+            self._tag = "title"
+            self._buffer = []
+        elif tag == "p":
+            self._tag = "p"
+            self._buffer = []
+        elif tag == "script" and "ld+json" in attr.get("type", "").lower():
+            self._tag = "script"
+            self._script_type = attr.get("type", "")
+            self._buffer = []
+        elif tag == "a" and attr.get("href"):
+            self._tag = "a"
+            self._href = attr["href"]
+            self._buffer = []
+        elif tag == "meta":
+            key = (attr.get("name") or attr.get("property") or "").lower()
+            content = _clean_text(attr.get("content", ""))
+            if key in {"description", "og:description", "twitter:description"} and content:
+                if not self.description:
+                    self.description = content[:ARTICLE_MAX_TEXT_CHARS]
+                self.metadata_texts.append(content[:ARTICLE_MAX_TEXT_CHARS])
+            elif key in {"og:title", "twitter:title"} and content:
+                if not self.title:
+                    self.title = content[:ARTICLE_MAX_TEXT_CHARS]
+                self.metadata_texts.append(content[:ARTICLE_MAX_TEXT_CHARS])
+
+    def handle_data(self, data: str) -> None:
+        if self._tag in {"title", "p", "script", "a"}:
+            self._buffer.append(data)
+
+    def handle_endtag(self, tag: str) -> None:
+        if tag != self._tag:
+            return
+        text = _clean_text(" ".join(self._buffer))
+        if tag == "title" and text:
+            self.title = text[:ARTICLE_MAX_TEXT_CHARS]
+        elif tag == "p" and _useful_article_paragraph(text) and len(self.paragraphs) < ARTICLE_MAX_PARAGRAPHS:
+            self.paragraphs.append(text[:ARTICLE_MAX_TEXT_CHARS])
+        elif tag == "script" and self._script_type:
+            self.structured_texts.extend(_jsonld_texts(text))
+        elif tag == "a" and self._href and text and len(self.outbound_links) < ARTICLE_MAX_LINKS:
+            self.outbound_links.append({"url": urljoin(self.base_url, self._href), "text": text[:200]})
+        self._tag = ""
+        self._script_type = ""
+        self._href = ""
+        self._buffer = []
+
+
+def parse_publisher_article_detail(html: str, source_url: str) -> dict:
+    """Parse compact identity-useful metadata from a publisher page without storing full article body."""
+    parser = _PublisherArticleParser(source_url)
+    parser.feed(html or "")
+    return {
+        "title": parser.title,
+        "description": parser.description,
+        "metadata_texts": _dedupe_texts(parser.metadata_texts),
+        "structured_texts": _dedupe_texts(parser.structured_texts),
+        "paragraphs": parser.paragraphs,
+        "outbound_links": parser.outbound_links,
+    }
+
+
+def fetch_publisher_article_detail(url: str, article_fetcher: Callable | None = None) -> tuple[dict | None, str]:
+    """Fetch a publisher URL with byte/time caps, then return compact parsed metadata only."""
+    if not url:
+        return None, "article_fetch_missing_url"
+    try:
+        raw = article_fetcher(url) if article_fetcher else _default_article_fetcher(url)
+    except Exception as exc:
+        return None, f"article_fetch_failed:{type(exc).__name__}"
+    if isinstance(raw, dict):
+        return raw, ""
+    if isinstance(raw, bytes):
+        raw = raw[:ARTICLE_FETCH_MAX_BYTES].decode("utf-8", errors="ignore")
+    elif not isinstance(raw, str):
+        return None, "article_fetch_invalid_payload"
+    detail = parse_publisher_article_detail(raw[:ARTICLE_FETCH_MAX_BYTES], url)
+    if not any(detail.get(key) for key in ("title", "description", "structured_texts", "paragraphs", "outbound_links")):
+        return None, "article_fetch_no_useful_detail"
+    return detail, ""
+
+
 def extract_company_from_publisher_article(item: dict) -> dict | None:
     title = _without_publisher_suffix(item.get("title") or "")
     snippet = item.get("snippet") or item.get("description") or ""
+    detail = item.get("article_detail") or {}
+    detail_texts = [
+        detail.get("title", ""),
+        detail.get("description", ""),
+        *(detail.get("metadata_texts") or []),
+        *(detail.get("structured_texts") or []),
+        *(detail.get("paragraphs") or []),
+    ]
     patterns = [
         (r"\b(?:acquires|acquire|buys|purchases)\s+([A-Z][A-Za-z0-9&.\-]+(?:\s+[A-Z][A-Za-z0-9&.\-]+){0,3})\b", "acquisition_pattern", "High"),
         (r"^([A-Z][A-Za-z0-9&.\-]+(?:\s+[A-Z][A-Za-z0-9&.\-]+){0,4})\s+(?:raises|raised|secures|secured|lands|landed|closes|closed)\b", "raises_pattern", "High"),
@@ -416,7 +541,7 @@ def extract_company_from_publisher_article(item: dict) -> dict | None:
         (r"^([A-Z][A-Za-z0-9&.\-]+(?:\s+[A-Z][A-Za-z0-9&.\-]+){0,4})\s+emerges\s+from\s+stealth\b", "stealth_pattern", "High"),
         (r"\b([A-Z][A-Za-z0-9&.\-]+(?:\s+[A-Z][A-Za-z0-9&.\-]+){0,4}),\s+a\s+(?:startup|company)\b", "startup_apposition_pattern", "Medium"),
     ]
-    for text in (title, snippet):
+    for text in (title, snippet, *detail_texts):
         for pattern, basis, confidence in patterns:
             match = re.search(pattern, text)
             if not match:
@@ -427,7 +552,7 @@ def extract_company_from_publisher_article(item: dict) -> dict | None:
                     "company_name": name,
                     "confidence": confidence,
                     "basis": [basis],
-                    "likely_too_late": _is_likely_too_late_text(f"{title} {snippet}") or basis == "acquisition_pattern",
+                    "likely_too_late": _is_likely_too_late_text(f"{title} {snippet} {' '.join(detail_texts)}") or basis == "acquisition_pattern",
                 }
     return None
 
@@ -436,14 +561,25 @@ def _verify_publisher_article_company(
     item: dict,
     query: dict,
     query_runner: Callable,
+    *,
+    article_fetcher: Callable | None = None,
+    allow_article_fetch: bool = True,
 ) -> tuple[VerifiedCompanyDiscoveryLead | None, list[str], list[str], int]:
     if classify_discovery_source(item) != "publisher_article":
         return None, [], [], 0
     extracted = extract_company_from_publisher_article(item)
-    if not extracted:
-        return None, [], [], 0
-
     warnings: list[str] = []
+    if not extracted and allow_article_fetch:
+        article_detail, detail_error = fetch_publisher_article_detail(item.get("url") or item.get("source_url") or "", article_fetcher)
+        warnings.append("article-detail: fetched")
+        if detail_error:
+            warnings.append(f"article-detail: {detail_error}")
+        elif article_detail:
+            item = {**item, "article_detail": article_detail}
+            extracted = extract_company_from_publisher_article(item)
+    if not extracted:
+        return None, warnings, [], 0
+
     errors: list[str] = []
     verification_topic = _official_domain_query(extracted["company_name"], query.get("movement", ""))
     try:
@@ -493,7 +629,7 @@ def _verify_official_domain_for_extracted_company(
         return None
 
     required_terms = query.get("required_terms") or _movement_terms(query.get("movement", ""))
-    article_text = f"{article_item.get('title') or ''} {article_item.get('snippet') or article_item.get('description') or ''}"
+    article_text = _article_evidence_text(article_item)
     movement_ok, movement_basis = _movement_match_strength(f"{title} {snippet} {article_text}", required_terms)
     if not movement_ok:
         return None
@@ -561,6 +697,73 @@ def _publisher_article_rejection(
         raw_title=title,
         raw_snippet=snippet,
     )
+
+
+def _default_article_fetcher(url: str) -> bytes:
+    request = Request(url, headers={"User-Agent": "vc-signals/1.0"})
+    with urlopen(request, timeout=ARTICLE_FETCH_TIMEOUT_SECONDS) as response:  # nosec B310
+        return response.read(ARTICLE_FETCH_MAX_BYTES)
+
+
+def _clean_text(text: str) -> str:
+    cleaned = html_lib.unescape(text or "")
+    cleaned = re.sub(r"\s+", " ", cleaned).strip()
+    return cleaned
+
+
+def _dedupe_texts(texts: list[str]) -> list[str]:
+    seen = set()
+    out = []
+    for text in texts:
+        cleaned = _clean_text(text)[:ARTICLE_MAX_TEXT_CHARS]
+        key = cleaned.lower()
+        if cleaned and key not in seen:
+            out.append(cleaned)
+            seen.add(key)
+    return out
+
+
+def _useful_article_paragraph(text: str) -> bool:
+    cleaned = _clean_text(text)
+    if len(cleaned) < ARTICLE_MIN_PARAGRAPH_CHARS:
+        return False
+    lowered = cleaned.lower()
+    return not any(term in lowered for term in ("advertisement", "subscribe", "sign up", "cookie", "read more"))
+
+
+def _jsonld_texts(raw: str) -> list[str]:
+    try:
+        payload = json.loads(raw)
+    except Exception:
+        return []
+    texts: list[str] = []
+
+    def visit(value, key: str = "") -> None:
+        if isinstance(value, dict):
+            for child_key, child_value in value.items():
+                visit(child_value, child_key)
+        elif isinstance(value, list):
+            for child in value:
+                visit(child, key)
+        elif isinstance(value, str) and key in {"headline", "name", "description", "about", "mentions"}:
+            texts.append(value[:ARTICLE_MAX_TEXT_CHARS])
+
+    visit(payload)
+    return _dedupe_texts(texts)
+
+
+def _article_evidence_text(item: dict) -> str:
+    detail = item.get("article_detail") or {}
+    parts = [
+        item.get("title") or "",
+        item.get("snippet") or item.get("description") or "",
+        detail.get("title", ""),
+        detail.get("description", ""),
+        *(detail.get("metadata_texts") or []),
+        *(detail.get("structured_texts") or []),
+        *(detail.get("paragraphs") or []),
+    ]
+    return " ".join(str(part) for part in parts if part)
 
 
 def _sources(*, grounded_available: bool, social_available: bool) -> str:

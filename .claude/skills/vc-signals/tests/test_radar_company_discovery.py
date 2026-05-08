@@ -489,6 +489,75 @@ def test_extract_company_from_generic_article_returns_none():
     }) is None
 
 
+def test_parse_publisher_article_detail_keeps_compact_metadata_paragraphs_and_links():
+    from radar_company_discovery import parse_publisher_article_detail
+
+    html = """
+    <html>
+      <head>
+        <title>Meet the AI security startup challenging incumbents</title>
+        <meta name="description" content="Straiker is building runtime security for AI agents.">
+        <script type="application/ld+json">
+          {"headline": "Straiker raises seed funding", "description": "Straiker, a startup securing AI agents, raised seed funding."}
+        </script>
+      </head>
+      <body>
+        <p>Advertisement</p>
+        <p>Straiker, a startup building runtime security for AI agents, raised seed funding this week.</p>
+        <p>The company helps enterprises monitor agent permissions and tool use.</p>
+        <a href="https://straiker.ai/">Straiker website</a>
+      </body>
+    </html>
+    """
+
+    detail = parse_publisher_article_detail(html, "https://techcrunch.com/story")
+
+    assert detail["title"] == "Meet the AI security startup challenging incumbents"
+    assert detail["description"] == "Straiker is building runtime security for AI agents."
+    assert detail["paragraphs"] == [
+        "Straiker, a startup building runtime security for AI agents, raised seed funding this week.",
+        "The company helps enterprises monitor agent permissions and tool use.",
+    ]
+    assert detail["outbound_links"] == [{"url": "https://straiker.ai/", "text": "Straiker website"}]
+    assert any("Straiker raises seed funding" in text for text in detail["structured_texts"])
+
+
+def test_extract_company_from_publisher_article_detail_body():
+    from radar_company_discovery import extract_company_from_publisher_article
+
+    extracted = extract_company_from_publisher_article({
+        "title": "Meet the $250M startup challenging Salesforce with AI agents",
+        "snippet": "The company is chasing AI workflow automation.",
+        "article_detail": {
+            "paragraphs": [
+                "Straiker, a startup building runtime security for AI agents, raised seed funding this week.",
+            ],
+            "structured_texts": [],
+        },
+    })
+
+    assert extracted["company_name"] == "Straiker"
+    assert extracted["confidence"] == "Medium"
+    assert "startup_apposition_pattern" in extracted["basis"]
+
+
+def test_vague_publisher_article_detail_extracts_nothing():
+    from radar_company_discovery import extract_company_from_publisher_article
+
+    extracted = extract_company_from_publisher_article({
+        "title": "AI startups are booming in enterprise security",
+        "snippet": "A broad market overview of agentic AI security.",
+        "article_detail": {
+            "paragraphs": [
+                "Investors are increasingly watching companies building agentic AI security tools.",
+                "The category remains early and fragmented.",
+            ]
+        },
+    })
+
+    assert extracted is None
+
+
 def test_collect_company_discovery_verifies_article_company_with_exact_query():
     from radar_company_discovery import collect_company_discovery
 
@@ -543,6 +612,112 @@ def test_collect_company_discovery_verifies_article_company_with_exact_query():
     assert lead["supporting_evidence_urls"] == ["https://techcrunch.com/2026/05/01/straiker-raises-ai-agent-security/"]
     assert "publisher_article_company_extracted" in lead["verification_basis"]
     assert "official_domain_verified" in lead["verification_basis"]
+
+
+def test_collect_company_discovery_uses_article_detail_before_exact_verification():
+    from radar_company_discovery import collect_company_discovery
+
+    calls = []
+    fetched = []
+
+    def fake_query(topic, **kwargs):
+        calls.append(topic)
+        if "official" in topic:
+            assert topic == '"Straiker" "AI agent security" official'
+            return {
+                "items": [
+                    {
+                        "source": "grounding",
+                        "title": "Straiker | AI Security Platform",
+                        "url": "https://www.straiker.ai/",
+                        "snippet": "Straiker secures AI agents and runtime permissions for enterprises.",
+                    }
+                ],
+                "warnings": [],
+            }
+        return {
+            "items": [
+                {
+                    "source": "grounding",
+                    "title": "Meet the $250M startup challenging Salesforce with AI agents - Forbes",
+                    "url": "https://www.forbes.com/sites/example/straiker-ai-agents/",
+                    "snippet": "The company is building in AI workflow automation.",
+                }
+            ],
+            "warnings": [],
+        }
+
+    def fake_article_fetcher(url):
+        fetched.append(url)
+        return """
+        <html><body>
+          <p>Straiker, a startup building runtime security for AI agents, raised seed funding this week.</p>
+        </body></html>
+        """
+
+    result = collect_company_discovery(
+        [_theme_signal()],
+        query_runner=fake_query,
+        article_fetcher=fake_article_fetcher,
+        grounded_available=True,
+        social_available=False,
+        max_queries_per_theme=1,
+    )
+
+    assert fetched == ["https://www.forbes.com/sites/example/straiker-ai-agents/"]
+    assert calls == [
+        "AI agent security startups Seed Series A founder launch",
+        '"Straiker" "AI agent security" official',
+    ]
+    assert result["summary"]["article_fetches_attempted"] == 1
+    assert result["summary"]["verification_queries_run"] == 1
+    lead = result["accepted_leads"][0]
+    assert lead["name"] == "Straiker"
+    assert lead["domain"] == "straiker.ai"
+    assert lead["supporting_evidence_urls"] == ["https://www.forbes.com/sites/example/straiker-ai-agents/"]
+
+
+def test_article_detail_company_without_verified_domain_is_rejected():
+    from radar_company_discovery import collect_company_discovery
+
+    def fake_query(topic, **kwargs):
+        if "official" in topic:
+            return {
+                "items": [
+                    {
+                        "source": "grounding",
+                        "title": "Straiker coverage - TechCrunch",
+                        "url": "https://techcrunch.com/straiker",
+                        "snippet": "Straiker discusses AI agent security.",
+                    }
+                ],
+                "warnings": [],
+            }
+        return {
+            "items": [
+                {
+                    "source": "grounding",
+                    "title": "Meet the startup challenging Salesforce with AI agents - Forbes",
+                    "url": "https://www.forbes.com/sites/example/straiker-ai-agents/",
+                    "snippet": "The company is building in AI workflow automation.",
+                }
+            ],
+            "warnings": [],
+        }
+
+    result = collect_company_discovery(
+        [_theme_signal()],
+        query_runner=fake_query,
+        article_fetcher=lambda url: "<p>Straiker, a startup building runtime security for AI agents, raised seed funding.</p>",
+        grounded_available=True,
+        social_available=False,
+        max_queries_per_theme=1,
+    )
+
+    assert result["summary"]["accepted"] == 0
+    rejected = result["rejected_leads"][0]
+    assert rejected["name"] == "Straiker"
+    assert "official_company_domain_not_verified" in rejected["missing_evidence"]
 
 
 def test_publisher_article_without_verified_domain_is_rejected_cleanly():
