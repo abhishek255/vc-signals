@@ -229,6 +229,33 @@ def test_unverified_github_project_with_no_match_stays_research_deeper():
     assert "identity_resolution_weak" in item.company_identity_quality_basis
 
 
+def test_focus_does_not_assign_owner_to_github_only_project_after_discovery():
+    from radar_focus import ACTION_ASSIGN_OWNER, ACTION_RESEARCH_DEEPER, build_focus_item
+
+    candidate = Candidate(
+        name="affaan-m/agentshield",
+        sector="Cybersecurity",
+        theme="AI agent security",
+        source="https://github.com/affaan-m/agentshield",
+        candidate_type="oss_project",
+        domain="",
+        why_on_radar="AI agent security scanner for MCP permissions.",
+        sources=["https://github.com/affaan-m/agentshield"],
+        attio_status="no_match",
+        identity_type="oss_project_watch",
+        identity_confidence_score=45,
+        recommended_identity_action="Research deeper",
+        missing_identity_evidence=["no verified domain"],
+        evidence_confidence_score=50,
+    )
+
+    item = build_focus_item(candidate)
+
+    assert item.recommended_action == ACTION_RESEARCH_DEEPER
+    assert item.recommended_action != ACTION_ASSIGN_OWNER
+    assert item.identity_type == "oss_project_watch"
+
+
 def test_weak_identity_demotes_unknown_oss_row_to_monitor_only():
     from radar_focus import ACTION_MONITOR_ONLY, build_focus_item
 

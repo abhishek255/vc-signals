@@ -392,6 +392,38 @@ def test_github_homepage_domain_mismatch_is_not_verified_or_owner_ready():
     assert result.recommended_identity_action != "Assign owner"
 
 
+def test_verified_discovery_does_not_turn_github_only_project_into_company():
+    from identity_resolution import resolve_candidate_identity
+
+    candidate = Candidate(
+        name="affaan-m/agentshield",
+        sector="Cybersecurity",
+        theme="AI agent security",
+        source="https://github.com/affaan-m/agentshield",
+        candidate_type="oss_project",
+        domain="",
+        sources=["https://github.com/affaan-m/agentshield"],
+        evidence_metadata=[
+            {
+                "source": "github",
+                "source_url": "https://github.com/affaan-m/agentshield",
+                "owner_name": "affaan-m",
+                "owner_type": "User",
+                "homepage": "https://cerebralvalley.ai",
+                "description": "AI agent security scanner for MCP permissions.",
+            }
+        ],
+        attio_status="no_match",
+    )
+
+    result = resolve_candidate_identity(candidate)
+
+    assert result.identity_type in {"oss_project_watch", "oss_with_commercial_intent"}
+    assert result.verified_domain == ""
+    assert result.attio_safe_to_match is False
+    assert result.recommended_identity_action != "Assign owner"
+
+
 def test_apply_identity_resolution_updates_candidate_fields():
     from identity_resolution import apply_identity_resolution
 
