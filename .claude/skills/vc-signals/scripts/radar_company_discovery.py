@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import re
 from collections.abc import Callable
 from urllib.parse import urlparse
 
@@ -8,6 +9,18 @@ from radar_models import Candidate, DiscoveryQuery, FocusItem, ThemeSignal, Veri
 
 COMPANY_INTENT_TERMS = ("startup", "company", "founder", "launch", "seed", "yc", "raises", "website")
 BROAD_THEMES = {"ai", "devtools", "cybersecurity", "data", "oss", "automation"}
+GENERIC_EXTRACTED_NAMES = {
+    "ai",
+    "the",
+    "new",
+    "top",
+    "how",
+    "what",
+    "why",
+    "us",
+    "ai startups",
+    "open source ai",
+}
 GENERIC_MOVEMENTS = {"emerging technical signal", "unclassified technical tooling", "oss company-formation watchlist"}
 IDENTITY_MISSING_TERMS = ("domain", "founder", "company", "identity")
 NOISY_OSS_TERMS = ("template", "tutorial", "example", "demo", "boilerplate")
@@ -26,6 +39,37 @@ CONTENT_PLATFORM_DOMAINS = {
     "notion.site",
     "deepwiki.com",
 }
+PUBLISHER_DOMAINS = {
+    "techcrunch.com",
+    "morningstar.com",
+    "timesofisrael.com",
+    "prnewswire.com",
+    "businesswire.com",
+    "globenewswire.com",
+    "einpresswire.com",
+    "venturebeat.com",
+    "forbes.com",
+    "reuters.com",
+    "bloomberg.com",
+    "wsj.com",
+    "darkreading.com",
+    "securityweek.com",
+    "lasvegassun.com",
+    "indiatoday.in",
+    "moneycontrol.com",
+    "goerie.com",
+    "economictimes.indiatimes.com",
+    "zerohedge.com",
+}
+DIRECTORY_DOMAINS = {
+    "crunchbase.com",
+    "cbinsights.com",
+    "pitchbook.com",
+    "g2.com",
+    "capterra.com",
+    "vcbacked.co",
+    "tracxn.com",
+}
 PUBLISHER_DOMAIN_HINTS = (
     "news",
     "times",
@@ -37,6 +81,19 @@ PUBLISHER_DOMAIN_HINTS = (
     "prnewswire",
     "wire",
     "press",
+)
+TOO_LATE_TERMS = (
+    "acquires",
+    "acquired",
+    "buys",
+    "purchases",
+    "series c",
+    "series d",
+    "series e",
+    "unicorn",
+    "$1b",
+    "$100m",
+    "$200m",
 )
 
 
@@ -168,6 +225,7 @@ def collect_company_discovery(
         "errors": [],
         "summary": {
             "queries_run": 0,
+            "verification_queries_run": 0,
             "accepted": 0,
             "rejected": 0,
             "grounded_available": grounded_available,
@@ -218,7 +276,24 @@ def collect_company_discovery(
                 accepted_leads.append(lead.to_dict())
                 items.append(_lead_to_item(lead))
             else:
-                rejected_leads.append(lead.to_dict())
+                article_lead, article_warnings, article_errors, verification_queries = _verify_publisher_article_company(
+                    enriched,
+                    query,
+                    query_runner,
+                )
+                result["summary"]["verification_queries_run"] += verification_queries
+                for warning in article_warnings:
+                    if warning not in result["warnings"]:
+                        result["warnings"].append(warning)
+                result["errors"].extend(article_errors)
+                if article_lead:
+                    if article_lead.verification_status == "accepted":
+                        accepted_leads.append(article_lead.to_dict())
+                        items.append(_lead_to_item(article_lead))
+                    else:
+                        rejected_leads.append(article_lead.to_dict())
+                else:
+                    rejected_leads.append(lead.to_dict())
 
     result["items"] = _dedupe_items(items)
     result["accepted_leads"] = _dedupe_leads(accepted_leads)
@@ -236,6 +311,7 @@ def verify_discovery_item(item: dict, query: dict) -> VerifiedCompanyDiscoveryLe
     name = item.get("company_name") or item.get("name") or title
     domain = _normalize_domain(item.get("domain") or item.get("website") or _domain_from_url(source_url))
     required_terms = query.get("required_terms") or _movement_terms(query.get("movement", ""))
+    source_type = classify_discovery_source(item)
 
     basis = []
     missing = []
@@ -272,6 +348,7 @@ def verify_discovery_item(item: dict, query: dict) -> VerifiedCompanyDiscoveryLe
         verification_basis=basis,
         missing_evidence=list(dict.fromkeys(missing)),
         movement_assignment_basis=movement_basis,
+        source_type=source_type,
         query_id=query.get("id", ""),
         query_topic=query.get("topic", ""),
         why_on_radar=snippet or title,
@@ -301,7 +378,189 @@ def _lead_to_item(lead: VerifiedCompanyDiscoveryLead) -> dict:
         "discovery_verification_status": "accepted",
         "discovery_verification_basis": lead.verification_basis,
         "movement_assignment_basis": lead.movement_assignment_basis,
+        "why_this_may_be_noise": lead.why_this_may_be_noise,
+        "source_type": lead.source_type,
+        "extracted_company_name": lead.extracted_company_name,
+        "extraction_confidence": lead.extraction_confidence,
+        "supporting_evidence_urls": lead.supporting_evidence_urls,
+        "official_domain_verification_url": lead.official_domain_verification_url,
+        "likely_too_late": lead.likely_too_late,
+        "action": "likely too late" if lead.likely_too_late else "",
     }
+
+
+def classify_discovery_source(item: dict) -> str:
+    source_url = item.get("url") or item.get("source_url") or ""
+    source = (item.get("source") or "").lower()
+    domain = _domain_from_url(source_url) or _normalize_domain(item.get("domain") or item.get("website") or "")
+    if source == "github" or domain == "github.com" or domain.endswith(".github.com"):
+        return "github_repo"
+    if _is_content_platform_domain(domain):
+        return "content_platform"
+    if _is_directory_domain(domain):
+        return "directory_page"
+    if _is_publisher_domain(domain) or (_looks_like_publisher_domain(domain) and not _is_homepage_like(source_url)):
+        return "publisher_article"
+    if domain and _is_homepage_like(source_url):
+        return "official_company_page"
+    return "unknown"
+
+
+def extract_company_from_publisher_article(item: dict) -> dict | None:
+    title = _without_publisher_suffix(item.get("title") or "")
+    snippet = item.get("snippet") or item.get("description") or ""
+    patterns = [
+        (r"\b(?:acquires|acquire|buys|purchases)\s+([A-Z][A-Za-z0-9&.\-]+(?:\s+[A-Z][A-Za-z0-9&.\-]+){0,3})\b", "acquisition_pattern", "High"),
+        (r"^([A-Z][A-Za-z0-9&.\-]+(?:\s+[A-Z][A-Za-z0-9&.\-]+){0,4})\s+(?:raises|raised|secures|secured|lands|landed|closes|closed)\b", "raises_pattern", "High"),
+        (r"^([A-Z][A-Za-z0-9&.\-]+(?:\s+[A-Z][A-Za-z0-9&.\-]+){0,4})\s+(?:launches|unveils|introduces|debuts)\b", "launch_pattern", "High"),
+        (r"^([A-Z][A-Za-z0-9&.\-]+(?:\s+[A-Z][A-Za-z0-9&.\-]+){0,4})\s+emerges\s+from\s+stealth\b", "stealth_pattern", "High"),
+        (r"\b([A-Z][A-Za-z0-9&.\-]+(?:\s+[A-Z][A-Za-z0-9&.\-]+){0,4}),\s+a\s+(?:startup|company)\b", "startup_apposition_pattern", "Medium"),
+    ]
+    for text in (title, snippet):
+        for pattern, basis, confidence in patterns:
+            match = re.search(pattern, text)
+            if not match:
+                continue
+            name = _clean_company_name(match.group(1))
+            if _valid_extracted_company_name(name):
+                return {
+                    "company_name": name,
+                    "confidence": confidence,
+                    "basis": [basis],
+                    "likely_too_late": _is_likely_too_late_text(f"{title} {snippet}") or basis == "acquisition_pattern",
+                }
+    return None
+
+
+def _verify_publisher_article_company(
+    item: dict,
+    query: dict,
+    query_runner: Callable,
+) -> tuple[VerifiedCompanyDiscoveryLead | None, list[str], list[str], int]:
+    if classify_discovery_source(item) != "publisher_article":
+        return None, [], [], 0
+    extracted = extract_company_from_publisher_article(item)
+    if not extracted:
+        return None, [], [], 0
+
+    warnings: list[str] = []
+    errors: list[str] = []
+    verification_topic = _official_domain_query(extracted["company_name"], query.get("movement", ""))
+    try:
+        payload = query_runner(
+            verification_topic,
+            sources=query.get("sources") or "grounding",
+            lookback_days=query.get("lookback_days", 30),
+            auto_resolve=True,
+            store=True,
+            web_backend=query.get("web_backend") or "auto",
+        )
+    except Exception as exc:  # pragma: no cover - defensive live-provider boundary
+        rejected = _publisher_article_rejection(item, query, extracted, ["official_domain_verification_failed"])
+        return rejected, warnings, [f"article-domain-verification: {exc}"], 1
+
+    warnings.extend(payload.get("warnings", []))
+    if payload.get("error"):
+        errors.append(payload["error"])
+
+    for official_item in payload.get("items", []):
+        verified = _verify_official_domain_for_extracted_company(official_item, item, query, extracted)
+        if verified:
+            return verified, warnings, errors, 1
+
+    rejected = _publisher_article_rejection(item, query, extracted, ["official_company_domain_not_verified"])
+    return rejected, warnings, errors, 1
+
+
+def _verify_official_domain_for_extracted_company(
+    official_item: dict,
+    article_item: dict,
+    query: dict,
+    extracted: dict,
+) -> VerifiedCompanyDiscoveryLead | None:
+    company_name = extracted["company_name"]
+    source_url = official_item.get("url") or official_item.get("source_url") or ""
+    domain = _normalize_domain(official_item.get("domain") or official_item.get("website") or _domain_from_url(source_url))
+    if not source_url or not domain:
+        return None
+    if classify_discovery_source(official_item) in {"publisher_article", "directory_page", "github_repo", "content_platform"}:
+        return None
+    if _is_publisher_domain(domain) or _is_directory_domain(domain) or _is_content_platform_domain(domain):
+        return None
+    title = official_item.get("title") or ""
+    snippet = official_item.get("snippet") or official_item.get("description") or ""
+    if not (_domain_matches_name(domain, company_name) or _text_mentions_company(f"{title} {snippet}", company_name)):
+        return None
+
+    required_terms = query.get("required_terms") or _movement_terms(query.get("movement", ""))
+    article_text = f"{article_item.get('title') or ''} {article_item.get('snippet') or article_item.get('description') or ''}"
+    movement_ok, movement_basis = _movement_match_strength(f"{title} {snippet} {article_text}", required_terms)
+    if not movement_ok:
+        return None
+
+    article_url = article_item.get("url") or article_item.get("source_url") or ""
+    too_late = bool(extracted.get("likely_too_late")) or _is_likely_too_late_text(f"{title} {snippet} {article_text}")
+    return VerifiedCompanyDiscoveryLead(
+        name=company_name,
+        movement=query.get("movement", ""),
+        market_sector=query.get("market_sector", ""),
+        source_url=source_url,
+        source=official_item.get("source", "grounding"),
+        domain=domain,
+        candidate_type="verified_company",
+        verification_status="accepted",
+        verification_basis=["publisher_article_company_extracted", "official_domain_verified", *extracted.get("basis", [])],
+        movement_assignment_basis=movement_basis,
+        source_type="publisher_article",
+        extracted_company_name=company_name,
+        extraction_confidence=extracted.get("confidence", ""),
+        supporting_evidence_urls=[article_url] if article_url else [],
+        official_domain_verification_url=source_url,
+        likely_too_late=too_late,
+        query_id=query.get("id", ""),
+        query_topic=query.get("topic", ""),
+        why_on_radar=article_item.get("snippet") or article_item.get("title") or title,
+        why_this_may_be_noise=(
+            "Likely too late: article suggests acquisition, late-stage funding, or consensus attention; monitor only."
+            if too_late
+            else "Article-derived lead; verify founder, stage, customer pull, and Attio context."
+        ),
+        raw_title=title,
+        raw_snippet=snippet,
+    )
+
+
+def _publisher_article_rejection(
+    item: dict,
+    query: dict,
+    extracted: dict,
+    missing_evidence: list[str],
+) -> VerifiedCompanyDiscoveryLead:
+    article_url = item.get("url") or item.get("source_url") or ""
+    title = item.get("title") or ""
+    snippet = item.get("snippet") or item.get("description") or ""
+    return VerifiedCompanyDiscoveryLead(
+        name=extracted["company_name"],
+        movement=query.get("movement", ""),
+        market_sector=query.get("market_sector", ""),
+        source_url=article_url,
+        source=item.get("source", ""),
+        candidate_type="launch_style_needs_identity",
+        verification_status="rejected",
+        verification_basis=["publisher_article_company_extracted", *extracted.get("basis", [])],
+        missing_evidence=missing_evidence,
+        source_type="publisher_article",
+        extracted_company_name=extracted["company_name"],
+        extraction_confidence=extracted.get("confidence", ""),
+        supporting_evidence_urls=[article_url] if article_url else [],
+        likely_too_late=bool(extracted.get("likely_too_late")),
+        query_id=query.get("id", ""),
+        query_topic=query.get("topic", ""),
+        why_on_radar=snippet or title,
+        why_this_may_be_noise="Publisher article mentioned a company, but official company domain was not verified.",
+        raw_title=title,
+        raw_snippet=snippet,
+    )
 
 
 def _sources(*, grounded_available: bool, social_available: bool) -> str:
@@ -328,16 +587,31 @@ def _is_content_platform_domain(domain: str) -> bool:
     return any(normalized == blocked or normalized.endswith(f".{blocked}") for blocked in CONTENT_PLATFORM_DOMAINS)
 
 
+def _is_publisher_domain(domain: str) -> bool:
+    normalized = _normalize_domain(domain)
+    return any(normalized == blocked or normalized.endswith(f".{blocked}") for blocked in PUBLISHER_DOMAINS)
+
+
+def _is_directory_domain(domain: str) -> bool:
+    normalized = _normalize_domain(domain)
+    return any(normalized == blocked or normalized.endswith(f".{blocked}") for blocked in DIRECTORY_DOMAINS)
+
+
 def _company_domain_evidence(item: dict, domain: str, source_url: str, source: str) -> tuple[bool, list[str], list[str]]:
     """Decide whether a grounded result domain is company evidence, not just the article publisher."""
     basis: list[str] = []
     missing: list[str] = []
     normalized = _normalize_domain(domain)
     source_domain = _domain_from_url(source_url)
+    source_type = classify_discovery_source(item)
     if not normalized:
         return False, basis, ["no_source_backed_domain"]
     if _is_content_platform_domain(normalized):
         return False, basis, ["content_platform_not_company_domain", "no_source_backed_domain"]
+    if source_type == "publisher_article":
+        return False, basis, ["source_domain_not_company_proof", "no_source_backed_domain"]
+    if source_type == "directory_page":
+        return False, basis, ["directory_page_not_company_domain", "no_source_backed_domain"]
     if source == "github" or "github.com" in (source_url or ""):
         return False, basis, ["github_only_not_company_proof", "no_source_backed_domain"]
     if _looks_academic_or_government_domain(normalized):
@@ -379,6 +653,44 @@ def _domain_matches_name(domain: str, name: str) -> bool:
     name_slug = "".join(char.lower() for char in (name or "") if char.isalnum())
     base_slug = "".join(char.lower() for char in base if char.isalnum())
     return bool(base_slug and name_slug and (base_slug in name_slug or name_slug in base_slug))
+
+
+def _text_mentions_company(text: str, name: str) -> bool:
+    normalized_text = " ".join((text or "").lower().split())
+    normalized_name = " ".join((name or "").lower().split())
+    return bool(normalized_name and normalized_name in normalized_text)
+
+
+def _without_publisher_suffix(title: str) -> str:
+    cleaned = (title or "").strip()
+    for separator in (" | ", " - "):
+        if separator in cleaned:
+            cleaned = cleaned.split(separator, 1)[0].strip()
+    return cleaned
+
+
+def _clean_company_name(name: str) -> str:
+    cleaned = (name or "").strip(" \t\n\r-:|,.'\"")
+    cleaned = re.sub(r"\s+", " ", cleaned)
+    return cleaned
+
+
+def _valid_extracted_company_name(name: str) -> bool:
+    normalized = (name or "").strip().lower()
+    if not normalized or normalized in GENERIC_EXTRACTED_NAMES or normalized in BROAD_THEMES:
+        return False
+    if normalized in {"the", "new", "top", "how", "what", "why", "us", "ai startups"}:
+        return False
+    return len(normalized) > 2 and any(char.isalpha() for char in normalized)
+
+
+def _is_likely_too_late_text(text: str) -> bool:
+    lowered = (text or "").lower()
+    return any(term in lowered for term in TOO_LATE_TERMS)
+
+
+def _official_domain_query(company_name: str, movement: str) -> str:
+    return f'"{company_name}" "{movement}" official'
 
 
 def _append_query(

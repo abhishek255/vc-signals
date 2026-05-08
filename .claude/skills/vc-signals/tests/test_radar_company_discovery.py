@@ -451,3 +451,184 @@ def test_verify_discovery_item_rejects_github_only_company_proof():
 
     assert lead.verification_status == "rejected"
     assert "github_only_not_company_proof" in lead.missing_evidence
+
+
+def test_classify_discovery_source_marks_publisher_article():
+    from radar_company_discovery import classify_discovery_source
+
+    item = {
+        "source": "grounding",
+        "title": "Straiker raises seed funding to secure AI agents",
+        "url": "https://techcrunch.com/2026/05/01/straiker-raises-seed-funding/",
+    }
+
+    assert classify_discovery_source(item) == "publisher_article"
+
+
+def test_extract_company_from_publisher_article_clear_pattern():
+    from radar_company_discovery import extract_company_from_publisher_article
+
+    extracted = extract_company_from_publisher_article(
+        {
+            "title": "Straiker raises $21M to secure AI agents",
+            "snippet": "Straiker, a startup building runtime security for AI agents, raised seed funding.",
+        }
+    )
+
+    assert extracted["company_name"] == "Straiker"
+    assert extracted["confidence"] == "High"
+    assert "raises_pattern" in extracted["basis"]
+
+
+def test_extract_company_from_generic_article_returns_none():
+    from radar_company_discovery import extract_company_from_publisher_article
+
+    assert extract_company_from_publisher_article({
+        "title": "AI startups are booming in enterprise security",
+        "snippet": "A broad market overview of agentic AI security.",
+    }) is None
+
+
+def test_collect_company_discovery_verifies_article_company_with_exact_query():
+    from radar_company_discovery import collect_company_discovery
+
+    calls = []
+
+    def fake_query(topic, **kwargs):
+        calls.append(topic)
+        if "official" in topic:
+            assert topic == '"Straiker" "AI agent security" official'
+            return {
+                "items": [
+                    {
+                        "source": "grounding",
+                        "title": "Straiker | AI Security Platform",
+                        "url": "https://www.straiker.ai/",
+                        "snippet": "Straiker secures AI agents and agentic workflows for enterprises.",
+                    }
+                ],
+                "warnings": [],
+            }
+        return {
+            "items": [
+                {
+                    "source": "grounding",
+                    "title": "Straiker raises $21M to secure AI agents - TechCrunch",
+                    "url": "https://techcrunch.com/2026/05/01/straiker-raises-ai-agent-security/",
+                    "snippet": "Straiker, a startup building runtime security for AI agents, raised seed funding.",
+                }
+            ],
+            "warnings": [],
+        }
+
+    result = collect_company_discovery(
+        [_theme_signal()],
+        query_runner=fake_query,
+        grounded_available=True,
+        social_available=False,
+        max_queries_per_theme=1,
+    )
+
+    assert calls == [
+        "AI agent security startups Seed Series A founder launch",
+        '"Straiker" "AI agent security" official',
+    ]
+    assert result["summary"]["accepted"] == 1
+    assert result["summary"]["verification_queries_run"] == 1
+    lead = result["accepted_leads"][0]
+    assert lead["name"] == "Straiker"
+    assert lead["domain"] == "straiker.ai"
+    assert lead["source_type"] == "publisher_article"
+    assert lead["extracted_company_name"] == "Straiker"
+    assert lead["supporting_evidence_urls"] == ["https://techcrunch.com/2026/05/01/straiker-raises-ai-agent-security/"]
+    assert "publisher_article_company_extracted" in lead["verification_basis"]
+    assert "official_domain_verified" in lead["verification_basis"]
+
+
+def test_publisher_article_without_verified_domain_is_rejected_cleanly():
+    from radar_company_discovery import collect_company_discovery
+
+    def fake_query(topic, **kwargs):
+        if "official" in topic:
+            return {
+                "items": [
+                    {
+                        "source": "grounding",
+                        "title": "Straiker raises seed - PR Newswire",
+                        "url": "https://www.prnewswire.com/news/straiker",
+                        "snippet": "Straiker discusses AI agent security.",
+                    }
+                ],
+                "warnings": [],
+            }
+        return {
+            "items": [
+                {
+                    "source": "grounding",
+                    "title": "Straiker raises $21M to secure AI agents - TechCrunch",
+                    "url": "https://techcrunch.com/2026/05/01/straiker-raises-ai-agent-security/",
+                    "snippet": "Straiker, a startup building runtime security for AI agents, raised seed funding.",
+                }
+            ],
+            "warnings": [],
+        }
+
+    result = collect_company_discovery(
+        [_theme_signal()],
+        query_runner=fake_query,
+        grounded_available=True,
+        social_available=False,
+        max_queries_per_theme=1,
+    )
+
+    assert result["summary"]["accepted"] == 0
+    assert result["summary"]["rejected"] == 1
+    rejected = result["rejected_leads"][0]
+    assert rejected["name"] == "Straiker"
+    assert rejected["source_type"] == "publisher_article"
+    assert "official_company_domain_not_verified" in rejected["missing_evidence"]
+
+
+def test_acquisition_article_is_marked_likely_too_late():
+    from radar_company_discovery import collect_company_discovery
+
+    def fake_query(topic, **kwargs):
+        if "official" in topic:
+            return {
+                "items": [
+                    {
+                        "source": "grounding",
+                        "title": "AgentSecure | AI Agent Security",
+                        "url": "https://agentsecure.ai/",
+                        "snippet": "AgentSecure protects AI agent permissions and runtime security.",
+                    }
+                ],
+                "warnings": [],
+            }
+        return {
+            "items": [
+                {
+                    "source": "grounding",
+                    "title": "Cisco acquires AgentSecure to protect AI agents - TechCrunch",
+                    "url": "https://techcrunch.com/2026/05/01/cisco-acquires-agentsecure/",
+                    "snippet": "Cisco acquires AgentSecure, a startup building AI agent security.",
+                }
+            ],
+            "warnings": [],
+        }
+
+    result = collect_company_discovery(
+        [_theme_signal()],
+        query_runner=fake_query,
+        grounded_available=True,
+        social_available=False,
+        max_queries_per_theme=1,
+    )
+
+    assert result["summary"]["accepted"] == 1
+    lead = result["accepted_leads"][0]
+    item = result["items"][0]
+    assert lead["name"] == "AgentSecure"
+    assert lead["likely_too_late"] is True
+    assert item["likely_too_late"] is True
+    assert item["action"] == "likely too late"

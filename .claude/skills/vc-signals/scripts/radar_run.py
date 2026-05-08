@@ -39,7 +39,7 @@ except ImportError:  # pragma: no cover - only for damaged installs
     run_query = None
 
 from radar_models import Candidate, EvidenceMetadata, RejectedSignal, SectorCoverage
-from radar_company_discovery import collect_company_discovery
+from radar_company_discovery import classify_discovery_source, collect_company_discovery
 from radar_scoring import score_and_tier
 from radar_sources import classify_source_item
 from radar_sector_intelligence import build_sector_intelligence
@@ -222,6 +222,12 @@ def is_repo_noise(repo: dict) -> bool:
 
 def is_evidence_noise(item: dict) -> bool:
     """True for evidence items that are likely social/model/news noise."""
+    if (item.get("source") or "").lower() in {"grounding", "web"} and classify_discovery_source(item) in {
+        "publisher_article",
+        "directory_page",
+        "content_platform",
+    }:
+        return True
     title = (item.get("title") or "").strip()
     if re.match(r"^(feat|fix|chore|docs|refactor|test|ci|build)(\\(.+\\))?:", title.lower()):
         return True
@@ -962,12 +968,12 @@ def _candidate_from_signal(signal) -> Candidate | None:
         source_count=1,
         candidate_type=signal.role,
         why_on_radar=why,
-        why_this_may_be_noise="Needs verification across stronger company/founder/customer evidence.",
+        why_this_may_be_noise=item.get("why_this_may_be_noise") or "Needs verification across stronger company/founder/customer evidence.",
         company_linkedin=_profile_url(item, "company_linkedin", "linkedin_url", "linkedin"),
         company_x=_profile_url(item, "company_x", "x_url", "twitter_url", "twitter"),
         founder_profiles=_founder_profiles_from_item(item),
         engagement=item.get("engagement", {}),
-        action="watch" if signal.role == "oss_project" else "assign owner",
+        action=item.get("action") or ("watch" if signal.role == "oss_project" else "assign owner"),
     )
     source_lane = item.get("source_lane") or ("OSS" if signal.role == "oss_project" else signal.source)
     sector_classification = classify_market_sector(

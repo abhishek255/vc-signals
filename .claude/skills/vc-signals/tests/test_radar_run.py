@@ -66,6 +66,12 @@ def test_filter_evidence_rejects_social_noise():
     assert is_evidence_noise({"title": "chore(data-warehouse): Moved source docs from .com to this repo"})
     assert is_evidence_noise({"title": "docs(architecture): amend ADR-042 to scope Python-first to internal automation"})
     assert is_evidence_noise({"title": "Eridu Emerges from Stealth with $200M+ Funding, Claims AI Networking Breakthrough (2026-04-20)"})
+    assert is_evidence_noise({
+        "source": "grounding",
+        "title": '"Can Only Imagine What FCC Has To Say": Open Source Military Radar Plans Appear Online | ZeroHedge',
+        "url": "https://www.zerohedge.com/military/can-only-imagine-what-fcc-has-say-open-source-military-radar-plans-appear-online",
+        "container": "www.zerohedge.com",
+    })
     assert not is_evidence_noise({"title": "Show HN: A security scanner for AI Agent Skills"})
 
 
@@ -76,6 +82,35 @@ def test_merge_attio_context_preserves_action_when_no_client():
     result = merge_attio_context(companies, attio_client=None)
     assert result[0]["attio_status"] == "unknown"
     assert result[0]["action"] == "assign owner"
+
+
+def test_candidate_from_signal_preserves_likely_too_late_action():
+    import radar_run
+    from radar_models import Signal
+
+    signal = Signal(
+        source="grounding",
+        role="company_web",
+        title="AgentSecure | AI Agent Security",
+        url="https://agentsecure.ai/",
+        sector="cybersecurity",
+        text="AgentSecure protects AI agent permissions.",
+        can_create_candidate=True,
+        metadata={
+            "source": "grounding",
+            "title": "AgentSecure | AI Agent Security",
+            "url": "https://agentsecure.ai/",
+            "company_name": "AgentSecure",
+            "domain": "agentsecure.ai",
+            "action": "likely too late",
+            "why_this_may_be_noise": "Likely too late: Cisco acquired the company.",
+        },
+    )
+
+    candidate = radar_run._candidate_from_signal(signal)
+
+    assert candidate.action == "likely too late"
+    assert "Likely too late" in candidate.why_this_may_be_noise
 
 
 def test_merge_attio_context_overrides_action_with_attio_action():

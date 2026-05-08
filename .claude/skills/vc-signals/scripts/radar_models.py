@@ -167,6 +167,12 @@ class VerifiedCompanyDiscoveryLead:
     verification_basis: list[str] = field(default_factory=list)
     missing_evidence: list[str] = field(default_factory=list)
     movement_assignment_basis: list[str] = field(default_factory=list)
+    source_type: str = ""
+    extracted_company_name: str = ""
+    extraction_confidence: str = ""
+    supporting_evidence_urls: list[str] = field(default_factory=list)
+    official_domain_verification_url: str = ""
+    likely_too_late: bool = False
     query_id: str = ""
     query_topic: str = ""
     why_on_radar: str = ""
