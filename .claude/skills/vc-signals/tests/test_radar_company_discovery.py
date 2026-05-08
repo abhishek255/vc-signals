@@ -244,6 +244,80 @@ def test_collect_company_discovery_returns_accepted_and_rejected_leads():
     assert result["items"][0]["source_lane"] == "Grounded web"
 
 
+def test_collect_company_discovery_records_query_diagnostics_for_processed_items():
+    from radar_company_discovery import collect_company_discovery
+
+    def fake_query(topic, **kwargs):
+        return {
+            "items": [
+                {
+                    "source": "grounding",
+                    "title": "AgentFence launches AI agent permission firewall",
+                    "url": "https://agentfence.dev",
+                    "snippet": "AgentFence helps security teams control AI agent tool permissions.",
+                    "company_name": "AgentFence",
+                    "domain": "agentfence.dev",
+                },
+                {
+                    "source": "grounding",
+                    "title": "Generic devtools company launches",
+                    "url": "https://generic.dev",
+                    "snippet": "A generic developer productivity platform.",
+                    "company_name": "GenericDev",
+                    "domain": "generic.dev",
+                },
+            ],
+            "warnings": ["minor warning"],
+        }
+
+    result = collect_company_discovery(
+        [_theme_signal()],
+        query_runner=fake_query,
+        grounded_available=True,
+        social_available=False,
+        max_queries_per_theme=1,
+    )
+
+    diagnostic = result["query_diagnostics"][0]
+    assert diagnostic["status"] == "processed"
+    assert diagnostic["provider_item_count"] == 2
+    assert diagnostic["accepted_count"] == 1
+    assert diagnostic["rejected_count"] == 1
+    assert diagnostic["top_result_urls"] == ["https://agentfence.dev", "https://generic.dev"]
+    assert diagnostic["top_result_domains"] == ["agentfence.dev", "generic.dev"]
+    assert diagnostic["source_type_counts"] == {"official_company_page": 2}
+    assert diagnostic["skip_reason_counts"] == {"movement_terms_missing": 1}
+    assert diagnostic["warnings"] == ["minor warning"]
+
+
+def test_collect_company_discovery_records_no_items_query_diagnostic():
+    from radar_company_discovery import collect_company_discovery
+
+    def fake_query(topic, **kwargs):
+        return {
+            "items": [],
+            "warnings": ["Some sources failed: grounding"],
+            "errors_by_source": {"grounding": "HTTP 402: Payment Required"},
+        }
+
+    result = collect_company_discovery(
+        [_theme_signal()],
+        query_runner=fake_query,
+        grounded_available=True,
+        social_available=False,
+        max_queries_per_theme=1,
+    )
+
+    diagnostic = result["query_diagnostics"][0]
+    assert diagnostic["status"] == "no_items"
+    assert diagnostic["provider_item_count"] == 0
+    assert diagnostic["skip_reason_counts"] == {"provider_returned_no_items": 1}
+    assert diagnostic["source_errors"] == {"grounding": "HTTP 402: Payment Required"}
+    assert "grounding: HTTP 402: Payment Required" in diagnostic["errors"]
+    assert "grounding: HTTP 402: Payment Required" in result["errors"]
+    assert result["summary"]["provider_items_seen"] == 0
+
+
 def test_collect_company_discovery_without_grounding_is_artifact_only():
     from radar_company_discovery import collect_company_discovery
 
@@ -267,6 +341,9 @@ def test_collect_company_discovery_without_grounding_is_artifact_only():
     assert result["summary"]["rejected"] == 0
     assert result["summary"]["grounded_available"] is False
     assert any("grounded company discovery unavailable" in warning.lower() for warning in result["warnings"])
+    assert result["query_diagnostics"][0]["status"] == "not_executed"
+    assert result["query_diagnostics"][0]["skip_reason_counts"] == {"grounded_company_discovery_unavailable": 1}
+
 
 
 def test_verify_discovery_item_accepts_source_backed_company_domain():

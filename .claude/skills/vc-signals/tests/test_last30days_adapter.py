@@ -233,6 +233,25 @@ def test_run_query_emits_normalized_items(tmp_path, monkeypatch):
     assert result["items"][0]["url"] == "https://r/x"
 
 
+def test_run_query_preserves_source_errors(tmp_path, monkeypatch):
+    from last30days_adapter import run_query
+
+    vendor = _make_vendor(tmp_path)
+    monkeypatch.setattr("last30days_adapter._find_python", lambda: "python3")
+    fake_payload = {
+        "items_by_source": {},
+        "clusters": [],
+        "warnings": ["Some sources failed: grounding"],
+        "errors_by_source": {"grounding": "HTTP 402: Payment Required"},
+    }
+    completed = MagicMock(returncode=0, stdout=json.dumps(fake_payload), stderr="")
+    monkeypatch.setattr("last30days_adapter.subprocess.run", lambda *a, **kw: completed)
+
+    result = run_query("AI agent security", vendor_path=vendor)
+
+    assert result["errors_by_source"] == {"grounding": "HTTP 402: Payment Required"}
+
+
 def test_run_query_uses_nested_script_path_and_skill_root_cwd(tmp_path, monkeypatch):
     from last30days_adapter import run_query
 

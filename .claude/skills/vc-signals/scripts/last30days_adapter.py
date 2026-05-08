@@ -268,6 +268,7 @@ def run_query(
                 "items": items,
                 "clusters": report.get("clusters", []),
                 "warnings": report.get("warnings", []),
+                "errors_by_source": report.get("errors_by_source", {}),
             }
         except json.JSONDecodeError:
             return {

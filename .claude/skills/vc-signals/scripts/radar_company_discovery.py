@@ -235,10 +235,13 @@ def collect_company_discovery(
         "rejected_leads": [],
         "warnings": [],
         "errors": [],
+        "query_diagnostics": [],
         "summary": {
             "queries_run": 0,
             "verification_queries_run": 0,
             "article_fetches_attempted": 0,
+            "provider_items_seen": 0,
+            "source_type_counts": {},
             "accepted": 0,
             "rejected": 0,
             "grounded_available": grounded_available,
@@ -246,16 +249,26 @@ def collect_company_discovery(
     }
     if queries and not grounded_available:
         result["warnings"].append("Grounded company discovery unavailable; company discovery is artifact-only.")
+        result["query_diagnostics"] = [
+            _query_diagnostic(query, status="not_executed", skip_reason="grounded_company_discovery_unavailable")
+            for query in queries
+        ]
         return result
     if not query_runner or not queries:
         if queries and not query_runner:
             result["warnings"].append("Theme company discovery skipped because last30days query runner is unavailable.")
+            result["query_diagnostics"] = [
+                _query_diagnostic(query, status="not_executed", skip_reason="query_runner_unavailable")
+                for query in queries
+            ]
         return result
 
     items = []
     accepted_leads = []
     rejected_leads = []
     for query in queries:
+        diagnostic = _query_diagnostic(query)
+        result["query_diagnostics"].append(diagnostic)
         try:
             payload = query_runner(
                 query["topic"],
@@ -267,16 +280,44 @@ def collect_company_discovery(
             )
             result["summary"]["queries_run"] += 1
         except Exception as exc:  # pragma: no cover - defensive boundary around live tools
-            result["errors"].append(f"{query['kind']}: {exc}")
+            error = f"{query['kind']}: {exc}"
+            result["errors"].append(error)
+            diagnostic["status"] = "error"
+            diagnostic["errors"].append(error)
+            _increment_count(diagnostic["skip_reason_counts"], "query_runner_exception")
             continue
 
+        diagnostic["status"] = "processed"
+        diagnostic["payload_keys"] = sorted(payload.keys())
         for warning in payload.get("warnings", []):
             if warning not in result["warnings"]:
                 result["warnings"].append(warning)
+            if warning not in diagnostic["warnings"]:
+                diagnostic["warnings"].append(warning)
         if payload.get("error"):
             result["errors"].append(payload["error"])
+            diagnostic["errors"].append(payload["error"])
+        for source_name, source_error in (payload.get("errors_by_source") or {}).items():
+            error = f"{source_name}: {source_error}"
+            if error not in result["errors"]:
+                result["errors"].append(error)
+            if error not in diagnostic["errors"]:
+                diagnostic["errors"].append(error)
+            diagnostic["source_errors"][source_name] = source_error
 
-        for item in payload.get("items", []):
+        payload_items = payload.get("items", [])
+        diagnostic["provider_item_count"] = len(payload_items)
+        result["summary"]["provider_items_seen"] += len(payload_items)
+        if not payload_items:
+            diagnostic["status"] = "no_items"
+            _increment_count(diagnostic["skip_reason_counts"], "provider_returned_no_items")
+            continue
+
+        for item in payload_items:
+            _record_query_result_preview(diagnostic, item)
+            source_type = classify_discovery_source(item)
+            _increment_count(diagnostic["source_type_counts"], source_type)
+            _increment_count(result["summary"]["source_type_counts"], source_type)
             enriched = dict(item)
             enriched.setdefault("query_kind", query["kind"])
             enriched.setdefault("query_topic", query["topic"])
@@ -288,6 +329,7 @@ def collect_company_discovery(
             if lead.verification_status == "accepted":
                 accepted_leads.append(lead.to_dict())
                 items.append(_lead_to_item(lead))
+                diagnostic["accepted_count"] += 1
             else:
                 can_fetch_article = result["summary"]["article_fetches_attempted"] < max_article_fetches
                 article_lead, article_warnings, article_errors, verification_queries = _verify_publisher_article_company(
@@ -298,20 +340,32 @@ def collect_company_discovery(
                     allow_article_fetch=can_fetch_article,
                 )
                 result["summary"]["verification_queries_run"] += verification_queries
+                diagnostic["verification_queries_run"] += verification_queries
                 if article_warnings and any(warning.startswith("article-detail: fetched") for warning in article_warnings):
                     result["summary"]["article_fetches_attempted"] += 1
+                    diagnostic["article_fetches_attempted"] += 1
                 for warning in article_warnings:
+                    if warning not in diagnostic["warnings"]:
+                        diagnostic["warnings"].append(warning)
                     if not warning.startswith("article-detail: fetched") and warning not in result["warnings"]:
                         result["warnings"].append(warning)
                 result["errors"].extend(article_errors)
+                diagnostic["errors"].extend(article_errors)
                 if article_lead:
                     if article_lead.verification_status == "accepted":
                         accepted_leads.append(article_lead.to_dict())
                         items.append(_lead_to_item(article_lead))
+                        diagnostic["accepted_count"] += 1
                     else:
                         rejected_leads.append(article_lead.to_dict())
+                        diagnostic["rejected_count"] += 1
+                        for reason in article_lead.missing_evidence:
+                            _increment_count(diagnostic["skip_reason_counts"], reason)
                 else:
                     rejected_leads.append(lead.to_dict())
+                    diagnostic["rejected_count"] += 1
+                    for reason in lead.missing_evidence:
+                        _increment_count(diagnostic["skip_reason_counts"], reason)
 
     result["items"] = _dedupe_items(items)
     result["accepted_leads"] = _dedupe_leads(accepted_leads)
@@ -996,6 +1050,52 @@ def _candidate_can_seed_query(candidate: Candidate) -> bool:
         and any(term in " ".join(candidate.missing_identity_evidence).lower() for term in IDENTITY_MISSING_TERMS)
         and not any(term in text for term in NOISY_OSS_TERMS)
     )
+
+
+def _query_diagnostic(query: dict, *, status: str = "pending", skip_reason: str = "") -> dict:
+    diagnostic = {
+        "query_id": query.get("id", ""),
+        "kind": query.get("kind", ""),
+        "topic": query.get("topic", ""),
+        "movement": query.get("movement", ""),
+        "market_sector": query.get("market_sector", ""),
+        "source_reason": query.get("source_reason", ""),
+        "origin_row_ids": query.get("origin_row_ids", []),
+        "sources": query.get("sources", ""),
+        "web_backend": query.get("web_backend", ""),
+        "status": status,
+        "payload_keys": [],
+        "provider_item_count": 0,
+        "accepted_count": 0,
+        "rejected_count": 0,
+        "verification_queries_run": 0,
+        "article_fetches_attempted": 0,
+        "source_type_counts": {},
+        "source_errors": {},
+        "top_result_urls": [],
+        "top_result_domains": [],
+        "skip_reason_counts": {},
+        "warnings": [],
+        "errors": [],
+    }
+    if skip_reason:
+        _increment_count(diagnostic["skip_reason_counts"], skip_reason)
+    return diagnostic
+
+
+def _record_query_result_preview(diagnostic: dict, item: dict) -> None:
+    url = item.get("url") or item.get("source_url") or ""
+    domain = _domain_from_url(url) or _normalize_domain(item.get("domain") or item.get("website") or "")
+    if url and url not in diagnostic["top_result_urls"] and len(diagnostic["top_result_urls"]) < 5:
+        diagnostic["top_result_urls"].append(url)
+    if domain and domain not in diagnostic["top_result_domains"] and len(diagnostic["top_result_domains"]) < 5:
+        diagnostic["top_result_domains"].append(domain)
+
+
+def _increment_count(counts: dict, key: str) -> None:
+    if not key:
+        return
+    counts[key] = counts.get(key, 0) + 1
 
 
 def _dedupe_items(items: list[dict]) -> list[dict]:
