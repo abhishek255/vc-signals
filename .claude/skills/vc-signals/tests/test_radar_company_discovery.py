@@ -199,6 +199,76 @@ def test_collect_company_discovery_annotates_and_dedupes_items():
     assert result["warnings"] == ["minor warning"]
 
 
+def test_collect_company_discovery_returns_accepted_and_rejected_leads():
+    from radar_company_discovery import collect_company_discovery
+
+    def fake_query(topic, **kwargs):
+        return {
+            "items": [
+                {
+                    "source": "grounding",
+                    "title": "AgentFence launches AI agent permission firewall",
+                    "url": "https://agentfence.dev",
+                    "snippet": "AgentFence helps security teams control AI agent tool permissions.",
+                    "company_name": "AgentFence",
+                    "domain": "agentfence.dev",
+                },
+                {
+                    "source": "grounding",
+                    "title": "Generic devtools company launches",
+                    "url": "https://generic.dev",
+                    "snippet": "A generic developer productivity platform.",
+                    "company_name": "GenericDev",
+                    "domain": "generic.dev",
+                },
+            ],
+            "warnings": [],
+        }
+
+    result = collect_company_discovery(
+        [_theme_signal()],
+        query_runner=fake_query,
+        grounded_available=True,
+        social_available=False,
+        max_queries_per_theme=1,
+    )
+
+    assert result["summary"]["accepted"] == 1
+    assert result["summary"]["rejected"] == 1
+    assert result["accepted_leads"][0]["name"] == "AgentFence"
+    assert result["rejected_leads"][0]["name"] == "GenericDev"
+    assert result["items"][0]["company_name"] == "AgentFence"
+    assert result["items"][0]["domain"] == "agentfence.dev"
+    assert result["items"][0]["discovery_verification_status"] == "accepted"
+    assert result["items"][0]["signal_role"] == "launch"
+    assert result["items"][0]["source_lane"] == "Grounded web"
+
+
+def test_collect_company_discovery_without_grounding_is_artifact_only():
+    from radar_company_discovery import collect_company_discovery
+
+    def fail_query(topic, **kwargs):
+        raise AssertionError("query runner should not execute without grounding")
+
+    result = collect_company_discovery(
+        [_theme_signal()],
+        query_runner=fail_query,
+        grounded_available=False,
+        social_available=False,
+        max_queries_per_theme=1,
+    )
+
+    assert result["queries"]
+    assert result["items"] == []
+    assert result["accepted_leads"] == []
+    assert result["rejected_leads"] == []
+    assert result["summary"]["queries_run"] == 0
+    assert result["summary"]["accepted"] == 0
+    assert result["summary"]["rejected"] == 0
+    assert result["summary"]["grounded_available"] is False
+    assert any("grounded company discovery unavailable" in warning.lower() for warning in result["warnings"])
+
+
 def test_verify_discovery_item_accepts_source_backed_company_domain():
     from radar_company_discovery import verify_discovery_item
 

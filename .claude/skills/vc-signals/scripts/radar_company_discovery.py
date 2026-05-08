@@ -128,6 +128,8 @@ def build_company_discovery_queries(
 def collect_company_discovery(
     theme_signals: list[ThemeSignal],
     *,
+    focus_items: list[FocusItem] | None = None,
+    unresolved_candidates: list[Candidate] | None = None,
     query_runner: Callable | None,
     grounded_available: bool,
     social_available: bool,
@@ -137,18 +139,38 @@ def collect_company_discovery(
     """Run theme-driven company searches and annotate returned evidence."""
     queries = build_company_discovery_queries(
         theme_signals,
+        focus_items=focus_items,
+        unresolved_candidates=unresolved_candidates,
         grounded_available=grounded_available,
         social_available=social_available,
         lookback_days=lookback_days,
         max_queries_per_theme=max_queries_per_theme,
     )
-    result = {"queries": queries, "items": [], "warnings": [], "errors": []}
+    result = {
+        "queries": queries,
+        "items": [],
+        "accepted_leads": [],
+        "rejected_leads": [],
+        "warnings": [],
+        "errors": [],
+        "summary": {
+            "queries_run": 0,
+            "accepted": 0,
+            "rejected": 0,
+            "grounded_available": grounded_available,
+        },
+    }
+    if queries and not grounded_available:
+        result["warnings"].append("Grounded company discovery unavailable; company discovery is artifact-only.")
+        return result
     if not query_runner or not queries:
         if queries and not query_runner:
             result["warnings"].append("Theme company discovery skipped because last30days query runner is unavailable.")
         return result
 
     items = []
+    accepted_leads = []
+    rejected_leads = []
     for query in queries:
         try:
             payload = query_runner(
@@ -159,6 +181,7 @@ def collect_company_discovery(
                 store=True,
                 web_backend=query.get("web_backend"),
             )
+            result["summary"]["queries_run"] += 1
         except Exception as exc:  # pragma: no cover - defensive boundary around live tools
             result["errors"].append(f"{query['kind']}: {exc}")
             continue
@@ -176,10 +199,19 @@ def collect_company_discovery(
             enriched.setdefault("query_theme", query["theme"])
             enriched.setdefault("market_sector", query["market_sector"])
             enriched.setdefault("candidate_eligible", True)
-            enriched.setdefault("discovery_lane", "theme_company_discovery")
-            items.append(enriched)
+            enriched.setdefault("discovery_lane", "controlled_company_discovery")
+            lead = verify_discovery_item(enriched, query)
+            if lead.verification_status == "accepted":
+                accepted_leads.append(lead.to_dict())
+                items.append(_lead_to_item(lead))
+            else:
+                rejected_leads.append(lead.to_dict())
 
     result["items"] = _dedupe_items(items)
+    result["accepted_leads"] = _dedupe_leads(accepted_leads)
+    result["rejected_leads"] = _dedupe_leads(rejected_leads)
+    result["summary"]["accepted"] = len(result["accepted_leads"])
+    result["summary"]["rejected"] = len(result["rejected_leads"])
     return result
 
 
@@ -237,6 +269,29 @@ def verify_discovery_item(item: dict, query: dict) -> VerifiedCompanyDiscoveryLe
         raw_title=title,
         raw_snippet=snippet,
     )
+
+
+def _lead_to_item(lead: VerifiedCompanyDiscoveryLead) -> dict:
+    return {
+        "source": lead.source or "grounding",
+        "title": lead.raw_title or lead.name,
+        "url": lead.source_url,
+        "snippet": lead.why_on_radar,
+        "company_name": lead.name,
+        "domain": lead.domain,
+        "market_sector": lead.market_sector,
+        "query_theme": lead.movement,
+        "query_topic": lead.query_topic,
+        "query_id": lead.query_id,
+        "query_kind": _query_kind_from_id(lead.query_id),
+        "candidate_eligible": True,
+        "signal_role": "launch",
+        "source_lane": "Grounded web",
+        "discovery_lane": "controlled_company_discovery",
+        "discovery_verification_status": "accepted",
+        "discovery_verification_basis": lead.verification_basis,
+        "movement_assignment_basis": lead.movement_assignment_basis,
+    }
 
 
 def _sources(*, grounded_available: bool, social_available: bool) -> str:
@@ -375,3 +430,22 @@ def _dedupe_items(items: list[dict]) -> list[dict]:
         seen.add(key)
         deduped.append(item)
     return deduped
+
+
+def _dedupe_leads(items: list[dict]) -> list[dict]:
+    seen = set()
+    deduped = []
+    for item in items:
+        key = (item.get("domain") or item.get("source_url") or item.get("name") or "").strip().lower()
+        if not key or key in seen:
+            continue
+        seen.add(key)
+        deduped.append(item)
+    return deduped
+
+
+def _query_kind_from_id(query_id: str) -> str:
+    for suffix in ("theme_company_search", "theme_founder_search", "theme_funding_search", "focus_identity_search", "candidate_identity_search"):
+        if (query_id or "").endswith(suffix):
+            return suffix
+    return ""
