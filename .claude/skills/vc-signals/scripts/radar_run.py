@@ -54,6 +54,7 @@ from identity_resolution import apply_identity_resolution
 from metadata_loss import build_metadata_loss_report
 from radar_oss import enrich_oss_candidate
 from radar_focus import (
+    build_focus_item,
     build_weekly_focus_artifact,
     render_weekly_focus_markdown,
     write_feedback_scaffold,
@@ -1324,8 +1325,13 @@ def run_weekly_artifacts(
     )
     signal_result = build_signals_from_evidence(evidence)
     theme_signals = build_theme_signals(signal_result["signals"], sectors=sectors)
+    initial_promotion = promote_signals_to_candidates(signal_result["signals"])
+    provisional_candidates = _score_sort_limit_candidates(initial_promotion["candidates"], candidate_limit)
+    provisional_focus_items = [build_focus_item(candidate) for candidate in provisional_candidates]
     company_discovery = collect_company_discovery(
         theme_signals,
+        focus_items=provisional_focus_items,
+        unresolved_candidates=provisional_candidates,
         query_runner=run_query,
         grounded_available=_grounded_search_available(),
         social_available=_social_search_available(),
