@@ -1527,6 +1527,7 @@ def run_weekly_artifacts(
         category_context_items=_category_context_focus_items_from_company_discovery(company_discovery),
         theme_signals=theme_signals,
         sector_intelligence=sector_intelligence,
+        source_gap_context="bounded_validation" if query_timeout_seconds is not None else "",
         run_id=run_date,
     )
     weekly_focus_json_path = output_dir / "weekly-focus.json"

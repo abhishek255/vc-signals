@@ -651,13 +651,20 @@ def _dedupe_focus_items(items: list[FocusItem]) -> list[FocusItem]:
     return deduped
 
 
-def _source_gaps(sector_intelligence: list[SectorIntelligence] | None) -> list[str]:
+def _source_gap_error(error: str, *, source_gap_context: str = "") -> str:
+    if source_gap_context == "bounded_validation" and "last30days query timed out" in (error or "").lower():
+        return f"{error} during bounded validation profile; rerun with a larger query timeout before treating this as a source outage."
+    return error
+
+
+def _source_gaps(sector_intelligence: list[SectorIntelligence] | None, *, source_gap_context: str = "") -> list[str]:
     gaps = [
         "No X/Product Hunt/package-registry adapters in Phase 1A/1B; focus list is based on current candidates, signals, and Attio fields only."
     ]
     for item in sector_intelligence or []:
         if item.source_errors:
-            gaps.append(f"{item.market_sector}: {'; '.join(item.source_errors)}")
+            errors = [_source_gap_error(error, source_gap_context=source_gap_context) for error in item.source_errors]
+            gaps.append(f"{item.market_sector}: {'; '.join(errors)}")
         elif "grounded" in (item.why_no_more_companies or "").lower():
             gaps.append(f"{item.market_sector}: {item.why_no_more_companies}")
     return list(dict.fromkeys(gaps))[:8]
@@ -737,6 +744,7 @@ def build_weekly_focus_artifact(
     category_context_items: list[FocusItem] | None = None,
     theme_signals: list[ThemeSignal] | None = None,
     sector_intelligence: list[SectorIntelligence] | None = None,
+    source_gap_context: str = "",
     run_id: str = "",
 ) -> WeeklyFocusArtifact:
     focus_items = _rank_focus_items([build_focus_item(candidate) for candidate in candidates])
@@ -758,7 +766,7 @@ def build_weekly_focus_artifact(
     movements = build_market_movements(movement_source_items, theme_signals)
     new_to_marathon = _new_to_marathon(partner_focus + extended_watchlist)
     workflow_view = _workflow_view(partner_focus + extended_watchlist)
-    gaps = _source_gaps(sector_intelligence)
+    gaps = _source_gaps(sector_intelligence, source_gap_context=source_gap_context)
     focus_and_watchlist_ids = {item.id for item in partner_focus + extended_watchlist}
     appendix = {
         "needs_more_evidence": [

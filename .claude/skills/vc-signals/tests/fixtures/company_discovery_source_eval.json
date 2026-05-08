@@ -1,0 +1,69 @@
+{
+  "name": "phase_3_6_company_discovery_source_eval",
+  "source": "sanitized_bounded_brave_weekly_results",
+  "items": [
+    {
+      "label": "official_company_page",
+      "title": "AI SOC Agents & Agentic Security Platform | 7AI",
+      "url": "https://7ai.com/",
+      "snippet": "AI SOC agents and agentic security platform.",
+      "source": "grounding"
+    },
+    {
+      "label": "publisher_article",
+      "title": "AI data center operator IREN to acquire Mirantis for $625M - SiliconANGLE",
+      "url": "https://siliconangle.com/2026/05/05/ai-data-center-operator-iren-acquire-mirantis-625m/",
+      "snippet": "Article coverage of an acquisition.",
+      "source": "grounding"
+    },
+    {
+      "label": "funding_press_release",
+      "title": "AgentFence raises $8M seed round for AI agent security",
+      "url": "https://www.prnewswire.com/news-releases/agentfence-raises-seed-round.html",
+      "snippet": "Press release about seed funding.",
+      "source": "grounding"
+    },
+    {
+      "label": "investor_page",
+      "title": "AgentFence | Portfolio",
+      "url": "https://www.sequoiacap.com/companies/agentfence/",
+      "snippet": "Investor portfolio page for a company.",
+      "source": "grounding"
+    },
+    {
+      "label": "government_or_academic",
+      "title": "Careful adoption of agentic AI services",
+      "url": "https://www.cyber.gov.au/business-government/secure-design/artificial-intelligence/careful-adoption-of-agentic-ai-services",
+      "snippet": "Government guidance on AI agent security.",
+      "source": "grounding"
+    },
+    {
+      "label": "content_platform",
+      "title": "Developer Go-to-Market Strategy: How Dev Tool Companies Launch",
+      "url": "https://business.daily.dev/resources/dev-tool-companies-go-to-market-strategy-launch-scale/",
+      "snippet": "Developer go-to-market content.",
+      "source": "grounding"
+    },
+    {
+      "label": "directory_page",
+      "title": "Supabase - AI Startup Profile | AI Market Watch",
+      "url": "https://www.ai-market-watch.com/company/supabase",
+      "snippet": "Directory profile for a company.",
+      "source": "grounding"
+    },
+    {
+      "label": "github_repo",
+      "title": "ChromeDevTools/chrome-devtools-mcp",
+      "url": "https://github.com/ChromeDevTools/chrome-devtools-mcp",
+      "snippet": "GitHub repository.",
+      "source": "github"
+    },
+    {
+      "label": "listicle_or_seo",
+      "title": "How to Start a Startup in 10 Steps (2026 Guide)",
+      "url": "https://startupsavant.com/how-to-start-a-startup",
+      "snippet": "SEO guide, not company identity.",
+      "source": "grounding"
+    }
+  ]
+}

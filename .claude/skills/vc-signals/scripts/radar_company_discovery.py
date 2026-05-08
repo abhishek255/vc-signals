@@ -238,37 +238,19 @@ class RuntimeLedger:
         self.budget_exceeded = self.budget_exceeded or "budget" in reason or "runtime" in reason or "cap" in reason
         _increment_count(self.skip_reasons, reason)
         self.query_events.append(
-            {
-                "query_id": query.get("id", ""),
-                "movement": query.get("movement", ""),
-                "topic": query.get("topic", ""),
-                "status": "skipped",
-                "reason": reason,
-            }
+            _ledger_query_event(query, status="skipped", reason=reason)
         )
 
     def record_attempt(self, query: dict, *, cache_status: str = "miss") -> None:
         self.attempted_queries += 1
         self.query_events.append(
-            {
-                "query_id": query.get("id", ""),
-                "movement": query.get("movement", ""),
-                "topic": query.get("topic", ""),
-                "status": "attempted",
-                "cache_status": cache_status,
-            }
+            _ledger_query_event(query, status="attempted", cache_status=cache_status)
         )
 
     def record_complete(self, query: dict, *, cache_status: str = "miss") -> None:
         self.completed_queries += 1
         self.query_events.append(
-            {
-                "query_id": query.get("id", ""),
-                "movement": query.get("movement", ""),
-                "topic": query.get("topic", ""),
-                "status": "completed",
-                "cache_status": cache_status,
-            }
+            _ledger_query_event(query, status="completed", cache_status=cache_status)
         )
 
     def to_dict(self) -> dict:
@@ -276,6 +258,30 @@ class RuntimeLedger:
         payload["duration_seconds"] = round(self.elapsed(), 3)
         payload.pop("started_monotonic", None)
         return payload
+
+
+def _ledger_query_event(
+    query: dict,
+    *,
+    status: str,
+    reason: str = "",
+    cache_status: str = "",
+) -> dict:
+    event = {
+        "query_id": query.get("id", ""),
+        "kind": query.get("kind", ""),
+        "query_family": query.get("query_family", ""),
+        "movement": query.get("movement", ""),
+        "topic": query.get("topic", ""),
+        "priority_score": query.get("priority_score", 0),
+        "budget_mode": query.get("budget_mode", ""),
+        "status": status,
+    }
+    if reason:
+        event["reason"] = reason
+    if cache_status:
+        event["cache_status"] = cache_status
+    return event
 
 
 def build_company_discovery_queries(
@@ -301,33 +307,85 @@ def build_company_discovery_queries(
         query_specs = [
             (
                 "theme_company_search",
-                signal.suggested_search or f"{theme} startups Seed Series A founder launch",
+                "official_company_page",
+                f'{theme} startup company platform official {market_sector}',
                 "theme_signal",
                 [f"theme:{_stable_slug(theme)}"],
-            ),
-            (
-                "theme_founder_search",
-                f"{theme} startup founder launch company {market_sector}",
-                "theme_signal",
-                [f"theme:{_stable_slug(theme)}"],
+                ["official_company_page"],
             ),
             (
                 "theme_funding_search",
-                f"{theme} startup raises seed Series A funding company",
+                "funding_launch_article",
+                f"{theme} startup raises seed Series A launches funding company",
                 "theme_signal",
                 [f"theme:{_stable_slug(theme)}"],
+                ["publisher_article", "funding_press_release"],
+            ),
+            (
+                "theme_yc_accelerator_search",
+                "yc_accelerator",
+                f'site:ycombinator.com/companies "{theme}" startup company',
+                "theme_signal",
+                [f"theme:{_stable_slug(theme)}"],
+                ["directory_page", "official_company_page"],
+            ),
+            (
+                "theme_company_context_search",
+                "company_context",
+                f"{theme} market map companies category context startup",
+                "theme_signal",
+                [f"theme:{_stable_slug(theme)}"],
+                ["publisher_article", "directory_page", "official_company_page"],
             ),
         ]
-        for kind, topic, reason, origin_ids in query_specs[:max_queries_per_theme]:
+        for kind, query_family, topic, reason, origin_ids, expected_source_types in query_specs[:max_queries_per_theme]:
             _append_query(
                 queries,
                 seen_topics,
                 kind=kind,
+                query_family=query_family,
                 topic=topic,
                 movement=theme,
                 market_sector=market_sector,
                 source_reason=reason,
                 origin_row_ids=origin_ids,
+                expected_source_types=expected_source_types,
+                required_terms=required_terms,
+                grounded_available=grounded_available,
+                lookback_days=lookback_days,
+            )
+
+    for item in focus_items or []:
+        if not _focus_item_can_seed_movement_query(item):
+            continue
+        movement = item.market_movement
+        required_terms = _movement_terms(movement)
+        query_specs = [
+            (
+                "focus_movement_company_search",
+                "official_company_page",
+                f"{movement} startup company platform official {item.market_sector}",
+                ["official_company_page"],
+            ),
+            (
+                "focus_movement_funding_search",
+                "funding_launch_article",
+                f"{movement} startup raises seed Series A launches funding company",
+                ["publisher_article", "funding_press_release"],
+            ),
+        ]
+        for kind, query_family, topic, expected_source_types in query_specs:
+            _append_query(
+                queries,
+                seen_topics,
+                kind=kind,
+                query_family=query_family,
+                topic=topic,
+                movement=movement,
+                market_sector=item.market_sector,
+                source_reason="needs_more_evidence",
+                origin_row_ids=[item.id],
+                expected_source_types=expected_source_types,
                 required_terms=required_terms,
                 grounded_available=grounded_available,
                 lookback_days=lookback_days,
@@ -338,16 +396,18 @@ def build_company_discovery_queries(
             continue
         movement = item.market_movement
         required_terms = _movement_terms(movement)
-        topic = f"{movement} startup company founder launch {item.market_sector}".strip()
+        topic = f'"{item.name}" "{movement}" official company founder'.strip()
         _append_query(
             queries,
             seen_topics,
             kind="focus_identity_search",
+            query_family="exact_row_identity",
             topic=topic,
             movement=movement,
             market_sector=item.market_sector,
             source_reason="needs_more_evidence",
             origin_row_ids=[item.id],
+            expected_source_types=["official_company_page", "publisher_article", "funding_press_release"],
             required_terms=required_terms,
             grounded_available=grounded_available,
             lookback_days=lookback_days,
@@ -358,16 +418,18 @@ def build_company_discovery_queries(
             continue
         movement = candidate.theme
         required_terms = _movement_terms(movement)
-        topic = f"{movement} startup company founder launch {candidate.name}".strip()
+        topic = f'"{candidate.name}" "{movement}" official company founder'.strip()
         _append_query(
             queries,
             seen_topics,
             kind="candidate_identity_search",
+            query_family="exact_row_identity",
             topic=topic,
             movement=movement,
             market_sector=candidate.market_sector or candidate.sector,
             source_reason="identity_resolution_target",
             origin_row_ids=[candidate.stable_key or candidate.name],
+            expected_source_types=["official_company_page", "publisher_article", "funding_press_release"],
             required_terms=required_terms,
             grounded_available=grounded_available,
             lookback_days=lookback_days,
@@ -384,7 +446,17 @@ def prioritize_discovery_queries(queries: list[dict]) -> list[dict]:
         payload["query_priority"] = priority
         payload["priority_score"] = priority["score"]
         prioritized.append(payload)
-    return sorted(prioritized, key=lambda item: item.get("priority_score", 0), reverse=True)
+    family_order = {
+        "official_company_page": 0,
+        "funding_launch_article": 1,
+        "yc_accelerator": 2,
+        "exact_row_identity": 3,
+        "company_context": 4,
+    }
+    return sorted(
+        prioritized,
+        key=lambda item: (-item.get("priority_score", 0), family_order.get(item.get("query_family", ""), 99)),
+    )
 
 
 def _query_priority(query: dict) -> dict:
@@ -404,13 +476,21 @@ def _query_priority(query: dict) -> dict:
     attio_gap = 15 if query.get("attio_gap") else 0
     prior_yield = int(query.get("prior_yield") or 0)
     generic_penalty = 30 if _is_broad_movement(movement) or (movement or "").lower() in GENERIC_MOVEMENTS else 0
-    score = movement_heat + source_bonus + missing_identity + attio_gap + prior_yield - generic_penalty
+    family_bonus = {
+        "exact_row_identity": 10,
+        "official_company_page": 8,
+        "funding_launch_article": 6,
+        "yc_accelerator": 4,
+        "company_context": 0,
+    }.get(query.get("query_family", ""), 0)
+    score = movement_heat + source_bonus + missing_identity + attio_gap + prior_yield + family_bonus - generic_penalty
     return {
         "movement_heat": movement_heat,
         "source_reason": source_bonus,
         "missing_identity_evidence": missing_identity,
         "attio_gap": attio_gap,
         "prior_yield": prior_yield,
+        "query_family": family_bonus,
         "generic_penalty": generic_penalty,
         "score": score,
     }
@@ -448,6 +528,8 @@ def collect_company_discovery(
         lookback_days=lookback_days,
         max_queries_per_theme=max_queries_per_theme,
     )
+    for query in queries:
+        query["budget_mode"] = run_budget.mode
     result = {
         "queries": queries,
         "items": [],
@@ -972,6 +1054,41 @@ def classify_discovery_source(item: dict) -> str:
     if domain and _is_homepage_like(source_url):
         return "official_company_page"
     return "unknown"
+
+
+def build_discovery_source_eval_report(items: list[dict]) -> dict:
+    """Compare labeled discovery-result fixtures against deterministic source classification."""
+    rows = []
+    expected_counts: dict[str, int] = {}
+    actual_counts: dict[str, int] = {}
+    mismatches = []
+    for index, item in enumerate(items or []):
+        expected = item.get("label") or item.get("expected_source_type") or ""
+        actual = classify_discovery_source(item)
+        _increment_count(expected_counts, expected)
+        _increment_count(actual_counts, actual)
+        row = {
+            "index": index,
+            "title": item.get("title", ""),
+            "url": item.get("url") or item.get("source_url", ""),
+            "expected": expected,
+            "actual": actual,
+            "matched": expected == actual,
+        }
+        rows.append(row)
+        if expected != actual:
+            mismatches.append(row)
+    total = len(rows)
+    matched = total - len(mismatches)
+    return {
+        "total": total,
+        "matched": matched,
+        "accuracy": round(matched / total, 4) if total else 0,
+        "expected_counts": expected_counts,
+        "actual_counts": actual_counts,
+        "mismatches": mismatches,
+        "rows": rows,
+    }
 
 
 class _PublisherArticleParser(HTMLParser):
@@ -1666,11 +1783,13 @@ def _append_query(
     seen_topics: set[str],
     *,
     kind: str,
+    query_family: str,
     topic: str,
     movement: str,
     market_sector: str,
     source_reason: str,
     origin_row_ids: list[str],
+    expected_source_types: list[str],
     required_terms: list[str],
     grounded_available: bool,
     lookback_days: int,
@@ -1697,7 +1816,10 @@ def _append_query(
         reason="" if grounded_available else "Grounded company discovery unavailable; company discovery is artifact-only.",
     ).to_dict()
     query["kind"] = kind
+    query["query_family"] = query_family
     query["theme"] = movement
+    query["expected_source_types"] = list(expected_source_types)
+    query["budget_mode"] = ""
     queries.append(query)
 
 
@@ -1735,13 +1857,33 @@ def _query_is_specific(topic: str, required_terms: list[str]) -> bool:
     return _movement_match_strength(text, required_terms)[0] and any(term in text for term in COMPANY_INTENT_TERMS)
 
 
+def _focus_item_can_seed_movement_query(item: FocusItem) -> bool:
+    movement = (item.market_movement or "").lower()
+    text = f"{item.name} {item.why_focus_this_week} {item.why_this_may_be_noise}".lower()
+    return (
+        item.recommended_action == "Research deeper"
+        and bool(item.evidence_urls)
+        and movement not in GENERIC_MOVEMENTS
+        and not _is_broad_movement(item.market_movement)
+        and item.noise_risk_score < 70
+        and not any(term in text for term in NOISY_OSS_TERMS)
+    )
+
+
 def _focus_item_can_seed_query(item: FocusItem) -> bool:
     movement = (item.market_movement or "").lower()
     text = f"{item.name} {item.why_focus_this_week} {item.why_this_may_be_noise}".lower()
     missing = " ".join(item.missing_evidence).lower()
+    github_only_project = (
+        bool(item.project_url)
+        and not item.company_domain
+        and bool(item.evidence_urls)
+        and all("github.com" in url for url in item.evidence_urls)
+    )
     return (
         item.recommended_action == "Research deeper"
         and bool(item.evidence_urls)
+        and not github_only_project
         and movement not in GENERIC_MOVEMENTS
         and any(term in missing for term in IDENTITY_MISSING_TERMS)
         and item.noise_risk_score < 70
@@ -1753,9 +1895,17 @@ def _candidate_can_seed_query(candidate: Candidate) -> bool:
     name = (candidate.name or "").strip()
     theme = (candidate.theme or "").lower()
     text = f"{candidate.name} {candidate.why_on_radar} {candidate.why_this_may_be_noise}".lower()
+    sources = [source for source in candidate.sources if source]
+    github_only_project = (
+        candidate.candidate_type == "oss_project"
+        and not candidate.domain
+        and bool(sources)
+        and all("github.com" in source for source in sources)
+    )
     return (
         len(name) > 2
         and theme
+        and not github_only_project
         and theme not in GENERIC_MOVEMENTS
         and not _is_broad_movement(theme)
         and any(term in " ".join(candidate.missing_identity_evidence).lower() for term in IDENTITY_MISSING_TERMS)
@@ -1767,10 +1917,14 @@ def _query_diagnostic(query: dict, *, status: str = "pending", skip_reason: str 
     diagnostic = {
         "query_id": query.get("id", ""),
         "kind": query.get("kind", ""),
+        "query_family": query.get("query_family", ""),
         "topic": query.get("topic", ""),
         "movement": query.get("movement", ""),
         "market_sector": query.get("market_sector", ""),
         "source_reason": query.get("source_reason", ""),
+        "expected_source_types": query.get("expected_source_types", []),
+        "priority_score": query.get("priority_score", 0),
+        "budget_mode": query.get("budget_mode", ""),
         "origin_row_ids": query.get("origin_row_ids", []),
         "sources": query.get("sources", ""),
         "web_backend": query.get("web_backend", ""),

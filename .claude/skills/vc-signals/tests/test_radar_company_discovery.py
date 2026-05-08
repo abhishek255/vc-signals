@@ -25,13 +25,20 @@ def test_build_company_discovery_queries_from_theme_signal():
         [_theme_signal()],
         grounded_available=True,
         social_available=True,
-        max_queries_per_theme=3,
+        max_queries_per_theme=4,
     )
 
     assert [query["kind"] for query in queries] == [
         "theme_company_search",
-        "theme_founder_search",
         "theme_funding_search",
+        "theme_yc_accelerator_search",
+        "theme_company_context_search",
+    ]
+    assert [query["query_family"] for query in queries] == [
+        "official_company_page",
+        "funding_launch_article",
+        "yc_accelerator",
+        "company_context",
     ]
     assert queries[0]["market_sector"] == "Cybersecurity"
     assert queries[0]["theme"] == "AI agent security"
@@ -39,9 +46,54 @@ def test_build_company_discovery_queries_from_theme_signal():
     assert queries[0]["source_reason"] == "theme_signal"
     assert queries[0]["candidate_eligible"] is True
     assert queries[0]["sources"] == "grounding"
-    assert "AI agent security startups Seed Series A founder launch" in queries[0]["topic"]
-    assert "founder" in queries[1]["topic"].lower()
-    assert "raises" in queries[2]["topic"].lower()
+    assert "official" in queries[0]["topic"].lower()
+    assert "raises" in queries[1]["topic"].lower()
+    assert "site:ycombinator.com/companies" in queries[2]["topic"]
+    assert "market map" in queries[3]["topic"].lower()
+
+
+def test_build_company_discovery_queries_adds_exact_row_identity_family():
+    from radar_company_discovery import build_company_discovery_queries
+    from radar_models import Candidate, FocusItem
+
+    focus = FocusItem(
+        id="burrow",
+        name="Burrow",
+        market_movement="AI agent security",
+        market_sector="Cybersecurity",
+        missing_evidence=["no verified domain", "no founder or maintainer identity"],
+        evidence_urls=["https://news.ycombinator.com/item?id=47761957"],
+        recommended_action="Research deeper",
+        noise_risk_score=40,
+        why_focus_this_week="Show HN: Burrow - Runtime Security for AI Agents",
+    )
+    candidate = Candidate(
+        name="Burrow",
+        sector="Cybersecurity",
+        theme="AI agent security",
+        source="https://news.ycombinator.com/item?id=47761957",
+        candidate_type="company_web",
+        stable_key="burrow",
+        why_on_radar="Show HN: Burrow - Runtime Security for AI Agents",
+        sources=["https://news.ycombinator.com/item?id=47761957"],
+        missing_identity_evidence=["no verified domain"],
+    )
+
+    queries = build_company_discovery_queries(
+        [],
+        focus_items=[focus],
+        unresolved_candidates=[candidate],
+        grounded_available=True,
+        social_available=False,
+    )
+
+    assert queries
+    families = {query["query_family"] for query in queries}
+    assert "exact_row_identity" in families
+    assert {"official_company_page", "funding_launch_article"}.issubset(families)
+    exact_queries = [query for query in queries if query["query_family"] == "exact_row_identity"]
+    assert exact_queries
+    assert all('"Burrow"' in query["topic"] for query in exact_queries)
 
 
 def test_build_company_discovery_queries_without_grounding_marks_limited_lane():
@@ -95,6 +147,7 @@ def test_build_company_discovery_queries_uses_theme_and_unresolved_rows():
     assert all(query["sources"] == "grounding" for query in queries)
     assert all(query["source_reason"] in {"theme_signal", "needs_more_evidence", "identity_resolution_target"} for query in queries)
     assert all("AI agent security" in query["movement"] for query in queries)
+    assert all(query["query_family"] in {"official_company_page", "funding_launch_article", "exact_row_identity"} for query in queries)
     assert all(any(term in query["topic"].lower() for term in ["startup", "company", "founder", "launch", "yc", "seed"]) for query in queries)
 
 
@@ -160,13 +213,15 @@ def test_collect_company_discovery_budget_records_skipped_queries_and_partial(tm
     assert result["runtime_ledger"]["completed_queries"] == 1
     assert result["runtime_ledger"]["skipped_queries"] >= 1
     assert result["runtime_ledger"]["skip_reasons"]["company_discovery_query_budget_exceeded"] >= 1
+    assert result["runtime_ledger"]["query_events"][0]["query_family"] == "official_company_page"
+    assert "priority_score" in result["runtime_ledger"]["query_events"][0]
     assert (tmp_path / "company-discovery.json").exists()
 
 
 def test_collect_company_discovery_uses_query_cache_before_live_call(tmp_path):
     from radar_company_discovery import DiscoveryRunBudget, _query_cache_path, collect_company_discovery
 
-    topic = "AI agent security startups Seed Series A founder launch"
+    topic = "AI agent security startup company platform official Cybersecurity"
     cache_path = _query_cache_path(tmp_path, topic)
     cache_path.parent.mkdir(parents=True, exist_ok=True)
     cache_path.write_text(
@@ -235,6 +290,21 @@ def test_discovery_query_priority_prefers_hot_identity_gaps_over_generic_queries
     assert prioritized[1]["query_priority"]["generic_penalty"] > 0
 
 
+def test_discovery_source_eval_fixture_matches_expected_labels():
+    from pathlib import Path
+
+    from radar_company_discovery import build_discovery_source_eval_report
+
+    fixture = Path(__file__).parent / "fixtures" / "company_discovery_source_eval.json"
+    report = build_discovery_source_eval_report(json.loads(fixture.read_text())["items"])
+
+    assert report["total"] >= 8
+    assert report["matched"] == report["total"]
+    assert report["mismatches"] == []
+    assert report["expected_counts"]["official_company_page"] == 1
+    assert report["expected_counts"]["funding_press_release"] == 1
+
+
 def test_build_company_discovery_queries_skips_execution_without_grounding():
     from radar_company_discovery import build_company_discovery_queries
 
@@ -270,6 +340,48 @@ def test_weak_unclassified_row_does_not_generate_discovery_query():
     )
 
     assert queries == []
+
+
+def test_github_only_project_row_seeds_movement_queries_not_exact_identity_query():
+    from radar_company_discovery import build_company_discovery_queries
+    from radar_models import Candidate, FocusItem
+
+    focus = FocusItem(
+        id="agentshield",
+        name="affaan-m/agentshield",
+        market_movement="AI agent security",
+        market_sector="Cybersecurity",
+        project_url="https://github.com/affaan-m/agentshield",
+        missing_evidence=["no verified domain", "no founder identity"],
+        evidence_urls=["https://github.com/affaan-m/agentshield"],
+        recommended_action="Research deeper",
+        noise_risk_score=40,
+        why_focus_this_week="AI agent security scanner for MCP permissions.",
+    )
+    candidate = Candidate(
+        name="affaan-m/agentshield",
+        sector="Cybersecurity",
+        theme="AI agent security",
+        source="https://github.com/affaan-m/agentshield",
+        candidate_type="oss_project",
+        stable_key="agentshield",
+        why_on_radar="AI agent security scanner for MCP permissions.",
+        sources=["https://github.com/affaan-m/agentshield"],
+        missing_identity_evidence=["no verified domain"],
+    )
+
+    queries = build_company_discovery_queries(
+        [],
+        focus_items=[focus],
+        unresolved_candidates=[candidate],
+        grounded_available=True,
+        social_available=False,
+    )
+
+    assert queries
+    assert "exact_row_identity" not in {query["query_family"] for query in queries}
+    assert {query["query_family"] for query in queries} == {"official_company_page", "funding_launch_article"}
+    assert all("affaan-m/agentshield" not in query["topic"] for query in queries)
 
 
 def test_collect_company_discovery_annotates_and_dedupes_items():
@@ -308,7 +420,7 @@ def test_collect_company_discovery_annotates_and_dedupes_items():
     )
 
     assert seen_topics == [
-        "AI agent security startups Seed Series A founder launch",
+        "AI agent security startup company platform official Cybersecurity",
         '"AgentFence" funding valuation acquisition Series C',
     ]
     assert len(result["items"]) == 1
@@ -852,7 +964,7 @@ def test_collect_company_discovery_verifies_article_company_with_exact_query():
 
     def fake_query(topic, **kwargs):
         calls.append(topic)
-        if "official" in topic:
+        if topic == '"Straiker" "AI agent security" official':
             assert topic == '"Straiker" "AI agent security" official'
             return {
                 "items": [
@@ -886,7 +998,7 @@ def test_collect_company_discovery_verifies_article_company_with_exact_query():
     )
 
     assert calls == [
-        "AI agent security startups Seed Series A founder launch",
+        "AI agent security startup company platform official Cybersecurity",
         '"Straiker" "AI agent security" official',
         '"Straiker" funding valuation acquisition Series C',
     ]
@@ -910,7 +1022,7 @@ def test_collect_company_discovery_uses_article_detail_before_exact_verification
 
     def fake_query(topic, **kwargs):
         calls.append(topic)
-        if "official" in topic:
+        if topic == '"Straiker" "AI agent security" official':
             assert topic == '"Straiker" "AI agent security" official'
             return {
                 "items": [
@@ -954,7 +1066,7 @@ def test_collect_company_discovery_uses_article_detail_before_exact_verification
 
     assert fetched == ["https://www.forbes.com/sites/example/straiker-ai-agents/"]
     assert calls == [
-        "AI agent security startups Seed Series A founder launch",
+        "AI agent security startup company platform official Cybersecurity",
         '"Straiker" "AI agent security" official',
         '"Straiker" funding valuation acquisition Series C',
     ]
@@ -970,7 +1082,7 @@ def test_article_detail_company_without_verified_domain_is_rejected():
     from radar_company_discovery import collect_company_discovery
 
     def fake_query(topic, **kwargs):
-        if "official" in topic:
+        if topic == '"Straiker" "AI agent security" official':
             return {
                 "items": [
                     {
@@ -1013,7 +1125,7 @@ def test_publisher_article_without_verified_domain_is_rejected_cleanly():
     from radar_company_discovery import collect_company_discovery
 
     def fake_query(topic, **kwargs):
-        if "official" in topic:
+        if topic == '"Straiker" "AI agent security" official':
             return {
                 "items": [
                     {
@@ -1057,7 +1169,7 @@ def test_acquisition_article_is_marked_likely_too_late():
     from radar_company_discovery import collect_company_discovery
 
     def fake_query(topic, **kwargs):
-        if "official" in topic:
+        if topic == '"AgentSecure" "AI agent security" official':
             return {
                 "items": [
                     {
@@ -1150,7 +1262,7 @@ def test_collect_company_discovery_routes_n8n_series_c_as_category_context():
     )
 
     assert calls == [
-        "Devtools workflow automation startup company founder launch Devtools",
+        "Devtools workflow automation startup company platform official Devtools",
         '"n8n.io" funding valuation acquisition Series C',
     ]
     lead = result["accepted_leads"][0]

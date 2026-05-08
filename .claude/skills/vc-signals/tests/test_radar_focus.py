@@ -641,6 +641,26 @@ def test_consumer_gaming_automation_does_not_enter_partner_focus():
     assert any(row["name"] == "Ronchy2000/epic-freebies-helper" for row in artifact.appendix["filtered_or_noisy"])
 
 
+def test_source_gaps_distinguish_bounded_validation_timeouts():
+    from radar_focus import build_weekly_focus_artifact
+    from radar_models import SectorIntelligence
+
+    artifact = build_weekly_focus_artifact(
+        candidates=[],
+        sector_intelligence=[
+            SectorIntelligence(
+                market_sector="Devtools",
+                source_errors=["last30days query timed out (75s)"],
+            )
+        ],
+        source_gap_context="bounded_validation",
+        run_id="2026-05-11",
+    )
+
+    assert "bounded validation profile" in artifact.source_gaps[1]
+    assert "true source failure" not in artifact.source_gaps[1]
+
+
 def test_render_weekly_focus_markdown_has_executive_snapshot_and_compact_basis():
     from radar_focus import build_weekly_focus_artifact, render_weekly_focus_markdown
 
