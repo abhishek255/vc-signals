@@ -262,6 +262,107 @@ def test_collect_company_discovery_uses_query_cache_before_live_call(tmp_path):
     assert result["items"][0]["company_name"] == "AgentFence"
 
 
+def test_collect_company_discovery_uses_cached_maturity_before_live_budget(tmp_path):
+    from radar_company_discovery import DiscoveryRunBudget, _query_cache_path, collect_company_discovery
+    from radar_models import ThemeSignal
+
+    maturity_topic = '"n8n" funding valuation acquisition Series C'
+    cache_path = _query_cache_path(tmp_path, maturity_topic)
+    cache_path.parent.mkdir(parents=True, exist_ok=True)
+    cache_path.write_text(
+        json.dumps(
+            {
+                "items": [
+                    {
+                        "source": "grounding",
+                        "title": "n8n raises $180m to get AI closer to value with orchestration",
+                        "url": "https://blog.n8n.io/series-c/",
+                        "snippet": "n8n raised $180 million in Series C funding at a $2.5 billion valuation.",
+                    }
+                ],
+                "warnings": [],
+            }
+        )
+    )
+
+    def fake_query(topic, **kwargs):
+        if "funding valuation acquisition Series C" in topic:  # pragma: no cover - cache should prevent this
+            raise AssertionError("live maturity query should not run when maturity cache is fresh")
+        return {
+            "items": [
+                {
+                    "source": "grounding",
+                    "title": "n8n.io - AI workflow automation platform",
+                    "url": "https://n8n.io/",
+                    "snippet": "AI workflow automation for technical teams.",
+                }
+            ],
+            "warnings": [],
+        }
+
+    result = collect_company_discovery(
+        [
+            ThemeSignal(
+                market_sector="Devtools",
+                theme="Devtools workflow automation",
+                evidence_count=3,
+                suggested_search="Devtools workflow automation startup company founder launch Devtools",
+                confidence="Medium",
+            )
+        ],
+        query_runner=fake_query,
+        grounded_available=True,
+        social_available=False,
+        max_queries_per_theme=1,
+        run_budget=DiscoveryRunBudget.for_mode("smoke", max_maturity_queries=0),
+        query_cache_dir=tmp_path,
+    )
+
+    lead = result["accepted_leads"][0]
+    assert result["summary"]["maturity_queries_run"] == 0
+    assert result["summary"]["maturity_cache_hits"] == 1
+    assert lead["maturity_status"] == "likely_too_late"
+    assert "series_c_or_later" in lead["maturity_basis"]
+    assert lead["lead_route"] == "category_context"
+
+
+def test_maturity_budget_exceeded_records_explicit_unknown_basis():
+    from radar_company_discovery import DiscoveryRunBudget, collect_company_discovery
+
+    def fake_query(topic, **kwargs):
+        if "funding valuation acquisition Series C" in topic:  # pragma: no cover - budget should prevent this
+            raise AssertionError("live maturity query should not run when maturity budget is exhausted")
+        return {
+            "items": [
+                {
+                    "source": "grounding",
+                    "title": "AgentFence launches AI agent permission firewall",
+                    "url": "https://agentfence.dev/",
+                    "snippet": "AgentFence helps security teams control AI agent tool permissions.",
+                    "company_name": "AgentFence",
+                    "domain": "agentfence.dev",
+                }
+            ],
+            "warnings": [],
+        }
+
+    result = collect_company_discovery(
+        [_theme_signal()],
+        query_runner=fake_query,
+        grounded_available=True,
+        social_available=False,
+        max_queries_per_theme=1,
+        run_budget=DiscoveryRunBudget.for_mode("smoke", max_maturity_queries=0),
+    )
+
+    lead = result["accepted_leads"][0]
+    diagnostic = result["query_diagnostics"][0]
+    assert lead["maturity_status"] == "unknown"
+    assert lead["lead_route"] == "research_deeper"
+    assert "maturity_not_verified_budget_exceeded" in lead["maturity_basis"]
+    assert diagnostic["skip_reason_counts"]["maturity_query_budget_exceeded"] == 1
+
+
 def test_discovery_query_priority_prefers_hot_identity_gaps_over_generic_queries():
     from radar_company_discovery import prioritize_discovery_queries
 
@@ -1264,7 +1365,7 @@ def test_collect_company_discovery_routes_n8n_series_c_as_category_context():
     def fake_query(topic, **kwargs):
         calls.append(topic)
         if "funding valuation acquisition Series C" in topic:
-            assert topic == '"n8n.io" funding valuation acquisition Series C'
+            assert topic == '"n8n" funding valuation acquisition Series C'
             return {
                 "items": [
                     {
@@ -1306,7 +1407,7 @@ def test_collect_company_discovery_routes_n8n_series_c_as_category_context():
 
     assert calls == [
         "Devtools workflow automation startup company platform official Devtools",
-        '"n8n.io" funding valuation acquisition Series C',
+        '"n8n" funding valuation acquisition Series C',
     ]
     lead = result["accepted_leads"][0]
     item = result["items"][0]
@@ -1321,7 +1422,7 @@ def test_collect_company_discovery_routes_n8n_series_c_as_category_context():
 
 
 def test_maturity_lookup_uses_clean_company_name_not_page_title():
-    from radar_company_discovery import _maturity_query, _maturity_lookup_name
+    from radar_company_discovery import _maturity_lookup_name, _maturity_query_for_lead
     from radar_models import VerifiedCompanyDiscoveryLead
 
     n8n = VerifiedCompanyDiscoveryLead(
@@ -1338,9 +1439,29 @@ def test_maturity_lookup_uses_clean_company_name_not_page_title():
         source_url="https://genai.owasp.org/",
         domain="genai.owasp.org",
     )
+    entro = VerifiedCompanyDiscoveryLead(
+        name="Agentic AI & Non-Human Identity Security Platform | Entro Security",
+        movement="AI agent security",
+        market_sector="Cybersecurity",
+        source_url="https://entro.security/",
+        domain="entro.security",
+    )
+    seven_ai = VerifiedCompanyDiscoveryLead(
+        name="AI SOC Agents & Agentic Security Platform | 7AI",
+        movement="AI agent security",
+        market_sector="Cybersecurity",
+        source_url="https://7ai.com/",
+        domain="7ai.com",
+    )
 
-    assert _maturity_query(_maturity_lookup_name(n8n)) == '"n8n.io" funding valuation acquisition Series C'
-    assert _maturity_query(_maturity_lookup_name(owasp)) == '"OWASP Gen AI Security Project" funding valuation acquisition Series C'
+    assert _maturity_lookup_name(n8n) == "n8n"
+    assert _maturity_query_for_lead(n8n) == '"n8n" funding valuation acquisition Series C'
+    assert _maturity_lookup_name(owasp) == "OWASP Gen AI Security Project"
+    assert _maturity_query_for_lead(owasp) == '"OWASP Gen AI Security Project" funding valuation acquisition Series C'
+    assert _maturity_lookup_name(entro) == "Entro Security"
+    assert _maturity_query_for_lead(entro) == '"Entro Security" funding valuation acquisition Series C'
+    assert _maturity_lookup_name(seven_ai) == "7AI"
+    assert _maturity_query_for_lead(seven_ai) == '"7AI" funding valuation acquisition Series C'
 
 
 def test_collect_company_discovery_keeps_seed_company_as_sourcing_candidate():
@@ -1385,6 +1506,31 @@ def test_collect_company_discovery_keeps_seed_company_as_sourcing_candidate():
     assert lead["maturity_status"] == "seed_to_series_b"
     assert lead["lead_route"] == "sourcing_candidate"
     assert lead["category_anchor"] is False
+
+
+def test_maturity_classification_ignores_unrelated_large_round_in_listicle():
+    from radar_company_discovery import _classify_maturity_from_items
+
+    maturity = _classify_maturity_from_items(
+        [
+            {
+                "title": "Copperhelm Emerges from Stealth with $7M Seed Funding",
+                "url": "https://www.prnewswire.com/news-releases/copperhelm-emerges-from-stealth.html",
+                "snippet": "Copperhelm announced $7 million in seed funding for agentic cloud security.",
+            },
+            {
+                "title": "Full list of Israeli high-tech funding rounds in 2026",
+                "url": "https://www.calcalistech.com/ctechnews/article/rq8lzbs4c",
+                "snippet": "Food delivery startup Haat raises $20 million at $100 million valuation.",
+            },
+        ],
+        company_name="Copperhelm",
+        domain="copperhelm.com",
+    )
+
+    assert maturity["maturity_status"] == "seed_to_series_b"
+    assert maturity["lead_route"] == "sourcing_candidate"
+    assert "large_round_or_valuation" not in maturity["maturity_basis"]
 
 
 def test_collect_company_discovery_unknown_maturity_routes_research_deeper():

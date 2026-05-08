@@ -570,6 +570,8 @@ def collect_company_discovery(
             "provider_items_seen": 0,
             "cache_hits": 0,
             "stale_cache_hits": 0,
+            "maturity_cache_hits": 0,
+            "stale_maturity_cache_hits": 0,
             "live_calls": 0,
             "partial": False,
             "budget_exceeded": False,
@@ -736,6 +738,7 @@ def collect_company_discovery(
                     diagnostic,
                     run_budget,
                     ledger,
+                    query_cache_dir,
                 )
                 accepted_leads.append(lead.to_dict())
                 items.append(_lead_to_item(lead))
@@ -772,6 +775,7 @@ def collect_company_discovery(
                             diagnostic,
                             run_budget,
                             ledger,
+                            query_cache_dir,
                         )
                         accepted_leads.append(article_lead.to_dict())
                         items.append(_lead_to_item(article_lead))
@@ -909,23 +913,33 @@ def _maybe_verify_lead_maturity(
     diagnostic: dict,
     run_budget: DiscoveryRunBudget,
     ledger: RuntimeLedger,
+    query_cache_dir: Path | None,
 ) -> VerifiedCompanyDiscoveryLead:
+    live_block_reason = ""
     if run_budget.max_maturity_queries is not None and result["summary"]["maturity_queries_run"] >= run_budget.max_maturity_queries:
-        ledger.record_skip(query, "maturity_query_budget_exceeded")
-        _increment_count(diagnostic["skip_reason_counts"], "maturity_query_budget_exceeded")
-        return lead
-    if _runtime_budget_exceeded(ledger, run_budget):
-        ledger.record_skip(query, "max_runtime_seconds_exceeded")
-        _increment_count(diagnostic["skip_reason_counts"], "max_runtime_seconds_exceeded")
-        return lead
+        live_block_reason = "maturity_query_budget_exceeded"
+    elif _runtime_budget_exceeded(ledger, run_budget):
+        live_block_reason = "max_runtime_seconds_exceeded"
 
-    lead, maturity_warnings, maturity_errors, maturity_queries = _verify_lead_maturity(
+    lead, maturity_warnings, maturity_errors, maturity_queries, maturity_cache_status = _verify_lead_maturity(
         lead,
         query,
         query_runner,
         maturity_cache,
+        query_cache_dir=query_cache_dir,
+        ttl_seconds=run_budget.query_cache_ttl_seconds,
+        allow_stale_cache=run_budget.allow_stale_cache,
+        allow_live=not live_block_reason,
+        live_block_reason=live_block_reason,
         timeout_seconds=ledger.remaining_seconds(run_budget),
     )
+    if maturity_cache_status in {"fresh", "stale"}:
+        result["summary"]["maturity_cache_hits"] += 1
+        if maturity_cache_status == "stale":
+            result["summary"]["stale_maturity_cache_hits"] += 1
+    elif live_block_reason and maturity_cache_status == "skipped":
+        ledger.record_skip(query, live_block_reason)
+        _increment_count(diagnostic["skip_reason_counts"], live_block_reason)
     result["summary"]["maturity_queries_run"] += maturity_queries
     diagnostic["maturity_queries_run"] += maturity_queries
     if maturity_queries:
@@ -1405,14 +1419,47 @@ def _verify_lead_maturity(
     query: dict,
     query_runner: Callable,
     maturity_cache: dict[str, dict] | None = None,
+    *,
+    query_cache_dir: Path | None = None,
+    ttl_seconds: int = 24 * 60 * 60,
+    allow_stale_cache: bool = True,
+    allow_live: bool = True,
+    live_block_reason: str = "",
     timeout_seconds: int | None = None,
-) -> tuple[VerifiedCompanyDiscoveryLead, list[str], list[str], int]:
+) -> tuple[VerifiedCompanyDiscoveryLead, list[str], list[str], int, str]:
     """Run one exact-name maturity lookup for accepted company leads."""
     lookup_name = _maturity_lookup_name(lead)
     topic = _maturity_query(lookup_name)
-    cache_key = lookup_name.strip().lower()
+    cache_key = topic.strip().lower()
     if maturity_cache is not None and cache_key in maturity_cache:
-        return _apply_maturity_to_lead(lead, maturity_cache[cache_key]), [], [], 0
+        return _apply_maturity_to_lead(lead, maturity_cache[cache_key]), [], [], 0, "memory"
+
+    cache_payload, cache_status = _read_query_cache(
+        query_cache_dir,
+        topic,
+        ttl_seconds=ttl_seconds,
+        allow_stale=allow_stale_cache,
+    )
+    if cache_payload is not None:
+        maturity = _classify_maturity_from_items(
+            cache_payload.get("items", []),
+            fallback_likely_too_late=lead.likely_too_late,
+            company_name=lookup_name,
+            domain=lead.domain,
+        )
+        if maturity_cache is not None:
+            maturity_cache[cache_key] = maturity
+        warnings = list(cache_payload.get("warnings", []))
+        if cache_status == "stale":
+            warnings.append(f"Using stale cached maturity verification result for: {topic}")
+        return _apply_maturity_to_lead(lead, maturity), warnings, [], 0, cache_status
+
+    if not allow_live:
+        maturity = _unknown_maturity(_maturity_block_basis(live_block_reason))
+        if maturity_cache is not None:
+            maturity_cache[cache_key] = maturity
+        return _apply_maturity_to_lead(lead, maturity), [], [], 0, "skipped"
+
     warnings: list[str] = []
     errors: list[str] = []
     try:
@@ -1429,7 +1476,9 @@ def _verify_lead_maturity(
         maturity = _unknown_maturity()
         if maturity_cache is not None:
             maturity_cache[cache_key] = maturity
-        return _apply_maturity_to_lead(lead, maturity), warnings, [f"maturity-verification: {exc}"], 1
+        return _apply_maturity_to_lead(lead, maturity), warnings, [f"maturity-verification: {exc}"], 1, "miss"
+
+    _write_query_cache(query_cache_dir, topic, payload)
 
     warnings.extend(payload.get("warnings", []))
     if payload.get("error"):
@@ -1437,48 +1486,87 @@ def _verify_lead_maturity(
     for source_name, source_error in (payload.get("errors_by_source") or {}).items():
         errors.append(f"maturity-{source_name}: {source_error}")
 
-    maturity = _classify_maturity_from_items(payload.get("items", []), fallback_likely_too_late=lead.likely_too_late)
+    maturity = _classify_maturity_from_items(
+        payload.get("items", []),
+        fallback_likely_too_late=lead.likely_too_late,
+        company_name=lookup_name,
+        domain=lead.domain,
+    )
     if maturity_cache is not None:
         maturity_cache[cache_key] = maturity
-    return _apply_maturity_to_lead(lead, maturity), warnings, errors, 1
+    return _apply_maturity_to_lead(lead, maturity), warnings, errors, 1, "miss"
+
+
+def _maturity_query_for_lead(lead: VerifiedCompanyDiscoveryLead) -> str:
+    return _maturity_query(_maturity_lookup_name(lead))
 
 
 def _maturity_query(company_name: str) -> str:
     return f'"{company_name}" funding valuation acquisition Series C'
 
 
+def _maturity_block_basis(reason: str) -> str:
+    if reason == "maturity_query_budget_exceeded":
+        return "maturity_not_verified_budget_exceeded"
+    if reason == "max_runtime_seconds_exceeded":
+        return "maturity_not_verified_runtime_exceeded"
+    return "maturity_not_verified_live_blocked"
+
+
 def _maturity_lookup_name(lead: VerifiedCompanyDiscoveryLead) -> str:
     """Return the most company-like exact name for maturity verification."""
+    domain = _normalize_domain(lead.domain)
     for candidate in (lead.extracted_company_name, lead.name):
-        cleaned = _clean_maturity_name(candidate or "")
+        cleaned = _clean_maturity_name(candidate or "", domain=domain)
         if cleaned:
             return cleaned
-    if lead.domain:
-        return lead.domain.split(".")[0]
+    if domain:
+        return domain.split(".")[0]
     return lead.name
 
 
-def _clean_maturity_name(value: str) -> str:
+def _clean_maturity_name(value: str, *, domain: str = "") -> str:
     cleaned = _clean_text(value)
     if not cleaned:
         return ""
+    domain_brand = domain.split(".")[0] if domain else ""
+    domain_brand_key = _maturity_key(domain_brand)
     for separator in (" | ", " - ", " – ", " — ", ": "):
         if separator in cleaned:
             parts = [_clean_text(part) for part in cleaned.split(separator) if _clean_text(part)]
+            if domain_brand_key:
+                for part in parts:
+                    part_key = _maturity_key(part)
+                    if domain_brand_key and domain_brand_key in part_key:
+                        return _domain_name_to_brand(part) or part[:80]
             for part in parts:
                 lowered = part.lower()
                 if lowered in {"home", "homepage", "official site", "website"}:
                     continue
                 if len(part) >= 2:
-                    return part
+                    return (_domain_name_to_brand(part) or part)[:80]
     cleaned = re.sub(r"^(home|homepage)\s+", "", cleaned, flags=re.IGNORECASE).strip()
-    return cleaned[:80]
+    return (_domain_name_to_brand(cleaned) or cleaned)[:80]
 
 
-def _unknown_maturity() -> dict:
+def _maturity_key(value: str) -> str:
+    return re.sub(r"[^a-z0-9]", "", (value or "").lower())
+
+
+def _domain_name_to_brand(value: str) -> str:
+    candidate = _clean_text(value).lower()
+    if not candidate or " " in candidate:
+        return ""
+    domain = _normalize_domain(candidate)
+    if "." not in candidate or not domain:
+        return ""
+    return domain.split(".")[0]
+
+
+def _unknown_maturity(reason: str = "maturity_not_verified") -> dict:
     return {
         "maturity_status": "unknown",
-        "maturity_basis": ["maturity_not_verified"],
+        "maturity_basis": [reason],
         "maturity_evidence_urls": [],
         "category_anchor": False,
         "consensus_risk_reason": "",
@@ -1487,11 +1575,19 @@ def _unknown_maturity() -> dict:
     }
 
 
-def _classify_maturity_from_items(items: list[dict], *, fallback_likely_too_late: bool = False) -> dict:
+def _classify_maturity_from_items(
+    items: list[dict],
+    *,
+    fallback_likely_too_late: bool = False,
+    company_name: str = "",
+    domain: str = "",
+) -> dict:
     evidence_urls: list[str] = []
     basis: list[str] = []
     combined_parts: list[str] = []
     for item in items or []:
+        if (company_name or domain) and not _maturity_item_matches_company(item, company_name=company_name, domain=domain):
+            continue
         title = item.get("title") or ""
         snippet = item.get("snippet") or item.get("description") or ""
         url = item.get("url") or item.get("source_url") or ""
@@ -1539,6 +1635,25 @@ def _classify_maturity_from_items(items: list[dict], *, fallback_likely_too_late
         }
 
     return _unknown_maturity()
+
+
+def _maturity_item_matches_company(item: dict, *, company_name: str = "", domain: str = "") -> bool:
+    title = item.get("title") or ""
+    snippet = item.get("snippet") or item.get("description") or ""
+    url = item.get("url") or item.get("source_url") or ""
+    item_domain = _domain_from_url(url)
+    normalized_domain = _normalize_domain(domain)
+    domain_brand = normalized_domain.split(".")[0] if normalized_domain else ""
+    text_key = _maturity_key(f"{title} {snippet} {url}")
+    company_key = _maturity_key(company_name)
+    domain_key = _maturity_key(normalized_domain)
+    domain_brand_key = _maturity_key(domain_brand)
+    if normalized_domain and (item_domain == normalized_domain or item_domain.endswith(f".{normalized_domain}")):
+        return True
+    for key in (company_key, domain_key, domain_brand_key):
+        if key and len(key) >= 3 and key in text_key:
+            return True
+    return False
 
 
 def _has_large_money_signal(text: str) -> bool:
