@@ -671,6 +671,75 @@ def test_render_weekly_focus_markdown_has_executive_snapshot_and_compact_basis()
     assert "Missing Evidence" in markdown
 
 
+def test_likely_too_late_candidate_cannot_be_assign_owner():
+    from radar_focus import ACTION_MONITOR_ONLY, build_focus_item
+
+    item = build_focus_item(
+        _candidate(
+            name="n8n.io - AI workflow automation platform",
+            sector="Devtools",
+            market_sector="Devtools",
+            theme="Devtools workflow automation",
+            source="https://n8n.io/",
+            sources=["https://n8n.io/"],
+            candidate_type="company_web",
+            domain="n8n.io",
+            identity_type="verified_company",
+            attio_status="no_owner",
+            attio_safe_to_match=True,
+            recommended_identity_action="Assign owner",
+            evidence_confidence_score=70,
+            maintainer_profiles=[],
+            maturity_status="likely_too_late",
+            maturity_basis=["series_c_or_later", "large_round_or_valuation"],
+            maturity_evidence_urls=["https://blog.n8n.io/series-c/"],
+            category_anchor=True,
+            lead_route="category_context",
+        )
+    )
+
+    assert item.recommended_action == ACTION_MONITOR_ONLY
+    assert item.lead_route == "category_context"
+    assert item.category_anchor is True
+
+
+def test_category_context_contributes_market_movement_without_new_to_marathon():
+    from radar_focus import build_weekly_focus_artifact
+
+    artifact = build_weekly_focus_artifact(
+        candidates=[
+            _candidate(
+                name="n8n.io - AI workflow automation platform",
+                sector="Devtools",
+                market_sector="Devtools",
+                theme="Devtools workflow automation",
+                source="https://n8n.io/",
+                sources=["https://n8n.io/"],
+                candidate_type="company_web",
+                domain="n8n.io",
+                identity_type="verified_company",
+                attio_status="no_match",
+                attio_safe_to_match=True,
+                recommended_identity_action="Assign owner",
+                evidence_confidence_score=70,
+                maintainer_profiles=[],
+                why_on_radar="n8n validates AI workflow automation demand.",
+                maturity_status="likely_too_late",
+                maturity_basis=["series_c_or_later", "large_round_or_valuation"],
+                maturity_evidence_urls=["https://blog.n8n.io/series-c/"],
+                category_anchor=True,
+                lead_route="category_context",
+            )
+        ],
+        run_id="2026-05-08",
+    )
+
+    assert artifact.new_to_marathon == []
+    assert artifact.market_movements
+    assert "n8n.io - AI workflow automation platform" in artifact.market_movements[0].companies_or_projects
+    assert artifact.appendix["category_context"][0]["name"] == "n8n.io - AI workflow automation platform"
+
+
 def test_render_weekly_focus_markdown_qualifies_market_movement_headings():
     from radar_focus import build_weekly_focus_artifact, render_weekly_focus_markdown
 

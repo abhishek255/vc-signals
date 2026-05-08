@@ -974,6 +974,12 @@ def _candidate_from_signal(signal) -> Candidate | None:
         founder_profiles=_founder_profiles_from_item(item),
         engagement=item.get("engagement", {}),
         action=item.get("action") or ("watch" if signal.role == "oss_project" else "assign owner"),
+        maturity_status=item.get("maturity_status") or "unknown",
+        maturity_basis=list(item.get("maturity_basis") or []),
+        maturity_evidence_urls=list(item.get("maturity_evidence_urls") or []),
+        category_anchor=bool(item.get("category_anchor")),
+        consensus_risk_reason=item.get("consensus_risk_reason", ""),
+        lead_route=item.get("lead_route") or "research_deeper",
     )
     source_lane = item.get("source_lane") or ("OSS" if signal.role == "oss_project" else signal.source)
     sector_classification = classify_market_sector(
@@ -1090,6 +1096,19 @@ def _merge_candidate_model(existing: Candidate, candidate: Candidate) -> None:
         existing.company_linkedin = candidate.company_linkedin
     if not existing.company_x and candidate.company_x:
         existing.company_x = candidate.company_x
+    if candidate.category_anchor or candidate.lead_route in {"category_context", "monitor_only"}:
+        existing.maturity_status = candidate.maturity_status
+        existing.maturity_basis = list(candidate.maturity_basis)
+        existing.maturity_evidence_urls = list(candidate.maturity_evidence_urls)
+        existing.category_anchor = candidate.category_anchor
+        existing.consensus_risk_reason = candidate.consensus_risk_reason
+        existing.lead_route = candidate.lead_route
+    elif existing.lead_route == "research_deeper" and candidate.lead_route:
+        existing.maturity_status = candidate.maturity_status
+        existing.maturity_basis = list(candidate.maturity_basis)
+        existing.maturity_evidence_urls = list(candidate.maturity_evidence_urls)
+        existing.consensus_risk_reason = candidate.consensus_risk_reason
+        existing.lead_route = candidate.lead_route
     seen = {(profile.get("name"), profile.get("linkedin"), profile.get("x"), profile.get("github")) for profile in existing.founder_profiles}
     for profile in candidate.founder_profiles:
         key = (profile.get("name"), profile.get("linkedin"), profile.get("x"), profile.get("github"))

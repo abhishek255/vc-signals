@@ -1248,6 +1248,8 @@ def test_run_weekly_artifacts_saves_raw_and_preview(tmp_path, monkeypatch):
     saved_history = {}
     monkeypatch.setattr(radar_run, "save_candidate_history", lambda history: saved_history.update(history))
     monkeypatch.setattr(radar_run, "apply_candidate_enrichment", lambda candidates: candidates)
+    monkeypatch.setattr(radar_run, "_grounded_search_available", lambda: False)
+    monkeypatch.setattr(radar_run, "run_query", None)
 
     result = radar_run.run_weekly_artifacts(
         output_dir=tmp_path,
@@ -1295,6 +1297,8 @@ def test_run_weekly_artifacts_writes_weekly_focus_without_replacing_preview(tmp_
     monkeypatch.setattr(radar_run, "load_candidate_history", lambda: {})
     monkeypatch.setattr(radar_run, "save_candidate_history", lambda history: None)
     monkeypatch.setattr(radar_run, "apply_candidate_enrichment", lambda candidates: candidates)
+    monkeypatch.setattr(radar_run, "_grounded_search_available", lambda: False)
+    monkeypatch.setattr(radar_run, "run_query", None)
 
     result = radar_run.run_weekly_artifacts(
         output_dir=tmp_path,
@@ -1339,6 +1343,8 @@ def test_run_weekly_artifacts_writes_identity_resolution_artifact(tmp_path, monk
     monkeypatch.setattr(radar_run, "load_candidate_history", lambda: {})
     monkeypatch.setattr(radar_run, "save_candidate_history", lambda history: None)
     monkeypatch.setattr(radar_run, "apply_candidate_enrichment", lambda candidates: candidates)
+    monkeypatch.setattr(radar_run, "_grounded_search_available", lambda: False)
+    monkeypatch.setattr(radar_run, "run_query", None)
 
     def fake_apply_identity_resolution(candidates):
         return candidates, [
@@ -1426,6 +1432,8 @@ def test_run_weekly_artifacts_saves_signals_candidates_and_sector_coverage(tmp_p
     monkeypatch.setattr(radar_run, "load_candidate_history", lambda: {})
     monkeypatch.setattr(radar_run, "save_candidate_history", lambda history: None)
     monkeypatch.setattr(radar_run, "apply_candidate_enrichment", lambda candidates: candidates)
+    monkeypatch.setattr(radar_run, "_grounded_search_available", lambda: False)
+    monkeypatch.setattr(radar_run, "run_query", None)
 
     result = radar_run.run_weekly_artifacts(output_dir=tmp_path, sectors=("data-infra", "oss"), github_limit=0)
     assert (tmp_path / "signals.json").exists()

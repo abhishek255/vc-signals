@@ -239,6 +239,7 @@ def collect_company_discovery(
         "summary": {
             "queries_run": 0,
             "verification_queries_run": 0,
+            "maturity_queries_run": 0,
             "article_fetches_attempted": 0,
             "provider_items_seen": 0,
             "source_type_counts": {},
@@ -266,6 +267,7 @@ def collect_company_discovery(
     items = []
     accepted_leads = []
     rejected_leads = []
+    maturity_cache: dict[str, dict] = {}
     for query in queries:
         diagnostic = _query_diagnostic(query)
         result["query_diagnostics"].append(diagnostic)
@@ -327,6 +329,16 @@ def collect_company_discovery(
             enriched.setdefault("discovery_lane", "controlled_company_discovery")
             lead = verify_discovery_item(enriched, query)
             if lead.verification_status == "accepted":
+                lead, maturity_warnings, maturity_errors, maturity_queries = _verify_lead_maturity(lead, query, query_runner, maturity_cache)
+                result["summary"]["maturity_queries_run"] += maturity_queries
+                diagnostic["maturity_queries_run"] += maturity_queries
+                for warning in maturity_warnings:
+                    if warning not in diagnostic["warnings"]:
+                        diagnostic["warnings"].append(warning)
+                    if warning not in result["warnings"]:
+                        result["warnings"].append(warning)
+                result["errors"].extend(maturity_errors)
+                diagnostic["errors"].extend(maturity_errors)
                 accepted_leads.append(lead.to_dict())
                 items.append(_lead_to_item(lead))
                 diagnostic["accepted_count"] += 1
@@ -353,6 +365,16 @@ def collect_company_discovery(
                 diagnostic["errors"].extend(article_errors)
                 if article_lead:
                     if article_lead.verification_status == "accepted":
+                        article_lead, maturity_warnings, maturity_errors, maturity_queries = _verify_lead_maturity(article_lead, query, query_runner, maturity_cache)
+                        result["summary"]["maturity_queries_run"] += maturity_queries
+                        diagnostic["maturity_queries_run"] += maturity_queries
+                        for warning in maturity_warnings:
+                            if warning not in diagnostic["warnings"]:
+                                diagnostic["warnings"].append(warning)
+                            if warning not in result["warnings"]:
+                                result["warnings"].append(warning)
+                        result["errors"].extend(maturity_errors)
+                        diagnostic["errors"].extend(maturity_errors)
                         accepted_leads.append(article_lead.to_dict())
                         items.append(_lead_to_item(article_lead))
                         diagnostic["accepted_count"] += 1
@@ -457,7 +479,13 @@ def _lead_to_item(lead: VerifiedCompanyDiscoveryLead) -> dict:
         "supporting_evidence_urls": lead.supporting_evidence_urls,
         "official_domain_verification_url": lead.official_domain_verification_url,
         "likely_too_late": lead.likely_too_late,
-        "action": "likely too late" if lead.likely_too_late else "",
+        "maturity_status": lead.maturity_status,
+        "maturity_basis": lead.maturity_basis,
+        "maturity_evidence_urls": lead.maturity_evidence_urls,
+        "category_anchor": lead.category_anchor,
+        "consensus_risk_reason": lead.consensus_risk_reason,
+        "lead_route": lead.lead_route,
+        "action": "monitor only" if lead.lead_route in {"category_context", "monitor_only"} else "",
     }
 
 
@@ -751,6 +779,171 @@ def _publisher_article_rejection(
         raw_title=title,
         raw_snippet=snippet,
     )
+
+
+def _verify_lead_maturity(
+    lead: VerifiedCompanyDiscoveryLead,
+    query: dict,
+    query_runner: Callable,
+    maturity_cache: dict[str, dict] | None = None,
+) -> tuple[VerifiedCompanyDiscoveryLead, list[str], list[str], int]:
+    """Run one exact-name maturity lookup for accepted company leads."""
+    lookup_name = _maturity_lookup_name(lead)
+    topic = _maturity_query(lookup_name)
+    cache_key = lookup_name.strip().lower()
+    if maturity_cache is not None and cache_key in maturity_cache:
+        return _apply_maturity_to_lead(lead, maturity_cache[cache_key]), [], [], 0
+    warnings: list[str] = []
+    errors: list[str] = []
+    try:
+        payload = query_runner(
+            topic,
+            sources=query.get("sources") or "grounding",
+            lookback_days=query.get("lookback_days", 30),
+            auto_resolve=True,
+            store=True,
+            web_backend=query.get("web_backend") or "auto",
+        )
+    except Exception as exc:  # pragma: no cover - defensive live-provider boundary
+        maturity = _unknown_maturity()
+        if maturity_cache is not None:
+            maturity_cache[cache_key] = maturity
+        return _apply_maturity_to_lead(lead, maturity), warnings, [f"maturity-verification: {exc}"], 1
+
+    warnings.extend(payload.get("warnings", []))
+    if payload.get("error"):
+        errors.append(payload["error"])
+    for source_name, source_error in (payload.get("errors_by_source") or {}).items():
+        errors.append(f"maturity-{source_name}: {source_error}")
+
+    maturity = _classify_maturity_from_items(payload.get("items", []), fallback_likely_too_late=lead.likely_too_late)
+    if maturity_cache is not None:
+        maturity_cache[cache_key] = maturity
+    return _apply_maturity_to_lead(lead, maturity), warnings, errors, 1
+
+
+def _maturity_query(company_name: str) -> str:
+    return f'"{company_name}" funding valuation acquisition Series C'
+
+
+def _maturity_lookup_name(lead: VerifiedCompanyDiscoveryLead) -> str:
+    """Return the most company-like exact name for maturity verification."""
+    for candidate in (lead.extracted_company_name, lead.name):
+        cleaned = _clean_maturity_name(candidate or "")
+        if cleaned:
+            return cleaned
+    if lead.domain:
+        return lead.domain.split(".")[0]
+    return lead.name
+
+
+def _clean_maturity_name(value: str) -> str:
+    cleaned = _clean_text(value)
+    if not cleaned:
+        return ""
+    for separator in (" | ", " - ", " – ", " — ", ": "):
+        if separator in cleaned:
+            parts = [_clean_text(part) for part in cleaned.split(separator) if _clean_text(part)]
+            for part in parts:
+                lowered = part.lower()
+                if lowered in {"home", "homepage", "official site", "website"}:
+                    continue
+                if len(part) >= 2:
+                    return part
+    cleaned = re.sub(r"^(home|homepage)\s+", "", cleaned, flags=re.IGNORECASE).strip()
+    return cleaned[:80]
+
+
+def _unknown_maturity() -> dict:
+    return {
+        "maturity_status": "unknown",
+        "maturity_basis": ["maturity_not_verified"],
+        "maturity_evidence_urls": [],
+        "category_anchor": False,
+        "consensus_risk_reason": "",
+        "lead_route": "research_deeper",
+        "likely_too_late": False,
+    }
+
+
+def _classify_maturity_from_items(items: list[dict], *, fallback_likely_too_late: bool = False) -> dict:
+    evidence_urls: list[str] = []
+    basis: list[str] = []
+    combined_parts: list[str] = []
+    for item in items or []:
+        title = item.get("title") or ""
+        snippet = item.get("snippet") or item.get("description") or ""
+        url = item.get("url") or item.get("source_url") or ""
+        if url:
+            evidence_urls.append(url)
+        combined_parts.append(f"{title} {snippet}")
+    text = " ".join(combined_parts).lower()
+
+    if fallback_likely_too_late:
+        basis.append("article_likely_too_late")
+    if re.search(r"\b(acquires|acquired|acquisition|buys|bought|purchases|purchased)\b", text):
+        basis.append("acquisition_or_incumbent_ownership")
+    if re.search(r"\bseries\s+[cdefg]\b", text):
+        basis.append("series_c_or_later")
+    if _has_large_money_signal(text):
+        basis.append("large_round_or_valuation")
+    if re.search(r"\b(unicorn|category leader|market leader|default platform|incumbent)\b", text):
+        basis.append("category_leader_language")
+    if any(item in basis for item in ("acquisition_or_incumbent_ownership", "series_c_or_later", "large_round_or_valuation", "category_leader_language", "article_likely_too_late")):
+        status = "acquired" if "acquisition_or_incumbent_ownership" in basis else "likely_too_late"
+        return {
+            "maturity_status": status,
+            "maturity_basis": list(dict.fromkeys(basis)),
+            "maturity_evidence_urls": list(dict.fromkeys(evidence_urls)),
+            "category_anchor": True,
+            "consensus_risk_reason": "Late-stage, acquired, high-valuation, or consensus/category-leader evidence.",
+            "lead_route": "monitor_only" if status == "acquired" else "category_context",
+            "likely_too_late": True,
+        }
+
+    early_basis = []
+    if re.search(r"\b(pre[- ]?seed|seed)\b", text):
+        early_basis.append("seed_or_pre_seed")
+    if re.search(r"\bseries\s+[ab]\b", text):
+        early_basis.append("series_a_or_b")
+    if early_basis:
+        return {
+            "maturity_status": "seed_to_series_b",
+            "maturity_basis": early_basis,
+            "maturity_evidence_urls": list(dict.fromkeys(evidence_urls)),
+            "category_anchor": False,
+            "consensus_risk_reason": "",
+            "lead_route": "sourcing_candidate",
+            "likely_too_late": False,
+        }
+
+    return _unknown_maturity()
+
+
+def _has_large_money_signal(text: str) -> bool:
+    for raw_amount, unit in re.findall(r"\$\s?([0-9]+(?:\.[0-9]+)?)\s?(m|million|b|billion)\b", text):
+        amount = float(raw_amount)
+        normalized = amount * 1000 if unit.startswith("b") else amount
+        if normalized >= 100:
+            return True
+    return bool(re.search(r"\$[0-9]+(?:\.[0-9]+)?\s?(?:b|billion)\s+valuation", text))
+
+
+def _apply_maturity_to_lead(lead: VerifiedCompanyDiscoveryLead, maturity: dict) -> VerifiedCompanyDiscoveryLead:
+    out = VerifiedCompanyDiscoveryLead.from_dict(lead.to_dict())
+    out.maturity_status = maturity.get("maturity_status", "unknown")
+    out.maturity_basis = list(maturity.get("maturity_basis") or [])
+    out.maturity_evidence_urls = list(maturity.get("maturity_evidence_urls") or [])
+    out.category_anchor = bool(maturity.get("category_anchor"))
+    out.consensus_risk_reason = maturity.get("consensus_risk_reason", "")
+    out.lead_route = maturity.get("lead_route", "research_deeper")
+    out.likely_too_late = bool(out.likely_too_late or maturity.get("likely_too_late"))
+    if out.lead_route in {"category_context", "monitor_only"}:
+        out.why_this_may_be_noise = (
+            out.consensus_risk_reason
+            or "Mature/consensus company; useful as category context, not an owner-ready sourcing lead."
+        )
+    return out
 
 
 def _default_article_fetcher(url: str) -> bytes:
@@ -1069,6 +1262,7 @@ def _query_diagnostic(query: dict, *, status: str = "pending", skip_reason: str 
         "accepted_count": 0,
         "rejected_count": 0,
         "verification_queries_run": 0,
+        "maturity_queries_run": 0,
         "article_fetches_attempted": 0,
         "source_type_counts": {},
         "source_errors": {},

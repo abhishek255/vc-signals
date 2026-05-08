@@ -100,6 +100,12 @@ class Candidate:
     source_titles: list[str] = field(default_factory=list)
     fetch_warnings: list[str] = field(default_factory=list)
     identity_resolved_from: list[str] = field(default_factory=list)
+    maturity_status: str = "unknown"
+    maturity_basis: list[str] = field(default_factory=list)
+    maturity_evidence_urls: list[str] = field(default_factory=list)
+    category_anchor: bool = False
+    consensus_risk_reason: str = ""
+    lead_route: str = "research_deeper"
 
     def to_dict(self) -> dict:
         return asdict(self)
@@ -173,6 +179,12 @@ class VerifiedCompanyDiscoveryLead:
     supporting_evidence_urls: list[str] = field(default_factory=list)
     official_domain_verification_url: str = ""
     likely_too_late: bool = False
+    maturity_status: str = "unknown"
+    maturity_basis: list[str] = field(default_factory=list)
+    maturity_evidence_urls: list[str] = field(default_factory=list)
+    category_anchor: bool = False
+    consensus_risk_reason: str = ""
+    lead_route: str = "research_deeper"
     query_id: str = ""
     query_topic: str = ""
     why_on_radar: str = ""
@@ -358,6 +370,12 @@ class FocusItem:
     why_this_may_be_noise: str = ""
     skepticism_events: list[str] = field(default_factory=list)
     source_candidate_id: str = ""
+    maturity_status: str = "unknown"
+    maturity_basis: list[str] = field(default_factory=list)
+    maturity_evidence_urls: list[str] = field(default_factory=list)
+    category_anchor: bool = False
+    consensus_risk_reason: str = ""
+    lead_route: str = "research_deeper"
 
     def to_dict(self) -> dict:
         return asdict(self)

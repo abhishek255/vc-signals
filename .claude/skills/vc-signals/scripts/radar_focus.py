@@ -22,6 +22,8 @@ ACTION_RESEARCH_DEEPER = "Research deeper"
 ACTION_REFRESH_ATTIO = "Refresh Attio"
 ACTION_TAKE_MEETING = "Take meeting"
 ACTION_MONITOR_ONLY = "Monitor only"
+LEAD_ROUTE_CATEGORY_CONTEXT = "category_context"
+LEAD_ROUTE_MONITOR_ONLY = "monitor_only"
 
 ATTIO_NEW_STATUSES = {"no_match", "not_found", "new"}
 ATTIO_UNKNOWN_STATUSES = {"unknown", ""}
@@ -190,6 +192,9 @@ def score_marathon_fit(candidate: Candidate) -> tuple[int, list[str]]:
     if any(term in text for term in ("series c", "series d", "unicorn", "$1b")):
         score -= 25
         basis.append("likely_late_or_consensus")
+    if candidate.category_anchor or candidate.lead_route in {LEAD_ROUTE_CATEGORY_CONTEXT, LEAD_ROUTE_MONITOR_ONLY}:
+        score -= 35
+        basis.append("category_context_not_sourcing_lead")
     return _clamp(score), basis or ["baseline_marathon_fit"]
 
 
@@ -231,6 +236,12 @@ def score_consensus_risk(candidate: Candidate) -> tuple[int, list[str]]:
     if candidate.attio_status and candidate.attio_status.lower() in {"active", "passed"}:
         score += 10
         basis.append(f"attio_{candidate.attio_status.lower()}")
+    if candidate.maturity_status in {"likely_too_late", "acquired"}:
+        score += 60
+        basis.extend(candidate.maturity_basis or [candidate.maturity_status])
+    if candidate.category_anchor:
+        score += 25
+        basis.append("category_anchor")
     return _clamp(score), basis or ["low_consensus_signal"]
 
 
@@ -287,6 +298,8 @@ def can_take_meeting(item: FocusItem) -> bool:
 def choose_recommended_action(candidate: Candidate, item: FocusItem) -> str:
     status = (candidate.attio_status or "unknown").lower()
     staleness = " ".join([candidate.attio_staleness_reason or "", candidate.attio_action or ""]).lower()
+    if candidate.category_anchor or candidate.lead_route in {LEAD_ROUTE_CATEGORY_CONTEXT, LEAD_ROUTE_MONITOR_ONLY}:
+        return ACTION_MONITOR_ONLY
     if can_take_meeting(item):
         return ACTION_TAKE_MEETING
     if candidate.recommended_identity_action in {
@@ -320,6 +333,8 @@ def choose_recommended_action(candidate: Candidate, item: FocusItem) -> str:
 
 
 def is_partner_focus_eligible(item: FocusItem) -> bool:
+    if item.category_anchor or item.lead_route in {LEAD_ROUTE_CATEGORY_CONTEXT, LEAD_ROUTE_MONITOR_ONLY}:
+        return False
     return (
         item.company_identity_quality_score >= 60
         and len(item.evidence_urls) > 0
@@ -490,6 +505,12 @@ def build_focus_item(candidate: Candidate) -> FocusItem:
         why_this_may_be_noise=candidate.why_this_may_be_noise,
         skepticism_events=[candidate.why_this_may_be_noise] if candidate.why_this_may_be_noise else [],
         source_candidate_id=candidate.stable_key or candidate.name,
+        maturity_status=candidate.maturity_status,
+        maturity_basis=list(candidate.maturity_basis),
+        maturity_evidence_urls=list(candidate.maturity_evidence_urls),
+        category_anchor=candidate.category_anchor,
+        consensus_risk_reason=candidate.consensus_risk_reason,
+        lead_route=candidate.lead_route,
     )
     item.recommended_action = choose_recommended_action(candidate, item)
     return item
@@ -569,6 +590,8 @@ def build_market_movements(items: list[FocusItem], theme_signals: list[ThemeSign
 def _new_to_marathon(items: list[FocusItem]) -> list[FocusItem]:
     selected = []
     for item in items:
+        if item.category_anchor or item.lead_route in {LEAD_ROUTE_CATEGORY_CONTEXT, LEAD_ROUTE_MONITOR_ONLY}:
+            continue
         status = item.attio_status.lower()
         weak_name = len((item.name or "").strip()) <= 2 and not item.company_domain
         credible_new_identity = (
@@ -595,6 +618,8 @@ def _new_to_marathon(items: list[FocusItem]) -> list[FocusItem]:
 
 
 def is_extended_watchlist_eligible(item: FocusItem) -> bool:
+    if item.category_anchor or item.lead_route in {LEAD_ROUTE_CATEGORY_CONTEXT, LEAD_ROUTE_MONITOR_ONLY}:
+        return False
     return (
         bool(item.evidence_urls)
         and item.noise_risk_score < 85
@@ -710,7 +735,13 @@ def build_weekly_focus_artifact(
         for item in focus_items
         if item.id not in partner_ids and is_extended_watchlist_eligible(item)
     ][:15]
-    movements = build_market_movements(partner_focus or extended_watchlist, theme_signals)
+    category_context = [
+        item
+        for item in focus_items
+        if item.category_anchor or item.lead_route in {LEAD_ROUTE_CATEGORY_CONTEXT, LEAD_ROUTE_MONITOR_ONLY}
+    ][:10]
+    movement_source_items = partner_focus + extended_watchlist + category_context
+    movements = build_market_movements(movement_source_items, theme_signals)
     new_to_marathon = _new_to_marathon(partner_focus + extended_watchlist)
     workflow_view = _workflow_view(partner_focus + extended_watchlist)
     gaps = _source_gaps(sector_intelligence)
@@ -727,6 +758,7 @@ def build_weekly_focus_artifact(
             if item.project_url and not item.company_domain
         ][:10],
         "themes_without_companies": _themes_without_companies(theme_signals),
+        "category_context": [item.to_dict() for item in category_context],
         "source_gaps": gaps,
         "filtered_or_noisy": [
             item.to_dict()
@@ -888,6 +920,12 @@ def render_weekly_focus_markdown(artifact: WeeklyFocusArtifact) -> str:
         lines.extend(["", "### OSS Project Watchlist"])
         for row in oss_watchlist[:10]:
             lines.append(f"- **{row.get('name', 'Unknown')}** — {row.get('recommended_action', 'Research deeper')}")
+    category_context = artifact.appendix.get("category_context", [])
+    if category_context:
+        lines.extend(["", "### Category Context / Monitor Only"])
+        for row in category_context[:10]:
+            basis = ", ".join(row.get("maturity_basis", [])[:2]) or row.get("consensus_risk_reason", "")
+            lines.append(f"- **{row.get('name', 'Unknown')}** — {row.get('maturity_status', 'unknown')}; {basis}")
     themes_without_companies = artifact.appendix.get("themes_without_companies", [])
     if themes_without_companies:
         lines.extend(["", "### Themes Without Companies Yet"])
