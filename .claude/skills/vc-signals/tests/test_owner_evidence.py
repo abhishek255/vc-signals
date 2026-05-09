@@ -58,6 +58,52 @@ def test_owner_evidence_checks_official_pages_and_extracts_founder_team(tmp_path
     assert item["founder_team_evidence"] == ["https://copperhelm.com/team"]
 
 
+def test_owner_evidence_does_not_count_generic_team_word_as_founder(tmp_path):
+    from owner_evidence import enrich_owner_evidence
+
+    def fake_fetcher(url):
+        if url.endswith("/customers"):
+            return "<html><body>Our customer success team supports enterprise security teams and design partners.</body></html>"
+        if url.endswith("/pricing"):
+            return "<html><body>Team pricing for security teams starts with a pilot.</body></html>"
+        if url.endswith("/contact"):
+            return "<html><body>Contact our team for a demo.</body></html>"
+        return "<html><body>Copperhelm helps security teams protect cloud agents.</body></html>"
+
+    enriched, report = enrich_owner_evidence(
+        [_candidate(founder_profiles=[])],
+        query_runner=None,
+        page_fetcher=fake_fetcher,
+        cache_dir=tmp_path,
+    )
+
+    assert enriched[0].founder_team_evidence == []
+    assert report["items"][0]["founder_team_evidence"] == []
+    assert "no founder/team evidence" in report["items"][0]["missing_owner_evidence"]
+    assert report["items"][0]["customer_buyer_evidence"] == ["https://copperhelm.com/customers", "https://copperhelm.com/pricing"]
+
+
+def test_owner_evidence_requires_named_leadership_pattern_for_ceo_signal(tmp_path):
+    from owner_evidence import enrich_owner_evidence
+
+    def fake_fetcher(url):
+        if url.endswith("/about"):
+            return "<html><body>Copperhelm was built for security teams. CEO dashboards help teams prioritize risk.</body></html>"
+        if url.endswith("/team"):
+            return "<html><body>Maya Rao, CEO and co-founder, leads Copperhelm with CTO Luis Chen.</body></html>"
+        return ""
+
+    enriched, report = enrich_owner_evidence(
+        [_candidate(founder_profiles=[])],
+        query_runner=None,
+        page_fetcher=fake_fetcher,
+        cache_dir=tmp_path,
+    )
+
+    assert enriched[0].founder_team_evidence == ["https://copperhelm.com/team"]
+    assert report["items"][0]["founder_team_evidence"] == ["https://copperhelm.com/team"]
+
+
 def test_owner_evidence_runs_exact_funding_and_customer_queries_and_caches(tmp_path):
     from owner_evidence import enrich_owner_evidence
 
@@ -198,6 +244,67 @@ def test_owner_evidence_does_not_turn_late_funding_text_into_seed_stage(tmp_path
     assert enriched[0].maturity_status == "unknown"
     assert enriched[0].lead_route == "research_deeper"
     assert report["items"][0]["stage_funding_evidence"] == ["https://example.com/matureco-series-c"]
+
+
+def test_owner_evidence_does_not_count_generic_funding_word_as_stage(tmp_path):
+    from owner_evidence import enrich_owner_evidence
+
+    enriched, report = enrich_owner_evidence(
+        [
+            _candidate(
+                maturity_status="unknown",
+                maturity_basis=[],
+                maturity_evidence_urls=[],
+                lead_route="research_deeper",
+                founder_profiles=[{"name": "Maya Rao"}],
+            )
+        ],
+        query_runner=lambda topic, **kwargs: {
+            "items": [
+                {
+                    "title": "Copperhelm security funding workflow",
+                    "url": "https://example.com/funding-workflow",
+                    "snippet": "Copperhelm helps security teams manage cloud funding approval workflows.",
+                }
+            ]
+        },
+        page_fetcher=lambda url: "",
+        cache_dir=tmp_path,
+    )
+
+    assert enriched[0].stage_funding_evidence == []
+    assert enriched[0].maturity_status == "unknown"
+    assert report["items"][0]["stage_funding_evidence"] == []
+
+
+def test_owner_evidence_counts_raised_amount_as_stage_signal(tmp_path):
+    from owner_evidence import enrich_owner_evidence
+
+    enriched, report = enrich_owner_evidence(
+        [
+            _candidate(
+                maturity_status="unknown",
+                maturity_basis=[],
+                maturity_evidence_urls=[],
+                lead_route="research_deeper",
+                founder_profiles=[{"name": "Maya Rao"}],
+            )
+        ],
+        query_runner=lambda topic, **kwargs: {
+            "items": [
+                {
+                    "title": "Copperhelm raises $7M",
+                    "url": "https://example.com/copperhelm-raises",
+                    "snippet": "Copperhelm raised $7M to build agentic cloud security.",
+                }
+            ]
+        },
+        page_fetcher=lambda url: "",
+        cache_dir=tmp_path,
+    )
+
+    assert enriched[0].stage_funding_evidence == ["https://example.com/copperhelm-raises"]
+    assert report["items"][0]["stage_funding_evidence"] == ["https://example.com/copperhelm-raises"]
 
 
 def test_owner_evidence_carries_existing_maturity_urls_into_stage_evidence(tmp_path):

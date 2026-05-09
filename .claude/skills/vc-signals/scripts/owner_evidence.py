@@ -28,9 +28,11 @@ from radar_models import Candidate, OwnerEvidence
 
 
 OFFICIAL_SITE_PATHS = ("", "/about", "/team", "/customers", "/pricing", "/contact", "/blog")
+FOUNDER_ELIGIBLE_PATHS = {"", "/about", "/team", "/blog"}
 LATE_OR_CONTEXT_STATUSES = {"likely_too_late", "acquired", "incumbent", "category_leader"}
-FOUNDER_TERMS = ("founded by", "founder", "co-founder", "cofounder", "ceo", "cto", "leadership team")
-FUNDING_TERMS = ("pre-seed", "pre seed", "seed", "series a", "series b", "funding", "raised")
+FOUNDER_ROLE_PATTERN = r"(?:founder|co-founder|cofounder|ceo|cto|chief executive officer|chief technology officer)"
+PERSON_NAME_PATTERN = r"[A-Z][a-z]+(?:\s+[A-Z][a-z]+)+"
+FUNDING_TERMS = ("pre-seed", "pre seed", "seed", "series a", "series b", "series c", "series d", "series e", "raised")
 EARLY_STAGE_TERMS = ("pre-seed", "pre seed", "seed", "series a", "series b")
 LATE_STAGE_TERMS = ("series c", "series d", "series e", "ipo", "acquired", "acquisition", "$100m", "$1b")
 CUSTOMER_TERMS = (
@@ -42,8 +44,6 @@ CUSTOMER_TERMS = (
     "design partner",
     "pilot",
     "pilots",
-    "enterprise",
-    "security teams",
     "ciso",
 )
 
@@ -166,6 +166,30 @@ def _item_urls(items: list[dict]) -> list[str]:
 def _contains_any(text: str, terms: tuple[str, ...]) -> bool:
     lowered = (text or "").lower()
     return any(term in lowered for term in terms)
+
+
+def _has_founder_team_evidence(text: str, path: str) -> bool:
+    if path not in FOUNDER_ELIGIBLE_PATHS:
+        return False
+    role = f"(?i:{FOUNDER_ROLE_PATTERN})"
+    if re.search(rf"(?i:founded by)\s+{PERSON_NAME_PATTERN}", text or ""):
+        return True
+    if re.search(rf"{PERSON_NAME_PATTERN}\s*,\s*(?:[^.\n]{{0,80}})?{role}", text or ""):
+        return True
+    if re.search(rf"{role}\s+{PERSON_NAME_PATTERN}", text or ""):
+        return True
+    return False
+
+
+def _has_stage_funding_evidence(text: str) -> bool:
+    lowered = (text or "").lower()
+    if any(term in lowered for term in EARLY_STAGE_TERMS + LATE_STAGE_TERMS):
+        return True
+    return bool(re.search(r"\braised\b[^.\n]{0,80}(?:\$|\d|round|financing|funding)", lowered))
+
+
+def _has_customer_buyer_evidence(text: str) -> bool:
+    return _contains_any(text, CUSTOMER_TERMS)
 
 
 def _attio_confidence(candidate: Candidate) -> tuple[str, list[str]]:
@@ -338,11 +362,11 @@ def enrich_owner_evidence(
                 continue
             pages_checked.append(url)
             page_texts.append(text)
-            if _contains_any(text, FOUNDER_TERMS):
+            if _has_founder_team_evidence(text, path):
                 founder_urls.append(url)
-            if _contains_any(text, FUNDING_TERMS):
+            if _has_stage_funding_evidence(text):
                 stage_urls.append(url)
-            if _contains_any(text, CUSTOMER_TERMS):
+            if _has_customer_buyer_evidence(text):
                 customer_urls.append(url)
 
         funding_topic = funding_stage_query(candidate)
@@ -386,13 +410,13 @@ def enrich_owner_evidence(
         if funding_items:
             funding_text = _items_text(funding_items)
             query_texts.append(funding_text)
-            if _contains_any(funding_text, FUNDING_TERMS):
+            if _has_stage_funding_evidence(funding_text):
                 stage_urls.extend(_item_urls(funding_items))
         customer_items = _query_items(customer_payload)
         if customer_items:
             customer_text = _items_text(customer_items)
             query_texts.append(customer_text)
-            if _contains_any(customer_text, CUSTOMER_TERMS):
+            if _has_customer_buyer_evidence(customer_text):
                 customer_urls.extend(_item_urls(customer_items))
 
         evidence_urls.extend(founder_urls + stage_urls + customer_urls)
