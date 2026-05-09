@@ -1310,11 +1310,13 @@ def test_run_weekly_artifacts_writes_weekly_focus_without_replacing_preview(tmp_
     assert result["weekly_focus_json"].endswith("weekly-focus.json")
     assert result["weekly_focus"].endswith("weekly-focus.md")
     assert result["owner_evidence_json"].endswith("owner-evidence.json")
+    assert result["founder_team_verification_json"].endswith("founder-team-verification.json")
     assert result["owner_readiness_json"].endswith("owner-readiness.json")
     assert result["feedback"].endswith("feedback.json")
     assert (tmp_path / "weekly-focus.json").exists()
     assert (tmp_path / "weekly-focus.md").exists()
     assert (tmp_path / "owner-evidence.json").exists()
+    assert (tmp_path / "founder-team-verification.json").exists()
     assert (tmp_path / "owner-readiness.json").exists()
     assert (tmp_path / "feedback.json").exists()
     weekly_focus = (tmp_path / "weekly-focus.md").read_text()
@@ -1814,6 +1816,18 @@ def test_run_weekly_artifacts_feeds_verified_discovery_into_identity_resolution(
                         "title": "AgentFence enterprise pilots",
                         "url": "https://agentfence.dev/customers",
                         "snippet": "Enterprise security teams use AgentFence in design partner pilots.",
+                    }
+                ],
+                "warnings": [],
+            }
+        if "founder OR co-founder OR CEO OR CTO" in topic:
+            return {
+                "items": [
+                    {
+                        "source": "grounding",
+                        "title": "AgentFence founding team",
+                        "url": "https://agentfence.dev/team",
+                        "snippet": "Ada Rao, CEO and co-founder of AgentFence, leads the company.",
                     }
                 ],
                 "warnings": [],

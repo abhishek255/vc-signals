@@ -52,6 +52,7 @@ from radar_history import apply_weekly_tags, load_candidate_history, save_candid
 from radar_enrichment import apply_candidate_enrichment, merge_source_enrichment
 from identity_resolution import apply_identity_resolution
 from metadata_loss import build_metadata_loss_report
+from founder_team_verification import enrich_founder_team_verification, write_founder_team_verification_json
 from owner_evidence import enrich_owner_evidence, write_owner_evidence_json
 from owner_readiness import enrich_owner_readiness, write_owner_readiness_json
 from radar_oss import enrich_oss_candidate
@@ -1470,6 +1471,13 @@ def run_weekly_artifacts(
         max_candidates=5,
     )
     scored_candidates = _score_sort_limit_candidates(scored_candidates, candidate_limit)
+    scored_candidates, founder_team_verification_report = enrich_founder_team_verification(
+        scored_candidates,
+        query_runner=run_query if grounded_available else None,
+        cache_dir=output_dir / "founder-team-verification-cache",
+        max_candidates=5,
+    )
+    scored_candidates = _score_sort_limit_candidates(scored_candidates, candidate_limit)
     scored_candidates, owner_readiness_report = enrich_owner_readiness(
         scored_candidates,
         query_runner=None,
@@ -1499,6 +1507,7 @@ def run_weekly_artifacts(
     identity_resolution_path = output_dir / "identity-resolution.json"
     metadata_loss_report_path = output_dir / "metadata-loss-report.json"
     owner_evidence_path = output_dir / "owner-evidence.json"
+    founder_team_verification_path = output_dir / "founder-team-verification.json"
     owner_readiness_path = output_dir / "owner-readiness.json"
     signals_path.write_text(json.dumps([signal.to_dict() for signal in signal_result["signals"]], indent=2))
     candidates_path.write_text(json.dumps([candidate.to_dict() for candidate in scored_candidates], indent=2))
@@ -1516,6 +1525,7 @@ def run_weekly_artifacts(
     )
     metadata_loss_report_path.write_text(json.dumps([item.to_dict() for item in metadata_loss_report], indent=2, sort_keys=True))
     write_owner_evidence_json(owner_evidence_report, owner_evidence_path)
+    write_founder_team_verification_json(founder_team_verification_report, founder_team_verification_path)
     write_owner_readiness_json(owner_readiness_report, owner_readiness_path)
     synthesis = None
     synthesis_path = None
@@ -1569,6 +1579,7 @@ def run_weekly_artifacts(
         "identity_resolution_json": str(identity_resolution_path),
         "metadata_loss_report": str(metadata_loss_report_path),
         "owner_evidence_json": str(owner_evidence_path),
+        "founder_team_verification_json": str(founder_team_verification_path),
         "owner_readiness_json": str(owner_readiness_path),
         "preview": str(preview_path),
         "weekly_focus_json": str(weekly_focus_json_path),

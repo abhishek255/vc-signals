@@ -587,6 +587,35 @@ class OwnerEvidence:
 
 
 @dataclass
+class FounderTeamVerification:
+    candidate_key: str
+    name: str = ""
+    domain: str = ""
+    eligible: bool = False
+    skip_reason: str = ""
+    query: str = ""
+    query_status: str = ""
+    founders_found: list[str] = field(default_factory=list)
+    founder_profiles: list[dict] = field(default_factory=list)
+    founder_team_evidence: list[str] = field(default_factory=list)
+    evidence_urls: list[str] = field(default_factory=list)
+    verification_basis: list[str] = field(default_factory=list)
+    missing_founder_evidence: list[str] = field(default_factory=list)
+    rejection_reasons: list[str] = field(default_factory=list)
+    owner_readiness_score: int = 0
+    missing_owner_evidence: list[str] = field(default_factory=list)
+    recommended_owner_action: str = "Research deeper"
+    recommended_next_validation_step: str = ""
+
+    def to_dict(self) -> dict:
+        return asdict(self)
+
+    @classmethod
+    def from_dict(cls, payload: dict) -> "FounderTeamVerification":
+        return cls(**_known_payload(cls, payload))
+
+
+@dataclass
 class WeeklyFocusArtifact:
     run_id: str
     executive_snapshot: ExecutiveSnapshot = field(default_factory=ExecutiveSnapshot)
