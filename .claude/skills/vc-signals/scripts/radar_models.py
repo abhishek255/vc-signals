@@ -43,6 +43,10 @@ class Candidate:
     domain: str = ""
     why_on_radar: str = ""
     why_this_may_be_noise: str = ""
+    canonical_name: str = ""
+    display_name: str = ""
+    source_headline: str = ""
+    tagline: str = ""
     sources: list[str] = field(default_factory=list)
     source_count: int = 1
     company_linkedin: str = ""
@@ -207,6 +211,10 @@ class VerifiedCompanyDiscoveryLead:
     why_this_may_be_noise: str = ""
     raw_title: str = ""
     raw_snippet: str = ""
+    canonical_name: str = ""
+    display_name: str = ""
+    source_headline: str = ""
+    tagline: str = ""
 
     def to_dict(self) -> dict:
         return asdict(self)
@@ -339,6 +347,10 @@ class FocusItem:
     id: str
     rank: int = 0
     name: str = ""
+    canonical_name: str = ""
+    display_name: str = ""
+    source_headline: str = ""
+    tagline: str = ""
     company_domain: str = ""
     project_url: str = ""
     market_movement_id: str = ""

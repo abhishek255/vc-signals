@@ -358,7 +358,7 @@ def test_late_or_category_anchor_rows_stay_out_of_partner_focus_and_new_to_marat
     assert artifact.sourcing_candidates == []
     assert artifact.research_deeper_queue == []
     assert artifact.new_to_marathon == []
-    assert artifact.appendix["category_context"][0]["name"] == "n8n.io - AI workflow automation platform"
+    assert artifact.appendix["category_context"][0]["name"] == "n8n"
 
 
 def test_oss_project_watch_is_separate_from_company_focus_lanes():
@@ -1056,8 +1056,8 @@ def test_category_context_contributes_market_movement_without_new_to_marathon():
 
     assert artifact.new_to_marathon == []
     assert artifact.market_movements
-    assert "n8n.io - AI workflow automation platform" in artifact.market_movements[0].companies_or_projects
-    assert artifact.appendix["category_context"][0]["name"] == "n8n.io - AI workflow automation platform"
+    assert "n8n" in artifact.market_movements[0].companies_or_projects
+    assert artifact.appendix["category_context"][0]["name"] == "n8n"
 
 
 def test_category_context_items_can_be_added_without_entering_partner_focus():

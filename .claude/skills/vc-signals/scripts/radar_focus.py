@@ -15,6 +15,7 @@ from radar_models import (
     ThemeSignal,
     WeeklyFocusArtifact,
 )
+from canonical_identity import canonicalize_identity
 
 
 ACTION_ASSIGN_OWNER = "Assign owner"
@@ -639,9 +640,21 @@ def build_focus_item(candidate: Candidate) -> FocusItem:
     talker_types, talker_confidence, who_is_talking = _talker_types(candidate)
     urls = _source_urls(candidate)
     movement_id = _movement_id(candidate)
+    identity = canonicalize_identity(
+        name=candidate.display_name or candidate.canonical_name or candidate.name,
+        domain=candidate.domain,
+        candidate_type=candidate.candidate_type,
+        identity_type=candidate.identity_type,
+        raw_title=candidate.source_headline or candidate.why_on_radar,
+        source_headline=candidate.source_headline,
+    )
     item = FocusItem(
         id=candidate.stable_key or _stable_id(candidate.name),
-        name=candidate.name,
+        name=identity["display_name"] or candidate.name,
+        canonical_name=identity["canonical_name"],
+        display_name=identity["display_name"],
+        source_headline=identity["source_headline"],
+        tagline=identity["tagline"],
         company_domain=candidate.domain,
         project_url=_project_url(candidate),
         market_movement_id=movement_id,

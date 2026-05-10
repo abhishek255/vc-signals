@@ -12,6 +12,7 @@ from pathlib import Path
 from urllib.parse import urljoin, urlparse
 from urllib.request import Request, urlopen
 
+from canonical_identity import canonicalize_identity
 from radar_models import Candidate, DiscoveryQuery, FocusItem, ThemeSignal, VerifiedCompanyDiscoveryLead
 
 
@@ -834,6 +835,13 @@ def verify_discovery_item(item: dict, query: dict) -> VerifiedCompanyDiscoveryLe
         missing.extend(movement_reasons)
 
     accepted = bool(source_url and name and domain_ok and movement_basis and "github_only_not_company_proof" not in missing)
+    identity = canonicalize_identity(
+        name=name,
+        domain=domain if accepted else "",
+        candidate_type="verified_company" if accepted and domain else "launch_style_needs_identity",
+        raw_title=title,
+        source_headline=title,
+    )
     supporting_source_types = {
         "publisher_article",
         "funding_press_release",
@@ -844,7 +852,11 @@ def verify_discovery_item(item: dict, query: dict) -> VerifiedCompanyDiscoveryLe
         "listicle_or_seo",
     }
     return VerifiedCompanyDiscoveryLead(
-        name=name,
+        name=identity["display_name"] or name,
+        canonical_name=identity["canonical_name"],
+        display_name=identity["display_name"],
+        source_headline=identity["source_headline"],
+        tagline=identity["tagline"],
         movement=query.get("movement", ""),
         market_sector=query.get("market_sector", ""),
         source_url=source_url,
@@ -873,7 +885,11 @@ def _lead_to_item(lead: VerifiedCompanyDiscoveryLead) -> dict:
         "title": lead.raw_title or lead.name,
         "url": lead.source_url,
         "snippet": lead.why_on_radar,
-        "company_name": lead.name,
+        "company_name": lead.display_name or lead.canonical_name or lead.name,
+        "canonical_name": lead.canonical_name,
+        "display_name": lead.display_name,
+        "source_headline": lead.source_headline or lead.raw_title,
+        "tagline": lead.tagline,
         "domain": lead.domain,
         "market_sector": lead.market_sector,
         "query_theme": lead.movement,

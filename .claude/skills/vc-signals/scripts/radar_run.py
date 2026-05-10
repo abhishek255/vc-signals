@@ -56,6 +56,7 @@ from founder_team_verification import enrich_founder_team_verification, write_fo
 from owner_evidence import enrich_owner_evidence, write_owner_evidence_json
 from owner_readiness import enrich_owner_readiness, write_owner_readiness_json
 from radar_oss import enrich_oss_candidate
+from canonical_identity import canonicalize_identity
 from radar_focus import (
     build_focus_item,
     build_weekly_focus_artifact,
@@ -961,9 +962,24 @@ def _candidate_from_signal(signal) -> Candidate | None:
     if velocity.get("stars_last_30d") is not None:
         why = f"{item.get('description') or signal.title} +{velocity.get('stars_last_30d')} stars in 30d."
 
+    domain = _candidate_domain_from_item(item)
+    source_headline = item.get("source_headline") or item.get("title") or signal.title
+    identity = canonicalize_identity(
+        name=item.get("display_name") or item.get("canonical_name") or name,
+        domain=domain,
+        candidate_type=signal.role,
+        identity_type=item.get("identity_type", ""),
+        raw_title=source_headline,
+        source_headline=source_headline,
+    )
+
     candidate = Candidate(
-        name=name,
-        domain=_candidate_domain_from_item(item),
+        name=identity["display_name"] or name,
+        canonical_name=identity["canonical_name"],
+        display_name=identity["display_name"],
+        source_headline=identity["source_headline"],
+        tagline=identity["tagline"],
+        domain=domain,
         sector=SECTOR_LABELS.get(signal.sector, signal.sector),
         theme=infer_theme(f"{signal.title} {signal.text}"),
         source=source,
@@ -1090,8 +1106,15 @@ def _category_context_focus_items_from_company_discovery(company_discovery: dict
             continue
         if not (lead.get("category_anchor") or lead.get("lead_route") in {"category_context", "monitor_only"}):
             continue
-        name = lead.get("name") or lead.get("company_name") or lead.get("raw_title") or "Unknown"
         domain = lead.get("domain") or _domain_from_url(lead.get("source_url", ""))
+        identity = canonicalize_identity(
+            name=lead.get("display_name") or lead.get("canonical_name") or lead.get("name") or lead.get("company_name") or lead.get("raw_title") or "Unknown",
+            domain=domain,
+            candidate_type=lead.get("candidate_type") or "",
+            raw_title=lead.get("raw_title") or "",
+            source_headline=lead.get("source_headline") or lead.get("raw_title") or "",
+        )
+        name = identity["display_name"] or "Unknown"
         key = domain or name
         item_id = _slug_id(f"category-context-{key}")
         if item_id in seen:
@@ -1111,6 +1134,10 @@ def _category_context_focus_items_from_company_discovery(company_discovery: dict
             FocusItem(
                 id=item_id,
                 name=name,
+                canonical_name=identity["canonical_name"],
+                display_name=identity["display_name"],
+                source_headline=identity["source_headline"],
+                tagline=identity["tagline"],
                 company_domain=domain,
                 market_movement_id=_slug_id(f"{sector}-{movement}"),
                 market_movement=movement,
@@ -1191,6 +1218,14 @@ def _merge_candidate_model(existing: Candidate, candidate: Candidate) -> None:
         if key not in seen:
             existing.founder_profiles.append(profile)
             seen.add(key)
+    if not existing.canonical_name and candidate.canonical_name:
+        existing.canonical_name = candidate.canonical_name
+    if not existing.display_name and candidate.display_name:
+        existing.display_name = candidate.display_name
+    if not existing.source_headline and candidate.source_headline:
+        existing.source_headline = candidate.source_headline
+    if not existing.tagline and candidate.tagline:
+        existing.tagline = candidate.tagline
 
 
 def promote_signals_to_candidates(signals: list) -> dict:
