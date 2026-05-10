@@ -11,6 +11,7 @@ from discovery_yield_eval import (
     LeadDiscoveryEvalTarget,
     build_movement_only_queries,
     provider_bakeoff,
+    route_rank,
     score_provider_items_against_targets,
     validate_eval_targets,
     write_discovery_yield_artifacts,
@@ -170,7 +171,7 @@ def test_provider_result_does_not_count_without_verified_domain():
     assert result["metrics"]["credible_early_stage_leads"] == 0
 
 
-def test_official_domain_research_deeper_counts_as_credible_early_stage_lead():
+def test_official_domain_with_unknown_maturity_counts_as_research_worthy_not_early_stage():
     target = _target(expected_route="research_deeper", maturity_expectation="unknown")
     provider_runs = [
         {
@@ -194,8 +195,109 @@ def test_official_domain_research_deeper_counts_as_credible_early_stage_lead():
     result = score_provider_items_against_targets(provider_runs, [target])
 
     assert result["metrics"]["verified_domains_found"] == 1
-    assert result["metrics"]["credible_early_stage_leads"] == 1
+    assert result["metrics"]["research_worthy_verified_domains"] == 1
+    assert result["metrics"]["maturity_unknown_research_deeper"] == 1
+    assert result["metrics"]["credible_early_stage_leads"] == 0
+    assert result["metrics"]["maturity_adjusted_credible_early_stage_leads_per_100_queries"] == 0
     assert result["target_results"][0]["evaluation_incomplete"] is False
+    assert result["target_results"][0]["maturity_evaluation_status"] == "evaluated_no_maturity_evidence"
+
+
+def test_seed_stage_evidence_counts_as_maturity_confirmed_early_stage():
+    target = _target(expected_route="sourcing_candidate", maturity_expectation="seed_to_series_b")
+    provider_runs = [
+        {
+            "provider": "brave",
+            "query": "AI agent production seed startup",
+            "query_id": "q1",
+            "query_family": "seed_funding",
+            "movement": target.expected_movement,
+            "market_sector": target.market_sector,
+            "items": [
+                {
+                    "title": "Lyzr raises seed round for AI agent production platform",
+                    "url": "https://www.lyzr.ai/",
+                    "snippet": "Lyzr is a startup building production AI agent tooling after a seed round.",
+                }
+            ],
+            "skipped": False,
+        }
+    ]
+
+    result = score_provider_items_against_targets(provider_runs, [target])
+
+    assert result["metrics"]["verified_domains_found"] == 1
+    assert result["metrics"]["maturity_confirmed_early_stage"] == 1
+    assert result["metrics"]["credible_early_stage_leads"] == 1
+    assert result["metrics"]["maturity_adjusted_credible_early_stage_leads_per_100_queries"] == 100
+    assert result["target_results"][0]["actual_maturity"] == "seed_to_series_b"
+    assert result["target_results"][0]["maturity_evaluation_status"] == "evaluated_with_evidence"
+
+
+def test_series_c_large_round_does_not_count_as_credible_early_stage():
+    target = _target(
+        name="Wiz",
+        aliases=[],
+        domain="wiz.io",
+        expected_movement="AI cloud security",
+        movement_aliases=["cloud security"],
+        maturity_expectation="likely_too_late_or_consensus",
+        expected_route="category_context",
+    )
+    provider_runs = [
+        {
+            "provider": "brave",
+            "query": "AI cloud security startup platform",
+            "query_id": "q1",
+            "query_family": "official_company_page",
+            "movement": target.expected_movement,
+            "market_sector": "Cybersecurity",
+            "items": [
+                {
+                    "title": "Wiz - Cloud Security Platform",
+                    "url": "https://www.wiz.io/",
+                    "snippet": "Wiz is a category leader that raised a $1B financing round.",
+                }
+            ],
+            "skipped": False,
+        }
+    ]
+
+    result = score_provider_items_against_targets(provider_runs, [target])
+
+    assert result["metrics"]["verified_domains_found"] == 1
+    assert result["metrics"]["likely_too_late_found"] == 1
+    assert result["metrics"]["category_anchors_found"] == 1
+    assert result["metrics"]["credible_early_stage_leads"] == 0
+    assert result["target_results"][0]["over_promoted"] is False
+
+
+def test_net_new_mature_domain_does_not_count_as_early_stage():
+    target = _target()
+    provider_runs = [
+        {
+            "provider": "brave",
+            "query": "AI cloud security startup platform",
+            "query_id": "q1",
+            "query_family": "official_company_page",
+            "movement": "AI cloud security",
+            "market_sector": "Cybersecurity",
+            "items": [
+                {
+                    "title": "Darktrace - AI Cybersecurity",
+                    "url": "https://www.darktrace.com/",
+                    "snippet": "Darktrace is a market leader in AI cloud security with enterprise scale.",
+                }
+            ],
+            "skipped": False,
+        }
+    ]
+
+    result = score_provider_items_against_targets(provider_runs, [target])
+
+    assert result["metrics"]["net_new_verified_domains"] == 1
+    assert result["metrics"]["net_new_credible_early_stage_leads"] == 0
+    assert result["metrics"]["likely_too_late_found"] == 1
 
 
 def test_known_target_precision_penalizes_over_aggressive_route():
@@ -257,27 +359,34 @@ def test_duplicate_domain_does_not_inflate_credible_leads_metric():
     result = score_provider_items_against_targets(provider_runs, [target])
 
     assert len(result["accepted_leads"]) == 2
-    assert result["metrics"]["credible_early_stage_leads"] == 1
-    assert result["metrics"]["credible_early_stage_leads_per_100_queries"] == 100
+    assert result["metrics"]["verified_domains_found"] == 1
+    assert result["metrics"]["research_worthy_verified_domains"] == 1
+    assert result["metrics"]["credible_early_stage_leads"] == 0
+    assert result["metrics"]["credible_early_stage_leads_per_100_queries"] == 0
     assert result["target_results"][0]["provider"] == "brave"
     assert result["target_results"][0]["query_family"] == "official_company_page"
 
 
-def test_evaluation_incomplete_does_not_inflate_early_stage_metrics():
+def test_same_run_mature_item_does_not_contaminate_other_company_maturity():
     target = _target()
     provider_runs = [
         {
             "provider": "brave",
             "query": "AI agent reliability startup founder launch",
             "query_id": "q1",
-            "query_family": "launch_stealth",
+            "query_family": "official_company_page",
             "movement": target.expected_movement,
             "market_sector": target.market_sector,
             "items": [
                 {
-                    "title": "Lyzr is building agent reliability",
-                    "url": "",
-                    "snippet": "Lyzr is building agent reliability tooling.",
+                    "title": "Lyzr - AI agent platform",
+                    "url": "https://www.lyzr.ai/",
+                    "snippet": "Lyzr helps teams build and launch production AI agents.",
+                },
+                {
+                    "title": "Braintrust - AI agent evals platform",
+                    "url": "https://www.braintrust.dev/",
+                    "snippet": "Braintrust is a category leader for AI agent evals with a $1B valuation signal.",
                 }
             ],
             "skipped": False,
@@ -286,8 +395,99 @@ def test_evaluation_incomplete_does_not_inflate_early_stage_metrics():
 
     result = score_provider_items_against_targets(provider_runs, [target])
 
+    assert result["target_results"][0]["actual_maturity"] == "unknown"
+    assert result["target_results"][0]["actual_route"] == "research_deeper"
+    assert result["metrics"]["likely_too_late_found"] == 1
     assert result["metrics"]["credible_early_stage_leads"] == 0
-    assert result["metrics"]["owner_ready_rows_found"] == 0
+
+
+def test_provider_result_items_shape_is_supported():
+    target = _target()
+    provider_runs = [
+        {
+            "provider": "brave",
+            "query": "AI agent production seed startup",
+            "query_id": "q1",
+            "query_family": "seed_funding",
+            "movement": target.expected_movement,
+            "market_sector": target.market_sector,
+            "provider_result": {
+                "items": [
+                    {
+                        "title": "Lyzr raises seed round for AI agent production platform",
+                        "url": "https://www.lyzr.ai/",
+                        "snippet": "Lyzr raised a seed round for AI agent production.",
+                    }
+                ]
+            },
+            "skipped": False,
+        }
+    ]
+
+    result = score_provider_items_against_targets(provider_runs, [target])
+
+    assert result["metrics"]["verified_domains_found"] == 1
+    assert result["metrics"]["credible_early_stage_leads"] == 1
+
+
+def test_query_family_summary_uses_unique_maturity_adjusted_domains(tmp_path):
+    target = _target(expected_route="sourcing_candidate")
+    provider_runs = [
+        {
+            "provider": "brave",
+            "query": "AI agent production seed startup",
+            "query_id": "q1",
+            "query_family": "seed_funding",
+            "movement": target.expected_movement,
+            "market_sector": target.market_sector,
+            "items": [
+                {
+                    "title": "Lyzr raises seed round",
+                    "url": "https://www.lyzr.ai/",
+                    "snippet": "Lyzr raised a seed round for AI agent production.",
+                },
+                {
+                    "title": "Lyzr raises seed round",
+                    "url": "https://www.lyzr.ai/",
+                    "snippet": "Lyzr raised a seed round for AI agent production.",
+                },
+            ],
+            "skipped": False,
+        },
+        {
+            "provider": "brave",
+            "query": "AI agent production platform",
+            "query_id": "q2",
+            "query_family": "movement_platform",
+            "movement": target.expected_movement,
+            "market_sector": target.market_sector,
+            "items": [
+                {
+                    "title": "Braintrust - AI agent evals platform",
+                    "url": "https://www.braintrust.dev/",
+                    "snippet": "Braintrust is a category leader for AI agent evals.",
+                }
+            ],
+            "skipped": False,
+        },
+    ]
+    score = score_provider_items_against_targets(provider_runs, [target])
+    payload = {"eval_targets": [target.to_dict()], "queries": [], "bakeoff": {"provider_runs": provider_runs}, "score": score}
+
+    write_discovery_yield_artifacts(payload, tmp_path)
+    family_payload = json.loads((tmp_path / "query-family-bakeoff.json").read_text())
+    rows = {row["query_family"]: row for row in family_payload["families"]}
+
+    assert rows["seed_funding"]["verified_domains"] == 1
+    assert rows["seed_funding"]["maturity_confirmed_early_stage_domains"] == 1
+    assert rows["movement_platform"]["maturity_confirmed_early_stage_domains"] == 0
+    assert rows["movement_platform"]["category_anchor_domains"] == 1
+
+
+def test_route_rank_handles_unknown_and_empty_routes_explicitly():
+    assert route_rank("") == -1
+    assert route_rank("unknown") == -1
+    assert route_rank("assign_owner") > route_rank("sourcing_candidate")
 
 
 def test_write_discovery_yield_artifacts(tmp_path):

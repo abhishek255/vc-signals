@@ -37,6 +37,8 @@ ROUTE_AGGRESSIVENESS = {
     "sourcing_candidate": 3,
     "assign_owner": 4,
 }
+EARLY_MATURITY_STATUSES = {"seed_to_series_b"}
+MATURE_MATURITY_STATUSES = {"likely_too_late", "acquired"}
 EVAL_MODE_DEFAULTS = {
     "smoke": 40,
     "standard": 120,
@@ -205,7 +207,7 @@ def score_provider_items_against_targets(
     target_domains = {_normalize_domain(target.domain): target for target in targets}
     accepted = []
     rejected = []
-    target_results = [_empty_target_result(target) for target in targets]
+    accepted_items_by_domain: dict[str, list[dict]] = {}
     total_items = 0
     publisher_or_content_junk = 0
 
@@ -213,7 +215,7 @@ def score_provider_items_against_targets(
         if run.get("skipped"):
             continue
         query = _query_from_run(run)
-        for item in run.get("items") or []:
+        for item in _provider_run_items(run):
             total_items += 1
             source_type = classify_discovery_source(item)
             if source_type in {
@@ -232,11 +234,15 @@ def score_provider_items_against_targets(
                     domain=lead.domain,
                 )
                 lead = _apply_maturity_to_lead(lead, maturity)
+                domain = _normalize_domain(lead.domain)
+                if domain:
+                    accepted_items_by_domain.setdefault(domain, []).append(item)
                 accepted.append(_lead_eval_row(lead, run, evaluation_incomplete=False))
-                _mark_target_if_matched(target_results, target_domains, lead, run, evaluation_incomplete=False)
             else:
                 rejected.append(lead.to_dict())
 
+    accepted = _apply_domain_maturity_rollups(accepted, accepted_items_by_domain)
+    target_results = _build_target_results(targets, accepted)
     metrics = _score_metrics(provider_runs, accepted, target_results, total_items, publisher_or_content_junk, targets)
     return {
         "metrics": metrics,
@@ -374,6 +380,96 @@ def _movement_terms(movement: str) -> list[str]:
     return [term for term in re.split(r"[^a-z0-9]+", (movement or "").lower()) if len(term) >= 3]
 
 
+def _provider_run_items(run: dict) -> list[dict]:
+    if "items" in run:
+        return list(run.get("items") or [])
+    provider_result = run.get("provider_result") or {}
+    return list(provider_result.get("items") or [])
+
+
+def _normalize_domain_from_url(url: str) -> str:
+    if not url:
+        return ""
+    raw = url.lower().replace("https://", "").replace("http://", "").split("/", 1)[0]
+    return raw[4:] if raw.startswith("www.") else raw
+
+
+def _item_matches_domain_or_company(item: dict, *, domain: str, rows: list[dict]) -> bool:
+    item_domain = _normalize_domain_from_url(item.get("url", ""))
+    if domain and item_domain == domain:
+        return True
+    text_key = _normalize_text(f"{item.get('title', '')} {item.get('snippet', '')} {item.get('description', '')}")
+    for row in rows:
+        for name in (row.get("display_name", ""), row.get("canonical_name", ""), row.get("name", "")):
+            key = _normalize_text(name)
+            if key and len(key) >= 3 and key in text_key:
+                return True
+    return False
+
+
+def _maturity_rollup_for_domain(domain: str, rows: list[dict], raw_items: list[dict]) -> dict:
+    scoped_items = [
+        item
+        for item in raw_items
+        if _item_matches_domain_or_company(item, domain=domain, rows=rows)
+    ]
+    if not scoped_items:
+        return {
+            "domain": domain,
+            "maturity_evaluation_status": "not_evaluated",
+            "maturity_status": "unknown",
+            "lead_route": "research_deeper",
+            "likely_too_late": False,
+            "category_anchor": False,
+            "maturity_basis": [],
+            "maturity_evidence_urls": [],
+        }
+
+    seed = rows[0] if rows else {}
+    maturity = _classify_maturity_from_items(
+        scoped_items,
+        company_name=seed.get("display_name") or seed.get("canonical_name") or seed.get("name", ""),
+        domain=domain,
+    )
+    basis = list(maturity.get("maturity_basis") or [])
+    status = (
+        "evaluated_with_evidence"
+        if maturity.get("maturity_status") != "unknown" and basis
+        else "evaluated_no_maturity_evidence"
+    )
+    return {
+        "domain": domain,
+        "maturity_evaluation_status": status,
+        **maturity,
+    }
+
+
+def _apply_domain_maturity_rollups(accepted: list[dict], accepted_items_by_domain: dict[str, list[dict]]) -> list[dict]:
+    rows_by_domain: dict[str, list[dict]] = {}
+    for row in accepted:
+        domain = _normalize_domain(row.get("domain", ""))
+        if domain:
+            rows_by_domain.setdefault(domain, []).append(row)
+    rollups = {
+        domain: _maturity_rollup_for_domain(domain, rows, accepted_items_by_domain.get(domain, []))
+        for domain, rows in rows_by_domain.items()
+    }
+    out = []
+    for row in accepted:
+        domain = _normalize_domain(row.get("domain", ""))
+        rollup = rollups.get(domain, {})
+        updated = dict(row)
+        updated["maturity_evaluation_status"] = rollup.get("maturity_evaluation_status", "not_evaluated")
+        updated["maturity_status"] = rollup.get("maturity_status", updated.get("maturity_status", "unknown"))
+        updated["maturity_basis"] = rollup.get("maturity_basis", updated.get("maturity_basis", []))
+        updated["maturity_evidence_urls"] = rollup.get("maturity_evidence_urls", updated.get("maturity_evidence_urls", []))
+        updated["category_anchor"] = rollup.get("category_anchor", updated.get("category_anchor", False))
+        updated["lead_route"] = rollup.get("lead_route", updated.get("lead_route", "research_deeper"))
+        updated["likely_too_late"] = rollup.get("likely_too_late", updated.get("likely_too_late", False))
+        out.append(updated)
+    return out
+
+
 def _lead_eval_row(lead, run: dict, *, evaluation_incomplete: bool) -> dict:
     row = lead.to_dict()
     row.update(
@@ -403,28 +499,30 @@ def _empty_target_result(target: LeadDiscoveryEvalTarget) -> dict:
     }
 
 
-def _mark_target_if_matched(
-    target_results: list[dict],
-    target_domains: dict,
-    lead,
-    run: dict,
-    *,
-    evaluation_incomplete: bool,
-) -> None:
-    target = target_domains.get(_normalize_domain(lead.domain))
-    if not target:
-        return
-    for row in target_results:
-        if row["target_domain"] != _normalize_domain(target.domain):
+def _build_target_results(targets: list[LeadDiscoveryEvalTarget], accepted: list[dict]) -> list[dict]:
+    rows = [_empty_target_result(target) for target in targets]
+    accepted_by_domain: dict[str, dict] = {}
+    for row in accepted:
+        domain = _normalize_domain(row.get("domain", ""))
+        if domain and domain not in accepted_by_domain:
+            accepted_by_domain[domain] = row
+    for index, target in enumerate(targets):
+        match = accepted_by_domain.get(_normalize_domain(target.domain))
+        if not match:
             continue
-        row["found"] = True
-        row["actual_route"] = lead.lead_route
-        row["actual_maturity"] = lead.maturity_status
-        row["provider"] = run.get("provider", "")
-        row["query_family"] = run.get("query_family", "")
-        row["evaluation_incomplete"] = evaluation_incomplete
-        row["over_promoted"] = _route_rank(lead.lead_route) > _route_rank(target.expected_route)
-        return
+        rows[index].update(
+            {
+                "found": True,
+                "actual_route": match.get("lead_route", ""),
+                "actual_maturity": match.get("maturity_status", ""),
+                "provider": match.get("provider", ""),
+                "query_family": match.get("query_family", ""),
+                "evaluation_incomplete": match.get("maturity_evaluation_status") == "not_evaluated",
+                "maturity_evaluation_status": match.get("maturity_evaluation_status", ""),
+                "over_promoted": route_rank(match.get("lead_route", "")) > route_rank(target.expected_route),
+            }
+        )
+    return rows
 
 
 def _score_metrics(
@@ -438,42 +536,77 @@ def _score_metrics(
     completed_queries = sum(1 for run in provider_runs if not run.get("skipped"))
     verified_domains = {_normalize_domain(row.get("domain", "")) for row in accepted if row.get("domain")}
     target_domains = {_normalize_domain(target.domain) for target in targets}
-    early_stage_rows = [
-        row
+    maturity_evaluated_domains = {
+        _normalize_domain(row.get("domain", ""))
         for row in accepted
-        if row.get("domain")
-        and not row.get("evaluation_incomplete")
+        if row.get("domain") and row.get("maturity_evaluation_status") != "not_evaluated"
+    }
+    maturity_confirmed_early_domains = {
+        _normalize_domain(row.get("domain", ""))
+        for row in accepted
+        if row.get("maturity_status") in EARLY_MATURITY_STATUSES
         and row.get("lead_route") in {"sourcing_candidate", "research_deeper"}
-        and not row.get("likely_too_late")
-    ]
-    early_stage_domains = {_normalize_domain(row.get("domain", "")) for row in early_stage_rows if row.get("domain")}
+    }
+    maturity_unknown_research_deeper_domains = {
+        _normalize_domain(row.get("domain", ""))
+        for row in accepted
+        if row.get("maturity_status") == "unknown"
+        and row.get("lead_route") == "research_deeper"
+        and row.get("maturity_evaluation_status") == "evaluated_no_maturity_evidence"
+    }
+    maturity_not_evaluated_domains = {
+        _normalize_domain(row.get("domain", ""))
+        for row in accepted
+        if row.get("domain") and row.get("maturity_evaluation_status") == "not_evaluated"
+    }
+    category_anchor_domains = {
+        _normalize_domain(row.get("domain", ""))
+        for row in accepted
+        if row.get("lead_route") == "category_context" or row.get("category_anchor")
+    }
+    likely_too_late_domains = {
+        _normalize_domain(row.get("domain", ""))
+        for row in accepted
+        if row.get("likely_too_late") or row.get("maturity_status") in MATURE_MATURITY_STATUSES
+    }
+    research_worthy_domains = maturity_confirmed_early_domains | maturity_unknown_research_deeper_domains
     target_matches = [row for row in target_results if row["found"]]
     correct_target_matches = [row for row in target_matches if not row["over_promoted"] and not row["evaluation_incomplete"]]
-    net_new_domains = {
-        _normalize_domain(row.get("domain", ""))
-        for row in early_stage_rows
-        if _normalize_domain(row.get("domain", "")) not in target_domains
-    }
+    net_new_verified_domains = verified_domains - target_domains
+    net_new_maturity_confirmed_domains = maturity_confirmed_early_domains - target_domains
+    net_new_research_worthy_domains = research_worthy_domains - target_domains
     false_positive_rows = [row for row in target_matches if row["over_promoted"]]
+    strict_per_100 = round((len(maturity_confirmed_early_domains) / completed_queries) * 100, 2) if completed_queries else 0
     return {
         "queries_run": completed_queries,
         "provider_items_seen": total_items,
         "verified_domains_found": len(verified_domains),
-        "early_stage_rows_found": len(early_stage_rows),
-        "credible_early_stage_leads": len(early_stage_domains),
-        "credible_early_stage_leads_per_100_queries": round((len(early_stage_domains) / completed_queries) * 100, 2)
+        "maturity_evaluated_domains": len(maturity_evaluated_domains),
+        "maturity_confirmed_early_stage": len(maturity_confirmed_early_domains),
+        "early_stage_rows_found": sum(1 for row in accepted if _normalize_domain(row.get("domain", "")) in maturity_confirmed_early_domains),
+        "credible_early_stage_leads": len(maturity_confirmed_early_domains),
+        "maturity_adjusted_credible_early_stage_leads_per_100_queries": strict_per_100,
+        "credible_early_stage_leads_per_100_queries": strict_per_100,
+        "research_worthy_verified_domains": len(research_worthy_domains),
+        "research_worthy_verified_domains_per_100_queries": round((len(research_worthy_domains) / completed_queries) * 100, 2)
         if completed_queries
         else 0,
+        "maturity_unknown_research_deeper": len(maturity_unknown_research_deeper_domains),
+        "maturity_not_evaluated": len(maturity_not_evaluated_domains),
+        "likely_too_late_found": len(likely_too_late_domains),
+        "incumbent_or_mature": len(likely_too_late_domains | category_anchor_domains),
         "owner_ready_rows_found": sum(1 for row in accepted if row.get("owner_ready") and not row.get("evaluation_incomplete")),
-        "research_deeper_rows_found": sum(1 for row in early_stage_rows if row.get("lead_route") == "research_deeper"),
-        "category_anchors_found": sum(1 for row in accepted if row.get("lead_route") == "category_context"),
+        "research_deeper_rows_found": sum(1 for row in accepted if _normalize_domain(row.get("domain", "")) in research_worthy_domains),
+        "category_anchors_found": len(category_anchor_domains),
         "known_target_matches": len(target_matches),
         "known_target_recall": round(len(target_matches) / len(targets), 4) if targets else 0,
         "known_target_precision": round(len(correct_target_matches) / len(target_matches), 4) if target_matches else 0,
-        "net_new_verified_domains": len(net_new_domains),
-        "net_new_credible_early_stage_leads": len(net_new_domains),
+        "net_new_verified_domains": len(net_new_verified_domains),
+        "net_new_credible_early_stage_leads": len(net_new_maturity_confirmed_domains),
+        "net_new_research_worthy_verified_domains": len(net_new_research_worthy_domains),
         "net_new_false_positive_rate": round(len(false_positive_rows) / max(1, len(accepted)), 4),
         "false_positives": len(false_positive_rows),
+        "over_promoted_controls": len(false_positive_rows),
         "publisher_content_junk_rate": round(publisher_or_content_junk / total_items, 4) if total_items else 0,
     }
 
@@ -484,10 +617,57 @@ def _query_family_summary(bakeoff: dict, score: dict) -> dict:
         family = run.get("query_family", "") or "unknown"
         row = rows.setdefault(family, {"query_family": family, "runs": 0, "items": 0, "skipped": 0})
         row["runs"] += 1
-        row["items"] += len(run.get("items") or [])
+        row["items"] += len(_provider_run_items(run))
         if run.get("skipped"):
             row["skipped"] += 1
-    return {"families": list(rows.values()), "score_metrics": score.get("metrics", {})}
+    for item in score.get("accepted_leads", []):
+        family = item.get("query_family", "") or "unknown"
+        row = rows.setdefault(
+            family,
+            {
+                "query_family": family,
+                "runs": 0,
+                "items": 0,
+                "skipped": 0,
+                "verified_domains": set(),
+                "maturity_confirmed_early_stage_domains": set(),
+                "maturity_unknown_research_deeper_domains": set(),
+                "category_anchor_domains": set(),
+                "likely_too_late_domains": set(),
+            },
+        )
+        _ensure_family_sets(row)
+        domain = _normalize_domain(item.get("domain", ""))
+        if not domain:
+            continue
+        row["verified_domains"].add(domain)
+        if item.get("maturity_status") in EARLY_MATURITY_STATUSES:
+            row["maturity_confirmed_early_stage_domains"].add(domain)
+        elif item.get("lead_route") == "research_deeper" and item.get("maturity_status") == "unknown":
+            row["maturity_unknown_research_deeper_domains"].add(domain)
+        if item.get("lead_route") == "category_context" or item.get("category_anchor"):
+            row["category_anchor_domains"].add(domain)
+        if item.get("likely_too_late") or item.get("maturity_status") in MATURE_MATURITY_STATUSES:
+            row["likely_too_late_domains"].add(domain)
+    serialized = []
+    for row in rows.values():
+        _ensure_family_sets(row)
+        serialized.append(
+            {
+                "query_family": row["query_family"],
+                "runs": row["runs"],
+                "items": row["items"],
+                "skipped": row["skipped"],
+                "verified_domains": len(row["verified_domains"]),
+                "verified_domain_list": sorted(row["verified_domains"]),
+                "maturity_confirmed_early_stage_domains": len(row["maturity_confirmed_early_stage_domains"]),
+                "maturity_unknown_research_deeper_domains": len(row["maturity_unknown_research_deeper_domains"]),
+                "category_anchor_domains": len(row["category_anchor_domains"]),
+                "likely_too_late_domains": len(row["likely_too_late_domains"]),
+                "family_recommendation": _family_recommendation(row),
+            }
+        )
+    return {"families": serialized, "score_metrics": score.get("metrics", {})}
 
 
 def _summary_markdown(payload: dict) -> str:
@@ -497,7 +677,11 @@ def _summary_markdown(payload: dict) -> str:
         "",
         f"- Queries run: {metrics.get('queries_run', 0)}",
         f"- Verified domains found: {metrics.get('verified_domains_found', 0)}",
-        f"- Credible early-stage leads per 100 queries: {metrics.get('credible_early_stage_leads_per_100_queries', 0)}",
+        f"- Maturity-confirmed early-stage leads per 100 queries: {metrics.get('maturity_adjusted_credible_early_stage_leads_per_100_queries', 0)}",
+        f"- Research-worthy verified domains per 100 queries: {metrics.get('research_worthy_verified_domains_per_100_queries', 0)}",
+        f"- Maturity unknown research-deeper domains: {metrics.get('maturity_unknown_research_deeper', 0)}",
+        f"- Category anchors / likely too late: {metrics.get('incumbent_or_mature', 0)}",
+        f"- Over-promoted controls: {metrics.get('over_promoted_controls', 0)}",
         f"- Known-target recall: {metrics.get('known_target_recall', 0)}",
         f"- Known-target precision: {metrics.get('known_target_precision', 0)}",
         "",
@@ -505,7 +689,25 @@ def _summary_markdown(payload: dict) -> str:
     return "\n".join(lines)
 
 
-def _route_rank(route: str) -> int:
+def _ensure_family_sets(row: dict) -> None:
+    row.setdefault("verified_domains", set())
+    row.setdefault("maturity_confirmed_early_stage_domains", set())
+    row.setdefault("maturity_unknown_research_deeper_domains", set())
+    row.setdefault("category_anchor_domains", set())
+    row.setdefault("likely_too_late_domains", set())
+
+
+def _family_recommendation(row: dict) -> str:
+    if row["maturity_confirmed_early_stage_domains"]:
+        return "candidate_for_weekly_trial"
+    if row["maturity_unknown_research_deeper_domains"] and not row["category_anchor_domains"]:
+        return "research_queue_candidate"
+    if row["category_anchor_domains"] or row["likely_too_late_domains"]:
+        return "category_context_only_until_maturity_filter_improves"
+    return "do_not_graduate_yet"
+
+
+def route_rank(route: str) -> int:
     return ROUTE_AGGRESSIVENESS.get(route or "", -1)
 
 
