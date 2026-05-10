@@ -119,6 +119,31 @@ def test_no_assign_owner_focus_item_displays_tagline_like_name():
     assert not is_tagline_like_name(artifact.sourcing_candidates[0].name)
 
 
+def test_lyzr_owner_ready_weekly_focus_golden_regression():
+    from radar_focus import ACTION_ASSIGN_OWNER, build_weekly_focus_artifact
+
+    artifact = build_weekly_focus_artifact(candidates=[_company_candidate()], run_id="2026-05-09")
+
+    assert artifact.executive_snapshot.rows_needing_owner == 1
+    assert artifact.executive_snapshot.top_new_to_marathon == "Lyzr"
+    assert [item.name for item in artifact.sourcing_candidates] == ["Lyzr"]
+
+    item = artifact.sourcing_candidates[0]
+    assert item.recommended_action == ACTION_ASSIGN_OWNER
+    assert item.name == "Lyzr"
+    assert item.canonical_name == "Lyzr"
+    assert item.display_name == "Lyzr"
+    assert item.tagline == "Take your AI agents to production, faster."
+    assert item.company_domain == "lyzr.ai"
+    assert item.attio_status == "no_match"
+    assert item.owner_readiness_score == 100
+    assert "founder_team_evidence" in item.owner_readiness_basis
+    assert item.founder_team_evidence == ["https://www.lyzr.ai/founders-corner/"]
+    assert item.missing_owner_evidence == []
+    assert artifact.workflow_view[ACTION_ASSIGN_OWNER][0].name == "Lyzr"
+    assert artifact.new_to_marathon[0].name == "Lyzr"
+
+
 def test_discovery_lead_uses_domain_name_when_official_page_title_is_tagline():
     from radar_company_discovery import verify_discovery_item
 
