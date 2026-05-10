@@ -51,6 +51,55 @@ def test_consensus_risk_accepts_numeric_enrichment_fields():
     assert basis
 
 
+def test_weekly_focus_renders_discovery_yield_trial_section():
+    from radar_focus import build_weekly_focus_artifact, render_weekly_focus_markdown
+
+    artifact = build_weekly_focus_artifact(
+        candidates=[],
+        category_context_items=[],
+        theme_signals=[],
+        sector_intelligence=[],
+        source_health=[],
+        run_id="2026-05-10",
+        discovery_yield_trial={
+            "enabled": True,
+            "label": "Phase 5.3 Discovery Yield Trial",
+            "families": ["official_company_page", "founder_company_pages", "movement_platform"],
+            "verified_domains": 3,
+            "maturity_confirmed_early_stage": 1,
+            "research_worthy_unknown": 1,
+            "category_anchors": 1,
+            "accepted": 3,
+            "rejected": 8,
+            "verified_domain_list": ["langwatch.ai", "wiz.io", "straiker.ai"],
+            "families_run": {
+                "official_company_page": {
+                    "queries_run": 1,
+                    "verified_domains": 1,
+                    "early_stage": 0,
+                    "research_worthy_unknown": 1,
+                    "category_anchors": 0,
+                },
+                "movement_platform": {
+                    "queries_run": 1,
+                    "verified_domains": 2,
+                    "early_stage": 1,
+                    "research_worthy_unknown": 0,
+                    "category_anchors": 1,
+                },
+            },
+        },
+    )
+
+    markdown = render_weekly_focus_markdown(artifact)
+
+    assert "## Discovery Yield Trial" in markdown
+    assert "Trial results are experimental" in markdown
+    assert "Verified domains: 3" in markdown
+    assert "Early-stage confirmed: 1" in markdown
+    assert "official_company_page" in markdown
+
+
 def test_attio_no_match_does_not_create_company_identity_by_itself():
     from radar_focus import score_company_identity
 

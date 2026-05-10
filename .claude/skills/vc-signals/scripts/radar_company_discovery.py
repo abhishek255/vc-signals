@@ -174,6 +174,7 @@ ARTICLE_MAX_PARAGRAPHS = 5
 ARTICLE_MAX_LINKS = 20
 ARTICLE_MAX_TEXT_CHARS = 1_200
 ARTICLE_MIN_PARAGRAPH_CHARS = 40
+TRIAL_QUERY_FAMILIES = ("official_company_page", "founder_company_pages", "movement_platform")
 
 
 @dataclass
@@ -232,6 +233,17 @@ class DiscoveryRunBudget:
         for key, value in overrides.items():
             payload[key] = value
         return cls(**payload)
+
+
+@dataclass
+class DiscoveryYieldTrialConfig:
+    enabled: bool = False
+    families: tuple[str, ...] = TRIAL_QUERY_FAMILIES
+    movement_platform_cap_per_movement: int = 1
+    label: str = "Phase 5.3 Discovery Yield Trial"
+
+    def selected_families(self) -> set[str]:
+        return {family for family in self.families if family in TRIAL_QUERY_FAMILIES}
 
 
 @dataclass
@@ -319,10 +331,13 @@ def build_company_discovery_queries(
     social_available: bool,
     lookback_days: int = 30,
     max_queries_per_theme: int = 3,
+    trial_config: DiscoveryYieldTrialConfig | None = None,
 ) -> list[dict]:
     """Build targeted company searches from non-company theme evidence."""
     queries: list[dict] = []
     seen_topics = set()
+    trial_config = trial_config or DiscoveryYieldTrialConfig(enabled=False)
+    trial_enabled = bool(trial_config.enabled)
 
     for signal in theme_signals:
         theme = signal.theme
@@ -330,41 +345,89 @@ def build_company_discovery_queries(
             continue
         market_sector = signal.market_sector
         required_terms = _movement_terms(theme)
-        query_specs = [
-            (
-                "theme_company_search",
-                "official_company_page",
-                f'{theme} startup company platform official {market_sector}',
-                "theme_signal",
-                [f"theme:{_stable_slug(theme)}"],
-                ["official_company_page"],
-            ),
-            (
-                "theme_funding_search",
-                "funding_launch_article",
-                f"{theme} startup raises seed Series A launches funding company",
-                "theme_signal",
-                [f"theme:{_stable_slug(theme)}"],
-                ["publisher_article", "funding_press_release"],
-            ),
-            (
-                "theme_yc_accelerator_search",
-                "yc_accelerator",
-                f'site:ycombinator.com/companies "{theme}" startup company',
-                "theme_signal",
-                [f"theme:{_stable_slug(theme)}"],
-                ["directory_page", "official_company_page"],
-            ),
-            (
-                "theme_company_context_search",
-                "company_context",
-                f"{theme} market map companies category context startup",
-                "theme_signal",
-                [f"theme:{_stable_slug(theme)}"],
-                ["publisher_article", "directory_page", "official_company_page"],
-            ),
-        ]
+        if trial_enabled:
+            selected = trial_config.selected_families()
+            query_specs = []
+            if "official_company_page" in selected:
+                query_specs.append(
+                    (
+                        "trial_official_company_page",
+                        "official_company_page",
+                        f"{theme} startup platform official {market_sector}",
+                        "discovery_yield_trial",
+                        [f"theme:{_stable_slug(theme)}"],
+                        ["official_company_page"],
+                    )
+                )
+            if "founder_company_pages" in selected:
+                query_specs.append(
+                    (
+                        "trial_founder_company_pages",
+                        "founder_company_pages",
+                        f"{theme} founder company startup official {market_sector}",
+                        "discovery_yield_trial",
+                        [f"theme:{_stable_slug(theme)}"],
+                        ["official_company_page"],
+                    )
+                )
+            if "movement_platform" in selected:
+                query_specs.append(
+                    (
+                        "trial_movement_platform",
+                        "movement_platform",
+                        f"{theme} platform company official {market_sector}",
+                        "discovery_yield_trial",
+                        [f"theme:{_stable_slug(theme)}"],
+                        ["official_company_page"],
+                    )
+                )
+        else:
+            query_specs = [
+                (
+                    "theme_company_search",
+                    "official_company_page",
+                    f'{theme} startup company platform official {market_sector}',
+                    "theme_signal",
+                    [f"theme:{_stable_slug(theme)}"],
+                    ["official_company_page"],
+                ),
+                (
+                    "theme_funding_search",
+                    "funding_launch_article",
+                    f"{theme} startup raises seed Series A launches funding company",
+                    "theme_signal",
+                    [f"theme:{_stable_slug(theme)}"],
+                    ["publisher_article", "funding_press_release"],
+                ),
+                (
+                    "theme_yc_accelerator_search",
+                    "yc_accelerator",
+                    f'site:ycombinator.com/companies "{theme}" startup company',
+                    "theme_signal",
+                    [f"theme:{_stable_slug(theme)}"],
+                    ["directory_page", "official_company_page"],
+                ),
+                (
+                    "theme_company_context_search",
+                    "company_context",
+                    f"{theme} market map companies category context startup",
+                    "theme_signal",
+                    [f"theme:{_stable_slug(theme)}"],
+                    ["publisher_article", "directory_page", "official_company_page"],
+                ),
+            ]
         for kind, query_family, topic, reason, origin_ids, expected_source_types in query_specs[:max_queries_per_theme]:
+            if (
+                trial_enabled
+                and query_family == "movement_platform"
+                and sum(
+                    1
+                    for existing in queries
+                    if existing.get("movement") == theme and existing.get("query_family") == "movement_platform"
+                )
+                >= trial_config.movement_platform_cap_per_movement
+            ):
+                continue
             _append_query(
                 queries,
                 seen_topics,
@@ -379,6 +442,7 @@ def build_company_discovery_queries(
                 required_terms=required_terms,
                 grounded_available=grounded_available,
                 lookback_days=lookback_days,
+                discovery_lane="discovery_yield_trial" if trial_enabled else "controlled_company_discovery",
             )
 
     for item in focus_items or []:
@@ -537,9 +601,11 @@ def collect_company_discovery(
     run_budget: DiscoveryRunBudget | None = None,
     partial_output_path: Path | str | None = None,
     query_cache_dir: Path | str | None = None,
+    trial_config: DiscoveryYieldTrialConfig | None = None,
 ) -> dict:
     """Run theme-driven company searches and annotate returned evidence."""
     run_budget = run_budget or DiscoveryRunBudget.for_mode("unbounded")
+    trial_config = trial_config or DiscoveryYieldTrialConfig(enabled=False)
     ledger = RuntimeLedger(mode=run_budget.mode)
     partial_output_path = Path(partial_output_path) if partial_output_path else None
     query_cache_dir = Path(query_cache_dir) if query_cache_dir else None
@@ -553,6 +619,7 @@ def collect_company_discovery(
         social_available=social_available,
         lookback_days=lookback_days,
         max_queries_per_theme=max_queries_per_theme,
+        trial_config=trial_config,
     )
     for query in queries:
         query["budget_mode"] = run_budget.mode
@@ -581,6 +648,20 @@ def collect_company_discovery(
             "accepted": 0,
             "rejected": 0,
             "grounded_available": grounded_available,
+        },
+        "discovery_yield_trial": {
+            "enabled": bool(trial_config.enabled),
+            "label": trial_config.label if trial_config.enabled else "",
+            "families": sorted(trial_config.selected_families()) if trial_config.enabled else [],
+            "queries_planned": 0,
+            "verified_domains": 0,
+            "verified_domain_list": [],
+            "maturity_confirmed_early_stage": 0,
+            "research_worthy_unknown": 0,
+            "category_anchors": 0,
+            "accepted": 0,
+            "rejected": 0,
+            "families_run": {},
         },
     }
     if queries and not grounded_available:
@@ -728,7 +809,7 @@ def collect_company_discovery(
             enriched.setdefault("query_theme", query["theme"])
             enriched.setdefault("market_sector", query["market_sector"])
             enriched.setdefault("candidate_eligible", True)
-            enriched.setdefault("discovery_lane", "controlled_company_discovery")
+            enriched.setdefault("discovery_lane", query.get("discovery_lane") or "controlled_company_discovery")
             lead = verify_discovery_item(enriched, query)
             if lead.verification_status == "accepted":
                 lead = _maybe_verify_lead_maturity(
@@ -799,6 +880,7 @@ def collect_company_discovery(
     result["rejected_leads"] = _dedupe_leads(rejected_leads)
     result["summary"]["accepted"] = len(result["accepted_leads"])
     result["summary"]["rejected"] = len(result["rejected_leads"])
+    result["discovery_yield_trial"] = _trial_summary(result, trial_config)
     _attach_runtime_metadata(result, ledger, queries)
     _write_partial_discovery_result(partial_output_path, result, ledger, queries)
     return result
@@ -877,6 +959,7 @@ def verify_discovery_item(item: dict, query: dict) -> VerifiedCompanyDiscoveryLe
         why_this_may_be_noise="Needs verification across stronger company/founder/customer evidence.",
         raw_title=title,
         raw_snippet=snippet,
+        discovery_lane=item.get("discovery_lane") or query.get("discovery_lane") or "",
     )
 
 
@@ -900,7 +983,7 @@ def _lead_to_item(lead: VerifiedCompanyDiscoveryLead) -> dict:
         "candidate_eligible": True,
         "signal_role": "launch",
         "source_lane": "Grounded web",
-        "discovery_lane": "controlled_company_discovery",
+        "discovery_lane": lead.discovery_lane or "controlled_company_discovery",
         "discovery_verification_status": "accepted",
         "discovery_verification_basis": lead.verification_basis,
         "movement_assignment_basis": lead.movement_assignment_basis,
@@ -970,6 +1053,117 @@ def _maybe_verify_lead_maturity(
     result["errors"].extend(maturity_errors)
     diagnostic["errors"].extend(maturity_errors)
     return lead
+
+
+def _query_family_from_lead(result: dict, lead: dict) -> str:
+    query_id = lead.get("query_id", "")
+    if not query_id:
+        return ""
+    for query in result.get("queries", []) or []:
+        if query.get("id") == query_id or query.get("query_id") == query_id:
+            return query.get("query_family", "")
+    for diagnostic in result.get("query_diagnostics", []) or []:
+        if diagnostic.get("query_id") == query_id:
+            return diagnostic.get("query_family", "")
+    return ""
+
+
+def _trial_family_row() -> dict:
+    return {
+        "queries_planned": 0,
+        "queries_run": 0,
+        "verified_domain_set": set(),
+        "early_stage_set": set(),
+        "research_worthy_unknown_set": set(),
+        "category_anchor_set": set(),
+    }
+
+
+def _trial_summary(result: dict, trial_config: DiscoveryYieldTrialConfig | None) -> dict:
+    enabled = bool(trial_config and trial_config.enabled)
+    families = sorted((trial_config or DiscoveryYieldTrialConfig()).selected_families()) if enabled else []
+    trial_queries = [
+        query
+        for query in result.get("queries", []) or []
+        if query.get("discovery_lane") == "discovery_yield_trial"
+    ]
+    trial_query_ids = {query.get("id") or query.get("query_id") for query in trial_queries}
+    trial_leads = [
+        lead
+        for lead in result.get("accepted_leads", []) or []
+        if lead.get("discovery_lane") == "discovery_yield_trial"
+    ]
+    rejected = [
+        lead
+        for lead in result.get("rejected_leads", []) or []
+        if lead.get("discovery_lane") == "discovery_yield_trial"
+    ]
+    families_run: dict[str, dict] = {}
+
+    for query in trial_queries:
+        family = query.get("query_family", "")
+        row = families_run.setdefault(family, _trial_family_row())
+        row["queries_planned"] += 1
+
+    for diagnostic in result.get("query_diagnostics", []) or []:
+        if diagnostic.get("query_id") not in trial_query_ids:
+            continue
+        family = diagnostic.get("query_family", "")
+        if family not in families:
+            continue
+        row = families_run.setdefault(family, _trial_family_row())
+        if diagnostic.get("status") in {"processed", "processed_cached", "no_items"}:
+            row["queries_run"] += 1
+
+    seen_domains = set()
+    early_stage = set()
+    research_worthy_unknown = set()
+    category_anchors = set()
+    for lead in trial_leads:
+        domain = lead.get("domain", "")
+        identity_key = domain or lead.get("display_name") or lead.get("name", "")
+        if domain:
+            seen_domains.add(domain)
+        family = _query_family_from_lead(result, lead)
+        row = families_run.setdefault(family, _trial_family_row())
+        if domain:
+            row["verified_domain_set"].add(domain)
+        if lead.get("maturity_status") == "seed_to_series_b":
+            row["early_stage_set"].add(identity_key)
+            early_stage.add(identity_key)
+        elif lead.get("lead_route") == "research_deeper" and lead.get("maturity_status") == "unknown":
+            row["research_worthy_unknown_set"].add(identity_key)
+            research_worthy_unknown.add(identity_key)
+        if lead.get("category_anchor") or lead.get("lead_route") in {"category_context", "monitor_only"}:
+            row["category_anchor_set"].add(identity_key)
+            category_anchors.add(identity_key)
+
+    serialized_families = {}
+    for family, row in families_run.items():
+        serialized_families[family] = {
+            "queries_planned": row.get("queries_planned", 0),
+            "queries_run": row.get("queries_run", 0),
+            "verified_domains": len(row.get("verified_domain_set", set())),
+            "verified_domain_list": sorted(row.get("verified_domain_set", set())),
+            "early_stage": len(row.get("early_stage_set", set())),
+            "research_worthy_unknown": len(row.get("research_worthy_unknown_set", set())),
+            "category_anchors": len(row.get("category_anchor_set", set())),
+        }
+
+    return {
+        "enabled": enabled,
+        "label": trial_config.label if enabled and trial_config else "",
+        "families": families,
+        "queries_planned": len(trial_queries),
+        "verified_domains": len(seen_domains),
+        "verified_domain_list": sorted(seen_domains),
+        "maturity_confirmed_early_stage": len(early_stage),
+        "research_worthy_unknown": len(research_worthy_unknown),
+        "category_anchors": len(category_anchors),
+        "accepted": len(trial_leads),
+        "rejected": len(rejected),
+        "families_run": serialized_families,
+    }
 
 
 def _runtime_budget_exceeded(ledger: RuntimeLedger, budget: DiscoveryRunBudget) -> bool:
@@ -1397,6 +1591,7 @@ def _verify_official_domain_for_extracted_company(
         ),
         raw_title=title,
         raw_snippet=snippet,
+        discovery_lane=article_item.get("discovery_lane") or query.get("discovery_lane") or "",
     )
 
 
@@ -1430,6 +1625,7 @@ def _publisher_article_rejection(
         why_this_may_be_noise="Publisher article mentioned a company, but official company domain was not verified.",
         raw_title=title,
         raw_snippet=snippet,
+        discovery_lane=item.get("discovery_lane") or query.get("discovery_lane") or "",
     )
 
 
@@ -1956,6 +2152,7 @@ def _append_query(
     required_terms: list[str],
     grounded_available: bool,
     lookback_days: int,
+    discovery_lane: str = "controlled_company_discovery",
 ) -> None:
     if not _query_is_specific(topic, required_terms):
         return
@@ -1983,6 +2180,7 @@ def _append_query(
     query["theme"] = movement
     query["expected_source_types"] = list(expected_source_types)
     query["budget_mode"] = ""
+    query["discovery_lane"] = discovery_lane
     queries.append(query)
 
 

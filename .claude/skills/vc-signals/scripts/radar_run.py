@@ -41,7 +41,12 @@ except ImportError:  # pragma: no cover - only for damaged installs
     run_query = None
 
 from radar_models import Candidate, EvidenceMetadata, FocusItem, RejectedSignal, SectorCoverage
-from radar_company_discovery import DiscoveryRunBudget, classify_discovery_source, collect_company_discovery
+from radar_company_discovery import (
+    DiscoveryRunBudget,
+    DiscoveryYieldTrialConfig,
+    classify_discovery_source,
+    collect_company_discovery,
+)
 from radar_scoring import score_and_tier
 from radar_sources import classify_source_item
 from radar_sector_intelligence import build_sector_intelligence
@@ -1535,6 +1540,7 @@ def run_weekly_artifacts(
     discovery_budget: DiscoveryRunBudget | None = None,
     discovery_budget_mode: str = "weekly",
     discovery_cache_dir: Path | None = None,
+    discovery_yield_trial_config: DiscoveryYieldTrialConfig | None = None,
 ) -> dict:
     """Collect evidence and render a weekly partner preview in one command."""
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -1566,6 +1572,7 @@ def run_weekly_artifacts(
         run_budget=resolved_discovery_budget,
         partial_output_path=company_discovery_path,
         query_cache_dir=discovery_cache_dir or output_dir / "provider-query-cache",
+        trial_config=discovery_yield_trial_config,
     )
     company_discovery["source_health"] = list(evidence.get("source_health", []))
     evidence["company_discovery"] = company_discovery
@@ -1683,6 +1690,7 @@ def run_weekly_artifacts(
         source_gap_context="bounded_validation" if query_timeout_seconds is not None else "",
         source_health=evidence.get("source_health", []),
         run_id=run_date,
+        discovery_yield_trial=company_discovery.get("discovery_yield_trial", {"enabled": False}),
     )
     weekly_focus_json_path = output_dir / "weekly-focus.json"
     weekly_focus_path = output_dir / "weekly-focus.md"
@@ -1773,6 +1781,23 @@ def _discovery_budget_from_args(args: dict, *, first_pass: bool) -> DiscoveryRun
     return DiscoveryRunBudget.for_mode(mode, **overrides)
 
 
+def _discovery_yield_trial_config_from_args(args: dict) -> DiscoveryYieldTrialConfig | None:
+    if not _get_bool_arg(args, "discovery_yield_trial", "discoveryYieldTrial"):
+        return None
+    raw_families = args.get("discovery_trial_families", "")
+    families = tuple(
+        family.strip()
+        for family in str(raw_families).split(",")
+        if family.strip()
+    ) or ("official_company_page", "founder_company_pages", "movement_platform")
+    movement_platform_cap = int(args.get("discovery_trial_movement_platform_cap", 1))
+    return DiscoveryYieldTrialConfig(
+        enabled=True,
+        families=families,
+        movement_platform_cap_per_movement=movement_platform_cap,
+    )
+
+
 def _attio_client_from_env():
     token = os.environ.get("ATTIO_ACCESS_TOKEN")
     if not token and get_access_token:
@@ -1847,6 +1872,7 @@ def _cli_main() -> None:
             ),
             progress=bool(args.get("progress", True)),
             discovery_budget=_discovery_budget_from_args(args, first_pass=first_pass),
+            discovery_yield_trial_config=_discovery_yield_trial_config_from_args(args),
         )
         print(json.dumps(result))
         return

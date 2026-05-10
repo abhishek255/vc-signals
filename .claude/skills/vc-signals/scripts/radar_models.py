@@ -215,6 +215,7 @@ class VerifiedCompanyDiscoveryLead:
     display_name: str = ""
     source_headline: str = ""
     tagline: str = ""
+    discovery_lane: str = ""
 
     def to_dict(self) -> dict:
         return asdict(self)

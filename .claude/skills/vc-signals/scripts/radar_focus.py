@@ -1024,6 +1024,7 @@ def build_weekly_focus_artifact(
     source_gap_context: str = "",
     source_health: list[dict] | None = None,
     run_id: str = "",
+    discovery_yield_trial: dict | None = None,
 ) -> WeeklyFocusArtifact:
     focus_items = _rank_focus_items([build_focus_item(candidate) for candidate in candidates])
     eligible = _cap_oss_project_only([item for item in focus_items if is_partner_focus_eligible(item)])
@@ -1076,6 +1077,7 @@ def build_weekly_focus_artifact(
         ][:10],
         "themes_without_companies": _themes_without_companies(theme_signals),
         "category_context": [item.to_dict() for item in category_context],
+        "discovery_yield_trial": discovery_yield_trial or {"enabled": False},
         "source_health": list(source_health or []),
         "source_gaps": gaps,
         "filtered_or_noisy": [
@@ -1235,6 +1237,32 @@ def render_weekly_focus_markdown(artifact: WeeklyFocusArtifact) -> str:
             lines.append(f"- **{row.get('name', 'Unknown')}** — {row.get('maturity_status', 'unknown')}; {basis}.{link_text}")
     else:
         lines.append("- No category anchors surfaced.")
+
+    trial = artifact.appendix.get("discovery_yield_trial", {})
+    if trial.get("enabled"):
+        lines.extend(["", "## Discovery Yield Trial", ""])
+        lines.append(f"Label: {trial.get('label', 'Discovery Yield Trial')}")
+        lines.append("Trial results are experimental and did not bypass identity, maturity, owner-readiness, or Attio gates.")
+        lines.append(f"- Families: {', '.join(trial.get('families') or [])}")
+        lines.append(f"- Verified domains: {trial.get('verified_domains', 0)}")
+        lines.append(f"- Early-stage confirmed: {trial.get('maturity_confirmed_early_stage', 0)}")
+        lines.append(f"- Research-worthy unknown: {trial.get('research_worthy_unknown', 0)}")
+        lines.append(f"- Category anchors / monitor-only: {trial.get('category_anchors', 0)}")
+        lines.append(f"- Accepted / rejected: {trial.get('accepted', 0)} / {trial.get('rejected', 0)}")
+        families_run = trial.get("families_run") or {}
+        if families_run:
+            lines.extend(
+                [
+                    "",
+                    "| Family | Queries Run | Verified Domains | Early | Unknown Research | Category Anchors |",
+                    "|---|---:|---:|---:|---:|---:|",
+                ]
+            )
+            for family, row in families_run.items():
+                lines.append(
+                    f"| {_cell(family)} | {row.get('queries_run', 0)} | {row.get('verified_domains', 0)} | "
+                    f"{row.get('early_stage', 0)} | {row.get('research_worthy_unknown', 0)} | {row.get('category_anchors', 0)} |"
+                )
 
     lines.extend(["", "## New To Marathon", ""])
     if artifact.new_to_marathon:

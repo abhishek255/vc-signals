@@ -1593,3 +1593,118 @@ def test_collect_company_discovery_unknown_maturity_routes_research_deeper():
     assert lead["maturity_status"] == "unknown"
     assert lead["lead_route"] == "research_deeper"
     assert lead["category_anchor"] is False
+
+
+def test_discovery_yield_trial_generates_only_selected_families():
+    from radar_company_discovery import DiscoveryYieldTrialConfig, build_company_discovery_queries
+    from radar_models import ThemeSignal
+
+    queries = build_company_discovery_queries(
+        [
+            ThemeSignal(
+                market_sector="AI Infra",
+                theme="Agent reliability and evals",
+                evidence_count=4,
+                confidence="Medium",
+            )
+        ],
+        grounded_available=True,
+        social_available=False,
+        trial_config=DiscoveryYieldTrialConfig(enabled=True),
+    )
+
+    families = {query["query_family"] for query in queries}
+    assert families <= {"official_company_page", "founder_company_pages", "movement_platform"}
+    assert {"official_company_page", "founder_company_pages", "movement_platform"} <= families
+    assert all(query["discovery_lane"] == "discovery_yield_trial" for query in queries)
+    assert all(query["candidate_eligible"] is True for query in queries)
+
+
+def test_discovery_yield_trial_excludes_unproven_families():
+    from radar_company_discovery import DiscoveryYieldTrialConfig, build_company_discovery_queries
+    from radar_models import ThemeSignal
+
+    queries = build_company_discovery_queries(
+        [
+            ThemeSignal(
+                market_sector="AI Infra",
+                theme="Agent reliability and evals",
+                evidence_count=4,
+                confidence="Medium",
+            )
+        ],
+        grounded_available=True,
+        social_available=False,
+        trial_config=DiscoveryYieldTrialConfig(enabled=True),
+    )
+
+    families = {query["query_family"] for query in queries}
+    assert "seed_funding" not in families
+    assert "launch_stealth" not in families
+    assert "yc_company_pages" not in families
+    assert "movement_startup" not in families
+    assert "company_context" not in families
+
+
+def test_discovery_yield_trial_caps_movement_platform_per_movement():
+    from radar_company_discovery import DiscoveryYieldTrialConfig, build_company_discovery_queries
+    from radar_models import ThemeSignal
+
+    queries = build_company_discovery_queries(
+        [
+            ThemeSignal(market_sector="AI Infra", theme="Agent reliability and evals"),
+            ThemeSignal(market_sector="AI Infra", theme="AI agent reliability"),
+        ],
+        grounded_available=True,
+        social_available=False,
+        trial_config=DiscoveryYieldTrialConfig(enabled=True, movement_platform_cap_per_movement=1),
+    )
+
+    movement_platform_queries = [query for query in queries if query["query_family"] == "movement_platform"]
+    counts = {}
+    for query in movement_platform_queries:
+        counts[query["movement"]] = counts.get(query["movement"], 0) + 1
+    assert all(count == 1 for count in counts.values())
+
+
+def test_collect_company_discovery_records_discovery_yield_trial_metrics():
+    from radar_company_discovery import DiscoveryRunBudget, DiscoveryYieldTrialConfig, collect_company_discovery
+    from radar_models import ThemeSignal
+
+    def fake_query_runner(topic, **kwargs):
+        if "platform company official" in topic:
+            return {
+                "items": [
+                    {
+                        "source": "grounding",
+                        "title": "LangWatch - AI evals platform",
+                        "url": "https://langwatch.ai/",
+                        "snippet": "LangWatch helps AI teams evaluate agents and monitor LLM apps.",
+                        "company_name": "LangWatch",
+                        "domain": "langwatch.ai",
+                    }
+                ],
+                "warnings": [],
+            }
+        return {"items": [], "warnings": []}
+
+    result = collect_company_discovery(
+        [ThemeSignal(market_sector="AI Infra", theme="Agent reliability and evals", evidence_count=4)],
+        query_runner=fake_query_runner,
+        grounded_available=True,
+        social_available=False,
+        run_budget=DiscoveryRunBudget.for_mode(
+            "smoke",
+            max_company_discovery_queries=3,
+            max_maturity_queries=0,
+            per_movement_query_cap=3,
+        ),
+        trial_config=DiscoveryYieldTrialConfig(enabled=True),
+    )
+
+    trial = result["discovery_yield_trial"]
+    assert trial["enabled"] is True
+    assert trial["families_run"]["movement_platform"]["queries_run"] >= 1
+    assert trial["verified_domains"] >= 1
+    assert "langwatch.ai" in trial["verified_domain_list"]
+    assert result["accepted_leads"][0]["discovery_lane"] == "discovery_yield_trial"
