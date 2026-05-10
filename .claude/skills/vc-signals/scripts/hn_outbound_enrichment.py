@@ -12,6 +12,9 @@ import argparse
 import hashlib
 import json
 import re
+import signal
+import time
+from contextlib import contextmanager
 from html import unescape
 from pathlib import Path
 from typing import Callable
@@ -29,6 +32,112 @@ LATE_OR_CONTEXT_STATUSES = {"likely_too_late", "acquired", "incumbent", "categor
 ACCELERATOR_SUFFIX_RE = re.compile(r"\s*\((?:YC|Y\s+Combinator)\s+[SWF]\d{2}\)\s*", re.IGNORECASE)
 
 
+class _CallTimeout(Exception):
+    pass
+
+
+class _RuntimeBudget:
+    def __init__(
+        self,
+        *,
+        max_runtime_seconds: float | None = None,
+        max_attio_checks: int | None = None,
+        max_live_queries: int | None = None,
+        per_candidate_timeout_seconds: float | None = None,
+        time_fn: Callable[[], float] | None = None,
+    ) -> None:
+        self.max_runtime_seconds = max_runtime_seconds
+        self.max_attio_checks = max_attio_checks
+        self.max_live_queries = max_live_queries
+        self.per_candidate_timeout_seconds = per_candidate_timeout_seconds
+        self.time_fn = time_fn or time.monotonic
+        self.started_at = self.time_fn()
+        self.live_queries = 0
+        self.attio_checks = 0
+        self.page_fetches = 0
+        self.timeouts = 0
+        self.budget_exceeded = False
+        self.budget_reasons: list[str] = []
+
+    def elapsed(self) -> float:
+        return max(0.0, self.time_fn() - self.started_at)
+
+    def runtime_exceeded(self) -> bool:
+        if self.max_runtime_seconds is None:
+            return False
+        exceeded = self.elapsed() >= self.max_runtime_seconds
+        if exceeded:
+            self.mark_exceeded("max_runtime_seconds_exceeded")
+        return exceeded
+
+    def remaining_runtime_seconds(self) -> float | None:
+        if self.max_runtime_seconds is None:
+            return None
+        return max(0.0, self.max_runtime_seconds - self.elapsed())
+
+    def candidate_exceeded(self, candidate_started_at: float) -> bool:
+        if self.per_candidate_timeout_seconds is None:
+            return False
+        exceeded = max(0.0, self.time_fn() - candidate_started_at) >= self.per_candidate_timeout_seconds
+        if exceeded:
+            self.mark_exceeded("per_candidate_timeout_seconds_exceeded")
+        return exceeded
+
+    def mark_exceeded(self, reason: str) -> None:
+        self.budget_exceeded = True
+        if reason not in self.budget_reasons:
+            self.budget_reasons.append(reason)
+
+    def can_run_live_query(self) -> bool:
+        if self.runtime_exceeded():
+            return False
+        if self.max_live_queries is not None and self.live_queries >= self.max_live_queries:
+            return False
+        return True
+
+    def mark_live_query(self) -> None:
+        self.live_queries += 1
+
+    def can_check_attio(self) -> bool:
+        if self.runtime_exceeded():
+            return False
+        if self.max_attio_checks is not None and self.attio_checks >= self.max_attio_checks:
+            self.mark_exceeded("max_attio_checks_exceeded")
+            return False
+        return True
+
+    def mark_attio_check(self) -> None:
+        self.attio_checks += 1
+
+    def mark_page_fetch(self) -> None:
+        self.page_fetches += 1
+
+    def mark_timeout(self, reason: str) -> None:
+        self.timeouts += 1
+        self.mark_exceeded(reason)
+
+
+@contextmanager
+def _timeout(seconds: float | None):
+    if not seconds or seconds <= 0 or not hasattr(signal, "SIGALRM"):
+        yield
+        return
+
+    def _handler(_signum, _frame):
+        raise _CallTimeout()
+
+    previous_handler = signal.getsignal(signal.SIGALRM)
+    previous_timer = signal.setitimer(signal.ITIMER_REAL, seconds)
+    signal.signal(signal.SIGALRM, _handler)
+    try:
+        yield
+    finally:
+        signal.setitimer(signal.ITIMER_REAL, 0)
+        signal.signal(signal.SIGALRM, previous_handler)
+        if previous_timer[0] > 0:
+            signal.setitimer(signal.ITIMER_REAL, previous_timer[0], previous_timer[1])
+
+
 def run_hn_outbound_enrichment(
     phase6b_payload: dict,
     *,
@@ -37,77 +146,116 @@ def run_hn_outbound_enrichment(
     attio_matcher: Callable | None = None,
     cache_dir: Path | str | None = None,
     max_candidates: int = 5,
+    max_runtime_seconds: float | None = None,
+    max_attio_checks: int | None = None,
+    max_live_queries: int | None = None,
+    per_candidate_timeout_seconds: float | None = None,
+    time_fn: Callable[[], float] | None = None,
 ) -> dict:
     cache_path = Path(cache_dir) if cache_dir else None
     rows = phase6b_payload.get("company_rows", []) or []
     enriched_rows: list[dict] = []
+    skipped_rows: list[dict] = []
+    runtime = _RuntimeBudget(
+        max_runtime_seconds=max_runtime_seconds,
+        max_attio_checks=max_attio_checks,
+        max_live_queries=max_live_queries,
+        per_candidate_timeout_seconds=per_candidate_timeout_seconds,
+        time_fn=time_fn,
+    )
+    ledger_items: list[dict] = []
     reports = {
         "identity": [],
         "maturity": [],
-        "founder_team": {},
-        "owner_evidence": {},
+        "founder_team": {"items": [], "summary": {}},
+        "owner_evidence": {"items": [], "summary": {}},
     }
 
-    candidates: list[Candidate] = []
-    for row in rows[:max_candidates]:
+    for index, row in enumerate(rows):
+        ledger = _new_ledger_item(row, index=index)
+        ledger_items.append(ledger)
+        candidate_started_at = runtime.time_fn()
+        if index >= max_candidates:
+            skipped_rows.append(_skipped_row(row, reason="max_candidates_exceeded", ledger=ledger))
+            runtime.mark_exceeded("max_candidates_exceeded")
+            continue
+        if runtime.runtime_exceeded():
+            skipped_rows.append(_skipped_row(row, reason="max_runtime_seconds_exceeded", ledger=ledger))
+            continue
+
         candidate = _candidate_from_hn_row(row)
         promoted, identity_report = _promote_identity(
             candidate,
             row,
             page_fetcher=page_fetcher,
             cache_dir=cache_path,
+            runtime=runtime,
+            ledger=ledger,
         )
         reports["identity"].append(identity_report)
         if promoted.identity_type == "verified_company":
-            promoted = _apply_attio(promoted, attio_matcher)
-            promoted, maturity_report = _enrich_maturity(promoted, query_runner=query_runner, cache_dir=cache_path)
+            promoted = _apply_attio(promoted, attio_matcher, runtime=runtime, ledger=ledger)
+            promoted, maturity_report = _enrich_maturity(
+                promoted,
+                query_runner=query_runner,
+                cache_dir=cache_path,
+                runtime=runtime,
+                ledger=ledger,
+            )
             reports["maturity"].append(maturity_report)
         else:
             maturity_report = _skipped_maturity_report(promoted, "identity_not_promoted")
             reports["maturity"].append(maturity_report)
-        candidates.append(promoted)
 
-    founder_input = [candidate for candidate in candidates if candidate.identity_type == "verified_company"]
-    founder_by_key: dict[str, Candidate] = {}
-    if founder_input:
-        founder_enriched, founder_report = enrich_founder_team_verification(
-            founder_input,
-            query_runner=query_runner,
-            cache_dir=cache_path,
-            max_candidates=max_candidates,
-        )
-        reports["founder_team"] = founder_report
-        founder_by_key = {_candidate_key(candidate): candidate for candidate in founder_enriched}
+        final_candidate = promoted
+        if final_candidate.identity_type == "verified_company" and not runtime.candidate_exceeded(candidate_started_at):
+            founder_enriched, founder_report = enrich_founder_team_verification(
+                [final_candidate],
+                query_runner=_budgeted_query_runner(query_runner, runtime=runtime, ledger=ledger),
+                cache_dir=cache_path,
+                max_candidates=1,
+            )
+            reports["founder_team"] = _merge_reports(reports["founder_team"], founder_report)
+            final_candidate = founder_enriched[0]
+            _merge_report_summary_into_ledger(ledger, founder_report, prefix="founder")
 
-    after_founder = [founder_by_key.get(_candidate_key(candidate), candidate) for candidate in candidates]
-    owner_input = [candidate for candidate in after_founder if candidate.identity_type == "verified_company"]
-    owner_by_key: dict[str, Candidate] = {}
-    if owner_input:
-        owner_enriched, owner_report = enrich_owner_evidence(
-            owner_input,
-            query_runner=query_runner,
-            page_fetcher=page_fetcher,
-            cache_dir=cache_path,
-            max_candidates=max_candidates,
-        )
-        reports["owner_evidence"] = owner_report
-        owner_by_key = {_candidate_key(candidate): candidate for candidate in owner_enriched}
+        if final_candidate.identity_type == "verified_company" and not runtime.candidate_exceeded(candidate_started_at):
+            owner_enriched, owner_report = enrich_owner_evidence(
+                [final_candidate],
+                query_runner=_budgeted_query_runner(query_runner, runtime=runtime, ledger=ledger),
+                page_fetcher=_budgeted_page_fetcher(page_fetcher, runtime=runtime, ledger=ledger),
+                cache_dir=cache_path,
+                max_candidates=1,
+            )
+            reports["owner_evidence"] = _merge_reports(reports["owner_evidence"], owner_report)
+            final_candidate = owner_enriched[0]
+            _merge_report_summary_into_ledger(ledger, owner_report, prefix="owner")
 
-    for candidate, original_row, identity_report in zip(after_founder, rows[:max_candidates], reports["identity"]):
-        final_candidate = owner_by_key.get(_candidate_key(candidate), candidate)
-        enriched_rows.append(_row_from_candidate(final_candidate, original_row, identity_report))
+        row_payload = _row_from_candidate(final_candidate, row, identity_report)
+        if runtime.candidate_exceeded(candidate_started_at):
+            row_payload = _mark_partial_row(row_payload, "per_candidate_timeout_seconds_exceeded")
+        if ledger["partial_reason"]:
+            row_payload = _mark_partial_row(row_payload, ledger["partial_reason"])
+        _finalize_ledger_item(ledger, row_payload, started_at=candidate_started_at, runtime=runtime)
+        enriched_rows.append(row_payload)
 
     passthrough_product = list(phase6b_payload.get("product_context_rows", []) or [])
     passthrough_projects = list(phase6b_payload.get("project_only_rows", []) or [])
     rejected = list(phase6b_payload.get("rejected_rows", []) or [])
+    runtime_ledger = _runtime_ledger_payload(ledger_items, runtime=runtime)
     return {
         "phase": "Phase 6B.2-HN",
         "scope": "HN outbound candidate enrichment; weekly default unchanged; YC remains parked.",
-        "summary": _summary(enriched_rows, passthrough_product, passthrough_projects, rejected),
+        "partial": runtime.budget_exceeded or any(item["status"] in {"partial", "skipped"} for item in ledger_items),
+        "budget_exceeded": runtime.budget_exceeded or bool(skipped_rows),
+        "budget_reasons": runtime.budget_reasons,
+        "summary": _summary(enriched_rows, passthrough_product, passthrough_projects, rejected, skipped_rows, runtime_ledger),
         "enriched_outbound_candidates": enriched_rows,
+        "skipped_candidates": skipped_rows,
         "product_context_rows": passthrough_product,
         "project_only_rows": passthrough_projects,
         "rejected_rows": rejected,
+        "runtime_ledger": runtime_ledger,
         "reports": reports,
     }
 
@@ -121,9 +269,205 @@ def write_hn_outbound_enrichment_artifacts(payload: dict, output_dir: Path | str
     path.mkdir(parents=True, exist_ok=True)
     json_path = path / "hn-outbound-enrichment.json"
     md_path = path / "hn-outbound-enrichment.md"
+    ledger_path = path / "hn-enrichment-runtime-ledger.json"
     json_path.write_text(json.dumps(payload, indent=2))
     md_path.write_text(_markdown(payload))
-    return [json_path, md_path]
+    ledger_path.write_text(json.dumps(payload.get("runtime_ledger", {}), indent=2))
+    return [json_path, md_path, ledger_path]
+
+
+def _new_ledger_item(row: dict, *, index: int) -> dict:
+    return {
+        "index": index,
+        "name": row.get("name") or row.get("source_title") or row.get("company_domain") or "",
+        "domain": row.get("company_domain") or row.get("outbound_domain") or "",
+        "status": "in_progress",
+        "partial_reason": "",
+        "elapsed_seconds": 0.0,
+        "page_fetches": 0,
+        "page_cache_hits": 0,
+        "live_queries": 0,
+        "query_cache_hits": 0,
+        "queries_skipped": 0,
+        "attio_checks": 0,
+        "attio_skipped": 0,
+        "timeouts": 0,
+        "identity_status": "",
+        "maturity_status": "",
+        "founder_evidence_found": False,
+        "customer_evidence_found": False,
+        "final_action": "",
+        "unsafe_promotion": False,
+        "missing_evidence": [],
+    }
+
+
+def _merge_reports(existing: dict, incoming: dict) -> dict:
+    merged = {
+        "summary": dict(existing.get("summary") or {}),
+        "items": list(existing.get("items") or []),
+    }
+    for key, value in (incoming.get("summary") or {}).items():
+        if isinstance(value, int):
+            merged["summary"][key] = int(merged["summary"].get(key, 0)) + value
+        else:
+            merged["summary"][key] = value
+    merged["items"].extend(incoming.get("items") or [])
+    return merged
+
+
+def _merge_report_summary_into_ledger(ledger: dict, report: dict, *, prefix: str) -> None:
+    summary = report.get("summary") or {}
+    ledger["query_cache_hits"] += int(summary.get("query_cache_hits", 0))
+    if prefix == "owner":
+        ledger["page_cache_hits"] += int(summary.get("page_cache_hits", 0))
+        ledger["page_fetches"] += int(summary.get("page_fetches", 0))
+
+
+def _budgeted_query_runner(query_runner: Callable | None, *, runtime: _RuntimeBudget, ledger: dict) -> Callable | None:
+    if not query_runner:
+        return None
+
+    def run(topic: str, **kwargs) -> dict:
+        if not runtime.can_run_live_query():
+            ledger["queries_skipped"] += 1
+            return {"items": [], "_budget_skipped": True, "budget_reason": "max_live_queries_exceeded"}
+        runtime.mark_live_query()
+        ledger["live_queries"] += 1
+        try:
+            with _timeout(_query_timeout_seconds(runtime)):
+                return query_runner(topic, **kwargs)
+        except _CallTimeout:
+            runtime.mark_timeout("live_query_timeout")
+            ledger["timeouts"] += 1
+            ledger["partial_reason"] = ledger["partial_reason"] or "live_query_timeout"
+            return {"items": [], "_timeout": True}
+
+    return run
+
+
+def _budgeted_page_fetcher(page_fetcher: Callable | None, *, runtime: _RuntimeBudget, ledger: dict) -> Callable:
+    fetch = page_fetcher or _default_page_fetcher
+
+    def run(url: str):
+        if runtime.runtime_exceeded():
+            ledger["partial_reason"] = ledger["partial_reason"] or "max_runtime_seconds_exceeded"
+            return ""
+        runtime.mark_page_fetch()
+        ledger["page_fetches"] += 1
+        try:
+            with _timeout(_page_timeout_seconds(runtime)):
+                return fetch(url)
+        except _CallTimeout:
+            runtime.mark_timeout("page_fetch_timeout")
+            ledger["timeouts"] += 1
+            ledger["partial_reason"] = ledger["partial_reason"] or "page_fetch_timeout"
+            return ""
+
+    return run
+
+
+def _query_timeout_seconds(runtime: _RuntimeBudget) -> float | None:
+    return _bounded_call_timeout(runtime, default_ceiling=75.0)
+
+
+def _page_timeout_seconds(runtime: _RuntimeBudget) -> float | None:
+    return _bounded_call_timeout(runtime, default_ceiling=5.0)
+
+
+def _attio_timeout_seconds(runtime: _RuntimeBudget) -> float | None:
+    return _bounded_call_timeout(runtime, default_ceiling=10.0)
+
+
+def _bounded_call_timeout(runtime: _RuntimeBudget, *, default_ceiling: float) -> float | None:
+    candidates = [default_ceiling]
+    if runtime.per_candidate_timeout_seconds:
+        candidates.append(runtime.per_candidate_timeout_seconds)
+    remaining = runtime.remaining_runtime_seconds()
+    if remaining is not None:
+        candidates.append(remaining)
+    timeout = min(candidates)
+    if timeout <= 0:
+        return 0.001
+    return max(0.001, timeout)
+
+
+def _skipped_row(row: dict, *, reason: str, ledger: dict) -> dict:
+    ledger["status"] = "skipped"
+    ledger["partial_reason"] = reason
+    return {
+        "name": row.get("name") or row.get("source_title") or row.get("company_domain") or "",
+        "canonical_name": row.get("name") or row.get("company_domain") or "",
+        "official_domain": row.get("company_domain") or row.get("outbound_domain") or "",
+        "source_title": row.get("source_title", ""),
+        "source_url": row.get("source_url", ""),
+        "official_url": row.get("official_url", ""),
+        "identity_type": row.get("identity_type", "hn_outbound_candidate"),
+        "identity_promotion_status": "skipped",
+        "maturity_status": row.get("maturity_status", "unknown"),
+        "lead_route": "research_deeper",
+        "owner_readiness_score": 0,
+        "owner_readiness_basis": [],
+        "missing_owner_evidence": [reason],
+        "recommended_action": ACTION_RESEARCH_DEEPER,
+        "next_validation_step": "Rerun with larger HN enrichment budget",
+        "assign_owner": False,
+        "new_to_marathon": False,
+        "unsafe_promotion": False,
+        "partial": True,
+        "partial_reason": reason,
+        "missing_evidence": [reason],
+        "movement": row.get("movement", ""),
+        "market_sector": row.get("market_sector", ""),
+    }
+
+
+def _mark_partial_row(row: dict, reason: str) -> dict:
+    out = dict(row)
+    out["partial"] = True
+    out["partial_reason"] = reason
+    out["assign_owner"] = False
+    out["new_to_marathon"] = False
+    out["unsafe_promotion"] = False
+    out["recommended_action"] = ACTION_RESEARCH_DEEPER
+    out["missing_owner_evidence"] = list(dict.fromkeys(list(out.get("missing_owner_evidence") or []) + [reason]))
+    out["missing_evidence"] = list(dict.fromkeys(list(out.get("missing_evidence") or []) + [reason]))
+    out["next_validation_step"] = "Rerun with larger HN enrichment budget"
+    return out
+
+
+def _finalize_ledger_item(ledger: dict, row: dict, *, started_at: float, runtime: _RuntimeBudget) -> None:
+    if row.get("partial") and not ledger.get("partial_reason"):
+        ledger["partial_reason"] = row.get("partial_reason", "")
+    if ledger["status"] == "in_progress":
+        ledger["status"] = "partial" if row.get("partial") else "completed"
+    ledger["elapsed_seconds"] = round(max(0.0, runtime.time_fn() - started_at), 3)
+    ledger["identity_status"] = row.get("identity_promotion_status", "")
+    ledger["maturity_status"] = row.get("maturity_status", "")
+    ledger["founder_evidence_found"] = bool(row.get("founder_team_evidence"))
+    ledger["customer_evidence_found"] = bool(row.get("customer_buyer_evidence"))
+    ledger["final_action"] = row.get("recommended_action", "")
+    ledger["unsafe_promotion"] = bool(row.get("unsafe_promotion"))
+    ledger["missing_evidence"] = list(row.get("missing_evidence") or [])
+
+
+def _runtime_ledger_payload(items: list[dict], *, runtime: _RuntimeBudget) -> dict:
+    return {
+        "summary": {
+            "candidates_seen": len(items),
+            "candidates_completed": sum(1 for item in items if item.get("status") == "completed"),
+            "candidates_partially_enriched": sum(1 for item in items if item.get("status") == "partial"),
+            "candidates_skipped": sum(1 for item in items if item.get("status") == "skipped"),
+            "live_queries": runtime.live_queries,
+            "attio_checks": runtime.attio_checks,
+            "page_fetches": runtime.page_fetches,
+            "timeouts": runtime.timeouts,
+            "elapsed_seconds": round(runtime.elapsed(), 3),
+            "budget_exceeded": runtime.budget_exceeded,
+            "budget_reasons": list(runtime.budget_reasons),
+        },
+        "items": items,
+    }
 
 
 def _candidate_from_hn_row(row: dict) -> Candidate:
@@ -188,6 +532,8 @@ def _promote_identity(
     *,
     page_fetcher: Callable | None,
     cache_dir: Path | None,
+    runtime: _RuntimeBudget,
+    ledger: dict,
 ) -> tuple[Candidate, dict]:
     out = Candidate.from_dict(candidate.to_dict())
     domain = _normalize_domain(out.domain)
@@ -197,7 +543,9 @@ def _promote_identity(
     matched_url = ""
     fetch = page_fetcher or _default_page_fetcher
     for url in urls:
-        payload = _read_or_fetch_page(url, fetch, cache_dir)
+        payload, cache_status = _read_or_fetch_page(url, fetch, cache_dir, runtime=runtime, ledger=ledger)
+        if cache_status == "cache_hit":
+            ledger["page_cache_hits"] += 1
         text = _page_text(payload)
         if text:
             checked.append(url)
@@ -238,12 +586,31 @@ def _promote_identity(
     }
 
 
-def _apply_attio(candidate: Candidate, attio_matcher: Callable | None) -> Candidate:
+def _apply_attio(candidate: Candidate, attio_matcher: Callable | None, *, runtime: _RuntimeBudget, ledger: dict) -> Candidate:
     out = Candidate.from_dict(candidate.to_dict())
     if not attio_matcher:
         out.attio_status = out.attio_status or "unknown"
         return out
-    payload = attio_matcher(out)
+    if not runtime.can_check_attio():
+        ledger["attio_skipped"] += 1
+        ledger["partial_reason"] = ledger["partial_reason"] or "attio_budget_exceeded"
+        out.attio_status = "unknown"
+        out.attio_safe_to_match = False
+        out.missing_owner_evidence = list(dict.fromkeys(list(out.missing_owner_evidence) + ["attio_budget_exceeded"]))
+        return out
+    runtime.mark_attio_check()
+    ledger["attio_checks"] += 1
+    try:
+        with _timeout(_attio_timeout_seconds(runtime)):
+            payload = attio_matcher(out)
+    except _CallTimeout:
+        runtime.mark_timeout("attio_timeout")
+        ledger["timeouts"] += 1
+        ledger["partial_reason"] = ledger["partial_reason"] or "attio_timeout"
+        out.attio_status = "unknown"
+        out.attio_safe_to_match = False
+        out.missing_owner_evidence = list(dict.fromkeys(list(out.missing_owner_evidence) + ["attio_timeout"]))
+        return out
     if not isinstance(payload, dict):
         return out
     for key, value in payload.items():
@@ -256,9 +623,14 @@ def _apply_attio(candidate: Candidate, attio_matcher: Callable | None) -> Candid
     return out
 
 
-def _enrich_maturity(candidate: Candidate, *, query_runner: Callable | None, cache_dir: Path | None) -> tuple[Candidate, dict]:
+def _enrich_maturity(candidate: Candidate, *, query_runner: Callable | None, cache_dir: Path | None, runtime: _RuntimeBudget, ledger: dict) -> tuple[Candidate, dict]:
     topic = _maturity_query(candidate)
-    payload, query_status = _run_cached_query(topic, query_runner=query_runner, cache_dir=cache_dir)
+    payload, query_status = _run_cached_query(
+        topic,
+        query_runner=_budgeted_query_runner(query_runner, runtime=runtime, ledger=ledger),
+        cache_dir=cache_dir,
+        ledger=ledger,
+    )
     items = list(payload.get("items") or []) if isinstance(payload, dict) else []
     maturity = _classify_maturity_from_items(items, company_name=candidate.name, domain=candidate.domain)
     out = Candidate.from_dict(candidate.to_dict())
@@ -466,9 +838,18 @@ def _unsafe_assign_owner(candidate: Candidate, missing: list[str]) -> bool:
     )
 
 
-def _summary(rows: list[dict], product_rows: list[dict], project_rows: list[dict], rejected_rows: list[dict]) -> dict:
+def _summary(rows: list[dict], product_rows: list[dict], project_rows: list[dict], rejected_rows: list[dict], skipped_rows: list[dict] | None = None, runtime_ledger: dict | None = None) -> dict:
+    skipped_rows = skipped_rows or []
+    ledger_summary = (runtime_ledger or {}).get("summary", {})
     return {
-        "hn_outbound_candidates_input": len(rows),
+        "hn_outbound_candidates_input": len(rows) + len(skipped_rows),
+        "candidates_enriched": len(rows),
+        "candidates_skipped": len(skipped_rows),
+        "candidates_partially_enriched": sum(1 for row in rows if row.get("partial")),
+        "live_queries": ledger_summary.get("live_queries", 0),
+        "attio_checks": ledger_summary.get("attio_checks", 0),
+        "page_fetches": ledger_summary.get("page_fetches", 0),
+        "timeouts": ledger_summary.get("timeouts", 0),
         "identity_promoted_rows": sum(1 for row in rows if row.get("identity_promotion_status") == "promoted"),
         "identity_not_promoted_rows": sum(1 for row in rows if row.get("identity_promotion_status") != "promoted"),
         "maturity_confirmed_early_stage_rows": sum(1 for row in rows if row.get("maturity_status") == "seed_to_series_b"),
@@ -536,28 +917,30 @@ def _identity_urls(row: dict, domain: str) -> list[str]:
     return urls[:2]
 
 
-def _read_or_fetch_page(url: str, fetcher: Callable, cache_dir: Path | None):
+def _read_or_fetch_page(url: str, fetcher: Callable, cache_dir: Path | None, *, runtime: _RuntimeBudget, ledger: dict):
     if not cache_dir:
-        return fetcher(url)
+        return _budgeted_page_fetcher(fetcher, runtime=runtime, ledger=ledger)(url), "fetched"
     path = cache_dir / "hn-official-pages" / f"{_stable_hash(url)}.json"
     if path.exists():
         try:
-            return json.loads(path.read_text()).get("payload", "")
+            return json.loads(path.read_text()).get("payload", ""), "cache_hit"
         except json.JSONDecodeError:
-            return ""
-    payload = fetcher(url)
+            return "", "cache_error"
+    payload = _budgeted_page_fetcher(fetcher, runtime=runtime, ledger=ledger)(url)
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps({"url": url, "payload": payload}, indent=2))
-    return payload
+    return payload, "fetched"
 
 
-def _run_cached_query(topic: str, *, query_runner: Callable | None, cache_dir: Path | None) -> tuple[dict, str]:
+def _run_cached_query(topic: str, *, query_runner: Callable | None, cache_dir: Path | None, ledger: dict | None = None) -> tuple[dict, str]:
     if not query_runner:
         return {"items": []}, "not_queried"
     if cache_dir:
         path = cache_dir / "hn-outbound-queries" / f"{_stable_hash(topic)}.json"
         if path.exists():
             try:
+                if ledger is not None:
+                    ledger["query_cache_hits"] += 1
                 return json.loads(path.read_text()), "cache_hit"
             except json.JSONDecodeError:
                 pass
@@ -569,6 +952,10 @@ def _run_cached_query(topic: str, *, query_runner: Callable | None, cache_dir: P
         store=True,
         web_backend="auto",
     )
+    if isinstance(payload, dict) and payload.get("_budget_skipped"):
+        return payload, "budget_skipped"
+    if isinstance(payload, dict) and payload.get("_timeout"):
+        return payload, "timeout"
     if cache_dir:
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text(json.dumps(payload, indent=2))
@@ -657,6 +1044,11 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--cache-dir", default="")
     parser.add_argument("--live-queries", action="store_true")
     parser.add_argument("--attio", action="store_true")
+    parser.add_argument("--max-candidates", type=int, default=5)
+    parser.add_argument("--max-runtime-seconds", type=float, default=None)
+    parser.add_argument("--max-attio-checks", type=int, default=None)
+    parser.add_argument("--max-live-queries", type=int, default=None)
+    parser.add_argument("--per-candidate-timeout-seconds", type=float, default=None)
     args = parser.parse_args(argv)
     payload = run_hn_outbound_enrichment(
         load_phase6b_payload(args.phase6b_json),
@@ -664,6 +1056,11 @@ def main(argv: list[str] | None = None) -> int:
         page_fetcher=None,
         attio_matcher=_default_attio_matcher if args.attio else None,
         cache_dir=Path(args.cache_dir) if args.cache_dir else None,
+        max_candidates=args.max_candidates,
+        max_runtime_seconds=args.max_runtime_seconds,
+        max_attio_checks=args.max_attio_checks,
+        max_live_queries=args.max_live_queries,
+        per_candidate_timeout_seconds=args.per_candidate_timeout_seconds,
     )
     write_hn_outbound_enrichment_artifacts(payload, args.output_dir)
     print(json.dumps(payload["summary"], indent=2))
