@@ -327,6 +327,7 @@ def _row_from_candidate(candidate: Candidate, original_row: dict, identity_repor
         "founder_profiles": evidence["founder_profiles"],
         "stage_funding_evidence": evidence["stage_funding_evidence"],
         "customer_buyer_evidence": evidence["customer_buyer_evidence"],
+        "customer_buyer_evidence_types": evidence["customer_buyer_evidence_types"],
         "attio_status": candidate.attio_status,
         "attio_safe_to_match": candidate.attio_safe_to_match,
         "attio_confidence": candidate.attio_confidence,
@@ -384,7 +385,8 @@ def _strict_hn_owner_outputs(
     strict_founders = list(dict.fromkeys(list(candidate.founders) + [profile.get("name", "") for profile in strict_founder_profiles if profile.get("name")]))
     strict_founder_urls = list(dict.fromkeys(profile.get("source", "") for profile in strict_founder_profiles if profile.get("source")))
     strict_stage_urls = list(candidate.stage_funding_evidence) if candidate.maturity_status == "seed_to_series_b" else []
-    strict_customer_urls = list(candidate.customer_buyer_evidence)
+    strong_customer_types = _strong_customer_evidence_types(candidate)
+    strict_customer_urls = [item["url"] for item in strong_customer_types] if strong_customer_types else list(candidate.customer_buyer_evidence)
 
     basis = list(basis)
     missing = list(missing)
@@ -412,6 +414,7 @@ def _strict_hn_owner_outputs(
         "founder_profiles": strict_founder_profiles,
         "stage_funding_evidence": strict_stage_urls,
         "customer_buyer_evidence": strict_customer_urls,
+        "customer_buyer_evidence_types": strong_customer_types,
     }
 
 
@@ -422,6 +425,23 @@ def _named_founder_profiles(candidate: Candidate) -> list[dict]:
         if name and name.lower() != "source-backed founder/team evidence":
             profiles.append(dict(profile))
     return profiles
+
+
+def _strong_customer_evidence_types(candidate: Candidate) -> list[dict]:
+    strong_types = {
+        "named_customer_evidence",
+        "early_customer_segment_evidence",
+        "buyer_pain_evidence",
+        "waitlist_or_demo_evidence",
+        "commercial_intent_evidence",
+    }
+    rows: list[dict] = []
+    for item in getattr(candidate, "customer_buyer_evidence_types", []) or []:
+        labels = [label for label in item.get("evidence_types", []) if label in strong_types]
+        url = item.get("url", "")
+        if url and labels:
+            rows.append({"url": url, "evidence_types": labels})
+    return rows
 
 
 def _next_validation_step(missing: list[str], fallback: str) -> str:

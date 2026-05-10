@@ -293,6 +293,20 @@ def _has_stage_funding_evidence(candidate: Candidate) -> bool:
 
 
 def _has_customer_buyer_pull(candidate: Candidate) -> bool:
+    typed_evidence = getattr(candidate, "customer_buyer_evidence_types", [])
+    if typed_evidence:
+        strong_types = {
+            "named_customer_evidence",
+            "early_customer_segment_evidence",
+            "buyer_pain_evidence",
+            "waitlist_or_demo_evidence",
+            "commercial_intent_evidence",
+        }
+        return any(
+            evidence_type in strong_types
+            for item in typed_evidence
+            for evidence_type in item.get("evidence_types", [])
+        )
     metadata_text = " ".join(
         " ".join(str(value) for value in metadata.values())
         for metadata in candidate.evidence_metadata

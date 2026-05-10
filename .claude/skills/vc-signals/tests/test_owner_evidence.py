@@ -154,6 +154,51 @@ def test_owner_evidence_converts_veris_official_page_to_named_founder_profiles(t
     assert item["founder_profiles"] == candidate.founder_profiles
 
 
+def test_customer_buyer_evidence_labels_separate_generic_copy_from_commercial_pull():
+    from owner_evidence import classify_customer_buyer_evidence
+
+    assert classify_customer_buyer_evidence("No actual customer data is required.") == ["generic_positioning"]
+
+    labels = classify_customer_buyer_evidence(
+        "Enterprise teams can book demo access to validate agents before regulators find policy gaps."
+    )
+
+    assert "commercial_intent_evidence" in labels
+    assert "waitlist_or_demo_evidence" in labels
+    assert "buyer_pain_evidence" in labels
+    assert "named_customer_evidence" not in labels
+
+
+def test_owner_evidence_does_not_count_generic_customer_copy_as_customer_pull(tmp_path):
+    from owner_evidence import enrich_owner_evidence
+
+    def fake_fetcher(url):
+        if url.endswith("/team"):
+            return "<html><body>Copperhelm was founded by Maya Rao and Luis Chen.</body></html>"
+        if url.endswith("/blog"):
+            return "<html><body>Copperhelm raised a seed round for cloud security.</body></html>"
+        return "<html><body>Copperhelm runs without needing customer data.</body></html>"
+
+    enriched, report = enrich_owner_evidence(
+        [_candidate(founder_profiles=[])],
+        query_runner=None,
+        page_fetcher=fake_fetcher,
+        cache_dir=tmp_path,
+    )
+
+    candidate = enriched[0]
+    item = report["items"][0]
+    assert candidate.customer_buyer_evidence == []
+    assert item["customer_buyer_evidence"] == []
+    assert item["customer_buyer_evidence_types"]
+    assert all(
+        entry["evidence_types"] == ["generic_positioning"]
+        for entry in item["customer_buyer_evidence_types"]
+    )
+    assert "customer_buyer_pull_evidence" not in candidate.owner_readiness_basis
+    assert "no customer/buyer pull evidence" in candidate.missing_owner_evidence
+
+
 def test_owner_evidence_runs_exact_funding_and_customer_queries_and_caches(tmp_path):
     from owner_evidence import enrich_owner_evidence
 

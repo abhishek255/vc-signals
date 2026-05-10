@@ -118,6 +118,7 @@ class Candidate:
     founder_team_evidence: list[str] = field(default_factory=list)
     stage_funding_evidence: list[str] = field(default_factory=list)
     customer_buyer_evidence: list[str] = field(default_factory=list)
+    customer_buyer_evidence_types: list[dict] = field(default_factory=list)
     attio_confidence: str = ""
     attio_confidence_basis: list[str] = field(default_factory=list)
     owner_evidence_status: str = ""
@@ -413,6 +414,7 @@ class FocusItem:
     founder_team_evidence: list[str] = field(default_factory=list)
     stage_funding_evidence: list[str] = field(default_factory=list)
     customer_buyer_evidence: list[str] = field(default_factory=list)
+    customer_buyer_evidence_types: list[dict] = field(default_factory=list)
     attio_confidence: str = ""
     attio_confidence_basis: list[str] = field(default_factory=list)
     owner_evidence_status: str = ""
@@ -577,6 +579,7 @@ class OwnerEvidence:
     founder_profiles: list[dict] = field(default_factory=list)
     stage_funding_evidence: list[str] = field(default_factory=list)
     customer_buyer_evidence: list[str] = field(default_factory=list)
+    customer_buyer_evidence_types: list[dict] = field(default_factory=list)
     official_site_pages_checked: list[str] = field(default_factory=list)
     official_site_pages_failed: list[str] = field(default_factory=list)
     funding_query: str = ""

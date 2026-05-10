@@ -47,6 +47,13 @@ CUSTOMER_TERMS = (
     "pilots",
     "ciso",
 )
+STRONG_CUSTOMER_EVIDENCE_TYPES = {
+    "named_customer_evidence",
+    "early_customer_segment_evidence",
+    "buyer_pain_evidence",
+    "waitlist_or_demo_evidence",
+    "commercial_intent_evidence",
+}
 
 
 def _stable_cache_name(value: str) -> str:
@@ -211,7 +218,63 @@ def _has_stage_funding_evidence(text: str) -> bool:
 
 
 def _has_customer_buyer_evidence(text: str) -> bool:
-    return _contains_any(text, CUSTOMER_TERMS)
+    return any(evidence_type in STRONG_CUSTOMER_EVIDENCE_TYPES for evidence_type in classify_customer_buyer_evidence(text))
+
+
+def classify_customer_buyer_evidence(text: str) -> list[str]:
+    """Classify customer/buyer evidence without overstating generic positioning."""
+    lowered = (text or "").lower()
+    labels: list[str] = []
+    if not lowered:
+        return labels
+    named_customer_patterns = (
+        r"\bcustomers?\s+include\s+[A-Z][A-Za-z0-9&.,\s-]{2,80}",
+        r"\btrusted\s+by\s+[A-Z][A-Za-z0-9&.,\s-]{2,80}",
+        r"\bused\s+by\s+[A-Z][A-Za-z0-9&.,\s-]{2,80}",
+        r"\bcase\s+study\b",
+    )
+    if any(re.search(pattern, text or "") for pattern in named_customer_patterns):
+        labels.append("named_customer_evidence")
+    if any(term in lowered for term in ("design partner", "design partners", "pilot", "pilots", "early customer")):
+        labels.append("early_customer_segment_evidence")
+    if any(
+        term in lowered
+        for term in (
+            "roi scrutiny",
+            "policy constraint",
+            "policy constraints",
+            "production realities",
+            "regulator",
+            "regulators",
+            "accuracy, cost",
+            "latency sla",
+            "reliability crisis",
+            "ciso",
+        )
+    ):
+        labels.append("buyer_pain_evidence")
+    if any(term in lowered for term in ("book demo", "request demo", "schedule demo", "join waitlist", "get started", "contact sales")):
+        labels.append("waitlist_or_demo_evidence")
+    if any(
+        term in lowered
+        for term in (
+            "enterprise teams",
+            "enterprise security",
+            "enterprise-grade",
+            "enterprise customers",
+            "soc 2",
+            "marketplace",
+            "production-ready",
+            "self-serve",
+            "customers use",
+            "customer pilots",
+            "customer pilot",
+        )
+    ):
+        labels.append("commercial_intent_evidence")
+    if _contains_any(text, CUSTOMER_TERMS) and not labels:
+        labels.append("generic_positioning")
+    return list(dict.fromkeys(labels))
 
 
 def _attio_confidence(candidate: Candidate) -> tuple[str, list[str]]:
@@ -260,6 +323,22 @@ def _dedupe_founder_profiles(profiles: list[dict]) -> list[dict]:
     return deduped
 
 
+def _dedupe_customer_evidence_types(items: list[dict]) -> list[dict]:
+    deduped: list[dict] = []
+    seen = set()
+    for item in items:
+        url = str(item.get("url", "")).strip()
+        evidence_types = list(dict.fromkeys(str(label) for label in item.get("evidence_types", []) if label))
+        if not url or not evidence_types:
+            continue
+        key = (url, tuple(evidence_types))
+        if key in seen:
+            continue
+        seen.add(key)
+        deduped.append({"url": url, "evidence_types": evidence_types})
+    return deduped
+
+
 def _profiles_from_text(candidate: Candidate, *, text: str, url: str) -> list[dict]:
     profiles, _rejected = extract_named_founder_profiles_from_text(
         company_names=_company_aliases(candidate),
@@ -269,7 +348,7 @@ def _profiles_from_text(candidate: Candidate, *, text: str, url: str) -> list[di
     return profiles
 
 
-def _apply_evidence(candidate: Candidate, *, founder_urls: list[str], founder_profiles: list[dict], stage_urls: list[str], customer_urls: list[str], page_texts: list[str], query_texts: list[str]) -> Candidate:
+def _apply_evidence(candidate: Candidate, *, founder_urls: list[str], founder_profiles: list[dict], stage_urls: list[str], customer_urls: list[str], customer_evidence_types: list[dict], page_texts: list[str], query_texts: list[str]) -> Candidate:
     out = Candidate.from_dict(candidate.to_dict())
     combined_text = " ".join(page_texts + query_texts).lower()
     evidence_changed = False
@@ -305,6 +384,11 @@ def _apply_evidence(candidate: Candidate, *, founder_urls: list[str], founder_pr
     if customer_urls:
         evidence_changed = True
         out.customer_buyer_evidence = list(dict.fromkeys(out.customer_buyer_evidence + customer_urls))[:5]
+    customer_evidence_types = _dedupe_customer_evidence_types(customer_evidence_types)
+    if customer_evidence_types:
+        evidence_changed = True
+        existing = list(getattr(out, "customer_buyer_evidence_types", []))
+        out.customer_buyer_evidence_types = _dedupe_customer_evidence_types(existing + customer_evidence_types)[:8]
     for text in page_texts + query_texts:
         if text:
             out.evidence_metadata.append({"description": text[:1200]})
@@ -341,6 +425,7 @@ def _score_evidence_candidate(candidate: Candidate, *, eligible: bool, skip_reas
         founder_profiles=list(candidate.founder_profiles),
         stage_funding_evidence=list(candidate.stage_funding_evidence or candidate.maturity_evidence_urls[:3]),
         customer_buyer_evidence=list(candidate.customer_buyer_evidence),
+        customer_buyer_evidence_types=list(getattr(candidate, "customer_buyer_evidence_types", [])),
         official_site_pages_checked=pages_checked,
         official_site_pages_failed=pages_failed,
         funding_query=funding_query,
@@ -415,6 +500,7 @@ def enrich_owner_evidence(
         founder_profiles: list[dict] = []
         stage_urls: list[str] = []
         customer_urls: list[str] = []
+        customer_evidence_types: list[dict] = []
         evidence_urls: list[str] = []
         page_texts: list[str] = []
 
@@ -440,7 +526,10 @@ def enrich_owner_evidence(
                 founder_profiles.extend(found_profiles)
             if _has_stage_funding_evidence(text):
                 stage_urls.append(url)
-            if _has_customer_buyer_evidence(text):
+            customer_labels = classify_customer_buyer_evidence(text)
+            if customer_labels:
+                customer_evidence_types.append({"url": url, "evidence_types": customer_labels})
+            if any(label in STRONG_CUSTOMER_EVIDENCE_TYPES for label in customer_labels):
                 customer_urls.append(url)
 
         funding_topic = funding_stage_query(candidate)
@@ -496,12 +585,17 @@ def enrich_owner_evidence(
             customer_text = _items_text(customer_items)
             query_texts.append(customer_text)
             for item in customer_items:
-                found_profiles = _profiles_from_text(candidate, text=_items_text([item]), url=item.get("url") or item.get("source_url") or "")
+                item_text = _items_text([item])
+                item_url = item.get("url") or item.get("source_url") or ""
+                found_profiles = _profiles_from_text(candidate, text=item_text, url=item_url)
                 if found_profiles:
                     founder_urls.extend(profile.get("source", "") for profile in found_profiles if profile.get("source"))
                     founder_profiles.extend(found_profiles)
-            if _has_customer_buyer_evidence(customer_text):
-                customer_urls.extend(_item_urls(customer_items))
+                customer_labels = classify_customer_buyer_evidence(item_text)
+                if item_url and customer_labels:
+                    customer_evidence_types.append({"url": item_url, "evidence_types": customer_labels})
+                if item_url and any(label in STRONG_CUSTOMER_EVIDENCE_TYPES for label in customer_labels):
+                    customer_urls.append(item_url)
 
         evidence_urls.extend(founder_urls + stage_urls + customer_urls)
         candidate_with_evidence = _apply_evidence(
@@ -510,6 +604,7 @@ def enrich_owner_evidence(
             founder_profiles=founder_profiles,
             stage_urls=list(dict.fromkeys(stage_urls))[:3],
             customer_urls=list(dict.fromkeys(customer_urls))[:3],
+            customer_evidence_types=customer_evidence_types,
             page_texts=page_texts,
             query_texts=query_texts,
         )

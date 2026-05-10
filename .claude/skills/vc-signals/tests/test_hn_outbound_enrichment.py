@@ -221,6 +221,12 @@ def test_veris_official_page_founder_handoff_removes_founder_missing():
         {"name": "Mehdi Jamei", "role": "co-founder", "source": "https://veris.ai/blog"}
     ]
     assert row["founder_team_evidence"] == ["https://veris.ai/blog"]
+    assert row["customer_buyer_evidence_types"] == [
+        {
+            "url": "https://veris.ai/blog",
+            "evidence_types": ["commercial_intent_evidence"],
+        }
+    ]
     assert "founder_team_evidence" in row["owner_readiness_basis"]
     assert "no founder/team evidence" not in row["missing_owner_evidence"]
     assert row["next_validation_step"] != "Find founder/team source"
