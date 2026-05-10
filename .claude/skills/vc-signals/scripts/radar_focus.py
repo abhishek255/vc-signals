@@ -1022,6 +1022,7 @@ def build_weekly_focus_artifact(
     theme_signals: list[ThemeSignal] | None = None,
     sector_intelligence: list[SectorIntelligence] | None = None,
     source_gap_context: str = "",
+    source_health: list[dict] | None = None,
     run_id: str = "",
 ) -> WeeklyFocusArtifact:
     focus_items = _rank_focus_items([build_focus_item(candidate) for candidate in candidates])
@@ -1075,6 +1076,7 @@ def build_weekly_focus_artifact(
         ][:10],
         "themes_without_companies": _themes_without_companies(theme_signals),
         "category_context": [item.to_dict() for item in category_context],
+        "source_health": list(source_health or []),
         "source_gaps": gaps,
         "filtered_or_noisy": [
             item.to_dict()
@@ -1258,7 +1260,19 @@ def render_weekly_focus_markdown(artifact: WeeklyFocusArtifact) -> str:
 
     lines.extend(["", "## Appendix", ""])
     gaps = artifact.source_gaps or artifact.appendix.get("source_gaps", [])
+    source_health = artifact.appendix.get("source_health", [])
+    if source_health:
+        lines.append("### Source Health")
+        for row in source_health:
+            warning = "; ".join(row.get("warnings", [])[:2])
+            detail = f" — {warning}" if warning else ""
+            lines.append(
+                f"- **{row.get('source', 'unknown')}**: {row.get('status', 'unknown')}; "
+                f"{row.get('fresh_items', 0)} fresh items; {row.get('duration_seconds', 0)}s{detail}"
+            )
     if gaps:
+        if source_health:
+            lines.append("")
         lines.append("### Source Gaps")
         for gap in gaps[:8]:
             lines.append(f"- {gap}")

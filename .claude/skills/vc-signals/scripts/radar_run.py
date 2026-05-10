@@ -11,7 +11,9 @@ from __future__ import annotations
 import json
 import os
 import re
+import signal
 import sys
+import time
 from inspect import Parameter, signature
 from datetime import datetime, timezone
 from pathlib import Path
@@ -192,6 +194,11 @@ INTEREST_KEYWORDS = (
 )
 
 CONSENSUS_TERMS = ("series c", "series d", "$1.5b", "$60b", "too late", "consensus")
+DEFAULT_GITHUB_TIMEOUT_SECONDS = 5 * 60
+
+
+class GithubCollectionTimeout(TimeoutError):
+    pass
 
 
 def _label(score: int) -> str:
@@ -247,6 +254,67 @@ def filter_repos(repos: list[dict]) -> list[dict]:
 
 def filter_evidence(items: list[dict]) -> list[dict]:
     return [item for item in items if not is_evidence_noise(item)]
+
+
+def _source_health(source: str, status: str, *, fresh_items: int = 0, duration_seconds: float = 0.0, warnings: list[str] | None = None) -> dict:
+    return {
+        "source": source,
+        "status": status,
+        "fresh_items": fresh_items,
+        "duration_seconds": round(duration_seconds, 2),
+        "warnings": list(warnings or []),
+    }
+
+
+def _github_timeout_handler(signum, frame):  # pragma: no cover - exercised through alarm behavior
+    raise GithubCollectionTimeout("github_collection_timeout")
+
+
+def _run_github_trending_with_timeout(*, limit: int, timeout_seconds: int | None) -> tuple[dict, dict]:
+    if not run_trending:
+        return {"repos": [], "warnings": ["GitHub trending unavailable"]}, _source_health(
+            "github",
+            "skipped_unavailable",
+            warnings=["GitHub trending unavailable"],
+        )
+    if limit <= 0:
+        return {"repos": [], "warnings": ["GitHub collection skipped by github_limit=0"]}, _source_health(
+            "github",
+            "skipped_disabled",
+            warnings=["GitHub collection skipped by github_limit=0"],
+        )
+
+    started = time.monotonic()
+    previous_handler = None
+    try:
+        if timeout_seconds and hasattr(signal, "SIGALRM"):
+            previous_handler = signal.getsignal(signal.SIGALRM)
+            signal.signal(signal.SIGALRM, _github_timeout_handler)
+            signal.alarm(max(1, int(timeout_seconds)))
+        result = run_trending("all", limit=limit)
+        duration = time.monotonic() - started
+        return result, _source_health(
+            "github",
+            "complete",
+            fresh_items=len(result.get("repos", [])),
+            duration_seconds=duration,
+            warnings=result.get("warnings", []),
+        )
+    except GithubCollectionTimeout:
+        duration = time.monotonic() - started
+        warning = f"GitHub collection timed out after {timeout_seconds}s"
+        return {"repos": [], "warnings": [warning], "error": warning}, _source_health(
+            "github",
+            "partial_timeout",
+            fresh_items=0,
+            duration_seconds=duration,
+            warnings=[warning],
+        )
+    finally:
+        if timeout_seconds and hasattr(signal, "SIGALRM"):
+            signal.alarm(0)
+            if previous_handler is not None:
+                signal.signal(signal.SIGALRM, previous_handler)
 
 
 def load_sector_config(path: Path = SECTOR_CONFIG_PATH) -> dict:
@@ -1367,16 +1435,18 @@ def collect_live_evidence(
     github_limit: int = 40,
     max_queries_per_sector: int = 3,
     query_timeout_seconds: int | None = None,
+    github_timeout_seconds: int | None = DEFAULT_GITHUB_TIMEOUT_SECONDS,
     progress: bool = False,
 ) -> dict:
     """Collect raw last30days and GitHub evidence for the weekly radar."""
-    evidence = {"last30days": {}, "github": [], "warnings": []}
+    evidence = {"last30days": {}, "github": [], "warnings": [], "source_health": []}
     sector_config = load_sector_config()
     grounded_available = _grounded_search_available()
     social_available = _social_search_available()
 
     if run_query:
         for sector in sectors:
+            started = time.monotonic()
             query_specs = build_sector_collection_queries(
                 sector,
                 sector_config,
@@ -1426,15 +1496,27 @@ def collect_live_evidence(
                 "warnings": warnings,
                 "errors": errors,
             }
+            evidence["source_health"].append(
+                _source_health(
+                    f"last30days:{sector}",
+                    "error" if errors else "complete",
+                    fresh_items=len(items),
+                    duration_seconds=time.monotonic() - started,
+                    warnings=errors or warnings,
+                )
+            )
 
-    if run_trending:
-        if progress:
-            print("[vc-signals] github: collecting trending repos", file=sys.stderr, flush=True)
-        github = run_trending("all", limit=github_limit)
-        evidence["github"] = filter_repos(github.get("repos", []))
-        evidence["warnings"].extend(github.get("warnings", []))
-        if github.get("error"):
-            evidence["warnings"].append(github["error"])
+    if progress:
+        print("[vc-signals] github: collecting trending repos", file=sys.stderr, flush=True)
+    github, github_health = _run_github_trending_with_timeout(
+        limit=github_limit,
+        timeout_seconds=github_timeout_seconds,
+    )
+    evidence["github"] = filter_repos(github.get("repos", []))
+    evidence["source_health"].append(github_health)
+    evidence["warnings"].extend(github.get("warnings", []))
+    if github.get("error"):
+        evidence["warnings"].append(github["error"])
 
     return evidence
 
@@ -1448,6 +1530,7 @@ def run_weekly_artifacts(
     candidate_limit: int = 15,
     with_synthesis: bool = False,
     query_timeout_seconds: int | None = None,
+    github_timeout_seconds: int | None = DEFAULT_GITHUB_TIMEOUT_SECONDS,
     progress: bool = False,
     discovery_budget: DiscoveryRunBudget | None = None,
     discovery_budget_mode: str = "weekly",
@@ -1463,6 +1546,7 @@ def run_weekly_artifacts(
         github_limit=github_limit,
         max_queries_per_sector=max_queries_per_sector,
         query_timeout_seconds=query_timeout_seconds,
+        github_timeout_seconds=github_timeout_seconds,
         progress=progress,
     )
     signal_result = build_signals_from_evidence(evidence)
@@ -1483,6 +1567,7 @@ def run_weekly_artifacts(
         partial_output_path=company_discovery_path,
         query_cache_dir=discovery_cache_dir or output_dir / "provider-query-cache",
     )
+    company_discovery["source_health"] = list(evidence.get("source_health", []))
     evidence["company_discovery"] = company_discovery
     for error in company_discovery.get("errors", []):
         evidence.setdefault("warnings", []).append(f"company-discovery: {error}")
@@ -1549,7 +1634,9 @@ def run_weekly_artifacts(
     theme_signals_path.write_text(json.dumps([item.to_dict() for item in theme_signals], indent=2))
     sector_intelligence_path.write_text(json.dumps([item.to_dict() for item in sector_intelligence], indent=2))
     company_discovery_path.write_text(json.dumps(company_discovery, indent=2))
-    runtime_ledger_path.write_text(json.dumps(company_discovery.get("runtime_ledger", {}), indent=2))
+    runtime_ledger = dict(company_discovery.get("runtime_ledger", {}))
+    runtime_ledger["source_health"] = list(evidence.get("source_health", []))
+    runtime_ledger_path.write_text(json.dumps(runtime_ledger, indent=2))
     coverage_report_path.write_text(json.dumps(company_discovery.get("coverage_report", {}), indent=2))
     identity_resolution_path.write_text(json.dumps([item.to_dict() for item in identity_resolutions], indent=2, sort_keys=True))
     metadata_loss_report = build_metadata_loss_report(
@@ -1594,6 +1681,7 @@ def run_weekly_artifacts(
         theme_signals=theme_signals,
         sector_intelligence=sector_intelligence,
         source_gap_context="bounded_validation" if query_timeout_seconds is not None else "",
+        source_health=evidence.get("source_health", []),
         run_id=run_date,
     )
     weekly_focus_json_path = output_dir / "weekly-focus.json"
@@ -1719,6 +1807,12 @@ def _cli_main() -> None:
                 "query_timeout_seconds",
                 default=45 if first_pass else None,
             ),
+            github_timeout_seconds=_get_int_arg(
+                args,
+                "github_timeout",
+                "github_timeout_seconds",
+                default=60 if first_pass else DEFAULT_GITHUB_TIMEOUT_SECONDS,
+            ),
             progress=bool(args.get("progress", False)),
         )
         path = save_raw_evidence(evidence, output_dir=output_dir)
@@ -1744,6 +1838,12 @@ def _cli_main() -> None:
                 "query_timeout",
                 "query_timeout_seconds",
                 default=45 if first_pass else None,
+            ),
+            github_timeout_seconds=_get_int_arg(
+                args,
+                "github_timeout",
+                "github_timeout_seconds",
+                default=60 if first_pass else DEFAULT_GITHUB_TIMEOUT_SECONDS,
             ),
             progress=bool(args.get("progress", True)),
             discovery_budget=_discovery_budget_from_args(args, first_pass=first_pass),

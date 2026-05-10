@@ -424,6 +424,52 @@ def test_verified_discovery_does_not_turn_github_only_project_into_company():
     assert result.recommended_identity_action != "Assign owner"
 
 
+def test_marketplace_project_page_does_not_verify_company_identity():
+    from identity_resolution import resolve_candidate_identity
+
+    candidate = Candidate(
+        name="AERIS",
+        sector="Unclassified",
+        theme="Emerging technical signal",
+        source="https://www.pcbway.com/project/shareproject/AERIS_10_Open_Source_Phased_Array_Radar_61e8cdb0.html",
+        sources=["https://www.pcbway.com/project/shareproject/AERIS_10_Open_Source_Phased_Array_Radar_61e8cdb0.html"],
+        candidate_type="company_web",
+        domain="pcbway.com",
+        why_on_radar="AERIS-10 Open Source Phased Array Radar - Share Project - PCBWay",
+        attio_status="no_match",
+    )
+
+    result = resolve_candidate_identity(candidate)
+
+    assert result.verified_domain == ""
+    assert result.identity_type != "verified_company"
+    assert result.attio_safe_to_match is False
+    assert "marketplace_project_page_not_company_proof" in result.verified_domain_basis
+    assert result.recommended_identity_action == "Research deeper"
+
+
+def test_apply_identity_resolution_clears_marketplace_domain_from_candidate():
+    from identity_resolution import apply_identity_resolution
+
+    candidates = [
+        _candidate(
+            name="AERIS",
+            source="https://www.pcbway.com/project/shareproject/AERIS_10_Open_Source_Phased_Array_Radar_61e8cdb0.html",
+            sources=["https://www.pcbway.com/project/shareproject/AERIS_10_Open_Source_Phased_Array_Radar_61e8cdb0.html"],
+            candidate_type="company_web",
+            domain="pcbway.com",
+            why_on_radar="AERIS-10 Open Source Phased Array Radar - Share Project - PCBWay",
+        )
+    ]
+
+    resolved, resolutions = apply_identity_resolution(candidates)
+
+    assert resolutions[0].verified_domain == ""
+    assert resolved[0].domain == ""
+    assert resolved[0].identity_type != "verified_company"
+    assert resolved[0].attio_safe_to_match is False
+
+
 def test_apply_identity_resolution_updates_candidate_fields():
     from identity_resolution import apply_identity_resolution
 

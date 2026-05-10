@@ -1385,6 +1385,39 @@ def test_run_weekly_artifacts_writes_identity_resolution_artifact(tmp_path, monk
     assert Path(result["weekly_focus"]).exists()
 
 
+def test_run_weekly_artifacts_writes_artifacts_when_github_times_out(tmp_path, monkeypatch):
+    import time
+    import radar_run
+
+    def slow_github(*args, **kwargs):
+        time.sleep(5)
+        return {"repos": [{"full_name": "late/repo"}], "warnings": []}
+
+    monkeypatch.setattr(radar_run, "run_query", None)
+    monkeypatch.setattr(radar_run, "run_trending", slow_github)
+    monkeypatch.setattr(radar_run, "load_candidate_history", lambda: {})
+    monkeypatch.setattr(radar_run, "save_candidate_history", lambda history: None)
+    monkeypatch.setattr(radar_run, "apply_candidate_enrichment", lambda candidates: candidates)
+    monkeypatch.setattr(radar_run, "_grounded_search_available", lambda: False)
+
+    result = radar_run.run_weekly_artifacts(
+        output_dir=tmp_path,
+        sectors=(),
+        github_limit=10,
+        github_timeout_seconds=1,
+    )
+
+    assert Path(result["weekly_focus"]).exists()
+    assert Path(result["weekly_focus_json"]).exists()
+    raw = json.loads(Path(result["raw_evidence"]).read_text())
+    github_health = next(item for item in raw["source_health"] if item["source"] == "github")
+    assert github_health["status"] == "partial_timeout"
+    assert github_health["fresh_items"] == 0
+    assert "GitHub collection timed out" in (tmp_path / "weekly-focus.md").read_text()
+    runtime_ledger = json.loads((tmp_path / "runtime-ledger.json").read_text())
+    assert runtime_ledger["source_health"][0]["source"] == "github"
+
+
 def test_identity_resolution_runs_before_attio_matching(monkeypatch):
     import radar_run
 

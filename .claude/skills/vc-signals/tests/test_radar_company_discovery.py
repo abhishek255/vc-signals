@@ -711,6 +711,34 @@ def test_verify_discovery_item_accepts_source_backed_company_domain():
     assert any("movement_terms_present" in item for item in lead.movement_assignment_basis)
 
 
+def test_classifies_project_marketplace_page_as_evidence_not_identity():
+    from radar_company_discovery import classify_discovery_source, verify_discovery_item
+
+    item = {
+        "source": "grounding",
+        "title": "AERIS-10 Open Source Phased Array Radar - Share Project - PCBWay",
+        "url": "https://www.pcbway.com/project/shareproject/AERIS_10_Open_Source_Phased_Array_Radar_61e8cdb0.html",
+        "snippet": "AERIS is an open source phased array radar project shared on PCBWay.",
+        "company_name": "AERIS",
+        "domain": "pcbway.com",
+    }
+
+    assert classify_discovery_source(item) == "marketplace_project_page"
+
+    lead = verify_discovery_item(
+        item,
+        {
+            "movement": "Hardware systems",
+            "market_sector": "Hardware",
+            "required_terms": ["radar", "hardware"],
+        },
+    )
+
+    assert lead.verification_status == "rejected"
+    assert lead.domain == ""
+    assert "marketplace_project_page_not_company_domain" in lead.missing_evidence
+
+
 def test_verify_discovery_item_accepts_official_homepage_domain():
     from radar_company_discovery import verify_discovery_item
 

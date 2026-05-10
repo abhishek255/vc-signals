@@ -14,6 +14,7 @@ from urllib.request import Request, urlopen
 
 from canonical_identity import canonicalize_identity
 from radar_models import Candidate, DiscoveryQuery, FocusItem, ThemeSignal, VerifiedCompanyDiscoveryLead
+from source_authority import is_marketplace_project_page
 
 
 COMPANY_INTENT_TERMS = ("startup", "company", "founder", "launch", "seed", "yc", "raises", "website")
@@ -1089,6 +1090,8 @@ def classify_discovery_source(item: dict) -> str:
     source = (item.get("source") or "").lower()
     title = item.get("title") or ""
     domain = _domain_from_url(source_url) or _normalize_domain(item.get("domain") or item.get("website") or "")
+    if is_marketplace_project_page(url=source_url, domain=domain, title=title):
+        return "marketplace_project_page"
     if source == "github" or domain == "github.com" or domain.endswith(".github.com"):
         return "github_repo"
     if _is_funding_press_release_domain(domain):
@@ -1855,6 +1858,8 @@ def _company_domain_evidence(item: dict, domain: str, source_url: str, source: s
         return False, basis, ["government_or_academic_not_company_domain", "no_source_backed_domain"]
     if source_type == "listicle_or_seo":
         return False, basis, ["listicle_or_seo_not_company_domain", "no_source_backed_domain"]
+    if source_type == "marketplace_project_page":
+        return False, basis, ["marketplace_project_page_not_company_domain", "no_source_backed_domain"]
     if source == "github" or "github.com" in (source_url or ""):
         return False, basis, ["github_only_not_company_proof", "no_source_backed_domain"]
     if _looks_academic_or_government_domain(normalized):

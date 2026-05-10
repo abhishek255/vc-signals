@@ -9,6 +9,7 @@ from urllib.request import Request, urlopen
 
 from radar_focus import ACTION_ASSIGN_OWNER, ACTION_MONITOR_ONLY, ACTION_REFRESH_ATTIO, ACTION_RESEARCH_DEEPER
 from radar_models import Candidate, IdentityResolution
+from source_authority import is_marketplace_project_page
 
 
 IDENTITY_VERIFIED_COMPANY = "verified_company"
@@ -99,6 +100,22 @@ def extract_hn_item_id(url: str) -> str:
 def _is_github_only(candidate: Candidate) -> bool:
     urls = _source_urls(candidate)
     return bool(urls) and all("github.com" in url for url in urls) and not candidate.domain
+
+
+def _marketplace_project_urls(candidate: Candidate) -> list[str]:
+    urls = []
+    for url in _source_urls(candidate):
+        if is_marketplace_project_page(url=url, domain=candidate.domain, title=candidate.why_on_radar):
+            urls.append(url)
+    return urls
+
+
+def _candidate_domain_authority(candidate: Candidate, candidate_domain: str) -> tuple[bool, list[str]]:
+    if not candidate_domain:
+        return False, []
+    if _marketplace_project_urls(candidate):
+        return False, ["marketplace_project_page_not_company_proof"]
+    return True, []
 
 
 def _slug_tokens(value: str) -> list[str]:
@@ -347,7 +364,10 @@ def resolve_from_existing_urls(candidate: Candidate, fetch_cache: dict | None = 
             continue
 
         direct_domain = _domain_from_url(url)
-        if direct_domain and "news.ycombinator.com" not in url:
+        if direct_domain and is_marketplace_project_page(url=url, domain=direct_domain, title=candidate.why_on_radar):
+            hints["verified_domain_basis"].append("marketplace_project_page_not_company_proof")
+            hints["resolved_from"].append("source_url")
+        elif direct_domain and "news.ycombinator.com" not in url:
             hints["verified_domain"] = hints["verified_domain"] or direct_domain
             hints["domain_confidence"] = "High"
             hints["verified_domain_basis"].append("company_url_already_present")
@@ -629,7 +649,8 @@ def resolve_candidate_identity(candidate: Candidate, fetch_cache: dict | None = 
         "resolved_from": [],
     }
     candidate_domain = _normalize_domain(candidate.domain)
-    verified_domain = metadata_hints.get("verified_domain") or url_hints.get("verified_domain") or candidate_domain
+    candidate_domain_ok, candidate_domain_rejections = _candidate_domain_authority(candidate, candidate_domain)
+    verified_domain = metadata_hints.get("verified_domain") or url_hints.get("verified_domain") or (candidate_domain if candidate_domain_ok else "")
     if metadata_hints.get("verified_domain"):
         domain_confidence = metadata_hints.get("domain_confidence") or "Medium"
     elif url_hints.get("verified_domain"):
@@ -637,7 +658,9 @@ def resolve_candidate_identity(candidate: Candidate, fetch_cache: dict | None = 
     else:
         domain_confidence = "Medium" if candidate_domain else "Low"
     verified_domain_basis = list(metadata_hints.get("verified_domain_basis") or []) + list(url_hints.get("verified_domain_basis") or [])
-    if candidate_domain and not verified_domain_basis:
+    if candidate_domain_rejections:
+        verified_domain_basis.extend(candidate_domain_rejections)
+    if candidate_domain and candidate_domain_ok and not verified_domain_basis:
         verified_domain_basis.append("candidate_domain_present")
     founders, maintainers = _founder_or_maintainer_names(candidate)
     for maintainer in metadata_hints.get("maintainers") or []:
@@ -705,6 +728,8 @@ def apply_identity_to_candidate(candidate: Candidate, resolution: IdentityResolu
     out = Candidate.from_dict(candidate.to_dict())
     if resolution.verified_domain:
         out.domain = resolution.verified_domain
+    elif "marketplace_project_page_not_company_proof" in resolution.verified_domain_basis:
+        out.domain = ""
     if resolution.company_linkedin:
         out.company_linkedin = resolution.company_linkedin
     if resolution.company_x:
