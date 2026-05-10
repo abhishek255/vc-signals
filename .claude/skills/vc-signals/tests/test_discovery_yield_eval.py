@@ -490,6 +490,82 @@ def test_route_rank_handles_unknown_and_empty_routes_explicitly():
     assert route_rank("assign_owner") > route_rank("sourcing_candidate")
 
 
+def test_external_maturity_evidence_updates_score_metrics():
+    target = _target(expected_route="sourcing_candidate")
+    provider_runs = [
+        {
+            "provider": "brave",
+            "query": "AI agent production platform official",
+            "query_id": "q1",
+            "query_family": "official_company_page",
+            "movement": target.expected_movement,
+            "market_sector": target.market_sector,
+            "items": [
+                {
+                    "title": "Lyzr - AI agent platform",
+                    "url": "https://www.lyzr.ai/",
+                    "snippet": "Lyzr helps teams launch production AI agents.",
+                }
+            ],
+            "skipped": False,
+        }
+    ]
+    maturity_evidence = {
+        "domains": {
+            "lyzr.ai": {
+                "maturity_status": "seed_to_series_b",
+                "maturity_evaluation_status": "evaluated_with_evidence",
+                "lead_route": "sourcing_candidate",
+                "likely_too_late": False,
+                "category_anchor": False,
+                "maturity_basis": ["seed_or_pre_seed"],
+                "maturity_evidence_urls": ["https://www.lyzr.ai/"],
+            }
+        }
+    }
+
+    result = score_provider_items_against_targets(provider_runs, [target], maturity_evidence=maturity_evidence)
+
+    assert result["metrics"]["credible_early_stage_leads"] == 1
+    assert result["target_results"][0]["actual_maturity"] == "seed_to_series_b"
+
+
+def test_external_maturity_evidence_keeps_non_matching_domains_unchanged():
+    target = _target(expected_route="research_deeper")
+    provider_runs = [
+        {
+            "provider": "brave",
+            "query": "AI agent production platform official",
+            "query_id": "q1",
+            "query_family": "official_company_page",
+            "movement": target.expected_movement,
+            "market_sector": target.market_sector,
+            "items": [
+                {
+                    "title": "Lyzr - AI agent platform",
+                    "url": "https://www.lyzr.ai/",
+                    "snippet": "Lyzr helps teams launch production AI agents.",
+                }
+            ],
+            "skipped": False,
+        }
+    ]
+    maturity_evidence = {
+        "domains": {
+            "braintrust.dev": {
+                "maturity_status": "likely_too_late",
+                "maturity_evaluation_status": "evaluated_with_evidence",
+                "lead_route": "category_context",
+            }
+        }
+    }
+
+    result = score_provider_items_against_targets(provider_runs, [target], maturity_evidence=maturity_evidence)
+
+    assert result["metrics"]["credible_early_stage_leads"] == 0
+    assert result["target_results"][0]["actual_maturity"] == "unknown"
+
+
 def test_write_discovery_yield_artifacts(tmp_path):
     payload = {
         "eval_targets": [_target().to_dict()],

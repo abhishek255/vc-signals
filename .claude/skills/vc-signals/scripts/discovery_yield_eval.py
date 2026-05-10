@@ -202,6 +202,8 @@ def provider_bakeoff(
 def score_provider_items_against_targets(
     provider_runs: list[dict],
     targets: list[LeadDiscoveryEvalTarget],
+    *,
+    maturity_evidence: dict | None = None,
 ) -> dict:
     validate_eval_targets(targets)
     target_domains = {_normalize_domain(target.domain): target for target in targets}
@@ -242,6 +244,7 @@ def score_provider_items_against_targets(
                 rejected.append(lead.to_dict())
 
     accepted = _apply_domain_maturity_rollups(accepted, accepted_items_by_domain)
+    accepted = _apply_external_maturity_evidence(accepted, maturity_evidence)
     target_results = _build_target_results(targets, accepted)
     metrics = _score_metrics(provider_runs, accepted, target_results, total_items, publisher_or_content_junk, targets)
     return {
@@ -292,7 +295,8 @@ def run_eval(args: argparse.Namespace) -> dict:
         max_runtime_seconds=args.max_runtime_seconds,
         cache_dir=args.cache_dir,
     )
-    score = score_provider_items_against_targets(bakeoff["provider_runs"], targets)
+    maturity_evidence = _load_maturity_evidence(args.maturity_evidence) if args.maturity_evidence else None
+    score = score_provider_items_against_targets(bakeoff["provider_runs"], targets, maturity_evidence=maturity_evidence)
     payload = {
         "eval_targets": [target.to_dict() for target in targets],
         "queries": queries,
@@ -316,6 +320,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--max-total-cost-usd", type=float, default=None)
     parser.add_argument("--max-runtime-seconds", type=int, default=None)
     parser.add_argument("--max-aliases-per-target", type=int, default=3)
+    parser.add_argument("--maturity-evidence", default="")
     parser.add_argument("--weekly-preview-path", default="")
     args = parser.parse_args(argv)
     run_eval(args)
@@ -466,6 +471,35 @@ def _apply_domain_maturity_rollups(accepted: list[dict], accepted_items_by_domai
         updated["category_anchor"] = rollup.get("category_anchor", updated.get("category_anchor", False))
         updated["lead_route"] = rollup.get("lead_route", updated.get("lead_route", "research_deeper"))
         updated["likely_too_late"] = rollup.get("likely_too_late", updated.get("likely_too_late", False))
+        out.append(updated)
+    return out
+
+
+def _apply_external_maturity_evidence(accepted: list[dict], maturity_evidence: dict | None) -> list[dict]:
+    if not maturity_evidence:
+        return accepted
+    domains = maturity_evidence.get("domains", {})
+    out = []
+    for row in accepted:
+        domain = _normalize_domain(row.get("domain", ""))
+        evidence = domains.get(domain)
+        if not evidence:
+            out.append(row)
+            continue
+        updated = dict(row)
+        for key in (
+            "maturity_status",
+            "maturity_evaluation_status",
+            "maturity_result_reason",
+            "maturity_basis",
+            "maturity_evidence_urls",
+            "category_anchor",
+            "lead_route",
+            "likely_too_late",
+            "consensus_risk_reason",
+        ):
+            if key in evidence:
+                updated[key] = evidence[key]
         out.append(updated)
     return out
 
@@ -668,6 +702,11 @@ def _query_family_summary(bakeoff: dict, score: dict) -> dict:
             }
         )
     return {"families": serialized, "score_metrics": score.get("metrics", {})}
+
+
+def _load_maturity_evidence(path: str | Path) -> dict:
+    payload = json.loads(Path(path).read_text())
+    return payload.get("classification") or payload
 
 
 def _summary_markdown(payload: dict) -> str:
