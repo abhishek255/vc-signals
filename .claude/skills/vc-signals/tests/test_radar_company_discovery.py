@@ -1646,6 +1646,40 @@ def test_discovery_yield_trial_excludes_unproven_families():
     assert "company_context" not in families
 
 
+def test_discovery_yield_trial_generates_from_focus_movements_without_theme_signals():
+    from radar_company_discovery import DiscoveryYieldTrialConfig, build_company_discovery_queries
+    from radar_models import FocusItem
+
+    focus = FocusItem(
+        id="agent-evals-row",
+        name="Agent evals row",
+        market_movement="Agent reliability and evals",
+        market_sector="AI Infra",
+        missing_evidence=["no verified domain", "no founder or maintainer identity"],
+        evidence_urls=["https://example.com/agent-evals"],
+        recommended_action="Research deeper",
+        noise_risk_score=30,
+        why_focus_this_week="Agent reliability teams are searching for eval tooling.",
+    )
+
+    queries = build_company_discovery_queries(
+        [],
+        focus_items=[focus],
+        grounded_available=True,
+        social_available=False,
+        trial_config=DiscoveryYieldTrialConfig(enabled=True),
+    )
+
+    trial_queries = [query for query in queries if query.get("discovery_lane") == "discovery_yield_trial"]
+    assert trial_queries
+    assert {query["query_family"] for query in trial_queries} == {
+        "official_company_page",
+        "founder_company_pages",
+        "movement_platform",
+    }
+    assert all(query["origin_row_ids"] == ["agent-evals-row"] for query in trial_queries)
+
+
 def test_discovery_yield_trial_caps_movement_platform_per_movement():
     from radar_company_discovery import DiscoveryYieldTrialConfig, build_company_discovery_queries
     from radar_models import ThemeSignal

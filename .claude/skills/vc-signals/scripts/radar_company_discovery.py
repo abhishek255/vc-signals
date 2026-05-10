@@ -346,41 +346,12 @@ def build_company_discovery_queries(
         market_sector = signal.market_sector
         required_terms = _movement_terms(theme)
         if trial_enabled:
-            selected = trial_config.selected_families()
-            query_specs = []
-            if "official_company_page" in selected:
-                query_specs.append(
-                    (
-                        "trial_official_company_page",
-                        "official_company_page",
-                        f"{theme} startup platform official {market_sector}",
-                        "discovery_yield_trial",
-                        [f"theme:{_stable_slug(theme)}"],
-                        ["official_company_page"],
-                    )
-                )
-            if "founder_company_pages" in selected:
-                query_specs.append(
-                    (
-                        "trial_founder_company_pages",
-                        "founder_company_pages",
-                        f"{theme} founder company startup official {market_sector}",
-                        "discovery_yield_trial",
-                        [f"theme:{_stable_slug(theme)}"],
-                        ["official_company_page"],
-                    )
-                )
-            if "movement_platform" in selected:
-                query_specs.append(
-                    (
-                        "trial_movement_platform",
-                        "movement_platform",
-                        f"{theme} platform company official {market_sector}",
-                        "discovery_yield_trial",
-                        [f"theme:{_stable_slug(theme)}"],
-                        ["official_company_page"],
-                    )
-                )
+            query_specs = _trial_query_specs(
+                theme=theme,
+                market_sector=market_sector,
+                origin_ids=[f"theme:{_stable_slug(theme)}"],
+                trial_config=trial_config,
+            )
         else:
             query_specs = [
                 (
@@ -450,6 +421,41 @@ def build_company_discovery_queries(
             continue
         movement = item.market_movement
         required_terms = _movement_terms(movement)
+        if trial_enabled:
+            for kind, query_family, topic, reason, origin_ids, expected_source_types in _trial_query_specs(
+                theme=movement,
+                market_sector=item.market_sector,
+                origin_ids=[item.id],
+                trial_config=trial_config,
+            ):
+                if (
+                    query_family == "movement_platform"
+                    and sum(
+                        1
+                        for existing in queries
+                        if existing.get("movement") == movement
+                        and existing.get("query_family") == "movement_platform"
+                        and existing.get("discovery_lane") == "discovery_yield_trial"
+                    )
+                    >= trial_config.movement_platform_cap_per_movement
+                ):
+                    continue
+                _append_query(
+                    queries,
+                    seen_topics,
+                    kind=kind,
+                    query_family=query_family,
+                    topic=topic,
+                    movement=movement,
+                    market_sector=item.market_sector,
+                    source_reason=reason,
+                    origin_row_ids=origin_ids,
+                    expected_source_types=expected_source_types,
+                    required_terms=required_terms,
+                    grounded_available=grounded_available,
+                    lookback_days=lookback_days,
+                    discovery_lane="discovery_yield_trial",
+                )
         query_specs = [
             (
                 "focus_movement_company_search",
@@ -526,6 +532,51 @@ def build_company_discovery_queries(
         )
 
     return prioritize_discovery_queries(queries)
+
+
+def _trial_query_specs(
+    *,
+    theme: str,
+    market_sector: str,
+    origin_ids: list[str],
+    trial_config: DiscoveryYieldTrialConfig,
+) -> list[tuple[str, str, str, str, list[str], list[str]]]:
+    selected = trial_config.selected_families()
+    query_specs = []
+    if "official_company_page" in selected:
+        query_specs.append(
+            (
+                "trial_official_company_page",
+                "official_company_page",
+                f"{theme} startup platform official {market_sector}",
+                "discovery_yield_trial",
+                origin_ids,
+                ["official_company_page"],
+            )
+        )
+    if "founder_company_pages" in selected:
+        query_specs.append(
+            (
+                "trial_founder_company_pages",
+                "founder_company_pages",
+                f"{theme} founder company startup official {market_sector}",
+                "discovery_yield_trial",
+                origin_ids,
+                ["official_company_page"],
+            )
+        )
+    if "movement_platform" in selected:
+        query_specs.append(
+            (
+                "trial_movement_platform",
+                "movement_platform",
+                f"{theme} platform company official {market_sector}",
+                "discovery_yield_trial",
+                origin_ids,
+                ["official_company_page"],
+            )
+        )
+    return query_specs
 
 
 def prioritize_discovery_queries(queries: list[dict]) -> list[dict]:
