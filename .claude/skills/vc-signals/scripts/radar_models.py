@@ -574,6 +574,7 @@ class OwnerEvidence:
     eligible: bool = False
     skip_reason: str = ""
     founder_team_evidence: list[str] = field(default_factory=list)
+    founder_profiles: list[dict] = field(default_factory=list)
     stage_funding_evidence: list[str] = field(default_factory=list)
     customer_buyer_evidence: list[str] = field(default_factory=list)
     official_site_pages_checked: list[str] = field(default_factory=list)

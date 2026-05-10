@@ -38,7 +38,7 @@ def test_owner_evidence_checks_official_pages_and_extracts_founder_team(tmp_path
     def fake_fetcher(url):
         fetched_urls.append(url)
         if url.endswith("/team"):
-            return "<html><title>Team</title><body>Founded by Maya Rao and Luis Chen to secure agentic cloud workloads.</body></html>"
+            return "<html><title>Team</title><body>Copperhelm was founded by Maya Rao and Luis Chen to secure agentic cloud workloads.</body></html>"
         return "<html><body>Copperhelm is an agentic cloud security company.</body></html>"
 
     enriched, report = enrich_owner_evidence(
@@ -52,10 +52,14 @@ def test_owner_evidence_checks_official_pages_and_extracts_founder_team(tmp_path
     item = report["items"][0]
     assert "https://copperhelm.com/team" in fetched_urls
     assert candidate.founder_team_evidence == ["https://copperhelm.com/team"]
-    assert candidate.founder_profiles == [{"name": "source-backed founder/team evidence", "source": "https://copperhelm.com/team"}]
+    assert candidate.founder_profiles == [
+        {"name": "Maya Rao", "role": "founder", "source": "https://copperhelm.com/team"},
+        {"name": "Luis Chen", "role": "founder", "source": "https://copperhelm.com/team"},
+    ]
     assert "founder_team_evidence" in candidate.owner_readiness_basis
     assert item["official_site_pages_checked"]
     assert item["founder_team_evidence"] == ["https://copperhelm.com/team"]
+    assert item["founder_profiles"] == candidate.founder_profiles
 
 
 def test_owner_evidence_does_not_count_generic_team_word_as_founder(tmp_path):
@@ -101,7 +105,53 @@ def test_owner_evidence_requires_named_leadership_pattern_for_ceo_signal(tmp_pat
     )
 
     assert enriched[0].founder_team_evidence == ["https://copperhelm.com/team"]
+    assert enriched[0].founder_profiles == [
+        {"name": "Maya Rao", "role": "co-founder", "source": "https://copperhelm.com/team"},
+        {"name": "Luis Chen", "role": "CTO", "source": "https://copperhelm.com/team"},
+    ]
     assert report["items"][0]["founder_team_evidence"] == ["https://copperhelm.com/team"]
+
+
+def test_owner_evidence_converts_veris_official_page_to_named_founder_profiles(tmp_path):
+    from owner_evidence import enrich_owner_evidence
+
+    def fake_fetcher(url):
+        if url.endswith("/blog"):
+            return (
+                "<html><body><h1>Introducing Veris AI</h1>"
+                "<p>Mehdi Jamei, CEO and Co-founder of Veris, announced an $8.5M Series Seed.</p>"
+                "<p>Veris customers use simulated environments for enterprise AI agents.</p></body></html>"
+            )
+        return "<html><body>Veris AI trains enterprise AI agents.</body></html>"
+
+    enriched, report = enrich_owner_evidence(
+        [
+            _candidate(
+                name="Veris",
+                domain="veris.ai",
+                founder_profiles=[],
+                founder_team_evidence=[],
+                stage_funding_evidence=[],
+                customer_buyer_evidence=[],
+                maturity_status="seed_to_series_b",
+                maturity_basis=["owner_evidence_stage_funding_signal"],
+                maturity_evidence_urls=[],
+            )
+        ],
+        query_runner=None,
+        page_fetcher=fake_fetcher,
+        cache_dir=tmp_path,
+    )
+
+    candidate = enriched[0]
+    item = report["items"][0]
+    assert candidate.founder_profiles == [
+        {"name": "Mehdi Jamei", "role": "co-founder", "source": "https://veris.ai/blog"}
+    ]
+    assert candidate.founder_team_evidence == ["https://veris.ai/blog"]
+    assert "founder_team_evidence" in candidate.owner_readiness_basis
+    assert "no founder/team evidence" not in candidate.missing_owner_evidence
+    assert item["founder_profiles"] == candidate.founder_profiles
 
 
 def test_owner_evidence_runs_exact_funding_and_customer_queries_and_caches(tmp_path):

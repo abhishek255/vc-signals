@@ -247,6 +247,25 @@ def _extract_founders_from_text(*, company_name: str, text: str, url: str) -> tu
     return deduped, rejection_reasons
 
 
+def extract_named_founder_profiles_from_text(*, company_names: list[str], text: str, url: str) -> tuple[list[dict], list[str]]:
+    """Extract source-backed named founder profiles for any company alias."""
+    profiles: list[dict] = []
+    rejection_reasons: list[str] = []
+    for company_name in company_names:
+        found, rejected = _extract_founders_from_text(company_name=company_name, text=text, url=url)
+        profiles.extend(found)
+        rejection_reasons.extend(rejected)
+
+    deduped: list[dict] = []
+    seen = set()
+    for profile in profiles:
+        key = (profile.get("name"), profile.get("role"), profile.get("source"))
+        if key not in seen:
+            seen.add(key)
+            deduped.append(dict(profile))
+    return deduped, list(dict.fromkeys(rejection_reasons))
+
+
 def _query_items(payload: dict | None) -> list[dict]:
     if not isinstance(payload, dict):
         return []

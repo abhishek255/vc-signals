@@ -10,6 +10,7 @@ from urllib.error import HTTPError, URLError
 from urllib.parse import urlparse
 from urllib.request import Request, urlopen
 
+from founder_team_verification import extract_named_founder_profiles_from_text
 from radar_focus import (
     ACTION_ASSIGN_OWNER,
     ACTION_MONITOR_ONLY,
@@ -89,6 +90,27 @@ def _clean_company_name(candidate: Candidate) -> str:
                 name = parts[-1] if len(parts[-1]) >= 2 else parts[0]
                 break
     return name[:80]
+
+
+def _company_aliases(candidate: Candidate) -> list[str]:
+    aliases: list[str] = []
+    for value in (
+        candidate.canonical_name,
+        candidate.display_name,
+        candidate.name,
+        _clean_company_name(candidate),
+    ):
+        value = re.sub(r"\s+", " ", (value or "").strip())
+        if value and value.lower() not in {alias.lower() for alias in aliases}:
+            aliases.append(value)
+    domain = _domain(candidate)
+    root = domain.split(".", 1)[0] if domain else ""
+    if root:
+        root_title = root[:1].upper() + root[1:]
+        for value in (root_title, f"{root_title} AI" if domain.endswith(".ai") else ""):
+            if value and value.lower() not in {alias.lower() for alias in aliases}:
+                aliases.append(value)
+    return aliases[:6]
 
 
 def _domain(candidate: Candidate) -> str:
@@ -222,14 +244,55 @@ def _recommended_action(candidate: Candidate, score: int, missing: list[str]) ->
     return ACTION_RESEARCH_DEEPER
 
 
-def _apply_evidence(candidate: Candidate, *, founder_urls: list[str], stage_urls: list[str], customer_urls: list[str], page_texts: list[str], query_texts: list[str]) -> Candidate:
+def _dedupe_founder_profiles(profiles: list[dict]) -> list[dict]:
+    deduped: list[dict] = []
+    seen = set()
+    for profile in profiles:
+        name = str(profile.get("name", "")).strip()
+        source = str(profile.get("source", "")).strip()
+        if not name or name.lower() == "source-backed founder/team evidence":
+            continue
+        key = (name, str(profile.get("role", "")).strip(), source)
+        if key in seen:
+            continue
+        seen.add(key)
+        deduped.append(dict(profile))
+    return deduped
+
+
+def _profiles_from_text(candidate: Candidate, *, text: str, url: str) -> list[dict]:
+    profiles, _rejected = extract_named_founder_profiles_from_text(
+        company_names=_company_aliases(candidate),
+        text=text,
+        url=url,
+    )
+    return profiles
+
+
+def _apply_evidence(candidate: Candidate, *, founder_urls: list[str], founder_profiles: list[dict], stage_urls: list[str], customer_urls: list[str], page_texts: list[str], query_texts: list[str]) -> Candidate:
     out = Candidate.from_dict(candidate.to_dict())
     combined_text = " ".join(page_texts + query_texts).lower()
-    if founder_urls:
+    evidence_changed = False
+    founder_profiles = _dedupe_founder_profiles(founder_profiles)
+    if founder_profiles:
+        evidence_changed = True
+        existing_names = set(out.founders)
+        for profile in founder_profiles:
+            name = profile.get("name", "")
+            if name and name not in existing_names:
+                out.founders.append(name)
+                existing_names.add(name)
+        existing_profiles = {(profile.get("name"), profile.get("role"), profile.get("source")) for profile in out.founder_profiles}
+        for profile in founder_profiles:
+            key = (profile.get("name"), profile.get("role"), profile.get("source"))
+            if key not in existing_profiles:
+                out.founder_profiles.append(dict(profile))
+                existing_profiles.add(key)
+        profile_urls = [profile.get("source", "") for profile in founder_profiles if profile.get("source")]
+        founder_urls = list(dict.fromkeys(founder_urls + profile_urls))
         out.founder_team_evidence = list(dict.fromkeys(out.founder_team_evidence + founder_urls))[:5]
-        if not out.founder_profiles and not out.founders:
-            out.founder_profiles = [{"name": "source-backed founder/team evidence", "source": founder_urls[0]}]
     if stage_urls:
+        evidence_changed = True
         out.stage_funding_evidence = list(dict.fromkeys(out.stage_funding_evidence + stage_urls))[:5]
         out.maturity_evidence_urls = list(dict.fromkeys(out.maturity_evidence_urls + stage_urls))[:5]
         early_stage_evidence = any(term in combined_text for term in EARLY_STAGE_TERMS)
@@ -240,10 +303,17 @@ def _apply_evidence(candidate: Candidate, *, founder_urls: list[str], stage_urls
             if out.lead_route == "research_deeper":
                 out.lead_route = "sourcing_candidate"
     if customer_urls:
+        evidence_changed = True
         out.customer_buyer_evidence = list(dict.fromkeys(out.customer_buyer_evidence + customer_urls))[:5]
     for text in page_texts + query_texts:
         if text:
             out.evidence_metadata.append({"description": text[:1200]})
+    if evidence_changed:
+        out.owner_readiness_score = 0
+        out.owner_readiness_basis = []
+        out.missing_owner_evidence = []
+        out.recommended_owner_action = ""
+        out.recommended_next_validation_step = ""
     return out
 
 
@@ -268,6 +338,7 @@ def _score_evidence_candidate(candidate: Candidate, *, eligible: bool, skip_reas
         eligible=eligible,
         skip_reason=skip_reason,
         founder_team_evidence=list(candidate.founder_team_evidence),
+        founder_profiles=list(candidate.founder_profiles),
         stage_funding_evidence=list(candidate.stage_funding_evidence or candidate.maturity_evidence_urls[:3]),
         customer_buyer_evidence=list(candidate.customer_buyer_evidence),
         official_site_pages_checked=pages_checked,
@@ -341,6 +412,7 @@ def enrich_owner_evidence(
         pages_checked: list[str] = []
         pages_failed: list[str] = []
         founder_urls: list[str] = []
+        founder_profiles: list[dict] = []
         stage_urls: list[str] = []
         customer_urls: list[str] = []
         evidence_urls: list[str] = []
@@ -362,8 +434,10 @@ def enrich_owner_evidence(
                 continue
             pages_checked.append(url)
             page_texts.append(text)
-            if _has_founder_team_evidence(text, path):
+            found_profiles = _profiles_from_text(candidate, text=text, url=url)
+            if found_profiles:
                 founder_urls.append(url)
+                founder_profiles.extend(found_profiles)
             if _has_stage_funding_evidence(text):
                 stage_urls.append(url)
             if _has_customer_buyer_evidence(text):
@@ -410,12 +484,22 @@ def enrich_owner_evidence(
         if funding_items:
             funding_text = _items_text(funding_items)
             query_texts.append(funding_text)
+            for item in funding_items:
+                found_profiles = _profiles_from_text(candidate, text=_items_text([item]), url=item.get("url") or item.get("source_url") or "")
+                if found_profiles:
+                    founder_urls.extend(profile.get("source", "") for profile in found_profiles if profile.get("source"))
+                    founder_profiles.extend(found_profiles)
             if _has_stage_funding_evidence(funding_text):
                 stage_urls.extend(_item_urls(funding_items))
         customer_items = _query_items(customer_payload)
         if customer_items:
             customer_text = _items_text(customer_items)
             query_texts.append(customer_text)
+            for item in customer_items:
+                found_profiles = _profiles_from_text(candidate, text=_items_text([item]), url=item.get("url") or item.get("source_url") or "")
+                if found_profiles:
+                    founder_urls.extend(profile.get("source", "") for profile in found_profiles if profile.get("source"))
+                    founder_profiles.extend(found_profiles)
             if _has_customer_buyer_evidence(customer_text):
                 customer_urls.extend(_item_urls(customer_items))
 
@@ -423,6 +507,7 @@ def enrich_owner_evidence(
         candidate_with_evidence = _apply_evidence(
             candidate,
             founder_urls=list(dict.fromkeys(founder_urls))[:3],
+            founder_profiles=founder_profiles,
             stage_urls=list(dict.fromkeys(stage_urls))[:3],
             customer_urls=list(dict.fromkeys(customer_urls))[:3],
             page_texts=page_texts,
