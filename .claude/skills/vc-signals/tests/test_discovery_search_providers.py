@@ -129,19 +129,34 @@ def test_you_uses_x_api_key_header(monkeypatch, tmp_path):
     seen = {}
 
     def fake_http_get(url, *, headers, params, timeout_seconds):
+        seen["url"] = url
         seen["headers"] = headers
         seen["params"] = params
-        return {"results": []}
+        return {
+            "results": {
+                "web": [
+                    {
+                        "title": "AgentCo",
+                        "url": "https://agentco.ai",
+                        "description": "AgentCo builds AI agent security.",
+                    }
+                ]
+            }
+        }
 
-    run_provider_query(
+    result = run_provider_query(
         "you",
         {"query_id": "q1", "topic": "AI agent security startup"},
         cache_dir=tmp_path,
+        max_results=3,
         http_get=fake_http_get,
     )
 
+    assert seen["url"] == "https://ydc-index.io/v1/search"
     assert seen["headers"]["X-API-Key"] == "you-key"
     assert seen["params"]["query"] == "AI agent security startup"
+    assert seen["params"]["count"] == 3
+    assert result["items"][0]["url"] == "https://agentco.ai"
 
 
 def test_perplexity_search_uses_raw_results_only(monkeypatch, tmp_path):

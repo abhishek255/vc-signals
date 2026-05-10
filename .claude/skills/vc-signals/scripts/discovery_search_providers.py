@@ -158,13 +158,16 @@ def _run_brave(topic: str, api_key: str, max_results: int, timeout_seconds: int,
 
 def _run_you(topic: str, api_key: str, max_results: int, timeout_seconds: int, http_get) -> list[dict]:
     payload = _http_get_json(
-        "https://api.ydc-index.io/search",
+        "https://ydc-index.io/v1/search",
         headers={"X-API-Key": api_key, "Accept": "application/json"},
-        params={"query": topic, "num_web_results": max_results},
+        params={"query": topic, "count": max_results},
         timeout_seconds=timeout_seconds,
         http_get=http_get,
     )
-    return payload.get("results") or payload.get("hits") or payload.get("data") or []
+    results = payload.get("results")
+    if isinstance(results, dict):
+        return results.get("web") or results.get("results") or []
+    return results or payload.get("hits") or payload.get("data") or []
 
 
 def _run_perplexity_search(topic: str, api_key: str, max_results: int, timeout_seconds: int, http_get) -> list[dict]:
