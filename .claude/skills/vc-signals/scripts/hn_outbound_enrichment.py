@@ -30,6 +30,18 @@ from radar_models import Candidate
 
 LATE_OR_CONTEXT_STATUSES = {"likely_too_late", "acquired", "incumbent", "category_leader"}
 ACCELERATOR_SUFFIX_RE = re.compile(r"\s*\((?:YC|Y\s+Combinator)\s+[SWF]\d{2}\)\s*", re.IGNORECASE)
+PRIORITY_HIGH = "high_priority"
+PRIORITY_NORMAL = "normal_priority"
+PRIORITY_LOW = "low_priority"
+PRIORITY_SKIP_OR_CONTEXT = "skip_or_context"
+HOSTED_DEMO_SUFFIXES = (".vercel.app", ".netlify.app", ".github.io", ".pages.dev")
+PRODUCT_SUBDOMAIN_PREFIXES = ("app.", "cli.", "docs.", "demo.", "api.")
+DURABLE_EVIDENCE_URL_MARKERS = (
+    "/blog-posts/",
+    "businesswire.com/",
+    "gunder.com/",
+    "ycombinator.com/companies/",
+)
 
 
 class _CallTimeout(Exception):
@@ -156,6 +168,7 @@ def run_hn_outbound_enrichment(
     rows = phase6b_payload.get("company_rows", []) or []
     enriched_rows: list[dict] = []
     skipped_rows: list[dict] = []
+    triage_context_rows: list[dict] = []
     runtime = _RuntimeBudget(
         max_runtime_seconds=max_runtime_seconds,
         max_attio_checks=max_attio_checks,
@@ -170,20 +183,41 @@ def run_hn_outbound_enrichment(
         "founder_team": {"items": [], "summary": {}},
         "owner_evidence": {"items": [], "summary": {}},
     }
+    prepared_rows = _prioritized_rows(rows, cache_dir=cache_path)
+    enriched_seen = 0
 
-    for index, row in enumerate(rows):
-        ledger = _new_ledger_item(row, index=index)
+    for processing_index, prepared in enumerate(prepared_rows):
+        row = prepared["row"]
+        triage = prepared["triage"]
+        original_index = prepared["original_index"]
+        ledger = _new_ledger_item(row, index=original_index, processing_index=processing_index)
+        ledger["priority"] = triage["priority"]
+        ledger["priority_reasons"] = list(triage["reasons"])
         ledger_items.append(ledger)
         candidate_started_at = runtime.time_fn()
-        if index >= max_candidates:
+        candidate = _candidate_from_hn_row(row)
+        if not triage["should_enrich"]:
+            reason = (triage["reasons"] or ["not_company_identity"])[0]
+            row_payload = _context_row(
+                row,
+                reason=reason,
+                lane=triage.get("context_lane", "HN Product / Project Context"),
+                ledger=ledger,
+            )
+            row_payload["priority"] = triage["priority"]
+            row_payload["priority_reasons"] = list(triage["reasons"])
+            _finalize_ledger_item(ledger, row_payload, started_at=candidate_started_at, runtime=runtime)
+            triage_context_rows.append(row_payload)
+            continue
+        if enriched_seen >= max_candidates:
             skipped_rows.append(_skipped_row(row, reason="max_candidates_exceeded", ledger=ledger))
             runtime.mark_exceeded("max_candidates_exceeded")
             continue
         if runtime.runtime_exceeded():
             skipped_rows.append(_skipped_row(row, reason="max_runtime_seconds_exceeded", ledger=ledger))
             continue
+        enriched_seen += 1
 
-        candidate = _candidate_from_hn_row(row)
         promoted, identity_report = _promote_identity(
             candidate,
             row,
@@ -193,10 +227,27 @@ def run_hn_outbound_enrichment(
             ledger=ledger,
         )
         reports["identity"].append(identity_report)
+        final_candidate = promoted
         if promoted.identity_type == "verified_company":
-            promoted = _apply_attio(promoted, attio_matcher, runtime=runtime, ledger=ledger)
-            promoted, maturity_report = _enrich_maturity(
-                promoted,
+            owner_enriched, owner_report = enrich_owner_evidence(
+                [final_candidate],
+                query_runner=None,
+                page_fetcher=_budgeted_page_fetcher(page_fetcher, runtime=runtime, ledger=ledger),
+                cache_dir=cache_path,
+                max_candidates=1,
+                max_pages_per_candidate=4,
+            )
+            reports["owner_evidence"] = _merge_reports(reports["owner_evidence"], owner_report)
+            final_candidate = owner_enriched[0]
+            _merge_report_summary_into_ledger(ledger, owner_report, prefix="owner")
+
+        if (
+            final_candidate.identity_type == "verified_company"
+            and not _has_stage_dimension(final_candidate)
+            and not runtime.candidate_exceeded(candidate_started_at)
+        ):
+            final_candidate, maturity_report = _enrich_maturity(
+                final_candidate,
                 query_runner=query_runner,
                 cache_dir=cache_path,
                 runtime=runtime,
@@ -204,14 +255,21 @@ def run_hn_outbound_enrichment(
             )
             reports["maturity"].append(maturity_report)
         else:
-            maturity_report = _skipped_maturity_report(promoted, "identity_not_promoted")
+            maturity_report = _skipped_maturity_report(
+                final_candidate,
+                "identity_not_promoted" if final_candidate.identity_type != "verified_company" else "stage_already_available",
+            )
             reports["maturity"].append(maturity_report)
 
-        final_candidate = promoted
-        if final_candidate.identity_type == "verified_company" and not runtime.candidate_exceeded(candidate_started_at):
+        if (
+            final_candidate.identity_type == "verified_company"
+            and _has_stage_dimension(final_candidate)
+            and not _has_founder_dimension(final_candidate)
+            and not runtime.candidate_exceeded(candidate_started_at)
+        ):
             founder_enriched, founder_report = enrich_founder_team_verification(
                 [final_candidate],
-                query_runner=_budgeted_query_runner(query_runner, runtime=runtime, ledger=ledger),
+                query_runner=_budgeted_query_runner(query_runner, runtime=runtime, ledger=ledger, default_stage="founder"),
                 cache_dir=cache_path,
                 max_candidates=1,
             )
@@ -219,27 +277,40 @@ def run_hn_outbound_enrichment(
             final_candidate = founder_enriched[0]
             _merge_report_summary_into_ledger(ledger, founder_report, prefix="founder")
 
-        if final_candidate.identity_type == "verified_company" and not runtime.candidate_exceeded(candidate_started_at):
+        if (
+            final_candidate.identity_type == "verified_company"
+            and (_has_stage_dimension(final_candidate) or _has_founder_dimension(final_candidate))
+            and (not _has_stage_dimension(final_candidate) or not _has_customer_dimension(final_candidate))
+            and not runtime.candidate_exceeded(candidate_started_at)
+        ):
             owner_enriched, owner_report = enrich_owner_evidence(
                 [final_candidate],
-                query_runner=_budgeted_query_runner(query_runner, runtime=runtime, ledger=ledger),
+                query_runner=_budgeted_query_runner(query_runner, runtime=runtime, ledger=ledger, default_stage="owner"),
                 page_fetcher=_budgeted_page_fetcher(page_fetcher, runtime=runtime, ledger=ledger),
                 cache_dir=cache_path,
                 max_candidates=1,
+                max_pages_per_candidate=0,
             )
             reports["owner_evidence"] = _merge_reports(reports["owner_evidence"], owner_report)
             final_candidate = owner_enriched[0]
             _merge_report_summary_into_ledger(ledger, owner_report, prefix="owner")
 
+        final_candidate = _clear_owner_readiness(final_candidate)
+        if final_candidate.identity_type == "verified_company" and not runtime.candidate_exceeded(candidate_started_at):
+            if _eligible_for_attio(final_candidate):
+                final_candidate = _apply_attio(final_candidate, attio_matcher, runtime=runtime, ledger=ledger)
+            else:
+                ledger["attio_skipped"] += 1
+                ledger["attio_skip_reason"] = "insufficient_evidence_before_attio"
+                final_candidate.attio_status = final_candidate.attio_status or "unknown"
+
         row_payload = _row_from_candidate(final_candidate, row, identity_report)
-        if runtime.candidate_exceeded(candidate_started_at):
-            row_payload = _mark_partial_row(row_payload, "per_candidate_timeout_seconds_exceeded")
         if ledger["partial_reason"]:
             row_payload = _mark_partial_row(row_payload, ledger["partial_reason"])
         _finalize_ledger_item(ledger, row_payload, started_at=candidate_started_at, runtime=runtime)
         enriched_rows.append(row_payload)
 
-    passthrough_product = list(phase6b_payload.get("product_context_rows", []) or [])
+    passthrough_product = triage_context_rows + list(phase6b_payload.get("product_context_rows", []) or [])
     passthrough_projects = list(phase6b_payload.get("project_only_rows", []) or [])
     rejected = list(phase6b_payload.get("rejected_rows", []) or [])
     runtime_ledger = _runtime_ledger_payload(ledger_items, runtime=runtime)
@@ -276,26 +347,46 @@ def write_hn_outbound_enrichment_artifacts(payload: dict, output_dir: Path | str
     return [json_path, md_path, ledger_path]
 
 
-def _new_ledger_item(row: dict, *, index: int) -> dict:
+def _new_ledger_item(row: dict, *, index: int, processing_index: int | None = None) -> dict:
     return {
         "index": index,
+        "original_index": index,
+        "processing_index": processing_index if processing_index is not None else index,
         "name": row.get("name") or row.get("source_title") or row.get("company_domain") or "",
         "domain": row.get("company_domain") or row.get("outbound_domain") or "",
         "status": "in_progress",
         "partial_reason": "",
+        "priority": "",
+        "priority_reasons": [],
         "elapsed_seconds": 0.0,
         "page_fetches": 0,
         "page_cache_hits": 0,
+        "official_page_cache_hits": 0,
         "live_queries": 0,
         "query_cache_hits": 0,
+        "maturity_queries": 0,
+        "founder_queries": 0,
+        "owner_queries": 0,
+        "customer_queries": 0,
+        "maturity_query_cache_hits": 0,
+        "founder_query_cache_hits": 0,
+        "owner_query_cache_hits": 0,
+        "customer_query_cache_hits": 0,
+        "maturity_query_timeouts": 0,
+        "founder_query_timeouts": 0,
+        "customer_query_timeouts": 0,
+        "owner_query_timeouts": 0,
         "queries_skipped": 0,
         "attio_checks": 0,
         "attio_skipped": 0,
+        "attio_skip_reason": "",
         "timeouts": 0,
         "identity_status": "",
         "maturity_status": "",
         "founder_evidence_found": False,
         "customer_evidence_found": False,
+        "evidence_dimensions": [],
+        "customer_evidence_labels": [],
         "final_action": "",
         "unsafe_promotion": False,
         "missing_evidence": [],
@@ -319,12 +410,26 @@ def _merge_reports(existing: dict, incoming: dict) -> dict:
 def _merge_report_summary_into_ledger(ledger: dict, report: dict, *, prefix: str) -> None:
     summary = report.get("summary") or {}
     ledger["query_cache_hits"] += int(summary.get("query_cache_hits", 0))
+    if prefix == "founder":
+        ledger["founder_query_cache_hits"] += int(summary.get("query_cache_hits", 0))
     if prefix == "owner":
         ledger["page_cache_hits"] += int(summary.get("page_cache_hits", 0))
-        ledger["page_fetches"] += int(summary.get("page_fetches", 0))
+        ledger["official_page_cache_hits"] += int(summary.get("page_cache_hits", 0))
+        ledger["owner_query_cache_hits"] += int(summary.get("query_cache_hits", 0))
+        for item in report.get("items") or []:
+            if item.get("funding_query_status") == "cache_hit":
+                ledger["maturity_query_cache_hits"] += 1
+            if item.get("customer_query_status") == "cache_hit":
+                ledger["customer_query_cache_hits"] += 1
 
 
-def _budgeted_query_runner(query_runner: Callable | None, *, runtime: _RuntimeBudget, ledger: dict) -> Callable | None:
+def _budgeted_query_runner(
+    query_runner: Callable | None,
+    *,
+    runtime: _RuntimeBudget,
+    ledger: dict,
+    default_stage: str = "query",
+) -> Callable | None:
     if not query_runner:
         return None
 
@@ -334,14 +439,20 @@ def _budgeted_query_runner(query_runner: Callable | None, *, runtime: _RuntimeBu
             return {"items": [], "_budget_skipped": True, "budget_reason": "max_live_queries_exceeded"}
         runtime.mark_live_query()
         ledger["live_queries"] += 1
+        stage = _query_stage(topic, default_stage)
+        _increment_query_stage(ledger, stage)
         try:
             with _timeout(_query_timeout_seconds(runtime)):
                 return query_runner(topic, **kwargs)
         except _CallTimeout:
-            runtime.mark_timeout("live_query_timeout")
+            reason = f"{stage}_query_timeout"
+            runtime.mark_timeout(reason)
             ledger["timeouts"] += 1
-            ledger["partial_reason"] = ledger["partial_reason"] or "live_query_timeout"
-            return {"items": [], "_timeout": True}
+            timeout_key = f"{stage}_query_timeouts"
+            if timeout_key in ledger:
+                ledger[timeout_key] += 1
+            ledger["partial_reason"] = ledger["partial_reason"] or reason
+            return {"items": [], "_timeout": True, "timeout_reason": reason}
 
     return run
 
@@ -365,6 +476,27 @@ def _budgeted_page_fetcher(page_fetcher: Callable | None, *, runtime: _RuntimeBu
             return ""
 
     return run
+
+
+def _query_stage(topic: str, default_stage: str) -> str:
+    lowered = topic.lower()
+    if "founder" in lowered or "co-founder" in lowered or "cofounder" in lowered or "team" in lowered:
+        return "founder"
+    if "customer" in lowered or "case study" in lowered or "buyer" in lowered or "waitlist" in lowered:
+        return "customer"
+    if "funding" in lowered or "seed" in lowered or "series" in lowered or "valuation" in lowered or "acquisition" in lowered:
+        return "maturity"
+    if default_stage in {"maturity", "founder", "customer", "owner"}:
+        return default_stage
+    return "owner"
+
+
+def _increment_query_stage(ledger: dict, stage: str) -> None:
+    key = f"{stage}_queries"
+    if key in ledger:
+        ledger[key] += 1
+    elif stage == "query" and "owner_queries" in ledger:
+        ledger["owner_queries"] += 1
 
 
 def _query_timeout_seconds(runtime: _RuntimeBudget) -> float | None:
@@ -422,6 +554,37 @@ def _skipped_row(row: dict, *, reason: str, ledger: dict) -> dict:
     }
 
 
+def _context_row(row: dict, *, reason: str, lane: str, ledger: dict) -> dict:
+    ledger["status"] = "completed"
+    ledger["partial_reason"] = reason
+    return {
+        "name": row.get("name") or row.get("source_title") or row.get("company_domain") or "",
+        "canonical_name": row.get("name") or row.get("company_domain") or "",
+        "official_domain": row.get("company_domain") or row.get("outbound_domain") or "",
+        "source_title": row.get("source_title", ""),
+        "source_url": row.get("source_url", ""),
+        "official_url": row.get("official_url", ""),
+        "identity_type": "hn_context_candidate",
+        "identity_promotion_status": "not_promoted",
+        "maturity_status": row.get("maturity_status", "unknown"),
+        "lead_route": "research_deeper",
+        "owner_readiness_score": 0,
+        "owner_readiness_basis": [],
+        "missing_owner_evidence": [reason],
+        "recommended_action": ACTION_RESEARCH_DEEPER,
+        "recommended_lane": lane,
+        "next_validation_step": "Use as launch/context evidence only; find official company domain before enrichment",
+        "assign_owner": False,
+        "new_to_marathon": False,
+        "unsafe_promotion": False,
+        "partial": False,
+        "partial_reason": reason,
+        "missing_evidence": [reason],
+        "movement": row.get("movement", ""),
+        "market_sector": row.get("market_sector", ""),
+    }
+
+
 def _mark_partial_row(row: dict, reason: str) -> dict:
     out = dict(row)
     out["partial"] = True
@@ -446,6 +609,8 @@ def _finalize_ledger_item(ledger: dict, row: dict, *, started_at: float, runtime
     ledger["maturity_status"] = row.get("maturity_status", "")
     ledger["founder_evidence_found"] = bool(row.get("founder_team_evidence"))
     ledger["customer_evidence_found"] = bool(row.get("customer_buyer_evidence"))
+    ledger["evidence_dimensions"] = sorted(_row_evidence_dimensions(row))
+    ledger["customer_evidence_labels"] = _row_customer_evidence_labels(row)
     ledger["final_action"] = row.get("recommended_action", "")
     ledger["unsafe_promotion"] = bool(row.get("unsafe_promotion"))
     ledger["missing_evidence"] = list(row.get("missing_evidence") or [])
@@ -465,9 +630,86 @@ def _runtime_ledger_payload(items: list[dict], *, runtime: _RuntimeBudget) -> di
             "elapsed_seconds": round(runtime.elapsed(), 3),
             "budget_exceeded": runtime.budget_exceeded,
             "budget_reasons": list(runtime.budget_reasons),
+            "high_priority_candidates": sum(1 for item in items if item.get("priority") == PRIORITY_HIGH),
+            "normal_priority_candidates": sum(1 for item in items if item.get("priority") == PRIORITY_NORMAL),
+            "low_priority_candidates": sum(1 for item in items if item.get("priority") == PRIORITY_LOW),
+            "skip_or_context_candidates": sum(1 for item in items if item.get("priority") == PRIORITY_SKIP_OR_CONTEXT),
+            "official_page_cache_hits": sum(int(item.get("official_page_cache_hits", 0)) for item in items),
+            "maturity_query_cache_hits": sum(int(item.get("maturity_query_cache_hits", 0)) for item in items),
+            "founder_query_cache_hits": sum(int(item.get("founder_query_cache_hits", 0)) for item in items),
+            "customer_query_cache_hits": sum(int(item.get("customer_query_cache_hits", 0)) for item in items),
+            "owner_query_cache_hits": sum(int(item.get("owner_query_cache_hits", 0)) for item in items),
         },
         "items": items,
     }
+
+
+def _prioritized_rows(rows: list[dict], *, cache_dir: Path | None) -> list[dict]:
+    priority_order = {
+        PRIORITY_HIGH: 0,
+        PRIORITY_NORMAL: 1,
+        PRIORITY_LOW: 2,
+        PRIORITY_SKIP_OR_CONTEXT: 3,
+    }
+    prepared = []
+    for original_index, row in enumerate(rows):
+        triage = _triage_hn_candidate(row, cache_dir=cache_dir)
+        prepared.append({"row": row, "triage": triage, "original_index": original_index})
+    return sorted(prepared, key=lambda item: (priority_order.get(item["triage"]["priority"], 99), item["original_index"]))
+
+
+def _triage_hn_candidate(row: dict, *, cache_dir: Path | None = None) -> dict:
+    name = str(row.get("name") or row.get("source_title") or "").strip()
+    title = str(row.get("source_title") or name).lower()
+    domain = _normalize_domain(row.get("company_domain") or row.get("outbound_domain") or "")
+    engagement = row.get("hn_engagement") or {}
+    points = int(engagement.get("points") or 0)
+    comments = int(engagement.get("comments") or 0)
+    reasons: list[str] = []
+
+    if any(domain.endswith(suffix) for suffix in HOSTED_DEMO_SUFFIXES):
+        return {
+            "priority": PRIORITY_SKIP_OR_CONTEXT,
+            "reasons": ["hosted_demo_not_company_identity"],
+            "should_enrich": False,
+            "context_lane": "HN Product / Project Context",
+        }
+    if any(domain.startswith(prefix) for prefix in PRODUCT_SUBDOMAIN_PREFIXES):
+        return {
+            "priority": PRIORITY_SKIP_OR_CONTEXT,
+            "reasons": ["product_subdomain_risk"],
+            "should_enrich": False,
+            "context_lane": "HN Product / Category Context",
+        }
+    if re.search(r"\((?:YC|Y\s+Combinator)\s+[SWF]\d{2}\)", title, re.IGNORECASE):
+        reasons.append("accelerator_hint")
+    official_domain = _normalize_domain(row.get("official_url", ""))
+    if official_domain and domain and official_domain == domain:
+        reasons.append("official_domain_url")
+    if domain and "." in domain:
+        reasons.append("company_looking_domain")
+    if points >= 20 or comments >= 5:
+        reasons.append("hn_engagement")
+    if cache_dir and _has_hn_candidate_cache(domain, cache_dir):
+        reasons.append("cache_available")
+
+    if "accelerator_hint" in reasons or "cache_available" in reasons:
+        priority = PRIORITY_HIGH
+    elif "company_looking_domain" in reasons:
+        priority = PRIORITY_NORMAL
+    else:
+        priority = PRIORITY_LOW
+    return {"priority": priority, "reasons": reasons or ["weak_source_signal"], "should_enrich": True}
+
+
+def _has_hn_candidate_cache(domain: str, cache_dir: Path) -> bool:
+    if not domain:
+        return False
+    for folder in ("hn-official-pages", "official-pages", "hn-outbound-queries", "queries"):
+        path = cache_dir / folder
+        if path.exists() and any(path.iterdir()):
+            return True
+    return False
 
 
 def _candidate_from_hn_row(row: dict) -> Candidate:
@@ -546,6 +788,7 @@ def _promote_identity(
         payload, cache_status = _read_or_fetch_page(url, fetch, cache_dir, runtime=runtime, ledger=ledger)
         if cache_status == "cache_hit":
             ledger["page_cache_hits"] += 1
+            ledger["official_page_cache_hits"] += 1
         text = _page_text(payload)
         if text:
             checked.append(url)
@@ -620,6 +863,15 @@ def _apply_attio(candidate: Candidate, attio_matcher: Callable | None, *, runtim
         out.attio_safe_to_match = True
         if not out.attio_match_keys:
             out.attio_match_keys = [out.domain]
+    status = (out.attio_status or "").lower()
+    if status in {"no_match", "not_found", "new", "no_owner"}:
+        out.attio_confidence = "High"
+        out.attio_confidence_basis = [f"attio_status:{status}"]
+        out.owner_readiness_score = 0
+        out.owner_readiness_basis = []
+        out.missing_owner_evidence = []
+        out.recommended_owner_action = ""
+        out.recommended_next_validation_step = ""
     return out
 
 
@@ -627,9 +879,10 @@ def _enrich_maturity(candidate: Candidate, *, query_runner: Callable | None, cac
     topic = _maturity_query(candidate)
     payload, query_status = _run_cached_query(
         topic,
-        query_runner=_budgeted_query_runner(query_runner, runtime=runtime, ledger=ledger),
+        query_runner=_budgeted_query_runner(query_runner, runtime=runtime, ledger=ledger, default_stage="maturity"),
         cache_dir=cache_dir,
         ledger=ledger,
+        stage="maturity",
     )
     items = list(payload.get("items") or []) if isinstance(payload, dict) else []
     maturity = _classify_maturity_from_items(items, company_name=candidate.name, domain=candidate.domain)
@@ -739,6 +992,73 @@ def _recommended_action(candidate: Candidate, score: int, missing: list[str]) ->
     return ACTION_RESEARCH_DEEPER
 
 
+def _meaningful_evidence_dimensions(candidate: Candidate) -> set[str]:
+    dimensions: set[str] = set()
+    if _named_founder_profiles(candidate) or candidate.founders:
+        dimensions.add("founder")
+    if candidate.maturity_status == "seed_to_series_b" or candidate.stage_funding_evidence or candidate.maturity_evidence_urls:
+        dimensions.add("stage")
+    if _strong_customer_evidence_types(candidate) or candidate.customer_buyer_evidence:
+        dimensions.add("customer")
+    if candidate.maturity_status == "early_stage_context":
+        dimensions.add("early_stage_context")
+    return dimensions
+
+
+def _eligible_for_attio(candidate: Candidate) -> bool:
+    if candidate.identity_type != "verified_company":
+        return False
+    if candidate.category_anchor or candidate.maturity_status in LATE_OR_CONTEXT_STATUSES:
+        return False
+    return bool(_meaningful_evidence_dimensions(candidate))
+
+
+def _has_founder_dimension(candidate: Candidate) -> bool:
+    return bool(_named_founder_profiles(candidate) or candidate.founders or candidate.founder_team_evidence)
+
+
+def _has_stage_dimension(candidate: Candidate) -> bool:
+    return bool(
+        candidate.maturity_status == "seed_to_series_b"
+        or candidate.stage_funding_evidence
+        or candidate.maturity_evidence_urls
+    )
+
+
+def _has_customer_dimension(candidate: Candidate) -> bool:
+    return bool(_strong_customer_evidence_types(candidate) or candidate.customer_buyer_evidence)
+
+
+def _clear_owner_readiness(candidate: Candidate) -> Candidate:
+    out = Candidate.from_dict(candidate.to_dict())
+    out.owner_readiness_score = 0
+    out.owner_readiness_basis = []
+    out.missing_owner_evidence = []
+    out.recommended_owner_action = ""
+    out.recommended_next_validation_step = ""
+    return out
+
+
+def _row_evidence_dimensions(row: dict) -> set[str]:
+    dimensions: set[str] = set()
+    if row.get("founder_team_evidence") or row.get("founders"):
+        dimensions.add("founder")
+    if row.get("stage_funding_evidence") or row.get("maturity_status") == "seed_to_series_b":
+        dimensions.add("stage")
+    if row.get("customer_buyer_evidence") or row.get("customer_buyer_evidence_types"):
+        dimensions.add("customer")
+    if row.get("maturity_status") == "early_stage_context":
+        dimensions.add("early_stage_context")
+    return dimensions
+
+
+def _row_customer_evidence_labels(row: dict) -> list[str]:
+    labels: list[str] = []
+    for item in row.get("customer_buyer_evidence_types") or []:
+        labels.extend(item.get("evidence_types") or [])
+    return sorted(dict.fromkeys(labels))
+
+
 def _clean_maturity_basis(candidate: Candidate) -> list[str]:
     basis = list(candidate.maturity_basis)
     if candidate.maturity_status != "unknown" and len(basis) > 1:
@@ -755,10 +1075,16 @@ def _strict_hn_owner_outputs(
 ) -> tuple[int, list[str], list[str], str, dict]:
     strict_founder_profiles = _named_founder_profiles(candidate)
     strict_founders = list(dict.fromkeys(list(candidate.founders) + [profile.get("name", "") for profile in strict_founder_profiles if profile.get("name")]))
-    strict_founder_urls = list(dict.fromkeys(profile.get("source", "") for profile in strict_founder_profiles if profile.get("source")))
-    strict_stage_urls = list(candidate.stage_funding_evidence) if candidate.maturity_status == "seed_to_series_b" else []
+    strict_founder_urls = _prefer_durable_evidence_urls(
+        list(dict.fromkeys(profile.get("source", "") for profile in strict_founder_profiles if profile.get("source")))
+    )
+    strict_stage_urls = _prefer_durable_evidence_urls(list(candidate.stage_funding_evidence)) if candidate.maturity_status == "seed_to_series_b" else []
     strong_customer_types = _strong_customer_evidence_types(candidate)
-    strict_customer_urls = [item["url"] for item in strong_customer_types] if strong_customer_types else list(candidate.customer_buyer_evidence)
+    strict_customer_urls = (
+        _prefer_durable_evidence_urls([item["url"] for item in strong_customer_types])
+        if strong_customer_types
+        else _prefer_durable_evidence_urls(list(candidate.customer_buyer_evidence))
+    )
 
     basis = list(basis)
     missing = list(missing)
@@ -788,6 +1114,13 @@ def _strict_hn_owner_outputs(
         "customer_buyer_evidence": strict_customer_urls,
         "customer_buyer_evidence_types": strong_customer_types,
     }
+
+
+def _prefer_durable_evidence_urls(urls: list[str]) -> list[str]:
+    normalized = list(dict.fromkeys(url for url in urls if url))
+    durable = [url for url in normalized if any(marker in url.lower() for marker in DURABLE_EVIDENCE_URL_MARKERS)]
+    generic = [url for url in normalized if url not in durable]
+    return (durable + generic)[:5]
 
 
 def _named_founder_profiles(candidate: Candidate) -> list[dict]:
@@ -889,6 +1222,22 @@ def _markdown(payload: dict) -> str:
         "project_only_rows",
     ):
         lines.append(f"- {key}: {summary.get(key, 0)}")
+    lines.extend(["", "## Runtime Ledger", ""])
+    ledger_summary = payload.get("runtime_ledger", {}).get("summary", {})
+    for key in (
+        "candidates_completed",
+        "candidates_partially_enriched",
+        "candidates_skipped",
+        "high_priority_candidates",
+        "normal_priority_candidates",
+        "low_priority_candidates",
+        "skip_or_context_candidates",
+        "live_queries",
+        "attio_checks",
+        "page_fetches",
+        "timeouts",
+    ):
+        lines.append(f"- {key}: {ledger_summary.get(key, 0)}")
     lines.extend(["", "## Enriched HN Outbound Candidates", ""])
     for row in payload.get("enriched_outbound_candidates", []) or []:
         lines.append(
@@ -932,7 +1281,14 @@ def _read_or_fetch_page(url: str, fetcher: Callable, cache_dir: Path | None, *, 
     return payload, "fetched"
 
 
-def _run_cached_query(topic: str, *, query_runner: Callable | None, cache_dir: Path | None, ledger: dict | None = None) -> tuple[dict, str]:
+def _run_cached_query(
+    topic: str,
+    *,
+    query_runner: Callable | None,
+    cache_dir: Path | None,
+    ledger: dict | None = None,
+    stage: str = "query",
+) -> tuple[dict, str]:
     if not query_runner:
         return {"items": []}, "not_queried"
     if cache_dir:
@@ -941,6 +1297,9 @@ def _run_cached_query(topic: str, *, query_runner: Callable | None, cache_dir: P
             try:
                 if ledger is not None:
                     ledger["query_cache_hits"] += 1
+                    stage_key = f"{stage}_query_cache_hits"
+                    if stage_key in ledger:
+                        ledger[stage_key] += 1
                 return json.loads(path.read_text()), "cache_hit"
             except json.JSONDecodeError:
                 pass

@@ -121,6 +121,141 @@ def test_hn_outbound_without_official_identity_stays_outbound_candidate():
     assert result["summary"]["assign_owner_rows"] == 0
 
 
+def test_hn_enrichment_triage_routes_hosted_demo_to_context_before_live_budget():
+    from hn_outbound_enrichment import run_hn_outbound_enrichment
+
+    calls = {"query": 0, "attio": 0}
+
+    def query_runner(topic, **kwargs):
+        calls["query"] += 1
+        return {"items": []}
+
+    def attio_matcher(candidate):
+        calls["attio"] += 1
+        return {"attio_status": "no_match"}
+
+    result = run_hn_outbound_enrichment(
+        _phase6b_payload(
+            company_rows=[
+                _hn_outbound(
+                    name="ARC AGI Swarm Demo",
+                    official_url="https://arc-agi-swarm.vercel.app",
+                    outbound_domain="arc-agi-swarm.vercel.app",
+                    company_domain="arc-agi-swarm.vercel.app",
+                    source_title="Show HN: Launch an AI agent swarm for ARC-AGI-3",
+                )
+            ]
+        ),
+        page_fetcher=lambda url: "<html><title>ARC AGI Swarm Demo</title></html>",
+        query_runner=query_runner,
+        attio_matcher=attio_matcher,
+        max_live_queries=5,
+        max_attio_checks=5,
+    )
+
+    row = result["product_context_rows"][0]
+    ledger = result["runtime_ledger"]["items"][0]
+    assert row["recommended_action"] == "Research deeper"
+    assert row["assign_owner"] is False
+    assert ledger["priority"] == "skip_or_context"
+    assert ledger["partial_reason"] == "hosted_demo_not_company_identity"
+    assert row["recommended_lane"] == "HN Product / Project Context"
+    assert "hosted_demo_not_company_identity" in row["missing_evidence"]
+    assert result["summary"]["product_context_rows"] == 1
+    assert calls["query"] == 0
+    assert calls["attio"] == 0
+
+
+def test_hn_enrichment_triage_does_not_skip_low_engagement_strong_company_signal():
+    from hn_outbound_enrichment import run_hn_outbound_enrichment
+
+    result = run_hn_outbound_enrichment(
+        _phase6b_payload(
+            company_rows=[
+                _hn_outbound(
+                    name="Veris",
+                    source_title="Show HN: Veris - Agent sandboxes with simulated external services",
+                    official_url="https://veris.ai/sandbox",
+                    outbound_domain="veris.ai",
+                    company_domain="veris.ai",
+                    hn_engagement={"points": 1, "comments": 0},
+                )
+            ]
+        ),
+        page_fetcher=lambda url: "<html><title>Veris</title><body>Veris AI trains enterprise AI agents.</body></html>",
+        query_runner=lambda topic, **kwargs: {"items": []},
+    )
+
+    ledger = result["runtime_ledger"]["items"][0]
+    assert ledger["priority"] in {"high_priority", "normal_priority"}
+    assert ledger["partial_reason"] != "budget_skipped_low_priority"
+
+
+def test_hn_enrichment_low_priority_is_enriched_when_budget_remains():
+    from hn_outbound_enrichment import run_hn_outbound_enrichment
+
+    result = run_hn_outbound_enrichment(
+        _phase6b_payload(
+            company_rows=[
+                _hn_outbound(
+                    name="TinyTool",
+                    source_title="Show HN: TinyTool",
+                    official_url="",
+                    outbound_domain="tinytool",
+                    company_domain="tinytool",
+                    hn_engagement={"points": 0, "comments": 0},
+                )
+            ]
+        ),
+        page_fetcher=lambda url: "<html><title>TinyTool</title><body>TinyTool workflow automation</body></html>",
+        query_runner=lambda topic, **kwargs: {"items": []},
+        max_candidates=1,
+        max_runtime_seconds=30,
+    )
+
+    ledger = result["runtime_ledger"]["items"][0]
+    assert ledger["priority"] == "low_priority"
+    assert ledger["partial_reason"] != "budget_skipped_low_priority"
+    assert result["summary"]["candidates_enriched"] == 1
+
+
+def test_hn_enrichment_processes_high_priority_before_low_priority_budget_skip():
+    from hn_outbound_enrichment import run_hn_outbound_enrichment
+
+    result = run_hn_outbound_enrichment(
+        _phase6b_payload(
+            company_rows=[
+                _hn_outbound(
+                    name="TinyTool",
+                    source_title="Show HN: TinyTool",
+                    official_url="",
+                    outbound_domain="tinytool",
+                    company_domain="tinytool",
+                    hn_engagement={"points": 0, "comments": 0},
+                ),
+                _hn_outbound(
+                    name="Veris",
+                    source_title="Show HN: Veris - Agent sandboxes with simulated external services",
+                    official_url="https://veris.ai/sandbox",
+                    outbound_domain="veris.ai",
+                    company_domain="veris.ai",
+                ),
+            ]
+        ),
+        page_fetcher=lambda url: "<html><title>Veris</title><body>Veris AI trains enterprise AI agents.</body></html>",
+        query_runner=lambda topic, **kwargs: {"items": []},
+        max_candidates=1,
+        max_runtime_seconds=30,
+    )
+
+    ledger_items = result["runtime_ledger"]["items"]
+    assert ledger_items[0]["name"] == "Veris"
+    assert ledger_items[0]["priority"] in {"high_priority", "normal_priority"}
+    assert ledger_items[1]["name"] == "TinyTool"
+    assert ledger_items[1]["priority"] == "low_priority"
+    assert ledger_items[1]["partial_reason"] in {"max_candidates_exceeded", "budget_skipped_low_priority"}
+
+
 def test_hn_outbound_can_assign_owner_only_after_all_existing_gates_pass():
     from hn_outbound_enrichment import run_hn_outbound_enrichment
 
@@ -147,6 +282,57 @@ def test_hn_outbound_can_assign_owner_only_after_all_existing_gates_pass():
     assert row["assign_owner"] is True
     assert result["summary"]["assign_owner_rows"] == 1
     assert result["summary"]["unsafe_promotions"] == 0
+
+
+def test_hn_enrichment_does_not_call_attio_before_meaningful_evidence():
+    from hn_outbound_enrichment import run_hn_outbound_enrichment
+
+    calls = {"attio": 0}
+
+    def attio_matcher(candidate):
+        calls["attio"] += 1
+        return {"attio_status": "no_match", "attio_action": "assign owner"}
+
+    result = run_hn_outbound_enrichment(
+        _phase6b_payload(company_rows=[_hn_outbound()]),
+        page_fetcher=lambda url: "<html><title>Burrow</title><body>Burrow runtime security</body></html>",
+        query_runner=lambda topic, **kwargs: {"items": []},
+        attio_matcher=attio_matcher,
+        max_attio_checks=5,
+    )
+
+    row = result["enriched_outbound_candidates"][0]
+    assert row["identity_type"] == "verified_company"
+    assert row["recommended_action"] == "Research deeper"
+    assert row["assign_owner"] is False
+    assert calls["attio"] == 0
+    assert result["runtime_ledger"]["summary"]["attio_checks"] == 0
+
+
+def test_hn_enrichment_calls_attio_after_identity_and_evidence_threshold():
+    from hn_outbound_enrichment import run_hn_outbound_enrichment
+
+    calls = {"attio": 0}
+
+    def attio_matcher(candidate):
+        calls["attio"] += 1
+        return {"attio_status": "no_owner"}
+
+    result = run_hn_outbound_enrichment(
+        _phase6b_payload(company_rows=[_hn_outbound()]),
+        page_fetcher=lambda url: (
+            "<html><title>Burrow</title><body>Burrow was founded by Jane Doe. "
+            "Burrow raised a seed round. Burrow works with security teams.</body></html>"
+        ),
+        query_runner=lambda topic, **kwargs: {"items": []},
+        attio_matcher=attio_matcher,
+        max_attio_checks=5,
+    )
+
+    row = result["enriched_outbound_candidates"][0]
+    assert calls["attio"] == 1
+    assert row["attio_status"] == "no_owner"
+    assert result["runtime_ledger"]["summary"]["attio_checks"] == 1
 
 
 def test_twill_yc_context_needs_corroboration_before_seed_status():
@@ -231,6 +417,46 @@ def test_veris_official_page_founder_handoff_removes_founder_missing():
     assert "no founder/team evidence" not in row["missing_owner_evidence"]
     assert row["next_validation_step"] != "Find founder/team source"
     assert row["unsafe_promotion"] is False
+
+
+def test_veris_evidence_prefers_durable_urls_over_blog_index():
+    from hn_outbound_enrichment import run_hn_outbound_enrichment
+
+    durable_url = "https://veris.ai/blog-posts/introducing-veris-ai-a-new-way-to-train-enterprise-ai-agents-through-simulated-experience"
+
+    def fake_fetcher(url):
+        if url.endswith("/blog"):
+            return (
+                f'<html><body><a href="{durable_url}">Introducing Veris AI</a>'
+                "<p>Mehdi Jamei, CEO and Co-founder of Veris, announced an $8.5M Series Seed.</p>"
+                "<p>Enterprise teams can book demo access for AI agent validation.</p></body></html>"
+            )
+        return "<html><title>Veris</title><body>Veris AI trains enterprise AI agents.</body></html>"
+
+    result = run_hn_outbound_enrichment(
+        _phase6b_payload(
+            company_rows=[
+                _hn_outbound(
+                    name="Veris",
+                    source_title="Show HN: Veris - Agent sandboxes with simulated external services",
+                    official_url="https://veris.ai/sandbox",
+                    outbound_domain="veris.ai",
+                    company_domain="veris.ai",
+                    maturity_status="unknown",
+                    maturity_basis=["maturity_not_verified"],
+                )
+            ]
+        ),
+        page_fetcher=fake_fetcher,
+        query_runner=lambda topic, **kwargs: {"items": []},
+        attio_matcher=lambda candidate: {"attio_status": "no_owner"},
+        max_live_queries=0,
+    )
+
+    row = result["enriched_outbound_candidates"][0]
+    evidence_urls = set(row["founder_team_evidence"] + row["stage_funding_evidence"] + row["customer_buyer_evidence"])
+    assert durable_url in evidence_urls
+    assert row["assign_owner"] is True
 
 
 def test_generic_founder_page_evidence_is_not_reported_as_founder_team():
@@ -360,6 +586,100 @@ def test_hn_enrichment_live_query_budget_preserves_cached_or_page_evidence():
     assert row["recommended_action"] == "Assign owner"
     assert row["assign_owner"] is True
     assert result["runtime_ledger"]["summary"]["live_queries"] == 0
+
+
+def test_veris_warm_page_evidence_assigns_owner_with_zero_live_queries_and_stage_cache_ledger():
+    from hn_outbound_enrichment import run_hn_outbound_enrichment
+
+    def fake_fetcher(url):
+        if url.endswith("/blog"):
+            return (
+                "<html><body><p>Mehdi Jamei, CEO and Co-founder of Veris, announced an $8.5M Series Seed.</p>"
+                "<p>Enterprise teams can book demo access for AI agent validation.</p></body></html>"
+            )
+        return "<html><title>Veris</title><body>Veris AI trains enterprise AI agents.</body></html>"
+
+    result = run_hn_outbound_enrichment(
+        _phase6b_payload(
+            company_rows=[
+                _hn_outbound(
+                    name="Veris",
+                    source_title="Show HN: Veris - Agent sandboxes with simulated external services",
+                    official_url="https://veris.ai/sandbox",
+                    outbound_domain="veris.ai",
+                    company_domain="veris.ai",
+                    maturity_status="unknown",
+                    maturity_basis=["maturity_not_verified"],
+                )
+            ]
+        ),
+        page_fetcher=fake_fetcher,
+        query_runner=lambda topic, **kwargs: (_ for _ in ()).throw(AssertionError("live query should not run")),
+        attio_matcher=lambda candidate: {"attio_status": "no_owner"},
+        max_live_queries=0,
+        max_attio_checks=1,
+    )
+
+    row = result["enriched_outbound_candidates"][0]
+    ledger = result["runtime_ledger"]["items"][0]
+    assert row["assign_owner"] is True
+    assert ledger["live_queries"] == 0
+    assert ledger["page_fetches"] >= 1
+    assert ledger["evidence_dimensions"] == ["customer", "founder", "stage"]
+    assert "commercial_intent_evidence" in ledger["customer_evidence_labels"]
+
+
+def test_hn_enrichment_runtime_ledger_reports_priority_and_stage_counts(tmp_path):
+    from hn_outbound_enrichment import run_hn_outbound_enrichment, write_hn_outbound_enrichment_artifacts
+
+    result = run_hn_outbound_enrichment(
+        _phase6b_payload(company_rows=[_hn_outbound()]),
+        page_fetcher=lambda url: "<html><title>Burrow</title><body>Burrow runtime security</body></html>",
+        query_runner=lambda topic, **kwargs: {"items": []},
+    )
+
+    paths = write_hn_outbound_enrichment_artifacts(result, tmp_path)
+    ledger = json.loads((tmp_path / "hn-enrichment-runtime-ledger.json").read_text())
+    item = ledger["items"][0]
+    assert "priority" in item
+    assert "priority_reasons" in item
+    assert "evidence_dimensions" in item
+    assert "customer_evidence_labels" in item
+    assert "attio_skip_reason" in item
+    assert "maturity_queries" in item
+    assert "founder_queries" in item
+    assert "owner_queries" in item
+    assert tmp_path / "hn-outbound-enrichment.md" in paths
+
+
+def test_hn_enrichment_query_timeout_uses_stage_specific_reason():
+    import time
+
+    from hn_outbound_enrichment import run_hn_outbound_enrichment
+
+    def slow_query(topic, **kwargs):
+        time.sleep(0.05)
+        return {"items": []}
+
+    result = run_hn_outbound_enrichment(
+        _phase6b_payload(company_rows=[_hn_outbound()]),
+        page_fetcher=lambda url: "<html><title>Burrow</title><body>Burrow runtime security</body></html>",
+        query_runner=slow_query,
+        max_runtime_seconds=1,
+        per_candidate_timeout_seconds=0.01,
+    )
+
+    row = result["enriched_outbound_candidates"][0]
+    ledger = result["runtime_ledger"]["items"][0]
+    assert row["assign_owner"] is False
+    assert ledger["partial_reason"] in {
+        "maturity_query_timeout",
+        "founder_query_timeout",
+        "customer_query_timeout",
+        "owner_query_timeout",
+        "per_candidate_timeout_seconds_exceeded",
+    }
+    assert "live_query_timeout" not in result["budget_reasons"]
 
 
 def test_hn_enrichment_runtime_budget_marks_remaining_rows_partial():

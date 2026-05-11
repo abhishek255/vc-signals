@@ -28,7 +28,7 @@ from radar_focus import (
 from radar_models import Candidate, OwnerEvidence
 
 
-OFFICIAL_SITE_PATHS = ("", "/about", "/team", "/customers", "/pricing", "/contact", "/blog")
+OFFICIAL_SITE_PATHS = ("", "/about", "/team", "/blog", "/customers", "/pricing", "/contact")
 FOUNDER_ELIGIBLE_PATHS = {"", "/about", "/team", "/blog"}
 LATE_OR_CONTEXT_STATUSES = {"likely_too_late", "acquired", "incumbent", "category_leader"}
 FOUNDER_ROLE_PATTERN = r"(?:founder|co-founder|cofounder|ceo|cto|chief executive officer|chief technology officer)"
@@ -54,6 +54,12 @@ STRONG_CUSTOMER_EVIDENCE_TYPES = {
     "waitlist_or_demo_evidence",
     "commercial_intent_evidence",
 }
+DURABLE_EVIDENCE_URL_MARKERS = (
+    "/blog-posts/",
+    "businesswire.com/",
+    "gunder.com/",
+    "ycombinator.com/companies/",
+)
 
 
 def _stable_cache_name(value: str) -> str:
@@ -82,6 +88,20 @@ def _write_cache(cache_dir: Path | None, namespace: str, key: str, payload) -> N
         return
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(payload, indent=2))
+
+
+def _extract_durable_links_from_html(html: str, *, base_domain: str = "") -> list[str]:
+    links = re.findall(r"href=[\"']([^\"']+)[\"']", html or "", flags=re.IGNORECASE)
+    out: list[str] = []
+    for link in links:
+        lowered = link.lower()
+        if not any(marker in lowered for marker in DURABLE_EVIDENCE_URL_MARKERS):
+            continue
+        if link.startswith("/") and base_domain:
+            out.append(f"https://{base_domain}{link}")
+        elif link.startswith("http"):
+            out.append(link)
+    return list(dict.fromkeys(out))
 
 
 def _candidate_key(candidate: Candidate) -> str:
@@ -514,6 +534,8 @@ def enrich_owner_evidence(
             else:
                 payload = payload.get("payload", "")
                 summary["page_cache_hits"] += 1
+            durable_links = _extract_durable_links_from_html(payload, base_domain=domain)
+            evidence_urls_for_page = durable_links or [url]
             text = _page_text(payload)
             if not text:
                 pages_failed.append(url)
@@ -522,15 +544,18 @@ def enrich_owner_evidence(
             page_texts.append(text)
             found_profiles = _profiles_from_text(candidate, text=text, url=url)
             if found_profiles:
-                founder_urls.append(url)
+                founder_urls.extend(evidence_urls_for_page)
+                if durable_links:
+                    found_profiles = [dict(profile, source=durable_links[0]) for profile in found_profiles]
                 founder_profiles.extend(found_profiles)
             if _has_stage_funding_evidence(text):
-                stage_urls.append(url)
+                stage_urls.extend(evidence_urls_for_page)
             customer_labels = classify_customer_buyer_evidence(text)
             if customer_labels:
-                customer_evidence_types.append({"url": url, "evidence_types": customer_labels})
+                for evidence_url in evidence_urls_for_page:
+                    customer_evidence_types.append({"url": evidence_url, "evidence_types": customer_labels})
             if any(label in STRONG_CUSTOMER_EVIDENCE_TYPES for label in customer_labels):
-                customer_urls.append(url)
+                customer_urls.extend(evidence_urls_for_page)
 
         funding_topic = funding_stage_query(candidate)
         funding_payload = _read_cache(cache_path, "queries", funding_topic)
