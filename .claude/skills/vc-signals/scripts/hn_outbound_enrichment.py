@@ -270,13 +270,19 @@ def run_hn_outbound_enrichment(
             and not _has_stage_dimension(final_candidate)
             and not runtime.candidate_exceeded(candidate_started_at)
         ):
-            final_candidate, maturity_report = _enrich_maturity(
-                final_candidate,
-                query_runner=query_runner,
-                cache_dir=cache_path,
-                runtime=runtime,
-                ledger=ledger,
-            )
+            if _should_run_maturity_query(final_candidate, row, ledger):
+                final_candidate, maturity_report = _enrich_maturity(
+                    final_candidate,
+                    query_runner=query_runner,
+                    cache_dir=cache_path,
+                    runtime=runtime,
+                    ledger=ledger,
+                )
+            else:
+                maturity_report = _skipped_maturity_report(
+                    final_candidate,
+                    "maturity_query_skipped_weak_hn_signal",
+                )
             reports["maturity"].append(maturity_report)
         else:
             maturity_report = _skipped_maturity_report(
@@ -785,6 +791,8 @@ def _review_rank_reason(row: dict, evidence_dimensions: list[str]) -> str:
         return "assign_owner"
     if row.get("attio_blocked_owner_ready") or row.get("recommended_lane") == ACTION_BLOCKED_BY_ATTIO:
         return "action_blocked_by_attio"
+    if len(evidence_dimensions) >= 2:
+        return "research_deeper_multi_evidence"
     if evidence_dimensions:
         return "research_deeper_with_evidence"
     return "research_deeper_missing_evidence"
@@ -794,8 +802,9 @@ def _review_sort_key(row: dict) -> tuple:
     reason_order = {
         "assign_owner": 0,
         "action_blocked_by_attio": 1,
-        "research_deeper_with_evidence": 2,
-        "research_deeper_missing_evidence": 3,
+        "research_deeper_multi_evidence": 2,
+        "research_deeper_with_evidence": 3,
+        "research_deeper_missing_evidence": 4,
     }
     priority_order = {
         PRIORITY_HIGH: 0,
@@ -805,9 +814,9 @@ def _review_sort_key(row: dict) -> tuple:
     }
     return (
         reason_order.get(row.get("review_rank_reason", ""), 9),
-        priority_order.get(row.get("priority", ""), 9),
         -int(row.get("evidence_completeness", 0)),
         len(row.get("stage_failure_reason") or []),
+        priority_order.get(row.get("priority", ""), 9),
         len(row.get("missing_evidence") or []),
         int(row.get("index", 0)),
     )
@@ -935,6 +944,20 @@ def _triage_hn_candidate(row: dict, *, cache_dir: Path | None = None) -> dict:
     else:
         priority = PRIORITY_LOW
     return {"priority": priority, "score": round(score, 2), "reasons": reasons or ["weak_source_signal"], "should_enrich": True}
+
+
+def _should_run_maturity_query(candidate: Candidate, row: dict, ledger: dict) -> bool:
+    if _has_founder_dimension(candidate):
+        return True
+    reasons = set(ledger.get("priority_reasons") or [])
+    if "accelerator_hint" in reasons:
+        return True
+    if "official_domain_url" in reasons and "hn_engagement" in reasons:
+        return True
+    title = str(row.get("source_title") or row.get("name") or "")
+    if re.search(r"(?:YC|Y\s+Combinator)\s+[SWF]\d{2}", title, re.IGNORECASE):
+        return True
+    return False
 
 
 def _has_hn_candidate_cache(domain: str, cache_dir: Path) -> bool:

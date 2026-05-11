@@ -465,6 +465,129 @@ def test_hn_enrichment_review_rows_rank_assign_owner_first_and_stage_failures_lo
     assert "maturity_query_timeout" in review_rows[1]["stage_failure_reason"] or review_rows[1]["evidence_completeness"] < review_rows[0]["evidence_completeness"]
 
 
+def test_hn_review_rows_rank_multi_evidence_research_above_single_evidence_stage_failures():
+    from hn_outbound_enrichment import _CallTimeout, run_hn_outbound_enrichment
+
+    def page_fetcher(url):
+        if "multi.ai" in url:
+            return (
+                "<html><title>Multi</title><body>Multi was founded by Jane Doe. "
+                "Multi works with enterprise security teams.</body></html>"
+            )
+        return "<html><title>LoudCo</title><body>LoudCo runtime controls.</body></html>"
+
+    result = run_hn_outbound_enrichment(
+        _phase6b_payload(
+            company_rows=[
+                _hn_outbound(
+                    name="LoudCo",
+                    source_title="Show HN: LoudCo - Agent runtime controls",
+                    official_url="https://loudco.ai",
+                    outbound_domain="loudco.ai",
+                    company_domain="loudco.ai",
+                    hn_engagement={"points": 30, "comments": 10},
+                ),
+                _hn_outbound(
+                    name="Multi",
+                    source_title="Show HN: Multi - Enterprise agent guardrails",
+                    official_url="https://multi.ai",
+                    outbound_domain="multi.ai",
+                    company_domain="multi.ai",
+                    hn_engagement={"points": 1, "comments": 0},
+                ),
+            ]
+        ),
+        page_fetcher=page_fetcher,
+        query_runner=lambda topic, **kwargs: (_ for _ in ()).throw(_CallTimeout()) if "LoudCo" in topic else {"items": []},
+        max_candidates=2,
+    )
+
+    review_rows = result["review_rows"]
+    assert review_rows[0]["name"] == "Multi"
+    assert review_rows[0]["review_rank_reason"] == "research_deeper_multi_evidence"
+    assert review_rows[0]["evidence_completeness"] >= 2
+    assert review_rows[1]["name"] == "LoudCo"
+    assert review_rows[1]["completion_status"] == "completed_with_stage_failure"
+
+
+def test_hn_enrichment_skips_maturity_query_for_weak_hn_rows():
+    from hn_outbound_enrichment import run_hn_outbound_enrichment
+
+    calls = {"query": 0}
+
+    def query_runner(topic, **kwargs):
+        calls["query"] += 1
+        return {"items": []}
+
+    result = run_hn_outbound_enrichment(
+        _phase6b_payload(
+            company_rows=[
+                _hn_outbound(
+                    name="QuietCo",
+                    source_title="Show HN: QuietCo - Agent workflow notes",
+                    official_url="https://quietco.ai",
+                    outbound_domain="quietco.ai",
+                    company_domain="quietco.ai",
+                    hn_engagement={"points": 1, "comments": 0},
+                )
+            ]
+        ),
+        page_fetcher=lambda url: "<html><title>QuietCo</title><body>QuietCo agent workflow notes.</body></html>",
+        query_runner=query_runner,
+        max_candidates=1,
+    )
+
+    row = result["enriched_outbound_candidates"][0]
+    ledger = result["runtime_ledger"]["items"][0]
+    maturity_report = result["reports"]["maturity"][0]
+    assert calls["query"] == 0
+    assert ledger["maturity_queries"] == 0
+    assert maturity_report["skip_reason"] == "maturity_query_skipped_weak_hn_signal"
+    assert row["recommended_action"] == "Research deeper"
+    assert "no stage/funding evidence" in row["missing_owner_evidence"]
+
+
+def test_hn_enrichment_cache_priority_alone_does_not_trigger_maturity_query(tmp_path):
+    from hn_outbound_enrichment import run_hn_outbound_enrichment
+
+    cache_dir = tmp_path / "cache"
+    cache_file = cache_dir / "hn-official-pages" / "quietco.json"
+    cache_file.parent.mkdir(parents=True)
+    cache_file.write_text('{"url": "https://quietco.ai", "payload": "QuietCo agent workflow notes."}')
+    calls = {"query": 0}
+
+    def query_runner(topic, **kwargs):
+        calls["query"] += 1
+        return {"items": []}
+
+    result = run_hn_outbound_enrichment(
+        _phase6b_payload(
+            company_rows=[
+                _hn_outbound(
+                    name="QuietCo",
+                    source_title="Show HN: QuietCo - Agent workflow notes",
+                    official_url="https://quietco.ai",
+                    outbound_domain="quietco.ai",
+                    company_domain="quietco.ai",
+                    hn_engagement={"points": 1, "comments": 0},
+                )
+            ]
+        ),
+        page_fetcher=lambda url: "<html><title>QuietCo</title><body>QuietCo agent workflow notes.</body></html>",
+        query_runner=query_runner,
+        cache_dir=cache_dir,
+        max_candidates=1,
+    )
+
+    ledger = result["runtime_ledger"]["items"][0]
+    maturity_report = result["reports"]["maturity"][0]
+    assert ledger["priority"] == "high_priority"
+    assert "cache_available" in ledger["priority_reasons"]
+    assert calls["query"] == 0
+    assert ledger["maturity_queries"] == 0
+    assert maturity_report["skip_reason"] == "maturity_query_skipped_weak_hn_signal"
+
+
 def test_hn_enrichment_does_not_call_attio_before_meaningful_evidence():
     from hn_outbound_enrichment import run_hn_outbound_enrichment
 

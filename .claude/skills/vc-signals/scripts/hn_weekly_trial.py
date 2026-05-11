@@ -7,6 +7,7 @@ last30days-native; vc-signals only normalizes, gates, enriches, and reports.
 
 from __future__ import annotations
 
+from collections import Counter
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Callable
@@ -225,10 +226,15 @@ def _write_summary_artifacts(payload: dict, output_dir: Path | None) -> dict:
     output_dir.mkdir(parents=True, exist_ok=True)
     json_path = output_dir / "hn-weekly-trial.json"
     md_path = output_dir / "hn-weekly-trial.md"
+    review_json_path = output_dir / "hn-trial-row-review.json"
+    review_md_path = output_dir / "hn-trial-row-review.md"
     json_path.write_text(_json_dumps(payload))
     md_path.write_text(_markdown(payload))
+    review_payload = _row_review_payload(payload)
+    review_json_path.write_text(_json_dumps(review_payload))
+    review_md_path.write_text(_row_review_markdown(review_payload))
     artifacts = list(payload.get("artifacts") or [])
-    for path in (json_path, md_path):
+    for path in (json_path, md_path, review_json_path, review_md_path):
         value = str(path)
         if value not in artifacts:
             artifacts.append(value)
@@ -236,6 +242,74 @@ def _write_summary_artifacts(payload: dict, output_dir: Path | None) -> dict:
     out["artifacts"] = artifacts
     json_path.write_text(_json_dumps(out))
     return out
+
+
+def _row_review_payload(payload: dict) -> dict:
+    rows = list(payload.get("review_rows") or [])
+    priority_split = Counter(row.get("priority", "unknown") or "unknown" for row in rows)
+    completion_split = Counter(row.get("completion_status", "unknown") or "unknown" for row in rows)
+    action_split = Counter(row.get("final_action", "unknown") or "unknown" for row in rows)
+    return {
+        "phase": payload.get("label", "Phase 6C HN Launch Trial"),
+        "summary": {
+            "rows": len(rows),
+            "priority_split": dict(priority_split),
+            "completion_split": dict(completion_split),
+            "action_split": dict(action_split),
+            "unsafe_promotions": int(payload.get("unsafe_promotions", 0) or 0),
+            "project_only_rows": int(payload.get("project_only_rows", 0) or 0),
+            "product_context_rows": int(payload.get("product_context_rows", 0) or 0),
+        },
+        "rows": rows,
+    }
+
+
+def _row_review_markdown(payload: dict) -> str:
+    summary = payload.get("summary") or {}
+    lines = [
+        "# HN Trial Row Review",
+        "",
+        "Row-level review for the opt-in HN launch trial. HN remains behind --hn-launch-trial.",
+        "",
+        f"- Rows reviewed: {summary.get('rows', 0)}",
+        f"- Priority split: {_format_counter(summary.get('priority_split') or {})}",
+        f"- Completion split: {_format_counter(summary.get('completion_split') or {})}",
+        f"- Action split: {_format_counter(summary.get('action_split') or {})}",
+        f"- Unsafe promotions: {summary.get('unsafe_promotions', 0)}",
+        f"- Project-only rows summarized: {summary.get('project_only_rows', 0)}",
+        f"- Product/context rows separated: {summary.get('product_context_rows', 0)}",
+    ]
+    rows = payload.get("rows") or []
+    if rows:
+        lines.extend(["", "## Candidate Rows", ""])
+    for row in rows:
+        evidence = ", ".join(row.get("evidence_dimensions") or []) or "none"
+        missing = ", ".join(row.get("missing_evidence") or []) or "none"
+        failures = ", ".join(row.get("stage_failure_reason") or []) or "none"
+        reasons = ", ".join(row.get("priority_reasons") or []) or "none"
+        lines.extend(
+            [
+                f"### {row.get('name') or 'Unknown'}",
+                "",
+                f"- Domain: {row.get('domain') or 'unknown'}",
+                f"- Priority: {row.get('priority') or 'unknown'} ({reasons})",
+                f"- Completion: {row.get('completion_status') or 'unknown'}",
+                f"- Stage failures: {failures}",
+                f"- Final action: {row.get('final_action') or 'unknown'}",
+                f"- Evidence dimensions: {evidence}",
+                f"- Attio status: {row.get('attio_status') or 'unknown'}",
+                f"- Missing evidence: {missing}",
+                f"- Unsafe promotion: {bool(row.get('unsafe_promotion'))}",
+                "",
+            ]
+        )
+    return "\n".join(lines).rstrip() + "\n"
+
+
+def _format_counter(counter: dict) -> str:
+    if not counter:
+        return "none"
+    return ", ".join(f"{key}={value}" for key, value in sorted(counter.items()))
 
 
 def _json_dumps(payload: dict) -> str:
@@ -291,6 +365,7 @@ def _markdown(payload: dict) -> str:
             lines.append(
                 f"- **{row.get('name')}** ({row.get('domain') or 'unknown domain'}) — "
                 f"{row.get('final_action')} / {row.get('completion_status')}; "
+                f"priority: {row.get('priority') or 'unknown'}; "
                 f"evidence: {evidence}; missing: {missing}"
             )
         project_count = payload.get("project_only_rows", 0)

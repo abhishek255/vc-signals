@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import json
+
 
 def test_hn_weekly_trial_default_candidate_cap_covers_rich_movement_smoke():
     from hn_weekly_trial import HNLaunchTrialConfig
@@ -58,6 +60,8 @@ def test_hn_weekly_trial_uses_last30days_hn_only_and_writes_artifacts(tmp_path):
     assert (tmp_path / "hn-outbound-enrichment.json").exists()
     assert (tmp_path / "hn-weekly-trial.json").exists()
     assert (tmp_path / "hn-weekly-trial.md").exists()
+    assert (tmp_path / "hn-trial-row-review.json").exists()
+    assert (tmp_path / "hn-trial-row-review.md").exists()
     assert not (tmp_path / "weekly-preview.md").exists()
 
 
@@ -194,6 +198,67 @@ def test_hn_weekly_trial_markdown_shows_ranked_review_rows_without_dump():
     assert "Research 4" in markdown
     assert "Research 5" not in markdown
     assert "13 project-only rows summarized separately" in markdown
+
+
+def test_hn_weekly_trial_writes_row_review_package_with_priorities(tmp_path):
+    from hn_weekly_trial import _write_summary_artifacts
+
+    payload = {
+        "queries_planned": 12,
+        "queries_run": 12,
+        "completion_status": "completed_with_stage_failure",
+        "items_seen": 64,
+        "outbound_candidates": 2,
+        "project_only_rows": 13,
+        "product_context_rows": 1,
+        "research_deeper_rows": 1,
+        "assign_owner_rows": 1,
+        "action_blocked_by_attio_rows": 0,
+        "unsafe_promotions": 0,
+        "runtime": {"high_priority_candidates": 1, "normal_priority_candidates": 1},
+        "review_rows": [
+            {
+                "name": "Veris",
+                "domain": "veris.ai",
+                "priority": "normal_priority",
+                "priority_reasons": ["company_looking_domain"],
+                "completion_status": "completed_clean",
+                "stage_failure_reason": [],
+                "final_action": "Assign owner",
+                "recommended_lane": "HN Enriched Outbound Candidates",
+                "evidence_dimensions": ["customer", "founder", "stage"],
+                "missing_evidence": [],
+                "attio_status": "no_owner",
+                "unsafe_promotion": False,
+            },
+            {
+                "name": "LoudCo",
+                "domain": "loudco.ai",
+                "priority": "high_priority",
+                "priority_reasons": ["official_domain_url", "hn_engagement"],
+                "completion_status": "completed_with_stage_failure",
+                "stage_failure_reason": ["maturity_query_timeout"],
+                "final_action": "Research deeper",
+                "recommended_lane": "HN Enriched Outbound Candidates",
+                "evidence_dimensions": ["customer"],
+                "missing_evidence": ["maturity_query_timeout", "no founder/team evidence"],
+                "attio_status": "unknown",
+                "unsafe_promotion": False,
+            },
+        ],
+    }
+
+    result = _write_summary_artifacts(payload, tmp_path)
+
+    assert str(tmp_path / "hn-trial-row-review.json") in result["artifacts"]
+    assert str(tmp_path / "hn-trial-row-review.md") in result["artifacts"]
+    review_json = json.loads((tmp_path / "hn-trial-row-review.json").read_text())
+    assert review_json["summary"]["priority_split"] == {"high_priority": 1, "normal_priority": 1}
+    review_md = (tmp_path / "hn-trial-row-review.md").read_text()
+    assert "Priority: normal_priority" in review_md
+    assert "Priority: high_priority" in review_md
+    assert "maturity_query_timeout" in review_md
+    assert "weekly-preview.md" not in review_md
 
 
 def test_hn_weekly_trial_warm_attio_cache_supports_assign_owner(tmp_path):
