@@ -261,6 +261,56 @@ def test_hn_weekly_trial_writes_row_review_package_with_priorities(tmp_path):
     assert "weekly-preview.md" not in review_md
 
 
+def test_hn_row_review_markdown_renders_assign_owner_evidence_provenance():
+    from hn_weekly_trial import _row_review_markdown
+
+    exact_url = "https://veris.ai/blog-posts/introducing-veris-ai-a-new-way-to-train-enterprise-ai-agents-through-simulated-experience"
+    payload = {
+        "summary": {
+            "rows": 1,
+            "priority_split": {"normal_priority": 1},
+            "completion_split": {"completed_clean": 1},
+            "action_split": {"Assign owner": 1},
+        },
+        "rows": [
+            {
+                "name": "Veris",
+                "domain": "veris.ai",
+                "priority": "normal_priority",
+                "priority_reasons": ["official_domain_url"],
+                "completion_status": "completed_clean",
+                "stage_failure_reason": [],
+                "final_action": "Assign owner",
+                "evidence_dimensions": ["customer", "founder", "stage"],
+                "attio_status": "no_owner",
+                "missing_evidence": [],
+                "unsafe_promotion": False,
+                "assign_owner_evidence_provenance": {
+                    "hn_source": {"url": "https://news.ycombinator.com/item?id=48054313"},
+                    "official_company_source": {"url": "https://veris.ai/sandbox"},
+                    "founder_evidence": {"url": exact_url},
+                    "stage_funding_evidence": {"url": exact_url},
+                    "commercial_customer_evidence": {"url": exact_url},
+                    "attio_status_evidence": {
+                        "status": "no_owner",
+                        "source": "attio_read",
+                        "action_safe": True,
+                    },
+                },
+            }
+        ],
+    }
+
+    markdown = _row_review_markdown(payload)
+
+    assert "HN source: https://news.ycombinator.com/item?id=48054313" in markdown
+    assert "Official/company source: https://veris.ai/sandbox" in markdown
+    assert f"Founder evidence: {exact_url}" in markdown
+    assert f"Stage/funding evidence: {exact_url}" in markdown
+    assert f"Commercial/customer evidence: {exact_url}" in markdown
+    assert "Attio status evidence: no_owner via attio_read" in markdown
+
+
 def test_hn_weekly_trial_warm_attio_cache_supports_assign_owner(tmp_path):
     from hn_outbound_enrichment import _attio_cache_path
     from hn_weekly_trial import HNLaunchTrialConfig, run_hn_launch_weekly_trial

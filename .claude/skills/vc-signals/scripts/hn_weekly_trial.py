@@ -300,9 +300,22 @@ def _row_review_markdown(payload: dict) -> str:
                 f"- Attio status: {row.get('attio_status') or 'unknown'}",
                 f"- Missing evidence: {missing}",
                 f"- Unsafe promotion: {bool(row.get('unsafe_promotion'))}",
-                "",
             ]
         )
+        provenance = row.get("assign_owner_evidence_provenance") or {}
+        if provenance:
+            attio = provenance.get("attio_status_evidence") or {}
+            lines.extend(
+                [
+                    f"- HN source: {(provenance.get('hn_source') or {}).get('url', '')}",
+                    f"- Official/company source: {(provenance.get('official_company_source') or {}).get('url', '')}",
+                    f"- Founder evidence: {(provenance.get('founder_evidence') or {}).get('url', '')}",
+                    f"- Stage/funding evidence: {(provenance.get('stage_funding_evidence') or {}).get('url', '')}",
+                    f"- Commercial/customer evidence: {(provenance.get('commercial_customer_evidence') or {}).get('url', '')}",
+                    f"- Attio status evidence: {attio.get('status', '')} via {attio.get('source', '')}",
+                ]
+            )
+        lines.append("")
     return "\n".join(lines).rstrip() + "\n"
 
 

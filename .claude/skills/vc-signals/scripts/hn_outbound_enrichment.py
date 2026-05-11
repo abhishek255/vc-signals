@@ -41,6 +41,9 @@ DURABLE_EVIDENCE_URL_MARKERS = (
     "/blog-posts/",
     "businesswire.com/",
     "gunder.com/",
+    "/news/",
+    "/press/",
+    "/announcements/",
     "ycombinator.com/companies/",
 )
 ATTIO_CACHE_FRESH_DAYS = 7
@@ -780,6 +783,7 @@ def _review_rows(rows: list[dict], ledger_items: list[dict]) -> list[dict]:
             "attio_status": row.get("attio_status", ""),
             "missing_evidence": missing,
             "unsafe_promotion": bool(row.get("unsafe_promotion")),
+            "assign_owner_evidence_provenance": dict(row.get("assign_owner_evidence_provenance") or {}),
             "review_rank_reason": _review_rank_reason(row, evidence_dimensions),
         }
         review_rows.append(review_row)
@@ -1344,7 +1348,7 @@ def _row_from_candidate(candidate: Candidate, original_row: dict, identity_repor
     action = _recommended_action(candidate, score, missing)
     assign_owner = action == ACTION_ASSIGN_OWNER
     unsafe = bool(assign_owner and _unsafe_assign_owner(candidate, missing))
-    return {
+    row = {
         "name": candidate.display_name or candidate.canonical_name or candidate.name,
         "canonical_name": candidate.canonical_name or candidate.name,
         "official_domain": candidate.domain,
@@ -1393,6 +1397,45 @@ def _row_from_candidate(candidate: Candidate, original_row: dict, identity_repor
         "official_identity_url": identity_report.get("official_identity_url", ""),
         "movement": original_row.get("movement", ""),
         "market_sector": original_row.get("market_sector", ""),
+    }
+    row["assign_owner_evidence_provenance"] = _assign_owner_evidence_provenance(row)
+    return row
+
+
+def _assign_owner_evidence_provenance(row: dict) -> dict:
+    if row.get("recommended_action") != ACTION_ASSIGN_OWNER:
+        return {}
+    return {
+        "hn_source": {
+            "url": row.get("source_url", ""),
+            "title": row.get("source_title", ""),
+            "author": row.get("hn_author", ""),
+            "engagement": row.get("hn_engagement", {}),
+        },
+        "official_company_source": {
+            "url": row.get("official_url", ""),
+            "domain": row.get("official_domain", ""),
+            "identity_url": row.get("official_identity_url", ""),
+        },
+        "founder_evidence": {
+            "url": _best_exact_evidence_url(row.get("founder_team_evidence") or []),
+            "founders": list(row.get("founders") or []),
+            "profiles": list(row.get("founder_profiles") or []),
+        },
+        "stage_funding_evidence": {
+            "url": _best_exact_evidence_url(row.get("stage_funding_evidence") or []),
+            "maturity_status": row.get("maturity_status", ""),
+            "basis": list(row.get("maturity_basis") or []),
+        },
+        "commercial_customer_evidence": {
+            "url": _best_exact_evidence_url(row.get("customer_buyer_evidence") or []),
+            "types": list(row.get("customer_buyer_evidence_types") or []),
+        },
+        "attio_status_evidence": {
+            "status": row.get("attio_status", ""),
+            "source": "attio_read",
+            "action_safe": bool(row.get("attio_safe_to_match")),
+        },
     }
 
 
@@ -1537,9 +1580,46 @@ def _strict_hn_owner_outputs(
 
 def _prefer_durable_evidence_urls(urls: list[str]) -> list[str]:
     normalized = list(dict.fromkeys(url for url in urls if url))
-    durable = [url for url in normalized if any(marker in url.lower() for marker in DURABLE_EVIDENCE_URL_MARKERS)]
+    durable = sorted(
+        [url for url in normalized if _source_quality_url_rank(url) is not None],
+        key=lambda url: (_source_quality_url_rank(url), normalized.index(url)),
+    )
     generic = [url for url in normalized if url not in durable]
     return (durable + generic)[:5]
+
+
+def _best_exact_evidence_url(urls: list[str]) -> str:
+    normalized = list(dict.fromkeys(url for url in urls if url))
+    ranked = sorted(
+        [url for url in normalized if _source_quality_url_rank(url) is not None],
+        key=lambda url: (_source_quality_url_rank(url), normalized.index(url)),
+    )
+    if ranked:
+        return ranked[0]
+    non_generic = [url for url in normalized if not _is_generic_evidence_url(url)]
+    if non_generic:
+        return non_generic[0]
+    return normalized[0] if normalized else ""
+
+
+def _source_quality_url_rank(url: str) -> int | None:
+    lowered = str(url or "").lower()
+    for index, marker in enumerate(DURABLE_EVIDENCE_URL_MARKERS):
+        if marker in lowered:
+            return index
+    return None
+
+
+def _is_generic_evidence_url(url: str) -> bool:
+    parsed = urlparse(str(url or ""))
+    if not parsed.netloc:
+        return True
+    lowered = str(url or "").rstrip("/").lower()
+    path = parsed.path.rstrip("/").lower()
+    if not path:
+        return True
+    generic_suffixes = ("/blog", "/about", "/customers", "/customer")
+    return lowered in {"https://", "http://"} or any(lowered.endswith(suffix) for suffix in generic_suffixes)
 
 
 def _named_founder_profiles(candidate: Candidate) -> list[dict]:

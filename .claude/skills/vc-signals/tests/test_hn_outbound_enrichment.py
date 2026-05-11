@@ -763,6 +763,96 @@ def test_veris_evidence_prefers_durable_urls_over_blog_index():
     assert row["assign_owner"] is True
 
 
+def test_hn_assign_owner_row_separates_exact_evidence_provenance():
+    from hn_outbound_enrichment import run_hn_outbound_enrichment
+
+    durable_url = "https://veris.ai/blog-posts/introducing-veris-ai-a-new-way-to-train-enterprise-ai-agents-through-simulated-experience"
+    veris_fixture = _veris_row()
+
+    def fake_fetcher(url):
+        if url.endswith("/blog"):
+            return (
+                f'<html><body><a href="{durable_url}">Introducing Veris AI</a>'
+                "<p>Mehdi Jamei, CEO and Co-founder of Veris, announced an $8.5M Series Seed.</p>"
+                "<p>Enterprise teams can book demo access to validate agents before regulators find policy gaps.</p>"
+                "</body></html>"
+            )
+        return "<html><title>Veris</title><body>Veris AI trains enterprise AI agents.</body></html>"
+
+    result = run_hn_outbound_enrichment(
+        _phase6b_payload(company_rows=[veris_fixture]),
+        page_fetcher=fake_fetcher,
+        query_runner=lambda topic, **kwargs: {"items": []},
+        attio_matcher=lambda candidate: {"attio_status": "no_owner"},
+        max_live_queries=0,
+    )
+
+    row = result["enriched_outbound_candidates"][0]
+    provenance = row["assign_owner_evidence_provenance"]
+    assert row["recommended_action"] == "Assign owner"
+    assert provenance["hn_source"]["url"] == veris_fixture["source_url"]
+    assert provenance["official_company_source"]["url"] == "https://veris.ai/sandbox"
+    assert provenance["founder_evidence"]["url"] == durable_url
+    assert provenance["stage_funding_evidence"]["url"] == durable_url
+    assert provenance["commercial_customer_evidence"]["url"] == durable_url
+    assert provenance["attio_status_evidence"] == {
+        "status": "no_owner",
+        "source": "attio_read",
+        "action_safe": True,
+    }
+
+
+def test_hn_research_deeper_row_does_not_require_assign_owner_provenance():
+    from hn_outbound_enrichment import run_hn_outbound_enrichment
+
+    result = run_hn_outbound_enrichment(
+        _phase6b_payload(
+            company_rows=[
+                _hn_outbound(
+                    name="QuietCo",
+                    source_title="Show HN: QuietCo - Agent workflow notes",
+                    official_url="https://quietco.ai",
+                    outbound_domain="quietco.ai",
+                    company_domain="quietco.ai",
+                    hn_engagement={"points": 1, "comments": 0},
+                )
+            ]
+        ),
+        page_fetcher=lambda url: "<html><title>QuietCo</title><body>QuietCo agent workflow notes.</body></html>",
+        query_runner=lambda topic, **kwargs: {"items": []},
+        attio_matcher=lambda candidate: {"attio_status": "unknown"},
+    )
+
+    row = result["enriched_outbound_candidates"][0]
+    assert row["recommended_action"] == "Research deeper"
+    assert row["assign_owner_evidence_provenance"] == {}
+
+
+def test_best_exact_evidence_url_prefers_precise_pages_over_root_and_blog():
+    from hn_outbound_enrichment import _best_exact_evidence_url
+
+    assert (
+        _best_exact_evidence_url(
+            [
+                "https://veris.ai",
+                "https://veris.ai/blog",
+                "https://veris.ai/sandbox",
+            ]
+        )
+        == "https://veris.ai/sandbox"
+    )
+    assert (
+        _best_exact_evidence_url(
+            [
+                "https://veris.ai/about",
+                "https://veris.ai/blog",
+                "https://www.businesswire.com/news/home/veris-ai-seed",
+            ]
+        )
+        == "https://www.businesswire.com/news/home/veris-ai-seed"
+    )
+
+
 def test_generic_founder_page_evidence_is_not_reported_as_founder_team():
     from hn_outbound_enrichment import run_hn_outbound_enrichment
 
