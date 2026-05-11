@@ -122,7 +122,12 @@ def test_weekly_focus_renders_hn_launch_trial_section():
             "assign_owner_rows": 0,
             "unsafe_promotions": 0,
             "partial": False,
-            "runtime": {"candidates_completed": 2, "stage_failures": 1},
+            "runtime": {
+                "candidates_completed": 2,
+                "completed_clean": 1,
+                "completed_with_stage_failure": 1,
+                "stage_failures": 1,
+            },
         },
     )
 
@@ -133,6 +138,8 @@ def test_weekly_focus_renders_hn_launch_trial_section():
     assert "Outbound candidates: 2" in markdown
     assert "Assign owner rows: 0" in markdown
     assert "Unsafe promotions: 0" in markdown
+    assert "clean 1" in markdown
+    assert "stage-failed 1" in markdown
 
 
 def test_attio_no_match_does_not_create_company_identity_by_itself():

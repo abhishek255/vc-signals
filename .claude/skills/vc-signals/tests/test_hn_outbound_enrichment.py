@@ -256,6 +256,95 @@ def test_hn_enrichment_processes_high_priority_before_low_priority_budget_skip()
     assert ledger_items[1]["partial_reason"] in {"max_candidates_exceeded", "budget_skipped_low_priority"}
 
 
+def test_hn_enrichment_orders_normal_priority_by_hn_engagement_before_budget_skip():
+    from hn_outbound_enrichment import run_hn_outbound_enrichment
+
+    result = run_hn_outbound_enrichment(
+        _phase6b_payload(
+            company_rows=[
+                _hn_outbound(
+                    name="QuietCo",
+                    source_title="Show HN: QuietCo - Agent workflow logs",
+                    official_url="https://quietco.ai",
+                    outbound_domain="quietco.ai",
+                    company_domain="quietco.ai",
+                    hn_engagement={"points": 1, "comments": 0},
+                ),
+                _hn_outbound(
+                    name="LoudCo",
+                    source_title="Show HN: LoudCo - Agent runtime controls",
+                    official_url="https://loudco.ai",
+                    outbound_domain="loudco.ai",
+                    company_domain="loudco.ai",
+                    hn_engagement={"points": 30, "comments": 10},
+                ),
+            ]
+        ),
+        page_fetcher=lambda url: "<html><title>LoudCo</title><body>LoudCo runtime controls.</body></html>",
+        query_runner=lambda topic, **kwargs: {"items": []},
+        max_candidates=1,
+        max_runtime_seconds=30,
+    )
+
+    ledger_items = result["runtime_ledger"]["items"]
+    assert ledger_items[0]["name"] == "LoudCo"
+    assert ledger_items[0]["priority"] == "normal_priority"
+    assert ledger_items[1]["name"] == "QuietCo"
+    assert ledger_items[1]["completion_status"] == "partial_budget"
+
+
+def test_hn_enrichment_cache_priority_requires_same_domain_cache(tmp_path):
+    from hn_outbound_enrichment import run_hn_outbound_enrichment
+
+    cache_dir = tmp_path / "cache"
+    cache_folder = cache_dir / "hn-official-pages"
+    cache_folder.mkdir(parents=True)
+    (cache_folder / "other.json").write_text('{"url": "https://other.ai", "payload": "Other company"}')
+
+    unrelated = run_hn_outbound_enrichment(
+        _phase6b_payload(
+            company_rows=[
+                _hn_outbound(
+                    name="Veris",
+                    official_url="https://veris.ai/sandbox",
+                    outbound_domain="veris.ai",
+                    company_domain="veris.ai",
+                    hn_engagement={"points": 1, "comments": 0},
+                )
+            ]
+        ),
+        page_fetcher=lambda url: "<html><title>Veris</title><body>Veris AI.</body></html>",
+        query_runner=lambda topic, **kwargs: {"items": []},
+        cache_dir=cache_dir,
+    )
+
+    unrelated_ledger = unrelated["runtime_ledger"]["items"][0]
+    assert "cache_available" not in unrelated_ledger["priority_reasons"]
+    assert unrelated_ledger["priority"] == "normal_priority"
+
+    (cache_folder / "veris.json").write_text('{"url": "https://veris.ai", "payload": "Veris AI"}')
+    related = run_hn_outbound_enrichment(
+        _phase6b_payload(
+            company_rows=[
+                _hn_outbound(
+                    name="Veris",
+                    official_url="https://veris.ai/sandbox",
+                    outbound_domain="veris.ai",
+                    company_domain="veris.ai",
+                    hn_engagement={"points": 1, "comments": 0},
+                )
+            ]
+        ),
+        page_fetcher=lambda url: "<html><title>Veris</title><body>Veris AI.</body></html>",
+        query_runner=lambda topic, **kwargs: {"items": []},
+        cache_dir=cache_dir,
+    )
+
+    related_ledger = related["runtime_ledger"]["items"][0]
+    assert "cache_available" in related_ledger["priority_reasons"]
+    assert related_ledger["priority"] == "high_priority"
+
+
 def test_hn_outbound_can_assign_owner_only_after_all_existing_gates_pass():
     from hn_outbound_enrichment import run_hn_outbound_enrichment
 
@@ -523,7 +612,9 @@ def test_hn_enrichment_candidate_budget_writes_partial_skipped_rows(tmp_path):
     assert tmp_path / "hn-enrichment-runtime-ledger.json" in paths
     ledger = json.loads((tmp_path / "hn-enrichment-runtime-ledger.json").read_text())
     assert ledger["summary"]["candidates_skipped"] == 1
+    assert ledger["summary"]["partial_budget"] == 1
     assert ledger["items"][-1]["status"] == "skipped"
+    assert ledger["items"][-1]["completion_status"] == "partial_budget"
 
 
 def test_hn_enrichment_attio_budget_prevents_assign_owner():
@@ -626,6 +717,8 @@ def test_veris_warm_page_evidence_assigns_owner_with_zero_live_queries_and_stage
     assert row["assign_owner"] is True
     assert ledger["live_queries"] == 0
     assert ledger["page_fetches"] >= 1
+    assert ledger["completion_status"] == "completed_clean"
+    assert result["runtime_ledger"]["summary"]["completed_clean"] == 1
     assert ledger["evidence_dimensions"] == ["customer", "founder", "stage"]
     assert "commercial_intent_evidence" in ledger["customer_evidence_labels"]
 
@@ -647,6 +740,7 @@ def test_hn_enrichment_runtime_ledger_reports_priority_and_stage_counts(tmp_path
     assert "evidence_dimensions" in item
     assert "customer_evidence_labels" in item
     assert "attio_skip_reason" in item
+    assert "completion_status" in item
     assert "maturity_queries" in item
     assert "founder_queries" in item
     assert "owner_queries" in item
@@ -681,6 +775,9 @@ def test_hn_enrichment_query_timeout_uses_stage_specific_reason():
     }
     assert row["partial"] is False
     assert ledger["status"] == "completed"
+    assert ledger["completion_status"] == "completed_with_stage_failure"
+    assert result["runtime_ledger"]["summary"]["completed_with_stage_failure"] == 1
+    assert result["runtime_ledger"]["summary"]["completed_clean"] == 0
     assert ledger["partial_reason"] == ""
     assert set(ledger["stage_failures"]) & stage_reasons
     assert set(row["missing_evidence"]) & stage_reasons
@@ -712,6 +809,7 @@ def test_hn_enrichment_page_fetch_timeout_completes_as_closed_identity_miss():
     assert "page_fetch_timeout" in ledger["stage_failures"]
     assert "page_fetch_timeout" in row["missing_evidence"]
     assert ledger["status"] == "completed"
+    assert ledger["completion_status"] == "completed_with_stage_failure"
 
 
 def test_hn_source_text_named_founders_are_used_before_live_founder_query():
@@ -770,3 +868,4 @@ def test_hn_enrichment_runtime_budget_marks_remaining_rows_partial():
     assert result["summary"]["candidates_skipped"] == 1
     assert result["skipped_candidates"][0]["partial_reason"] == "max_runtime_seconds_exceeded"
     assert result["runtime_ledger"]["items"][-1]["partial_reason"] == "max_runtime_seconds_exceeded"
+    assert result["runtime_ledger"]["items"][-1]["completion_status"] == "partial_budget"

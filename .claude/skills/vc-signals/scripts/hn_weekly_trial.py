@@ -59,11 +59,14 @@ def run_hn_launch_weekly_trial(
         payload = _summary(
             config=config,
             queries_planned=0,
+            movement_seeds=movements,
             native_payload={"normalized_leads": {"summary": {"items_seen": 0}}},
             gated_payload={"summary": {}},
             enriched_payload={"summary": {}, "runtime_ledger": {"summary": {}}},
             artifacts=[],
         )
+        payload["skipped_no_seed"] = True
+        payload["completion_status"] = "skipped_no_seed"
         return _write_summary_artifacts(payload, root_dir)
 
     native_payload = run_last30days_native_audit(
@@ -99,6 +102,7 @@ def run_hn_launch_weekly_trial(
     payload = _summary(
         config=config,
         queries_planned=len(queries),
+        movement_seeds=movements,
         native_payload=native_payload,
         gated_payload=gated_payload,
         enriched_payload=enriched_payload,
@@ -144,6 +148,7 @@ def _summary(
     *,
     config: HNLaunchTrialConfig,
     queries_planned: int,
+    movement_seeds: list[dict],
     native_payload: dict,
     gated_payload: dict,
     enriched_payload: dict,
@@ -153,10 +158,19 @@ def _summary(
     gated_summary = gated_payload.get("summary", {})
     enriched_summary = enriched_payload.get("summary", {})
     runtime_summary = enriched_payload.get("runtime_ledger", {}).get("summary", {})
+    skipped_no_seed = queries_planned == 0
     return {
         "enabled": True,
         "label": config.label,
         "queries_planned": queries_planned,
+        "queries_run": len(native_payload.get("audit", {}).get("rows") or []),
+        "movement_seeds": _movement_seed_rows(movement_seeds),
+        "skipped_no_seed": skipped_no_seed,
+        "completion_status": _completion_status(
+            skipped_no_seed=skipped_no_seed,
+            partial=bool(enriched_payload.get("partial", False)),
+            runtime_summary=runtime_summary,
+        ),
         "items_seen": native_summary.get("items_seen", 0),
         "outbound_candidates": enriched_summary.get(
             "hn_outbound_candidates_input",
@@ -174,6 +188,32 @@ def _summary(
         "runtime": dict(runtime_summary),
         "artifacts": artifacts,
     }
+
+
+def _movement_seed_rows(movements: list[dict]) -> list[dict]:
+    rows = []
+    for movement in movements or []:
+        label = (movement.get("movement") or "").strip()
+        if not label:
+            continue
+        rows.append(
+            {
+                "movement": label,
+                "market_sector": movement.get("market_sector", ""),
+                "origin_row_ids": list(movement.get("origin_row_ids") or []),
+            }
+        )
+    return rows
+
+
+def _completion_status(*, skipped_no_seed: bool, partial: bool, runtime_summary: dict) -> str:
+    if skipped_no_seed:
+        return "skipped_no_seed"
+    if partial or runtime_summary.get("partial_budget"):
+        return "partial_budget"
+    if runtime_summary.get("completed_with_stage_failure"):
+        return "completed_with_stage_failure"
+    return "completed_clean"
 
 
 def _write_summary_artifacts(payload: dict, output_dir: Path | None) -> dict:
@@ -208,6 +248,8 @@ def _markdown(payload: dict) -> str:
         "Controlled weekly HN trial. Retrieval uses last30days; weekly default behavior is unchanged.",
         "",
         f"- Queries planned: {payload.get('queries_planned', 0)}",
+        f"- Queries run: {payload.get('queries_run', 0)}",
+        f"- Completion status: {payload.get('completion_status', 'unknown')}",
         f"- Items seen: {payload.get('items_seen', 0)}",
         f"- Outbound candidates: {payload.get('outbound_candidates', 0)}",
         f"- Project-only rows: {payload.get('project_only_rows', 0)}",
@@ -226,8 +268,17 @@ def _markdown(payload: dict) -> str:
                 f"- Completed: {runtime.get('candidates_completed', 0)}",
                 f"- Partial: {runtime.get('candidates_partially_enriched', 0)}",
                 f"- Stage failures: {runtime.get('stage_failures', 0)}",
+                f"- Completion split: clean {runtime.get('completed_clean', 0)}, "
+                f"stage-failed {runtime.get('completed_with_stage_failure', 0)}, "
+                f"partial-budget {runtime.get('partial_budget', 0)}, "
+                f"skipped-low-priority {runtime.get('skipped_low_priority', 0)}",
             ]
         )
     if not payload.get("queries_planned"):
         lines.extend(["", "No HN launch queries were planned from this weekly run's movement set."])
+    elif payload.get("movement_seeds"):
+        lines.extend(["", "## Movement Seeds", ""])
+        for row in payload.get("movement_seeds", [])[:12]:
+            sector = row.get("market_sector") or "unknown"
+            lines.append(f"- {row.get('movement')} ({sector})")
     return "\n".join(lines) + "\n"

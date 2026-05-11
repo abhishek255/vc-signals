@@ -204,6 +204,7 @@ def run_hn_outbound_enrichment(
         original_index = prepared["original_index"]
         ledger = _new_ledger_item(row, index=original_index, processing_index=processing_index)
         ledger["priority"] = triage["priority"]
+        ledger["triage_score"] = triage.get("score", 0)
         ledger["priority_reasons"] = list(triage["reasons"])
         ledger_items.append(ledger)
         candidate_started_at = runtime.time_fn()
@@ -222,11 +223,15 @@ def run_hn_outbound_enrichment(
             triage_context_rows.append(row_payload)
             continue
         if enriched_seen >= max_candidates:
-            skipped_rows.append(_skipped_row(row, reason="max_candidates_exceeded", ledger=ledger))
+            row_payload = _skipped_row(row, reason="max_candidates_exceeded", ledger=ledger)
+            _finalize_ledger_item(ledger, row_payload, started_at=candidate_started_at, runtime=runtime)
+            skipped_rows.append(row_payload)
             runtime.mark_exceeded("max_candidates_exceeded")
             continue
         if runtime.runtime_exceeded():
-            skipped_rows.append(_skipped_row(row, reason="max_runtime_seconds_exceeded", ledger=ledger))
+            row_payload = _skipped_row(row, reason="max_runtime_seconds_exceeded", ledger=ledger)
+            _finalize_ledger_item(ledger, row_payload, started_at=candidate_started_at, runtime=runtime)
+            skipped_rows.append(row_payload)
             continue
         enriched_seen += 1
 
@@ -372,9 +377,11 @@ def _new_ledger_item(row: dict, *, index: int, processing_index: int | None = No
         "name": row.get("name") or row.get("source_title") or row.get("company_domain") or "",
         "domain": row.get("company_domain") or row.get("outbound_domain") or "",
         "status": "in_progress",
+        "completion_status": "in_progress",
         "partial_reason": "",
         "stage_failures": [],
         "priority": "",
+        "triage_score": 0,
         "priority_reasons": [],
         "elapsed_seconds": 0.0,
         "page_fetches": 0,
@@ -659,6 +666,21 @@ def _finalize_ledger_item(ledger: dict, row: dict, *, started_at: float, runtime
     ledger["final_action"] = row.get("recommended_action", "")
     ledger["unsafe_promotion"] = bool(row.get("unsafe_promotion"))
     ledger["missing_evidence"] = list(row.get("missing_evidence") or [])
+    ledger["completion_status"] = _completion_status(ledger)
+
+
+def _completion_status(ledger: dict) -> str:
+    status = ledger.get("status", "")
+    reason = ledger.get("partial_reason", "")
+    if status == "completed":
+        if ledger.get("stage_failures"):
+            return "completed_with_stage_failure"
+        return "completed_clean"
+    if status in {"partial", "skipped"}:
+        if reason == "budget_skipped_low_priority":
+            return "skipped_low_priority"
+        return "partial_budget"
+    return status or "unknown"
 
 
 def _runtime_ledger_payload(items: list[dict], *, runtime: _RuntimeBudget) -> dict:
@@ -668,6 +690,12 @@ def _runtime_ledger_payload(items: list[dict], *, runtime: _RuntimeBudget) -> di
             "candidates_completed": sum(1 for item in items if item.get("status") == "completed"),
             "candidates_partially_enriched": sum(1 for item in items if item.get("status") == "partial"),
             "candidates_skipped": sum(1 for item in items if item.get("status") == "skipped"),
+            "completed_clean": sum(1 for item in items if item.get("completion_status") == "completed_clean"),
+            "completed_with_stage_failure": sum(
+                1 for item in items if item.get("completion_status") == "completed_with_stage_failure"
+            ),
+            "partial_budget": sum(1 for item in items if item.get("completion_status") == "partial_budget"),
+            "skipped_low_priority": sum(1 for item in items if item.get("completion_status") == "skipped_low_priority"),
             "live_queries": runtime.live_queries,
             "attio_checks": runtime.attio_checks,
             "page_fetches": runtime.page_fetches,
@@ -701,7 +729,14 @@ def _prioritized_rows(rows: list[dict], *, cache_dir: Path | None) -> list[dict]
     for original_index, row in enumerate(rows):
         triage = _triage_hn_candidate(row, cache_dir=cache_dir)
         prepared.append({"row": row, "triage": triage, "original_index": original_index})
-    return sorted(prepared, key=lambda item: (priority_order.get(item["triage"]["priority"], 99), item["original_index"]))
+    return sorted(
+        prepared,
+        key=lambda item: (
+            priority_order.get(item["triage"]["priority"], 99),
+            -float(item["triage"].get("score", 0)),
+            item["original_index"],
+        ),
+    )
 
 
 def _triage_hn_candidate(row: dict, *, cache_dir: Path | None = None) -> dict:
@@ -716,6 +751,7 @@ def _triage_hn_candidate(row: dict, *, cache_dir: Path | None = None) -> dict:
     if any(domain.endswith(suffix) for suffix in HOSTED_DEMO_SUFFIXES):
         return {
             "priority": PRIORITY_SKIP_OR_CONTEXT,
+            "score": 0,
             "reasons": ["hosted_demo_not_company_identity"],
             "should_enrich": False,
             "context_lane": "HN Product / Project Context",
@@ -723,6 +759,7 @@ def _triage_hn_candidate(row: dict, *, cache_dir: Path | None = None) -> dict:
     if any(domain.startswith(prefix) for prefix in PRODUCT_SUBDOMAIN_PREFIXES):
         return {
             "priority": PRIORITY_SKIP_OR_CONTEXT,
+            "score": 0,
             "reasons": ["product_subdomain_risk"],
             "should_enrich": False,
             "context_lane": "HN Product / Category Context",
@@ -739,13 +776,25 @@ def _triage_hn_candidate(row: dict, *, cache_dir: Path | None = None) -> dict:
     if cache_dir and _has_hn_candidate_cache(domain, cache_dir):
         reasons.append("cache_available")
 
+    score = 0.0
+    if "accelerator_hint" in reasons:
+        score += 50
+    if "cache_available" in reasons:
+        score += 40
+    if "official_domain_url" in reasons:
+        score += 20
+    if "company_looking_domain" in reasons:
+        score += 10
+    # Engagement is a tie-breaker within priority, not a skip gate.
+    score += min(points, 50) + min(comments * 2, 50)
+
     if "accelerator_hint" in reasons or "cache_available" in reasons:
         priority = PRIORITY_HIGH
     elif "company_looking_domain" in reasons:
         priority = PRIORITY_NORMAL
     else:
         priority = PRIORITY_LOW
-    return {"priority": priority, "reasons": reasons or ["weak_source_signal"], "should_enrich": True}
+    return {"priority": priority, "score": round(score, 2), "reasons": reasons or ["weak_source_signal"], "should_enrich": True}
 
 
 def _has_hn_candidate_cache(domain: str, cache_dir: Path) -> bool:
@@ -753,9 +802,34 @@ def _has_hn_candidate_cache(domain: str, cache_dir: Path) -> bool:
         return False
     for folder in ("hn-official-pages", "official-pages", "hn-outbound-queries", "queries"):
         path = cache_dir / folder
-        if path.exists() and any(path.iterdir()):
-            return True
+        if not path.exists():
+            continue
+        for item in path.glob("*.json"):
+            if _cache_file_mentions_domain(item, domain):
+                return True
     return False
+
+
+def _cache_file_mentions_domain(path: Path, domain: str) -> bool:
+    try:
+        payload = json.loads(path.read_text())
+    except (OSError, json.JSONDecodeError):
+        return False
+    lowered_domain = domain.lower()
+    if isinstance(payload, dict):
+        for key in ("url", "topic", "query", "cache_key"):
+            value = str(payload.get(key) or "").lower()
+            if lowered_domain in value:
+                return True
+        text = str(payload.get("payload") or "")
+        if lowered_domain in text.lower():
+            return True
+        items = payload.get("items")
+        if isinstance(items, list):
+            for row in items:
+                if lowered_domain in json.dumps(row).lower():
+                    return True
+    return lowered_domain in json.dumps(payload).lower()
 
 
 def _candidate_from_hn_row(row: dict) -> Candidate:
@@ -1288,6 +1362,10 @@ def _summary(rows: list[dict], product_rows: list[dict], project_rows: list[dict
         "candidates_enriched": len(rows),
         "candidates_skipped": len(skipped_rows),
         "candidates_partially_enriched": sum(1 for row in rows if row.get("partial")),
+        "completed_clean": ledger_summary.get("completed_clean", 0),
+        "completed_with_stage_failure": ledger_summary.get("completed_with_stage_failure", 0),
+        "partial_budget": ledger_summary.get("partial_budget", 0),
+        "skipped_low_priority": ledger_summary.get("skipped_low_priority", 0),
         "live_queries": ledger_summary.get("live_queries", 0),
         "attio_checks": ledger_summary.get("attio_checks", 0),
         "page_fetches": ledger_summary.get("page_fetches", 0),
@@ -1335,8 +1413,12 @@ def _markdown(payload: dict) -> str:
     ledger_summary = payload.get("runtime_ledger", {}).get("summary", {})
     for key in (
         "candidates_completed",
+        "completed_clean",
+        "completed_with_stage_failure",
         "candidates_partially_enriched",
+        "partial_budget",
         "candidates_skipped",
+        "skipped_low_priority",
         "high_priority_candidates",
         "normal_priority_candidates",
         "low_priority_candidates",

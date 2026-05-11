@@ -38,6 +38,10 @@ def test_hn_weekly_trial_uses_last30days_hn_only_and_writes_artifacts(tmp_path):
 
     assert result["enabled"] is True
     assert result["queries_planned"] == 2
+    assert result["queries_run"] == 2
+    assert result["movement_seeds"] == [
+        {"movement": "AI agent security", "market_sector": "Cybersecurity", "origin_row_ids": ["m1"]}
+    ]
     assert result["items_seen"] == 2
     assert result["outbound_candidates"] == 1
     assert result["assign_owner_rows"] == 0
@@ -63,7 +67,13 @@ def test_hn_weekly_trial_writes_summary_when_no_movements(tmp_path):
 
     assert result["enabled"] is True
     assert result["queries_planned"] == 0
+    assert result["queries_run"] == 0
+    assert result["movement_seeds"] == []
     assert result["items_seen"] == 0
+    assert result["skipped_no_seed"] is True
+    assert result["completion_status"] == "skipped_no_seed"
     assert (tmp_path / "hn-weekly-trial.json").exists()
-    assert "No HN launch queries were planned" in (tmp_path / "hn-weekly-trial.md").read_text()
+    markdown = (tmp_path / "hn-weekly-trial.md").read_text()
+    assert "No HN launch queries were planned" in markdown
+    assert "skipped_no_seed" in markdown
     assert not (tmp_path / "weekly-preview.md").exists()

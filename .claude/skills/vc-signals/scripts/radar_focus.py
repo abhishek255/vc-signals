@@ -1297,7 +1297,10 @@ def render_weekly_focus_markdown(artifact: WeeklyFocusArtifact) -> str:
         if runtime:
             lines.append(
                 f"- Runtime: completed {runtime.get('candidates_completed', 0)}, "
+                f"clean {runtime.get('completed_clean', 0)}, "
+                f"stage-failed {runtime.get('completed_with_stage_failure', 0)}, "
                 f"partial {runtime.get('candidates_partially_enriched', 0)}, "
+                f"partial-budget {runtime.get('partial_budget', 0)}, "
                 f"stage failures {runtime.get('stage_failures', 0)}"
             )
 
