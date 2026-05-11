@@ -1039,6 +1039,7 @@ def build_weekly_focus_artifact(
     source_health: list[dict] | None = None,
     run_id: str = "",
     discovery_yield_trial: dict | None = None,
+    hn_launch_trial: dict | None = None,
 ) -> WeeklyFocusArtifact:
     focus_items = _rank_focus_items([build_focus_item(candidate) for candidate in candidates])
     eligible = _cap_oss_project_only([item for item in focus_items if is_partner_focus_eligible(item)])
@@ -1092,6 +1093,7 @@ def build_weekly_focus_artifact(
         "themes_without_companies": _themes_without_companies(theme_signals),
         "category_context": [item.to_dict() for item in category_context],
         "discovery_yield_trial": discovery_yield_trial or {"enabled": False},
+        "hn_launch_trial": hn_launch_trial or {"enabled": False},
         "source_health": list(source_health or []),
         "source_gaps": gaps,
         "filtered_or_noisy": [
@@ -1277,6 +1279,27 @@ def render_weekly_focus_markdown(artifact: WeeklyFocusArtifact) -> str:
                     f"| {_cell(family)} | {row.get('queries_run', 0)} | {row.get('verified_domains', 0)} | "
                     f"{row.get('early_stage', 0)} | {row.get('research_worthy_unknown', 0)} | {row.get('category_anchors', 0)} |"
                 )
+
+    hn_trial = artifact.appendix.get("hn_launch_trial", {})
+    if hn_trial.get("enabled"):
+        lines.extend(["", "## HN Launch Trial", ""])
+        lines.append(f"Label: {hn_trial.get('label', 'HN Launch Trial')}")
+        lines.append("Trial results are experimental and did not bypass identity, maturity, owner-readiness, or Attio gates.")
+        lines.append(f"- Queries planned: {hn_trial.get('queries_planned', 0)}")
+        lines.append(f"- Items seen: {hn_trial.get('items_seen', 0)}")
+        lines.append(f"- Outbound candidates: {hn_trial.get('outbound_candidates', 0)}")
+        lines.append(f"- Project-only rows: {hn_trial.get('project_only_rows', 0)}")
+        lines.append(f"- Product/context rows: {hn_trial.get('product_context_rows', 0)}")
+        lines.append(f"- Research deeper rows: {hn_trial.get('research_deeper_rows', 0)}")
+        lines.append(f"- Assign owner rows: {hn_trial.get('assign_owner_rows', 0)}")
+        lines.append(f"- Unsafe promotions: {hn_trial.get('unsafe_promotions', 0)}")
+        runtime = hn_trial.get("runtime") or {}
+        if runtime:
+            lines.append(
+                f"- Runtime: completed {runtime.get('candidates_completed', 0)}, "
+                f"partial {runtime.get('candidates_partially_enriched', 0)}, "
+                f"stage failures {runtime.get('stage_failures', 0)}"
+            )
 
     lines.extend(["", "## New To Marathon", ""])
     if artifact.new_to_marathon:

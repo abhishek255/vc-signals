@@ -1805,6 +1805,95 @@ def test_weekly_default_does_not_enable_discovery_yield_trial(tmp_path, monkeypa
     }
 
 
+def test_weekly_default_does_not_enable_hn_launch_trial(tmp_path, monkeypatch):
+    import json
+    import radar_run
+    from radar_models import ThemeSignal
+
+    def fail_hn_trial(**_kwargs):
+        raise AssertionError("HN launch trial should be opt-in")
+
+    monkeypatch.setattr(radar_run, "collect_live_evidence", lambda **kwargs: {"last30days": {}, "github": [], "warnings": []})
+    monkeypatch.setattr(radar_run, "load_candidate_history", lambda: {})
+    monkeypatch.setattr(radar_run, "save_candidate_history", lambda history: None)
+    monkeypatch.setattr(radar_run, "apply_candidate_enrichment", lambda candidates: candidates)
+    monkeypatch.setattr(radar_run, "_grounded_search_available", lambda: True)
+    monkeypatch.setattr(radar_run, "_social_search_available", lambda: False)
+    monkeypatch.setattr(radar_run, "run_query", lambda topic, **kwargs: {"items": [], "warnings": []})
+    monkeypatch.setattr(radar_run, "run_hn_launch_weekly_trial", fail_hn_trial)
+    monkeypatch.setattr(
+        radar_run,
+        "build_theme_signals",
+        lambda signals, sectors: [ThemeSignal(market_sector="AI Infra", theme="Agent reliability and evals")],
+    )
+
+    radar_run.run_weekly_artifacts(output_dir=tmp_path, sectors=("ai-infra",), github_limit=0)
+
+    focus = json.loads((tmp_path / "weekly-focus.json").read_text())
+    assert focus["appendix"]["hn_launch_trial"]["enabled"] is False
+    assert "HN Launch Trial" not in (tmp_path / "weekly-preview.md").read_text()
+
+
+def test_weekly_hn_launch_trial_flag_writes_trial_appendix_only(tmp_path, monkeypatch):
+    import json
+    import radar_run
+    from hn_weekly_trial import HNLaunchTrialConfig
+    from radar_models import ThemeSignal
+
+    calls = {}
+
+    def fake_hn_trial(**kwargs):
+        calls["movements"] = kwargs["movements"]
+        calls["config"] = kwargs["config"]
+        return {
+            "enabled": True,
+            "label": "Phase 6C HN Launch Trial",
+            "queries_planned": 2,
+            "items_seen": 4,
+            "outbound_candidates": 1,
+            "project_only_rows": 2,
+            "product_context_rows": 0,
+            "research_deeper_rows": 1,
+            "assign_owner_rows": 0,
+            "new_to_marathon_rows": 0,
+            "unsafe_promotions": 0,
+            "partial": False,
+            "budget_exceeded": False,
+            "runtime": {"candidates_completed": 1, "stage_failures": 0},
+        }
+
+    monkeypatch.setattr(radar_run, "collect_live_evidence", lambda **kwargs: {"last30days": {}, "github": [], "warnings": []})
+    monkeypatch.setattr(radar_run, "load_candidate_history", lambda: {})
+    monkeypatch.setattr(radar_run, "save_candidate_history", lambda history: None)
+    monkeypatch.setattr(radar_run, "apply_candidate_enrichment", lambda candidates: candidates)
+    monkeypatch.setattr(radar_run, "_grounded_search_available", lambda: True)
+    monkeypatch.setattr(radar_run, "_social_search_available", lambda: False)
+    monkeypatch.setattr(radar_run, "run_query", lambda topic, **kwargs: {"items": [], "warnings": []})
+    monkeypatch.setattr(radar_run, "run_hn_launch_weekly_trial", fake_hn_trial)
+    monkeypatch.setattr(
+        radar_run,
+        "build_theme_signals",
+        lambda signals, sectors: [ThemeSignal(market_sector="AI Infra", theme="Agent reliability and evals", evidence_count=4)],
+    )
+
+    radar_run.run_weekly_artifacts(
+        output_dir=tmp_path,
+        sectors=("ai-infra",),
+        github_limit=0,
+        hn_launch_trial_config=HNLaunchTrialConfig(enabled=True, max_candidates=3),
+    )
+
+    focus = json.loads((tmp_path / "weekly-focus.json").read_text())
+    assert focus["appendix"]["hn_launch_trial"]["enabled"] is True
+    assert focus["appendix"]["hn_launch_trial"]["outbound_candidates"] == 1
+    assert calls["movements"][0]["movement"] == "Agent reliability and evals"
+    assert calls["config"].max_candidates == 3
+    weekly_focus_md = (tmp_path / "weekly-focus.md").read_text()
+    assert "## HN Launch Trial" in weekly_focus_md
+    assert "Outbound candidates: 1" in weekly_focus_md
+    assert "HN Launch Trial" not in (tmp_path / "weekly-preview.md").read_text()
+
+
 def test_weekly_discovery_yield_trial_flag_runs_selected_families(tmp_path, monkeypatch):
     import json
     import radar_run

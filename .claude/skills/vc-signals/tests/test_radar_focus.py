@@ -100,6 +100,41 @@ def test_weekly_focus_renders_discovery_yield_trial_section():
     assert "official_company_page" in markdown
 
 
+def test_weekly_focus_renders_hn_launch_trial_section():
+    from radar_focus import build_weekly_focus_artifact, render_weekly_focus_markdown
+
+    artifact = build_weekly_focus_artifact(
+        candidates=[],
+        category_context_items=[],
+        theme_signals=[],
+        sector_intelligence=[],
+        source_health=[],
+        run_id="2026-05-10",
+        hn_launch_trial={
+            "enabled": True,
+            "label": "Phase 6C HN Launch Trial",
+            "queries_planned": 4,
+            "items_seen": 8,
+            "outbound_candidates": 2,
+            "project_only_rows": 3,
+            "product_context_rows": 1,
+            "research_deeper_rows": 2,
+            "assign_owner_rows": 0,
+            "unsafe_promotions": 0,
+            "partial": False,
+            "runtime": {"candidates_completed": 2, "stage_failures": 1},
+        },
+    )
+
+    markdown = render_weekly_focus_markdown(artifact)
+
+    assert "## HN Launch Trial" in markdown
+    assert "Trial results are experimental" in markdown
+    assert "Outbound candidates: 2" in markdown
+    assert "Assign owner rows: 0" in markdown
+    assert "Unsafe promotions: 0" in markdown
+
+
 def test_attio_no_match_does_not_create_company_identity_by_itself():
     from radar_focus import score_company_identity
 

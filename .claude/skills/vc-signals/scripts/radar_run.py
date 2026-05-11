@@ -62,6 +62,7 @@ from metadata_loss import build_metadata_loss_report
 from founder_team_verification import enrich_founder_team_verification, write_founder_team_verification_json
 from owner_evidence import enrich_owner_evidence, write_owner_evidence_json
 from owner_readiness import enrich_owner_readiness, write_owner_readiness_json
+from hn_weekly_trial import HNLaunchTrialConfig, run_hn_launch_weekly_trial
 from radar_oss import enrich_oss_candidate
 from canonical_identity import canonicalize_identity
 from radar_focus import (
@@ -1541,6 +1542,7 @@ def run_weekly_artifacts(
     discovery_budget_mode: str = "weekly",
     discovery_cache_dir: Path | None = None,
     discovery_yield_trial_config: DiscoveryYieldTrialConfig | None = None,
+    hn_launch_trial_config: HNLaunchTrialConfig | None = None,
 ) -> dict:
     """Collect evidence and render a weekly partner preview in one command."""
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -1668,6 +1670,18 @@ def run_weekly_artifacts(
         )
         synthesis_path = output_dir / "synthesis.json"
         synthesis_path.write_text(json.dumps(synthesis.to_dict(), indent=2))
+    hn_launch_trial = {"enabled": False}
+    if hn_launch_trial_config and hn_launch_trial_config.enabled:
+        hn_launch_trial = run_hn_launch_weekly_trial(
+            movements=_hn_launch_trial_movements(theme_signals, scored_candidates),
+            run_query_fn=run_query,
+            query_runner=run_query if grounded_available else None,
+            page_fetcher=None,
+            attio_matcher=_hn_attio_matcher_from_env(),
+            output_dir=output_dir / "hn-launch-trial",
+            cache_dir=output_dir / "hn-launch-trial" / "cache",
+            config=hn_launch_trial_config,
+        )
     preview_path = output_dir / "weekly-preview.md"
     preview_path.write_text(
         _render_weekly_brief(
@@ -1691,6 +1705,7 @@ def run_weekly_artifacts(
         source_health=evidence.get("source_health", []),
         run_id=run_date,
         discovery_yield_trial=company_discovery.get("discovery_yield_trial", {"enabled": False}),
+        hn_launch_trial=hn_launch_trial,
     )
     weekly_focus_json_path = output_dir / "weekly-focus.json"
     weekly_focus_path = output_dir / "weekly-focus.md"
@@ -1719,6 +1734,8 @@ def run_weekly_artifacts(
         "companies": len(scored_candidates),
         "sectors": list(sectors),
     }
+    if hn_launch_trial.get("enabled"):
+        result["hn_launch_trial"] = str(output_dir / "hn-launch-trial")
     if synthesis_path:
         result["synthesis"] = str(synthesis_path)
     return result
@@ -1798,6 +1815,51 @@ def _discovery_yield_trial_config_from_args(args: dict) -> DiscoveryYieldTrialCo
     )
 
 
+def _hn_launch_trial_config_from_args(args: dict) -> HNLaunchTrialConfig | None:
+    if not _get_bool_arg(args, "hn_launch_trial", "hnLaunchTrial"):
+        return None
+    return HNLaunchTrialConfig(
+        enabled=True,
+        lookback_days=int(args.get("hn_launch_lookback_days", 30)),
+        timeout_seconds=int(args.get("hn_launch_timeout_seconds", 120)),
+        max_candidates=int(args.get("hn_launch_max_candidates", 10)),
+        max_runtime_seconds=float(args.get("hn_launch_max_runtime_seconds", 90)),
+        max_attio_checks=int(args.get("hn_launch_max_attio_checks", 10)),
+        max_live_queries=int(args.get("hn_launch_max_live_queries", 25)),
+        per_candidate_timeout_seconds=float(args.get("hn_launch_per_candidate_timeout_seconds", 8)),
+    )
+
+
+def _hn_launch_trial_movements(theme_signals, candidates) -> list[dict]:
+    movements: list[dict] = []
+    seen: set[str] = set()
+    for signal in theme_signals or []:
+        movement = (getattr(signal, "theme", "") or "").strip()
+        if not movement or movement in seen:
+            continue
+        seen.add(movement)
+        movements.append(
+            {
+                "movement": movement,
+                "market_sector": getattr(signal, "market_sector", ""),
+                "origin_row_ids": [],
+            }
+        )
+    for candidate in candidates or []:
+        movement = (getattr(candidate, "theme", "") or "").strip()
+        if not movement or movement in seen:
+            continue
+        seen.add(movement)
+        movements.append(
+            {
+                "movement": movement,
+                "market_sector": getattr(candidate, "market_sector", "") or getattr(candidate, "sector", ""),
+                "origin_row_ids": [getattr(candidate, "stable_key", "")] if getattr(candidate, "stable_key", "") else [],
+            }
+        )
+    return movements
+
+
 def _attio_client_from_env():
     token = os.environ.get("ATTIO_ACCESS_TOKEN")
     if not token and get_access_token:
@@ -1805,6 +1867,17 @@ def _attio_client_from_env():
     if not token or not AttioClient:
         return None
     return AttioClient(token)
+
+
+def _hn_attio_matcher_from_env():
+    client = _attio_client_from_env()
+    if not client:
+        return None
+
+    def match(candidate):
+        return client.match_company({"name": candidate.name, "domain": candidate.domain})
+
+    return match
 
 
 def _cli_main() -> None:
@@ -1873,6 +1946,7 @@ def _cli_main() -> None:
             progress=bool(args.get("progress", True)),
             discovery_budget=_discovery_budget_from_args(args, first_pass=first_pass),
             discovery_yield_trial_config=_discovery_yield_trial_config_from_args(args),
+            hn_launch_trial_config=_hn_launch_trial_config_from_args(args),
         )
         print(json.dumps(result))
         return
