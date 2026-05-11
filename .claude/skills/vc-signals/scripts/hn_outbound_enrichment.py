@@ -348,6 +348,7 @@ def run_hn_outbound_enrichment(
     passthrough_projects = list(phase6b_payload.get("project_only_rows", []) or [])
     rejected = list(phase6b_payload.get("rejected_rows", []) or [])
     runtime_ledger = _runtime_ledger_payload(ledger_items, runtime=runtime)
+    review_rows = _review_rows(enriched_rows, ledger_items)
     return {
         "phase": "Phase 6B-HN",
         "scope": "HN outbound candidate enrichment; weekly default unchanged; YC remains parked.",
@@ -360,6 +361,7 @@ def run_hn_outbound_enrichment(
         "product_context_rows": passthrough_product,
         "project_only_rows": passthrough_projects,
         "rejected_rows": rejected,
+        "review_rows": review_rows,
         "runtime_ledger": runtime_ledger,
         "reports": reports,
     }
@@ -750,6 +752,67 @@ def _completion_status(ledger: dict) -> str:
     return status or "unknown"
 
 
+def _review_rows(rows: list[dict], ledger_items: list[dict]) -> list[dict]:
+    review_rows: list[dict] = []
+    for index, row in enumerate(rows):
+        ledger = ledger_items[index] if index < len(ledger_items) else {}
+        evidence_dimensions = list(ledger.get("evidence_dimensions") or sorted(_row_evidence_dimensions(row)))
+        stage_failures = list(ledger.get("stage_failures") or [])
+        missing = list(row.get("missing_evidence") or ledger.get("missing_evidence") or [])
+        review_row = {
+            "index": index,
+            "name": row.get("name", ""),
+            "domain": row.get("official_domain", ""),
+            "priority": ledger.get("priority", ""),
+            "priority_reasons": list(ledger.get("priority_reasons") or []),
+            "completion_status": ledger.get("completion_status", ""),
+            "stage_failure_reason": stage_failures,
+            "final_action": row.get("recommended_action", ""),
+            "recommended_lane": row.get("recommended_lane", ""),
+            "evidence_dimensions": evidence_dimensions,
+            "evidence_completeness": len(evidence_dimensions),
+            "attio_status": row.get("attio_status", ""),
+            "missing_evidence": missing,
+            "unsafe_promotion": bool(row.get("unsafe_promotion")),
+            "review_rank_reason": _review_rank_reason(row, evidence_dimensions),
+        }
+        review_rows.append(review_row)
+    return sorted(review_rows, key=_review_sort_key)
+
+
+def _review_rank_reason(row: dict, evidence_dimensions: list[str]) -> str:
+    if row.get("assign_owner"):
+        return "assign_owner"
+    if row.get("attio_blocked_owner_ready") or row.get("recommended_lane") == ACTION_BLOCKED_BY_ATTIO:
+        return "action_blocked_by_attio"
+    if evidence_dimensions:
+        return "research_deeper_with_evidence"
+    return "research_deeper_missing_evidence"
+
+
+def _review_sort_key(row: dict) -> tuple:
+    reason_order = {
+        "assign_owner": 0,
+        "action_blocked_by_attio": 1,
+        "research_deeper_with_evidence": 2,
+        "research_deeper_missing_evidence": 3,
+    }
+    priority_order = {
+        PRIORITY_HIGH: 0,
+        PRIORITY_NORMAL: 1,
+        PRIORITY_LOW: 2,
+        PRIORITY_SKIP_OR_CONTEXT: 3,
+    }
+    return (
+        reason_order.get(row.get("review_rank_reason", ""), 9),
+        priority_order.get(row.get("priority", ""), 9),
+        -int(row.get("evidence_completeness", 0)),
+        len(row.get("stage_failure_reason") or []),
+        len(row.get("missing_evidence") or []),
+        int(row.get("index", 0)),
+    )
+
+
 def _runtime_ledger_payload(items: list[dict], *, runtime: _RuntimeBudget) -> dict:
     return {
         "summary": {
@@ -864,9 +927,10 @@ def _triage_hn_candidate(row: dict, *, cache_dir: Path | None = None) -> dict:
     # Engagement is a tie-breaker within priority, not a skip gate.
     score += min(points, 50) + min(comments * 2, 50)
 
-    if "accelerator_hint" in reasons or "cache_available" in reasons:
+    engaged_official_domain = "official_domain_url" in reasons and "hn_engagement" in reasons
+    if "accelerator_hint" in reasons or "cache_available" in reasons or engaged_official_domain:
         priority = PRIORITY_HIGH
-    elif "company_looking_domain" in reasons:
+    elif "official_domain_url" in reasons or "company_looking_domain" in reasons:
         priority = PRIORITY_NORMAL
     else:
         priority = PRIORITY_LOW

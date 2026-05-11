@@ -280,7 +280,7 @@ def test_hn_enrichment_processes_high_priority_before_low_priority_budget_skip()
     assert ledger_items[1]["partial_reason"] in {"max_candidates_exceeded", "budget_skipped_low_priority"}
 
 
-def test_hn_enrichment_orders_normal_priority_by_hn_engagement_before_budget_skip():
+def test_hn_enrichment_orders_engaged_priority_by_hn_engagement_before_budget_skip():
     from hn_outbound_enrichment import run_hn_outbound_enrichment
 
     result = run_hn_outbound_enrichment(
@@ -312,9 +312,46 @@ def test_hn_enrichment_orders_normal_priority_by_hn_engagement_before_budget_ski
 
     ledger_items = result["runtime_ledger"]["items"]
     assert ledger_items[0]["name"] == "LoudCo"
-    assert ledger_items[0]["priority"] == "normal_priority"
+    assert ledger_items[0]["priority"] == "high_priority"
     assert ledger_items[1]["name"] == "QuietCo"
     assert ledger_items[1]["completion_status"] == "partial_budget"
+
+
+def test_hn_triage_marks_engaged_official_domain_high_priority():
+    from hn_outbound_enrichment import run_hn_outbound_enrichment
+
+    result = run_hn_outbound_enrichment(
+        _phase6b_payload(
+            company_rows=[
+                _hn_outbound(
+                    name="LoudCo",
+                    source_title="Show HN: LoudCo - Agent runtime controls",
+                    official_url="https://loudco.ai",
+                    outbound_domain="loudco.ai",
+                    company_domain="loudco.ai",
+                    hn_engagement={"points": 30, "comments": 10},
+                ),
+                _hn_outbound(
+                    name="QuietCo",
+                    source_title="Show HN: QuietCo - Agent workflow logs",
+                    official_url="https://quietco.ai",
+                    outbound_domain="quietco.ai",
+                    company_domain="quietco.ai",
+                    hn_engagement={"points": 1, "comments": 0},
+                ),
+            ]
+        ),
+        page_fetcher=lambda url: "<html><title>LoudCo</title><body>LoudCo runtime controls.</body></html>",
+        query_runner=lambda topic, **kwargs: {"items": []},
+        max_candidates=2,
+        max_runtime_seconds=30,
+    )
+
+    ledger_items = result["runtime_ledger"]["items"]
+    assert ledger_items[0]["name"] == "LoudCo"
+    assert ledger_items[0]["priority"] == "high_priority"
+    assert ledger_items[1]["name"] == "QuietCo"
+    assert ledger_items[1]["priority"] == "normal_priority"
 
 
 def test_hn_enrichment_cache_priority_requires_same_domain_cache(tmp_path):
@@ -395,6 +432,37 @@ def test_hn_outbound_can_assign_owner_only_after_all_existing_gates_pass():
     assert row["assign_owner"] is True
     assert result["summary"]["assign_owner_rows"] == 1
     assert result["summary"]["unsafe_promotions"] == 0
+
+
+def test_hn_enrichment_review_rows_rank_assign_owner_first_and_stage_failures_lower():
+    from hn_outbound_enrichment import _CallTimeout, run_hn_outbound_enrichment
+
+    def page_fetcher(url):
+        if "veris.ai" in url:
+            return _veris_owner_ready_page_fetcher(url)
+        return "<html><title>Burrow</title><body>Burrow runtime security</body></html>"
+
+    def query_runner(topic, **kwargs):
+        if "Burrow" in topic:
+            raise _CallTimeout()
+        return {"items": []}
+
+    result = run_hn_outbound_enrichment(
+        _phase6b_payload(company_rows=[_hn_outbound(name="Burrow"), _veris_row()]),
+        page_fetcher=page_fetcher,
+        query_runner=query_runner,
+        attio_matcher=lambda candidate: {"attio_status": "no_owner"},
+        max_candidates=2,
+    )
+
+    review_rows = result["review_rows"]
+    assert len(review_rows) == 2
+    assert review_rows[0]["name"] == "Veris"
+    assert review_rows[0]["final_action"] == "Assign owner"
+    assert review_rows[0]["review_rank_reason"] == "assign_owner"
+    assert review_rows[1]["name"] == "Burrow"
+    assert review_rows[1]["completion_status"] == "completed_with_stage_failure"
+    assert "maturity_query_timeout" in review_rows[1]["stage_failure_reason"] or review_rows[1]["evidence_completeness"] < review_rows[0]["evidence_completeness"]
 
 
 def test_hn_enrichment_does_not_call_attio_before_meaningful_evidence():

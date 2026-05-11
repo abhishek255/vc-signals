@@ -1292,6 +1292,7 @@ def render_weekly_focus_markdown(artifact: WeeklyFocusArtifact) -> str:
         lines.append(f"- Product/context rows: {hn_trial.get('product_context_rows', 0)}")
         lines.append(f"- Research deeper rows: {hn_trial.get('research_deeper_rows', 0)}")
         lines.append(f"- Assign owner rows: {hn_trial.get('assign_owner_rows', 0)}")
+        lines.append(f"- Action blocked by Attio rows: {hn_trial.get('action_blocked_by_attio_rows', 0)}")
         lines.append(f"- Unsafe promotions: {hn_trial.get('unsafe_promotions', 0)}")
         runtime = hn_trial.get("runtime") or {}
         if runtime:
@@ -1303,6 +1304,17 @@ def render_weekly_focus_markdown(artifact: WeeklyFocusArtifact) -> str:
                 f"partial-budget {runtime.get('partial_budget', 0)}, "
                 f"stage failures {runtime.get('stage_failures', 0)}"
             )
+        review_rows = hn_trial.get("review_rows") or []
+        if review_rows:
+            lines.extend(["", "Top HN review rows:", ""])
+            for row in review_rows[:2]:
+                evidence = ", ".join(row.get("evidence_dimensions") or []) or "none"
+                missing = ", ".join(row.get("missing_evidence") or []) or "none"
+                lines.append(
+                    f"- **{row.get('name', 'Unknown')}** ({row.get('domain', 'unknown domain')}) — "
+                    f"{row.get('final_action', 'Review')} / {row.get('completion_status', 'unknown')}; "
+                    f"evidence: {evidence}; missing: {missing}"
+                )
 
     lines.extend(["", "## New To Marathon", ""])
     if artifact.new_to_marathon:

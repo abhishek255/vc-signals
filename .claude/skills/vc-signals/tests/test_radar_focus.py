@@ -120,7 +120,38 @@ def test_weekly_focus_renders_hn_launch_trial_section():
             "product_context_rows": 1,
             "research_deeper_rows": 2,
             "assign_owner_rows": 0,
+            "action_blocked_by_attio_rows": 1,
             "unsafe_promotions": 0,
+            "review_rows": [
+                {
+                    "name": "Veris",
+                    "domain": "veris.ai",
+                    "final_action": "Assign owner",
+                    "completion_status": "completed_clean",
+                    "evidence_dimensions": ["customer", "founder", "stage"],
+                    "attio_status": "no_owner",
+                    "missing_evidence": [],
+                },
+                {
+                    "name": "AttioBlocked",
+                    "domain": "blocked.ai",
+                    "final_action": "Research deeper",
+                    "recommended_lane": "Action blocked by Attio",
+                    "completion_status": "completed_with_stage_failure",
+                    "evidence_dimensions": ["customer", "founder", "stage"],
+                    "attio_status": "unknown",
+                    "missing_evidence": ["attio_timeout"],
+                },
+                {
+                    "name": "ShouldNotDump",
+                    "domain": "dump.ai",
+                    "final_action": "Research deeper",
+                    "completion_status": "completed_with_stage_failure",
+                    "evidence_dimensions": [],
+                    "attio_status": "unknown",
+                    "missing_evidence": ["maturity_query_timeout"],
+                },
+            ],
             "partial": False,
             "runtime": {
                 "candidates_completed": 2,
@@ -137,9 +168,14 @@ def test_weekly_focus_renders_hn_launch_trial_section():
     assert "Trial results are experimental" in markdown
     assert "Outbound candidates: 2" in markdown
     assert "Assign owner rows: 0" in markdown
+    assert "Action blocked by Attio rows: 1" in markdown
     assert "Unsafe promotions: 0" in markdown
     assert "clean 1" in markdown
     assert "stage-failed 1" in markdown
+    assert "Top HN review rows" in markdown
+    assert "Veris" in markdown
+    assert "AttioBlocked" in markdown
+    assert "ShouldNotDump" not in markdown
 
 
 def test_attio_no_match_does_not_create_company_identity_by_itself():

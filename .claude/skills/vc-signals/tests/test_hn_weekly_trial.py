@@ -141,3 +141,108 @@ def test_hn_weekly_trial_surfaces_attio_blocked_owner_ready_rows(tmp_path):
     markdown = (tmp_path / "hn-weekly-trial.md").read_text()
     assert "Action blocked by Attio rows: 1" in markdown
     assert not (tmp_path / "weekly-preview.md").exists()
+
+
+def test_hn_weekly_trial_markdown_shows_ranked_review_rows_without_dump():
+    from hn_weekly_trial import _markdown
+
+    review_rows = [
+        {
+            "name": "Veris",
+            "domain": "veris.ai",
+            "final_action": "Assign owner",
+            "recommended_lane": "HN Enriched Outbound Candidates",
+            "completion_status": "completed_clean",
+            "evidence_dimensions": ["customer", "founder", "stage"],
+            "missing_evidence": [],
+            "attio_status": "no_owner",
+        }
+    ]
+    review_rows.extend(
+        {
+            "name": f"Research {index}",
+            "domain": f"research{index}.ai",
+            "final_action": "Research deeper",
+            "recommended_lane": "HN Enriched Outbound Candidates",
+            "completion_status": "completed_with_stage_failure",
+            "evidence_dimensions": ["stage"] if index == 1 else [],
+            "missing_evidence": ["maturity_query_timeout"],
+            "attio_status": "unknown",
+        }
+        for index in range(1, 7)
+    )
+    payload = {
+        "queries_planned": 12,
+        "queries_run": 12,
+        "completion_status": "completed_with_stage_failure",
+        "items_seen": 64,
+        "outbound_candidates": 14,
+        "project_only_rows": 13,
+        "product_context_rows": 1,
+        "research_deeper_rows": 13,
+        "assign_owner_rows": 1,
+        "action_blocked_by_attio_rows": 0,
+        "unsafe_promotions": 0,
+        "runtime": {"candidates_completed": 14, "stage_failures": 11},
+        "review_rows": review_rows,
+    }
+
+    markdown = _markdown(payload)
+
+    assert "## Top HN Review Rows" in markdown
+    assert "Veris" in markdown
+    assert "Research 4" in markdown
+    assert "Research 5" not in markdown
+    assert "13 project-only rows summarized separately" in markdown
+
+
+def test_hn_weekly_trial_warm_attio_cache_supports_assign_owner(tmp_path):
+    from hn_outbound_enrichment import _attio_cache_path
+    from hn_weekly_trial import HNLaunchTrialConfig, run_hn_launch_weekly_trial
+
+    cache_dir = tmp_path / "cache"
+    path = _attio_cache_path(cache_dir, "Veris", "veris.ai")
+    path.parent.mkdir(parents=True)
+    path.write_text(
+        '{"fetched_at": "2026-05-10", "payload": {"attio_status": "no_owner"}, '
+        '"match_key": {"name": "Veris", "domain": "veris.ai"}}'
+    )
+
+    def fake_last30days_query(topic, **kwargs):
+        return {
+            "items": [
+                {
+                    "title": "Show HN: Veris - Agent sandboxes with simulated external services",
+                    "url": "https://news.ycombinator.com/item?id=2",
+                    "hn_url": "https://news.ycombinator.com/item?id=2",
+                    "outbound_url": "https://veris.ai/sandbox",
+                    "domain": "veris.ai",
+                    "author": "founder",
+                    "engagement": {"points": 42, "comments": 9},
+                }
+            ]
+        }
+
+    def fake_page_fetcher(url):
+        if url.endswith("/blog"):
+            return (
+                "<html><body><p>Mehdi Jamei, CEO and Co-founder of Veris, announced an $8.5M Series Seed.</p>"
+                "<p>Enterprise teams can book demo access for AI agent validation.</p></body></html>"
+            )
+        return "<html><title>Veris</title><body>Veris AI trains enterprise AI agents.</body></html>"
+
+    result = run_hn_launch_weekly_trial(
+        movements=[{"movement": "AI agent security", "market_sector": "Cybersecurity", "origin_row_ids": ["m1"]}],
+        run_query_fn=fake_last30days_query,
+        query_runner=lambda topic, **kwargs: (_ for _ in ()).throw(AssertionError("live query should not run")),
+        page_fetcher=fake_page_fetcher,
+        attio_matcher=lambda candidate: (_ for _ in ()).throw(AssertionError("fresh cache should avoid live Attio")),
+        output_dir=tmp_path,
+        cache_dir=cache_dir,
+        config=HNLaunchTrialConfig(enabled=True, max_candidates=2, max_runtime_seconds=30, max_live_queries=0),
+    )
+
+    assert result["assign_owner_rows"] == 1
+    assert result["runtime"]["attio_cache_fresh_hits"] == 1
+    assert result["runtime"]["attio_checks"] == 0
+    assert result["review_rows"][0]["name"] == "Veris"

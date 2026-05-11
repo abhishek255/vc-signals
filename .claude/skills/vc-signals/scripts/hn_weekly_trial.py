@@ -188,6 +188,7 @@ def _summary(
         "budget_exceeded": bool(enriched_payload.get("budget_exceeded", False)),
         "budget_reasons": list(enriched_payload.get("budget_reasons") or []),
         "runtime": dict(runtime_summary),
+        "review_rows": list(enriched_payload.get("review_rows") or []),
         "artifacts": artifacts,
     }
 
@@ -281,6 +282,20 @@ def _markdown(payload: dict) -> str:
                 f"skipped-low-priority {runtime.get('skipped_low_priority', 0)}",
             ]
         )
+    review_rows = payload.get("review_rows") or []
+    if review_rows:
+        lines.extend(["", "## Top HN Review Rows", ""])
+        for row in review_rows[:5]:
+            evidence = ", ".join(row.get("evidence_dimensions") or []) or "none"
+            missing = ", ".join(row.get("missing_evidence") or []) or "none"
+            lines.append(
+                f"- **{row.get('name')}** ({row.get('domain') or 'unknown domain'}) — "
+                f"{row.get('final_action')} / {row.get('completion_status')}; "
+                f"evidence: {evidence}; missing: {missing}"
+            )
+        project_count = payload.get("project_only_rows", 0)
+        if project_count:
+            lines.append(f"- {project_count} project-only rows summarized separately.")
     if not payload.get("queries_planned"):
         lines.extend(["", "No HN launch queries were planned from this weekly run's movement set."])
     elif payload.get("movement_seeds"):
