@@ -83,3 +83,61 @@ def test_hn_weekly_trial_writes_summary_when_no_movements(tmp_path):
     assert "No HN launch queries were planned" in markdown
     assert "skipped_no_seed" in markdown
     assert not (tmp_path / "weekly-preview.md").exists()
+
+
+def test_hn_weekly_trial_surfaces_attio_blocked_owner_ready_rows(tmp_path):
+    import time
+
+    from hn_weekly_trial import HNLaunchTrialConfig, run_hn_launch_weekly_trial
+
+    def fake_last30days_query(topic, **kwargs):
+        return {
+            "items": [
+                {
+                    "title": "Show HN: Veris - Agent sandboxes with simulated external services",
+                    "url": "https://news.ycombinator.com/item?id=2",
+                    "hn_url": "https://news.ycombinator.com/item?id=2",
+                    "outbound_url": "https://veris.ai/sandbox",
+                    "domain": "veris.ai",
+                    "author": "founder",
+                    "engagement": {"points": 42, "comments": 9},
+                }
+            ]
+        }
+
+    def fake_page_fetcher(url):
+        if url.endswith("/blog"):
+            return (
+                "<html><body><p>Mehdi Jamei, CEO and Co-founder of Veris, announced an $8.5M Series Seed.</p>"
+                "<p>Enterprise teams can book demo access for AI agent validation.</p></body></html>"
+            )
+        return "<html><title>Veris</title><body>Veris AI trains enterprise AI agents.</body></html>"
+
+    def slow_attio(_candidate):
+        time.sleep(0.05)
+        return {"attio_status": "no_owner"}
+
+    result = run_hn_launch_weekly_trial(
+        movements=[{"movement": "AI agent security", "market_sector": "Cybersecurity", "origin_row_ids": ["m1"]}],
+        run_query_fn=fake_last30days_query,
+        query_runner=lambda topic, **kwargs: (_ for _ in ()).throw(AssertionError("live query should not run")),
+        page_fetcher=fake_page_fetcher,
+        attio_matcher=slow_attio,
+        output_dir=tmp_path,
+        cache_dir=tmp_path / "cache",
+        config=HNLaunchTrialConfig(
+            enabled=True,
+            max_candidates=2,
+            max_runtime_seconds=30,
+            max_live_queries=0,
+            max_attio_checks=2,
+            per_candidate_timeout_seconds=0.01,
+        ),
+    )
+
+    assert result["assign_owner_rows"] == 0
+    assert result["action_blocked_by_attio_rows"] == 1
+    assert result["runtime"]["attio_timeouts"] == 1
+    markdown = (tmp_path / "hn-weekly-trial.md").read_text()
+    assert "Action blocked by Attio rows: 1" in markdown
+    assert not (tmp_path / "weekly-preview.md").exists()

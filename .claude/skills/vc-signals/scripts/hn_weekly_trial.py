@@ -180,6 +180,8 @@ def _summary(
         "product_context_rows": enriched_summary.get("product_context_rows", gated_summary.get("product_context_rows", 0)),
         "research_deeper_rows": enriched_summary.get("research_deeper_rows", gated_summary.get("research_deeper_rows", 0)),
         "assign_owner_rows": enriched_summary.get("assign_owner_rows", gated_summary.get("assign_owner_rows", 0)),
+        "action_blocked_by_attio_rows": enriched_summary.get("action_blocked_by_attio_rows", 0),
+        "attio_blocked_owner_ready_rows": enriched_summary.get("attio_blocked_owner_ready_rows", 0),
         "new_to_marathon_rows": enriched_summary.get("new_to_marathon_rows", gated_summary.get("new_to_marathon_rows", 0)),
         "unsafe_promotions": enriched_summary.get("unsafe_promotions", gated_summary.get("unsafe_promotions", 0)),
         "partial": bool(enriched_payload.get("partial", False)),
@@ -256,6 +258,7 @@ def _markdown(payload: dict) -> str:
         f"- Product/context rows: {payload.get('product_context_rows', 0)}",
         f"- Research deeper rows: {payload.get('research_deeper_rows', 0)}",
         f"- Assign owner rows: {payload.get('assign_owner_rows', 0)}",
+        f"- Action blocked by Attio rows: {payload.get('action_blocked_by_attio_rows', 0)}",
         f"- Unsafe promotions: {payload.get('unsafe_promotions', 0)}",
     ]
     runtime = payload.get("runtime") or {}
@@ -268,6 +271,10 @@ def _markdown(payload: dict) -> str:
                 f"- Completed: {runtime.get('candidates_completed', 0)}",
                 f"- Partial: {runtime.get('candidates_partially_enriched', 0)}",
                 f"- Stage failures: {runtime.get('stage_failures', 0)}",
+                f"- Attio: checks {runtime.get('attio_checks_attempted', runtime.get('attio_checks', 0))}, "
+                f"successes {runtime.get('attio_successes', 0)}, "
+                f"timeouts {runtime.get('attio_timeouts', 0)}, "
+                f"cache hits {runtime.get('attio_cache_hits', 0)}",
                 f"- Completion split: clean {runtime.get('completed_clean', 0)}, "
                 f"stage-failed {runtime.get('completed_with_stage_failure', 0)}, "
                 f"partial-budget {runtime.get('partial_budget', 0)}, "

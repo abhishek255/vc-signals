@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+from datetime import date, timedelta
 
 
 def _phase6b_payload(*, company_rows=None, product_rows=None, project_rows=None):
@@ -79,6 +80,29 @@ def _query_runner(topic, **_kwargs):
             ]
         }
     return {"items": []}
+
+
+def _veris_owner_ready_page_fetcher(url):
+    if url.endswith("/blog"):
+        return (
+            "<html><body><h1>Introducing Veris AI</h1>"
+            "<p>Mehdi Jamei, CEO and Co-founder of Veris, announced an $8.5M Series Seed.</p>"
+            "<p>Enterprise teams can book demo access to validate agents before regulators find policy gaps.</p>"
+            "</body></html>"
+        )
+    return "<html><title>Veris</title><body>Veris AI trains enterprise AI agents.</body></html>"
+
+
+def _veris_row():
+    return _hn_outbound(
+        name="Veris",
+        source_title="Show HN: Veris - Agent sandboxes with simulated external services",
+        official_url="https://veris.ai/sandbox",
+        outbound_domain="veris.ai",
+        company_domain="veris.ai",
+        maturity_status="unknown",
+        maturity_basis=["maturity_not_verified"],
+    )
 
 
 def test_hn_outbound_identity_promotion_requires_official_site_confirmation():
@@ -683,29 +707,9 @@ def test_hn_enrichment_live_query_budget_preserves_cached_or_page_evidence():
 def test_veris_warm_page_evidence_assigns_owner_with_zero_live_queries_and_stage_cache_ledger():
     from hn_outbound_enrichment import run_hn_outbound_enrichment
 
-    def fake_fetcher(url):
-        if url.endswith("/blog"):
-            return (
-                "<html><body><p>Mehdi Jamei, CEO and Co-founder of Veris, announced an $8.5M Series Seed.</p>"
-                "<p>Enterprise teams can book demo access for AI agent validation.</p></body></html>"
-            )
-        return "<html><title>Veris</title><body>Veris AI trains enterprise AI agents.</body></html>"
-
     result = run_hn_outbound_enrichment(
-        _phase6b_payload(
-            company_rows=[
-                _hn_outbound(
-                    name="Veris",
-                    source_title="Show HN: Veris - Agent sandboxes with simulated external services",
-                    official_url="https://veris.ai/sandbox",
-                    outbound_domain="veris.ai",
-                    company_domain="veris.ai",
-                    maturity_status="unknown",
-                    maturity_basis=["maturity_not_verified"],
-                )
-            ]
-        ),
-        page_fetcher=fake_fetcher,
+        _phase6b_payload(company_rows=[_veris_row()]),
+        page_fetcher=_veris_owner_ready_page_fetcher,
         query_runner=lambda topic, **kwargs: (_ for _ in ()).throw(AssertionError("live query should not run")),
         attio_matcher=lambda candidate: {"attio_status": "no_owner"},
         max_live_queries=0,
@@ -721,6 +725,152 @@ def test_veris_warm_page_evidence_assigns_owner_with_zero_live_queries_and_stage
     assert result["runtime_ledger"]["summary"]["completed_clean"] == 1
     assert ledger["evidence_dimensions"] == ["customer", "founder", "stage"]
     assert "commercial_intent_evidence" in ledger["customer_evidence_labels"]
+
+
+def test_veris_attio_timeout_is_action_blocked_not_generic_research_deeper():
+    import time
+
+    from hn_outbound_enrichment import run_hn_outbound_enrichment
+
+    def slow_attio(_candidate):
+        time.sleep(0.05)
+        return {"attio_status": "no_owner"}
+
+    result = run_hn_outbound_enrichment(
+        _phase6b_payload(company_rows=[_veris_row()]),
+        page_fetcher=_veris_owner_ready_page_fetcher,
+        query_runner=lambda topic, **kwargs: (_ for _ in ()).throw(AssertionError("live query should not run")),
+        attio_matcher=slow_attio,
+        max_live_queries=0,
+        max_attio_checks=2,
+        per_candidate_timeout_seconds=0.01,
+    )
+
+    row = result["enriched_outbound_candidates"][0]
+    ledger = result["runtime_ledger"]["items"][0]
+    runtime = result["runtime_ledger"]["summary"]
+    assert row["recommended_action"] == "Research deeper"
+    assert row["recommended_lane"] == "Action blocked by Attio"
+    assert row["action_blocker"] == "attio_timeout"
+    assert row["potential_action_if_attio_confirms"] == "Assign owner"
+    assert row["assign_owner"] is False
+    assert row["unsafe_promotion"] is False
+    assert "attio_timeout" in row["missing_evidence"]
+    assert ledger["action_blocker"] == "attio_timeout"
+    assert runtime["attio_timeouts"] == 1
+    assert runtime["attio_blocked_owner_ready_rows"] == 1
+    assert result["summary"]["attio_blocked_owner_ready_rows"] == 1
+
+
+def test_veris_attio_retry_success_clears_timeout_blocker():
+    from hn_outbound_enrichment import _CallTimeout, run_hn_outbound_enrichment
+
+    calls = {"attio": 0}
+
+    def flaky_attio(_candidate):
+        calls["attio"] += 1
+        if calls["attio"] == 1:
+            raise _CallTimeout()
+        return {"attio_status": "no_owner"}
+
+    result = run_hn_outbound_enrichment(
+        _phase6b_payload(company_rows=[_veris_row()]),
+        page_fetcher=_veris_owner_ready_page_fetcher,
+        query_runner=lambda topic, **kwargs: (_ for _ in ()).throw(AssertionError("live query should not run")),
+        attio_matcher=flaky_attio,
+        max_live_queries=0,
+        max_attio_checks=2,
+        per_candidate_timeout_seconds=0.2,
+    )
+
+    row = result["enriched_outbound_candidates"][0]
+    ledger = result["runtime_ledger"]["items"][0]
+    runtime = result["runtime_ledger"]["summary"]
+    assert calls["attio"] == 2
+    assert row["recommended_action"] == "Assign owner"
+    assert row["assign_owner"] is True
+    assert row["recommended_lane"] == "HN Enriched Outbound Candidates"
+    assert row["action_blocker"] == ""
+    assert "attio_timeout" not in row["missing_evidence"]
+    assert "attio_timeout" not in ledger["stage_failures"]
+    assert runtime["attio_retry_attempts"] == 1
+    assert runtime["attio_timeouts"] == 1
+    assert runtime["attio_blocked_owner_ready_rows"] == 0
+
+
+def test_veris_fresh_attio_cache_can_support_assign_owner(tmp_path):
+    from hn_outbound_enrichment import _attio_cache_path, run_hn_outbound_enrichment
+
+    cache_dir = tmp_path / "cache"
+    path = _attio_cache_path(cache_dir, "Veris", "veris.ai")
+    path.parent.mkdir(parents=True)
+    path.write_text(
+        json.dumps(
+            {
+                "fetched_at": date.today().isoformat(),
+                "payload": {"attio_status": "no_owner"},
+                "match_key": {"name": "Veris", "domain": "veris.ai"},
+            }
+        )
+    )
+
+    result = run_hn_outbound_enrichment(
+        _phase6b_payload(company_rows=[_veris_row()]),
+        page_fetcher=_veris_owner_ready_page_fetcher,
+        query_runner=lambda topic, **kwargs: (_ for _ in ()).throw(AssertionError("live query should not run")),
+        attio_matcher=lambda candidate: (_ for _ in ()).throw(AssertionError("fresh Attio cache should avoid live read")),
+        cache_dir=cache_dir,
+        max_live_queries=0,
+        max_attio_checks=1,
+    )
+
+    row = result["enriched_outbound_candidates"][0]
+    runtime = result["runtime_ledger"]["summary"]
+    assert row["recommended_action"] == "Assign owner"
+    assert row["assign_owner"] is True
+    assert row["attio_status"] == "no_owner"
+    assert "attio_cache:fresh" in row["attio_confidence_basis"]
+    assert runtime["attio_checks"] == 0
+    assert runtime["attio_cache_fresh_hits"] == 1
+
+
+def test_veris_stale_attio_cache_is_context_not_assign_owner(tmp_path):
+    from hn_outbound_enrichment import _attio_cache_path, run_hn_outbound_enrichment
+
+    cache_dir = tmp_path / "cache"
+    path = _attio_cache_path(cache_dir, "Veris", "veris.ai")
+    path.parent.mkdir(parents=True)
+    path.write_text(
+        json.dumps(
+            {
+                "fetched_at": (date.today() - timedelta(days=14)).isoformat(),
+                "payload": {"attio_status": "no_owner"},
+                "match_key": {"name": "Veris", "domain": "veris.ai"},
+            }
+        )
+    )
+
+    result = run_hn_outbound_enrichment(
+        _phase6b_payload(company_rows=[_veris_row()]),
+        page_fetcher=_veris_owner_ready_page_fetcher,
+        query_runner=lambda topic, **kwargs: (_ for _ in ()).throw(AssertionError("live query should not run")),
+        attio_matcher=None,
+        cache_dir=cache_dir,
+        max_live_queries=0,
+        max_attio_checks=1,
+    )
+
+    row = result["enriched_outbound_candidates"][0]
+    runtime = result["runtime_ledger"]["summary"]
+    assert row["recommended_action"] == "Research deeper"
+    assert row["recommended_lane"] == "Action blocked by Attio"
+    assert row["action_blocker"] == "attio_cache_stale"
+    assert row["potential_action_if_attio_confirms"] == "Assign owner"
+    assert row["assign_owner"] is False
+    assert row["attio_status"] == "no_owner"
+    assert "attio_cache_stale" in row["missing_evidence"]
+    assert runtime["attio_cache_stale_hits"] == 1
+    assert runtime["attio_blocked_owner_ready_rows"] == 1
 
 
 def test_hn_enrichment_runtime_ledger_reports_priority_and_stage_counts(tmp_path):

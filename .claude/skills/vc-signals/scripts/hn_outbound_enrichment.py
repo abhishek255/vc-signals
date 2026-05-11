@@ -15,6 +15,7 @@ import re
 import signal
 import time
 from contextlib import contextmanager
+from datetime import date
 from html import unescape
 from pathlib import Path
 from typing import Callable
@@ -42,6 +43,9 @@ DURABLE_EVIDENCE_URL_MARKERS = (
     "gunder.com/",
     "ycombinator.com/companies/",
 )
+ATTIO_CACHE_FRESH_DAYS = 7
+ATTIO_CACHE_STALE_DAYS = 30
+ACTION_BLOCKED_BY_ATTIO = "Action blocked by Attio"
 STAGE_FAILURE_REASONS = {
     "maturity_query_timeout",
     "founder_query_timeout",
@@ -318,7 +322,14 @@ def run_hn_outbound_enrichment(
         final_candidate = _clear_owner_readiness(final_candidate)
         if final_candidate.identity_type == "verified_company" and not runtime.candidate_exceeded(candidate_started_at):
             if _eligible_for_attio(final_candidate):
-                final_candidate = _apply_attio(final_candidate, attio_matcher, runtime=runtime, ledger=ledger)
+                final_candidate = _apply_attio(
+                    final_candidate,
+                    attio_matcher,
+                    runtime=runtime,
+                    ledger=ledger,
+                    cache_dir=cache_path,
+                    candidate_started_at=candidate_started_at,
+                )
             else:
                 ledger["attio_skipped"] += 1
                 ledger["attio_skip_reason"] = "insufficient_evidence_before_attio"
@@ -329,6 +340,7 @@ def run_hn_outbound_enrichment(
             row_payload = _mark_stage_failed_row(row_payload, ledger["stage_failures"])
         if ledger["partial_reason"]:
             row_payload = _mark_partial_row(row_payload, ledger["partial_reason"])
+        row_payload = _mark_attio_blocked_owner_ready(row_payload)
         _finalize_ledger_item(ledger, row_payload, started_at=candidate_started_at, runtime=runtime)
         enriched_rows.append(row_payload)
 
@@ -403,8 +415,18 @@ def _new_ledger_item(row: dict, *, index: int, processing_index: int | None = No
         "owner_query_timeouts": 0,
         "queries_skipped": 0,
         "attio_checks": 0,
+        "attio_successes": 0,
+        "attio_timeouts": 0,
+        "attio_retry_attempts": 0,
+        "attio_cache_hits": 0,
+        "attio_cache_fresh_hits": 0,
+        "attio_cache_stale_hits": 0,
+        "attio_cache_expired_hits": 0,
         "attio_skipped": 0,
         "attio_skip_reason": "",
+        "action_blocker": "",
+        "potential_action_if_attio_confirms": "",
+        "attio_blocked_owner_ready": False,
         "timeouts": 0,
         "identity_status": "",
         "maturity_status": "",
@@ -455,6 +477,12 @@ def _record_stage_failure(ledger: dict, reason: str) -> None:
     failures = ledger.setdefault("stage_failures", [])
     if reason not in failures:
         failures.append(reason)
+
+
+def _clear_stage_failure(ledger: dict, reason: str) -> None:
+    failures = ledger.get("stage_failures") or []
+    if reason in failures:
+        ledger["stage_failures"] = [item for item in failures if item != reason]
 
 
 def _budgeted_query_runner(
@@ -651,6 +679,42 @@ def _mark_stage_failed_row(row: dict, reasons: list[str]) -> dict:
     return out
 
 
+def _mark_attio_blocked_owner_ready(row: dict) -> dict:
+    blocker = _attio_action_blocker(row)
+    if not blocker:
+        return row
+    out = dict(row)
+    out["recommended_action"] = ACTION_RESEARCH_DEEPER
+    out["recommended_lane"] = ACTION_BLOCKED_BY_ATTIO
+    out["action_blocker"] = blocker
+    out["potential_action_if_attio_confirms"] = ACTION_ASSIGN_OWNER
+    out["attio_blocked_owner_ready"] = True
+    out["assign_owner"] = False
+    out["new_to_marathon"] = False
+    out["unsafe_promotion"] = False
+    out["missing_owner_evidence"] = list(dict.fromkeys(list(out.get("missing_owner_evidence") or []) + [blocker]))
+    out["missing_evidence"] = list(dict.fromkeys(list(out.get("missing_evidence") or []) + [blocker]))
+    out["next_validation_step"] = "Refresh Attio read/status"
+    return out
+
+
+def _attio_action_blocker(row: dict) -> str:
+    if row.get("assign_owner") or row.get("identity_type") != "verified_company":
+        return ""
+    if row.get("maturity_status") != "seed_to_series_b":
+        return ""
+    if not (row.get("founder_team_evidence") and row.get("stage_funding_evidence") and row.get("customer_buyer_evidence")):
+        return ""
+    missing = [str(item) for item in row.get("missing_evidence") or []]
+    lower_missing = {item.lower() for item in missing}
+    for reason in ("attio_timeout", "attio_cache_stale", "attio_budget_exceeded"):
+        if reason in lower_missing:
+            return reason
+    if "attio status unknown" in lower_missing:
+        return "attio_status_unknown"
+    return ""
+
+
 def _finalize_ledger_item(ledger: dict, row: dict, *, started_at: float, runtime: _RuntimeBudget) -> None:
     if row.get("partial") and not ledger.get("partial_reason"):
         ledger["partial_reason"] = row.get("partial_reason", "")
@@ -664,6 +728,9 @@ def _finalize_ledger_item(ledger: dict, row: dict, *, started_at: float, runtime
     ledger["evidence_dimensions"] = sorted(_row_evidence_dimensions(row))
     ledger["customer_evidence_labels"] = _row_customer_evidence_labels(row)
     ledger["final_action"] = row.get("recommended_action", "")
+    ledger["action_blocker"] = row.get("action_blocker", "")
+    ledger["potential_action_if_attio_confirms"] = row.get("potential_action_if_attio_confirms", "")
+    ledger["attio_blocked_owner_ready"] = bool(row.get("attio_blocked_owner_ready"))
     ledger["unsafe_promotion"] = bool(row.get("unsafe_promotion"))
     ledger["missing_evidence"] = list(row.get("missing_evidence") or [])
     ledger["completion_status"] = _completion_status(ledger)
@@ -698,6 +765,15 @@ def _runtime_ledger_payload(items: list[dict], *, runtime: _RuntimeBudget) -> di
             "skipped_low_priority": sum(1 for item in items if item.get("completion_status") == "skipped_low_priority"),
             "live_queries": runtime.live_queries,
             "attio_checks": runtime.attio_checks,
+            "attio_checks_attempted": runtime.attio_checks,
+            "attio_successes": sum(int(item.get("attio_successes", 0)) for item in items),
+            "attio_timeouts": sum(int(item.get("attio_timeouts", 0)) for item in items),
+            "attio_retry_attempts": sum(int(item.get("attio_retry_attempts", 0)) for item in items),
+            "attio_cache_hits": sum(int(item.get("attio_cache_hits", 0)) for item in items),
+            "attio_cache_fresh_hits": sum(int(item.get("attio_cache_fresh_hits", 0)) for item in items),
+            "attio_cache_stale_hits": sum(int(item.get("attio_cache_stale_hits", 0)) for item in items),
+            "attio_cache_expired_hits": sum(int(item.get("attio_cache_expired_hits", 0)) for item in items),
+            "attio_blocked_owner_ready_rows": sum(1 for item in items if item.get("attio_blocked_owner_ready")),
             "page_fetches": runtime.page_fetches,
             "timeouts": runtime.timeouts,
             "stage_failures": sum(len(item.get("stage_failures") or []) for item in items),
@@ -1012,8 +1088,32 @@ def _promote_identity(
     }
 
 
-def _apply_attio(candidate: Candidate, attio_matcher: Callable | None, *, runtime: _RuntimeBudget, ledger: dict) -> Candidate:
+def _apply_attio(
+    candidate: Candidate,
+    attio_matcher: Callable | None,
+    *,
+    runtime: _RuntimeBudget,
+    ledger: dict,
+    cache_dir: Path | None = None,
+    candidate_started_at: float | None = None,
+) -> Candidate:
     out = Candidate.from_dict(candidate.to_dict())
+    cached_payload, cache_status = _read_attio_cache(cache_dir, out)
+    if cached_payload is not None:
+        ledger["attio_cache_hits"] += 1
+        if cache_status == "fresh":
+            ledger["attio_cache_fresh_hits"] += 1
+            return _apply_attio_payload(out, cached_payload, cache_status="fresh", action_safe=True)
+        if cache_status == "stale":
+            ledger["attio_cache_stale_hits"] += 1
+            out = _apply_attio_payload(out, cached_payload, cache_status="stale", action_safe=False)
+            out.missing_owner_evidence = list(
+                dict.fromkeys(list(out.missing_owner_evidence) + ["attio_cache_stale"])
+            )
+            if not attio_matcher:
+                return out
+        elif cache_status == "expired":
+            ledger["attio_cache_expired_hits"] += 1
     if not attio_matcher:
         out.attio_status = out.attio_status or "unknown"
         return out
@@ -1024,37 +1124,83 @@ def _apply_attio(candidate: Candidate, attio_matcher: Callable | None, *, runtim
         out.attio_safe_to_match = False
         out.missing_owner_evidence = list(dict.fromkeys(list(out.missing_owner_evidence) + ["attio_budget_exceeded"]))
         return out
-    runtime.mark_attio_check()
-    ledger["attio_checks"] += 1
-    try:
-        with _timeout(_attio_timeout_seconds(runtime)):
-            payload = attio_matcher(out)
-    except _CallTimeout:
-        runtime.mark_stage_timeout("attio_timeout")
-        ledger["timeouts"] += 1
-        _record_stage_failure(ledger, "attio_timeout")
+    payload, timed_out = _run_attio_match(out, attio_matcher, runtime=runtime, ledger=ledger)
+    if (
+        timed_out
+        and not runtime.runtime_exceeded()
+        and not (
+            candidate_started_at is not None
+            and runtime.candidate_exceeded(candidate_started_at)
+        )
+        and runtime.can_check_attio()
+    ):
+        ledger["attio_retry_attempts"] += 1
+        payload, timed_out = _run_attio_match(out, attio_matcher, runtime=runtime, ledger=ledger)
+        if not timed_out and isinstance(payload, dict):
+            _clear_stage_failure(ledger, "attio_timeout")
+    if timed_out:
         out.attio_status = "unknown"
         out.attio_safe_to_match = False
         out.missing_owner_evidence = list(dict.fromkeys(list(out.missing_owner_evidence) + ["attio_timeout"]))
         return out
     if not isinstance(payload, dict):
         return out
+    ledger["attio_successes"] += 1
+    _write_attio_cache(cache_dir, out, payload)
+    return _apply_attio_payload(out, payload, cache_status="live", action_safe=True)
+
+
+def _run_attio_match(
+    candidate: Candidate,
+    attio_matcher: Callable,
+    *,
+    runtime: _RuntimeBudget,
+    ledger: dict,
+) -> tuple[dict | None, bool]:
+    runtime.mark_attio_check()
+    ledger["attio_checks"] += 1
+    try:
+        with _timeout(_attio_timeout_seconds(runtime)):
+            payload = attio_matcher(candidate)
+        return payload if isinstance(payload, dict) else None, False
+    except _CallTimeout:
+        runtime.mark_stage_timeout("attio_timeout")
+        ledger["timeouts"] += 1
+        ledger["attio_timeouts"] += 1
+        _record_stage_failure(ledger, "attio_timeout")
+        return None, True
+
+
+def _apply_attio_payload(
+    candidate: Candidate,
+    payload: dict,
+    *,
+    cache_status: str,
+    action_safe: bool,
+) -> Candidate:
+    out = Candidate.from_dict(candidate.to_dict())
     for key, value in payload.items():
         if hasattr(out, key):
             setattr(out, key, value)
-    if out.identity_type == "verified_company" and out.domain:
+    if out.identity_type == "verified_company" and out.domain and action_safe:
         out.attio_safe_to_match = True
         if not out.attio_match_keys:
             out.attio_match_keys = [out.domain]
+    elif not action_safe:
+        out.attio_safe_to_match = False
     status = (out.attio_status or "").lower()
     if status in {"no_match", "not_found", "new", "no_owner"}:
-        out.attio_confidence = "High"
-        out.attio_confidence_basis = [f"attio_status:{status}"]
-        out.owner_readiness_score = 0
-        out.owner_readiness_basis = []
-        out.missing_owner_evidence = []
-        out.recommended_owner_action = ""
-        out.recommended_next_validation_step = ""
+        out.attio_confidence = "High" if action_safe else "Medium"
+        basis = [f"attio_status:{status}"]
+        if cache_status in {"fresh", "stale"}:
+            basis.append(f"attio_cache:{cache_status}")
+        out.attio_confidence_basis = basis
+        if action_safe:
+            out.owner_readiness_score = 0
+            out.owner_readiness_basis = []
+            out.missing_owner_evidence = []
+            out.recommended_owner_action = ""
+            out.recommended_next_validation_step = ""
     return out
 
 
@@ -1145,6 +1291,9 @@ def _row_from_candidate(candidate: Candidate, original_row: dict, identity_repor
         "missing_owner_evidence": list(missing),
         "recommended_action": action,
         "recommended_lane": "HN Enriched Outbound Candidates",
+        "action_blocker": "",
+        "potential_action_if_attio_confirms": "",
+        "attio_blocked_owner_ready": False,
         "next_validation_step": next_step,
         "assign_owner": assign_owner,
         "new_to_marathon": assign_owner
@@ -1368,6 +1517,15 @@ def _summary(rows: list[dict], product_rows: list[dict], project_rows: list[dict
         "skipped_low_priority": ledger_summary.get("skipped_low_priority", 0),
         "live_queries": ledger_summary.get("live_queries", 0),
         "attio_checks": ledger_summary.get("attio_checks", 0),
+        "attio_checks_attempted": ledger_summary.get("attio_checks_attempted", ledger_summary.get("attio_checks", 0)),
+        "attio_successes": ledger_summary.get("attio_successes", 0),
+        "attio_timeouts": ledger_summary.get("attio_timeouts", 0),
+        "attio_retry_attempts": ledger_summary.get("attio_retry_attempts", 0),
+        "attio_cache_hits": ledger_summary.get("attio_cache_hits", 0),
+        "attio_cache_fresh_hits": ledger_summary.get("attio_cache_fresh_hits", 0),
+        "attio_cache_stale_hits": ledger_summary.get("attio_cache_stale_hits", 0),
+        "attio_cache_expired_hits": ledger_summary.get("attio_cache_expired_hits", 0),
+        "attio_blocked_owner_ready_rows": ledger_summary.get("attio_blocked_owner_ready_rows", 0),
         "page_fetches": ledger_summary.get("page_fetches", 0),
         "timeouts": ledger_summary.get("timeouts", 0),
         "identity_promoted_rows": sum(1 for row in rows if row.get("identity_promotion_status") == "promoted"),
@@ -1377,6 +1535,7 @@ def _summary(rows: list[dict], product_rows: list[dict], project_rows: list[dict
         "research_deeper_rows": sum(1 for row in rows if row.get("recommended_action") == ACTION_RESEARCH_DEEPER),
         "category_context_rows": sum(1 for row in rows if row.get("lead_route") in {"category_context", "monitor_only"}),
         "assign_owner_rows": sum(1 for row in rows if row.get("assign_owner")),
+        "action_blocked_by_attio_rows": sum(1 for row in rows if row.get("attio_blocked_owner_ready")),
         "new_to_marathon_rows": sum(1 for row in rows if row.get("new_to_marathon")),
         "unsafe_promotions": sum(1 for row in rows if row.get("unsafe_promotion")),
         "product_context_rows": len(product_rows),
@@ -1403,6 +1562,7 @@ def _markdown(payload: dict) -> str:
         "early_stage_context_rows",
         "research_deeper_rows",
         "assign_owner_rows",
+        "action_blocked_by_attio_rows",
         "new_to_marathon_rows",
         "unsafe_promotions",
         "product_context_rows",
@@ -1425,6 +1585,13 @@ def _markdown(payload: dict) -> str:
         "skip_or_context_candidates",
         "live_queries",
         "attio_checks",
+        "attio_successes",
+        "attio_timeouts",
+        "attio_retry_attempts",
+        "attio_cache_hits",
+        "attio_cache_fresh_hits",
+        "attio_cache_stale_hits",
+        "attio_blocked_owner_ready_rows",
         "page_fetches",
         "timeouts",
         "stage_failures",
@@ -1433,7 +1600,8 @@ def _markdown(payload: dict) -> str:
     lines.extend(["", "## Enriched HN Outbound Candidates", ""])
     for row in payload.get("enriched_outbound_candidates", []) or []:
         lines.append(
-            f"- {row.get('name')} - {row.get('recommended_action')} - identity: {row.get('identity_type')} "
+            f"- {row.get('name')} - {row.get('recommended_lane') or row.get('recommended_action')} "
+            f"- action: {row.get('recommended_action')} - identity: {row.get('identity_type')} "
             f"({row.get('identity_promotion_status')}) - maturity: {row.get('maturity_status')} - "
             f"missing: {', '.join(row.get('missing_owner_evidence') or []) or 'none'}"
         )
@@ -1471,6 +1639,65 @@ def _read_or_fetch_page(url: str, fetcher: Callable, cache_dir: Path | None, *, 
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps({"url": url, "payload": payload}, indent=2))
     return payload, "fetched"
+
+
+def _attio_cache_path(cache_dir: Path | str, name: str, domain: str) -> Path:
+    root = Path(cache_dir)
+    normalized_domain = _normalize_domain(domain)
+    key = f"{normalized_domain}|{_key(name)}"
+    return root / "hn-attio-reads" / f"{_stable_hash(key)}.json"
+
+
+def _read_attio_cache(cache_dir: Path | None, candidate: Candidate) -> tuple[dict | None, str]:
+    if not cache_dir:
+        return None, "missing"
+    path = _attio_cache_path(cache_dir, candidate.name or candidate.display_name or candidate.canonical_name, candidate.domain)
+    if not path.exists():
+        return None, "missing"
+    try:
+        entry = json.loads(path.read_text())
+    except (OSError, json.JSONDecodeError):
+        return None, "error"
+    payload = entry.get("payload")
+    if not isinstance(payload, dict):
+        return None, "error"
+    status = _attio_cache_status(entry.get("fetched_at", ""))
+    if status == "expired":
+        return payload, "expired"
+    return payload, status
+
+
+def _write_attio_cache(cache_dir: Path | None, candidate: Candidate, payload: dict) -> None:
+    if not cache_dir or not isinstance(payload, dict):
+        return
+    path = _attio_cache_path(cache_dir, candidate.name or candidate.display_name or candidate.canonical_name, candidate.domain)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(
+        json.dumps(
+            {
+                "fetched_at": date.today().isoformat(),
+                "payload": payload,
+                "match_key": {
+                    "name": candidate.name or candidate.display_name or candidate.canonical_name,
+                    "domain": candidate.domain,
+                },
+            },
+            indent=2,
+        )
+    )
+
+
+def _attio_cache_status(fetched_at: str) -> str:
+    try:
+        fetched = date.fromisoformat(str(fetched_at))
+    except ValueError:
+        return "expired"
+    age_days = (date.today() - fetched).days
+    if age_days <= ATTIO_CACHE_FRESH_DAYS:
+        return "fresh"
+    if age_days <= ATTIO_CACHE_STALE_DAYS:
+        return "stale"
+    return "expired"
 
 
 def _run_cached_query(
