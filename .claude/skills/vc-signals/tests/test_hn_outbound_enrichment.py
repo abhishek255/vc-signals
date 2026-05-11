@@ -544,8 +544,9 @@ def test_hn_enrichment_attio_budget_prevents_assign_owner():
     assert result["partial"] is True
     assert row["assign_owner"] is False
     assert row["recommended_action"] == "Research deeper"
-    assert row["partial"] is True
+    assert row["partial"] is False
     assert "attio_budget_exceeded" in row["missing_evidence"]
+    assert "attio_budget_exceeded" in result["runtime_ledger"]["items"][0]["stage_failures"]
     assert result["runtime_ledger"]["items"][0]["attio_checks"] == 0
 
 
@@ -672,14 +673,80 @@ def test_hn_enrichment_query_timeout_uses_stage_specific_reason():
     row = result["enriched_outbound_candidates"][0]
     ledger = result["runtime_ledger"]["items"][0]
     assert row["assign_owner"] is False
-    assert ledger["partial_reason"] in {
+    stage_reasons = {
         "maturity_query_timeout",
         "founder_query_timeout",
         "customer_query_timeout",
         "owner_query_timeout",
-        "per_candidate_timeout_seconds_exceeded",
     }
+    assert row["partial"] is False
+    assert ledger["status"] == "completed"
+    assert ledger["partial_reason"] == ""
+    assert set(ledger["stage_failures"]) & stage_reasons
+    assert set(row["missing_evidence"]) & stage_reasons
     assert "live_query_timeout" not in result["budget_reasons"]
+
+
+def test_hn_enrichment_page_fetch_timeout_completes_as_closed_identity_miss():
+    import time
+
+    from hn_outbound_enrichment import run_hn_outbound_enrichment
+
+    def slow_page(_url):
+        time.sleep(0.05)
+        return "<html><title>Burrow</title><body>Burrow runtime security</body></html>"
+
+    result = run_hn_outbound_enrichment(
+        _phase6b_payload(company_rows=[_hn_outbound()]),
+        page_fetcher=slow_page,
+        query_runner=lambda topic, **kwargs: {"items": []},
+        max_runtime_seconds=1,
+        per_candidate_timeout_seconds=0.01,
+    )
+
+    row = result["enriched_outbound_candidates"][0]
+    ledger = result["runtime_ledger"]["items"][0]
+    assert row["partial"] is False
+    assert row["assign_owner"] is False
+    assert row["identity_promotion_status"] == "not_promoted"
+    assert "page_fetch_timeout" in ledger["stage_failures"]
+    assert "page_fetch_timeout" in row["missing_evidence"]
+    assert ledger["status"] == "completed"
+
+
+def test_hn_source_text_named_founders_are_used_before_live_founder_query():
+    from hn_outbound_enrichment import run_hn_outbound_enrichment
+
+    def failing_query(topic, **kwargs):
+        if "founder" in topic.lower() or "co-founder" in topic.lower():
+            raise AssertionError("HN source text should avoid live founder query")
+        return {"items": []}
+
+    result = run_hn_outbound_enrichment(
+        _phase6b_payload(
+            company_rows=[
+                _hn_outbound(
+                    name="Twill.ai (YC S25)",
+                    official_url="https://twill.ai",
+                    outbound_domain="twill.ai",
+                    company_domain="twill.ai",
+                    source_title="Launch HN: Twill.ai (YC S25) - Delegate to cloud agents, get back PRs",
+                    source_text="We're Willy Johnson and Dan Smith, co-founders of Twill.ai.",
+                    maturity_status="early_stage_context",
+                    maturity_basis=["accelerator_batch_evidence: YC S25"],
+                )
+            ]
+        ),
+        page_fetcher=lambda url: "<html><title>Twill.ai</title><body>Twill.ai cloud agents</body></html>",
+        query_runner=failing_query,
+    )
+
+    row = result["enriched_outbound_candidates"][0]
+    ledger = result["runtime_ledger"]["items"][0]
+    assert row["founders"] == ["Willy Johnson", "Dan Smith"]
+    assert row["founder_team_evidence"] == ["https://news.ycombinator.com/item?id=47761957"]
+    assert "no founder/team evidence" not in row["missing_owner_evidence"]
+    assert ledger["founder_queries"] == 0
 
 
 def test_hn_enrichment_runtime_budget_marks_remaining_rows_partial():

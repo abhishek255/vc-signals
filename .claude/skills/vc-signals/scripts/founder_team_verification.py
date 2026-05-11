@@ -231,6 +231,21 @@ def _extract_founders_from_text(*, company_name: str, text: str, url: str) -> tu
         if _valid_person_name(name, company_name) and _company_in_text(company_name, local_text):
             profiles.append({"name": name, "role": _role_label(match.group("role")), "source": url})
 
+    first_person_role_pattern = re.compile(
+        rf"(?:we(?:'re| are)|i(?:'m| am))\s+"
+        rf"(?P<names>{PERSON_NAME_PATTERN}(?:\s+and\s+{PERSON_NAME_PATTERN})?)"
+        rf"\s*,?\s*(?:the\s+)?(?P<role>founders?|co-founders?|cofounders?|ceos?|ctos?|chief executive officers?|chief technology officers?)\s+of\s+(?P<company>[^.\n,;]{{0,100}})",
+        re.IGNORECASE,
+    )
+    for match in first_person_role_pattern.finditer(text):
+        local_text = text[max(0, match.start() - 120) : match.end() + 120]
+        company_text = match.group("company")
+        if not (_company_in_text(company_name, local_text) or _company_in_text(company_name, company_text)):
+            continue
+        for name in re.split(r"\s+and\s+", match.group("names")):
+            if _valid_person_name(name, company_name):
+                profiles.append({"name": name, "role": _role_label(match.group("role")), "source": url})
+
     if not profiles:
         if re.search(ROLE_PATTERN, text or "", re.IGNORECASE):
             rejection_reasons.append("no_named_founder_company_match")

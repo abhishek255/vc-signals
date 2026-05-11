@@ -21,7 +21,7 @@ from typing import Callable
 from urllib.parse import urlparse
 
 from canonical_identity import canonicalize_identity
-from founder_team_verification import enrich_founder_team_verification
+from founder_team_verification import enrich_founder_team_verification, extract_named_founder_profiles_from_text
 from owner_evidence import _default_page_fetcher, enrich_owner_evidence
 from radar_company_discovery import _classify_maturity_from_items
 from radar_focus import ACTION_ASSIGN_OWNER, ACTION_MONITOR_ONLY, ACTION_RESEARCH_DEEPER, score_owner_readiness
@@ -42,6 +42,15 @@ DURABLE_EVIDENCE_URL_MARKERS = (
     "gunder.com/",
     "ycombinator.com/companies/",
 )
+STAGE_FAILURE_REASONS = {
+    "maturity_query_timeout",
+    "founder_query_timeout",
+    "customer_query_timeout",
+    "owner_query_timeout",
+    "page_fetch_timeout",
+    "attio_timeout",
+    "attio_budget_exceeded",
+}
 
 
 class _CallTimeout(Exception):
@@ -127,6 +136,9 @@ class _RuntimeBudget:
     def mark_timeout(self, reason: str) -> None:
         self.timeouts += 1
         self.mark_exceeded(reason)
+
+    def mark_stage_timeout(self, reason: str) -> None:
+        self.timeouts += 1
 
 
 @contextmanager
@@ -241,6 +253,9 @@ def run_hn_outbound_enrichment(
             final_candidate = owner_enriched[0]
             _merge_report_summary_into_ledger(ledger, owner_report, prefix="owner")
 
+        if final_candidate.identity_type == "verified_company":
+            final_candidate = _apply_hn_source_text_founders(final_candidate, row)
+
         if (
             final_candidate.identity_type == "verified_company"
             and not _has_stage_dimension(final_candidate)
@@ -305,6 +320,8 @@ def run_hn_outbound_enrichment(
                 final_candidate.attio_status = final_candidate.attio_status or "unknown"
 
         row_payload = _row_from_candidate(final_candidate, row, identity_report)
+        if ledger.get("stage_failures"):
+            row_payload = _mark_stage_failed_row(row_payload, ledger["stage_failures"])
         if ledger["partial_reason"]:
             row_payload = _mark_partial_row(row_payload, ledger["partial_reason"])
         _finalize_ledger_item(ledger, row_payload, started_at=candidate_started_at, runtime=runtime)
@@ -315,7 +332,7 @@ def run_hn_outbound_enrichment(
     rejected = list(phase6b_payload.get("rejected_rows", []) or [])
     runtime_ledger = _runtime_ledger_payload(ledger_items, runtime=runtime)
     return {
-        "phase": "Phase 6B.2-HN",
+        "phase": "Phase 6B-HN",
         "scope": "HN outbound candidate enrichment; weekly default unchanged; YC remains parked.",
         "partial": runtime.budget_exceeded or any(item["status"] in {"partial", "skipped"} for item in ledger_items),
         "budget_exceeded": runtime.budget_exceeded or bool(skipped_rows),
@@ -356,6 +373,7 @@ def _new_ledger_item(row: dict, *, index: int, processing_index: int | None = No
         "domain": row.get("company_domain") or row.get("outbound_domain") or "",
         "status": "in_progress",
         "partial_reason": "",
+        "stage_failures": [],
         "priority": "",
         "priority_reasons": [],
         "elapsed_seconds": 0.0,
@@ -423,6 +441,15 @@ def _merge_report_summary_into_ledger(ledger: dict, report: dict, *, prefix: str
                 ledger["customer_query_cache_hits"] += 1
 
 
+def _record_stage_failure(ledger: dict, reason: str) -> None:
+    if reason not in STAGE_FAILURE_REASONS:
+        ledger["partial_reason"] = ledger["partial_reason"] or reason
+        return
+    failures = ledger.setdefault("stage_failures", [])
+    if reason not in failures:
+        failures.append(reason)
+
+
 def _budgeted_query_runner(
     query_runner: Callable | None,
     *,
@@ -446,12 +473,12 @@ def _budgeted_query_runner(
                 return query_runner(topic, **kwargs)
         except _CallTimeout:
             reason = f"{stage}_query_timeout"
-            runtime.mark_timeout(reason)
+            runtime.mark_stage_timeout(reason)
             ledger["timeouts"] += 1
             timeout_key = f"{stage}_query_timeouts"
             if timeout_key in ledger:
                 ledger[timeout_key] += 1
-            ledger["partial_reason"] = ledger["partial_reason"] or reason
+            _record_stage_failure(ledger, reason)
             return {"items": [], "_timeout": True, "timeout_reason": reason}
 
     return run
@@ -470,9 +497,9 @@ def _budgeted_page_fetcher(page_fetcher: Callable | None, *, runtime: _RuntimeBu
             with _timeout(_page_timeout_seconds(runtime)):
                 return fetch(url)
         except _CallTimeout:
-            runtime.mark_timeout("page_fetch_timeout")
+            runtime.mark_stage_timeout("page_fetch_timeout")
             ledger["timeouts"] += 1
-            ledger["partial_reason"] = ledger["partial_reason"] or "page_fetch_timeout"
+            _record_stage_failure(ledger, "page_fetch_timeout")
             return ""
 
     return run
@@ -500,15 +527,15 @@ def _increment_query_stage(ledger: dict, stage: str) -> None:
 
 
 def _query_timeout_seconds(runtime: _RuntimeBudget) -> float | None:
-    return _bounded_call_timeout(runtime, default_ceiling=75.0)
+    return _bounded_call_timeout(runtime, default_ceiling=3.0)
 
 
 def _page_timeout_seconds(runtime: _RuntimeBudget) -> float | None:
-    return _bounded_call_timeout(runtime, default_ceiling=5.0)
+    return _bounded_call_timeout(runtime, default_ceiling=3.0)
 
 
 def _attio_timeout_seconds(runtime: _RuntimeBudget) -> float | None:
-    return _bounded_call_timeout(runtime, default_ceiling=10.0)
+    return _bounded_call_timeout(runtime, default_ceiling=4.0)
 
 
 def _bounded_call_timeout(runtime: _RuntimeBudget, *, default_ceiling: float) -> float | None:
@@ -599,6 +626,24 @@ def _mark_partial_row(row: dict, reason: str) -> dict:
     return out
 
 
+def _mark_stage_failed_row(row: dict, reasons: list[str]) -> dict:
+    out = dict(row)
+    closed_reasons = [reason for reason in reasons if reason]
+    if not closed_reasons:
+        return out
+    out["partial"] = False
+    out["assign_owner"] = False
+    out["new_to_marathon"] = False
+    out["unsafe_promotion"] = False
+    out["recommended_action"] = ACTION_RESEARCH_DEEPER
+    out["missing_owner_evidence"] = list(
+        dict.fromkeys(list(out.get("missing_owner_evidence") or []) + closed_reasons)
+    )
+    out["missing_evidence"] = list(dict.fromkeys(list(out.get("missing_evidence") or []) + closed_reasons))
+    out["next_validation_step"] = _next_validation_step(out["missing_owner_evidence"], out.get("next_validation_step", ""))
+    return out
+
+
 def _finalize_ledger_item(ledger: dict, row: dict, *, started_at: float, runtime: _RuntimeBudget) -> None:
     if row.get("partial") and not ledger.get("partial_reason"):
         ledger["partial_reason"] = row.get("partial_reason", "")
@@ -627,6 +672,7 @@ def _runtime_ledger_payload(items: list[dict], *, runtime: _RuntimeBudget) -> di
             "attio_checks": runtime.attio_checks,
             "page_fetches": runtime.page_fetches,
             "timeouts": runtime.timeouts,
+            "stage_failures": sum(len(item.get("stage_failures") or []) for item in items),
             "elapsed_seconds": round(runtime.elapsed(), 3),
             "budget_exceeded": runtime.budget_exceeded,
             "budget_reasons": list(runtime.budget_reasons),
@@ -768,6 +814,69 @@ def _candidate_from_hn_row(row: dict) -> Candidate:
     return candidate
 
 
+def _apply_hn_source_text_founders(candidate: Candidate, row: dict) -> Candidate:
+    text = _hn_source_text(row)
+    url = str(row.get("source_url") or "").strip()
+    if not text or not url:
+        return candidate
+    profiles, _rejected = extract_named_founder_profiles_from_text(
+        company_names=_candidate_source_aliases(candidate),
+        text=text,
+        url=url,
+    )
+    if not profiles:
+        return candidate
+    out = Candidate.from_dict(candidate.to_dict())
+    existing_names = set(out.founders)
+    for profile in profiles:
+        name = profile.get("name", "")
+        if name and name not in existing_names:
+            out.founders.append(name)
+            existing_names.add(name)
+    existing_profiles = {(profile.get("name"), profile.get("role"), profile.get("source")) for profile in out.founder_profiles}
+    for profile in profiles:
+        key = (profile.get("name"), profile.get("role"), profile.get("source"))
+        if key not in existing_profiles:
+            out.founder_profiles.append(dict(profile))
+            existing_profiles.add(key)
+    urls = [profile.get("source", "") for profile in profiles if profile.get("source")]
+    out.founder_team_evidence = list(dict.fromkeys(list(out.founder_team_evidence) + urls))[:5]
+    out.owner_readiness_score = 0
+    out.owner_readiness_basis = []
+    out.missing_owner_evidence = []
+    out.recommended_owner_action = ""
+    out.recommended_next_validation_step = ""
+    return out
+
+
+def _hn_source_text(row: dict) -> str:
+    parts = []
+    for key in ("source_text", "body", "story_text", "text", "snippet", "description", "source_description"):
+        value = row.get(key)
+        if value:
+            parts.append(str(value))
+    return " ".join(parts).strip()
+
+
+def _candidate_source_aliases(candidate: Candidate) -> list[str]:
+    aliases: list[str] = []
+    for value in (candidate.display_name, candidate.canonical_name, candidate.name, candidate.domain):
+        if value:
+            aliases.append(str(value))
+    domain = _normalize_domain(candidate.domain)
+    if domain:
+        root = domain.split(".")[0]
+        aliases.extend([root, root.title()])
+    cleaned = []
+    for alias in aliases:
+        clean = _clean_company_name(alias, candidate.domain)
+        if clean:
+            cleaned.append(clean)
+        if "." in alias:
+            cleaned.append(alias.split(".", 1)[0].title())
+    return list(dict.fromkeys(alias for alias in aliases + cleaned if alias))
+
+
 def _promote_identity(
     candidate: Candidate,
     row: dict,
@@ -836,7 +945,7 @@ def _apply_attio(candidate: Candidate, attio_matcher: Callable | None, *, runtim
         return out
     if not runtime.can_check_attio():
         ledger["attio_skipped"] += 1
-        ledger["partial_reason"] = ledger["partial_reason"] or "attio_budget_exceeded"
+        _record_stage_failure(ledger, "attio_budget_exceeded")
         out.attio_status = "unknown"
         out.attio_safe_to_match = False
         out.missing_owner_evidence = list(dict.fromkeys(list(out.missing_owner_evidence) + ["attio_budget_exceeded"]))
@@ -847,9 +956,9 @@ def _apply_attio(candidate: Candidate, attio_matcher: Callable | None, *, runtim
         with _timeout(_attio_timeout_seconds(runtime)):
             payload = attio_matcher(out)
     except _CallTimeout:
-        runtime.mark_timeout("attio_timeout")
+        runtime.mark_stage_timeout("attio_timeout")
         ledger["timeouts"] += 1
-        ledger["partial_reason"] = ledger["partial_reason"] or "attio_timeout"
+        _record_stage_failure(ledger, "attio_timeout")
         out.attio_status = "unknown"
         out.attio_safe_to_match = False
         out.missing_owner_evidence = list(dict.fromkeys(list(out.missing_owner_evidence) + ["attio_timeout"]))
@@ -1201,7 +1310,7 @@ def _summary(rows: list[dict], product_rows: list[dict], project_rows: list[dict
 def _markdown(payload: dict) -> str:
     summary = payload.get("summary", {})
     lines = [
-        "# Phase 6B.2 HN Outbound Enrichment",
+        "# Phase 6B HN Outbound Enrichment",
         "",
         "Offline enrichment for HN outbound candidates. Weekly default is unchanged, project/product rows are not promoted, and YC remains parked.",
         "",
@@ -1236,6 +1345,7 @@ def _markdown(payload: dict) -> str:
         "attio_checks",
         "page_fetches",
         "timeouts",
+        "stage_failures",
     ):
         lines.append(f"- {key}: {ledger_summary.get(key, 0)}")
     lines.extend(["", "## Enriched HN Outbound Candidates", ""])
