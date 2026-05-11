@@ -3,6 +3,12 @@
 from __future__ import annotations
 
 
+def test_hn_weekly_trial_default_candidate_cap_covers_rich_movement_smoke():
+    from hn_weekly_trial import HNLaunchTrialConfig
+
+    assert HNLaunchTrialConfig(enabled=True).max_candidates == 15
+
+
 def test_hn_weekly_trial_uses_last30days_hn_only_and_writes_artifacts(tmp_path):
     from hn_weekly_trial import HNLaunchTrialConfig, run_hn_launch_weekly_trial
 

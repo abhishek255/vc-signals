@@ -1894,6 +1894,15 @@ def test_weekly_hn_launch_trial_flag_writes_trial_appendix_only(tmp_path, monkey
     assert "HN Launch Trial" not in (tmp_path / "weekly-preview.md").read_text()
 
 
+def test_weekly_hn_launch_trial_cli_default_candidate_cap_matches_rich_validation():
+    import radar_run
+
+    config = radar_run._hn_launch_trial_config_from_args({"hn_launch_trial": True})
+
+    assert config is not None
+    assert config.max_candidates == 15
+
+
 def test_weekly_discovery_yield_trial_flag_runs_selected_families(tmp_path, monkeypatch):
     import json
     import radar_run

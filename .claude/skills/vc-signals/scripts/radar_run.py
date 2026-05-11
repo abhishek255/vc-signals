@@ -1822,7 +1822,7 @@ def _hn_launch_trial_config_from_args(args: dict) -> HNLaunchTrialConfig | None:
         enabled=True,
         lookback_days=int(args.get("hn_launch_lookback_days", 30)),
         timeout_seconds=int(args.get("hn_launch_timeout_seconds", 120)),
-        max_candidates=int(args.get("hn_launch_max_candidates", 10)),
+        max_candidates=int(args.get("hn_launch_max_candidates", 15)),
         max_runtime_seconds=float(args.get("hn_launch_max_runtime_seconds", 90)),
         max_attio_checks=int(args.get("hn_launch_max_attio_checks", 10)),
         max_live_queries=int(args.get("hn_launch_max_live_queries", 25)),

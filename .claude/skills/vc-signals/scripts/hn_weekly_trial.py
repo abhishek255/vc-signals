@@ -26,7 +26,7 @@ class HNLaunchTrialConfig:
     label: str = "Phase 6C HN Launch Trial"
     lookback_days: int = 30
     timeout_seconds: int = 120
-    max_candidates: int = 10
+    max_candidates: int = 15
     max_runtime_seconds: float | None = 90
     max_attio_checks: int | None = 10
     max_live_queries: int | None = 25
