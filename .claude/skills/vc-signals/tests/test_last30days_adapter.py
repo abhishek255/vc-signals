@@ -69,6 +69,8 @@ def test_normalize_report_items():
                 "source": "hackernews",
                 "title": "Show HN: New testing framework",
                 "url": "https://news.ycombinator.com/item?id=999",
+                "outbound_url": "https://testingframework.dev",
+                "domain": "testingframework.dev",
                 "snippet": "Built a new testing tool that uses AI",
                 "published_at": "2026-04-08T14:00:00Z",
                 "engagement": {"points": 200, "comments": 85},
@@ -82,6 +84,82 @@ def test_normalize_report_items():
     assert normalized[0]["source"] in ("reddit", "hackernews")
     assert "title" in normalized[0]
     assert "engagement" in normalized[0]
+    hn_item = next(item for item in normalized if item["source"] == "hackernews")
+    assert hn_item["outbound_url"] == "https://testingframework.dev"
+    assert hn_item["domain"] == "testingframework.dev"
+    assert "outbound_url" in hn_item["_raw_fields_present"]
+    assert hn_item["_identity_fields_present_upstream"] == ["outbound_url", "domain"]
+
+
+def test_normalize_report_items_preserves_native_source_identity_fields():
+    from last30days_adapter import normalize_report_items
+
+    mock_items = {
+        "hackernews": [
+            {
+                "title": "Show HN: Burrow",
+                "url": "https://news.ycombinator.com/item?id=1",
+                "hn_url": "https://news.ycombinator.com/item?id=1",
+                "outbound_url": "https://burrow.security",
+                "domain": "burrow.security",
+                "author": "founder",
+                "engagement": {"points": 10, "comments": 2},
+            }
+        ],
+        "grounding": [
+            {
+                "title": "ShieldAgent | Y Combinator",
+                "url": "https://www.ycombinator.com/companies/shieldagent",
+                "website": "https://shieldagent.ai",
+                "homepage": "https://shieldagent.ai",
+                "founders": ["Jane Doe"],
+                "batch": "W26",
+                "description": "AI agent security company.",
+            }
+        ],
+    }
+
+    normalized = normalize_report_items(mock_items)
+
+    hn_item = next(item for item in normalized if item["source"] == "hackernews")
+    assert hn_item["hn_url"] == "https://news.ycombinator.com/item?id=1"
+    assert hn_item["author"] == "founder"
+    assert "hn_url" in hn_item["_identity_fields_present_upstream"]
+
+    yc_item = next(item for item in normalized if item["source"] == "grounding")
+    assert yc_item["website"] == "https://shieldagent.ai"
+    assert yc_item["founders"] == ["Jane Doe"]
+    assert yc_item["batch"] == "W26"
+    assert "website" in yc_item["_identity_fields_present_upstream"]
+    assert "founders" in yc_item["_identity_fields_present_upstream"]
+    assert "batch" in yc_item["_identity_fields_present_upstream"]
+
+
+def test_normalize_report_items_promotes_hn_metadata_discussion_url_and_domain():
+    from last30days_adapter import normalize_report_items
+
+    normalized = normalize_report_items(
+        {
+            "hackernews": [
+                {
+                    "title": "Show HN: AgentEval",
+                    "url": "https://agenteval.dev",
+                    "metadata": {"hn_url": "https://news.ycombinator.com/item?id=42"},
+                    "author": "founder",
+                    "engagement": {"points": 10, "comments": 2},
+                }
+            ]
+        }
+    )
+
+    item = normalized[0]
+    assert item["url"] == "https://agenteval.dev"
+    assert item["outbound_url"] == "https://agenteval.dev"
+    assert item["domain"] == "agenteval.dev"
+    assert item["hn_url"] == "https://news.ycombinator.com/item?id=42"
+    assert "hn_url" in item["_identity_fields_present_upstream"]
+    assert "outbound_url" in item["_identity_fields_present_upstream"]
+    assert "domain" in item["_identity_fields_present_upstream"]
 
 
 # --- run_query: real subprocess-mocked tests ---
@@ -224,6 +302,25 @@ def test_run_query_emits_normalized_items(tmp_path, monkeypatch):
     assert len(result["items"]) == 1
     assert result["items"][0]["source"] == "reddit"
     assert result["items"][0]["url"] == "https://r/x"
+
+
+def test_run_query_preserves_source_errors(tmp_path, monkeypatch):
+    from last30days_adapter import run_query
+
+    vendor = _make_vendor(tmp_path)
+    monkeypatch.setattr("last30days_adapter._find_python", lambda: "python3")
+    fake_payload = {
+        "items_by_source": {},
+        "clusters": [],
+        "warnings": ["Some sources failed: grounding"],
+        "errors_by_source": {"grounding": "HTTP 402: Payment Required"},
+    }
+    completed = MagicMock(returncode=0, stdout=json.dumps(fake_payload), stderr="")
+    monkeypatch.setattr("last30days_adapter.subprocess.run", lambda *a, **kw: completed)
+
+    result = run_query("AI agent security", vendor_path=vendor)
+
+    assert result["errors_by_source"] == {"grounding": "HTTP 402: Payment Required"}
 
 
 def test_run_query_uses_nested_script_path_and_skill_root_cwd(tmp_path, monkeypatch):

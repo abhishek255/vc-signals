@@ -8,6 +8,7 @@ import os
 import subprocess
 import sys
 from pathlib import Path
+from urllib.parse import urlparse
 
 
 def _resolve_skill_root(vendor_path: Path) -> Path:
@@ -45,6 +46,21 @@ def _find_vendor_path() -> Path:
 DEFAULT_VENDOR_PATH = _find_vendor_path()
 DEFAULT_CONFIG_PATH = Path.home() / ".config" / "last30days" / ".env"
 PLACEHOLDER_VALUES = {"", "...", "TODO", "YOUR_KEY", "YOUR_API_KEY", "<YOUR_API_KEY>"}
+IDENTITY_USEFUL_FIELDS = (
+    "outbound_url",
+    "resolved_url",
+    "story_url",
+    "domain",
+    "homepage",
+    "website",
+    "hn_url",
+    "owner_name",
+    "owner_type",
+    "topics",
+    "description",
+    "founders",
+    "batch",
+)
 
 
 def _configured_value(value: str) -> bool:
@@ -128,18 +144,45 @@ def normalize_report_items(items_by_source: dict) -> list[dict]:
 
     for source, items in items_by_source.items():
         for item in items:
-            normalized.append({
+            enriched_item = _enrich_native_identity_fields(source, item)
+            normalized_item = {
                 "source": source,
-                "title": item.get("title", ""),
-                "url": item.get("url", ""),
-                "snippet": item.get("snippet", item.get("body", ""))[:500],
-                "published_at": item.get("published_at", ""),
-                "engagement": item.get("engagement", {}),
-                "container": item.get("container", ""),
-                "author": item.get("author", ""),
-            })
+                "title": enriched_item.get("title", ""),
+                "url": enriched_item.get("url", ""),
+                "snippet": enriched_item.get("snippet", enriched_item.get("body", ""))[:500],
+                "published_at": enriched_item.get("published_at", ""),
+                "engagement": enriched_item.get("engagement", {}),
+                "container": enriched_item.get("container", ""),
+                "author": enriched_item.get("author", ""),
+                "_raw_fields_present": sorted(item.keys()),
+                "_identity_fields_present_upstream": [
+                    field for field in IDENTITY_USEFUL_FIELDS if enriched_item.get(field) not in ("", None, [], {})
+                ],
+            }
+            for field in IDENTITY_USEFUL_FIELDS:
+                if enriched_item.get(field) not in ("", None, [], {}):
+                    normalized_item[field] = enriched_item[field]
+            normalized.append(normalized_item)
 
     return normalized
+
+
+def _enrich_native_identity_fields(source: str, item: dict) -> dict:
+    """Promote source-native metadata needed by downstream identity audits."""
+    enriched = dict(item)
+    metadata = item.get("metadata") if isinstance(item.get("metadata"), dict) else {}
+    if source == "hackernews":
+        if not enriched.get("hn_url") and metadata.get("hn_url"):
+            enriched["hn_url"] = metadata["hn_url"]
+        url = enriched.get("url") or ""
+        if url and "news.ycombinator.com" not in url:
+            enriched.setdefault("outbound_url", url)
+            domain = urlparse(url).netloc.lower()
+            if domain.startswith("www."):
+                domain = domain[4:]
+            if domain:
+                enriched.setdefault("domain", domain)
+    return enriched
 
 
 def run_query(
@@ -249,6 +292,7 @@ def run_query(
                 "items": items,
                 "clusters": report.get("clusters", []),
                 "warnings": report.get("warnings", []),
+                "errors_by_source": report.get("errors_by_source", {}),
             }
         except json.JSONDecodeError:
             return {

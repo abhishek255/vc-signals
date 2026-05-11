@@ -1,0 +1,172 @@
+{
+  "targets": [
+    {
+      "name": "Lyzr",
+      "aliases": ["Lyzr AI"],
+      "domain": "lyzr.ai",
+      "expected_movement": "Agent reliability and evals",
+      "movement_aliases": ["AI agent reliability", "agent evals", "AI agent production", "agent observability"],
+      "market_sector": "AI Infra",
+      "maturity_expectation": "seed_to_series_b",
+      "expected_route": "sourcing_candidate",
+      "last_verified_at": "2026-05-10",
+      "verification_notes": "Known owner-readiness regression target; route depends on evidence quality surfaced by discovery."
+    },
+    {
+      "name": "Copperhelm",
+      "aliases": [],
+      "domain": "copperhelm.com",
+      "expected_movement": "AI cloud security",
+      "movement_aliases": ["agentic cloud security", "AI security posture", "cloud security automation"],
+      "market_sector": "Cybersecurity",
+      "maturity_expectation": "unknown",
+      "expected_route": "research_deeper",
+      "last_verified_at": "2026-05-10",
+      "verification_notes": "Expected to remain research deeper unless founder/customer/stage evidence is source-backed."
+    },
+    {
+      "name": "Entro",
+      "aliases": ["Entro Security"],
+      "domain": "entro.security",
+      "expected_movement": "Non-human identity security",
+      "movement_aliases": ["NHI security", "machine identity security", "non human identity", "secrets sprawl", "workload identity security"],
+      "market_sector": "Cybersecurity",
+      "maturity_expectation": "unknown",
+      "expected_route": "research_deeper",
+      "last_verified_at": "2026-05-10",
+      "verification_notes": "Known non-human identity security target; should not be owner-ready without Attio and owner evidence."
+    },
+    {
+      "name": "Straiker",
+      "aliases": [],
+      "domain": "straiker.ai",
+      "expected_movement": "AI agent security",
+      "movement_aliases": ["agent security", "runtime security for AI agents", "AI agent protection", "agent threat detection"],
+      "market_sector": "Cybersecurity",
+      "maturity_expectation": "unknown",
+      "expected_route": "research_deeper",
+      "last_verified_at": "2026-05-10",
+      "verification_notes": "Article-derived company example; requires official-domain verification before acceptance."
+    },
+    {
+      "name": "Noma Security",
+      "aliases": ["Noma"],
+      "domain": "noma.security",
+      "expected_movement": "AI agent security",
+      "movement_aliases": ["AI security posture", "AI agent security", "AI application security", "AI risk management"],
+      "market_sector": "Cybersecurity",
+      "maturity_expectation": "unknown",
+      "expected_route": "research_deeper",
+      "last_verified_at": "2026-05-10",
+      "verification_notes": "AI security company control; must pass domain and maturity gates."
+    },
+    {
+      "name": "Aim Security",
+      "aliases": [],
+      "domain": "aim.security",
+      "expected_movement": "AI application security",
+      "movement_aliases": ["AI security", "AI application security", "LLM security", "GenAI security"],
+      "market_sector": "Cybersecurity",
+      "maturity_expectation": "acquired_or_late",
+      "expected_route": "monitor_only",
+      "last_verified_at": "2026-05-10",
+      "verification_notes": "Mature/acquired control; finding it should not count as sourcing yield."
+    },
+    {
+      "name": "Clutch Security",
+      "aliases": ["Clutch"],
+      "domain": "clutch.security",
+      "expected_movement": "Non-human identity security",
+      "movement_aliases": ["NHI security", "machine identity security", "workload identity security", "service account security"],
+      "market_sector": "Cybersecurity",
+      "maturity_expectation": "unknown",
+      "expected_route": "research_deeper",
+      "last_verified_at": "2026-05-10",
+      "verification_notes": "NHI security recall target."
+    },
+    {
+      "name": "LangWatch",
+      "aliases": [],
+      "domain": "langwatch.ai",
+      "expected_movement": "Agent observability and evals",
+      "movement_aliases": ["AI agent observability", "LLM monitoring", "agent evals", "LLM tracing"],
+      "market_sector": "AI Infra",
+      "maturity_expectation": "unknown",
+      "expected_route": "research_deeper",
+      "last_verified_at": "2026-05-10",
+      "verification_notes": "Agent observability recall target."
+    },
+    {
+      "name": "Parea AI",
+      "aliases": ["Parea"],
+      "domain": "parea.ai",
+      "expected_movement": "LLM evals and observability",
+      "movement_aliases": ["AI evals", "LLM evaluation", "LLM observability", "AI reliability"],
+      "market_sector": "AI Infra",
+      "maturity_expectation": "unknown",
+      "expected_route": "research_deeper",
+      "last_verified_at": "2026-05-10",
+      "verification_notes": "LLM evals recall target."
+    },
+    {
+      "name": "Helicone",
+      "aliases": [],
+      "domain": "helicone.ai",
+      "expected_movement": "LLM observability",
+      "movement_aliases": ["LLM observability", "LLM monitoring", "AI gateway", "LLM tracing"],
+      "market_sector": "AI Infra",
+      "maturity_expectation": "unknown",
+      "expected_route": "research_deeper",
+      "last_verified_at": "2026-05-10",
+      "verification_notes": "LLM observability recall target."
+    },
+    {
+      "name": "Braintrust",
+      "aliases": [],
+      "domain": "braintrust.dev",
+      "expected_movement": "LLM evals and observability",
+      "movement_aliases": ["LLM evals", "AI evals", "agent observability", "AI reliability"],
+      "market_sector": "AI Infra",
+      "maturity_expectation": "likely_too_late_or_consensus",
+      "expected_route": "category_context",
+      "last_verified_at": "2026-05-10",
+      "verification_notes": "Consensus/category-anchor control; should penalize over-promotion."
+    },
+    {
+      "name": "Tessl",
+      "aliases": [],
+      "domain": "tessl.io",
+      "expected_movement": "AI-native software development",
+      "movement_aliases": ["AI software development", "AI-native development", "AI code generation", "software agents"],
+      "market_sector": "Devtools",
+      "maturity_expectation": "likely_too_late_or_consensus",
+      "expected_route": "category_context",
+      "last_verified_at": "2026-05-10",
+      "verification_notes": "Category-anchor control for AI-native software development."
+    },
+    {
+      "name": "HappyRobot",
+      "aliases": ["Happy Robot"],
+      "domain": "happyrobot.ai",
+      "expected_movement": "Vertical AI logistics operations",
+      "movement_aliases": ["AI logistics agents", "freight automation", "AI voice agents logistics", "supply chain AI agents"],
+      "market_sector": "Vertical AI",
+      "maturity_expectation": "unknown",
+      "expected_route": "research_deeper",
+      "last_verified_at": "2026-05-10",
+      "verification_notes": "Vertical AI logistics recall target."
+    },
+    {
+      "name": "Rogo",
+      "aliases": ["Rogo AI"],
+      "domain": "rogo.ai",
+      "expected_movement": "Vertical AI financial services",
+      "movement_aliases": ["AI financial analyst", "investment banking AI", "finance AI agents", "private equity AI workflow"],
+      "market_sector": "Vertical AI",
+      "maturity_expectation": "unknown",
+      "expected_route": "research_deeper",
+      "last_verified_at": "2026-05-10",
+      "verification_notes": "Vertical AI financial services recall target."
+    }
+  ]
+}

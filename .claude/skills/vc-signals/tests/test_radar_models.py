@@ -64,6 +64,35 @@ def test_candidate_v3_fields_roundtrip_dict():
     assert Candidate.from_dict(payload) == candidate
 
 
+def test_evidence_metadata_roundtrip_and_candidate_field():
+    from radar_models import Candidate, EvidenceMetadata
+
+    metadata = EvidenceMetadata(
+        candidate_key="candidate:cybersecurity:burrow",
+        source_url="https://news.ycombinator.com/item?id=47761957",
+        source="hackernews",
+        title="Show HN: Burrow - Runtime Security for AI Agents",
+        author="saranshrana",
+        outbound_url="https://burrow.security",
+        domain="burrow.security",
+        query_kind="theme_company_search",
+        query_topic="AI agent security startups Seed Series A founder launch",
+    )
+    restored = EvidenceMetadata.from_dict({**metadata.to_dict(), "future": "ignored"})
+
+    candidate = Candidate(
+        name="Burrow",
+        sector="Cybersecurity",
+        theme="AI agent security",
+        source="https://news.ycombinator.com/item?id=47761957",
+        candidate_type="launch",
+        evidence_metadata=[restored.to_dict()],
+    )
+
+    assert restored.outbound_url == "https://burrow.security"
+    assert Candidate.from_dict(candidate.to_dict()).evidence_metadata[0]["domain"] == "burrow.security"
+
+
 def test_theme_signal_roundtrip_dict():
     from radar_models import ThemeSignal
 
@@ -80,6 +109,44 @@ def test_theme_signal_roundtrip_dict():
     )
 
     assert ThemeSignal.from_dict(signal.to_dict()) == signal
+
+
+def test_discovery_query_roundtrip():
+    from radar_models import DiscoveryQuery
+
+    query = DiscoveryQuery(
+        id="ai-agent-security-theme-company-search",
+        movement="AI agent security",
+        market_sector="Cybersecurity",
+        source_reason="theme_signal",
+        topic="AI agent security startup company founder launch",
+        sources="grounding",
+        required_terms=["agent", "security"],
+        origin_row_ids=["theme:ai-agent-security"],
+    )
+
+    assert DiscoveryQuery.from_dict(query.to_dict()) == query
+
+
+def test_verified_company_discovery_lead_roundtrip():
+    from radar_models import VerifiedCompanyDiscoveryLead
+
+    lead = VerifiedCompanyDiscoveryLead(
+        name="AgentFence",
+        movement="AI agent security",
+        market_sector="Cybersecurity",
+        source_url="https://agentfence.dev",
+        source="grounding",
+        domain="agentfence.dev",
+        candidate_type="verified_company",
+        verification_status="accepted",
+        verification_basis=["source_backed_domain", "movement_terms_present"],
+        movement_assignment_basis=["title_matches_movement"],
+        query_id="ai-agent-security-theme-company-search",
+        query_topic="AI agent security startup company founder launch",
+    )
+
+    assert VerifiedCompanyDiscoveryLead.from_dict(lead.to_dict()) == lead
 
 
 def test_sector_intelligence_roundtrip_dict():
@@ -179,3 +246,138 @@ def test_synthesis_result_to_dict_copies_source_digest():
     payload["source_digest"]["source_lanes"]["OSS"] = 0
 
     assert result.source_digest["source_lanes"]["OSS"] == 50
+
+
+def test_focus_item_roundtrips_and_ignores_extra_fields():
+    from radar_models import FocusItem
+
+    item = FocusItem(
+        id="agentshield",
+        name="AgentShield",
+        market_movement="AI agent permission security",
+        evidence_urls=["https://github.com/affaan-m/agentshield"],
+        company_identity_quality_score=60,
+        company_identity_quality_basis=["oss_project_with_company_formation_signal"],
+        actionability_basis=["attio_unknown_not_new"],
+        missing_evidence=["no verified company domain"],
+        recommended_action="Research deeper",
+    )
+
+    payload = item.to_dict()
+    payload["future_field"] = "ignored"
+    restored = FocusItem.from_dict(payload)
+
+    assert restored == item
+    assert restored.company_identity_quality_basis == ["oss_project_with_company_formation_signal"]
+    assert restored.missing_evidence == ["no verified company domain"]
+
+
+def test_weekly_focus_artifact_roundtrips_nested_models():
+    from radar_models import ExecutiveSnapshot, FocusItem, MarketMovement, WeeklyFocusArtifact
+
+    artifact = WeeklyFocusArtifact(
+        run_id="2026-05-11",
+        executive_snapshot=ExecutiveSnapshot(
+            top_movement="AI agent permission security",
+            top_new_to_marathon="AgentShield",
+            rows_needing_owner=1,
+            rows_needing_attio_refresh=0,
+            biggest_source_gap="No X/Product Hunt/package-registry adapters in Phase 1A/1B.",
+            top_actions=["Research deeper: 1"],
+        ),
+        partner_focus=[
+            FocusItem(
+                id="agentshield",
+                name="AgentShield",
+                evidence_urls=["https://github.com/affaan-m/agentshield"],
+                recommended_action="Research deeper",
+            )
+        ],
+        sourcing_candidates=[
+            FocusItem(
+                id="agentfence",
+                name="AgentFence",
+                evidence_urls=["https://agentfence.dev"],
+                recommended_action="Assign owner",
+            )
+        ],
+        research_deeper_queue=[
+            FocusItem(
+                id="copperhelm",
+                name="Copperhelm",
+                evidence_urls=["https://copperhelm.com"],
+                recommended_action="Research deeper",
+            )
+        ],
+        oss_project_watch=[
+            FocusItem(
+                id="agent-ci",
+                name="redwoodjs/agent-ci",
+                project_url="https://github.com/redwoodjs/agent-ci",
+                evidence_urls=["https://github.com/redwoodjs/agent-ci"],
+                recommended_action="Research deeper",
+            )
+        ],
+        market_movements=[
+            MarketMovement(
+                id="cybersecurity-ai-agent-permission-security",
+                name="AI agent permission security",
+                market_sector="Cybersecurity",
+                what_is_moving="Security teams are paying attention to MCP/tool permissions.",
+                companies_or_projects=["AgentShield"],
+                evidence_urls=["https://github.com/affaan-m/agentshield"],
+            )
+        ],
+        appendix={"source_gaps": ["No X/Product Hunt/package-registry adapters in Phase 1A/1B."]},
+        source_gaps=["No X/Product Hunt/package-registry adapters in Phase 1A/1B."],
+    )
+
+    restored = WeeklyFocusArtifact.from_dict(artifact.to_dict())
+
+    assert restored == artifact
+    assert isinstance(restored.partner_focus[0], FocusItem)
+    assert isinstance(restored.sourcing_candidates[0], FocusItem)
+    assert isinstance(restored.research_deeper_queue[0], FocusItem)
+    assert isinstance(restored.oss_project_watch[0], FocusItem)
+    assert isinstance(restored.market_movements[0], MarketMovement)
+    assert restored.executive_snapshot.top_movement == "AI agent permission security"
+
+
+def test_identity_resolution_roundtrip_ignores_unknown_fields():
+    from radar_models import IdentityResolution
+
+    payload = {
+        "candidate_key": "launch:burrow",
+        "original_name": "Burrow",
+        "resolved_name": "Burrow",
+        "identity_type": "launch_style_needs_identity",
+        "candidate_domain": "burrow.example",
+        "verified_domain": "burrow.example",
+        "domain_confidence": "Medium",
+        "verified_domain_basis": ["candidate_domain_present"],
+        "founders": ["Jane Founder"],
+        "commercial_intent_score": 65,
+        "commercial_intent_basis": ["launch_source_present"],
+        "identity_confidence_score": 75,
+        "identity_confidence": "Medium",
+        "identity_confidence_basis": ["verified_domain_present"],
+        "attio_match_keys": ["burrow.example", "Burrow"],
+        "attio_safe_to_match": True,
+        "recommended_identity_action": "Assign owner",
+        "missing_identity_evidence": ["no company linkedin"],
+        "evidence_urls": ["https://news.ycombinator.com/item?id=123"],
+        "source_outbound_urls": ["https://burrow.example"],
+        "source_titles": ["Show HN: Burrow"],
+        "fetch_warnings": [],
+        "resolved_from": ["candidate_domain"],
+        "extra_future_field": "ignored",
+    }
+
+    result = IdentityResolution.from_dict(payload)
+
+    assert result.candidate_key == "launch:burrow"
+    assert result.verified_domain == "burrow.example"
+    assert result.domain_confidence == "Medium"
+    assert result.source_titles == ["Show HN: Burrow"]
+    assert result.attio_safe_to_match is True
+    assert "extra_future_field" not in result.to_dict()

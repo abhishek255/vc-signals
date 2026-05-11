@@ -11,7 +11,9 @@ from __future__ import annotations
 import json
 import os
 import re
+import signal
 import sys
+import time
 from inspect import Parameter, signature
 from datetime import datetime, timezone
 from pathlib import Path
@@ -38,8 +40,13 @@ except ImportError:  # pragma: no cover - only for damaged installs
     check_last30days_availability = None
     run_query = None
 
-from radar_models import Candidate, RejectedSignal, SectorCoverage
-from radar_company_discovery import collect_company_discovery
+from radar_models import Candidate, EvidenceMetadata, FocusItem, RejectedSignal, SectorCoverage
+from radar_company_discovery import (
+    DiscoveryRunBudget,
+    DiscoveryYieldTrialConfig,
+    classify_discovery_source,
+    collect_company_discovery,
+)
 from radar_scoring import score_and_tier
 from radar_sources import classify_source_item
 from radar_sector_intelligence import build_sector_intelligence
@@ -50,7 +57,21 @@ from radar_theme_signals import build_theme_signals
 from radar_workbench import write_workbench_artifacts
 from radar_history import apply_weekly_tags, load_candidate_history, save_candidate_history
 from radar_enrichment import apply_candidate_enrichment, merge_source_enrichment
+from identity_resolution import apply_identity_resolution
+from metadata_loss import build_metadata_loss_report
+from founder_team_verification import enrich_founder_team_verification, write_founder_team_verification_json
+from owner_evidence import enrich_owner_evidence, write_owner_evidence_json
+from owner_readiness import enrich_owner_readiness, write_owner_readiness_json
+from hn_weekly_trial import HNLaunchTrialConfig, run_hn_launch_weekly_trial
 from radar_oss import enrich_oss_candidate
+from canonical_identity import canonicalize_identity
+from radar_focus import (
+    build_focus_item,
+    build_weekly_focus_artifact,
+    render_weekly_focus_markdown,
+    write_feedback_scaffold,
+    write_weekly_focus_json,
+)
 
 
 DEFAULT_OUTPUT_DIR = Path(__file__).parent.parent / "data" / "radar_runs"
@@ -179,6 +200,11 @@ INTEREST_KEYWORDS = (
 )
 
 CONSENSUS_TERMS = ("series c", "series d", "$1.5b", "$60b", "too late", "consensus")
+DEFAULT_GITHUB_TIMEOUT_SECONDS = 5 * 60
+
+
+class GithubCollectionTimeout(TimeoutError):
+    pass
 
 
 def _label(score: int) -> str:
@@ -213,6 +239,12 @@ def is_repo_noise(repo: dict) -> bool:
 
 def is_evidence_noise(item: dict) -> bool:
     """True for evidence items that are likely social/model/news noise."""
+    if (item.get("source") or "").lower() in {"grounding", "web"} and classify_discovery_source(item) in {
+        "publisher_article",
+        "directory_page",
+        "content_platform",
+    }:
+        return True
     title = (item.get("title") or "").strip()
     if re.match(r"^(feat|fix|chore|docs|refactor|test|ci|build)(\\(.+\\))?:", title.lower()):
         return True
@@ -228,6 +260,67 @@ def filter_repos(repos: list[dict]) -> list[dict]:
 
 def filter_evidence(items: list[dict]) -> list[dict]:
     return [item for item in items if not is_evidence_noise(item)]
+
+
+def _source_health(source: str, status: str, *, fresh_items: int = 0, duration_seconds: float = 0.0, warnings: list[str] | None = None) -> dict:
+    return {
+        "source": source,
+        "status": status,
+        "fresh_items": fresh_items,
+        "duration_seconds": round(duration_seconds, 2),
+        "warnings": list(warnings or []),
+    }
+
+
+def _github_timeout_handler(signum, frame):  # pragma: no cover - exercised through alarm behavior
+    raise GithubCollectionTimeout("github_collection_timeout")
+
+
+def _run_github_trending_with_timeout(*, limit: int, timeout_seconds: int | None) -> tuple[dict, dict]:
+    if not run_trending:
+        return {"repos": [], "warnings": ["GitHub trending unavailable"]}, _source_health(
+            "github",
+            "skipped_unavailable",
+            warnings=["GitHub trending unavailable"],
+        )
+    if limit <= 0:
+        return {"repos": [], "warnings": ["GitHub collection skipped by github_limit=0"]}, _source_health(
+            "github",
+            "skipped_disabled",
+            warnings=["GitHub collection skipped by github_limit=0"],
+        )
+
+    started = time.monotonic()
+    previous_handler = None
+    try:
+        if timeout_seconds and hasattr(signal, "SIGALRM"):
+            previous_handler = signal.getsignal(signal.SIGALRM)
+            signal.signal(signal.SIGALRM, _github_timeout_handler)
+            signal.alarm(max(1, int(timeout_seconds)))
+        result = run_trending("all", limit=limit)
+        duration = time.monotonic() - started
+        return result, _source_health(
+            "github",
+            "complete",
+            fresh_items=len(result.get("repos", [])),
+            duration_seconds=duration,
+            warnings=result.get("warnings", []),
+        )
+    except GithubCollectionTimeout:
+        duration = time.monotonic() - started
+        warning = f"GitHub collection timed out after {timeout_seconds}s"
+        return {"repos": [], "warnings": [warning], "error": warning}, _source_health(
+            "github",
+            "partial_timeout",
+            fresh_items=0,
+            duration_seconds=duration,
+            warnings=[warning],
+        )
+    finally:
+        if timeout_seconds and hasattr(signal, "SIGALRM"):
+            signal.alarm(0)
+            if previous_handler is not None:
+                signal.signal(signal.SIGALRM, previous_handler)
 
 
 def load_sector_config(path: Path = SECTOR_CONFIG_PATH) -> dict:
@@ -900,6 +993,28 @@ def _format_founders(founders: list[dict]) -> str:
     return "; ".join(formatted)
 
 
+def _compact_evidence_metadata(candidate_key: str, item: dict) -> dict:
+    metadata = EvidenceMetadata(
+        candidate_key=candidate_key,
+        source_url=item.get("url", ""),
+        source=item.get("source", ""),
+        title=item.get("title") or item.get("full_name") or item.get("name") or "",
+        author=item.get("author", ""),
+        published_at=item.get("published_at", ""),
+        container=item.get("container", ""),
+        query_kind=item.get("query_kind", ""),
+        query_topic=item.get("query_topic", ""),
+        outbound_url=item.get("outbound_url") or item.get("resolved_url") or "",
+        domain=item.get("domain") or item.get("website_domain") or "",
+        owner_name=item.get("owner_name", ""),
+        owner_type=item.get("owner_type", ""),
+        topics=list(item.get("topics") or []),
+        description=item.get("description") or item.get("snippet") or "",
+        homepage=item.get("homepage") or item.get("website") or "",
+    )
+    return metadata.to_dict()
+
+
 def _candidate_from_signal(signal) -> Candidate | None:
     item = signal.metadata or {}
     name = None
@@ -921,9 +1036,24 @@ def _candidate_from_signal(signal) -> Candidate | None:
     if velocity.get("stars_last_30d") is not None:
         why = f"{item.get('description') or signal.title} +{velocity.get('stars_last_30d')} stars in 30d."
 
+    domain = _candidate_domain_from_item(item)
+    source_headline = item.get("source_headline") or item.get("title") or signal.title
+    identity = canonicalize_identity(
+        name=item.get("display_name") or item.get("canonical_name") or name,
+        domain=domain,
+        candidate_type=signal.role,
+        identity_type=item.get("identity_type", ""),
+        raw_title=source_headline,
+        source_headline=source_headline,
+    )
+
     candidate = Candidate(
-        name=name,
-        domain=_candidate_domain_from_item(item),
+        name=identity["display_name"] or name,
+        canonical_name=identity["canonical_name"],
+        display_name=identity["display_name"],
+        source_headline=identity["source_headline"],
+        tagline=identity["tagline"],
+        domain=domain,
         sector=SECTOR_LABELS.get(signal.sector, signal.sector),
         theme=infer_theme(f"{signal.title} {signal.text}"),
         source=source,
@@ -931,12 +1061,18 @@ def _candidate_from_signal(signal) -> Candidate | None:
         source_count=1,
         candidate_type=signal.role,
         why_on_radar=why,
-        why_this_may_be_noise="Needs verification across stronger company/founder/customer evidence.",
+        why_this_may_be_noise=item.get("why_this_may_be_noise") or "Needs verification across stronger company/founder/customer evidence.",
         company_linkedin=_profile_url(item, "company_linkedin", "linkedin_url", "linkedin"),
         company_x=_profile_url(item, "company_x", "x_url", "twitter_url", "twitter"),
         founder_profiles=_founder_profiles_from_item(item),
         engagement=item.get("engagement", {}),
-        action="watch" if signal.role == "oss_project" else "assign owner",
+        action=item.get("action") or ("watch" if signal.role == "oss_project" else "assign owner"),
+        maturity_status=item.get("maturity_status") or "unknown",
+        maturity_basis=list(item.get("maturity_basis") or []),
+        maturity_evidence_urls=list(item.get("maturity_evidence_urls") or []),
+        category_anchor=bool(item.get("category_anchor")),
+        consensus_risk_reason=item.get("consensus_risk_reason", ""),
+        lead_route=item.get("lead_route") or "research_deeper",
     )
     source_lane = item.get("source_lane") or ("OSS" if signal.role == "oss_project" else signal.source)
     sector_classification = classify_market_sector(
@@ -949,6 +1085,7 @@ def _candidate_from_signal(signal) -> Candidate | None:
     candidate.evidence_role = signal.role
     candidate.sector_confidence = sector_classification.sector_confidence
     candidate.sector_reason = sector_classification.sector_reason
+    candidate.evidence_metadata = [_compact_evidence_metadata(candidate.stable_key or candidate.name, item)]
     if candidate.market_sector != "Unclassified":
         candidate.sector = candidate.market_sector
     candidate = merge_source_enrichment(candidate, item)
@@ -1030,22 +1167,139 @@ def _filter_company_discovery_items(items: list[dict]) -> list[dict]:
     return kept
 
 
+def _slug_id(text: str) -> str:
+    slug = re.sub(r"[^a-z0-9]+", "-", (text or "").lower()).strip("-")
+    return slug or "unknown"
+
+
+def _category_context_focus_items_from_company_discovery(company_discovery: dict) -> list[FocusItem]:
+    items: list[FocusItem] = []
+    seen: set[str] = set()
+    for lead in company_discovery.get("accepted_leads", []) or []:
+        if not isinstance(lead, dict):
+            continue
+        if not (lead.get("category_anchor") or lead.get("lead_route") in {"category_context", "monitor_only"}):
+            continue
+        domain = lead.get("domain") or _domain_from_url(lead.get("source_url", ""))
+        identity = canonicalize_identity(
+            name=lead.get("display_name") or lead.get("canonical_name") or lead.get("name") or lead.get("company_name") or lead.get("raw_title") or "Unknown",
+            domain=domain,
+            candidate_type=lead.get("candidate_type") or "",
+            raw_title=lead.get("raw_title") or "",
+            source_headline=lead.get("source_headline") or lead.get("raw_title") or "",
+        )
+        name = identity["display_name"] or "Unknown"
+        key = domain or name
+        item_id = _slug_id(f"category-context-{key}")
+        if item_id in seen:
+            continue
+        seen.add(item_id)
+        source_url = lead.get("source_url") or ""
+        evidence_urls = [
+            source_url,
+            *(lead.get("supporting_evidence_urls") or []),
+            lead.get("official_domain_verification_url") or "",
+            *(lead.get("maturity_evidence_urls") or []),
+        ]
+        evidence_urls = list(dict.fromkeys(url for url in evidence_urls if url))
+        movement = lead.get("movement") or lead.get("query_theme") or "Category context"
+        sector = lead.get("market_sector") or "Company Discovery"
+        items.append(
+            FocusItem(
+                id=item_id,
+                name=name,
+                canonical_name=identity["canonical_name"],
+                display_name=identity["display_name"],
+                source_headline=identity["source_headline"],
+                tagline=identity["tagline"],
+                company_domain=domain,
+                market_movement_id=_slug_id(f"{sector}-{movement}"),
+                market_movement=movement,
+                market_sector=sector,
+                why_focus_this_week=lead.get("why_on_radar") or lead.get("raw_snippet") or lead.get("raw_title") or "",
+                who_is_talking=["Grounded web evidence"],
+                talker_types=["unknown"],
+                talker_type_confidence="Low",
+                evidence_snapshot=[lead.get("why_on_radar") or lead.get("raw_snippet") or lead.get("raw_title") or ""],
+                evidence_urls=evidence_urls,
+                attio_status="unknown",
+                identity_type=lead.get("candidate_type") or "verified_company",
+                recommended_action="Monitor only",
+                evidence_confidence_score=70 if domain else 45,
+                company_identity_quality_score=90 if domain else 45,
+                company_identity_quality_basis=list(lead.get("verification_basis") or []),
+                focus_priority_basis=["category_context_from_company_discovery"],
+                actionability_basis=["category_context_not_owner_action"],
+                market_movement_basis=list(lead.get("movement_assignment_basis") or []),
+                noise_risk_score=60,
+                consensus_risk_score=90 if lead.get("likely_too_late") or lead.get("category_anchor") else 55,
+                consensus_risk_basis=list(lead.get("maturity_basis") or []),
+                movement_assignment_method="backtrace",
+                movement_assignment_confidence="Medium",
+                movement_assignment_evidence_url=evidence_urls[0] if evidence_urls else "",
+                why_this_may_be_noise=lead.get("why_this_may_be_noise") or lead.get("consensus_risk_reason") or "",
+                skepticism_events=[lead.get("why_this_may_be_noise") or lead.get("consensus_risk_reason") or ""],
+                source_candidate_id=lead.get("query_id") or item_id,
+                maturity_status=lead.get("maturity_status") or "unknown",
+                maturity_basis=list(lead.get("maturity_basis") or []),
+                maturity_evidence_urls=list(lead.get("maturity_evidence_urls") or []),
+                category_anchor=bool(lead.get("category_anchor")),
+                consensus_risk_reason=lead.get("consensus_risk_reason") or "",
+                lead_route=lead.get("lead_route") or "category_context",
+            )
+        )
+    return items
+
+
 def _merge_candidate_model(existing: Candidate, candidate: Candidate) -> None:
     existing.source_count += 1
     if candidate.source and candidate.source not in existing.sources:
         existing.sources.append(candidate.source)
+    existing_metadata_keys = {
+        (metadata.get("source_url"), metadata.get("title"), metadata.get("outbound_url"))
+        for metadata in existing.evidence_metadata
+        if isinstance(metadata, dict)
+    }
+    for metadata in candidate.evidence_metadata:
+        if not isinstance(metadata, dict):
+            continue
+        key = (metadata.get("source_url"), metadata.get("title"), metadata.get("outbound_url"))
+        if key not in existing_metadata_keys:
+            existing.evidence_metadata.append(metadata)
+            existing_metadata_keys.add(key)
     if not existing.domain and candidate.domain:
         existing.domain = candidate.domain
     if not existing.company_linkedin and candidate.company_linkedin:
         existing.company_linkedin = candidate.company_linkedin
     if not existing.company_x and candidate.company_x:
         existing.company_x = candidate.company_x
+    if candidate.category_anchor or candidate.lead_route in {"category_context", "monitor_only"}:
+        existing.maturity_status = candidate.maturity_status
+        existing.maturity_basis = list(candidate.maturity_basis)
+        existing.maturity_evidence_urls = list(candidate.maturity_evidence_urls)
+        existing.category_anchor = candidate.category_anchor
+        existing.consensus_risk_reason = candidate.consensus_risk_reason
+        existing.lead_route = candidate.lead_route
+    elif existing.lead_route == "research_deeper" and candidate.lead_route:
+        existing.maturity_status = candidate.maturity_status
+        existing.maturity_basis = list(candidate.maturity_basis)
+        existing.maturity_evidence_urls = list(candidate.maturity_evidence_urls)
+        existing.consensus_risk_reason = candidate.consensus_risk_reason
+        existing.lead_route = candidate.lead_route
     seen = {(profile.get("name"), profile.get("linkedin"), profile.get("x"), profile.get("github")) for profile in existing.founder_profiles}
     for profile in candidate.founder_profiles:
         key = (profile.get("name"), profile.get("linkedin"), profile.get("x"), profile.get("github"))
         if key not in seen:
             existing.founder_profiles.append(profile)
             seen.add(key)
+    if not existing.canonical_name and candidate.canonical_name:
+        existing.canonical_name = candidate.canonical_name
+    if not existing.display_name and candidate.display_name:
+        existing.display_name = candidate.display_name
+    if not existing.source_headline and candidate.source_headline:
+        existing.source_headline = candidate.source_headline
+    if not existing.tagline and candidate.tagline:
+        existing.tagline = candidate.tagline
 
 
 def promote_signals_to_candidates(signals: list) -> dict:
@@ -1099,6 +1353,12 @@ def _score_sort_limit_candidates(candidates: list[Candidate], candidate_limit: i
 def _apply_attio_to_candidates(candidates: list[Candidate], attio_client=None) -> list[Candidate]:
     enriched = merge_attio_context([candidate.to_dict() for candidate in candidates], attio_client)
     return [Candidate.from_dict(candidate) for candidate in enriched]
+
+
+def prepare_candidates_for_weekly_focus(candidates: list[Candidate], attio_client=None) -> tuple[list[Candidate], list]:
+    resolved_candidates, identity_resolutions = apply_identity_resolution(candidates)
+    resolved_candidates = _apply_attio_to_candidates(resolved_candidates, attio_client)
+    return resolved_candidates, identity_resolutions
 
 
 def _update_sector_coverage(
@@ -1181,16 +1441,18 @@ def collect_live_evidence(
     github_limit: int = 40,
     max_queries_per_sector: int = 3,
     query_timeout_seconds: int | None = None,
+    github_timeout_seconds: int | None = DEFAULT_GITHUB_TIMEOUT_SECONDS,
     progress: bool = False,
 ) -> dict:
     """Collect raw last30days and GitHub evidence for the weekly radar."""
-    evidence = {"last30days": {}, "github": [], "warnings": []}
+    evidence = {"last30days": {}, "github": [], "warnings": [], "source_health": []}
     sector_config = load_sector_config()
     grounded_available = _grounded_search_available()
     social_available = _social_search_available()
 
     if run_query:
         for sector in sectors:
+            started = time.monotonic()
             query_specs = build_sector_collection_queries(
                 sector,
                 sector_config,
@@ -1240,15 +1502,27 @@ def collect_live_evidence(
                 "warnings": warnings,
                 "errors": errors,
             }
+            evidence["source_health"].append(
+                _source_health(
+                    f"last30days:{sector}",
+                    "error" if errors else "complete",
+                    fresh_items=len(items),
+                    duration_seconds=time.monotonic() - started,
+                    warnings=errors or warnings,
+                )
+            )
 
-    if run_trending:
-        if progress:
-            print("[vc-signals] github: collecting trending repos", file=sys.stderr, flush=True)
-        github = run_trending("all", limit=github_limit)
-        evidence["github"] = filter_repos(github.get("repos", []))
-        evidence["warnings"].extend(github.get("warnings", []))
-        if github.get("error"):
-            evidence["warnings"].append(github["error"])
+    if progress:
+        print("[vc-signals] github: collecting trending repos", file=sys.stderr, flush=True)
+    github, github_health = _run_github_trending_with_timeout(
+        limit=github_limit,
+        timeout_seconds=github_timeout_seconds,
+    )
+    evidence["github"] = filter_repos(github.get("repos", []))
+    evidence["source_health"].append(github_health)
+    evidence["warnings"].extend(github.get("warnings", []))
+    if github.get("error"):
+        evidence["warnings"].append(github["error"])
 
     return evidence
 
@@ -1262,26 +1536,47 @@ def run_weekly_artifacts(
     candidate_limit: int = 15,
     with_synthesis: bool = False,
     query_timeout_seconds: int | None = None,
+    github_timeout_seconds: int | None = DEFAULT_GITHUB_TIMEOUT_SECONDS,
     progress: bool = False,
+    discovery_budget: DiscoveryRunBudget | None = None,
+    discovery_budget_mode: str = "weekly",
+    discovery_cache_dir: Path | None = None,
+    discovery_yield_trial_config: DiscoveryYieldTrialConfig | None = None,
+    hn_launch_trial_config: HNLaunchTrialConfig | None = None,
 ) -> dict:
     """Collect evidence and render a weekly partner preview in one command."""
     output_dir.mkdir(parents=True, exist_ok=True)
+    company_discovery_path = output_dir / "company-discovery.json"
+    runtime_ledger_path = output_dir / "runtime-ledger.json"
+    coverage_report_path = output_dir / "coverage-report.json"
     evidence = collect_live_evidence(
         sectors=sectors,
         github_limit=github_limit,
         max_queries_per_sector=max_queries_per_sector,
         query_timeout_seconds=query_timeout_seconds,
+        github_timeout_seconds=github_timeout_seconds,
         progress=progress,
     )
     signal_result = build_signals_from_evidence(evidence)
     theme_signals = build_theme_signals(signal_result["signals"], sectors=sectors)
+    initial_promotion = promote_signals_to_candidates(signal_result["signals"])
+    provisional_candidates = _score_sort_limit_candidates(initial_promotion["candidates"], candidate_limit)
+    provisional_focus_items = [build_focus_item(candidate) for candidate in provisional_candidates]
+    resolved_discovery_budget = discovery_budget or DiscoveryRunBudget.for_mode(discovery_budget_mode)
     company_discovery = collect_company_discovery(
         theme_signals,
+        focus_items=provisional_focus_items,
+        unresolved_candidates=provisional_candidates,
         query_runner=run_query,
         grounded_available=_grounded_search_available(),
         social_available=_social_search_available(),
         max_queries_per_theme=3,
+        run_budget=resolved_discovery_budget,
+        partial_output_path=company_discovery_path,
+        query_cache_dir=discovery_cache_dir or output_dir / "provider-query-cache",
+        trial_config=discovery_yield_trial_config,
     )
+    company_discovery["source_health"] = list(evidence.get("source_health", []))
     evidence["company_discovery"] = company_discovery
     for error in company_discovery.get("errors", []):
         evidence.setdefault("warnings", []).append(f"company-discovery: {error}")
@@ -1292,7 +1587,32 @@ def run_weekly_artifacts(
     source_errors = _source_errors_from_evidence(evidence)
     scored_candidates = _score_sort_limit_candidates(promotion["candidates"], candidate_limit)
     scored_candidates = apply_candidate_enrichment(scored_candidates)
-    scored_candidates = _apply_attio_to_candidates(scored_candidates, _attio_client_from_env())
+    scored_candidates, identity_resolutions = prepare_candidates_for_weekly_focus(
+        scored_candidates,
+        _attio_client_from_env(),
+    )
+    scored_candidates = _score_sort_limit_candidates(scored_candidates, candidate_limit)
+    grounded_available = _grounded_search_available()
+    scored_candidates, owner_evidence_report = enrich_owner_evidence(
+        scored_candidates,
+        query_runner=run_query if grounded_available else None,
+        cache_dir=output_dir / "owner-evidence-cache",
+        max_candidates=5,
+    )
+    scored_candidates = _score_sort_limit_candidates(scored_candidates, candidate_limit)
+    scored_candidates, founder_team_verification_report = enrich_founder_team_verification(
+        scored_candidates,
+        query_runner=run_query if grounded_available else None,
+        cache_dir=output_dir / "founder-team-verification-cache",
+        max_candidates=5,
+    )
+    scored_candidates = _score_sort_limit_candidates(scored_candidates, candidate_limit)
+    scored_candidates, owner_readiness_report = enrich_owner_readiness(
+        scored_candidates,
+        query_runner=None,
+        cache_dir=output_dir / "owner-readiness-cache",
+        max_queries=0,
+    )
     scored_candidates = _score_sort_limit_candidates(scored_candidates, candidate_limit)
     run_date = datetime.now(timezone.utc).strftime("%Y-%m-%d")
     history_result = apply_weekly_tags(scored_candidates, load_candidate_history(), run_date=run_date)
@@ -1313,12 +1633,31 @@ def run_weekly_artifacts(
     candidates_path = output_dir / "candidates.json"
     theme_signals_path = output_dir / "theme-signals.json"
     sector_intelligence_path = output_dir / "sector-intelligence.json"
-    company_discovery_path = output_dir / "company-discovery.json"
+    identity_resolution_path = output_dir / "identity-resolution.json"
+    metadata_loss_report_path = output_dir / "metadata-loss-report.json"
+    owner_evidence_path = output_dir / "owner-evidence.json"
+    founder_team_verification_path = output_dir / "founder-team-verification.json"
+    owner_readiness_path = output_dir / "owner-readiness.json"
     signals_path.write_text(json.dumps([signal.to_dict() for signal in signal_result["signals"]], indent=2))
     candidates_path.write_text(json.dumps([candidate.to_dict() for candidate in scored_candidates], indent=2))
     theme_signals_path.write_text(json.dumps([item.to_dict() for item in theme_signals], indent=2))
     sector_intelligence_path.write_text(json.dumps([item.to_dict() for item in sector_intelligence], indent=2))
     company_discovery_path.write_text(json.dumps(company_discovery, indent=2))
+    runtime_ledger = dict(company_discovery.get("runtime_ledger", {}))
+    runtime_ledger["source_health"] = list(evidence.get("source_health", []))
+    runtime_ledger_path.write_text(json.dumps(runtime_ledger, indent=2))
+    coverage_report_path.write_text(json.dumps(company_discovery.get("coverage_report", {}), indent=2))
+    identity_resolution_path.write_text(json.dumps([item.to_dict() for item in identity_resolutions], indent=2, sort_keys=True))
+    metadata_loss_report = build_metadata_loss_report(
+        evidence=evidence,
+        signals=signal_result["signals"],
+        candidates=scored_candidates,
+        identity_resolutions=identity_resolutions,
+    )
+    metadata_loss_report_path.write_text(json.dumps([item.to_dict() for item in metadata_loss_report], indent=2, sort_keys=True))
+    write_owner_evidence_json(owner_evidence_report, owner_evidence_path)
+    write_founder_team_verification_json(founder_team_verification_report, founder_team_verification_path)
+    write_owner_readiness_json(owner_readiness_report, owner_readiness_path)
     synthesis = None
     synthesis_path = None
     if with_synthesis:
@@ -1331,6 +1670,18 @@ def run_weekly_artifacts(
         )
         synthesis_path = output_dir / "synthesis.json"
         synthesis_path.write_text(json.dumps(synthesis.to_dict(), indent=2))
+    hn_launch_trial = {"enabled": False}
+    if hn_launch_trial_config and hn_launch_trial_config.enabled:
+        hn_launch_trial = run_hn_launch_weekly_trial(
+            movements=_hn_launch_trial_movements(theme_signals, scored_candidates),
+            run_query_fn=run_query,
+            query_runner=run_query if grounded_available else None,
+            page_fetcher=None,
+            attio_matcher=_hn_attio_matcher_from_env(),
+            output_dir=output_dir / "hn-launch-trial",
+            cache_dir=output_dir / "hn-launch-trial" / "cache",
+            config=hn_launch_trial_config,
+        )
     preview_path = output_dir / "weekly-preview.md"
     preview_path.write_text(
         _render_weekly_brief(
@@ -1345,6 +1696,23 @@ def run_weekly_artifacts(
             company_discovery=company_discovery,
         )
     )
+    weekly_focus = build_weekly_focus_artifact(
+        candidates=scored_candidates,
+        category_context_items=_category_context_focus_items_from_company_discovery(company_discovery),
+        theme_signals=theme_signals,
+        sector_intelligence=sector_intelligence,
+        source_gap_context="bounded_validation" if query_timeout_seconds is not None else "",
+        source_health=evidence.get("source_health", []),
+        run_id=run_date,
+        discovery_yield_trial=company_discovery.get("discovery_yield_trial", {"enabled": False}),
+        hn_launch_trial=hn_launch_trial,
+    )
+    weekly_focus_json_path = output_dir / "weekly-focus.json"
+    weekly_focus_path = output_dir / "weekly-focus.md"
+    feedback_path = output_dir / "feedback.json"
+    write_weekly_focus_json(weekly_focus, weekly_focus_json_path)
+    weekly_focus_path.write_text(render_weekly_focus_markdown(weekly_focus))
+    write_feedback_scaffold(run_date, weekly_focus.partner_focus, feedback_path)
     result = {
         "raw_evidence": str(raw_path),
         "signals": str(signals_path),
@@ -1352,10 +1720,22 @@ def run_weekly_artifacts(
         "theme_signals": str(theme_signals_path),
         "sector_intelligence": str(sector_intelligence_path),
         "company_discovery": str(company_discovery_path),
+        "runtime_ledger": str(runtime_ledger_path),
+        "coverage_report": str(coverage_report_path),
+        "identity_resolution_json": str(identity_resolution_path),
+        "metadata_loss_report": str(metadata_loss_report_path),
+        "owner_evidence_json": str(owner_evidence_path),
+        "founder_team_verification_json": str(founder_team_verification_path),
+        "owner_readiness_json": str(owner_readiness_path),
         "preview": str(preview_path),
+        "weekly_focus_json": str(weekly_focus_json_path),
+        "weekly_focus": str(weekly_focus_path),
+        "feedback": str(feedback_path),
         "companies": len(scored_candidates),
         "sectors": list(sectors),
     }
+    if hn_launch_trial.get("enabled"):
+        result["hn_launch_trial"] = str(output_dir / "hn-launch-trial")
     if synthesis_path:
         result["synthesis"] = str(synthesis_path)
     return result
@@ -1399,6 +1779,87 @@ def _get_int_arg(args: dict, *names: str, default: int | None = None) -> int | N
     return default
 
 
+def _discovery_budget_from_args(args: dict, *, first_pass: bool) -> DiscoveryRunBudget:
+    mode = args.get("discovery_budget_mode") or args.get("budget_mode") or ("smoke" if first_pass else "weekly")
+    overrides = {}
+    for arg_name, field_name in (
+        ("max_runtime_seconds", "max_runtime_seconds"),
+        ("max_company_discovery_queries", "max_company_discovery_queries"),
+        ("max_maturity_queries", "max_maturity_queries"),
+        ("max_article_fetches", "max_article_fetches"),
+        ("max_results_per_query", "max_results_per_query"),
+        ("per_movement_query_cap", "per_movement_query_cap"),
+        ("query_cache_ttl_seconds", "query_cache_ttl_seconds"),
+    ):
+        if arg_name in args:
+            overrides[field_name] = int(args[arg_name])
+    if "allow_stale_cache" in args:
+        overrides["allow_stale_cache"] = _get_bool_arg(args, "allow_stale_cache")
+    return DiscoveryRunBudget.for_mode(mode, **overrides)
+
+
+def _discovery_yield_trial_config_from_args(args: dict) -> DiscoveryYieldTrialConfig | None:
+    if not _get_bool_arg(args, "discovery_yield_trial", "discoveryYieldTrial"):
+        return None
+    raw_families = args.get("discovery_trial_families", "")
+    families = tuple(
+        family.strip()
+        for family in str(raw_families).split(",")
+        if family.strip()
+    ) or ("official_company_page", "founder_company_pages", "movement_platform")
+    movement_platform_cap = int(args.get("discovery_trial_movement_platform_cap", 1))
+    return DiscoveryYieldTrialConfig(
+        enabled=True,
+        families=families,
+        movement_platform_cap_per_movement=movement_platform_cap,
+    )
+
+
+def _hn_launch_trial_config_from_args(args: dict) -> HNLaunchTrialConfig | None:
+    if not _get_bool_arg(args, "hn_launch_trial", "hnLaunchTrial"):
+        return None
+    return HNLaunchTrialConfig(
+        enabled=True,
+        lookback_days=int(args.get("hn_launch_lookback_days", 30)),
+        timeout_seconds=int(args.get("hn_launch_timeout_seconds", 120)),
+        max_candidates=int(args.get("hn_launch_max_candidates", 15)),
+        max_runtime_seconds=float(args.get("hn_launch_max_runtime_seconds", 90)),
+        max_attio_checks=int(args.get("hn_launch_max_attio_checks", 10)),
+        max_live_queries=int(args.get("hn_launch_max_live_queries", 25)),
+        per_candidate_timeout_seconds=float(args.get("hn_launch_per_candidate_timeout_seconds", 8)),
+    )
+
+
+def _hn_launch_trial_movements(theme_signals, candidates) -> list[dict]:
+    movements: list[dict] = []
+    seen: set[str] = set()
+    for signal in theme_signals or []:
+        movement = (getattr(signal, "theme", "") or "").strip()
+        if not movement or movement in seen:
+            continue
+        seen.add(movement)
+        movements.append(
+            {
+                "movement": movement,
+                "market_sector": getattr(signal, "market_sector", ""),
+                "origin_row_ids": [],
+            }
+        )
+    for candidate in candidates or []:
+        movement = (getattr(candidate, "theme", "") or "").strip()
+        if not movement or movement in seen:
+            continue
+        seen.add(movement)
+        movements.append(
+            {
+                "movement": movement,
+                "market_sector": getattr(candidate, "market_sector", "") or getattr(candidate, "sector", ""),
+                "origin_row_ids": [getattr(candidate, "stable_key", "")] if getattr(candidate, "stable_key", "") else [],
+            }
+        )
+    return movements
+
+
 def _attio_client_from_env():
     token = os.environ.get("ATTIO_ACCESS_TOKEN")
     if not token and get_access_token:
@@ -1406,6 +1867,17 @@ def _attio_client_from_env():
     if not token or not AttioClient:
         return None
     return AttioClient(token)
+
+
+def _hn_attio_matcher_from_env():
+    client = _attio_client_from_env()
+    if not client:
+        return None
+
+    def match(candidate):
+        return client.match_company({"name": candidate.name, "domain": candidate.domain})
+
+    return match
 
 
 def _cli_main() -> None:
@@ -1433,6 +1905,12 @@ def _cli_main() -> None:
                 "query_timeout_seconds",
                 default=45 if first_pass else None,
             ),
+            github_timeout_seconds=_get_int_arg(
+                args,
+                "github_timeout",
+                "github_timeout_seconds",
+                default=60 if first_pass else DEFAULT_GITHUB_TIMEOUT_SECONDS,
+            ),
             progress=bool(args.get("progress", False)),
         )
         path = save_raw_evidence(evidence, output_dir=output_dir)
@@ -1459,7 +1937,16 @@ def _cli_main() -> None:
                 "query_timeout_seconds",
                 default=45 if first_pass else None,
             ),
+            github_timeout_seconds=_get_int_arg(
+                args,
+                "github_timeout",
+                "github_timeout_seconds",
+                default=60 if first_pass else DEFAULT_GITHUB_TIMEOUT_SECONDS,
+            ),
             progress=bool(args.get("progress", True)),
+            discovery_budget=_discovery_budget_from_args(args, first_pass=first_pass),
+            discovery_yield_trial_config=_discovery_yield_trial_config_from_args(args),
+            hn_launch_trial_config=_hn_launch_trial_config_from_args(args),
         )
         print(json.dumps(result))
         return
