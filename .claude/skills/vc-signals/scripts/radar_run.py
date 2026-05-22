@@ -14,6 +14,7 @@ import re
 import signal
 import sys
 import time
+from collections import Counter
 from inspect import Parameter, signature
 from datetime import datetime, timezone
 from pathlib import Path
@@ -379,6 +380,27 @@ def _reddit_item_matches_query_subreddits(item: dict, query_spec: dict) -> bool:
     return bool(subreddit and subreddit in allowed)
 
 
+def _configured_company_query_families(company_queries: dict) -> tuple[tuple[str, str], ...]:
+    return (
+        ("yc_company", "yc_queries"),
+        ("funding_company", "funding_queries"),
+        ("company_launch", "company_launch_queries"),
+        ("founder_company", "founder_queries"),
+        ("technical_blog_company", "technical_blog_queries"),
+    )
+
+
+def _iter_company_query_specs(company_queries: dict):
+    """Yield configured company queries across families before repeating one family."""
+    families = _configured_company_query_families(company_queries)
+    max_family_len = max((len(company_queries.get(key, [])) for _kind, key in families), default=0)
+    for index in range(max_family_len):
+        for kind, key in families:
+            topics = company_queries.get(key, [])
+            if index < len(topics):
+                yield kind, topics[index]
+
+
 def _sources(*base: str, social_available: bool = False, vertical_social: bool = False) -> str:
     sources = list(base)
     if social_available:
@@ -497,25 +519,16 @@ def build_sector_collection_queries(
     )
     company_queries = config.get("company_discovery_queries", {})
     if grounded_available and company_queries:
-        for kind, key in (
-            ("yc_company", "yc_queries"),
-            ("funding_company", "funding_queries"),
-            ("company_launch", "company_launch_queries"),
-            ("founder_company", "founder_queries"),
-            ("technical_blog_company", "technical_blog_queries"),
-        ):
+        for kind, topic in _iter_company_query_specs(company_queries):
             if len(queries) >= max_queries:
                 break
-            for topic in company_queries.get(key, []):
-                if len(queries) >= max_queries:
-                    break
-                queries.append({
-                    "kind": kind,
-                    "topic": topic,
-                    "sources": _sources("grounding", "hackernews", "github", social_available=social_available),
-                    "web_backend": "auto",
-                    "lookback_days": lookback_days,
-                })
+            queries.append({
+                "kind": kind,
+                "topic": topic,
+                "sources": _sources("grounding", "hackernews", "github", social_available=social_available),
+                "web_backend": "auto",
+                "lookback_days": lookback_days,
+            })
     elif grounded_available:
         queries.extend([
             {
@@ -1490,6 +1503,7 @@ def collect_live_evidence(
             clusters = []
             warnings = []
             errors = []
+            query_diagnostics = []
             for index, query_spec in enumerate(query_specs, start=1):
                 if progress:
                     print(
@@ -1508,6 +1522,7 @@ def collect_live_evidence(
                     web_backend=query_spec.get("web_backend"),
                     timeout_seconds=query_timeout_seconds,
                 )
+                raw_items_returned = len(result.get("items", []) or [])
                 leaked_reddit_items = 0
                 accepted_items = []
                 for item in result.get("items", []):
@@ -1525,6 +1540,18 @@ def collect_live_evidence(
                     )
                 clusters.extend(result.get("clusters", []))
                 warnings.extend(result.get("warnings", []))
+                query_diagnostics.append({
+                    "kind": query_spec.get("kind", ""),
+                    "topic": query_spec.get("topic", ""),
+                    "sources": query_spec.get("sources", ""),
+                    "candidate_eligible": query_spec.get("candidate_eligible", True),
+                    "raw_items_returned": raw_items_returned,
+                    "accepted_items": len(accepted_items),
+                    "filtered_items": leaked_reddit_items,
+                    "filtered_reddit_outside_subreddits": leaked_reddit_items,
+                    "error": result.get("error", ""),
+                    "warnings": list(result.get("warnings", [])),
+                })
                 if result.get("error"):
                     error_message = result["error"]
                     stderr_excerpt = (result.get("stderr") or "").strip()
@@ -1540,6 +1567,7 @@ def collect_live_evidence(
                 "clusters": clusters,
                 "warnings": warnings,
                 "errors": errors,
+                "query_diagnostics": query_diagnostics,
             }
             evidence["source_health"].append(
                 _source_health(
@@ -1602,12 +1630,19 @@ def run_weekly_artifacts(
     provisional_candidates = _score_sort_limit_candidates(initial_promotion["candidates"], candidate_limit)
     provisional_focus_items = [build_focus_item(candidate) for candidate in provisional_candidates]
     resolved_discovery_budget = discovery_budget or DiscoveryRunBudget.for_mode(discovery_budget_mode)
+    grounded_available = _grounded_search_available()
+    weekly_query_runner = _weekly_query_runner_with_timeout(query_timeout_seconds) if grounded_available else None
+    enrichment_query_runner = (
+        _weekly_query_runner_with_timeout(_cap_timeout(query_timeout_seconds, 25))
+        if grounded_available
+        else None
+    )
     company_discovery = collect_company_discovery(
         theme_signals,
         focus_items=provisional_focus_items,
         unresolved_candidates=provisional_candidates,
-        query_runner=run_query,
-        grounded_available=_grounded_search_available(),
+        query_runner=weekly_query_runner,
+        grounded_available=grounded_available,
         social_available=_social_search_available(),
         max_queries_per_theme=3,
         run_budget=resolved_discovery_budget,
@@ -1631,17 +1666,19 @@ def run_weekly_artifacts(
         _attio_client_from_env(),
     )
     scored_candidates = _score_sort_limit_candidates(scored_candidates, candidate_limit)
-    grounded_available = _grounded_search_available()
     scored_candidates, owner_evidence_report = enrich_owner_evidence(
         scored_candidates,
-        query_runner=run_query if grounded_available else None,
+        query_runner=enrichment_query_runner,
+        page_fetcher=_owner_page_fetcher_with_timeout(
+            min(float(query_timeout_seconds), 5.0) if query_timeout_seconds is not None else 5.0
+        ),
         cache_dir=output_dir / "owner-evidence-cache",
         max_candidates=5,
     )
     scored_candidates = _score_sort_limit_candidates(scored_candidates, candidate_limit)
     scored_candidates, founder_team_verification_report = enrich_founder_team_verification(
         scored_candidates,
-        query_runner=run_query if grounded_available else None,
+        query_runner=enrichment_query_runner,
         cache_dir=output_dir / "founder-team-verification-cache",
         max_candidates=5,
     )
@@ -1666,11 +1703,12 @@ def run_weekly_artifacts(
         rejected=promotion["rejected"],
         theme_signals=theme_signals,
         source_errors=source_errors,
-        grounded_available=_grounded_search_available(),
+        grounded_available=grounded_available,
     )
     signals_path = output_dir / "signals.json"
     candidates_path = output_dir / "candidates.json"
     theme_signals_path = output_dir / "theme-signals.json"
+    seed_diagnostics_path = output_dir / "seed-diagnostics.json"
     sector_intelligence_path = output_dir / "sector-intelligence.json"
     identity_resolution_path = output_dir / "identity-resolution.json"
     metadata_loss_report_path = output_dir / "metadata-loss-report.json"
@@ -1710,11 +1748,21 @@ def run_weekly_artifacts(
         synthesis_path = output_dir / "synthesis.json"
         synthesis_path.write_text(json.dumps(synthesis.to_dict(), indent=2))
     hn_launch_trial = {"enabled": False}
+    hn_movement_seeds = _hn_launch_trial_movements(theme_signals, scored_candidates)
+    seed_diagnostics = build_seed_generation_diagnostics(
+        evidence=evidence,
+        signals=signal_result["signals"],
+        theme_signals=theme_signals,
+        candidates=scored_candidates,
+        rejected=promotion["rejected"],
+        hn_movement_seeds=hn_movement_seeds,
+    )
+    seed_diagnostics_path.write_text(json.dumps(seed_diagnostics, indent=2))
     if hn_launch_trial_config and hn_launch_trial_config.enabled:
         hn_launch_trial = run_hn_launch_weekly_trial(
-            movements=_hn_launch_trial_movements(theme_signals, scored_candidates),
+            movements=hn_movement_seeds,
             run_query_fn=run_query,
-            query_runner=run_query if grounded_available else None,
+            query_runner=weekly_query_runner,
             page_fetcher=None,
             attio_matcher=_hn_attio_matcher_from_env(),
             output_dir=output_dir / "hn-launch-trial",
@@ -1757,6 +1805,7 @@ def run_weekly_artifacts(
         "signals": str(signals_path),
         "candidates": str(candidates_path),
         "theme_signals": str(theme_signals_path),
+        "seed_diagnostics": str(seed_diagnostics_path),
         "sector_intelligence": str(sector_intelligence_path),
         "company_discovery": str(company_discovery_path),
         "runtime_ledger": str(runtime_ledger_path),
@@ -1901,6 +1950,148 @@ def _hn_launch_trial_movements(theme_signals, candidates) -> list[dict]:
             }
         )
     return movements
+
+
+def _candidate_hn_seed_status(candidate: Candidate) -> tuple[bool, str]:
+    movement = (getattr(candidate, "theme", "") or "").strip()
+    action = (getattr(candidate, "action", "") or getattr(candidate, "recommended_action", "") or "").strip().lower()
+    if action == "ignore":
+        return False, "candidate_action_ignore"
+    if not movement:
+        return False, "candidate_missing_theme"
+    if movement.lower() == "emerging technical signal":
+        return False, "candidate_generic_theme"
+    return True, "candidate_seed"
+
+
+def build_seed_generation_diagnostics(
+    *,
+    evidence: dict,
+    signals: list,
+    theme_signals: list,
+    candidates: list[Candidate],
+    rejected: list[RejectedSignal],
+    hn_movement_seeds: list[dict],
+) -> dict:
+    signal_counts = Counter()
+    candidate_eligible_by_sector = Counter()
+    for signal in signals:
+        signal_counts[f"source:{signal.source}"] += 1
+        signal_counts[f"role:{signal.role}"] += 1
+        if signal.can_create_candidate:
+            candidate_eligible_by_sector[signal.sector or "unknown"] += 1
+    query_rows = []
+    for sector, payload in (evidence.get("last30days") or {}).items():
+        for row in payload.get("query_diagnostics", []):
+            query_rows.append({"sector": sector, **row})
+    candidate_rows = []
+    for candidate in candidates:
+        accepted, reason = _candidate_hn_seed_status(candidate)
+        candidate_rows.append({
+            "name": candidate.name,
+            "sector": candidate.sector,
+            "market_sector": candidate.market_sector,
+            "theme": candidate.theme,
+            "action": candidate.action,
+            "tier": candidate.tier,
+            "source": candidate.source,
+            "accepted_as_hn_seed": accepted,
+            "seed_reason": reason,
+        })
+    theme_rows = [
+        {
+            "theme": item.theme,
+            "market_sector": item.market_sector,
+            "confidence": item.confidence,
+            "evidence_count": item.evidence_count,
+            "accepted_as_hn_seed": bool(item.theme and item.theme.lower() != "emerging technical signal"),
+        }
+        for item in theme_signals
+    ]
+    rejected_reason_counts = Counter(item.reason for item in rejected)
+    seed_provenance = "fresh_weekly_run" if hn_movement_seeds else "fresh_weekly_run_generated_no_eligible_hn_seeds"
+    no_seed_reason = ""
+    if not hn_movement_seeds:
+        if theme_signals or candidates:
+            no_seed_reason = "fresh weekly produced only generic/ignored candidates or no eligible theme signals"
+        else:
+            no_seed_reason = "fresh weekly produced no theme signals or candidates"
+    return {
+        "seed_provenance": seed_provenance,
+        "validation_counted": bool(hn_movement_seeds),
+        "no_seed_reason": no_seed_reason,
+        "summary": {
+            "queries": len(query_rows),
+            "raw_items_returned": sum(int(row.get("raw_items_returned", 0) or 0) for row in query_rows),
+            "accepted_items": sum(int(row.get("accepted_items", 0) or 0) for row in query_rows),
+            "filtered_items": sum(int(row.get("filtered_items", 0) or 0) for row in query_rows),
+            "signals": len(signals),
+            "candidate_eligible_signals": sum(1 for signal in signals if signal.can_create_candidate),
+            "theme_signals": len(theme_signals),
+            "candidates": len(candidates),
+            "hn_movement_seeds": len(hn_movement_seeds),
+        },
+        "signal_counts": dict(signal_counts),
+        "candidate_eligible_by_sector": dict(candidate_eligible_by_sector),
+        "rejected_reason_counts": dict(rejected_reason_counts),
+        "queries": query_rows,
+        "theme_signal_review": theme_rows,
+        "candidate_seed_review": candidate_rows,
+        "hn_movement_seeds": list(hn_movement_seeds),
+    }
+
+
+def _weekly_query_runner_with_timeout(timeout_seconds: int | None):
+    if not run_query:
+        return None
+    if timeout_seconds is None:
+        return run_query
+
+    def query(topic: str, **kwargs):
+        current_timeout = kwargs.get("timeout_seconds")
+        if current_timeout is None or float(current_timeout) > float(timeout_seconds):
+            kwargs["timeout_seconds"] = timeout_seconds
+        return run_query(topic, **kwargs)
+
+    return query
+
+
+def _cap_timeout(timeout_seconds: int | float | None, cap_seconds: int | float) -> int | float:
+    if timeout_seconds is None:
+        return cap_seconds
+    return min(timeout_seconds, cap_seconds)
+
+
+class _OwnerPageFetchTimeout(Exception):
+    pass
+
+
+def _owner_page_fetcher_with_timeout(timeout_seconds: float | None, page_fetcher=None):
+    from owner_evidence import _default_page_fetcher
+
+    fetch_page = page_fetcher or _default_page_fetcher
+    if timeout_seconds is None:
+        return fetch_page
+
+    def _handle_timeout(signum, frame):
+        raise _OwnerPageFetchTimeout()
+
+    def fetch(url: str) -> str:
+        previous_handler = signal.getsignal(signal.SIGALRM)
+        previous_timer = signal.getitimer(signal.ITIMER_REAL)
+        try:
+            signal.signal(signal.SIGALRM, _handle_timeout)
+            signal.setitimer(signal.ITIMER_REAL, max(float(timeout_seconds), 0.001))
+            return fetch_page(url)
+        except _OwnerPageFetchTimeout:
+            return ""
+        finally:
+            signal.setitimer(signal.ITIMER_REAL, 0)
+            signal.signal(signal.SIGALRM, previous_handler)
+            if previous_timer[0] > 0:
+                signal.setitimer(signal.ITIMER_REAL, previous_timer[0], previous_timer[1])
+
+    return fetch
 
 
 def _attio_client_from_env():

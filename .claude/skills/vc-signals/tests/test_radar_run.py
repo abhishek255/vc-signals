@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import time
 from pathlib import Path
 from types import SimpleNamespace
 
@@ -351,14 +352,14 @@ def test_build_sector_collection_queries_can_emit_second_configured_company_quer
 
     assert [query["kind"] for query in queries] == [
         "yc_company",
-        "yc_company",
-        "funding_company",
         "funding_company",
         "company_launch",
-        "company_launch",
-        "founder_company",
         "founder_company",
         "technical_blog_company",
+        "yc_company",
+        "funding_company",
+        "company_launch",
+        "founder_company",
         "technical_blog_company",
         "conversation",
     ]
@@ -387,15 +388,15 @@ def test_build_sector_collection_queries_respects_low_company_query_budget(monke
     assert len(queries) == 4
     assert [query["kind"] for query in queries] == [
         "yc_company",
-        "yc_company",
         "funding_company",
-        "funding_company",
+        "company_launch",
+        "founder_company",
     ]
     assert [query["topic"] for query in queries] == [
         "site:ycombinator.com/companies AI security startup first",
-        "site:ycombinator.com/companies AI security startup second",
         "AI security startup raises seed first",
-        "AI security startup raises seed second",
+        "AI security startup launch first",
+        "AI security startup founder blog first",
     ]
 
 
@@ -661,6 +662,10 @@ def test_collect_live_evidence_filters_reddit_items_outside_requested_subreddits
     items = evidence["last30days"]["cybersecurity"]["items"]
     assert [item["container"] for item in items] == ["AskNetsec"]
     assert any("filtered 1 reddit items" in warning for warning in evidence["last30days"]["cybersecurity"]["warnings"])
+    diagnostics = evidence["last30days"]["cybersecurity"]["query_diagnostics"][0]
+    assert diagnostics["raw_items_returned"] == 2
+    assert diagnostics["accepted_items"] == 1
+    assert diagnostics["filtered_reddit_outside_subreddits"] == 1
 
 
 def test_hn_launch_trial_movements_skip_ignored_generic_candidate_seeds():
@@ -681,6 +686,111 @@ def test_hn_launch_trial_movements_skip_ignored_generic_candidate_seeds():
             "origin_row_ids": ["company:agent"],
         }
     ]
+
+
+def test_seed_generation_diagnostics_explain_no_eligible_hn_seed():
+    import radar_run
+    from radar_models import Candidate, RejectedSignal, Signal
+
+    payload = radar_run.build_seed_generation_diagnostics(
+        evidence={
+            "last30days": {
+                "oss": {
+                    "query_diagnostics": [
+                        {
+                            "kind": "company_discovery",
+                            "topic": "Open Source Radar startups",
+                            "sources": "grounding,hackernews,github",
+                            "raw_items_returned": 3,
+                            "accepted_items": 1,
+                            "filtered_items": 2,
+                        }
+                    ]
+                }
+            }
+        },
+        signals=[
+            Signal(
+                source="github",
+                role="oss_project",
+                title="skyhook-io/radar",
+                sector="oss",
+                can_create_candidate=True,
+            )
+        ],
+        theme_signals=[],
+        candidates=[
+            Candidate(
+                name="skyhook-io/radar",
+                sector="OSS",
+                theme="Emerging technical signal",
+                source="https://github.com/skyhook-io/radar",
+                candidate_type="oss_project",
+                action="ignore",
+            )
+        ],
+        rejected=[
+            RejectedSignal(
+                sector="oss",
+                source="reddit",
+                title="Maintainer complaint",
+                reason="source_not_candidate_eligible",
+            )
+        ],
+        hn_movement_seeds=[],
+    )
+
+    assert payload["seed_provenance"] == "fresh_weekly_run_generated_no_eligible_hn_seeds"
+    assert payload["validation_counted"] is False
+    assert payload["summary"]["raw_items_returned"] == 3
+    assert payload["summary"]["accepted_items"] == 1
+    assert payload["candidate_seed_review"][0]["seed_reason"] == "candidate_action_ignore"
+    assert payload["rejected_reason_counts"]["source_not_candidate_eligible"] == 1
+
+
+def test_weekly_query_runner_forwards_cli_timeout(monkeypatch):
+    import radar_run
+
+    calls = []
+
+    def fake_run_query(topic, **kwargs):
+        calls.append((topic, kwargs))
+        return {"items": []}
+
+    monkeypatch.setattr(radar_run, "run_query", fake_run_query)
+
+    runner = radar_run._weekly_query_runner_with_timeout(12)
+    runner("agent infra", sources="grounding")
+    runner("agent infra none", sources="grounding", timeout_seconds=None)
+    runner("agent infra override", sources="grounding", timeout_seconds=5)
+    runner("agent infra capped", sources="grounding", timeout_seconds=90)
+
+    assert calls == [
+        ("agent infra", {"sources": "grounding", "timeout_seconds": 12}),
+        ("agent infra none", {"sources": "grounding", "timeout_seconds": 12}),
+        ("agent infra override", {"sources": "grounding", "timeout_seconds": 5}),
+        ("agent infra capped", {"sources": "grounding", "timeout_seconds": 12}),
+    ]
+
+
+def test_owner_page_fetcher_with_timeout_returns_empty_for_slow_page():
+    import radar_run
+
+    def slow_fetcher(_url):
+        time.sleep(1)
+        return "<html>late</html>"
+
+    fetcher = radar_run._owner_page_fetcher_with_timeout(0.01, page_fetcher=slow_fetcher)
+
+    assert fetcher("https://slow.example") == ""
+
+
+def test_cap_timeout_preserves_shorter_timeout_and_caps_longer_timeout():
+    import radar_run
+
+    assert radar_run._cap_timeout(None, 25) == 25
+    assert radar_run._cap_timeout(12, 25) == 12
+    assert radar_run._cap_timeout(75, 25) == 25
 
 
 def test_parse_sectors_arg_supports_all_and_commas():
@@ -1658,7 +1768,10 @@ def test_run_weekly_artifacts_promotes_theme_company_discovery(tmp_path, monkeyp
     monkeypatch.setattr(radar_run, "_grounded_search_available", lambda: True)
     monkeypatch.setattr(radar_run, "_social_search_available", lambda: False)
 
+    run_query_calls = []
+
     def fake_run_query(topic, **kwargs):
+        run_query_calls.append((topic, dict(kwargs)))
         if "AI agent security" not in topic:
             return {"items": []}
         return {
@@ -1683,6 +1796,7 @@ def test_run_weekly_artifacts_promotes_theme_company_discovery(tmp_path, monkeyp
         sectors=("cybersecurity",),
         github_limit=0,
         candidate_limit=50,
+        query_timeout_seconds=13,
     )
 
     assert result["company_discovery"].endswith("company-discovery.json")
@@ -1697,6 +1811,9 @@ def test_run_weekly_artifacts_promotes_theme_company_discovery(tmp_path, monkeyp
     preview = (tmp_path / "weekly-preview.md").read_text()
     assert "## Company Discovery From Themes" in preview
     assert "AgentFence" in preview
+    assert run_query_calls
+    missing_timeout = [call for call in run_query_calls if call[1].get("timeout_seconds") != 13]
+    assert not missing_timeout, missing_timeout
 
 
 def test_run_weekly_artifacts_writes_runtime_ledger_and_coverage_report(tmp_path, monkeypatch):
