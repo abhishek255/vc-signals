@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+from datetime import date
 
 
 def test_hn_weekly_trial_default_candidate_cap_covers_rich_movement_smoke():
@@ -319,8 +320,13 @@ def test_hn_weekly_trial_warm_attio_cache_supports_assign_owner(tmp_path):
     path = _attio_cache_path(cache_dir, "Veris", "veris.ai")
     path.parent.mkdir(parents=True)
     path.write_text(
-        '{"fetched_at": "2026-05-10", "payload": {"attio_status": "no_owner"}, '
-        '"match_key": {"name": "Veris", "domain": "veris.ai"}}'
+        json.dumps(
+            {
+                "fetched_at": date.today().isoformat(),
+                "payload": {"attio_status": "no_owner"},
+                "match_key": {"name": "Veris", "domain": "veris.ai"},
+            }
+        )
     )
 
     def fake_last30days_query(topic, **kwargs):
