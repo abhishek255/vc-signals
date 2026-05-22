@@ -1179,18 +1179,15 @@ def test_hn_enrichment_runtime_ledger_reports_priority_and_stage_counts(tmp_path
 
 
 def test_hn_enrichment_query_timeout_uses_stage_specific_reason():
-    import time
-
     from hn_outbound_enrichment import run_hn_outbound_enrichment
 
-    def slow_query(topic, **kwargs):
-        time.sleep(0.05)
-        return {"items": []}
+    def timed_out_query(topic, **kwargs):
+        return {"items": [], "error": f"last30days query timed out ({kwargs.get('timeout_seconds')}s)"}
 
     result = run_hn_outbound_enrichment(
         _phase6b_payload(company_rows=[_hn_outbound()]),
         page_fetcher=lambda url: "<html><title>Burrow</title><body>Burrow runtime security</body></html>",
-        query_runner=slow_query,
+        query_runner=timed_out_query,
         max_runtime_seconds=1,
         per_candidate_timeout_seconds=0.01,
     )
@@ -1213,6 +1210,50 @@ def test_hn_enrichment_query_timeout_uses_stage_specific_reason():
     assert set(ledger["stage_failures"]) & stage_reasons
     assert set(row["missing_evidence"]) & stage_reasons
     assert "live_query_timeout" not in result["budget_reasons"]
+
+
+def test_hn_enrichment_forwards_short_timeout_to_live_query_runner():
+    from hn_outbound_enrichment import run_hn_outbound_enrichment
+
+    timeouts = []
+
+    def recording_query(topic, **kwargs):
+        timeouts.append(kwargs.get("timeout_seconds"))
+        return {"items": []}
+
+    run_hn_outbound_enrichment(
+        _phase6b_payload(company_rows=[_hn_outbound()]),
+        page_fetcher=lambda url: "<html><title>Burrow</title><body>Burrow runtime security</body></html>",
+        query_runner=recording_query,
+        max_runtime_seconds=30,
+        per_candidate_timeout_seconds=8,
+        max_live_queries=1,
+    )
+
+    assert timeouts
+    assert timeouts[0] <= 3
+
+
+def test_hn_enrichment_records_last30days_timeout_return_as_stage_failure():
+    from hn_outbound_enrichment import run_hn_outbound_enrichment
+
+    result = run_hn_outbound_enrichment(
+        _phase6b_payload(company_rows=[_hn_outbound()]),
+        page_fetcher=lambda url: "<html><title>Burrow</title><body>Burrow runtime security</body></html>",
+        query_runner=lambda topic, **kwargs: {"items": [], "error": "last30days query timed out (3s)"},
+        max_runtime_seconds=30,
+        per_candidate_timeout_seconds=8,
+        max_live_queries=1,
+    )
+
+    ledger = result["runtime_ledger"]["items"][0]
+    assert ledger["timeouts"] == 1
+    assert set(ledger["stage_failures"]) & {
+        "maturity_query_timeout",
+        "founder_query_timeout",
+        "customer_query_timeout",
+        "owner_query_timeout",
+    }
 
 
 def test_hn_enrichment_page_fetch_timeout_completes_as_closed_identity_miss():

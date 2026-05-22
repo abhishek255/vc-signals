@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
+from types import SimpleNamespace
 
 import pytest
 
@@ -592,6 +593,94 @@ def test_collect_live_evidence_passes_query_timeout_and_progress(monkeypatch, ca
     stderr = capsys.readouterr().err
     assert "[vc-signals] devtools: query 1/1" in stderr
     assert "[vc-signals] github: collecting trending repos" in stderr
+
+
+def test_collect_live_evidence_preserves_last30days_stderr_in_source_health(monkeypatch):
+    import radar_run
+
+    def fake_run_query(topic, **kwargs):
+        return {
+            "items": [],
+            "clusters": [],
+            "warnings": [],
+            "error": "last30days exited with code 1",
+            "stderr": "temporary failure in name resolution for api.github.com\ntrace details",
+        }
+
+    monkeypatch.setattr(radar_run, "run_query", fake_run_query)
+    monkeypatch.setattr(radar_run, "run_trending", lambda sector, limit: {"repos": [], "warnings": []})
+    monkeypatch.setattr(radar_run, "_grounded_search_available", lambda: False)
+    monkeypatch.setattr(radar_run, "_social_search_available", lambda: False)
+
+    evidence = radar_run.collect_live_evidence(
+        sectors=("devtools",),
+        github_limit=0,
+        max_queries_per_sector=1,
+    )
+
+    warning = evidence["source_health"][0]["warnings"][0]
+    assert "last30days exited with code 1" in warning
+    assert "temporary failure in name resolution" in warning
+    assert "api.github.com" in warning
+
+
+def test_collect_live_evidence_filters_reddit_items_outside_requested_subreddits(monkeypatch):
+    import radar_run
+
+    def fake_run_query(topic, **kwargs):
+        return {
+            "items": [
+                {
+                    "source": "reddit",
+                    "title": "SIEM/XDR for Small SecOps Team",
+                    "url": "https://www.reddit.com/r/AskNetsec/comments/1/example/",
+                    "container": "AskNetsec",
+                },
+                {
+                    "source": "reddit",
+                    "title": "Unrelated political thread",
+                    "url": "https://www.reddit.com/r/FreedomofSpeech/comments/1/example/",
+                    "container": "FreedomofSpeech",
+                },
+            ],
+            "clusters": [],
+            "warnings": [],
+        }
+
+    monkeypatch.setattr(radar_run, "run_query", fake_run_query)
+    monkeypatch.setattr(radar_run, "run_trending", lambda sector, limit: {"repos": [], "warnings": []})
+    monkeypatch.setattr(radar_run, "_grounded_search_available", lambda: False)
+    monkeypatch.setattr(radar_run, "_social_search_available", lambda: False)
+
+    evidence = radar_run.collect_live_evidence(
+        sectors=("cybersecurity",),
+        github_limit=0,
+        max_queries_per_sector=1,
+    )
+
+    items = evidence["last30days"]["cybersecurity"]["items"]
+    assert [item["container"] for item in items] == ["AskNetsec"]
+    assert any("filtered 1 reddit items" in warning for warning in evidence["last30days"]["cybersecurity"]["warnings"])
+
+
+def test_hn_launch_trial_movements_skip_ignored_generic_candidate_seeds():
+    import radar_run
+
+    movements = radar_run._hn_launch_trial_movements(
+        theme_signals=[],
+        candidates=[
+            SimpleNamespace(theme="Emerging technical signal", action="ignore", stable_key="repo:ignored", sector="OSS"),
+            SimpleNamespace(theme="Agent runtime security", action="research deeper", stable_key="company:agent", sector="Cybersecurity"),
+        ],
+    )
+
+    assert movements == [
+        {
+            "movement": "Agent runtime security",
+            "market_sector": "Cybersecurity",
+            "origin_row_ids": ["company:agent"],
+        }
+    ]
 
 
 def test_parse_sectors_arg_supports_all_and_commas():

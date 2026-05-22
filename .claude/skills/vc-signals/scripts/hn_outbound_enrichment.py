@@ -11,6 +11,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import math
 import re
 import signal
 import time
@@ -514,20 +515,47 @@ def _budgeted_query_runner(
         ledger["live_queries"] += 1
         stage = _query_stage(topic, default_stage)
         _increment_query_stage(ledger, stage)
+        call_timeout = _query_timeout_seconds(runtime)
+        if call_timeout:
+            kwargs.setdefault("timeout_seconds", max(1, math.floor(max(1.0, call_timeout - 0.25))))
         try:
-            with _timeout(_query_timeout_seconds(runtime)):
-                return query_runner(topic, **kwargs)
+            result = query_runner(topic, **kwargs)
         except _CallTimeout:
+            return _query_timeout_result(stage, runtime=runtime, ledger=ledger)
+        if _is_query_timeout_result(result):
             reason = f"{stage}_query_timeout"
-            runtime.mark_stage_timeout(reason)
-            ledger["timeouts"] += 1
-            timeout_key = f"{stage}_query_timeouts"
-            if timeout_key in ledger:
-                ledger[timeout_key] += 1
-            _record_stage_failure(ledger, reason)
-            return {"items": [], "_timeout": True, "timeout_reason": reason}
+            _mark_query_timeout(reason, runtime=runtime, ledger=ledger)
+            out = dict(result)
+            out["_timeout"] = True
+            out["timeout_reason"] = reason
+            return out
+        return result
 
     return run
+
+
+def _query_timeout_result(stage: str, *, runtime: _RuntimeBudget, ledger: dict) -> dict:
+    reason = f"{stage}_query_timeout"
+    _mark_query_timeout(reason, runtime=runtime, ledger=ledger)
+    return {"items": [], "_timeout": True, "timeout_reason": reason}
+
+
+def _mark_query_timeout(reason: str, *, runtime: _RuntimeBudget, ledger: dict) -> None:
+    runtime.mark_stage_timeout(reason)
+    ledger["timeouts"] += 1
+    timeout_key = f"{reason}s"
+    if timeout_key in ledger:
+        ledger[timeout_key] += 1
+    _record_stage_failure(ledger, reason)
+
+
+def _is_query_timeout_result(result: dict) -> bool:
+    if not isinstance(result, dict):
+        return False
+    if result.get("_timeout"):
+        return True
+    error = str(result.get("error") or "").lower()
+    return "timed out" in error or "timeout" in error
 
 
 def _budgeted_page_fetcher(page_fetcher: Callable | None, *, runtime: _RuntimeBudget, ledger: dict) -> Callable:
@@ -1968,7 +1996,8 @@ def _candidate_key(candidate: Candidate) -> str:
 def _default_query_runner(topic: str, **kwargs) -> dict:
     from last30days_adapter import run_query
 
-    return run_query(topic, timeout_seconds=75, **kwargs)
+    timeout_seconds = kwargs.pop("timeout_seconds", 75)
+    return run_query(topic, timeout_seconds=timeout_seconds, **kwargs)
 
 
 def _default_attio_matcher(candidate: Candidate) -> dict:

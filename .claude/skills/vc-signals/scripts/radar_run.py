@@ -354,6 +354,31 @@ def _dedupe_items(items: list[dict]) -> list[dict]:
     return deduped
 
 
+def _subreddit_from_item(item: dict) -> str:
+    container = str(item.get("container") or "").strip().lower()
+    if container.startswith("r/"):
+        container = container[2:]
+    if container:
+        return container
+    match = re.search(r"reddit\.com/r/([^/]+)", str(item.get("url") or ""), flags=re.IGNORECASE)
+    return match.group(1).lower() if match else ""
+
+
+def _reddit_item_matches_query_subreddits(item: dict, query_spec: dict) -> bool:
+    if (item.get("source") or "").lower() != "reddit":
+        return True
+    raw_subreddits = query_spec.get("subreddits") or ""
+    if not raw_subreddits:
+        return True
+    allowed = {
+        subreddit.strip().lower().removeprefix("r/")
+        for subreddit in str(raw_subreddits).split(",")
+        if subreddit.strip()
+    }
+    subreddit = _subreddit_from_item(item)
+    return bool(subreddit and subreddit in allowed)
+
+
 def _sources(*base: str, social_available: bool = False, vertical_social: bool = False) -> str:
     sources = list(base)
     if social_available:
@@ -1483,16 +1508,30 @@ def collect_live_evidence(
                     web_backend=query_spec.get("web_backend"),
                     timeout_seconds=query_timeout_seconds,
                 )
+                leaked_reddit_items = 0
+                accepted_items = []
                 for item in result.get("items", []):
+                    if not _reddit_item_matches_query_subreddits(item, query_spec):
+                        leaked_reddit_items += 1
+                        continue
                     item.setdefault("query_kind", query_spec["kind"])
                     item.setdefault("query_topic", query_spec["topic"])
                     item.setdefault("candidate_eligible", query_spec.get("candidate_eligible", True))
-                items.extend(result.get("items", []))
+                    accepted_items.append(item)
+                items.extend(accepted_items)
+                if leaked_reddit_items:
+                    warnings.append(
+                        f"{query_spec['kind']}: filtered {leaked_reddit_items} reddit items outside requested subreddits"
+                    )
                 clusters.extend(result.get("clusters", []))
                 warnings.extend(result.get("warnings", []))
                 if result.get("error"):
-                    errors.append(result["error"])
-                    evidence["warnings"].append(f"{sector}: {result['error']}")
+                    error_message = result["error"]
+                    stderr_excerpt = (result.get("stderr") or "").strip()
+                    if stderr_excerpt:
+                        error_message = f"{error_message}: {stderr_excerpt[:300]}"
+                    errors.append(error_message)
+                    evidence["warnings"].append(f"{sector}: {error_message}")
             items = filter_evidence(_dedupe_items(items))
             evidence["last30days"][sector] = {
                 "queries": query_specs,
@@ -1833,9 +1872,10 @@ def _hn_launch_trial_config_from_args(args: dict) -> HNLaunchTrialConfig | None:
 def _hn_launch_trial_movements(theme_signals, candidates) -> list[dict]:
     movements: list[dict] = []
     seen: set[str] = set()
+    generic_movements = {"emerging technical signal"}
     for signal in theme_signals or []:
         movement = (getattr(signal, "theme", "") or "").strip()
-        if not movement or movement in seen:
+        if not movement or movement.lower() in generic_movements or movement in seen:
             continue
         seen.add(movement)
         movements.append(
@@ -1847,7 +1887,10 @@ def _hn_launch_trial_movements(theme_signals, candidates) -> list[dict]:
         )
     for candidate in candidates or []:
         movement = (getattr(candidate, "theme", "") or "").strip()
-        if not movement or movement in seen:
+        action = (getattr(candidate, "action", "") or getattr(candidate, "recommended_action", "") or "").strip().lower()
+        if action == "ignore":
+            continue
+        if not movement or movement.lower() in generic_movements or movement in seen:
             continue
         seen.add(movement)
         movements.append(
