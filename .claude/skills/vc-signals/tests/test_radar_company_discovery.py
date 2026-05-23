@@ -762,6 +762,60 @@ def test_classifies_project_marketplace_page_as_evidence_not_identity():
     assert "marketplace_project_page_not_company_domain" in lead.missing_evidence
 
 
+def test_classifies_product_hunt_page_as_marketplace_not_identity():
+    from radar_company_discovery import classify_discovery_source, verify_discovery_item
+
+    item = {
+        "source": "grounding",
+        "title": "Agentspan | Open-source runtime for durable AI agents | Product Hunt",
+        "url": "https://www.producthunt.com/products/agentspan",
+        "snippet": "Agentspan is an open-source server and SDK for durable AI agents.",
+        "company_name": "Agentspan",
+        "domain": "producthunt.com",
+    }
+
+    assert classify_discovery_source(item) == "marketplace_project_page"
+
+    lead = verify_discovery_item(
+        item,
+        {
+            "movement": "agent runtime",
+            "market_sector": "AI Infra",
+            "required_terms": ["agent", "runtime"],
+        },
+    )
+
+    assert lead.verification_status == "rejected"
+    assert "marketplace_project_page_not_company_domain" in lead.missing_evidence
+
+
+def test_classifies_startuphub_homepage_as_directory_not_company():
+    from radar_company_discovery import classify_discovery_source, verify_discovery_item
+
+    item = {
+        "source": "grounding",
+        "title": "StartupHub.ai | The #1 AI Startup Directory & Company Database",
+        "url": "https://www.startuphub.ai/",
+        "snippet": "The startup directory and AI company database.",
+        "company_name": "StartupHub",
+        "domain": "startuphub.ai",
+    }
+
+    assert classify_discovery_source(item) == "directory_page"
+
+    lead = verify_discovery_item(
+        item,
+        {
+            "movement": "vertical AI workflow automation",
+            "market_sector": "Vertical AI",
+            "required_terms": ["startup", "ai"],
+        },
+    )
+
+    assert lead.verification_status == "rejected"
+    assert "directory_page_not_company_domain" in lead.missing_evidence
+
+
 def test_verify_discovery_item_accepts_official_homepage_domain():
     from radar_company_discovery import verify_discovery_item
 

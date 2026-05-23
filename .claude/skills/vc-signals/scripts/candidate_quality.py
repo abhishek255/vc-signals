@@ -25,6 +25,7 @@ ARTICLE_PATH_HINTS = (
 
 GENERIC_TITLE_FRAGMENT_NAMES = {
     "after rsac",
+    "about",
     "agentic ai operations",
     "agentic ai security",
     "ai agent testing",
@@ -39,6 +40,7 @@ GENERIC_TITLE_FRAGMENT_NAMES = {
     "designing",
     "gemini enterprise agent",
     "how",
+    "introducing agentic pipelines",
     "i tried this",
     "llm observability",
     "mcp security",
@@ -53,10 +55,12 @@ GENERIC_TITLE_FRAGMENT_NAMES = {
 
 EDITORIAL_LEAD_WORDS = {
     "after",
+    "about",
     "before",
     "best",
     "designing",
     "how",
+    "introducing",
     "preventing",
     "the",
     "tools",

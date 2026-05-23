@@ -7,12 +7,14 @@ MARKETPLACE_PROJECT_DOMAINS = {
     "pcbway.com",
     "hackster.io",
     "instructables.com",
+    "producthunt.com",
     "tindie.com",
 }
 
 MARKETPLACE_PROJECT_PATH_HINTS = (
     "/project/",
     "/projects/",
+    "/products/",
     "/shareproject/",
     "/shareproject",
 )

@@ -1167,6 +1167,82 @@ def test_candidate_promotion_adds_oss_action_reason():
     assert candidate.oss_action_reason
 
 
+def test_candidate_promotion_rejects_observed_incumbent_blog_title_fragment():
+    from radar_run import promote_signals_to_candidates
+    from radar_sources import classify_source_item
+
+    signal = classify_source_item(
+        sector="devtools",
+        item={
+            "source": "grounding",
+            "title": "Introducing Agentic Pipelines: AI automation for chores devs don't want to do - Inside Atlassian",
+            "url": "https://www.atlassian.com/blog/bitbucket/introducing-agentic-pipelines-ai-automation",
+        },
+    )
+
+    result = promote_signals_to_candidates([signal])
+
+    assert result["candidates"] == []
+    assert result["rejected"][0].reason == "candidate_name_quality_failed:article_title_fragment"
+
+
+def test_candidate_promotion_rejects_observed_docs_about_fragment():
+    from radar_run import promote_signals_to_candidates
+    from radar_sources import classify_source_item
+
+    signal = classify_source_item(
+        sector="data-infra",
+        item={
+            "source": "grounding",
+            "title": "About data lineage | Knowledge Catalog | Google Cloud Documentation",
+            "url": "https://docs.cloud.google.com/dataplex/docs/about-data-lineage",
+        },
+    )
+
+    result = promote_signals_to_candidates([signal])
+
+    assert result["candidates"] == []
+    assert result["rejected"][0].reason == "candidate_name_quality_failed:article_title_fragment"
+
+
+def test_candidate_promotion_rejects_observed_directory_homepage():
+    from radar_run import promote_signals_to_candidates
+    from radar_sources import classify_source_item
+
+    signal = classify_source_item(
+        sector="vertical-ai",
+        item={
+            "source": "grounding",
+            "title": "StartupHub.ai | The #1 AI Startup Directory & Company Database",
+            "url": "https://www.startuphub.ai/",
+        },
+    )
+
+    result = promote_signals_to_candidates([signal])
+
+    assert result["candidates"] == []
+    assert result["rejected"][0].reason == "directory_page_not_company_proof"
+
+
+def test_candidate_promotion_rejects_observed_marketplace_product_page():
+    from radar_run import promote_signals_to_candidates
+    from radar_sources import classify_source_item
+
+    signal = classify_source_item(
+        sector="ai-infra",
+        item={
+            "source": "grounding",
+            "title": "Agentspan | Open-source runtime for durable AI agents | Product Hunt",
+            "url": "https://www.producthunt.com/products/agentspan",
+        },
+    )
+
+    result = promote_signals_to_candidates([signal])
+
+    assert result["candidates"] == []
+    assert result["rejected"][0].reason == "marketplace_project_page_not_company_proof"
+
+
 def test_extract_company_candidates_rejects_generic_names():
     from radar_run import extract_company_candidates
 
@@ -1501,6 +1577,43 @@ def test_maturity_category_cleanup_routes_kiro_aws_platform_to_category_context(
     assert routed.lead_route == "category_context"
     assert routed.action == "monitor only"
     assert "known_incumbent_platform_product" in routed.maturity_basis
+
+
+def test_maturity_category_cleanup_routes_observed_mature_provider_rows():
+    from radar_models import Candidate
+    from radar_run import apply_maturity_category_cleanup
+
+    candidates = [
+        Candidate(
+            name="Deep Observability Pipeline",
+            sector="Data Infra",
+            theme="Observability",
+            source="https://www.gigamon.com/products/deep-observability-pipeline.html",
+            candidate_type="company_web",
+            domain="gigamon.com",
+            action="assign owner",
+            recommended_owner_action="Assign owner",
+            owner_readiness_score=80,
+        ),
+        Candidate(
+            name="AppSec AI Agent",
+            sector="Cybersecurity",
+            theme="AppSec automation",
+            source="https://www.datatheorem.com/products/appsec-ai-agent/",
+            candidate_type="company_web",
+            domain="datatheorem.com",
+            action="assign owner",
+            recommended_owner_action="Assign owner",
+            owner_readiness_score=80,
+        ),
+    ]
+
+    routed = apply_maturity_category_cleanup(candidates)
+
+    assert [candidate.lead_route for candidate in routed] == ["category_context", "category_context"]
+    assert [candidate.action for candidate in routed] == ["monitor only", "monitor only"]
+    assert all(candidate.category_anchor for candidate in routed)
+    assert all("known_mature_incumbent_category_anchor" in candidate.maturity_basis for candidate in routed)
 
 
 def test_maturity_category_cleanup_does_not_route_official_veris_launch():

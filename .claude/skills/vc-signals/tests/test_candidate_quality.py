@@ -35,6 +35,18 @@ def test_candidate_quality_rejects_category_article_fragments_from_validation_ar
             "url": "https://www.virtualizationhowto.com/2026/05/i-tried-this-new-open-source-kubernetes-dashboard-and-its-surprisingly-good/",
             "headline": "I Tried This New Open Source Kubernetes Dashboard and It’s Surprisingly Good - Virtualization Howto",
         },
+        {
+            "name": "Introducing Agentic Pipelines",
+            "domain": "atlassian.com",
+            "url": "https://www.atlassian.com/blog/bitbucket/introducing-agentic-pipelines-ai-automation",
+            "headline": "Introducing Agentic Pipelines: AI automation for chores devs don't want to do - Inside Atlassian",
+        },
+        {
+            "name": "About",
+            "domain": "docs.cloud.google.com",
+            "url": "https://docs.cloud.google.com/dataplex/docs/about-data-lineage",
+            "headline": "About data lineage | Knowledge Catalog | Google Cloud Documentation",
+        },
     ]
 
     for case in cases:

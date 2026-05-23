@@ -82,14 +82,30 @@ SECTOR_CONFIG_PATH = Path(__file__).parent.parent / "config" / "sectors.json"
 REDDIT_SOURCES_CONFIG_PATH = Path(__file__).parent.parent / "config" / "reddit_sources.json"
 
 KNOWN_MATURE_INCUMBENT_CATEGORY_DOMAINS = {
+    "atlassian.com": "known_mature_incumbent_category_anchor",
     "blackduck.com": "known_mature_incumbent_category_anchor",
+    "cloud.google.com": "known_incumbent_platform_product",
+    "datatheorem.com": "known_mature_incumbent_category_anchor",
+    "docs.cloud.google.com": "known_incumbent_platform_product",
+    "gigamon.com": "known_mature_incumbent_category_anchor",
     "kiro.dev": "known_incumbent_platform_product",
+    "n8n.io": "known_mature_incumbent_category_anchor",
+    "netdata.cloud": "known_mature_incumbent_category_anchor",
+    "solidatus.com": "known_mature_incumbent_category_anchor",
 }
 
 KNOWN_MATURE_INCUMBENT_CATEGORY_NAMES = {
+    "atlassian": "known_mature_incumbent_category_anchor",
     "blackduck": "known_mature_incumbent_category_anchor",
     "blackducksoftware": "known_mature_incumbent_category_anchor",
+    "data theorem": "known_mature_incumbent_category_anchor",
+    "datatheorem": "known_mature_incumbent_category_anchor",
+    "gigamon": "known_mature_incumbent_category_anchor",
+    "google cloud": "known_incumbent_platform_product",
     "kiro": "known_incumbent_platform_product",
+    "n8n": "known_mature_incumbent_category_anchor",
+    "netdata": "known_mature_incumbent_category_anchor",
+    "solidatus": "known_mature_incumbent_category_anchor",
 }
 
 REPO_NOISE_TERMS = (
@@ -1638,24 +1654,27 @@ def _company_web_source_authority(candidate: Candidate, signal) -> tuple[bool, s
         return True, ""
     item = signal.metadata or {}
     source_url = signal.url or item.get("url", "")
+    source_type = classify_discovery_source(item)
+    if source_type in {
+        "listicle_or_seo",
+        "directory_page",
+        "marketplace_project_page",
+        "content_platform",
+    }:
+        return False, f"{source_type}_not_company_proof"
     if _structured_company_web_identity(item):
         return True, ""
     if _root_homepage_domain_from_item(item):
         return True, ""
-    source_type = classify_discovery_source(item)
     if source_type == "official_company_page":
         return True, ""
     if _is_official_company_content_page(candidate, item):
         return True, ""
     if source_type in {
         "publisher_article",
-        "listicle_or_seo",
-        "directory_page",
         "investor_page",
         "government_or_academic",
         "funding_press_release",
-        "marketplace_project_page",
-        "content_platform",
     }:
         return False, f"{source_type}_not_company_proof"
     if source_url and not _root_homepage_domain_from_item(item):

@@ -103,6 +103,7 @@ DIRECTORY_DOMAINS = {
     "ai-market-watch.com",
     "vcsheet.com",
     "microsaashq.com",
+    "startuphub.ai",
 }
 PUBLISHER_DOMAIN_HINTS = (
     "news",
