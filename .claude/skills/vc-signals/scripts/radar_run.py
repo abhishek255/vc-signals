@@ -66,6 +66,7 @@ from owner_readiness import enrich_owner_readiness, write_owner_readiness_json
 from hn_weekly_trial import HNLaunchTrialConfig, run_hn_launch_weekly_trial
 from radar_oss import enrich_oss_candidate
 from canonical_identity import canonicalize_identity
+from candidate_quality import candidate_name_quality, candidate_quality_from_candidate
 from radar_focus import (
     build_focus_item,
     build_weekly_focus_artifact,
@@ -79,6 +80,15 @@ DEFAULT_OUTPUT_DIR = Path(__file__).parent.parent / "data" / "radar_runs"
 DEFAULT_SECTORS = ("devtools", "cybersecurity", "ai-infra", "vertical-ai", "data-infra", "oss")
 SECTOR_CONFIG_PATH = Path(__file__).parent.parent / "config" / "sectors.json"
 REDDIT_SOURCES_CONFIG_PATH = Path(__file__).parent.parent / "config" / "reddit_sources.json"
+
+KNOWN_MATURE_INCUMBENT_CATEGORY_DOMAINS = {
+    "blackduck.com": "known_mature_incumbent_category_anchor",
+}
+
+KNOWN_MATURE_INCUMBENT_CATEGORY_NAMES = {
+    "blackduck": "known_mature_incumbent_category_anchor",
+    "blackducksoftware": "known_mature_incumbent_category_anchor",
+}
 
 REPO_NOISE_TERMS = (
     "daily digest",
@@ -410,6 +420,10 @@ def _sources(*base: str, social_available: bool = False, vertical_social: bool =
     return ",".join(dict.fromkeys(sources))
 
 
+def _company_query_sources(*, social_available: bool = False, vertical_social: bool = False) -> str:
+    return _sources("grounding", "hackernews", social_available=social_available, vertical_social=vertical_social)
+
+
 def _reddit_pain_query(sector_slug: str, reddit_config: dict, *, lookback_days: int) -> dict | None:
     config = reddit_config.get(sector_slug, {})
     primary = config.get("primary", [])
@@ -525,7 +539,7 @@ def build_sector_collection_queries(
             queries.append({
                 "kind": kind,
                 "topic": topic,
-                "sources": _sources("grounding", "hackernews", "github", social_available=social_available),
+                "sources": _company_query_sources(social_available=social_available),
                 "web_backend": "auto",
                 "lookback_days": lookback_days,
             })
@@ -534,14 +548,14 @@ def build_sector_collection_queries(
             {
                 "kind": "yc_company",
                 "topic": f"site:ycombinator.com/companies {display_name} AI startups Seed Series A Series B",
-                "sources": _sources("grounding", "hackernews", "github", social_available=social_available),
+                "sources": _company_query_sources(social_available=social_available),
                 "web_backend": "auto",
                 "lookback_days": lookback_days,
             },
             {
                 "kind": "company_discovery",
                 "topic": f"{display_name} startups Seed Series A Series B emerging companies funding founder traction",
-                "sources": _sources("grounding", "reddit", "hackernews", "github", social_available=social_available, vertical_social=(sector_slug == "vertical-ai")),
+                "sources": _sources("grounding", "reddit", "hackernews", social_available=social_available, vertical_social=(sector_slug == "vertical-ai")),
                 "web_backend": "auto",
                 "lookback_days": lookback_days,
             },
@@ -648,6 +662,30 @@ def _name_from_slug(slug: str) -> str:
     return " ".join("AI" if word.lower() == "ai" else word.capitalize() for word in words)
 
 
+def _homepage_name_from_domain(domain: str) -> str | None:
+    host = (domain or "").lower().strip().removeprefix("www.")
+    parts = [part for part in host.split(".") if part]
+    if len(parts) < 2:
+        return None
+    stem = parts[-2]
+    if not stem or stem in {"amazon", "aws", "google", "microsoft", "openai", "producthunt", "github"}:
+        return None
+    if any(char.isdigit() for char in stem):
+        return stem
+    return _name_from_slug(stem)
+
+
+def _root_homepage_domain_from_item(item: dict) -> str:
+    if (item.get("source") or "").lower() not in {"grounding", "web"}:
+        return ""
+    url = item.get("url", "")
+    parsed = urlparse(url or "")
+    path = (parsed.path or "").strip()
+    if path not in {"", "/"}:
+        return ""
+    return _candidate_domain_from_item(item)
+
+
 def _candidate_name_from_item(item: dict) -> str | None:
     structured_name = (item.get("company_name") or item.get("name") or "").strip()
     if structured_name and structured_name.lower() not in GENERIC_EXTRACTED_NAMES:
@@ -657,7 +695,23 @@ def _candidate_name_from_item(item: dict) -> str | None:
     if slug:
         return _name_from_slug(slug)
 
-    return _extract_name_from_title(item.get("title", ""))
+    title_name = _extract_name_from_title(item.get("title", ""))
+    if title_name:
+        title_quality = candidate_name_quality(
+            name=title_name,
+            domain=_candidate_domain_from_item(item),
+            urls=[item.get("url", "")],
+            source_headline=item.get("title", ""),
+            why_on_radar=item.get("title", ""),
+            candidate_type="company_web",
+        )
+        if title_quality.usable:
+            return title_name
+
+    homepage_domain = _root_homepage_domain_from_item(item)
+    if homepage_domain:
+        return _homepage_name_from_domain(homepage_domain)
+    return title_name
 
 
 def _is_github_issue_or_pr(item: dict) -> bool:
@@ -745,7 +799,15 @@ def extract_company_candidates(evidence: dict) -> list[dict]:
             title = item.get("title", "")
             name = _candidate_name_from_item(item)
             key = _normalize_candidate_key(name or "")
-            if not name or name.lower() in GENERIC_EXTRACTED_NAMES or not key:
+            quality = candidate_name_quality(
+                name=name or "",
+                domain=_candidate_domain_from_item(item),
+                urls=[item.get("url", "")],
+                source_headline=title,
+                why_on_radar=title,
+                candidate_type="company_web",
+            )
+            if not name or name.lower() in GENERIC_EXTRACTED_NAMES or not key or not quality.usable:
                 continue
             text = _blob(title, item.get("snippet"))
             source = item.get("url", "")
@@ -760,7 +822,7 @@ def extract_company_candidates(evidence: dict) -> list[dict]:
                 "sources": [source] if source else [],
                 "source_count": 1,
                 "engagement": item.get("engagement", {}),
-                "action": "assign owner",
+                "action": "research deeper",
             }
             company_linkedin = _profile_url(item, "company_linkedin", "linkedin_url", "linkedin")
             company_x = _profile_url(item, "company_x", "x_url", "twitter_url", "twitter")
@@ -1365,6 +1427,26 @@ def promote_signals_to_candidates(signals: list) -> dict:
                 reason="candidate_name_not_extractable",
             ))
             continue
+        quality = candidate_quality_from_candidate(candidate)
+        if not quality.usable:
+            rejected.append(RejectedSignal(
+                sector=signal.sector,
+                source=signal.source,
+                title=signal.title,
+                url=signal.url,
+                reason=quality.rejection_code,
+            ))
+            continue
+        source_authority_ok, source_authority_reason = _company_web_source_authority(candidate, signal)
+        if not source_authority_ok:
+            rejected.append(RejectedSignal(
+                sector=signal.sector,
+                source=signal.source,
+                title=signal.title,
+                url=signal.url,
+                reason=source_authority_reason,
+            ))
+            continue
 
         key = _normalize_candidate_key(candidate.domain or candidate.name)
         if key in candidates_by_key:
@@ -1375,11 +1457,154 @@ def promote_signals_to_candidates(signals: list) -> dict:
     return {"candidates": list(candidates_by_key.values()), "rejected": rejected}
 
 
+def _enforce_candidate_action_safety(candidate: Candidate) -> Candidate:
+    action = (candidate.action or "").strip().lower()
+    if action != "assign owner":
+        return candidate
+    if candidate.evidence_confidence == "Low" or candidate.tier == "Needs More Evidence":
+        candidate.action = "research deeper"
+    return candidate
+
+
+def _mature_incumbent_category_reason(candidate: Candidate) -> str:
+    domain = (candidate.domain or candidate.candidate_domain or "").strip().lower().removeprefix("www.")
+    if domain in KNOWN_MATURE_INCUMBENT_CATEGORY_DOMAINS:
+        return KNOWN_MATURE_INCUMBENT_CATEGORY_DOMAINS[domain]
+    name_key = _normalize_candidate_key(candidate.name or candidate.display_name or candidate.canonical_name or "")
+    return KNOWN_MATURE_INCUMBENT_CATEGORY_NAMES.get(name_key, "")
+
+
+def apply_maturity_category_cleanup(candidates: list[Candidate]) -> list[Candidate]:
+    routed: list[Candidate] = []
+    for candidate in candidates:
+        out = Candidate.from_dict(candidate.to_dict())
+        reason = _mature_incumbent_category_reason(out)
+        if reason:
+            out.maturity_status = "incumbent"
+            out.category_anchor = True
+            out.lead_route = "category_context"
+            out.action = "monitor only"
+            out.recommended_owner_action = "Monitor only"
+            out.owner_readiness_score = min(int(out.owner_readiness_score or 20), 20)
+            out.maturity_basis = list(dict.fromkeys(list(out.maturity_basis or []) + [reason]))
+            out.consensus_risk_reason = out.consensus_risk_reason or "Known mature/category incumbent; use as market context, not a sourcing lead."
+            out.why_this_may_be_noise = "Known mature/category incumbent; route as category context, not a sourcing lead."
+            out.missing_owner_evidence = list(dict.fromkeys(list(out.missing_owner_evidence or []) + ["category context / mature incumbent"]))
+        routed.append(out)
+    return routed
+
+
+def _structured_company_web_identity(item: dict) -> bool:
+    has_name = bool((item.get("company_name") or item.get("name") or "").strip())
+    has_domain = bool((item.get("domain") or item.get("website") or "").strip())
+    return has_name and has_domain
+
+
+def _candidate_identity_tokens(candidate: Candidate, item: dict) -> set[str]:
+    tokens = set()
+    for value in (candidate.name, candidate.display_name, candidate.canonical_name, item.get("company_name"), item.get("name")):
+        for token in re.findall(r"[a-z0-9]+", (value or "").lower()):
+            if len(token) >= 3 or any(char.isdigit() for char in token):
+                tokens.add(token)
+    domain = _candidate_domain_from_item(item)
+    stem = (domain or "").split(".")[0].replace("-", "")
+    if stem and (len(stem) >= 3 or any(char.isdigit() for char in stem)):
+        tokens.add(stem)
+    return tokens - {"and", "the", "for", "with", "agent", "agents", "startup", "company"}
+
+
+def _title_mentions_candidate_identity(candidate: Candidate, item: dict) -> bool:
+    haystack = re.sub(r"[^a-z0-9]+", "", f"{item.get('title', '')} {item.get('url', '')}".lower())
+    return any(token and token in haystack for token in _candidate_identity_tokens(candidate, item))
+
+
+def _is_official_company_content_page(candidate: Candidate, item: dict) -> bool:
+    source_domain = _domain_from_url(item.get("url") or "")
+    candidate_domain = _candidate_domain_from_item(item)
+    if not source_domain or not candidate_domain or source_domain != candidate_domain:
+        return False
+    if not _title_mentions_candidate_identity(candidate, item):
+        return False
+
+    path = (urlparse(item.get("url") or "").path or "").lower()
+    title = (item.get("title") or "").lower()
+    identity_or_product_paths = (
+        "/about",
+        "/company",
+        "/team",
+        "/founder",
+        "/founders",
+        "/product",
+        "/products",
+        "/platform",
+    )
+    event_paths = (
+        "/blog",
+        "/blog-posts",
+        "/news",
+        "/press",
+        "/announcement",
+        "/announcements",
+        "/launch",
+    )
+    event_terms = (
+        "introducing",
+        "launch",
+        "launches",
+        "launched",
+        "emerges",
+        "emerged",
+        "stealth",
+        "seed",
+        "series a",
+        "series b",
+        "funding",
+        "raises",
+        "raised",
+    )
+    if any(hint in path for hint in identity_or_product_paths):
+        return True
+    if any(hint in path for hint in event_paths) and any(term in title for term in event_terms):
+        return True
+    return False
+
+
+def _company_web_source_authority(candidate: Candidate, signal) -> tuple[bool, str]:
+    if candidate.candidate_type != "company_web":
+        return True, ""
+    item = signal.metadata or {}
+    source_url = signal.url or item.get("url", "")
+    if _structured_company_web_identity(item):
+        return True, ""
+    if _root_homepage_domain_from_item(item):
+        return True, ""
+    source_type = classify_discovery_source(item)
+    if source_type == "official_company_page":
+        return True, ""
+    if _is_official_company_content_page(candidate, item):
+        return True, ""
+    if source_type in {
+        "publisher_article",
+        "listicle_or_seo",
+        "directory_page",
+        "investor_page",
+        "government_or_academic",
+        "funding_press_release",
+        "marketplace_project_page",
+        "content_platform",
+    }:
+        return False, f"{source_type}_not_company_proof"
+    if source_url and not _root_homepage_domain_from_item(item):
+        return False, "weak_company_web_article_not_company_proof"
+    return True, ""
+
+
 def _score_sort_limit_candidates(candidates: list[Candidate], candidate_limit: int) -> list[Candidate]:
     scored = [
         candidate if candidate.tier and candidate.investment_interest_score else score_and_tier(candidate)
         for candidate in candidates
     ]
+    scored = [_enforce_candidate_action_safety(candidate) for candidate in scored]
     visible = [candidate for candidate in scored if candidate.tier != "Filtered"]
     return sorted(
         visible,
@@ -1665,6 +1890,7 @@ def run_weekly_artifacts(
         scored_candidates,
         _attio_client_from_env(),
     )
+    scored_candidates = apply_maturity_category_cleanup(scored_candidates)
     scored_candidates = _score_sort_limit_candidates(scored_candidates, candidate_limit)
     scored_candidates, owner_evidence_report = enrich_owner_evidence(
         scored_candidates,

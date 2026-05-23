@@ -307,25 +307,41 @@ Themes (3 lines each, brief context)
 
 ## last30days Capabilities We're Using vs Not Using
 
-### Currently using
+### Adapter-supported now
 - `--sources` (via `--search` bridge)
 - `--subreddits`
 - `--lookback-days`
 - `--quick`
 - `--auto-resolve`
 - `--deep-research`
+- `--deep`
 - `--github-user` / `--github-repo`
-- `--x-handle`
-- `--emit json`
+- `--x-handle` / `--x-related`
+- `--plan`
+- `--synthesis-file`
+- `--store`
+- `--web-backend`
+- `--save-dir` / `--save-suffix`
+- `--tiktok-hashtags` / `--tiktok-creators`
+- `--ig-creators`
+- `--polymarket-keywords`
+- `--competitors` / `--competitors-list` / `--competitors-plan`
+- `--emit json` for normalized ingestion
+- `--emit md/html/context/compact` for raw shareable briefs
+- `INCLUDE_SOURCES` / `EXCLUDE_SOURCES` environment controls
+- `LAST30DAYS_YOUTUBE_SSH_HOST` for opt-in YouTube SSH routing
 
-### Not using (future potential)
-- `--store` — SQLite persistence with URL dedup, cost tracking
-- `--plan` — custom JSON query plans (could optimize for VC-specific research)
-- Watchlist system (`watchlist.py`) — scheduled topic monitoring
-- Briefing system (`briefing.py`) — daily/weekly digest generation
-- `--agent` mode — skip UI, save output (useful for scheduled runs)
-- Polymarket odds — prediction market data as signal
-- Bluesky, Threads, Pinterest, TikTok — additional social platforms
+### Use deliberately, not by default
+- `--emit=html` is useful for partner-review/Appshot surfaces, but not for pipeline ingestion.
+- `--store` is useful once we want deduped sightings and trend deltas across repeated radar runs.
+- `--competitors*` is useful for source-lane or provider bakeoffs, not for the daily default radar.
+- TikTok/Instagram/YouTube/Threads/Pinterest should remain explicit source experiments until they prove Alex Review-Worthy yield.
+- Watchlist and briefing scripts may become automation primitives, but should not replace the current radar run until the daily-smoke and partner-review modes are stable.
+
+### Alignment note (2026-05-22)
+- Upstream `last30days-skill` tag fetched locally: `v3.3.0` dated 2026-05-17.
+- Local vendored manifests still read `3.1.1`, and the vendor tree has local HN/YC identity patches that are not in upstream `v3.3.0`.
+- Do not blindly upgrade the vendor copy before porting or preserving the local HN prefix matching and YC evergreen identity behavior.
 
 ---
 
@@ -345,19 +361,20 @@ Themes (3 lines each, brief context)
 
 ## API Keys & Services
 
-### Currently configured (Alex's setup)
-- ScrapeCreators (TikTok, Instagram, YouTube)
-- Google/Gemini (query planning for last30days)
-- X/Twitter auth tokens (browser cookies)
-- GitHub PAT
+### Reported by local adapter check (2026-05-22)
+- OpenAI
+- Google/Gemini
+- OpenRouter (deep research)
+- ScrapeCreators (YouTube, TikTok, Instagram, Threads, Pinterest)
+- Brave Search (grounded web)
 
-### Configured but not working in web sandbox
-- All of the above — blocked by 403 proxy
+### Not reported by local adapter check
+- X/Twitter browser cookies (`AUTH_TOKEN`, `CT0`) or xAI key
+- EXA, Serper, Parallel web backends
+- Attio CRM
 
-### Not configured
-- OpenRouter (for Perplexity deep research)
-- Brave Search (broader web coverage)
-- Attio CRM (not yet integrated)
+### Operational note
+Source-specific failures can still happen from credits, anti-bot walls, or provider outages. Goal Mode should treat empty/failed source lanes as diagnostics, not as a reason to cosmetically polish weak output.
 
 ### Note on security
 All API keys stored in `~/.config/last30days/.env` (chmod 600). GitHub PAT was previously in git remote URL — removed. Alex should rotate all keys as they were shared in conversation context.

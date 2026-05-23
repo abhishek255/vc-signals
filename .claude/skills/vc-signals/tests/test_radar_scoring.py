@@ -55,3 +55,26 @@ def test_needs_more_evidence_is_preserved_for_markdown_and_json():
     scored = score_and_tier(candidate)
     assert scored.tier == "Needs More Evidence"
     assert scored.evidence_confidence in {"Low", "Needs More Evidence"}
+
+
+def test_low_evidence_candidate_action_is_demoted_from_assign_owner():
+    from radar_models import Candidate
+    from radar_scoring import score_and_tier
+
+    candidate = Candidate(
+        name="Zencoder",
+        sector="Devtools",
+        theme="Devtools OSS workflow tooling",
+        source="https://zencoder.ai/",
+        candidate_type="company_web",
+        domain="zencoder.ai",
+        why_on_radar="Zencoder | The AI Coding Agent",
+        source_count=1,
+        action="assign owner",
+    )
+
+    scored = score_and_tier(candidate)
+
+    assert scored.evidence_confidence == "Low"
+    assert scored.tier == "Needs More Evidence"
+    assert scored.action == "research deeper"

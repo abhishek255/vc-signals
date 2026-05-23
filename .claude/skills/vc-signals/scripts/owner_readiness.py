@@ -6,6 +6,7 @@ import re
 from pathlib import Path
 from typing import Callable
 
+from candidate_quality import apply_candidate_name_quality_failure, candidate_quality_from_candidate
 from radar_focus import (
     ACTION_ASSIGN_OWNER,
     ACTION_MONITOR_ONLY,
@@ -82,6 +83,8 @@ def _write_cache(cache_dir: Path | None, topic: str, payload: dict) -> None:
 
 
 def _eligible_for_owner_readiness(candidate: Candidate) -> bool:
+    if not candidate_quality_from_candidate(candidate).usable:
+        return False
     if candidate.category_anchor or candidate.lead_route in {"category_context", "monitor_only"}:
         return False
     if candidate.maturity_status in LATE_OR_CONTEXT_STATUSES:
@@ -91,6 +94,23 @@ def _eligible_for_owner_readiness(candidate: Candidate) -> bool:
     if candidate.candidate_type == "oss_project" and candidate.identity_type != "verified_company":
         return False
     return bool(candidate.domain and candidate.identity_type == "verified_company")
+
+
+def _owner_readiness_skip_reason(candidate: Candidate) -> str:
+    name_quality = candidate_quality_from_candidate(candidate)
+    if not name_quality.usable:
+        return name_quality.rejection_code
+    if candidate.category_anchor or candidate.lead_route in {"category_context", "monitor_only"}:
+        return "category_context_or_monitor_only"
+    if candidate.maturity_status in LATE_OR_CONTEXT_STATUSES:
+        return candidate.maturity_status
+    if candidate.identity_type in {"oss_project_watch", "oss_with_commercial_intent"}:
+        return "oss_project_only"
+    if candidate.candidate_type == "oss_project" and candidate.identity_type != "verified_company":
+        return "oss_project_only"
+    if not candidate.domain or candidate.identity_type != "verified_company":
+        return "not_verified_company"
+    return ""
 
 
 def _text_for_items(items: list[dict]) -> str:
@@ -133,6 +153,8 @@ def _apply_owner_query_evidence(candidate: Candidate, payload: dict) -> tuple[Ca
 def _recommended_owner_action(candidate: Candidate, score: int, missing: list[str]) -> str:
     if candidate.category_anchor or candidate.maturity_status in LATE_OR_CONTEXT_STATUSES:
         return ACTION_MONITOR_ONLY
+    if (candidate.evidence_confidence or "").strip().lower() == "low" or candidate.tier == "Needs More Evidence":
+        return ACTION_RESEARCH_DEEPER
     if score < OWNER_READY_THRESHOLD or _blocking_owner_missing(missing):
         return ACTION_RESEARCH_DEEPER
     status = (candidate.attio_status or "unknown").lower()
@@ -198,8 +220,12 @@ def enrich_owner_readiness(
         "skipped": 0,
     }
     for candidate in candidates:
-        if not _eligible_for_owner_readiness(candidate):
-            scored, readiness = _readiness_for_candidate(candidate, query_status="not_eligible")
+        skip_reason = _owner_readiness_skip_reason(candidate)
+        if skip_reason:
+            skipped_candidate = Candidate.from_dict(candidate.to_dict())
+            if skip_reason.startswith("candidate_name_quality_failed:"):
+                skipped_candidate = apply_candidate_name_quality_failure(skipped_candidate)
+            scored, readiness = _readiness_for_candidate(skipped_candidate, query_status=skip_reason)
             enriched.append(scored)
             readiness_items.append(readiness)
             summary["skipped"] += 1
@@ -225,6 +251,10 @@ def enrich_owner_readiness(
         elif query_runner:
             query_status = "query_budget_exceeded"
             summary["skipped"] += 1
+        elif max_queries <= 0:
+            query_status = "live_query_budget_zero"
+        else:
+            query_status = "live_query_disabled"
         scored, readiness = _readiness_for_candidate(candidate, query=topic, query_status=query_status, payload=payload)
         enriched.append(scored)
         readiness_items.append(readiness)

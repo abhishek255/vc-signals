@@ -488,11 +488,17 @@ def _candidate_maturity_allows_owner_action(candidate: Candidate) -> bool:
     ) and not _candidate_is_late_or_context(candidate)
 
 
+def _row_blocks_owner_action(candidate: Candidate, item: FocusItem) -> bool:
+    return (candidate.evidence_confidence or "").strip().lower() == "low" or candidate.tier == "Needs More Evidence"
+
+
 def choose_recommended_action(candidate: Candidate, item: FocusItem) -> str:
     status = (candidate.attio_status or "unknown").lower()
     staleness = " ".join([candidate.attio_staleness_reason or "", candidate.attio_action or ""]).lower()
     if _candidate_is_late_or_context(candidate):
         return ACTION_MONITOR_ONLY
+    if _row_blocks_owner_action(candidate, item):
+        return ACTION_RESEARCH_DEEPER
     if can_take_meeting(item):
         return ACTION_TAKE_MEETING
     if candidate.recommended_identity_action in {

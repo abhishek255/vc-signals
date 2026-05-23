@@ -103,6 +103,8 @@ def check_availability(
                 "AUTH_TOKEN",
                 "CT0",
                 "BRAVE_API_KEY",
+                "EXA_API_KEY",
+                "SERPER_API_KEY",
                 "PARALLEL_API_KEY",
             ):
                 for line in content.splitlines():
@@ -209,6 +211,14 @@ def run_query(
     web_backend: str | None = None,
     save_dir: str | None = None,
     save_suffix: str | None = None,
+    competitors: int | str | bool | None = None,
+    competitors_list: str | None = None,
+    competitors_plan: str | None = None,
+    synthesis_file: str | None = None,
+    include_sources: str | None = None,
+    exclude_sources: str | None = None,
+    youtube_ssh_host: str | None = None,
+    extra_env: dict[str, str] | None = None,
     timeout_seconds: int | None = None,
 ) -> dict:
     """Run a query through last30days CLI and return parsed results."""
@@ -262,6 +272,27 @@ def run_query(
         cmd.append(f"--save-dir={save_dir}")
     if save_suffix:
         cmd.append(f"--save-suffix={save_suffix}")
+    if competitors is not None and competitors is not False:
+        if competitors is True:
+            cmd.append("--competitors")
+        else:
+            cmd.append(f"--competitors={competitors}")
+    if competitors_list:
+        cmd.append(f"--competitors-list={competitors_list}")
+    if competitors_plan:
+        cmd.append(f"--competitors-plan={competitors_plan}")
+    if synthesis_file:
+        cmd.append(f"--synthesis-file={synthesis_file}")
+
+    env = os.environ.copy()
+    if extra_env:
+        env.update({key: str(value) for key, value in extra_env.items()})
+    if include_sources:
+        env["INCLUDE_SOURCES"] = include_sources
+    if exclude_sources:
+        env["EXCLUDE_SOURCES"] = exclude_sources
+    if youtube_ssh_host:
+        env["LAST30DAYS_YOUTUBE_SSH_HOST"] = youtube_ssh_host
 
     try:
         result = subprocess.run(
@@ -270,6 +301,7 @@ def run_query(
             text=True,
             timeout=timeout_seconds,
             cwd=str(skill_root),
+            env=env,
         )
     except subprocess.TimeoutExpired:
         return {"error": f"last30days query timed out ({timeout_seconds}s)", "items": []}
@@ -357,6 +389,7 @@ def _cli_main() -> None:
             vendor_path=vendor,
             sources=args.get("sources"),
             lookback_days=int(args.get("lookback-days", "30")),
+            emit=args.get("emit", "json"),
             subreddits=args.get("subreddits"),
             quick="quick" in args,
             deep_research="deep-research" in args,
@@ -375,6 +408,14 @@ def _cli_main() -> None:
             web_backend=args.get("web-backend"),
             save_dir=args.get("save-dir"),
             save_suffix=args.get("save-suffix"),
+            competitors=_parse_optional_int_flag(args.get("competitors")),
+            competitors_list=args.get("competitors-list"),
+            competitors_plan=args.get("competitors-plan"),
+            synthesis_file=args.get("synthesis-file"),
+            include_sources=args.get("include-sources"),
+            exclude_sources=args.get("exclude-sources"),
+            youtube_ssh_host=args.get("youtube-ssh-host"),
+            timeout_seconds=_parse_int_arg(args.get("timeout-seconds")),
         )
         print(json.dumps(result, indent=2))
 
@@ -399,6 +440,23 @@ def _parse_cli_args(argv: list[str]) -> dict:
         else:
             i += 1
     return result
+
+
+def _parse_int_arg(value: str | None) -> int | None:
+    if value is None:
+        return None
+    return int(value)
+
+
+def _parse_optional_int_flag(value: str | None) -> int | str | bool | None:
+    if value is None:
+        return None
+    if value == "true":
+        return True
+    try:
+        return int(value)
+    except ValueError:
+        return value
 
 
 if __name__ == "__main__":

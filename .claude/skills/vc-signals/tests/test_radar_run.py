@@ -18,6 +18,34 @@ def _no_live_attio(monkeypatch):
     monkeypatch.setattr(radar_run, "apply_identity_resolution", lambda candidates: (candidates, []))
 
 
+def test_promote_signals_rejects_article_title_fragment_candidates():
+    from radar_models import Signal
+    from radar_run import promote_signals_to_candidates
+
+    result = promote_signals_to_candidates(
+        [
+            Signal(
+                source="grounding",
+                role="company_web",
+                title="How to Monitor MCP Usage: A 10-Step Security Checklist for 2026 | Nightfall AI",
+                url="https://www.nightfall.ai/blog/how-to-monitor-mcp-usage-a-10-step-security-checklist-for-2026",
+                sector="cybersecurity",
+                text="A security checklist for platform teams.",
+                can_create_candidate=True,
+                metadata={
+                    "title": "How to Monitor MCP Usage: A 10-Step Security Checklist for 2026 | Nightfall AI",
+                    "url": "https://www.nightfall.ai/blog/how-to-monitor-mcp-usage-a-10-step-security-checklist-for-2026",
+                    "domain": "nightfall.ai",
+                    "source": "grounding",
+                },
+            )
+        ]
+    )
+
+    assert result["candidates"] == []
+    assert result["rejected"][0].reason == "candidate_name_quality_failed:article_title_fragment"
+
+
 def test_filter_repo_rejects_bot_digests_and_tutorials():
     from radar_run import is_repo_noise
 
@@ -264,7 +292,7 @@ def test_build_sector_collection_queries_adds_grounded_company_discovery():
     assert any("Seed Series A Series B" in query["topic"] for query in queries)
     assert all(query["lookback_days"] == 30 for query in queries)
     assert queries[0]["sources"] == "reddit"
-    assert queries[1]["sources"] == "grounding,hackernews,github,youtube"
+    assert queries[1]["sources"] == "grounding,hackernews,youtube"
 
 
 def _multi_company_discovery_config():
@@ -332,7 +360,7 @@ def test_build_sector_collection_queries_uses_company_discovery_block_when_groun
     assert "AI security startup launch" in topics
     assert queries[-1]["kind"] == "conversation"
     company_queries = [query for query in queries if query["kind"] != "conversation"]
-    assert all(query["sources"] == "grounding,hackernews,github" for query in company_queries)
+    assert all(query["sources"] == "grounding,hackernews" for query in company_queries)
     assert all(query["web_backend"] == "auto" for query in company_queries)
 
 
@@ -1244,6 +1272,198 @@ def test_extract_company_candidates_from_yc_url_slug():
     assert candidates[0]["name"] == "Corelayer"
     assert candidates[0]["domain"] == "corelayer.com"
     assert candidates[0]["theme"] == "AI SRE"
+
+
+def test_promote_signals_can_derive_company_name_from_root_domain_homepage():
+    from radar_run import build_signals_from_evidence, promote_signals_to_candidates
+
+    evidence = {
+        "last30days": {
+            "ai-infra": {
+                "items": [
+                    {
+                        "source": "grounding",
+                        "title": "LLM Observability & Evaluation Platform",
+                        "url": "https://arize.com/",
+                        "snippet": "Arize helps teams debug LLM and agent observability issues.",
+                    },
+                    {
+                        "source": "grounding",
+                        "title": "7 Best AI Agent Observability Tools for Coding Teams in 2026",
+                        "url": "https://www.augmentcode.com/tools/best-ai-agent-observability-tools",
+                    },
+                ]
+            }
+        },
+        "github": [],
+    }
+
+    result = promote_signals_to_candidates(build_signals_from_evidence(evidence)["signals"])
+
+    assert [candidate.name for candidate in result["candidates"]] == ["Arize"]
+    assert result["candidates"][0].domain == "arize.com"
+    assert any(rejected.url == "https://www.augmentcode.com/tools/best-ai-agent-observability-tools" for rejected in result["rejected"])
+
+
+def test_promote_signals_rejects_unstructured_company_web_article_pages():
+    from radar_run import build_signals_from_evidence, promote_signals_to_candidates
+
+    evidence = {
+        "last30days": {
+            "cybersecurity": {
+                "items": [
+                    {
+                        "source": "grounding",
+                        "title": "Turn Blind Trust into Verified Control with Prompt Security for Agentic AI – NSI | Managed IT Services Temecula | Murrieta",
+                        "url": "https://www.nsi-ca.com/network-security/turn-blind-trust-into-verified-control-with-prompt-security-for-agentic-ai/",
+                        "snippet": "Prompt for Agentic AI Security is SentinelOne’s agent security layer.",
+                    }
+                ]
+            }
+        },
+        "github": [],
+    }
+
+    result = promote_signals_to_candidates(build_signals_from_evidence(evidence)["signals"])
+
+    assert result["candidates"] == []
+    assert result["rejected"][0].reason == "weak_company_web_article_not_company_proof"
+
+
+def test_promote_signals_allows_structured_company_launch_page():
+    from radar_models import Signal
+    from radar_run import promote_signals_to_candidates
+
+    result = promote_signals_to_candidates([
+        Signal(
+            source="grounding",
+            role="company_web",
+            title="AgentFence launches AI agent permission firewall",
+            url="https://agentfence.dev/blog/launch",
+            sector="cybersecurity",
+            text="AgentFence helps security teams control MCP tool permissions.",
+            can_create_candidate=True,
+            metadata={
+                "source": "grounding",
+                "title": "AgentFence launches AI agent permission firewall",
+                "url": "https://agentfence.dev/blog/launch",
+                "company_name": "AgentFence",
+                "domain": "agentfence.dev",
+                "source_lane": "Grounded web",
+            },
+        )
+    ])
+
+    assert result["candidates"][0].name == "AgentFence"
+    assert result["candidates"][0].domain == "agentfence.dev"
+
+
+def test_promote_signals_allows_official_company_launch_page_without_structured_name():
+    from radar_models import Signal
+    from radar_run import promote_signals_to_candidates
+
+    result = promote_signals_to_candidates([
+        Signal(
+            source="grounding",
+            role="company_web",
+            title="Veris AI launches simulation training for enterprise AI agents",
+            url="https://veris.ai/blog-posts/introducing-veris-ai-a-new-way-to-train-enterprise-ai-agents-through-simulated-experience",
+            sector="ai-infra",
+            text="Veris AI launched with a seed round and enterprise AI agent focus.",
+            can_create_candidate=True,
+            metadata={
+                "source": "grounding",
+                "title": "Veris AI launches simulation training for enterprise AI agents",
+                "url": "https://veris.ai/blog-posts/introducing-veris-ai-a-new-way-to-train-enterprise-ai-agents-through-simulated-experience",
+                "domain": "veris.ai",
+            },
+        )
+    ])
+
+    assert result["candidates"][0].name == "Veris AI"
+    assert result["candidates"][0].domain == "veris.ai"
+
+
+def test_score_sort_limit_demotes_attio_assign_owner_on_low_evidence():
+    from radar_models import Candidate
+    from radar_run import _score_sort_limit_candidates
+
+    candidate = Candidate(
+        name="Zencoder",
+        domain="zencoder.ai",
+        sector="Devtools",
+        theme="Emerging technical signal",
+        source="https://zencoder.ai/",
+        candidate_type="company_web",
+        action="assign owner",
+        attio_status="no_match",
+        attio_action="assign owner",
+        investment_interest_score=40,
+        evidence_confidence_score=40,
+        investment_interest="Low",
+        evidence_confidence="Low",
+        tier="Needs More Evidence",
+    )
+
+    scored = _score_sort_limit_candidates([candidate], 1)[0]
+
+    assert scored.action == "research deeper"
+
+
+def test_maturity_category_cleanup_routes_blackduck_to_category_context():
+    from radar_models import Candidate
+    from radar_run import apply_maturity_category_cleanup
+
+    candidate = Candidate(
+        name="Blackduck",
+        domain="blackduck.com",
+        sector="Cybersecurity",
+        theme="AI agent security",
+        source="https://www.blackduck.com/",
+        sources=["https://www.blackduck.com/"],
+        candidate_type="company_web",
+        identity_type="verified_company",
+        attio_safe_to_match=True,
+        action="research deeper",
+        maturity_status="unknown",
+        lead_route="research_deeper",
+        why_on_radar="Application Security | Open Source Security | SAST/DAST/SCA Tools | Black Duck",
+    )
+
+    routed = apply_maturity_category_cleanup([candidate])[0]
+
+    assert routed.maturity_status == "incumbent"
+    assert routed.category_anchor is True
+    assert routed.lead_route == "category_context"
+    assert routed.action == "monitor only"
+    assert "known_mature_incumbent_category_anchor" in routed.maturity_basis
+
+
+def test_maturity_category_cleanup_does_not_route_official_veris_launch():
+    from radar_models import Candidate
+    from radar_run import apply_maturity_category_cleanup
+
+    candidate = Candidate(
+        name="Veris AI",
+        domain="veris.ai",
+        sector="AI Infra",
+        theme="AI agents",
+        source="https://veris.ai/blog-posts/introducing-veris-ai-a-new-way-to-train-enterprise-ai-agents-through-simulated-experience",
+        sources=["https://veris.ai/blog-posts/introducing-veris-ai-a-new-way-to-train-enterprise-ai-agents-through-simulated-experience"],
+        candidate_type="company_web",
+        identity_type="verified_company",
+        attio_safe_to_match=True,
+        action="research deeper",
+        maturity_status="unknown",
+        lead_route="research_deeper",
+        why_on_radar="Veris AI launches simulation training for enterprise AI agents.",
+    )
+
+    routed = apply_maturity_category_cleanup([candidate])[0]
+
+    assert routed.maturity_status == "unknown"
+    assert routed.category_anchor is False
+    assert routed.lead_route == "research_deeper"
 
 
 def test_extract_company_candidates_aggregates_duplicate_mentions():

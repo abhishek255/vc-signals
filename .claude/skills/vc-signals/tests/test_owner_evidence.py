@@ -277,6 +277,40 @@ def test_owner_evidence_skips_category_context_and_oss_only_rows(tmp_path):
     assert enriched[1].owner_evidence_status == "skipped"
 
 
+def test_owner_evidence_skips_article_title_fragment_without_live_budget(tmp_path):
+    from owner_evidence import enrich_owner_evidence
+
+    def fail_query(topic, **kwargs):  # pragma: no cover - should not run
+        raise AssertionError("bad candidate names should not spend owner evidence query budget")
+
+    def fail_fetch(url):  # pragma: no cover - should not run
+        raise AssertionError("bad candidate names should not spend official-page fetch budget")
+
+    enriched, report = enrich_owner_evidence(
+        [
+            _candidate(
+                name="How",
+                domain="nightfall.ai",
+                source="https://www.nightfall.ai/blog/how-to-monitor-mcp-usage-a-10-step-security-checklist-for-2026",
+                sources=["https://www.nightfall.ai/blog/how-to-monitor-mcp-usage-a-10-step-security-checklist-for-2026"],
+                why_on_radar="How to Monitor MCP Usage: A 10-Step Security Checklist for 2026 | Nightfall AI",
+                identity_type="verified_company",
+                attio_safe_to_match=True,
+            )
+        ],
+        query_runner=fail_query,
+        page_fetcher=fail_fetch,
+        cache_dir=tmp_path,
+    )
+
+    item = report["items"][0]
+    assert report["summary"]["eligible"] == 0
+    assert report["summary"]["queries_run"] == 0
+    assert report["summary"]["page_fetches"] == 0
+    assert enriched[0].owner_evidence_status == "skipped"
+    assert item["skip_reason"] == "candidate_name_quality_failed:article_title_fragment"
+
+
 def test_owner_evidence_attio_confidence_blocks_assign_owner(tmp_path):
     from owner_evidence import enrich_owner_evidence
     from radar_focus import ACTION_RESEARCH_DEEPER, build_focus_item

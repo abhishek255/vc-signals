@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from candidate_quality import candidate_quality_from_candidate
 from radar_models import Candidate
 
 
@@ -40,6 +41,16 @@ def _is_likely_too_late(candidate: Candidate) -> bool:
     return "likely too late" in haystack or "too late" in haystack
 
 
+def _has_owner_ready_action(candidate: Candidate) -> bool:
+    return (
+        (candidate.recommended_owner_action or "").lower() == "assign owner"
+        and int(candidate.owner_readiness_score or 0) >= 80
+        and candidate.identity_type == "verified_company"
+        and candidate.attio_safe_to_match
+        and not candidate.missing_owner_evidence
+    )
+
+
 def compute_partner_priority(candidate: Candidate) -> int:
     interest = int(candidate.investment_interest_score or 0) or _label_score(candidate.investment_interest)
     evidence = int(candidate.evidence_confidence_score or 0) or _label_score(candidate.evidence_confidence)
@@ -67,8 +78,10 @@ def compute_partner_priority(candidate: Candidate) -> int:
     elif candidate.attio_status in {"active", "passed"}:
         score -= 5
 
-    actions = {candidate.action, candidate.attio_action}
-    if actions & {"take meeting", "assign owner", "refresh Attio"}:
+    actions = {(candidate.action or "").lower(), (candidate.attio_action or "").lower()}
+    if "take meeting" in actions or "refresh attio" in actions or (candidate.attio_action or "").lower() == "assign owner":
+        score += 6
+    elif "assign owner" in actions and _has_owner_ready_action(candidate):
         score += 6
     elif actions & {"contact maintainer", "track company formation", "map category"}:
         score += 4
@@ -93,7 +106,9 @@ def _ranked_qualified(candidates: list[Candidate]) -> list[Candidate]:
     qualified = [
         candidate
         for candidate in candidates
-        if candidate.tier not in {"Filtered", "Needs More Evidence"} and candidate.partner_priority_score > 0
+        if candidate.tier not in {"Filtered", "Needs More Evidence"}
+        and candidate.partner_priority_score > 0
+        and candidate_quality_from_candidate(candidate).usable
     ]
     return sorted(
         qualified,

@@ -10,6 +10,7 @@ from urllib.request import Request, urlopen
 from radar_focus import ACTION_ASSIGN_OWNER, ACTION_MONITOR_ONLY, ACTION_REFRESH_ATTIO, ACTION_RESEARCH_DEEPER
 from radar_models import Candidate, IdentityResolution
 from source_authority import is_marketplace_project_page
+from candidate_quality import candidate_quality_from_candidate
 
 
 IDENTITY_VERIFIED_COMPANY = "verified_company"
@@ -633,6 +634,39 @@ def choose_identity_action(candidate: Candidate, resolution: IdentityResolution)
 
 def resolve_candidate_identity(candidate: Candidate, fetch_cache: dict | None = None, hn_cache: dict | None = None) -> IdentityResolution:
     urls = _source_urls(candidate)
+    name_quality = candidate_quality_from_candidate(candidate)
+    if not name_quality.usable:
+        return IdentityResolution(
+            candidate_key=candidate.stable_key or candidate.name,
+            original_name=candidate.name,
+            resolved_name=candidate.name,
+            identity_type="article_context",
+            candidate_domain=_normalize_domain(candidate.domain),
+            verified_domain="",
+            domain_confidence="Low",
+            verified_domain_basis=[name_quality.rejection_code],
+            project_url=next((url for url in urls if "github.com" in url), ""),
+            company_linkedin=candidate.company_linkedin,
+            company_x=candidate.company_x,
+            founders=[],
+            founder_profiles=[],
+            maintainers=[],
+            maintainer_profiles=[],
+            commercial_intent_score=0,
+            commercial_intent_basis=["candidate_name_quality_failed"],
+            identity_confidence_score=20,
+            identity_confidence="Low",
+            identity_confidence_basis=[name_quality.rejection_code],
+            attio_match_keys=[],
+            attio_safe_to_match=False,
+            missing_identity_evidence=["candidate name appears to be an article/title fragment"],
+            evidence_urls=urls,
+            source_outbound_urls=[],
+            source_titles=[candidate.source_headline or candidate.why_on_radar],
+            fetch_warnings=[],
+            resolved_from=["candidate_name_quality_gate"],
+            recommended_identity_action=ACTION_RESEARCH_DEEPER,
+        )
     metadata_hints = resolve_from_evidence_metadata(candidate)
     has_hn_item_url = any("news.ycombinator.com/item" in url for url in urls)
     needs_live_hn_fallback = not metadata_hints.get("verified_domain") and has_hn_item_url
@@ -728,7 +762,9 @@ def apply_identity_to_candidate(candidate: Candidate, resolution: IdentityResolu
     out = Candidate.from_dict(candidate.to_dict())
     if resolution.verified_domain:
         out.domain = resolution.verified_domain
-    elif "marketplace_project_page_not_company_proof" in resolution.verified_domain_basis:
+    elif "marketplace_project_page_not_company_proof" in resolution.verified_domain_basis or any(
+        basis.startswith("candidate_name_quality_failed:") for basis in resolution.verified_domain_basis
+    ):
         out.domain = ""
     if resolution.company_linkedin:
         out.company_linkedin = resolution.company_linkedin

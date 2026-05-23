@@ -11,6 +11,7 @@ from urllib.parse import urlparse
 from urllib.request import Request, urlopen
 
 from founder_team_verification import extract_named_founder_profiles_from_text
+from candidate_quality import apply_candidate_name_quality_failure, candidate_quality_from_candidate
 from radar_focus import (
     ACTION_ASSIGN_OWNER,
     ACTION_MONITOR_ONLY,
@@ -157,6 +158,9 @@ def customer_buyer_query(candidate: Candidate) -> str:
 
 
 def _eligible_for_owner_evidence(candidate: Candidate) -> tuple[bool, str]:
+    name_quality = candidate_quality_from_candidate(candidate)
+    if not name_quality.usable:
+        return False, name_quality.rejection_code
     if candidate.category_anchor or candidate.lead_route in {LEAD_ROUTE_CATEGORY_CONTEXT, LEAD_ROUTE_MONITOR_ONLY}:
         return False, "category_context_or_monitor_only"
     if candidate.maturity_status in LATE_OR_CONTEXT_STATUSES:
@@ -317,6 +321,8 @@ def _attio_confidence(candidate: Candidate) -> tuple[str, list[str]]:
 def _recommended_action(candidate: Candidate, score: int, missing: list[str]) -> str:
     if candidate.category_anchor or candidate.maturity_status in LATE_OR_CONTEXT_STATUSES:
         return ACTION_MONITOR_ONLY
+    if (candidate.evidence_confidence or "").strip().lower() == "low" or candidate.tier == "Needs More Evidence":
+        return ACTION_RESEARCH_DEEPER
     if score < OWNER_READY_THRESHOLD or _blocking_owner_missing(missing):
         return ACTION_RESEARCH_DEEPER
     status = (candidate.attio_status or "unknown").lower()
@@ -492,8 +498,11 @@ def enrich_owner_evidence(
         eligible, skip_reason = _eligible_for_owner_evidence(candidate)
         if not eligible or eligible_seen >= max_candidates:
             reason = skip_reason or "owner_evidence_candidate_budget_exceeded"
+            skipped_candidate = Candidate.from_dict(candidate.to_dict())
+            if skip_reason.startswith("candidate_name_quality_failed:"):
+                skipped_candidate = apply_candidate_name_quality_failure(skipped_candidate)
             scored, item = _score_evidence_candidate(
-                Candidate.from_dict(candidate.to_dict()),
+                skipped_candidate,
                 eligible=False,
                 skip_reason=reason,
                 pages_checked=[],

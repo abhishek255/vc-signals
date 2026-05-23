@@ -308,6 +308,84 @@ def test_seed_stage_verified_company_can_enter_sourcing_candidates():
     assert artifact.research_deeper_queue == []
 
 
+def test_low_evidence_row_cannot_assign_owner_even_if_owner_ready():
+    from radar_focus import ACTION_RESEARCH_DEEPER, build_weekly_focus_artifact
+
+    artifact = build_weekly_focus_artifact(
+        candidates=[
+            _candidate(
+                name="AgentFence",
+                stable_key="company:agentfence.dev",
+                source="https://agentfence.dev/",
+                sources=["https://agentfence.dev/"],
+                candidate_type="company_web",
+                domain="agentfence.dev",
+                identity_type="verified_company",
+                attio_status="no_match",
+                attio_safe_to_match=True,
+                recommended_identity_action="Assign owner",
+                investment_interest_score=80,
+                evidence_confidence="Low",
+                evidence_confidence_score=70,
+                tier="Watchlist",
+                founder_profiles=[{"name": "Ada Founder"}],
+                why_on_radar="AgentFence raised seed funding and has customer pilots for AI agent security.",
+                maturity_status="seed_to_series_b",
+                maturity_basis=["seed_or_pre_seed"],
+                maturity_evidence_urls=["https://agentfence.dev/seed"],
+                lead_route="sourcing_candidate",
+                owner_readiness_score=95,
+                owner_readiness_basis=["founder_team_evidence", "stage_funding_evidence", "attio_new_or_no_match"],
+                missing_owner_evidence=[],
+                recommended_owner_action="Assign owner",
+            )
+        ],
+        run_id="2026-05-22",
+    )
+
+    assert artifact.sourcing_candidates == []
+    assert artifact.research_deeper_queue[0].recommended_action == ACTION_RESEARCH_DEEPER
+
+
+def test_needs_more_evidence_row_cannot_assign_owner_even_if_owner_ready():
+    from radar_focus import ACTION_RESEARCH_DEEPER, build_weekly_focus_artifact
+
+    artifact = build_weekly_focus_artifact(
+        candidates=[
+            _candidate(
+                name="AgentFence",
+                stable_key="company:agentfence.dev",
+                source="https://agentfence.dev/",
+                sources=["https://agentfence.dev/"],
+                candidate_type="company_web",
+                domain="agentfence.dev",
+                identity_type="verified_company",
+                attio_status="no_match",
+                attio_safe_to_match=True,
+                recommended_identity_action="Assign owner",
+                investment_interest_score=80,
+                evidence_confidence="High",
+                evidence_confidence_score=80,
+                tier="Needs More Evidence",
+                founder_profiles=[{"name": "Ada Founder"}],
+                why_on_radar="AgentFence raised seed funding and has customer pilots for AI agent security.",
+                maturity_status="seed_to_series_b",
+                maturity_basis=["seed_or_pre_seed"],
+                maturity_evidence_urls=["https://agentfence.dev/seed"],
+                lead_route="sourcing_candidate",
+                owner_readiness_score=95,
+                owner_readiness_basis=["founder_team_evidence", "stage_funding_evidence", "attio_new_or_no_match"],
+                missing_owner_evidence=[],
+                recommended_owner_action="Assign owner",
+            )
+        ],
+        run_id="2026-05-22",
+    )
+
+    assert artifact.sourcing_candidates == []
+    assert artifact.research_deeper_queue[0].recommended_action == ACTION_RESEARCH_DEEPER
+
+
 def test_seed_stage_verified_company_without_founder_stays_research_deeper():
     from radar_focus import ACTION_RESEARCH_DEEPER, build_weekly_focus_artifact
 

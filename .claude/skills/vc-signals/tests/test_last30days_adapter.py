@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import sys
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
@@ -227,6 +228,19 @@ def test_check_reports_grounded_from_native_web_key(tmp_path):
     assert result["source_capabilities"]["grounded"] == ["web"]
 
 
+@pytest.mark.parametrize("key_name", ["EXA_API_KEY", "SERPER_API_KEY"])
+def test_check_reports_grounded_from_all_native_web_keys(tmp_path, key_name):
+    from last30days_adapter import check_availability
+
+    vendor = _make_nested_vendor(tmp_path)
+    config = tmp_path / ".env"
+    config.write_text(f"SETUP_COMPLETE=true\n{key_name}=native-web-fake\n")
+
+    result = check_availability(vendor_path=vendor, config_path=config)
+    assert key_name in result["available_keys"]
+    assert result["source_capabilities"]["grounded"] == ["web"]
+
+
 def test_check_ignores_placeholder_key_values(tmp_path):
     from last30days_adapter import check_availability
 
@@ -404,6 +418,64 @@ def test_run_query_passes_new_last30days_flags(tmp_path, monkeypatch):
     assert "--save-dir=/tmp/vc-signals-last30days" in cmd
 
 
+def test_run_query_passes_v33_alignment_flags(tmp_path, monkeypatch):
+    from last30days_adapter import run_query
+
+    vendor = _make_vendor(tmp_path)
+    monkeypatch.setattr("last30days_adapter._find_python", lambda: "python3")
+    completed = MagicMock(returncode=0, stdout=json.dumps({"items_by_source": {}}), stderr="")
+    calls = []
+
+    def fake_run(cmd, **kwargs):
+        calls.append(cmd)
+        return completed
+
+    monkeypatch.setattr("last30days_adapter.subprocess.run", fake_run)
+
+    run_query(
+        "agent infra",
+        vendor_path=vendor,
+        competitors=2,
+        competitors_list="OpenAI,Anthropic,xAI",
+        competitors_plan="/tmp/competitors-plan.json",
+        synthesis_file="/tmp/synthesis.md",
+    )
+
+    cmd = calls[0]
+    assert "--competitors=2" in cmd
+    assert "--competitors-list=OpenAI,Anthropic,xAI" in cmd
+    assert "--competitors-plan=/tmp/competitors-plan.json" in cmd
+    assert "--synthesis-file=/tmp/synthesis.md" in cmd
+
+
+def test_run_query_sets_source_environment_overrides(tmp_path, monkeypatch):
+    from last30days_adapter import run_query
+
+    vendor = _make_vendor(tmp_path)
+    monkeypatch.setattr("last30days_adapter._find_python", lambda: "python3")
+    completed = MagicMock(returncode=0, stdout=json.dumps({"items_by_source": {}}), stderr="")
+    calls = []
+
+    def fake_run(cmd, **kwargs):
+        calls.append((cmd, kwargs))
+        return completed
+
+    monkeypatch.setattr("last30days_adapter.subprocess.run", fake_run)
+
+    run_query(
+        "agent infra",
+        vendor_path=vendor,
+        include_sources="reddit,hackernews",
+        exclude_sources="tiktok,instagram",
+        youtube_ssh_host="homebox",
+    )
+
+    env = calls[0][1]["env"]
+    assert env["INCLUDE_SOURCES"] == "reddit,hackernews"
+    assert env["EXCLUDE_SOURCES"] == "tiktok,instagram"
+    assert env["LAST30DAYS_YOUTUBE_SSH_HOST"] == "homebox"
+
+
 def test_run_query_handles_nonzero_exit(tmp_path, monkeypatch):
     from last30days_adapter import run_query
 
@@ -500,6 +572,60 @@ def test_cli_query_missing_topic_returns_error():
     assert result.returncode == 1
     payload = json.loads(result.stdout)
     assert "topic" in payload["error"].lower()
+
+
+def test_cli_query_forwards_alignment_args(monkeypatch, capsys):
+    import last30days_adapter
+
+    captured = {}
+
+    def fake_run_query(**kwargs):
+        captured.update(kwargs)
+        return {"topic": kwargs["topic"], "items": []}
+
+    monkeypatch.setattr(last30days_adapter, "run_query", fake_run_query)
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        [
+            "last30days_adapter.py",
+            "query",
+            "--topic",
+            "agent infra",
+            "--emit",
+            "html",
+            "--competitors",
+            "2",
+            "--competitors-list",
+            "OpenAI,Anthropic,xAI",
+            "--competitors-plan",
+            "/tmp/competitors-plan.json",
+            "--synthesis-file",
+            "/tmp/synthesis.md",
+            "--include-sources",
+            "reddit,hackernews",
+            "--exclude-sources",
+            "tiktok,instagram",
+            "--youtube-ssh-host",
+            "homebox",
+            "--timeout-seconds",
+            "45",
+        ],
+    )
+
+    last30days_adapter._cli_main()
+
+    payload = json.loads(capsys.readouterr().out)
+    assert payload["topic"] == "agent infra"
+    assert captured["emit"] == "html"
+    assert captured["competitors"] == 2
+    assert captured["competitors_list"] == "OpenAI,Anthropic,xAI"
+    assert captured["competitors_plan"] == "/tmp/competitors-plan.json"
+    assert captured["synthesis_file"] == "/tmp/synthesis.md"
+    assert captured["include_sources"] == "reddit,hackernews"
+    assert captured["exclude_sources"] == "tiktok,instagram"
+    assert captured["youtube_ssh_host"] == "homebox"
+    assert captured["timeout_seconds"] == 45
 
 
 def test_cli_no_command_returns_error():

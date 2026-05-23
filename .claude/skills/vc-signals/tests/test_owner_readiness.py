@@ -107,6 +107,55 @@ def test_owner_readiness_skips_category_context_and_oss_rows():
     assert enriched[1].recommended_owner_action == "Research deeper"
 
 
+def test_owner_readiness_skips_article_title_fragment_with_explicit_reason(tmp_path):
+    from owner_readiness import enrich_owner_readiness
+
+    def fail_query(topic, **kwargs):  # pragma: no cover - should not run
+        raise AssertionError("bad candidate names should not spend owner-readiness query budget")
+
+    enriched, report = enrich_owner_readiness(
+        [
+            _candidate(
+                name="How",
+                domain="nightfall.ai",
+                source="https://www.nightfall.ai/blog/how-to-monitor-mcp-usage-a-10-step-security-checklist-for-2026",
+                sources=["https://www.nightfall.ai/blog/how-to-monitor-mcp-usage-a-10-step-security-checklist-for-2026"],
+                why_on_radar="How to Monitor MCP Usage: A 10-Step Security Checklist for 2026 | Nightfall AI",
+                identity_type="verified_company",
+                attio_safe_to_match=True,
+            )
+        ],
+        query_runner=fail_query,
+        cache_dir=tmp_path,
+        max_queries=5,
+    )
+
+    item = report["items"][0]
+    assert report["summary"]["eligible"] == 0
+    assert report["summary"]["queries_run"] == 0
+    assert item["eligible"] is False
+    assert item["query_status"] == "candidate_name_quality_failed:article_title_fragment"
+    assert enriched[0].recommended_owner_action == "Research deeper"
+
+
+def test_owner_readiness_reports_live_query_disabled_for_eligible_rows(tmp_path):
+    from owner_readiness import enrich_owner_readiness
+
+    enriched, report = enrich_owner_readiness(
+        [_candidate(founder_profiles=[], customer_buyer_evidence=[])],
+        query_runner=None,
+        cache_dir=tmp_path,
+        max_queries=5,
+    )
+
+    item = report["items"][0]
+    assert report["summary"]["eligible"] == 1
+    assert report["summary"]["queries_run"] == 0
+    assert item["query"]
+    assert item["query_status"] == "live_query_disabled"
+    assert enriched[0].recommended_owner_action == "Research deeper"
+
+
 def test_write_owner_readiness_artifact(tmp_path):
     from owner_readiness import enrich_owner_readiness, write_owner_readiness_json
 

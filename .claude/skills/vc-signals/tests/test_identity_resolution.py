@@ -132,6 +132,7 @@ def test_hn_algolia_outbound_url_improves_identity_domain(monkeypatch):
 
     assert result.verified_domain == "burrow.security"
     assert result.domain_confidence == "High"
+    assert result.fetch_warnings == []
     assert "hn_enrichment_outbound_url" in result.verified_domain_basis
     assert "hn_algolia" in result.resolved_from
     assert result.recommended_identity_action == "Assign owner"
@@ -221,6 +222,36 @@ def test_stored_hn_outbound_url_resolves_without_live_fetch(monkeypatch):
     assert "hn_outbound_url_metadata" in result.verified_domain_basis
     assert "metadata" in result.resolved_from
     assert result.fetch_warnings == []
+
+
+def test_article_title_fragment_is_not_verified_company_identity():
+    from identity_resolution import resolve_candidate_identity
+
+    result = resolve_candidate_identity(
+        _candidate(
+            name="How",
+            domain="nightfall.ai",
+            source="https://www.nightfall.ai/blog/how-to-monitor-mcp-usage-a-10-step-security-checklist-for-2026",
+            sources=["https://www.nightfall.ai/blog/how-to-monitor-mcp-usage-a-10-step-security-checklist-for-2026"],
+            why_on_radar="How to Monitor MCP Usage: A 10-Step Security Checklist for 2026 | Nightfall AI",
+            source_headline="How to Monitor MCP Usage: A 10-Step Security Checklist for 2026 | Nightfall AI",
+            evidence_metadata=[
+                {
+                    "source": "grounding",
+                    "source_url": "https://www.nightfall.ai/blog/how-to-monitor-mcp-usage-a-10-step-security-checklist-for-2026",
+                    "title": "How to Monitor MCP Usage: A 10-Step Security Checklist for 2026 | Nightfall AI",
+                    "domain": "nightfall.ai",
+                }
+            ],
+        ),
+        hn_cache={},
+    )
+
+    assert result.identity_type != "verified_company"
+    assert result.verified_domain == ""
+    assert result.attio_safe_to_match is False
+    assert result.recommended_identity_action == "Research deeper"
+    assert "candidate name appears to be an article/title fragment" in result.missing_identity_evidence
 
 
 def test_hn_fetch_failure_keeps_launch_style_needs_identity(monkeypatch):

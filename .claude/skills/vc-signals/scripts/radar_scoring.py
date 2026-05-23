@@ -90,4 +90,7 @@ def score_and_tier(candidate: Candidate) -> Candidate:
     else:
         candidate.tier = "Filtered"
 
+    if candidate.action == "assign owner" and (candidate.evidence_confidence == "Low" or candidate.tier == "Needs More Evidence"):
+        candidate.action = "research deeper"
+
     return candidate
