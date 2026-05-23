@@ -417,6 +417,29 @@ def test_build_company_discovery_queries_skips_execution_without_grounding():
     assert "grounded company discovery unavailable" in queries[0]["reason"].lower()
 
 
+def test_build_company_discovery_queries_can_exclude_yc_family():
+    from radar_company_discovery import build_company_discovery_queries
+    from radar_models import ThemeSignal
+
+    queries = build_company_discovery_queries(
+        [
+            ThemeSignal(
+                market_sector="AI Infra",
+                theme="Agent runtime infrastructure",
+                evidence_count=4,
+                confidence="Medium",
+            )
+        ],
+        grounded_available=True,
+        social_available=False,
+        exclude_yc=True,
+    )
+
+    assert queries
+    assert all(query["query_family"] != "yc_accelerator" for query in queries)
+    assert all("ycombinator.com" not in query["topic"].lower() for query in queries)
+
+
 def test_weak_unclassified_row_does_not_generate_discovery_query():
     from radar_company_discovery import build_company_discovery_queries
     from radar_models import FocusItem

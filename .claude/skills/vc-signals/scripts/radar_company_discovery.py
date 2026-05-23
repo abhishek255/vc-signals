@@ -332,6 +332,7 @@ def build_company_discovery_queries(
     lookback_days: int = 30,
     max_queries_per_theme: int = 3,
     trial_config: DiscoveryYieldTrialConfig | None = None,
+    exclude_yc: bool = False,
 ) -> list[dict]:
     """Build targeted company searches from non-company theme evidence."""
     queries: list[dict] = []
@@ -387,7 +388,12 @@ def build_company_discovery_queries(
                     ["publisher_article", "directory_page", "official_company_page"],
                 ),
             ]
-        for kind, query_family, topic, reason, origin_ids, expected_source_types in query_specs[:max_queries_per_theme]:
+        appended_for_theme = 0
+        for kind, query_family, topic, reason, origin_ids, expected_source_types in query_specs:
+            if _query_excluded_by_validation_flags(query_family, topic, exclude_yc=exclude_yc):
+                continue
+            if appended_for_theme >= max_queries_per_theme:
+                break
             if (
                 trial_enabled
                 and query_family == "movement_platform"
@@ -415,6 +421,7 @@ def build_company_discovery_queries(
                 lookback_days=lookback_days,
                 discovery_lane="discovery_yield_trial" if trial_enabled else "controlled_company_discovery",
             )
+            appended_for_theme += 1
 
     for item in focus_items or []:
         if not _focus_item_can_seed_movement_query(item):
@@ -428,6 +435,8 @@ def build_company_discovery_queries(
                 origin_ids=[item.id],
                 trial_config=trial_config,
             ):
+                if _query_excluded_by_validation_flags(query_family, topic, exclude_yc=exclude_yc):
+                    continue
                 if (
                     query_family == "movement_platform"
                     and sum(
@@ -471,6 +480,8 @@ def build_company_discovery_queries(
             ),
         ]
         for kind, query_family, topic, expected_source_types in query_specs:
+            if _query_excluded_by_validation_flags(query_family, topic, exclude_yc=exclude_yc):
+                continue
             _append_query(
                 queries,
                 seen_topics,
@@ -532,6 +543,10 @@ def build_company_discovery_queries(
         )
 
     return prioritize_discovery_queries(queries)
+
+
+def _query_excluded_by_validation_flags(query_family: str, topic: str, *, exclude_yc: bool = False) -> bool:
+    return bool(exclude_yc and (query_family == "yc_accelerator" or "ycombinator.com" in (topic or "").lower()))
 
 
 def _trial_query_specs(
@@ -653,6 +668,7 @@ def collect_company_discovery(
     partial_output_path: Path | str | None = None,
     query_cache_dir: Path | str | None = None,
     trial_config: DiscoveryYieldTrialConfig | None = None,
+    exclude_yc: bool = False,
 ) -> dict:
     """Run theme-driven company searches and annotate returned evidence."""
     run_budget = run_budget or DiscoveryRunBudget.for_mode("unbounded")
@@ -671,6 +687,7 @@ def collect_company_discovery(
         lookback_days=lookback_days,
         max_queries_per_theme=max_queries_per_theme,
         trial_config=trial_config,
+        exclude_yc=exclude_yc,
     )
     for query in queries:
         query["budget_mode"] = run_budget.mode

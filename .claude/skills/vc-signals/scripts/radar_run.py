@@ -83,11 +83,13 @@ REDDIT_SOURCES_CONFIG_PATH = Path(__file__).parent.parent / "config" / "reddit_s
 
 KNOWN_MATURE_INCUMBENT_CATEGORY_DOMAINS = {
     "blackduck.com": "known_mature_incumbent_category_anchor",
+    "kiro.dev": "known_incumbent_platform_product",
 }
 
 KNOWN_MATURE_INCUMBENT_CATEGORY_NAMES = {
     "blackduck": "known_mature_incumbent_category_anchor",
     "blackducksoftware": "known_mature_incumbent_category_anchor",
+    "kiro": "known_incumbent_platform_product",
 }
 
 REPO_NOISE_TERMS = (
@@ -420,8 +422,26 @@ def _sources(*base: str, social_available: bool = False, vertical_social: bool =
     return ",".join(dict.fromkeys(sources))
 
 
-def _company_query_sources(*, social_available: bool = False, vertical_social: bool = False) -> str:
-    return _sources("grounding", "hackernews", social_available=social_available, vertical_social=vertical_social)
+def _without_regular_hn(sources: str, *, hn_launch_trial_only: bool = False) -> str:
+    if not hn_launch_trial_only:
+        return sources
+    return ",".join(
+        part
+        for part in str(sources or "").split(",")
+        if part and part.strip().lower() != "hackernews"
+    )
+
+
+def _company_query_sources(
+    *,
+    social_available: bool = False,
+    vertical_social: bool = False,
+    hn_launch_trial_only: bool = False,
+) -> str:
+    return _without_regular_hn(
+        _sources("grounding", "hackernews", social_available=social_available, vertical_social=vertical_social),
+        hn_launch_trial_only=hn_launch_trial_only,
+    )
 
 
 def _reddit_pain_query(sector_slug: str, reddit_config: dict, *, lookback_days: int) -> dict | None:
@@ -450,6 +470,8 @@ def build_sector_collection_queries(
     social_available: bool = False,
     lookback_days: int = 30,
     max_queries: int = 3,
+    exclude_yc: bool = False,
+    hn_launch_trial_only: bool = False,
 ) -> list[dict]:
     """Build a small, Marathon-focused query set for one sector."""
     config = sector_config.get(sector_slug, {}) if sector_slug in sector_config else sector_config
@@ -464,19 +486,28 @@ def build_sector_collection_queries(
                 {
                     "kind": "vertical_workflow_social",
                     "topic": f"{display_name} AI workflow demos operator pain SMB automation founder product demo",
-                    "sources": _sources("reddit", "hackernews", social_available=social_available, vertical_social=True),
+                    "sources": _without_regular_hn(
+                        _sources("reddit", "hackernews", social_available=social_available, vertical_social=True),
+                        hn_launch_trial_only=hn_launch_trial_only,
+                    ),
                     "lookback_days": lookback_days,
                 },
                 {
                     "kind": "vertical_hn",
                     "topic": f"Show HN {display_name} AI agent workflow startup",
-                    "sources": _sources("hackernews", "github", social_available=social_available),
+                    "sources": _without_regular_hn(
+                        _sources("hackernews", "github", social_available=social_available),
+                        hn_launch_trial_only=hn_launch_trial_only,
+                    ),
                     "lookback_days": lookback_days,
                 },
                 {
                     "kind": "vertical_github",
                     "topic": f"{display_name} AI workflow automation GitHub agent",
-                    "sources": _sources("github", "hackernews", social_available=social_available),
+                    "sources": _without_regular_hn(
+                        _sources("github", "hackernews", social_available=social_available),
+                        hn_launch_trial_only=hn_launch_trial_only,
+                    ),
                     "lookback_days": lookback_days,
                 },
             ])
@@ -486,19 +517,28 @@ def build_sector_collection_queries(
                 {
                     "kind": "oss_show",
                     "topic": "Show HN open source AI agent MCP security developer tool",
-                    "sources": _sources("hackernews", "github", social_available=social_available),
+                    "sources": _without_regular_hn(
+                        _sources("hackernews", "github", social_available=social_available),
+                        hn_launch_trial_only=hn_launch_trial_only,
+                    ),
                     "lookback_days": lookback_days,
                 },
                 {
                     "kind": "oss_github",
                     "topic": "open source AI agent infrastructure GitHub stars MCP security",
-                    "sources": _sources("github", "hackernews", social_available=social_available),
+                    "sources": _without_regular_hn(
+                        _sources("github", "hackernews", social_available=social_available),
+                        hn_launch_trial_only=hn_launch_trial_only,
+                    ),
                     "lookback_days": lookback_days,
                 },
                 {
                     "kind": "oss_security",
                     "topic": "open source AI security scanner MCP agent tool GitHub",
-                    "sources": _sources("github", "hackernews", social_available=social_available),
+                    "sources": _without_regular_hn(
+                        _sources("github", "hackernews", social_available=social_available),
+                        hn_launch_trial_only=hn_launch_trial_only,
+                    ),
                     "lookback_days": lookback_days,
                 },
             ])
@@ -507,19 +547,28 @@ def build_sector_collection_queries(
             {
                 "kind": "conversation",
                 "topic": f"Show HN {display_name} AI startup developer tool open source",
-                "sources": _sources("hackernews", "github", social_available=social_available),
+                "sources": _without_regular_hn(
+                    _sources("hackernews", "github", social_available=social_available),
+                    hn_launch_trial_only=hn_launch_trial_only,
+                ),
                 "lookback_days": lookback_days,
             },
             {
                 "kind": "hn_show",
                 "topic": f"Launch HN Show HN {display_name} startup AI infrastructure",
-                "sources": _sources("hackernews", "github", social_available=social_available),
+                "sources": _without_regular_hn(
+                    _sources("hackernews", "github", social_available=social_available),
+                    hn_launch_trial_only=hn_launch_trial_only,
+                ),
                 "lookback_days": lookback_days,
             },
             {
                 "kind": "github_signal",
                 "topic": f"{display_name} AI agent infrastructure open source GitHub stars",
-                "sources": _sources("github", "hackernews", social_available=social_available),
+                "sources": _without_regular_hn(
+                    _sources("github", "hackernews", social_available=social_available),
+                    hn_launch_trial_only=hn_launch_trial_only,
+                ),
                 "lookback_days": lookback_days,
             },
         ])
@@ -534,38 +583,53 @@ def build_sector_collection_queries(
     company_queries = config.get("company_discovery_queries", {})
     if grounded_available and company_queries:
         for kind, topic in _iter_company_query_specs(company_queries):
+            if exclude_yc and (kind == "yc_company" or "ycombinator.com" in topic.lower()):
+                continue
             if len(queries) >= max_queries:
                 break
             queries.append({
                 "kind": kind,
                 "topic": topic,
-                "sources": _company_query_sources(social_available=social_available),
+                "sources": _company_query_sources(
+                    social_available=social_available,
+                    hn_launch_trial_only=hn_launch_trial_only,
+                ),
                 "web_backend": "auto",
                 "lookback_days": lookback_days,
             })
     elif grounded_available:
-        queries.extend([
-            {
+        if not exclude_yc:
+            queries.append({
                 "kind": "yc_company",
                 "topic": f"site:ycombinator.com/companies {display_name} AI startups Seed Series A Series B",
-                "sources": _company_query_sources(social_available=social_available),
+                "sources": _company_query_sources(
+                    social_available=social_available,
+                    hn_launch_trial_only=hn_launch_trial_only,
+                ),
                 "web_backend": "auto",
                 "lookback_days": lookback_days,
-            },
+            })
+        queries.append(
             {
                 "kind": "company_discovery",
                 "topic": f"{display_name} startups Seed Series A Series B emerging companies funding founder traction",
-                "sources": _sources("grounding", "reddit", "hackernews", social_available=social_available, vertical_social=(sector_slug == "vertical-ai")),
+                "sources": _without_regular_hn(
+                    _sources("grounding", "reddit", "hackernews", social_available=social_available, vertical_social=(sector_slug == "vertical-ai")),
+                    hn_launch_trial_only=hn_launch_trial_only,
+                ),
                 "web_backend": "auto",
                 "lookback_days": lookback_days,
-            },
-        ])
+            }
+        )
 
     if len(queries) < max_queries:
         queries.append({
             "kind": "conversation",
             "topic": f"{conversation_topic} Seed Series A Series B founder customer traction",
-            "sources": _sources("reddit", "hackernews", "github", social_available=social_available),
+            "sources": _without_regular_hn(
+                _sources("reddit", "hackernews", "github", social_available=social_available),
+                hn_launch_trial_only=hn_launch_trial_only,
+            ),
             "lookback_days": lookback_days,
         })
 
@@ -1706,6 +1770,8 @@ def collect_live_evidence(
     query_timeout_seconds: int | None = None,
     github_timeout_seconds: int | None = DEFAULT_GITHUB_TIMEOUT_SECONDS,
     progress: bool = False,
+    exclude_yc: bool = False,
+    hn_launch_trial_only: bool = False,
 ) -> dict:
     """Collect raw last30days and GitHub evidence for the weekly radar."""
     evidence = {"last30days": {}, "github": [], "warnings": [], "source_health": []}
@@ -1723,6 +1789,8 @@ def collect_live_evidence(
                 social_available=social_available,
                 lookback_days=lookback_days,
                 max_queries=max_queries_per_sector,
+                exclude_yc=exclude_yc,
+                hn_launch_trial_only=hn_launch_trial_only,
             )
             items = []
             clusters = []
@@ -1835,6 +1903,8 @@ def run_weekly_artifacts(
     discovery_cache_dir: Path | None = None,
     discovery_yield_trial_config: DiscoveryYieldTrialConfig | None = None,
     hn_launch_trial_config: HNLaunchTrialConfig | None = None,
+    exclude_yc: bool = False,
+    hn_launch_trial_only: bool = False,
 ) -> dict:
     """Collect evidence and render a weekly partner preview in one command."""
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -1848,6 +1918,8 @@ def run_weekly_artifacts(
         query_timeout_seconds=query_timeout_seconds,
         github_timeout_seconds=github_timeout_seconds,
         progress=progress,
+        exclude_yc=exclude_yc,
+        hn_launch_trial_only=hn_launch_trial_only,
     )
     signal_result = build_signals_from_evidence(evidence)
     theme_signals = build_theme_signals(signal_result["signals"], sectors=sectors)
@@ -1874,6 +1946,7 @@ def run_weekly_artifacts(
         partial_output_path=company_discovery_path,
         query_cache_dir=discovery_cache_dir or output_dir / "provider-query-cache",
         trial_config=discovery_yield_trial_config,
+        exclude_yc=exclude_yc,
     )
     company_discovery["source_health"] = list(evidence.get("source_health", []))
     evidence["company_discovery"] = company_discovery
@@ -2372,6 +2445,8 @@ def _cli_main() -> None:
                 default=60 if first_pass else DEFAULT_GITHUB_TIMEOUT_SECONDS,
             ),
             progress=bool(args.get("progress", False)),
+            exclude_yc=_get_bool_arg(args, "exclude_yc", "no_yc"),
+            hn_launch_trial_only=_get_bool_arg(args, "hn_launch_trial_only", "hn_trial_only"),
         )
         path = save_raw_evidence(evidence, output_dir=output_dir)
         print(json.dumps({"saved": str(path), "github_count": len(evidence.get("github", []))}))
@@ -2407,6 +2482,8 @@ def _cli_main() -> None:
             discovery_budget=_discovery_budget_from_args(args, first_pass=first_pass),
             discovery_yield_trial_config=_discovery_yield_trial_config_from_args(args),
             hn_launch_trial_config=_hn_launch_trial_config_from_args(args),
+            exclude_yc=_get_bool_arg(args, "exclude_yc", "no_yc"),
+            hn_launch_trial_only=_get_bool_arg(args, "hn_launch_trial_only", "hn_trial_only"),
         )
         print(json.dumps(result))
         return

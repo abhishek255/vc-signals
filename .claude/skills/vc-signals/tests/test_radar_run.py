@@ -487,6 +487,40 @@ def test_build_sector_collection_queries_skips_company_discovery_block_without_g
     assert all("web_backend" not in query for query in queries)
 
 
+def test_build_sector_collection_queries_excludes_yc_and_regular_hn_for_validation(monkeypatch):
+    import radar_run
+    from radar_run import build_sector_collection_queries
+
+    monkeypatch.setattr(radar_run, "load_reddit_sources_config", lambda: {})
+    config = {
+        "cybersecurity": {
+            "display_name": "Cybersecurity",
+            "discovery_queries": ["generic AI security conversation"],
+            "company_discovery_queries": {
+                "company_launch_queries": ["AI security startup launch"],
+                "funding_queries": ["AI security startup raises seed"],
+                "yc_queries": ["site:ycombinator.com/companies AI security startup"],
+                "founder_queries": ["AI security startup founder blog"],
+                "technical_blog_queries": ["AI security startup technical blog"],
+            },
+        }
+    }
+
+    queries = build_sector_collection_queries(
+        "cybersecurity",
+        config,
+        grounded_available=True,
+        social_available=False,
+        max_queries=3,
+        exclude_yc=True,
+        hn_launch_trial_only=True,
+    )
+
+    assert [query["kind"] for query in queries] == ["funding_company", "company_launch", "founder_company"]
+    assert all("ycombinator.com" not in query["topic"].lower() for query in queries)
+    assert all("hackernews" not in query["sources"].lower() for query in queries)
+
+
 def test_build_sector_collection_queries_uses_youtube_without_grounding_when_social_available():
     from radar_run import build_sector_collection_queries
 
@@ -1437,6 +1471,36 @@ def test_maturity_category_cleanup_routes_blackduck_to_category_context():
     assert routed.lead_route == "category_context"
     assert routed.action == "monitor only"
     assert "known_mature_incumbent_category_anchor" in routed.maturity_basis
+
+
+def test_maturity_category_cleanup_routes_kiro_aws_platform_to_category_context():
+    from radar_models import Candidate
+    from radar_run import apply_maturity_category_cleanup
+
+    candidate = Candidate(
+        name="Kiro",
+        domain="kiro.dev",
+        sector="Devtools",
+        theme="Emerging technical signal",
+        source="https://kiro.dev/",
+        sources=["https://kiro.dev/", "https://kiro.dev/startups/"],
+        candidate_type="company_web",
+        identity_type="verified_company",
+        attio_safe_to_match=True,
+        action="research deeper",
+        maturity_status="seed_to_series_b",
+        maturity_basis=["owner_evidence_stage_funding_signal"],
+        lead_route="sourcing_candidate",
+        why_on_radar="Kiro: Bring engineering rigor to agentic development",
+    )
+
+    routed = apply_maturity_category_cleanup([candidate])[0]
+
+    assert routed.maturity_status == "incumbent"
+    assert routed.category_anchor is True
+    assert routed.lead_route == "category_context"
+    assert routed.action == "monitor only"
+    assert "known_incumbent_platform_product" in routed.maturity_basis
 
 
 def test_maturity_category_cleanup_does_not_route_official_veris_launch():
@@ -2557,6 +2621,36 @@ def test_discovery_yield_trial_langwatch_cannot_assign_owner_without_owner_readi
     langwatch = next(row for row in all_rows if row["name"] == "LangWatch")
     assert langwatch["recommended_action"] != "Assign owner"
     assert langwatch["recommended_action"] == "Research deeper"
+
+
+def test_weekly_cli_threads_validation_source_flags(tmp_path, monkeypatch, capsys):
+    import radar_run
+
+    captured = {}
+
+    def fake_run_weekly_artifacts(**kwargs):
+        captured.update(kwargs)
+        return {"weekly_focus": str(tmp_path / "weekly-focus.md")}
+
+    monkeypatch.setattr(radar_run, "run_weekly_artifacts", fake_run_weekly_artifacts)
+    monkeypatch.setattr(
+        radar_run.sys,
+        "argv",
+        [
+            "radar_run.py",
+            "weekly",
+            "--output-dir",
+            str(tmp_path),
+            "--exclude-yc",
+            "--hn-launch-trial-only",
+        ],
+    )
+
+    radar_run._cli_main()
+
+    capsys.readouterr()
+    assert captured["exclude_yc"] is True
+    assert captured["hn_launch_trial_only"] is True
 
 
 def test_run_weekly_artifacts_feeds_verified_discovery_into_identity_resolution(tmp_path, monkeypatch):
