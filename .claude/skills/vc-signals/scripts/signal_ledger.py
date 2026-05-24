@@ -834,15 +834,54 @@ def _latest_run_id(ledger: dict) -> str:
     return max((entity.get("last_seen_run", "") for entity in ledger.get("entities", [])), default="")
 
 
+def _latest_sighting(entity: dict) -> dict:
+    history = entity.get("sighting_history") or []
+    if not history:
+        return {}
+    return max(
+        history,
+        key=lambda item: (
+            int(item.get("run_sequence", 0) or 0),
+            item.get("run_date", ""),
+            item.get("run_id", ""),
+            item.get("source_file", ""),
+        ),
+    )
+
+
 def _is_skipped_or_incomplete(entity: dict) -> bool:
     if "max_candidates_exceeded" in (entity.get("missing_evidence") or []):
         return True
-    for sighting in entity.get("sighting_history") or []:
-        if sighting.get("completion_status") == "skipped_budget":
-            return True
-        if sighting.get("partial_reason"):
-            return True
-    return False
+    latest = _latest_sighting(entity)
+    return latest.get("completion_status") == "skipped_budget" or bool(latest.get("partial_reason"))
+
+
+def _has_identity_gap(missing: list[str]) -> bool:
+    return bool({"official_domain_identity_not_confirmed", "no verified Attio-safe company identity"} & set(missing))
+
+
+def _is_project_tracking_row(entity: dict, missing: list[str]) -> bool:
+    entity_id = entity.get("entity_id", "")
+    return (
+        entity_id.startswith("project:")
+        or entity.get("entity_type") == "project"
+        or entity.get("current_route") == "OSS Watch"
+        or "OSS/project-only row" in missing
+    )
+
+
+def _has_targeted_evidence_gap(missing: list[str]) -> bool:
+    evidence_gaps = {
+        "no founder/team evidence",
+        "no stage/funding evidence",
+        "no commercial/funding evidence",
+        "no customer/buyer pull evidence",
+    }
+    return bool(evidence_gaps & set(missing))
+
+
+def _only_attio_unknown(missing: list[str]) -> bool:
+    return set(missing) == {"Attio status unknown"}
 
 
 def _report_item(entity: dict) -> dict:
@@ -882,19 +921,32 @@ def _action_for_entity(entity: dict, *, latest_run_id: str) -> dict:
     missing = entity.get("missing_evidence") or []
     stale = bool(latest_run_id and entity.get("last_seen_run") != latest_run_id)
     skipped = _is_skipped_or_incomplete(entity)
+    latest = _latest_sighting(entity)
 
     if action == "Assign owner":
         next_action = "Owner follow-up"
         why = "Current Assign Owner with complete owner-readiness evidence; route to a human owner without changing gates."
-    elif skipped:
-        next_action = "Rerun bounded HN completion"
-        why = "Budget-skipped or partial HN sighting; preserve it as incomplete and rerun completion before any owner action."
     elif route == "Category Context" or action == "Monitor only" or movement == "demoted":
         next_action = "Keep as category context"
         why = "Demoted or too-late/current context row; keep visible for market memory, not owner-routing."
     elif stale:
         next_action = "Check stale status"
         why = "Entity was not seen in the latest run; check whether it faded before spending validation budget."
+    elif skipped:
+        next_action = "Rerun bounded HN completion"
+        why = "Budget-skipped or partial HN sighting; preserve it as incomplete and rerun completion before any owner action."
+    elif _has_identity_gap(missing):
+        next_action = "Verify official identity"
+        why = "Official company identity is not confirmed; verify domain/source identity before enrichment, Attio, or owner action."
+    elif _is_project_tracking_row(entity, missing):
+        next_action = "Track OSS/company formation"
+        why = "Project-only or OSS Watch row; track whether it forms a company before treating it as owner-ready."
+    elif _only_attio_unknown(missing):
+        next_action = "Run Attio read check only after owner-actionable evidence exists"
+        why = "Attio is the remaining unknown; run a read check only after source-backed owner-actionable evidence exists."
+    elif latest.get("completion_status") == "completed_clean" and _has_targeted_evidence_gap(missing):
+        next_action = "Run targeted evidence search"
+        why = "Completed row still lacks source-backed founder, stage, customer, or commercial evidence; search those gaps before Attio or owner action."
     elif route == "Research Deeper":
         next_action = "Fill missing evidence"
         why = f"Research Deeper row still needs: {', '.join(missing) if missing else 'clear next evidence'}."
@@ -921,6 +973,7 @@ def build_ledger_action_report(ledger: dict, *, generated_at: str | None = None)
     ]
     skipped_incomplete = [entity for entity in entities if _is_skipped_or_incomplete(entity)]
     stale = [entity for entity in entities if latest_run_id and entity.get("last_seen_run") != latest_run_id]
+    project_tracking = [entity for entity in entities if _is_project_tracking_row(entity, entity.get("missing_evidence") or [])]
     repeated_research = [
         entity
         for entity in entities
@@ -931,7 +984,7 @@ def build_ledger_action_report(ledger: dict, *, generated_at: str | None = None)
     ]
 
     action_entities = []
-    for group in (current_assign_owner, skipped_incomplete, demoted_category, repeated_research, stale):
+    for group in (current_assign_owner, skipped_incomplete, demoted_category, project_tracking, repeated_research, stale):
         for entity in group:
             if entity.get("entity_id") not in {item.get("entity_id") for item in action_entities}:
                 action_entities.append(entity)

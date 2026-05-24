@@ -622,6 +622,103 @@ def test_ledger_action_report_groups_promoted_demoted_repeated_skipped_and_stale
         } <= set(action)
 
 
+def test_ledger_action_report_refines_completed_clean_missing_evidence_recommendations():
+    from signal_ledger import build_ledger_action_report
+
+    ledger = {
+        "generated_at": "2026-05-24T00:00:00Z",
+        "runs_backfilled": [{"run_id": "current-latest-run", "run_sequence": 0}],
+        "summary": {"entities": 5, "sightings": 5, "assign_owner_entities": 0, "unsafe_promotions": 0},
+        "entities": [
+            {
+                "entity_id": "company:completed.ai",
+                "name": "Completed AI",
+                "domain": "completed.ai",
+                "current_route": "Research Deeper",
+                "current_action": "Research deeper",
+                "status_movement": "repeated",
+                "source_lanes_seen": ["HN", "web"],
+                "missing_evidence": ["no founder/team evidence", "no stage/funding evidence"],
+                "last_seen_run": "current-latest-run",
+                "sighting_history": [
+                    {
+                        "completion_status": "completed_clean",
+                        "missing_evidence": ["no founder/team evidence", "no stage/funding evidence"],
+                    }
+                ],
+            },
+            {
+                "entity_id": "company:attio-unknown.ai",
+                "name": "Attio Unknown AI",
+                "domain": "attio-unknown.ai",
+                "current_route": "Research Deeper",
+                "current_action": "Research deeper",
+                "status_movement": "repeated",
+                "source_lanes_seen": ["web"],
+                "missing_evidence": ["Attio status unknown"],
+                "last_seen_run": "current-latest-run",
+                "sighting_history": [{"completion_status": "completed_clean", "missing_evidence": ["Attio status unknown"]}],
+            },
+            {
+                "entity_id": "company:identity-missing.ai",
+                "name": "Identity Missing AI",
+                "domain": "identity-missing.ai",
+                "current_route": "Research Deeper",
+                "current_action": "Research deeper",
+                "status_movement": "repeated",
+                "source_lanes_seen": ["HN", "web"],
+                "missing_evidence": ["official_domain_identity_not_confirmed", "no founder/team evidence"],
+                "last_seen_run": "current-latest-run",
+                "sighting_history": [
+                    {
+                        "completion_status": "completed_clean",
+                        "missing_evidence": ["official_domain_identity_not_confirmed", "no founder/team evidence"],
+                    }
+                ],
+            },
+            {
+                "entity_id": "project:github.com/example/project",
+                "name": "example/project",
+                "domain": "",
+                "current_route": "OSS Watch",
+                "current_action": "Research deeper",
+                "status_movement": "repeated",
+                "source_lanes_seen": ["OSS"],
+                "missing_evidence": ["OSS/project-only row"],
+                "last_seen_run": "current-latest-run",
+                "sighting_history": [{"completion_status": "", "missing_evidence": ["OSS/project-only row"]}],
+            },
+            {
+                "entity_id": "company:budget-skipped.ai",
+                "name": "Budget Skipped AI",
+                "domain": "budget-skipped.ai",
+                "current_route": "Research Deeper",
+                "current_action": "Research deeper",
+                "status_movement": "repeated",
+                "source_lanes_seen": ["HN", "web"],
+                "missing_evidence": ["max_candidates_exceeded"],
+                "last_seen_run": "current-latest-run",
+                "sighting_history": [
+                    {
+                        "completion_status": "skipped_budget",
+                        "partial_reason": "max_candidates_exceeded",
+                        "missing_evidence": ["max_candidates_exceeded"],
+                    }
+                ],
+            },
+        ],
+    }
+
+    report = build_ledger_action_report(ledger, generated_at="2026-05-24T12:00:00Z")
+    actions = {item["entity_id"]: item["next_action"] for item in report["recommended_actions"]}
+
+    assert actions["company:completed.ai"] == "Run targeted evidence search"
+    assert actions["company:attio-unknown.ai"] == "Run Attio read check only after owner-actionable evidence exists"
+    assert actions["company:identity-missing.ai"] == "Verify official identity"
+    assert actions["project:github.com/example/project"] == "Track OSS/company formation"
+    assert actions["company:budget-skipped.ai"] == "Rerun bounded HN completion"
+
+
 def test_write_ledger_action_report_reads_ledger_and_renders_markdown(tmp_path: Path):
     from signal_ledger import write_ledger_action_report
 
