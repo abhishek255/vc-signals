@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""Controlled weekly HN launch trial orchestration.
+"""Controlled weekly HN launch review orchestration.
 
-This module keeps HN as an opt-in weekly trial lane. Retrieval remains
-last30days-native; vc-signals only normalizes, gates, enriches, and reports.
+Weekly CLI runs enable this lane by default with bounded caps. Retrieval
+remains last30days-native; vc-signals only normalizes, gates, enriches, and reports.
 """
 
 from __future__ import annotations
@@ -269,7 +269,7 @@ def _row_review_markdown(payload: dict) -> str:
     lines = [
         "# HN Trial Row Review",
         "",
-        "Row-level review for the opt-in HN launch trial. HN remains behind --hn-launch-trial.",
+        "Row-level review for the bounded HN launch lane. Weekly CLI enables it by default; use --no-hn-launch-trial to disable.",
         "",
         f"- Rows reviewed: {summary.get('rows', 0)}",
         f"- Priority split: {_format_counter(summary.get('priority_split') or {})}",

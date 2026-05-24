@@ -178,7 +178,7 @@ def test_weekly_focus_renders_hn_launch_trial_section():
     assert "ShouldNotDump" not in markdown
 
 
-def test_hn_assign_owner_rows_enter_main_partner_focus_when_trial_enabled():
+def test_hn_assign_owner_rows_enter_main_partner_focus_when_weekly_hn_enabled():
     from radar_focus import ACTION_ASSIGN_OWNER, build_weekly_focus_artifact, render_weekly_focus_markdown
 
     artifact = build_weekly_focus_artifact(
@@ -238,13 +238,14 @@ def test_hn_assign_owner_rows_enter_main_partner_focus_when_trial_enabled():
 
     assert artifact.sourcing_candidates[0].name == "Voker"
     assert artifact.sourcing_candidates[0].recommended_action == ACTION_ASSIGN_OWNER
-    assert "hn_launch_trial_opt_in" in artifact.sourcing_candidates[0].focus_priority_basis
+    assert "hn_launch_weekly_source" in artifact.sourcing_candidates[0].focus_priority_basis
     assert "https://news.ycombinator.com/item?id=48109962" in artifact.sourcing_candidates[0].evidence_urls
     assert all(item.name != "MissingFounder" for item in artifact.partner_focus)
 
     markdown = render_weekly_focus_markdown(artifact)
 
-    assert "HN opt-in Assign Owner" in markdown
+    assert "HN launch-sourced Assign Owner" in markdown
+    assert "HN opt-in" not in markdown
     assert "Voker" in markdown
 
 

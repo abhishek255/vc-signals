@@ -80,6 +80,13 @@ DEFAULT_OUTPUT_DIR = Path(__file__).parent.parent / "data" / "radar_runs"
 DEFAULT_SECTORS = ("devtools", "cybersecurity", "ai-infra", "vertical-ai", "data-infra", "oss")
 SECTOR_CONFIG_PATH = Path(__file__).parent.parent / "config" / "sectors.json"
 REDDIT_SOURCES_CONFIG_PATH = Path(__file__).parent.parent / "config" / "reddit_sources.json"
+DEFAULT_WEEKLY_HN_LAUNCH_LOOKBACK_DAYS = 30
+DEFAULT_WEEKLY_HN_LAUNCH_TIMEOUT_SECONDS = 60
+DEFAULT_WEEKLY_HN_LAUNCH_MAX_CANDIDATES = 5
+DEFAULT_WEEKLY_HN_LAUNCH_MAX_RUNTIME_SECONDS = 300
+DEFAULT_WEEKLY_HN_LAUNCH_MAX_ATTIO_CHECKS = 5
+DEFAULT_WEEKLY_HN_LAUNCH_MAX_LIVE_QUERIES = 30
+DEFAULT_WEEKLY_HN_LAUNCH_PER_CANDIDATE_TIMEOUT_SECONDS = 30
 
 KNOWN_MATURE_INCUMBENT_CATEGORY_DOMAINS = {
     "atlassian.com": "known_mature_incumbent_category_anchor",
@@ -2284,17 +2291,22 @@ def _discovery_yield_trial_config_from_args(args: dict) -> DiscoveryYieldTrialCo
 
 
 def _hn_launch_trial_config_from_args(args: dict) -> HNLaunchTrialConfig | None:
-    if not _get_bool_arg(args, "hn_launch_trial", "hnLaunchTrial"):
+    if _get_bool_arg(args, "no_hn_launch_trial", "noHnLaunchTrial", "disable_hn_launch_trial"):
         return None
     return HNLaunchTrialConfig(
         enabled=True,
-        lookback_days=int(args.get("hn_launch_lookback_days", 30)),
-        timeout_seconds=int(args.get("hn_launch_timeout_seconds", 120)),
-        max_candidates=int(args.get("hn_launch_max_candidates", 15)),
-        max_runtime_seconds=float(args.get("hn_launch_max_runtime_seconds", 90)),
-        max_attio_checks=int(args.get("hn_launch_max_attio_checks", 10)),
-        max_live_queries=int(args.get("hn_launch_max_live_queries", 25)),
-        per_candidate_timeout_seconds=float(args.get("hn_launch_per_candidate_timeout_seconds", 8)),
+        lookback_days=int(args.get("hn_launch_lookback_days", DEFAULT_WEEKLY_HN_LAUNCH_LOOKBACK_DAYS)),
+        timeout_seconds=int(args.get("hn_launch_timeout_seconds", DEFAULT_WEEKLY_HN_LAUNCH_TIMEOUT_SECONDS)),
+        max_candidates=int(args.get("hn_launch_max_candidates", DEFAULT_WEEKLY_HN_LAUNCH_MAX_CANDIDATES)),
+        max_runtime_seconds=float(args.get("hn_launch_max_runtime_seconds", DEFAULT_WEEKLY_HN_LAUNCH_MAX_RUNTIME_SECONDS)),
+        max_attio_checks=int(args.get("hn_launch_max_attio_checks", DEFAULT_WEEKLY_HN_LAUNCH_MAX_ATTIO_CHECKS)),
+        max_live_queries=int(args.get("hn_launch_max_live_queries", DEFAULT_WEEKLY_HN_LAUNCH_MAX_LIVE_QUERIES)),
+        per_candidate_timeout_seconds=float(
+            args.get(
+                "hn_launch_per_candidate_timeout_seconds",
+                DEFAULT_WEEKLY_HN_LAUNCH_PER_CANDIDATE_TIMEOUT_SECONDS,
+            )
+        ),
     )
 
 

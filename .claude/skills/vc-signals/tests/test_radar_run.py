@@ -2473,33 +2473,51 @@ def test_weekly_default_does_not_enable_discovery_yield_trial(tmp_path, monkeypa
     }
 
 
-def test_weekly_default_does_not_enable_hn_launch_trial(tmp_path, monkeypatch):
-    import json
+def test_weekly_cli_default_enables_hn_launch_trial_with_bounded_caps(tmp_path, monkeypatch, capsys):
     import radar_run
-    from radar_models import ThemeSignal
 
-    def fail_hn_trial(**_kwargs):
-        raise AssertionError("HN launch trial should be opt-in")
+    seen = {}
 
-    monkeypatch.setattr(radar_run, "collect_live_evidence", lambda **kwargs: {"last30days": {}, "github": [], "warnings": []})
-    monkeypatch.setattr(radar_run, "load_candidate_history", lambda: {})
-    monkeypatch.setattr(radar_run, "save_candidate_history", lambda history: None)
-    monkeypatch.setattr(radar_run, "apply_candidate_enrichment", lambda candidates: candidates)
-    monkeypatch.setattr(radar_run, "_grounded_search_available", lambda: True)
-    monkeypatch.setattr(radar_run, "_social_search_available", lambda: False)
-    monkeypatch.setattr(radar_run, "run_query", lambda topic, **kwargs: {"items": [], "warnings": []})
-    monkeypatch.setattr(radar_run, "run_hn_launch_weekly_trial", fail_hn_trial)
+    def fake_run_weekly_artifacts(**kwargs):
+        seen.update(kwargs)
+        return {"weekly_focus": str(tmp_path / "weekly-focus.md"), "companies": 0}
+
+    monkeypatch.setattr(radar_run, "run_weekly_artifacts", fake_run_weekly_artifacts)
+    monkeypatch.setattr("sys.argv", ["radar_run.py", "weekly", "--output-dir", str(tmp_path)])
+
+    radar_run._cli_main()
+    json.loads(capsys.readouterr().out)
+
+    config = seen["hn_launch_trial_config"]
+    assert config is not None
+    assert config.enabled is True
+    assert config.timeout_seconds == 60
+    assert config.max_candidates == 5
+    assert config.max_runtime_seconds == 300
+    assert config.max_attio_checks == 5
+    assert config.max_live_queries == 30
+    assert config.per_candidate_timeout_seconds == 30
+
+
+def test_weekly_cli_can_disable_default_hn_launch_trial(tmp_path, monkeypatch, capsys):
+    import radar_run
+
+    seen = {}
+
+    def fake_run_weekly_artifacts(**kwargs):
+        seen.update(kwargs)
+        return {"weekly_focus": str(tmp_path / "weekly-focus.md"), "companies": 0}
+
+    monkeypatch.setattr(radar_run, "run_weekly_artifacts", fake_run_weekly_artifacts)
     monkeypatch.setattr(
-        radar_run,
-        "build_theme_signals",
-        lambda signals, sectors: [ThemeSignal(market_sector="AI Infra", theme="Agent reliability and evals")],
+        "sys.argv",
+        ["radar_run.py", "weekly", "--output-dir", str(tmp_path), "--no-hn-launch-trial"],
     )
 
-    radar_run.run_weekly_artifacts(output_dir=tmp_path, sectors=("ai-infra",), github_limit=0)
+    radar_run._cli_main()
+    json.loads(capsys.readouterr().out)
 
-    focus = json.loads((tmp_path / "weekly-focus.json").read_text())
-    assert focus["appendix"]["hn_launch_trial"]["enabled"] is False
-    assert "HN Launch Trial" not in (tmp_path / "weekly-preview.md").read_text()
+    assert seen["hn_launch_trial_config"] is None
 
 
 def test_weekly_hn_launch_trial_flag_writes_trial_appendix_only(tmp_path, monkeypatch):
@@ -2562,13 +2580,20 @@ def test_weekly_hn_launch_trial_flag_writes_trial_appendix_only(tmp_path, monkey
     assert "HN Launch Trial" not in (tmp_path / "weekly-preview.md").read_text()
 
 
-def test_weekly_hn_launch_trial_cli_default_candidate_cap_matches_rich_validation():
+def test_weekly_hn_launch_trial_cli_default_caps_match_bounded_validation():
     import radar_run
 
-    config = radar_run._hn_launch_trial_config_from_args({"hn_launch_trial": True})
+    config = radar_run._hn_launch_trial_config_from_args({})
 
     assert config is not None
-    assert config.max_candidates == 15
+    assert config.enabled is True
+    assert config.timeout_seconds == 60
+    assert config.max_candidates == 5
+    assert config.max_runtime_seconds == 300
+    assert config.max_attio_checks == 5
+    assert config.max_live_queries == 30
+    assert config.per_candidate_timeout_seconds == 30
+    assert radar_run._hn_launch_trial_config_from_args({"no_hn_launch_trial": True}) is None
 
 
 def test_weekly_discovery_yield_trial_flag_runs_selected_families(tmp_path, monkeypatch):

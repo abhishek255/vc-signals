@@ -986,7 +986,7 @@ def _hn_assign_owner_focus_items(hn_launch_trial: dict | None) -> list[FocusItem
 
         name = str(row.get("name") or "").strip()
         domain = str(row.get("domain") or official.get("domain") or "").strip()
-        source_title = str(hn_source.get("title") or f"HN opt-in Assign Owner: {name}").strip()
+        source_title = str(hn_source.get("title") or f"HN launch-sourced Assign Owner: {name}").strip()
         evidence_urls = list(
             dict.fromkeys(
                 url
@@ -1017,12 +1017,12 @@ def _hn_assign_owner_focus_items(hn_launch_trial: dict | None) -> list[FocusItem
                 market_movement_id=_stable_id(str(row.get("market_movement") or "HN launch signal")),
                 market_movement=str(row.get("market_movement") or "HN launch signal"),
                 market_sector=str(row.get("market_sector") or "HN Launch"),
-                why_focus_this_week=f"HN opt-in Assign Owner: {source_title}",
-                who_is_talking=["HN opt-in launch", "founder/company evidence"],
+                why_focus_this_week=f"HN launch-sourced Assign Owner: {source_title}",
+                who_is_talking=["HN launch source", "founder/company evidence"],
                 talker_types=["founder", "practitioner"],
                 talker_type_confidence="Medium",
                 evidence_snapshot=[
-                    "HN opt-in row cleared identity, founder, stage, customer, and Attio gates",
+                    "HN launch-sourced row cleared identity, founder, stage, customer, and Attio gates",
                     ", ".join(row.get("evidence_dimensions") or []),
                 ],
                 evidence_urls=evidence_urls,
@@ -1042,9 +1042,9 @@ def _hn_assign_owner_focus_items(hn_launch_trial: dict | None) -> list[FocusItem
                 consensus_risk_score=20,
                 company_identity_quality_score=90,
                 company_identity_quality_basis=["hn_launch_trial_verified_company", "official_site_confirms_identity"],
-                focus_priority_basis=["hn_launch_trial_opt_in", "assign_owner_evidence_complete"],
+                focus_priority_basis=["hn_launch_weekly_source", "assign_owner_evidence_complete"],
                 actionability_basis=["attio_safe_hn_assign_owner"],
-                freshness_basis=["hn_launch_trial_opt_in"],
+                freshness_basis=["hn_launch_weekly_source"],
                 market_movement_basis=["hn_launch_trial_signal"],
                 marathon_fit_basis=["target_stage", "actionable_company_context"],
                 noise_risk_basis=["gated_hn_assign_owner"],
@@ -1054,8 +1054,8 @@ def _hn_assign_owner_focus_items(hn_launch_trial: dict | None) -> list[FocusItem
                 movement_assignment_evidence_url=_first_url(hn_source),
                 weekly_tag="NEW",
                 new_evidence_this_week=evidence_urls[:2],
-                why_this_may_be_noise="HN opt-in row; included only after owner-readiness and Attio gates cleared.",
-                skepticism_events=["HN source remains opt-in and provenance-gated."],
+                why_this_may_be_noise="HN launch-sourced row; included only after owner-readiness and Attio gates cleared.",
+                skepticism_events=["HN source remains provenance-gated."],
                 source_candidate_id=_first_url(hn_source) or name,
                 maturity_status=str(stage.get("maturity_status") or "seed_to_series_b"),
                 maturity_basis=maturity_basis,
