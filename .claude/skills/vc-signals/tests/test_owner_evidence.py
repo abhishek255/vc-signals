@@ -211,7 +211,7 @@ def test_owner_evidence_runs_exact_funding_and_customer_queries_and_caches(tmp_p
                 "items": [
                     {
                         "title": "Copperhelm emerges from stealth with seed funding",
-                        "url": "https://example.com/copperhelm-seed",
+                        "url": "https://www.businesswire.com/news/home/copperhelm-seed",
                         "snippet": "Copperhelm raised a $7M seed round for agentic cloud security.",
                     }
                 ]
@@ -245,9 +245,9 @@ def test_owner_evidence_runs_exact_funding_and_customer_queries_and_caches(tmp_p
     ]
     assert first_report["summary"]["queries_run"] == 2
     assert second_report["summary"]["query_cache_hits"] == 2
-    assert first[0].stage_funding_evidence == ["https://example.com/copperhelm-seed"]
+    assert first[0].stage_funding_evidence == ["https://www.businesswire.com/news/home/copperhelm-seed"]
     assert first[0].customer_buyer_evidence == ["https://example.com/copperhelm-pilots"]
-    assert second[0].stage_funding_evidence == ["https://example.com/copperhelm-seed"]
+    assert second[0].stage_funding_evidence == ["https://www.businesswire.com/news/home/copperhelm-seed"]
     assert second[0].customer_buyer_evidence == ["https://example.com/copperhelm-pilots"]
 
 
@@ -359,11 +359,11 @@ def test_owner_evidence_does_not_turn_late_funding_text_into_seed_stage(tmp_path
         ],
         query_runner=lambda topic, **kwargs: {
             "items": [
-                {
-                    "title": "MatureCo raises Series C financing",
-                    "url": "https://example.com/matureco-series-c",
-                    "snippet": "MatureCo raised a Series C round for its enterprise security platform.",
-                }
+                    {
+                        "title": "MatureCo raises Series C financing",
+                        "url": "https://www.businesswire.com/news/home/matureco-series-c",
+                        "snippet": "MatureCo raised a Series C round for its enterprise security platform.",
+                    }
             ]
         },
         page_fetcher=lambda url: "",
@@ -372,7 +372,7 @@ def test_owner_evidence_does_not_turn_late_funding_text_into_seed_stage(tmp_path
 
     assert enriched[0].maturity_status == "unknown"
     assert enriched[0].lead_route == "research_deeper"
-    assert report["items"][0]["stage_funding_evidence"] == ["https://example.com/matureco-series-c"]
+    assert report["items"][0]["stage_funding_evidence"] == ["https://www.businesswire.com/news/home/matureco-series-c"]
 
 
 def test_owner_evidence_does_not_count_generic_funding_word_as_stage(tmp_path):
@@ -421,33 +421,137 @@ def test_owner_evidence_counts_raised_amount_as_stage_signal(tmp_path):
         ],
         query_runner=lambda topic, **kwargs: {
             "items": [
-                {
-                    "title": "Copperhelm raises $7M",
-                    "url": "https://example.com/copperhelm-raises",
-                    "snippet": "Copperhelm raised $7M to build agentic cloud security.",
-                }
+                    {
+                        "title": "Copperhelm raises $7M",
+                        "url": "https://www.businesswire.com/news/home/copperhelm-raises",
+                        "snippet": "Copperhelm raised $7M to build agentic cloud security.",
+                    }
             ]
         },
         page_fetcher=lambda url: "",
         cache_dir=tmp_path,
     )
 
-    assert enriched[0].stage_funding_evidence == ["https://example.com/copperhelm-raises"]
-    assert report["items"][0]["stage_funding_evidence"] == ["https://example.com/copperhelm-raises"]
+    assert enriched[0].stage_funding_evidence == ["https://www.businesswire.com/news/home/copperhelm-raises"]
+    assert report["items"][0]["stage_funding_evidence"] == ["https://www.businesswire.com/news/home/copperhelm-raises"]
 
 
 def test_owner_evidence_carries_existing_maturity_urls_into_stage_evidence(tmp_path):
     from owner_evidence import enrich_owner_evidence
 
     enriched, report = enrich_owner_evidence(
-        [_candidate(stage_funding_evidence=[])],
+        [_candidate(stage_funding_evidence=[], maturity_evidence_urls=["https://copperhelm.com/blog/copperhelm-seed"])],
         query_runner=None,
         page_fetcher=lambda url: "",
         cache_dir=tmp_path,
     )
 
-    assert enriched[0].stage_funding_evidence == ["https://example.com/copperhelm-seed"]
-    assert report["items"][0]["stage_funding_evidence"] == ["https://example.com/copperhelm-seed"]
+    assert enriched[0].stage_funding_evidence == ["https://copperhelm.com/blog/copperhelm-seed"]
+    assert report["items"][0]["stage_funding_evidence"] == ["https://copperhelm.com/blog/copperhelm-seed"]
+
+
+def test_owner_evidence_separates_weak_stage_hints_from_durable_stage_evidence(tmp_path):
+    from owner_evidence import enrich_owner_evidence
+
+    def fake_query(topic, **kwargs):
+        if "funding seed" in topic:
+            return {
+                "items": [
+                    {
+                        "title": "Zencoder Review 2026: AI login, extension, alternatives",
+                        "url": "https://nubiapage.com/zencoder-review-2026-ai-login-extension-alternatives-user-experience-and-faqs/",
+                        "snippet": "A third-party review mentioning Zencoder funding and startup context.",
+                    },
+                    {
+                        "title": "AI Code Generation Use Cases",
+                        "url": "https://zencoder.ai/blog/ai-code-generation-use-cases",
+                        "snippet": "Zencoder explains common AI code generation use cases.",
+                    },
+                    {
+                        "title": "Zencoder company profile",
+                        "url": "https://tracxn.com/d/companies/zencoder/__pbl4JcE1ER6EMRa7BZEMpF_Sv2DaLWuQ3HG-wnwte5U",
+                        "snippet": "Directory profile mentioning seed funding.",
+                    },
+                ]
+            }
+        return {"items": []}
+
+    enriched, report = enrich_owner_evidence(
+        [
+            _candidate(
+                name="Zencoder",
+                domain="zencoder.ai",
+                maturity_status="unknown",
+                maturity_basis=[],
+                maturity_evidence_urls=[],
+                stage_funding_evidence=[],
+                founder_profiles=[],
+                founder_team_evidence=[],
+                customer_buyer_evidence=[],
+                lead_route="research_deeper",
+                why_on_radar="Zencoder builds AI coding tools.",
+            )
+        ],
+        query_runner=fake_query,
+        page_fetcher=lambda url: "",
+        cache_dir=tmp_path,
+    )
+
+    candidate = enriched[0]
+    item = report["items"][0]
+    assert candidate.stage_funding_evidence == []
+    assert item["stage_funding_evidence"] == []
+    assert item["weak_stage_funding_hints"] == [
+        "https://nubiapage.com/zencoder-review-2026-ai-login-extension-alternatives-user-experience-and-faqs/",
+        "https://tracxn.com/d/companies/zencoder/__pbl4JcE1ER6EMRa7BZEMpF_Sv2DaLWuQ3HG-wnwte5U",
+    ]
+    assert "https://zencoder.ai/blog/ai-code-generation-use-cases" not in item["weak_stage_funding_hints"]
+    assert "no stage/funding evidence" in candidate.missing_owner_evidence
+
+
+def test_owner_evidence_counts_durable_stage_source_while_reporting_weak_hints(tmp_path):
+    from owner_evidence import enrich_owner_evidence
+
+    def fake_query(topic, **kwargs):
+        if "funding seed" in topic:
+            return {
+                "items": [
+                    {
+                        "title": "Copperhelm raises $7M seed round",
+                        "url": "https://www.businesswire.com/news/home/copperhelm-raises-7m-seed",
+                        "snippet": "Copperhelm raised a $7M seed round for agentic cloud security.",
+                    },
+                    {
+                        "title": "Copperhelm company profile",
+                        "url": "https://tracxn.com/d/companies/copperhelm/example",
+                        "snippet": "Directory profile mentioning seed funding.",
+                    },
+                ]
+            }
+        return {"items": []}
+
+    enriched, report = enrich_owner_evidence(
+        [
+            _candidate(
+                maturity_status="unknown",
+                maturity_basis=[],
+                maturity_evidence_urls=[],
+                stage_funding_evidence=[],
+                founder_profiles=[{"name": "Maya Rao"}],
+                lead_route="research_deeper",
+            )
+        ],
+        query_runner=fake_query,
+        page_fetcher=lambda url: "",
+        cache_dir=tmp_path,
+    )
+
+    candidate = enriched[0]
+    item = report["items"][0]
+    assert candidate.stage_funding_evidence == ["https://www.businesswire.com/news/home/copperhelm-raises-7m-seed"]
+    assert item["stage_funding_evidence"] == ["https://www.businesswire.com/news/home/copperhelm-raises-7m-seed"]
+    assert item["weak_stage_funding_hints"] == ["https://tracxn.com/d/companies/copperhelm/example"]
+    assert "no stage/funding evidence" not in candidate.missing_owner_evidence
 
 
 def test_write_owner_evidence_artifact(tmp_path):

@@ -47,7 +47,7 @@ def test_owner_readiness_enrichment_uses_cache_before_live_budget(tmp_path):
                 "items": [
                     {
                         "title": "Copperhelm Emerges from Stealth with $7M Seed Funding",
-                        "url": "https://example.com/copperhelm-seed",
+                        "url": "https://copperhelm.com/blog/copperhelm-seed",
                         "snippet": "Founder Maya Rao launched Copperhelm after enterprise security teams joined design partner pilots.",
                     }
                 ],
@@ -167,3 +167,50 @@ def test_write_owner_readiness_artifact(tmp_path):
     assert payload["items"][0]["name"] == "Copperhelm"
     assert payload["items"][0]["owner_readiness_score"] >= 0
     assert "summary" in payload
+
+
+def test_owner_readiness_does_not_count_weak_directory_founder_or_stage_query(tmp_path):
+    from owner_readiness import enrich_owner_readiness
+
+    def fake_query(topic, **kwargs):
+        return {
+            "items": [
+                {
+                    "title": "Copperhelm company profile",
+                    "url": "https://tracxn.com/d/companies/copperhelm/example",
+                    "snippet": "Copperhelm founder Maya Rao raised a seed round.",
+                }
+            ],
+            "warnings": [],
+        }
+
+    enriched, report = enrich_owner_readiness(
+        [
+            _candidate(
+                maturity_status="unknown",
+                maturity_basis=[],
+                maturity_evidence_urls=[],
+                founder_profiles=[],
+                founder_team_evidence=[],
+                stage_funding_evidence=[],
+                customer_buyer_evidence=[],
+                lead_route="research_deeper",
+                why_on_radar="Copperhelm protects cloud agents.",
+            )
+        ],
+        query_runner=fake_query,
+        cache_dir=tmp_path,
+        max_queries=1,
+    )
+
+    candidate = enriched[0]
+    item = report["items"][0]
+    assert candidate.founder_profiles == []
+    assert candidate.stage_funding_evidence == []
+    assert item["founder_team_evidence"] == []
+    assert item["stage_funding_evidence"] == []
+    assert item["weak_founder_team_hints"] == ["https://tracxn.com/d/companies/copperhelm/example"]
+    assert item["weak_stage_funding_hints"] == ["https://tracxn.com/d/companies/copperhelm/example"]
+    assert candidate.recommended_owner_action == "Research deeper"
+    assert "no founder/team evidence" in candidate.missing_owner_evidence
+    assert "no stage/funding evidence" in candidate.missing_owner_evidence

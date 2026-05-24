@@ -117,6 +117,8 @@ class Candidate:
     recommended_next_validation_step: str = ""
     founder_team_evidence: list[str] = field(default_factory=list)
     stage_funding_evidence: list[str] = field(default_factory=list)
+    weak_founder_team_hints: list[str] = field(default_factory=list)
+    weak_stage_funding_hints: list[str] = field(default_factory=list)
     customer_buyer_evidence: list[str] = field(default_factory=list)
     customer_buyer_evidence_types: list[dict] = field(default_factory=list)
     attio_confidence: str = ""
@@ -554,6 +556,8 @@ class OwnerReadiness:
     recommended_next_validation_step: str = ""
     founder_team_evidence: list[str] = field(default_factory=list)
     stage_funding_evidence: list[str] = field(default_factory=list)
+    weak_founder_team_hints: list[str] = field(default_factory=list)
+    weak_stage_funding_hints: list[str] = field(default_factory=list)
     customer_buyer_pull_evidence: list[str] = field(default_factory=list)
     attio_context_evidence: list[str] = field(default_factory=list)
     evidence_urls: list[str] = field(default_factory=list)
@@ -578,6 +582,7 @@ class OwnerEvidence:
     founder_team_evidence: list[str] = field(default_factory=list)
     founder_profiles: list[dict] = field(default_factory=list)
     stage_funding_evidence: list[str] = field(default_factory=list)
+    weak_stage_funding_hints: list[str] = field(default_factory=list)
     customer_buyer_evidence: list[str] = field(default_factory=list)
     customer_buyer_evidence_types: list[dict] = field(default_factory=list)
     official_site_pages_checked: list[str] = field(default_factory=list)

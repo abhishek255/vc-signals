@@ -810,6 +810,7 @@ def _review_rows(rows: list[dict], ledger_items: list[dict]) -> list[dict]:
             "evidence_completeness": len(evidence_dimensions),
             "attio_status": row.get("attio_status", ""),
             "missing_evidence": missing,
+            "weak_stage_funding_hints": list(row.get("weak_stage_funding_hints") or []),
             "unsafe_promotion": bool(row.get("unsafe_promotion")),
             "assign_owner_evidence_provenance": dict(row.get("assign_owner_evidence_provenance") or {}),
             "review_rank_reason": _review_rank_reason(row, evidence_dimensions),
@@ -1399,6 +1400,7 @@ def _row_from_candidate(candidate: Candidate, original_row: dict, identity_repor
         "founders": evidence["founders"],
         "founder_profiles": evidence["founder_profiles"],
         "stage_funding_evidence": evidence["stage_funding_evidence"],
+        "weak_stage_funding_hints": evidence["weak_stage_funding_hints"],
         "customer_buyer_evidence": evidence["customer_buyer_evidence"],
         "customer_buyer_evidence_types": evidence["customer_buyer_evidence_types"],
         "attio_status": candidate.attio_status,
@@ -1601,6 +1603,7 @@ def _strict_hn_owner_outputs(
         "founders": strict_founders,
         "founder_profiles": strict_founder_profiles,
         "stage_funding_evidence": strict_stage_urls,
+        "weak_stage_funding_hints": list(candidate.weak_stage_funding_hints),
         "customer_buyer_evidence": strict_customer_urls,
         "customer_buyer_evidence_types": strong_customer_types,
     }

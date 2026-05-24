@@ -7,6 +7,8 @@ from pathlib import Path
 from typing import Callable
 
 from candidate_quality import apply_candidate_name_quality_failure, candidate_quality_from_candidate
+from evidence_quality import split_durable_and_weak_urls
+from founder_team_verification import extract_named_founder_profiles_from_text
 from radar_focus import (
     ACTION_ASSIGN_OWNER,
     ACTION_MONITOR_ONLY,
@@ -124,26 +126,104 @@ def _evidence_urls(items: list[dict]) -> list[str]:
     return list(dict.fromkeys(item.get("url") or item.get("source_url") or "" for item in items or [] if item.get("url") or item.get("source_url")))
 
 
-def _apply_owner_query_evidence(candidate: Candidate, payload: dict) -> tuple[Candidate, dict[str, list[str]]]:
+def _domain(candidate: Candidate) -> str:
+    return (candidate.domain or candidate.candidate_domain or "").strip()
+
+
+def _company_aliases(candidate: Candidate) -> list[str]:
+    aliases: list[str] = []
+    for value in (candidate.canonical_name, candidate.display_name, candidate.name, _clean_query_name(candidate.name)):
+        value = re.sub(r"\s+", " ", (value or "").strip())
+        if value and value.lower() not in {item.lower() for item in aliases}:
+            aliases.append(value)
+    domain = _domain(candidate)
+    root = domain.split(".", 1)[0] if domain else ""
+    if root:
+        root_title = root[:1].upper() + root[1:]
+        if root_title.lower() not in {item.lower() for item in aliases}:
+            aliases.append(root_title)
+    return aliases[:5]
+
+
+def _item_text(item: dict) -> str:
+    return " ".join(str(item.get(key, "")) for key in ("title", "snippet", "description", "body", "url")).strip()
+
+
+def _item_url(item: dict) -> str:
+    return str(item.get("url") or item.get("source_url") or "").strip()
+
+
+def _has_stage_funding_text(text: str) -> bool:
+    lowered = (text or "").lower()
+    if re.search(r"\b(pre[- ]?seed|seed|series\s+[ab])\b", lowered):
+        return True
+    return bool(re.search(r"\braised\b[^.\n]{0,80}(?:\$|\d|round|financing|funding)", lowered))
+
+
+def _sanitize_stage_evidence(candidate: Candidate) -> Candidate:
     out = Candidate.from_dict(candidate.to_dict())
+    durable, weak = split_durable_and_weak_urls(
+        list(dict.fromkeys(list(out.stage_funding_evidence or []) + list(out.maturity_evidence_urls or []))),
+        candidate_domain=_domain(out),
+    )
+    out.stage_funding_evidence = durable[:5]
+    out.weak_stage_funding_hints = list(dict.fromkeys(list(out.weak_stage_funding_hints or []) + weak))[:8]
+    return out
+
+
+def _apply_owner_query_evidence(candidate: Candidate, payload: dict) -> tuple[Candidate, dict[str, list[str]]]:
+    out = _sanitize_stage_evidence(candidate)
     items = payload.get("items", []) if isinstance(payload, dict) else []
-    text = _text_for_items(items)
-    urls = _evidence_urls(items)
     dimensions = {
         "founder_team_evidence": [],
         "stage_funding_evidence": [],
+        "weak_founder_team_hints": list(out.weak_founder_team_hints),
+        "weak_stage_funding_hints": list(out.weak_stage_funding_hints),
         "customer_buyer_pull_evidence": [],
         "attio_context_evidence": [],
     }
-    if any(term in text for term in FOUNDER_TERMS):
-        dimensions["founder_team_evidence"] = urls[:3] or ["query_text_founder_team_signal"]
-        if not out.founder_profiles and not out.founders:
-            out.founder_profiles = [{"name": "source-backed founder/team evidence"}]
-    if any(term in text for term in FUNDING_TERMS):
-        dimensions["stage_funding_evidence"] = urls[:3] or ["query_text_stage_funding_signal"]
-    if any(term in text for term in CUSTOMER_TERMS):
-        dimensions["customer_buyer_pull_evidence"] = urls[:3] or ["query_text_customer_pull_signal"]
-        out.evidence_metadata.append({"description": text[:1200]})
+    customer_urls: list[str] = []
+    for item in items:
+        item_text = _item_text(item)
+        item_url = _item_url(item)
+        durable, weak = split_durable_and_weak_urls([item_url], candidate_domain=_domain(out), item=item)
+        founder_profiles, _rejected = extract_named_founder_profiles_from_text(
+            company_names=_company_aliases(out),
+            text=item_text,
+            url=item_url,
+        )
+        if founder_profiles:
+            if durable:
+                existing_profiles = {(profile.get("name"), profile.get("source")) for profile in out.founder_profiles}
+                existing_names = set(out.founders)
+                for profile in founder_profiles:
+                    name = profile.get("name", "")
+                    if name and name not in existing_names:
+                        out.founders.append(name)
+                        existing_names.add(name)
+                    key = (profile.get("name"), profile.get("source"))
+                    if key not in existing_profiles:
+                        out.founder_profiles.append(dict(profile))
+                        existing_profiles.add(key)
+                dimensions["founder_team_evidence"].extend(durable)
+            else:
+                dimensions["weak_founder_team_hints"].extend(weak)
+        if _has_stage_funding_text(item_text):
+            dimensions["stage_funding_evidence"].extend(durable)
+            dimensions["weak_stage_funding_hints"].extend(weak)
+        lowered = item_text.lower()
+        if any(term in lowered for term in CUSTOMER_TERMS):
+            customer_urls.extend(durable or [item_url] if item_url else [])
+            out.evidence_metadata.append({"description": item_text[:1200]})
+    dimensions["founder_team_evidence"] = list(dict.fromkeys(dimensions["founder_team_evidence"]))[:3]
+    dimensions["stage_funding_evidence"] = list(dict.fromkeys(dimensions["stage_funding_evidence"]))[:3]
+    dimensions["weak_founder_team_hints"] = list(dict.fromkeys(dimensions["weak_founder_team_hints"]))[:5]
+    dimensions["weak_stage_funding_hints"] = list(dict.fromkeys(dimensions["weak_stage_funding_hints"]))[:5]
+    dimensions["customer_buyer_pull_evidence"] = list(dict.fromkeys(customer_urls))[:3]
+    out.founder_team_evidence = list(dict.fromkeys(list(out.founder_team_evidence) + dimensions["founder_team_evidence"]))[:5]
+    out.stage_funding_evidence = list(dict.fromkeys(list(out.stage_funding_evidence) + dimensions["stage_funding_evidence"]))[:5]
+    out.weak_founder_team_hints = dimensions["weak_founder_team_hints"]
+    out.weak_stage_funding_hints = dimensions["weak_stage_funding_hints"]
     status = (out.attio_status or "unknown").lower()
     if status in ATTIO_NEW_STATUSES or status in ATTIO_NO_OWNER_STATUSES or status in {"stale", "passed"}:
         dimensions["attio_context_evidence"] = [status]
@@ -166,10 +246,12 @@ def _recommended_owner_action(candidate: Candidate, score: int, missing: list[st
 
 
 def _readiness_for_candidate(candidate: Candidate, *, query: str = "", query_status: str = "", payload: dict | None = None) -> tuple[Candidate, OwnerReadiness]:
-    scored_candidate = Candidate.from_dict(candidate.to_dict())
+    scored_candidate = _sanitize_stage_evidence(candidate)
     dimensions = {
         "founder_team_evidence": list(scored_candidate.founder_team_evidence),
         "stage_funding_evidence": list(scored_candidate.stage_funding_evidence),
+        "weak_founder_team_hints": list(scored_candidate.weak_founder_team_hints),
+        "weak_stage_funding_hints": list(scored_candidate.weak_stage_funding_hints),
         "customer_buyer_pull_evidence": list(scored_candidate.customer_buyer_evidence),
         "attio_context_evidence": [],
     }
@@ -193,7 +275,9 @@ def _readiness_for_candidate(candidate: Candidate, *, query: str = "", query_sta
         recommended_owner_action=action,
         recommended_next_validation_step=next_step,
         founder_team_evidence=dimensions["founder_team_evidence"],
-        stage_funding_evidence=dimensions["stage_funding_evidence"] or list(scored_candidate.maturity_evidence_urls[:3]),
+        stage_funding_evidence=dimensions["stage_funding_evidence"],
+        weak_founder_team_hints=dimensions["weak_founder_team_hints"],
+        weak_stage_funding_hints=dimensions["weak_stage_funding_hints"],
         customer_buyer_pull_evidence=dimensions["customer_buyer_pull_evidence"],
         attio_context_evidence=dimensions["attio_context_evidence"],
         evidence_urls=_evidence_urls(payload.get("items", []) if payload else []) or list(scored_candidate.sources[:3]),

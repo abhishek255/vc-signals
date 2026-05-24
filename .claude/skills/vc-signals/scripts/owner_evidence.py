@@ -12,6 +12,7 @@ from urllib.request import Request, urlopen
 
 from founder_team_verification import extract_named_founder_profiles_from_text
 from candidate_quality import apply_candidate_name_quality_failure, candidate_quality_from_candidate
+from evidence_quality import split_durable_and_weak_urls
 from radar_focus import (
     ACTION_ASSIGN_OWNER,
     ACTION_MONITOR_ONLY,
@@ -241,6 +242,15 @@ def _has_stage_funding_evidence(text: str) -> bool:
     return bool(re.search(r"\braised\b[^.\n]{0,80}(?:\$|\d|round|financing|funding)", lowered))
 
 
+def _has_stage_funding_hint(text: str) -> bool:
+    lowered = (text or "").lower()
+    return _has_stage_funding_evidence(text) or any(term in lowered for term in ("funding", "financing", "startup"))
+
+
+def _split_stage_urls(candidate: Candidate, urls: list[str], *, item: dict | None = None) -> tuple[list[str], list[str]]:
+    return split_durable_and_weak_urls(urls, candidate_domain=_domain(candidate), item=item)
+
+
 def _has_customer_buyer_evidence(text: str) -> bool:
     return any(evidence_type in STRONG_CUSTOMER_EVIDENCE_TYPES for evidence_type in classify_customer_buyer_evidence(text))
 
@@ -374,9 +384,20 @@ def _profiles_from_text(candidate: Candidate, *, text: str, url: str) -> list[di
     return profiles
 
 
-def _apply_evidence(candidate: Candidate, *, founder_urls: list[str], founder_profiles: list[dict], stage_urls: list[str], customer_urls: list[str], customer_evidence_types: list[dict], page_texts: list[str], query_texts: list[str]) -> Candidate:
+def _sanitize_stage_funding_fields(candidate: Candidate) -> Candidate:
     out = Candidate.from_dict(candidate.to_dict())
+    candidate_domain = _domain(out)
+    existing_urls = list(dict.fromkeys(list(out.stage_funding_evidence or []) + list(out.maturity_evidence_urls or [])))
+    durable, weak = split_durable_and_weak_urls(existing_urls, candidate_domain=candidate_domain)
+    out.stage_funding_evidence = durable[:5]
+    out.weak_stage_funding_hints = list(dict.fromkeys(list(out.weak_stage_funding_hints or []) + weak))[:8]
+    return out
+
+
+def _apply_evidence(candidate: Candidate, *, founder_urls: list[str], founder_profiles: list[dict], stage_urls: list[str], weak_stage_urls: list[str], stage_texts: list[str], customer_urls: list[str], customer_evidence_types: list[dict], page_texts: list[str], query_texts: list[str]) -> Candidate:
+    out = _sanitize_stage_funding_fields(candidate)
     combined_text = " ".join(page_texts + query_texts).lower()
+    durable_stage_text = " ".join(stage_texts).lower()
     evidence_changed = False
     founder_profiles = _dedupe_founder_profiles(founder_profiles)
     if founder_profiles:
@@ -400,13 +421,16 @@ def _apply_evidence(candidate: Candidate, *, founder_urls: list[str], founder_pr
         evidence_changed = True
         out.stage_funding_evidence = list(dict.fromkeys(out.stage_funding_evidence + stage_urls))[:5]
         out.maturity_evidence_urls = list(dict.fromkeys(out.maturity_evidence_urls + stage_urls))[:5]
-        early_stage_evidence = any(term in combined_text for term in EARLY_STAGE_TERMS)
-        late_stage_evidence = any(term in combined_text for term in LATE_STAGE_TERMS)
+        early_stage_evidence = any(term in durable_stage_text for term in EARLY_STAGE_TERMS)
+        late_stage_evidence = any(term in durable_stage_text for term in LATE_STAGE_TERMS)
         if out.maturity_status == "unknown" and early_stage_evidence and not late_stage_evidence:
             out.maturity_status = "seed_to_series_b"
             out.maturity_basis = list(dict.fromkeys(out.maturity_basis + ["owner_evidence_stage_funding_signal"]))
             if out.lead_route == "research_deeper":
                 out.lead_route = "sourcing_candidate"
+    if weak_stage_urls:
+        evidence_changed = True
+        out.weak_stage_funding_hints = list(dict.fromkeys(out.weak_stage_funding_hints + weak_stage_urls))[:8]
     if customer_urls:
         evidence_changed = True
         out.customer_buyer_evidence = list(dict.fromkeys(out.customer_buyer_evidence + customer_urls))[:5]
@@ -428,8 +452,7 @@ def _apply_evidence(candidate: Candidate, *, founder_urls: list[str], founder_pr
 
 
 def _score_evidence_candidate(candidate: Candidate, *, eligible: bool, skip_reason: str, pages_checked: list[str], pages_failed: list[str], funding_query: str, funding_status: str, customer_query: str, customer_status: str, evidence_urls: list[str]) -> tuple[Candidate, OwnerEvidence]:
-    if not candidate.stage_funding_evidence and candidate.maturity_evidence_urls:
-        candidate.stage_funding_evidence = list(candidate.maturity_evidence_urls[:5])
+    candidate = _sanitize_stage_funding_fields(candidate)
     attio_confidence, attio_basis = _attio_confidence(candidate)
     candidate.attio_confidence = attio_confidence
     candidate.attio_confidence_basis = attio_basis
@@ -449,7 +472,8 @@ def _score_evidence_candidate(candidate: Candidate, *, eligible: bool, skip_reas
         skip_reason=skip_reason,
         founder_team_evidence=list(candidate.founder_team_evidence),
         founder_profiles=list(candidate.founder_profiles),
-        stage_funding_evidence=list(candidate.stage_funding_evidence or candidate.maturity_evidence_urls[:3]),
+        stage_funding_evidence=list(candidate.stage_funding_evidence),
+        weak_stage_funding_hints=list(candidate.weak_stage_funding_hints),
         customer_buyer_evidence=list(candidate.customer_buyer_evidence),
         customer_buyer_evidence_types=list(getattr(candidate, "customer_buyer_evidence_types", [])),
         official_site_pages_checked=pages_checked,
@@ -528,6 +552,8 @@ def enrich_owner_evidence(
         founder_urls: list[str] = []
         founder_profiles: list[dict] = []
         stage_urls: list[str] = []
+        weak_stage_urls: list[str] = []
+        stage_texts: list[str] = []
         customer_urls: list[str] = []
         customer_evidence_types: list[dict] = []
         evidence_urls: list[str] = []
@@ -557,8 +583,13 @@ def enrich_owner_evidence(
                 if durable_links:
                     found_profiles = [dict(profile, source=durable_links[0]) for profile in found_profiles]
                 founder_profiles.extend(found_profiles)
-            if _has_stage_funding_evidence(text):
-                stage_urls.extend(evidence_urls_for_page)
+            if _has_stage_funding_hint(text):
+                durable, weak = _split_stage_urls(candidate, evidence_urls_for_page)
+                if _has_stage_funding_evidence(text):
+                    stage_urls.extend(durable)
+                weak_stage_urls.extend(weak)
+                if durable and _has_stage_funding_evidence(text):
+                    stage_texts.append(text)
             customer_labels = classify_customer_buyer_evidence(text)
             if customer_labels:
                 for evidence_url in evidence_urls_for_page:
@@ -608,12 +639,19 @@ def enrich_owner_evidence(
             funding_text = _items_text(funding_items)
             query_texts.append(funding_text)
             for item in funding_items:
-                found_profiles = _profiles_from_text(candidate, text=_items_text([item]), url=item.get("url") or item.get("source_url") or "")
+                item_text = _items_text([item])
+                item_url = item.get("url") or item.get("source_url") or ""
+                found_profiles = _profiles_from_text(candidate, text=item_text, url=item_url)
                 if found_profiles:
                     founder_urls.extend(profile.get("source", "") for profile in found_profiles if profile.get("source"))
                     founder_profiles.extend(found_profiles)
-            if _has_stage_funding_evidence(funding_text):
-                stage_urls.extend(_item_urls(funding_items))
+                if _has_stage_funding_hint(item_text):
+                    durable, weak = _split_stage_urls(candidate, [item_url], item=item)
+                    if _has_stage_funding_evidence(item_text):
+                        stage_urls.extend(durable)
+                    weak_stage_urls.extend(weak)
+                    if durable and _has_stage_funding_evidence(item_text):
+                        stage_texts.append(item_text)
         customer_items = _query_items(customer_payload)
         if customer_items:
             customer_text = _items_text(customer_items)
@@ -637,6 +675,8 @@ def enrich_owner_evidence(
             founder_urls=list(dict.fromkeys(founder_urls))[:3],
             founder_profiles=founder_profiles,
             stage_urls=list(dict.fromkeys(stage_urls))[:3],
+            weak_stage_urls=list(dict.fromkeys(weak_stage_urls))[:5],
+            stage_texts=stage_texts,
             customer_urls=list(dict.fromkeys(customer_urls))[:3],
             customer_evidence_types=customer_evidence_types,
             page_texts=page_texts,
