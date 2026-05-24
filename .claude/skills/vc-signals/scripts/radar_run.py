@@ -108,6 +108,9 @@ KNOWN_MATURE_INCUMBENT_CATEGORY_NAMES = {
     "solidatus": "known_mature_incumbent_category_anchor",
 }
 
+LATE_OR_CONTEXT_MATURITY_STATUSES = {"likely_too_late", "acquired", "incumbent", "category_leader"}
+LARGE_ROUND_OR_RAISED_DOLLARS = 100_000_000
+
 REPO_NOISE_TERMS = (
     "daily digest",
     "news radar",
@@ -1554,22 +1557,81 @@ def _mature_incumbent_category_reason(candidate: Candidate) -> str:
     return KNOWN_MATURE_INCUMBENT_CATEGORY_NAMES.get(name_key, "")
 
 
+def _money_amount(value) -> float:
+    if isinstance(value, (int, float)):
+        return float(value)
+    text = str(value or "").strip().lower().replace(",", "")
+    if not text:
+        return 0.0
+    amounts = []
+    for number, suffix in re.findall(r"\$?\s*(\d+(?:\.\d+)?)\s*([kmb])?", text):
+        amount = float(number)
+        if suffix == "k":
+            amount *= 1_000
+        elif suffix == "m":
+            amount *= 1_000_000
+        elif suffix == "b":
+            amount *= 1_000_000_000
+        amounts.append(amount)
+    if not amounts:
+        return 0.0
+    return max(amounts)
+
+
+def _structured_late_stage_maturity_basis(candidate: Candidate) -> list[str]:
+    basis = []
+    stage_text = str(candidate.stage or "").lower().replace("_", " ")
+    if re.search(r"\bseries\s+[cdefg]\b", stage_text):
+        basis.append("series_c_or_later")
+    if _money_amount(candidate.raised) >= LARGE_ROUND_OR_RAISED_DOLLARS:
+        basis.append("large_round_or_valuation")
+    return basis
+
+
+def _route_category_context(candidate: Candidate, *, status: str, basis: list[str], reason: str) -> Candidate:
+    candidate.maturity_status = status
+    candidate.category_anchor = True
+    candidate.lead_route = "category_context"
+    candidate.action = "monitor only"
+    candidate.recommended_owner_action = "Monitor only"
+    candidate.owner_readiness_score = min(int(candidate.owner_readiness_score or 20), 20)
+    candidate.maturity_basis = list(dict.fromkeys(list(candidate.maturity_basis or []) + basis + [reason]))
+    candidate.consensus_risk_reason = candidate.consensus_risk_reason or "Late-stage, acquired, high-valuation, or consensus/category-leader evidence."
+    candidate.why_this_may_be_noise = candidate.why_this_may_be_noise or "Mature/category context; route as market context, not a sourcing lead."
+    candidate.missing_owner_evidence = list(dict.fromkeys(list(candidate.missing_owner_evidence or []) + ["category context / mature incumbent"]))
+    return candidate
+
+
 def apply_maturity_category_cleanup(candidates: list[Candidate]) -> list[Candidate]:
     routed: list[Candidate] = []
     for candidate in candidates:
         out = Candidate.from_dict(candidate.to_dict())
         reason = _mature_incumbent_category_reason(out)
         if reason:
-            out.maturity_status = "incumbent"
-            out.category_anchor = True
-            out.lead_route = "category_context"
-            out.action = "monitor only"
-            out.recommended_owner_action = "Monitor only"
-            out.owner_readiness_score = min(int(out.owner_readiness_score or 20), 20)
-            out.maturity_basis = list(dict.fromkeys(list(out.maturity_basis or []) + [reason]))
+            out = _route_category_context(
+                out,
+                status="incumbent",
+                basis=[],
+                reason=reason,
+            )
             out.consensus_risk_reason = out.consensus_risk_reason or "Known mature/category incumbent; use as market context, not a sourcing lead."
             out.why_this_may_be_noise = "Known mature/category incumbent; route as category context, not a sourcing lead."
-            out.missing_owner_evidence = list(dict.fromkeys(list(out.missing_owner_evidence or []) + ["category context / mature incumbent"]))
+        elif out.maturity_status in LATE_OR_CONTEXT_MATURITY_STATUSES:
+            out = _route_category_context(
+                out,
+                status=out.maturity_status,
+                basis=list(out.maturity_basis or [out.maturity_status]),
+                reason="maturity_overlay_category_context",
+            )
+        else:
+            structured_basis = _structured_late_stage_maturity_basis(out)
+            if structured_basis:
+                out = _route_category_context(
+                    out,
+                    status="likely_too_late",
+                    basis=structured_basis,
+                    reason="structured_stage_or_funding_context",
+                )
         routed.append(out)
     return routed
 

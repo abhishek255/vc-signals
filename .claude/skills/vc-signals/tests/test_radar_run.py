@@ -1616,6 +1616,71 @@ def test_maturity_category_cleanup_routes_observed_mature_provider_rows():
     assert all("known_mature_incumbent_category_anchor" in candidate.maturity_basis for candidate in routed)
 
 
+def test_maturity_category_cleanup_applies_late_stage_maturity_overlay():
+    from radar_models import Candidate
+    from radar_run import apply_maturity_category_cleanup
+
+    candidate = Candidate(
+        name="Arize",
+        domain="arize.com",
+        sector="AI Infra",
+        theme="AI observability",
+        source="https://arize.com/",
+        candidate_type="company_web",
+        identity_type="verified_company",
+        action="assign owner",
+        recommended_owner_action="Assign owner",
+        maturity_status="likely_too_late",
+        maturity_basis=["series_c_or_later", "large_round_or_valuation"],
+        maturity_evidence_urls=["https://arize.com/blog/arize-ai-raises-70m-series-c"],
+        lead_route="research_deeper",
+        owner_readiness_score=80,
+    )
+
+    routed = apply_maturity_category_cleanup([candidate])[0]
+
+    assert routed.maturity_status == "likely_too_late"
+    assert routed.category_anchor is True
+    assert routed.lead_route == "category_context"
+    assert routed.action == "monitor only"
+    assert routed.recommended_owner_action == "Monitor only"
+    assert routed.owner_readiness_score <= 20
+
+
+def test_maturity_category_cleanup_routes_attio_series_c_context():
+    from radar_models import Candidate
+    from radar_run import apply_maturity_category_cleanup
+
+    candidate = Candidate(
+        name="Arize",
+        domain="arize.com",
+        sector="AI Infra",
+        theme="AI observability",
+        source="https://arize.com/",
+        candidate_type="company_web",
+        identity_type="verified_company",
+        attio_status="no_owner",
+        action="research deeper",
+        recommended_owner_action="Research deeper",
+        stage="SERIES_C",
+        raised=146024999,
+        enrichment_evidence={"stage": "attio", "raised": "attio"},
+        maturity_status="unknown",
+        maturity_basis=[],
+        lead_route="research_deeper",
+        owner_readiness_score=60,
+    )
+
+    routed = apply_maturity_category_cleanup([candidate])[0]
+
+    assert routed.maturity_status == "likely_too_late"
+    assert routed.category_anchor is True
+    assert routed.lead_route == "category_context"
+    assert routed.action == "monitor only"
+    assert "series_c_or_later" in routed.maturity_basis
+    assert "large_round_or_valuation" in routed.maturity_basis
+
+
 def test_maturity_category_cleanup_does_not_route_official_veris_launch():
     from radar_models import Candidate
     from radar_run import apply_maturity_category_cleanup
