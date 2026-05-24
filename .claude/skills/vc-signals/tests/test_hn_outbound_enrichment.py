@@ -613,7 +613,7 @@ def test_hn_enrichment_does_not_call_attio_before_meaningful_evidence():
     assert result["runtime_ledger"]["summary"]["attio_checks"] == 0
 
 
-def test_hn_enrichment_calls_attio_after_identity_and_evidence_threshold():
+def test_hn_enrichment_calls_attio_after_owner_actionable_evidence_threshold():
     from hn_outbound_enrichment import run_hn_outbound_enrichment
 
     calls = {"attio": 0}
@@ -623,13 +623,11 @@ def test_hn_enrichment_calls_attio_after_identity_and_evidence_threshold():
         return {"attio_status": "no_owner"}
 
     result = run_hn_outbound_enrichment(
-        _phase6b_payload(company_rows=[_hn_outbound()]),
-        page_fetcher=lambda url: (
-            "<html><title>Burrow</title><body>Burrow was founded by Jane Doe. "
-            "Burrow raised a seed round. Burrow works with security teams.</body></html>"
-        ),
-        query_runner=lambda topic, **kwargs: {"items": []},
+        _phase6b_payload(company_rows=[_veris_row()]),
+        page_fetcher=_veris_owner_ready_page_fetcher,
+        query_runner=lambda topic, **kwargs: (_ for _ in ()).throw(AssertionError("live query should not run")),
         attio_matcher=attio_matcher,
+        max_live_queries=0,
         max_attio_checks=5,
     )
 
@@ -637,6 +635,63 @@ def test_hn_enrichment_calls_attio_after_identity_and_evidence_threshold():
     assert calls["attio"] == 1
     assert row["attio_status"] == "no_owner"
     assert result["runtime_ledger"]["summary"]["attio_checks"] == 1
+
+
+def test_hn_attio_budget_is_reserved_for_owner_actionable_rows():
+    from hn_outbound_enrichment import run_hn_outbound_enrichment
+
+    calls = []
+
+    def attio_matcher(candidate):
+        calls.append(candidate.name)
+        return {"attio_status": "no_owner"}
+
+    def page_fetcher(url):
+        if "loud" in url:
+            return (
+                "<html><title>Loud</title><body>"
+                "Loud helps security teams test agent workflows with design partners."
+                "</body></html>"
+            )
+        return _veris_owner_ready_page_fetcher(url)
+
+    loud_row = _hn_outbound(
+        name="Loud",
+        source_title="Show HN: Loud - Agent workflow checks",
+        official_url="https://loud.ai",
+        outbound_domain="loud.ai",
+        company_domain="loud.ai",
+        hn_engagement={"points": 90, "comments": 20},
+    )
+
+    result = run_hn_outbound_enrichment(
+        _phase6b_payload(company_rows=[loud_row, _veris_row()]),
+        page_fetcher=page_fetcher,
+        query_runner=lambda topic, **kwargs: (_ for _ in ()).throw(AssertionError("live query should not run")),
+        attio_matcher=attio_matcher,
+        max_live_queries=0,
+        max_attio_checks=1,
+    )
+
+    rows = {row["name"]: row for row in result["enriched_outbound_candidates"]}
+    loud_ledger, veris_ledger = result["runtime_ledger"]["items"]
+    assert calls == ["Veris"]
+    assert rows["Loud"]["recommended_action"] == "Research deeper"
+    assert loud_ledger["attio_checks"] == 0
+    assert loud_ledger["attio_skipped"] == 1
+    assert loud_ledger["attio_skip_reason"] == "owner_actionable_evidence_incomplete"
+    assert rows["Veris"]["recommended_action"] == "Assign owner"
+    assert rows["Veris"]["assign_owner"] is True
+    assert veris_ledger["attio_checks"] == 1
+    assert result["runtime_ledger"]["summary"]["attio_checks"] == 1
+
+
+def test_hn_attio_timeout_window_uses_larger_read_only_budget():
+    from hn_outbound_enrichment import _RuntimeBudget, _attio_timeout_seconds
+
+    runtime = _RuntimeBudget(max_runtime_seconds=300, per_candidate_timeout_seconds=30, time_fn=lambda: 0.0)
+
+    assert _attio_timeout_seconds(runtime) == 10.0
 
 
 def test_twill_yc_context_needs_corroboration_before_seed_status():

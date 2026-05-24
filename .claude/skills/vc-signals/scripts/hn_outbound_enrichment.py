@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
 """Phase 6B.2 enrichment for HN outbound candidates.
 
-This is an offline trial artifact. It does not change weekly default behavior
-and does not turn HN outbound links into company leads before official-domain
-identity promotion succeeds.
+This is a bounded weekly HN enrichment artifact. It does not turn HN outbound
+links into company leads before official-domain identity promotion succeeds.
 """
 
 from __future__ import annotations
@@ -350,7 +349,7 @@ def run_hn_outbound_enrichment(
                 )
             else:
                 ledger["attio_skipped"] += 1
-                ledger["attio_skip_reason"] = "insufficient_evidence_before_attio"
+                ledger["attio_skip_reason"] = "owner_actionable_evidence_incomplete"
                 final_candidate.attio_status = final_candidate.attio_status or "unknown"
 
         row_payload = _row_from_candidate(final_candidate, row, identity_report)
@@ -369,7 +368,7 @@ def run_hn_outbound_enrichment(
     review_rows = _review_rows(enriched_rows, ledger_items)
     return {
         "phase": "Phase 6B-HN",
-        "scope": "HN outbound candidate enrichment; weekly default unchanged; YC remains parked.",
+        "scope": "HN outbound candidate enrichment; HN runs in the bounded weekly lane; YC remains parked.",
         "partial": runtime.budget_exceeded or any(item["status"] in {"partial", "skipped"} for item in ledger_items),
         "budget_exceeded": runtime.budget_exceeded or bool(skipped_rows),
         "budget_reasons": runtime.budget_reasons,
@@ -617,7 +616,7 @@ def _page_timeout_seconds(runtime: _RuntimeBudget) -> float | None:
 
 
 def _attio_timeout_seconds(runtime: _RuntimeBudget) -> float | None:
-    return _bounded_call_timeout(runtime, default_ceiling=4.0)
+    return _bounded_call_timeout(runtime, default_ceiling=10.0)
 
 
 def _bounded_call_timeout(runtime: _RuntimeBudget, *, default_ceiling: float) -> float | None:
@@ -1641,7 +1640,12 @@ def _eligible_for_attio(candidate: Candidate) -> bool:
         return False
     if candidate.category_anchor or candidate.maturity_status in LATE_OR_CONTEXT_STATUSES:
         return False
-    return bool(_meaningful_evidence_dimensions(candidate))
+    return bool(
+        candidate.maturity_status == "seed_to_series_b"
+        and _has_founder_dimension(candidate)
+        and _has_stage_dimension(candidate)
+        and _has_customer_dimension(candidate)
+    )
 
 
 def _has_founder_dimension(candidate: Candidate) -> bool:
@@ -2020,7 +2024,7 @@ def _markdown(payload: dict) -> str:
     lines = [
         "# Phase 6B HN Outbound Enrichment",
         "",
-        "Offline enrichment for HN outbound candidates. Weekly default is unchanged, project/product rows are not promoted, and YC remains parked.",
+        "Bounded enrichment for HN outbound candidates. Project/product rows are not promoted, and YC remains parked.",
         "",
         "## Summary",
         "",
