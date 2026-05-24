@@ -268,6 +268,13 @@ def run_hn_outbound_enrichment(
 
         if final_candidate.identity_type == "verified_company":
             final_candidate = _apply_hn_source_text_founders(final_candidate, row)
+            final_candidate = _apply_yc_company_profile_founders(
+                final_candidate,
+                page_fetcher=page_fetcher,
+                cache_dir=cache_path,
+                runtime=runtime,
+                ledger=ledger,
+            )
 
         if (
             final_candidate.identity_type == "verified_company"
@@ -1043,6 +1050,22 @@ def _candidate_from_hn_row(row: dict) -> Candidate:
     if "." in clean_name and _normalize_domain(clean_name) == domain:
         identity["canonical_name"] = clean_name
         identity["display_name"] = clean_name
+    evidence_metadata = [
+        dict(item)
+        for item in row.get("evidence_metadata", [])
+        if isinstance(item, dict)
+    ]
+    evidence_metadata.append(
+        {
+            "source": "hackernews",
+            "source_url": row.get("source_url", ""),
+            "outbound_url": row.get("official_url", ""),
+            "domain": domain,
+            "title": row.get("source_title", ""),
+            "author": row.get("hn_author", ""),
+            "engagement": row.get("hn_engagement", {}),
+        }
+    )
     candidate = Candidate(
         name=identity["canonical_name"],
         canonical_name=identity["canonical_name"],
@@ -1069,17 +1092,7 @@ def _candidate_from_hn_row(row: dict) -> Candidate:
         lead_route=row.get("lead_route", "research_deeper"),
         attio_status=row.get("attio_status", "unknown"),
         attio_safe_to_match=False,
-        evidence_metadata=[
-            {
-                "source": "hackernews",
-                "source_url": row.get("source_url", ""),
-                "outbound_url": row.get("official_url", ""),
-                "domain": domain,
-                "title": row.get("source_title", ""),
-                "author": row.get("hn_author", ""),
-                "engagement": row.get("hn_engagement", {}),
-            }
-        ],
+        evidence_metadata=evidence_metadata,
     )
     return candidate
 
@@ -1116,6 +1129,106 @@ def _apply_hn_source_text_founders(candidate: Candidate, row: dict) -> Candidate
     out.missing_owner_evidence = []
     out.recommended_owner_action = ""
     out.recommended_next_validation_step = ""
+    return out
+
+
+def _apply_yc_company_profile_founders(
+    candidate: Candidate,
+    *,
+    page_fetcher: Callable | None,
+    cache_dir: Path | None,
+    runtime: _RuntimeBudget,
+    ledger: dict,
+) -> Candidate:
+    yc_urls = _yc_company_profile_stage_urls(candidate)
+    if not yc_urls or not _has_accelerator_batch_context(candidate):
+        return candidate
+    out = Candidate.from_dict(candidate.to_dict())
+    fetch = page_fetcher or _default_page_fetcher
+    for url in yc_urls:
+        payload, cache_status = _read_or_fetch_page(url, fetch, cache_dir, runtime=runtime, ledger=ledger)
+        if cache_status == "cache_hit":
+            ledger["page_cache_hits"] += 1
+        text = _page_text(payload) or _yc_profile_metadata_text(out, url)
+        if not text:
+            continue
+        profiles, _rejected = extract_named_founder_profiles_from_text(
+            company_names=_candidate_source_aliases(out),
+            text=text,
+            url=url,
+        )
+        metadata_profiles = _founder_profiles_from_evidence_metadata(out, url)
+        profiles = _dedupe_profiles(profiles + metadata_profiles)
+        if not profiles:
+            continue
+        existing_names = set(out.founders)
+        for profile in profiles:
+            name = profile.get("name", "")
+            if name and name not in existing_names:
+                out.founders.append(name)
+                existing_names.add(name)
+        existing_profiles = {(profile.get("name"), profile.get("role"), profile.get("source")) for profile in out.founder_profiles}
+        for profile in profiles:
+            key = (profile.get("name"), profile.get("role"), profile.get("source"))
+            if key not in existing_profiles:
+                out.founder_profiles.append(dict(profile))
+                existing_profiles.add(key)
+        out.founder_team_evidence = list(dict.fromkeys(list(out.founder_team_evidence) + [url]))[:5]
+        out.evidence_metadata.append({"source": "yc_company_profile", "source_url": url, "description": text[:1200]})
+    if out.founder_profiles != candidate.founder_profiles or out.founders != candidate.founders:
+        out.owner_readiness_score = 0
+        out.owner_readiness_basis = []
+        out.missing_owner_evidence = []
+        out.recommended_owner_action = ""
+        out.recommended_next_validation_step = ""
+    return out
+
+
+def _yc_profile_metadata_text(candidate: Candidate, yc_url: str) -> str:
+    parts: list[str] = []
+    for metadata in candidate.evidence_metadata:
+        if not isinstance(metadata, dict):
+            continue
+        urls = [str(metadata.get(key) or "") for key in ("source_url", "outbound_url", "url")]
+        if yc_url not in urls:
+            continue
+        parts.extend(str(metadata.get(key) or "") for key in ("title", "description", "body", "snippet"))
+        facts = metadata.get("facts_detected") or []
+        if isinstance(facts, list):
+            parts.extend(str(item) for item in facts)
+    return " ".join(part for part in parts if part).strip()
+
+
+def _founder_profiles_from_evidence_metadata(candidate: Candidate, yc_url: str) -> list[dict]:
+    profiles: list[dict] = []
+    for metadata in candidate.evidence_metadata:
+        if not isinstance(metadata, dict):
+            continue
+        urls = [str(metadata.get(key) or "") for key in ("source_url", "outbound_url", "url")]
+        if yc_url not in urls:
+            continue
+        facts = metadata.get("facts_detected") or []
+        if not isinstance(facts, list):
+            continue
+        for fact in facts:
+            raw = str(fact or "")
+            if not raw.startswith("founder_"):
+                continue
+            name = " ".join(part.capitalize() for part in raw.removeprefix("founder_").split("_") if part)
+            if name:
+                profiles.append({"name": name, "role": "founder", "source": yc_url})
+    return _dedupe_profiles(profiles)
+
+
+def _dedupe_profiles(profiles: list[dict]) -> list[dict]:
+    out: list[dict] = []
+    seen = set()
+    for profile in profiles:
+        key = (profile.get("name"), profile.get("role"), profile.get("source"))
+        if key in seen:
+            continue
+        seen.add(key)
+        out.append(dict(profile))
     return out
 
 
@@ -1400,6 +1513,7 @@ def _row_from_candidate(candidate: Candidate, original_row: dict, identity_repor
         "founder_team_evidence": evidence["founder_team_evidence"],
         "founders": evidence["founders"],
         "founder_profiles": evidence["founder_profiles"],
+        "founder_evidence_conflicts": evidence["founder_evidence_conflicts"],
         "stage_funding_evidence": evidence["stage_funding_evidence"],
         "weak_stage_funding_hints": evidence["weak_stage_funding_hints"],
         "customer_buyer_evidence": evidence["customer_buyer_evidence"],
@@ -1650,17 +1764,68 @@ def _strict_hn_owner_outputs(
         basis.remove("commercial_or_funding_evidence")
         score -= 10
         missing.append("no commercial/funding evidence")
+    founder_conflicts = _yc_profile_founder_conflicts(candidate, strict_founder_profiles)
+    if founder_conflicts:
+        if "founder_team_evidence" in basis:
+            basis.remove("founder_team_evidence")
+        score -= 25
+        missing.append("founder/team evidence conflicts with YC profile")
     missing = list(dict.fromkeys(missing))
     basis = list(dict.fromkeys(basis))
     return max(0, min(100, score)), basis, missing, _next_validation_step(missing, next_step), {
         "founder_team_evidence": strict_founder_urls,
         "founders": strict_founders,
         "founder_profiles": strict_founder_profiles,
+        "founder_evidence_conflicts": founder_conflicts,
         "stage_funding_evidence": strict_stage_urls,
         "weak_stage_funding_hints": list(candidate.weak_stage_funding_hints),
         "customer_buyer_evidence": strict_customer_urls,
         "customer_buyer_evidence_types": strong_customer_types,
     }
+
+
+def _yc_profile_founder_conflicts(candidate: Candidate, founder_profiles: list[dict]) -> list[dict]:
+    if not (_yc_company_profile_stage_urls(candidate) and _has_accelerator_batch_context(candidate)):
+        return []
+    yc_names = sorted(
+        dict.fromkeys(
+            profile.get("name", "")
+            for profile in founder_profiles
+            if _is_yc_company_profile_url(profile.get("source", ""))
+        )
+    )
+    yc_name_keys = {_person_name_key(name) for name in yc_names if name}
+    if not yc_name_keys:
+        return []
+    names_by_source: dict[str, list[str]] = {}
+    for profile in founder_profiles:
+        source = str(profile.get("source") or "")
+        name = str(profile.get("name") or "").strip()
+        if not source or not name or _is_yc_company_profile_url(source):
+            continue
+        names_by_source.setdefault(source, [])
+        if name not in names_by_source[source]:
+            names_by_source[source].append(name)
+    conflicts: list[dict] = []
+    for source, names in names_by_source.items():
+        source_name_keys = {_person_name_key(name) for name in names if name}
+        if source_name_keys and not source_name_keys.intersection(yc_name_keys):
+            conflicts.append(
+                {
+                    "source": source,
+                    "names": sorted(names),
+                    "yc_profile_founders": yc_names,
+                }
+            )
+    return conflicts
+
+
+def _is_yc_company_profile_url(url: str) -> bool:
+    return "ycombinator.com/companies/" in str(url or "").lower()
+
+
+def _person_name_key(name: str) -> str:
+    return re.sub(r"[^a-z0-9]+", "", str(name or "").lower())
 
 
 def _prefer_durable_evidence_urls(urls: list[str]) -> list[str]:

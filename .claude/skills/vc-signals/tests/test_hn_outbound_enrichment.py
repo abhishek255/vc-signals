@@ -676,6 +676,19 @@ def test_hn_yc_company_profile_counts_as_durable_seed_stage_evidence():
 
     yc_profile = "https://www.ycombinator.com/companies/voker/jobs"
 
+    def page_fetcher(url):
+        if "ycombinator.com/companies/voker" in url:
+            return (
+                "<html><body>Voker is a YC S24 company. "
+                "Voker was founded by Tyler Postle and Alex Rudolph.</body></html>"
+            )
+        return (
+            "<html><title>Voker</title><body>"
+            "Voker was founded by Tyler Postle and Alex Rudolph. "
+            "Enterprise teams use Voker for agent analytics. Get started today."
+            "</body></html>"
+        )
+
     result = run_hn_outbound_enrichment(
         _phase6b_payload(
             company_rows=[
@@ -692,12 +705,7 @@ def test_hn_yc_company_profile_counts_as_durable_seed_stage_evidence():
                 )
             ]
         ),
-        page_fetcher=lambda url: (
-            "<html><title>Voker</title><body>"
-            "Voker was founded by Tyler Postle and Alex Rudolph. "
-            "Enterprise teams use Voker for agent analytics. Get started today."
-            "</body></html>"
-        ),
+        page_fetcher=page_fetcher,
         query_runner=lambda topic, **kwargs: {"items": []},
         attio_matcher=lambda candidate: {"attio_status": "no_match", "attio_action": "assign owner"},
     )
@@ -712,6 +720,64 @@ def test_hn_yc_company_profile_counts_as_durable_seed_stage_evidence():
     assert "no stage/funding evidence" not in row["missing_owner_evidence"]
     assert row["recommended_action"] == "Assign owner"
     assert row["assign_owner"] is True
+    assert result["summary"]["unsafe_promotions"] == 0
+
+
+def test_hn_yc_company_profile_founder_conflict_blocks_assign_owner():
+    from hn_outbound_enrichment import run_hn_outbound_enrichment
+
+    yc_profile = "https://www.ycombinator.com/companies/voker/jobs"
+
+    def page_fetcher(url):
+        if "ycombinator.com/companies/voker" in url:
+            return (
+                "<html><body>Voker is active and part of YC S24. "
+                "Voker was founded by Tyler Postle and Alex Rudolph.</body></html>"
+            )
+        if url == "https://voker.ai":
+            return (
+                "<html><title>Voker</title><body>"
+                "Voker builds analytics for AI agents. "
+                "Ben Yahalom, CEO of Voker. Carlos Moreno, CTO of Voker. "
+                "Enterprise teams can get started with an agent analytics plan today."
+                "</body></html>"
+            )
+        return ""
+
+    result = run_hn_outbound_enrichment(
+        _phase6b_payload(
+            company_rows=[
+                _hn_outbound(
+                    name="Voker (YC S24)",
+                    official_url="https://voker.ai",
+                    outbound_domain="voker.ai",
+                    company_domain="voker.ai",
+                    source_title="Launch HN: Voker (YC S24) - Analytics for AI Agents",
+                    maturity_status="early_stage_context",
+                    maturity_basis=["accelerator_batch_evidence: YC S24"],
+                    maturity_evidence_urls=[yc_profile],
+                )
+            ]
+        ),
+        page_fetcher=page_fetcher,
+        query_runner=lambda topic, **kwargs: {"items": []},
+        attio_matcher=lambda candidate: {"attio_status": "no_match", "attio_action": "assign owner"},
+    )
+
+    row = result["enriched_outbound_candidates"][0]
+    assert row["maturity_status"] == "seed_to_series_b"
+    assert row["stage_funding_evidence"] == [yc_profile]
+    assert row["recommended_action"] == "Research deeper"
+    assert row["assign_owner"] is False
+    assert "founder/team evidence conflicts with YC profile" in row["missing_owner_evidence"]
+    assert row["founder_evidence_conflicts"] == [
+        {
+            "source": "https://voker.ai",
+            "names": ["Ben Yahalom", "Carlos Moreno"],
+            "yc_profile_founders": ["Alex Rudolph", "Tyler Postle"],
+        }
+    ]
+    assert result["summary"]["assign_owner_rows"] == 0
     assert result["summary"]["unsafe_promotions"] == 0
 
 
