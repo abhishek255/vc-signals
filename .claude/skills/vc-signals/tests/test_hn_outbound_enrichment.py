@@ -833,6 +833,61 @@ def test_hn_yc_company_profile_ignores_customer_testimonials_after_reconciliatio
     assert result["summary"]["unsafe_promotions"] == 0
 
 
+def test_hn_yc_batch_title_infers_profile_without_live_founder_or_maturity_query():
+    from hn_outbound_enrichment import run_hn_outbound_enrichment
+
+    yc_profile = "https://www.ycombinator.com/companies/voker"
+    query_topics = []
+
+    def page_fetcher(url):
+        if url == yc_profile:
+            return (
+                "<html><head><meta content=\"The Agent Analytics Platform. "
+                "Founded in 2024 by Tyler Postle and Alex Rudolph, Voker has 6 employees.\" "
+                "name=\"description\" /></head><body>Voker is active and part of YC S24.</body></html>"
+            )
+        if url == "https://voker.ai":
+            return (
+                "<html><title>Voker</title><body>"
+                "Voker builds analytics for AI agents. "
+                "Enterprise teams can get started with an agent analytics plan today."
+                "</body></html>"
+            )
+        return ""
+
+    def query_runner(topic, **kwargs):
+        query_topics.append(topic)
+        return {"items": []}
+
+    result = run_hn_outbound_enrichment(
+        _phase6b_payload(
+            company_rows=[
+                _hn_outbound(
+                    name="Voker (YC S24)",
+                    official_url="https://voker.ai",
+                    outbound_domain="voker.ai",
+                    company_domain="voker.ai",
+                    source_title="Launch HN: Voker (YC S24) - Analytics for AI Agents",
+                    maturity_status="early_stage_context",
+                    maturity_basis=["accelerator_batch_evidence: YC S24"],
+                )
+            ]
+        ),
+        page_fetcher=page_fetcher,
+        query_runner=query_runner,
+        attio_matcher=lambda candidate: {"attio_status": "no_match", "attio_action": "assign owner"},
+    )
+
+    row = result["enriched_outbound_candidates"][0]
+    assert query_topics == []
+    assert row["founders"] == ["Tyler Postle", "Alex Rudolph"]
+    assert row["founder_team_evidence"] == [yc_profile]
+    assert row["stage_funding_evidence"] == [yc_profile]
+    assert row["recommended_action"] == "Assign owner"
+    assert row["assign_owner"] is True
+    assert result["summary"]["unsafe_promotions"] == 0
+
+
 def test_veris_official_page_founder_handoff_removes_founder_missing():
     from hn_outbound_enrichment import run_hn_outbound_enrichment
 

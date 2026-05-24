@@ -275,6 +275,7 @@ def run_hn_outbound_enrichment(
                 runtime=runtime,
                 ledger=ledger,
             )
+            final_candidate = _promote_yc_company_profile_stage_context(final_candidate)
 
         if (
             final_candidate.identity_type == "verified_company"
@@ -1140,7 +1141,7 @@ def _apply_yc_company_profile_founders(
     runtime: _RuntimeBudget,
     ledger: dict,
 ) -> Candidate:
-    yc_urls = _yc_company_profile_stage_urls(candidate)
+    yc_urls = _yc_company_profile_lookup_urls(candidate)
     if not yc_urls or not _has_accelerator_batch_context(candidate):
         return candidate
     out = Candidate.from_dict(candidate.to_dict())
@@ -1149,9 +1150,11 @@ def _apply_yc_company_profile_founders(
         payload, cache_status = _read_or_fetch_page(url, fetch, cache_dir, runtime=runtime, ledger=ledger)
         if cache_status == "cache_hit":
             ledger["page_cache_hits"] += 1
-        text = _page_text(payload) or _yc_profile_metadata_text(out, url)
-        if not text:
+        text = _yc_profile_page_text(payload) or _yc_profile_metadata_text(out, url)
+        if not text or not _yc_profile_text_confirms_candidate(text, out):
             continue
+        if not _candidate_has_evidence_metadata_url(out, url):
+            out.evidence_metadata.append({"source": "yc_company_profile", "source_url": url, "description": text[:1200]})
         profiles, _rejected = extract_named_founder_profiles_from_text(
             company_names=_candidate_source_aliases(out),
             text=text,
@@ -1174,7 +1177,6 @@ def _apply_yc_company_profile_founders(
                 out.founder_profiles.append(dict(profile))
                 existing_profiles.add(key)
         out.founder_team_evidence = list(dict.fromkeys(list(out.founder_team_evidence) + [url]))[:5]
-        out.evidence_metadata.append({"source": "yc_company_profile", "source_url": url, "description": text[:1200]})
     if out.founder_profiles != candidate.founder_profiles or out.founders != candidate.founders:
         out.owner_readiness_score = 0
         out.owner_readiness_basis = []
@@ -1197,6 +1199,28 @@ def _yc_profile_metadata_text(candidate: Candidate, yc_url: str) -> str:
         if isinstance(facts, list):
             parts.extend(str(item) for item in facts)
     return " ".join(part for part in parts if part).strip()
+
+
+def _yc_profile_page_text(payload) -> str:
+    text = _page_text(payload)
+    if not isinstance(payload, str):
+        return text
+    meta_content = re.findall(
+        r"<meta\b[^>]*\bcontent=[\"']([^\"']+)[\"'][^>]*>",
+        payload,
+        flags=re.IGNORECASE,
+    )
+    return " ".join(part for part in [*meta_content, text] if part).strip()
+
+
+def _candidate_has_evidence_metadata_url(candidate: Candidate, url: str) -> bool:
+    for item in candidate.evidence_metadata:
+        if not isinstance(item, dict):
+            continue
+        urls = [str(item.get(key) or "") for key in ("source_url", "outbound_url", "url")]
+        if url in urls:
+            return True
+    return False
 
 
 def _founder_profiles_from_evidence_metadata(candidate: Candidate, yc_url: str) -> list[dict]:
@@ -1706,6 +1730,36 @@ def _yc_company_profile_stage_urls(candidate: Candidate) -> list[str]:
         for url in dict.fromkeys(url for url in urls if url)
         if "ycombinator.com/companies/" in url.lower()
     ][:5]
+
+
+def _yc_company_profile_lookup_urls(candidate: Candidate) -> list[str]:
+    urls = list(_yc_company_profile_stage_urls(candidate))
+    if urls:
+        return urls[:5]
+    if _has_accelerator_batch_context(candidate):
+        urls = _inferred_yc_company_profile_urls(candidate)
+    return list(dict.fromkeys(url for url in urls if url))[:5]
+
+
+def _inferred_yc_company_profile_urls(candidate: Candidate) -> list[str]:
+    slugs: list[str] = []
+    domain_root = _normalize_domain(candidate.domain).split(".")[0]
+    if domain_root and domain_root not in {"app", "www"}:
+        slugs.append(domain_root)
+    for value in (candidate.display_name, candidate.canonical_name, candidate.name):
+        clean = _clean_company_name(str(value or ""), candidate.domain)
+        clean = re.sub(r"\.(?:ai|io|com|dev|co|app)$", "", clean, flags=re.IGNORECASE)
+        slug = re.sub(r"[^a-z0-9]+", "-", clean.lower()).strip("-")
+        if slug:
+            slugs.append(slug)
+    return [f"https://www.ycombinator.com/companies/{slug}" for slug in dict.fromkeys(slugs) if len(slug) > 1][:2]
+
+
+def _yc_profile_text_confirms_candidate(text: str, candidate: Candidate) -> bool:
+    lowered = text.lower()
+    if "yc" not in lowered and "y combinator" not in lowered:
+        return False
+    return _official_text_confirms_identity(text, candidate.display_name or candidate.name, candidate.domain)
 
 
 def _has_accelerator_batch_context(candidate: Candidate) -> bool:

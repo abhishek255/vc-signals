@@ -236,6 +236,18 @@ def _extract_founders_from_text(*, company_name: str, text: str, url: str) -> tu
             if _valid_person_name(name, company_name):
                 profiles.append({"name": name, "role": "founder", "source": url})
 
+    founded_meta_pattern = re.compile(
+        rf"(?i)\bfounded(?:\s+in\s+\d{{4}})?\s+by\s+"
+        rf"(?P<names>{PERSON_NAME_PATTERN}(?:\s+and\s+{PERSON_NAME_PATTERN})?)"
+    )
+    for match in founded_meta_pattern.finditer(text):
+        local_text = text[max(0, match.start() - 120) : match.end() + 160]
+        if not _company_in_text(company_name, local_text):
+            continue
+        for name in re.split(r"\s+and\s+", match.group("names")):
+            if _valid_person_name(name, company_name):
+                profiles.append({"name": name, "role": "founder", "source": url})
+
     person_role_pattern = re.compile(
         rf"(?P<name>{PERSON_NAME_PATTERN})\s*,\s*(?P<role>[^.\n]{{0,80}}?{role}[^.\n]{{0,80}})"
     )
