@@ -178,6 +178,76 @@ def test_weekly_focus_renders_hn_launch_trial_section():
     assert "ShouldNotDump" not in markdown
 
 
+def test_hn_assign_owner_rows_enter_main_partner_focus_when_trial_enabled():
+    from radar_focus import ACTION_ASSIGN_OWNER, build_weekly_focus_artifact, render_weekly_focus_markdown
+
+    artifact = build_weekly_focus_artifact(
+        candidates=[],
+        category_context_items=[],
+        theme_signals=[],
+        sector_intelligence=[],
+        source_health=[],
+        run_id="2026-05-24",
+        hn_launch_trial={
+            "enabled": True,
+            "label": "Phase 6C HN Launch Trial",
+            "assign_owner_rows": 1,
+            "unsafe_promotions": 0,
+            "review_rows": [
+                {
+                    "name": "Voker",
+                    "domain": "voker.ai",
+                    "final_action": "Assign owner",
+                    "completion_status": "completed_clean",
+                    "evidence_dimensions": ["customer", "founder", "stage"],
+                    "attio_status": "no_match",
+                    "missing_evidence": [],
+                    "unsafe_promotion": False,
+                    "assign_owner_evidence_provenance": {
+                        "hn_source": {
+                            "url": "https://news.ycombinator.com/item?id=48109962",
+                            "title": "Launch HN: Voker (YC S24) - Analytics for AI Agents",
+                        },
+                        "official_company_source": {"url": "https://voker.ai", "domain": "voker.ai"},
+                        "founder_evidence": {
+                            "url": "https://www.ycombinator.com/companies/voker",
+                            "founders": ["Tyler Postle", "Alex Rudolph"],
+                        },
+                        "stage_funding_evidence": {
+                            "url": "https://www.ycombinator.com/companies/voker",
+                            "maturity_status": "seed_to_series_b",
+                            "basis": ["accelerator_batch_evidence: YC S24"],
+                        },
+                        "commercial_customer_evidence": {"url": "https://voker.ai"},
+                        "attio_status_evidence": {"status": "no_match", "source": "attio_read", "action_safe": True},
+                    },
+                },
+                {
+                    "name": "MissingFounder",
+                    "domain": "missing.ai",
+                    "final_action": "Research deeper",
+                    "completion_status": "completed_with_stage_failure",
+                    "evidence_dimensions": ["customer", "stage"],
+                    "attio_status": "no_match",
+                    "missing_evidence": ["no founder/team evidence"],
+                    "unsafe_promotion": False,
+                },
+            ],
+        },
+    )
+
+    assert artifact.sourcing_candidates[0].name == "Voker"
+    assert artifact.sourcing_candidates[0].recommended_action == ACTION_ASSIGN_OWNER
+    assert "hn_launch_trial_opt_in" in artifact.sourcing_candidates[0].focus_priority_basis
+    assert "https://news.ycombinator.com/item?id=48109962" in artifact.sourcing_candidates[0].evidence_urls
+    assert all(item.name != "MissingFounder" for item in artifact.partner_focus)
+
+    markdown = render_weekly_focus_markdown(artifact)
+
+    assert "HN opt-in Assign Owner" in markdown
+    assert "Voker" in markdown
+
+
 def test_attio_no_match_does_not_create_company_identity_by_itself():
     from radar_focus import score_company_identity
 

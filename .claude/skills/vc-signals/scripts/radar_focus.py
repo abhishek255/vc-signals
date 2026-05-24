@@ -950,6 +950,139 @@ def _dedupe_focus_items(items: list[FocusItem]) -> list[FocusItem]:
     return deduped
 
 
+def _first_url(*values) -> str:
+    for value in values:
+        if isinstance(value, dict):
+            value = value.get("url", "")
+        if isinstance(value, str) and value.startswith(("http://", "https://")):
+            return value
+    return ""
+
+
+def _hn_assign_owner_focus_items(hn_launch_trial: dict | None) -> list[FocusItem]:
+    if not hn_launch_trial or not hn_launch_trial.get("enabled"):
+        return []
+    if int(hn_launch_trial.get("unsafe_promotions", 0) or 0) != 0:
+        return []
+
+    items: list[FocusItem] = []
+    for row in hn_launch_trial.get("review_rows") or []:
+        if row.get("final_action") != ACTION_ASSIGN_OWNER:
+            continue
+        if row.get("unsafe_promotion") or row.get("missing_evidence"):
+            continue
+        if row.get("completion_status") != "completed_clean":
+            continue
+        provenance = row.get("assign_owner_evidence_provenance") or {}
+        if not provenance:
+            continue
+
+        hn_source = provenance.get("hn_source") or {}
+        official = provenance.get("official_company_source") or {}
+        founder = provenance.get("founder_evidence") or {}
+        stage = provenance.get("stage_funding_evidence") or {}
+        commercial = provenance.get("commercial_customer_evidence") or {}
+        attio = provenance.get("attio_status_evidence") or {}
+
+        name = str(row.get("name") or "").strip()
+        domain = str(row.get("domain") or official.get("domain") or "").strip()
+        source_title = str(hn_source.get("title") or f"HN opt-in Assign Owner: {name}").strip()
+        evidence_urls = list(
+            dict.fromkeys(
+                url
+                for url in [
+                    _first_url(hn_source),
+                    _first_url(official),
+                    _first_url(founder),
+                    _first_url(stage),
+                    _first_url(commercial),
+                ]
+                if url
+            )
+        )
+        maturity_basis = list(stage.get("basis") or [])
+        stage_url = _first_url(stage)
+        founder_url = _first_url(founder)
+        customer_url = _first_url(commercial)
+        attio_status = str(row.get("attio_status") or attio.get("status") or "unknown")
+
+        items.append(
+            FocusItem(
+                id=f"company:{domain}" if domain else f"hn-launch:{_stable_id(name)}",
+                name=name,
+                canonical_name=name,
+                display_name=name,
+                source_headline=source_title,
+                company_domain=domain,
+                market_movement_id=_stable_id(str(row.get("market_movement") or "HN launch signal")),
+                market_movement=str(row.get("market_movement") or "HN launch signal"),
+                market_sector=str(row.get("market_sector") or "HN Launch"),
+                why_focus_this_week=f"HN opt-in Assign Owner: {source_title}",
+                who_is_talking=["HN opt-in launch", "founder/company evidence"],
+                talker_types=["founder", "practitioner"],
+                talker_type_confidence="Medium",
+                evidence_snapshot=[
+                    "HN opt-in row cleared identity, founder, stage, customer, and Attio gates",
+                    ", ".join(row.get("evidence_dimensions") or []),
+                ],
+                evidence_urls=evidence_urls,
+                missing_evidence=[],
+                attio_status=attio_status,
+                identity_type="verified_company",
+                attio_safe_to_match=bool(attio.get("action_safe", True)),
+                recommended_action=ACTION_ASSIGN_OWNER,
+                investment_interest_score=75,
+                evidence_confidence_score=85,
+                focus_priority_score=95,
+                actionability_score=90,
+                freshness_score=90,
+                market_movement_score=70,
+                marathon_fit_score=100,
+                noise_risk_score=20,
+                consensus_risk_score=20,
+                company_identity_quality_score=90,
+                company_identity_quality_basis=["hn_launch_trial_verified_company", "official_site_confirms_identity"],
+                focus_priority_basis=["hn_launch_trial_opt_in", "assign_owner_evidence_complete"],
+                actionability_basis=["attio_safe_hn_assign_owner"],
+                freshness_basis=["hn_launch_trial_opt_in"],
+                market_movement_basis=["hn_launch_trial_signal"],
+                marathon_fit_basis=["target_stage", "actionable_company_context"],
+                noise_risk_basis=["gated_hn_assign_owner"],
+                consensus_risk_basis=["low_consensus_signal"],
+                movement_assignment_method="hn_launch_trial",
+                movement_assignment_confidence="Medium",
+                movement_assignment_evidence_url=_first_url(hn_source),
+                weekly_tag="NEW",
+                new_evidence_this_week=evidence_urls[:2],
+                why_this_may_be_noise="HN opt-in row; included only after owner-readiness and Attio gates cleared.",
+                skepticism_events=["HN source remains opt-in and provenance-gated."],
+                source_candidate_id=_first_url(hn_source) or name,
+                maturity_status=str(stage.get("maturity_status") or "seed_to_series_b"),
+                maturity_basis=maturity_basis,
+                maturity_evidence_urls=[stage_url] if stage_url else [],
+                lead_route=LEAD_ROUTE_SOURCING_CANDIDATE,
+                owner_readiness_score=90,
+                owner_readiness_basis=[
+                    "verified_company_identity",
+                    "founder_team_evidence",
+                    "stage_funding_evidence",
+                    "customer_buyer_pull_evidence",
+                    "attio_new_or_no_match",
+                ],
+                missing_owner_evidence=[],
+                recommended_owner_action=ACTION_ASSIGN_OWNER,
+                recommended_next_validation_step="Assign owner",
+                founder_team_evidence=[founder_url] if founder_url else [],
+                stage_funding_evidence=[stage_url] if stage_url else [],
+                customer_buyer_evidence=[customer_url] if customer_url else [],
+                attio_confidence="High" if attio_status in ATTIO_NEW_STATUSES | ATTIO_NO_OWNER_STATUSES else "Medium",
+                attio_confidence_basis=["hn_launch_trial_attio_read"],
+                owner_evidence_status="hn_launch_trial_assign_owner",
+            )
+        )
+    return items
+
+
 def _source_gap_error(error: str, *, source_gap_context: str = "") -> str:
     if source_gap_context == "bounded_validation" and "last30days query timed out" in (error or "").lower():
         return f"{error} during bounded validation profile; rerun with a larger query timeout before treating this as a source outage."
@@ -1047,7 +1180,8 @@ def build_weekly_focus_artifact(
     discovery_yield_trial: dict | None = None,
     hn_launch_trial: dict | None = None,
 ) -> WeeklyFocusArtifact:
-    focus_items = _rank_focus_items([build_focus_item(candidate) for candidate in candidates])
+    hn_sourcing_items = _hn_assign_owner_focus_items(hn_launch_trial)
+    focus_items = _rank_focus_items([build_focus_item(candidate) for candidate in candidates] + hn_sourcing_items)
     eligible = _cap_oss_project_only([item for item in focus_items if is_partner_focus_eligible(item)])
     sourcing_candidates = [item for item in eligible if _is_sourcing_candidate(item)][:15]
     sourcing_ids = {item.id for item in sourcing_candidates}
