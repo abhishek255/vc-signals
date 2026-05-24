@@ -130,6 +130,32 @@ def test_product_subdomain_hn_row_is_not_promoted():
     assert result["summary"]["product_context_rows"] == 1
 
 
+def test_hn_title_fragment_routes_to_context_not_outbound_company():
+    from hn_gated_source_trial import run_hn_gated_source_trial
+
+    payload = _trial_payload(
+        company_candidates=[
+            _hn_company(
+                name="AI CAD Harness",
+                official_url="https://fusion.adam.new/install",
+                domain="fusion.adam.new",
+                title="Show HN: AI CAD Harness",
+                snippet="Show HN: AI CAD Harness",
+            )
+        ]
+    )
+
+    result = run_hn_gated_source_trial(payload)
+
+    assert result["company_rows"] == []
+    row = result["product_context_rows"][0]
+    assert row["company_domain"] == ""
+    assert row["identity_type"] == "article_context"
+    assert row["lead_route"] == "category_context"
+    assert row["recommended_action"] == "Monitor only"
+    assert "candidate name appears to be an article/title fragment" in row["missing_evidence"]
+
+
 def test_yc_batch_title_counts_as_early_stage_context_not_assign_owner():
     from hn_gated_source_trial import run_hn_gated_source_trial
 

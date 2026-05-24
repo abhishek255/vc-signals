@@ -91,3 +91,35 @@ def test_candidate_quality_rejects_incumbent_developer_platform_context():
 
     assert quality.usable is False
     assert quality.reason == "incumbent_platform_context"
+
+
+def test_candidate_quality_rejects_pronoun_led_hn_title_fragment_when_domain_mismatches():
+    from candidate_quality import candidate_name_quality
+
+    quality = candidate_name_quality(
+        name="My AI",
+        domain="wuphf.team",
+        urls=["https://wuphf.team"],
+        source_headline="Show HN: My AI agents bully each other to prevent context drift",
+        why_on_radar="Show HN: My AI agents bully each other to prevent context drift",
+        candidate_type="company_web",
+    )
+
+    assert quality.usable is False
+    assert quality.reason == "article_title_fragment"
+
+
+def test_candidate_quality_rejects_observed_hn_product_title_fragments():
+    from candidate_quality import candidate_name_quality
+
+    quality = candidate_name_quality(
+        name="AI CAD Harness",
+        domain="fusion.adam.new",
+        urls=["https://fusion.adam.new/install"],
+        source_headline="Show HN: AI CAD Harness",
+        why_on_radar="Show HN: AI CAD Harness",
+        candidate_type="company_web",
+    )
+
+    assert quality.usable is False
+    assert quality.reason == "article_title_fragment"

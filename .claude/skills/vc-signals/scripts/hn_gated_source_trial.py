@@ -100,16 +100,21 @@ def _gate_company_candidate(row: dict) -> dict:
 
     missing_evidence = list(row.get("missing_evidence") or [])
     product_subdomain = _is_product_subdomain(row)
+    title_fragment_context = candidate.identity_type == "article_context"
     outbound_domain = _normalize_domain(row.get("domain") or _domain_from_url(row.get("official_url", "")))
-    if product_subdomain:
+    if product_subdomain or title_fragment_context:
         candidate.domain = ""
-        candidate.identity_type = "launch_style_needs_identity"
+        if product_subdomain:
+            candidate.identity_type = "launch_style_needs_identity"
         candidate.identity_confidence_score = min(candidate.identity_confidence_score or 0, 45)
         candidate.attio_safe_to_match = False
         candidate.recommended_identity_action = ACTION_MONITOR_ONLY
         candidate.lead_route = "category_context"
         candidate.category_anchor = True
-        missing_evidence.append("product_subdomain_not_company_proof")
+        if product_subdomain:
+            missing_evidence.append("product_subdomain_not_company_proof")
+        if title_fragment_context:
+            missing_evidence.extend(candidate.missing_identity_evidence)
     else:
         _mark_hn_outbound_identity(candidate)
 
@@ -118,7 +123,7 @@ def _gate_company_candidate(row: dict) -> dict:
     assign_owner = action == ACTION_ASSIGN_OWNER
     new_to_marathon = _new_to_marathon(candidate, action)
 
-    if product_subdomain:
+    if product_subdomain or title_fragment_context:
         action = ACTION_MONITOR_ONLY
         assign_owner = False
         new_to_marathon = False
@@ -166,7 +171,9 @@ def _gate_company_candidate(row: dict) -> dict:
         "attio_safe_to_match": candidate.attio_safe_to_match,
         "product_subdomain_guardrail": product_subdomain,
         "unsafe_promotion": unsafe,
-        "recommended_lane": "HN Product / Category Context" if product_subdomain or candidate.lead_route in {"category_context", "monitor_only"} else "HN Outbound Candidates",
+        "recommended_lane": "HN Product / Category Context"
+        if product_subdomain or title_fragment_context or candidate.lead_route in {"category_context", "monitor_only"}
+        else "HN Outbound Candidates",
         "movement": row.get("movement", ""),
         "market_sector": row.get("market_sector", ""),
         "raw_source_kind": "hn_outbound_candidate",

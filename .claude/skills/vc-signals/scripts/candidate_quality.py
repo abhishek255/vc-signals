@@ -28,6 +28,7 @@ GENERIC_TITLE_FRAGMENT_NAMES = {
     "about",
     "agentic ai operations",
     "agentic ai security",
+    "ai cad harness",
     "ai agent testing",
     "ai data infrastructure",
     "ai workflow automation",
@@ -67,6 +68,12 @@ EDITORIAL_LEAD_WORDS = {
     "top",
     "what",
     "why",
+}
+
+PRONOUN_LEAD_WORDS = {
+    "my",
+    "our",
+    "your",
 }
 
 CATEGORY_FRAGMENT_TERMS = {
@@ -234,6 +241,10 @@ def candidate_name_quality(
         return CandidateNameQuality(False, "article_title_fragment", ("generic_title_fragment_name",))
 
     first_token = next(iter(normalized.split()), "")
+    text = f"{source_headline or ''} {why_on_radar or ''}".lower()
+    if first_token in PRONOUN_LEAD_WORDS and "show hn:" in text:
+        return CandidateNameQuality(False, "article_title_fragment", ("pronoun_led_title_fragment",))
+
     if article_like and first_token in EDITORIAL_LEAD_WORDS:
         return CandidateNameQuality(False, "article_title_fragment", ("editorial_leading_word",))
 

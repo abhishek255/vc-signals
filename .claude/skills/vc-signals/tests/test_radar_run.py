@@ -1266,6 +1266,29 @@ def test_extract_company_candidates_rejects_generic_names():
     assert extract_company_candidates(evidence) == []
 
 
+def test_extract_company_candidates_rejects_hn_pronoun_title_fragment():
+    from radar_run import extract_company_candidates
+
+    evidence = {
+        "last30days": {
+            "ai-infra": {
+                "items": [
+                    {
+                        "source": "hackernews",
+                        "title": "Show HN: My AI agents bully each other to prevent context drift",
+                        "url": "https://wuphf.team",
+                        "outbound_url": "https://wuphf.team",
+                        "domain": "wuphf.team",
+                    }
+                ]
+            }
+        },
+        "github": [],
+    }
+
+    assert extract_company_candidates(evidence) == []
+
+
 def test_extract_company_candidates_skips_oss_github_issue_noise():
     from radar_run import extract_company_candidates
 
