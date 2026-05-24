@@ -39,6 +39,10 @@ HN_ROW_FILES = (
     "hn-launch-trial/hn-trial-row-review.json",
     "hn-completion/hn-trial-row-review.json",
 )
+HN_OUTBOUND_FILES = (
+    "hn-launch-trial/hn-outbound-enrichment.json",
+    "hn-completion/hn-outbound-enrichment.json",
+)
 ACTION_RANK = {
     "": 0,
     "Rejected": 0,
@@ -165,6 +169,8 @@ def _urls_from_row(row: dict) -> list[str]:
         "customer_buyer_pull_evidence",
         "source",
         "url",
+        "source_url",
+        "official_url",
         "project_url",
         "movement_assignment_evidence_url",
     ):
@@ -177,7 +183,7 @@ def _urls_from_row(row: dict) -> list[str]:
 
 
 def _domain_from_row(row: dict) -> str:
-    for key in ("domain", "company_domain", "candidate_domain"):
+    for key in ("domain", "company_domain", "candidate_domain", "official_domain"):
         domain = normalize_domain(row.get(key, ""))
         if domain:
             return domain
@@ -220,6 +226,10 @@ def _entity_id(row: dict) -> str:
 
 def _name_from_row(row: dict) -> str:
     return _clean_string(row.get("name") or row.get("canonical_name") or row.get("display_name") or row.get("id"))
+
+
+def _canonical_name_from_row(row: dict) -> str:
+    return _clean_string(row.get("canonical_name") or row.get("name") or row.get("display_name") or row.get("id"))
 
 
 def _is_market_anchor(row: dict, action: str, route: str) -> bool:
@@ -379,9 +389,14 @@ def _sighting_from_row(row: dict, *, run_dir: Path, source_file: str, raw_kind: 
     entity_id = _entity_id(row)
     domain = _domain_from_row(row)
     project = _project_key_from_row(row)
+    partial_reason = _clean_string(row.get("partial_reason"))
+    completion_status = _clean_string(row.get("completion_status"))
+    if raw_kind == "hn_skipped_candidate" and not completion_status:
+        completion_status = "skipped_budget"
     return {
         "entity_id": entity_id,
         "name": _name_from_row(row),
+        "canonical_name": _canonical_name_from_row(row),
         "domain": domain,
         "project_key": project,
         "entity_type": _entity_type(row, action, route),
@@ -400,17 +415,18 @@ def _sighting_from_row(row: dict, *, run_dir: Path, source_file: str, raw_kind: 
         "missing_evidence": _missing_from_row(row),
         "evidence_urls": urls,
         "owner_readiness_score": row.get("owner_readiness_score"),
-        "completion_status": _clean_string(row.get("completion_status")),
+        "completion_status": completion_status,
+        "partial_reason": partial_reason,
         "unsafe_promotion": bool(row.get("unsafe_promotion", False)),
     }
 
 
 def _merge_run_sighting(existing: dict, new: dict) -> dict:
     merged = dict(existing)
-    for key in ("name", "domain", "project_key", "entity_type", "route", "action", "source_file", "raw_kind"):
+    for key in ("name", "canonical_name", "domain", "project_key", "entity_type", "route", "action", "source_file", "raw_kind"):
         if new.get(key):
             merged[key] = new[key]
-    for key in ("attio_status", "attio_owner", "attio_action", "completion_status"):
+    for key in ("attio_status", "attio_owner", "attio_action", "completion_status", "partial_reason"):
         if new.get(key):
             merged[key] = new[key]
     if "owner_readiness_score" in new and new.get("owner_readiness_score") is not None:
@@ -428,6 +444,25 @@ def _merge_run_sighting(existing: dict, new: dict) -> dict:
         "customer_commercial": bool(old_dims.get("customer_commercial") or new_dims.get("customer_commercial")),
     }
     return merged
+
+
+def _hn_skipped_candidate_row(row: dict) -> dict:
+    enriched = dict(row)
+    enriched["domain"] = _domain_from_row(enriched)
+    enriched["source_lane"] = "HN"
+    enriched["lead_route"] = "research_deeper"
+    enriched["recommended_action"] = "Research deeper"
+    enriched["assign_owner"] = False
+    enriched["unsafe_promotion"] = bool(row.get("unsafe_promotion", False))
+    enriched["partial"] = True
+    enriched.setdefault("partial_reason", "max_candidates_exceeded")
+    missing = _unique((row.get("missing_evidence") or []) + (row.get("missing_owner_evidence") or []))
+    if enriched.get("partial_reason") and enriched["partial_reason"] not in missing:
+        missing.append(enriched["partial_reason"])
+    enriched["missing_evidence"] = missing or ["max_candidates_exceeded"]
+    enriched["missing_owner_evidence"] = enriched["missing_evidence"]
+    enriched["completion_status"] = "skipped_budget"
+    return enriched
 
 
 def iter_run_sightings(run_dir: Path) -> list[dict]:
@@ -465,6 +500,13 @@ def iter_run_sightings(run_dir: Path) -> list[dict]:
             for row in payload.get("rows") or []:
                 if isinstance(row, dict):
                     add(row, filename, "hn_row_review")
+
+    for filename in HN_OUTBOUND_FILES:
+        payload = _read_json(run_dir / filename)
+        if isinstance(payload, dict):
+            for row in payload.get("skipped_candidates") or []:
+                if isinstance(row, dict):
+                    add(_hn_skipped_candidate_row(row), filename, "hn_skipped_candidate")
 
     return list(sightings_by_entity.values())
 

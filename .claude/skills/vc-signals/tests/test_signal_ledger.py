@@ -335,6 +335,151 @@ def test_skipped_budget_hn_rows_are_tracked_as_incomplete_not_owner_ready(tmp_pa
     assert datapoint["sighting_history"][0]["unsafe_promotion"] is False
 
 
+def test_hn_outbound_skipped_candidate_not_elsewhere_is_added_to_ledger(tmp_path: Path):
+    from signal_ledger import build_company_signal_ledger
+
+    run_dir = tmp_path / "current-weekly-hn-default-runtime-patch-validation-2026-05-24"
+    _write_json(
+        run_dir / "hn-launch-trial" / "hn-outbound-enrichment.json",
+        {
+            "skipped_candidates": [
+                {
+                    "name": "Aide-memory",
+                    "canonical_name": "Aide-memory",
+                    "official_domain": "aide-memory.dev",
+                    "source_url": "https://news.ycombinator.com/item?id=47979991",
+                    "official_url": "https://www.aide-memory.dev/blog/launch",
+                    "identity_type": "hn_outbound_candidate",
+                    "identity_promotion_status": "skipped",
+                    "lead_route": "research_deeper",
+                    "recommended_action": "Research deeper",
+                    "assign_owner": False,
+                    "unsafe_promotion": False,
+                    "partial": True,
+                    "partial_reason": "max_candidates_exceeded",
+                    "missing_evidence": ["max_candidates_exceeded"],
+                }
+            ],
+            "summary": {"candidates_skipped": 1},
+        },
+    )
+
+    ledger = build_company_signal_ledger([run_dir], generated_at="2026-05-24T00:00:00Z")
+    aide_memory = _entity(ledger, "company:aide-memory.dev")
+
+    assert aide_memory["name"] == "Aide-memory"
+    assert aide_memory["domain"] == "aide-memory.dev"
+    assert aide_memory["current_route"] == "Research Deeper"
+    assert aide_memory["current_action"] == "Research deeper"
+    assert aide_memory["best_historical_action"] == "Research deeper"
+    assert aide_memory["missing_evidence"] == ["max_candidates_exceeded"]
+    assert aide_memory["latest_evidence_urls"] == [
+        "https://news.ycombinator.com/item?id=47979991",
+        "https://www.aide-memory.dev/blog/launch",
+    ]
+    sighting = aide_memory["sighting_history"][0]
+    assert sighting["canonical_name"] == "Aide-memory"
+    assert sighting["source_file"] == "hn-launch-trial/hn-outbound-enrichment.json"
+    assert sighting["raw_kind"] == "hn_skipped_candidate"
+    assert sighting["completion_status"] == "skipped_budget"
+    assert sighting["partial_reason"] == "max_candidates_exceeded"
+    assert sighting["source_lanes"] == ["HN", "web"]
+    assert sighting["unsafe_promotion"] is False
+
+
+def test_hn_outbound_skipped_candidate_adds_latest_incomplete_sighting_to_existing_entity(tmp_path: Path):
+    from signal_ledger import build_company_signal_ledger
+
+    earlier = tmp_path / "current-all-sector-clean-validation-2026-05-23-v3"
+    latest = tmp_path / "current-weekly-hn-default-runtime-patch-validation-2026-05-24"
+    _write_json(
+        earlier / "weekly-focus.json",
+        {
+            "research_deeper_queue": [
+                {
+                    "id": "company:trydatapoint.com",
+                    "name": "Datapoint AI",
+                    "company_domain": "trydatapoint.com",
+                    "recommended_action": "Research deeper",
+                    "lead_route": "research_deeper",
+                    "identity_type": "verified_company",
+                    "evidence_urls": ["https://trydatapoint.com"],
+                    "missing_evidence": ["no founder/team evidence"],
+                }
+            ]
+        },
+    )
+    _write_json(
+        latest / "hn-launch-trial" / "hn-outbound-enrichment.json",
+        {
+            "skipped_candidates": [
+                {
+                    "name": "Datapoint AI",
+                    "canonical_name": "Datapoint AI",
+                    "official_domain": "trydatapoint.com",
+                    "source_url": "https://news.ycombinator.com/item?id=48241139",
+                    "official_url": "https://trydatapoint.com",
+                    "identity_type": "hn_outbound_candidate",
+                    "identity_promotion_status": "skipped",
+                    "lead_route": "research_deeper",
+                    "recommended_action": "Research deeper",
+                    "assign_owner": False,
+                    "partial": True,
+                    "partial_reason": "max_candidates_exceeded",
+                    "missing_evidence": ["max_candidates_exceeded"],
+                }
+            ]
+        },
+    )
+
+    ledger = build_company_signal_ledger([earlier, latest], generated_at="2026-05-24T00:00:00Z")
+    datapoint = _entity(ledger, "company:trydatapoint.com")
+
+    assert datapoint["sightings_count"] == 2
+    assert datapoint["current_route"] == "Research Deeper"
+    assert datapoint["current_action"] == "Research deeper"
+    assert datapoint["missing_evidence"] == ["max_candidates_exceeded"]
+    assert datapoint["status_movement"] == "repeated"
+    latest_sighting = datapoint["sighting_history"][-1]
+    assert latest_sighting["source_file"] == "hn-launch-trial/hn-outbound-enrichment.json"
+    assert latest_sighting["completion_status"] == "skipped_budget"
+    assert latest_sighting["partial_reason"] == "max_candidates_exceeded"
+
+
+def test_hn_outbound_skipped_candidate_never_becomes_assign_owner(tmp_path: Path):
+    from signal_ledger import build_company_signal_ledger
+
+    run_dir = tmp_path / "current-weekly-hn-default-runtime-patch-validation-2026-05-24"
+    _write_json(
+        run_dir / "hn-launch-trial" / "hn-outbound-enrichment.json",
+        {
+            "skipped_candidates": [
+                {
+                    "name": "Budget Skipped AI",
+                    "canonical_name": "Budget Skipped AI",
+                    "official_domain": "budgetskipped.ai",
+                    "source_url": "https://news.ycombinator.com/item?id=9",
+                    "official_url": "https://budgetskipped.ai",
+                    "recommended_action": "Assign owner",
+                    "assign_owner": True,
+                    "partial": True,
+                    "partial_reason": "max_candidates_exceeded",
+                    "missing_evidence": ["max_candidates_exceeded"],
+                }
+            ]
+        },
+    )
+
+    ledger = build_company_signal_ledger([run_dir], generated_at="2026-05-24T00:00:00Z")
+    skipped = _entity(ledger, "company:budgetskipped.ai")
+
+    assert skipped["current_route"] == "Research Deeper"
+    assert skipped["current_action"] == "Research deeper"
+    assert skipped["best_historical_action"] == "Research deeper"
+    assert ledger["summary"]["assign_owner_entities"] == 0
+    assert skipped["sighting_history"][0]["completion_status"] == "skipped_budget"
+
+
 def test_weekly_cli_threads_optional_ledger_update_hook(tmp_path: Path, monkeypatch, capsys):
     import radar_run
 
