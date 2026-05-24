@@ -57,6 +57,8 @@ from radar_render import render_weekly_brief
 from radar_theme_signals import build_theme_signals
 from radar_workbench import write_workbench_artifacts
 from radar_history import apply_weekly_tags, load_candidate_history, save_candidate_history
+from signal_ledger import DEFAULT_LEDGER_PATH as DEFAULT_SIGNAL_LEDGER_PATH
+from signal_ledger import update_signal_ledger_from_run
 from radar_enrichment import apply_candidate_enrichment, merge_source_enrichment
 from identity_resolution import apply_identity_resolution
 from metadata_loss import build_metadata_loss_report
@@ -2059,6 +2061,8 @@ def run_weekly_artifacts(
     hn_launch_trial_config: HNLaunchTrialConfig | None = None,
     exclude_yc: bool = False,
     hn_launch_trial_only: bool = False,
+    update_signal_ledger: bool = False,
+    signal_ledger_path: Path | None = None,
 ) -> dict:
     """Collect evidence and render a weekly partner preview in one command."""
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -2279,6 +2283,14 @@ def run_weekly_artifacts(
         result["hn_launch_trial"] = str(output_dir / "hn-launch-trial")
     if synthesis_path:
         result["synthesis"] = str(synthesis_path)
+    if update_signal_ledger:
+        ledger_update = update_signal_ledger_from_run(
+            run_dir=output_dir,
+            ledger_path=signal_ledger_path or DEFAULT_SIGNAL_LEDGER_PATH,
+        )
+        result["company_signal_ledger"] = ledger_update["ledger"]
+        result["company_signal_ledger_entities"] = ledger_update["entities"]
+        result["company_signal_ledger_sightings"] = ledger_update["sightings"]
     return result
 
 
@@ -2643,6 +2655,8 @@ def _cli_main() -> None:
             hn_launch_trial_config=_hn_launch_trial_config_from_args(args),
             exclude_yc=_get_bool_arg(args, "exclude_yc", "no_yc"),
             hn_launch_trial_only=_get_bool_arg(args, "hn_launch_trial_only", "hn_trial_only"),
+            update_signal_ledger=_get_bool_arg(args, "update_signal_ledger", "updateSignalLedger"),
+            signal_ledger_path=Path(args["signal_ledger_path"]) if "signal_ledger_path" in args else None,
         )
         print(json.dumps(result))
         return
