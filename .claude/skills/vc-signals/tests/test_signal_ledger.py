@@ -512,3 +512,170 @@ def test_weekly_cli_threads_optional_ledger_update_hook(tmp_path: Path, monkeypa
     assert seen["update_signal_ledger"] is True
     assert seen["signal_ledger_path"] == tmp_path / "company_signal_ledger.json"
     assert result["company_signal_ledger"].endswith("company_signal_ledger.json")
+
+
+def test_ledger_action_report_groups_promoted_demoted_repeated_skipped_and_stale_rows():
+    from signal_ledger import build_ledger_action_report
+
+    ledger = {
+        "generated_at": "2026-05-24T00:00:00Z",
+        "runs_backfilled": [
+            {"run_id": "current-prior-run", "run_sequence": 0},
+            {"run_id": "current-latest-run", "run_sequence": 1},
+        ],
+        "summary": {"entities": 5, "sightings": 8, "assign_owner_entities": 1, "unsafe_promotions": 0},
+        "entities": [
+            {
+                "entity_id": "company:voker.ai",
+                "name": "Voker",
+                "domain": "voker.ai",
+                "current_route": "Assign Owner",
+                "current_action": "Assign owner",
+                "status_movement": "promoted",
+                "source_lanes_seen": ["HN", "YC", "web"],
+                "missing_evidence": [],
+                "last_seen_run": "current-latest-run",
+                "sighting_history": [{"completion_status": "completed_clean", "missing_evidence": []}],
+            },
+            {
+                "entity_id": "company:arize.com",
+                "name": "Arize",
+                "domain": "arize.com",
+                "current_route": "Category Context",
+                "current_action": "Monitor only",
+                "status_movement": "demoted",
+                "source_lanes_seen": ["web"],
+                "missing_evidence": ["category context / mature incumbent"],
+                "last_seen_run": "current-latest-run",
+                "sighting_history": [{"completion_status": "", "missing_evidence": ["category context / mature incumbent"]}],
+            },
+            {
+                "entity_id": "company:repeat.ai",
+                "name": "Repeat AI",
+                "domain": "repeat.ai",
+                "current_route": "Research Deeper",
+                "current_action": "Research deeper",
+                "status_movement": "repeated",
+                "source_lanes_seen": ["web"],
+                "missing_evidence": ["no founder/team evidence", "no stage/funding evidence"],
+                "last_seen_run": "current-latest-run",
+                "sighting_history": [
+                    {"completion_status": "", "missing_evidence": ["no founder/team evidence"]},
+                    {"completion_status": "", "missing_evidence": ["no founder/team evidence", "no stage/funding evidence"]},
+                ],
+            },
+            {
+                "entity_id": "company:aide-memory.dev",
+                "name": "Aide-memory",
+                "domain": "aide-memory.dev",
+                "current_route": "Research Deeper",
+                "current_action": "Research deeper",
+                "status_movement": "repeated",
+                "source_lanes_seen": ["HN", "web"],
+                "missing_evidence": ["max_candidates_exceeded"],
+                "last_seen_run": "current-latest-run",
+                "sighting_history": [
+                    {
+                        "completion_status": "skipped_budget",
+                        "partial_reason": "max_candidates_exceeded",
+                        "missing_evidence": ["max_candidates_exceeded"],
+                    }
+                ],
+            },
+            {
+                "entity_id": "company:stale.ai",
+                "name": "Stale AI",
+                "domain": "stale.ai",
+                "current_route": "Research Deeper",
+                "current_action": "Research deeper",
+                "status_movement": "repeated",
+                "source_lanes_seen": ["web"],
+                "missing_evidence": ["no customer/buyer pull evidence"],
+                "last_seen_run": "current-prior-run",
+                "sighting_history": [{"completion_status": "", "missing_evidence": ["no customer/buyer pull evidence"]}],
+            },
+        ],
+    }
+
+    report = build_ledger_action_report(ledger, generated_at="2026-05-24T12:00:00Z")
+    sections = report["sections"]
+
+    assert [item["entity_id"] for item in sections["current_assign_owner"]] == ["company:voker.ai"]
+    assert [item["entity_id"] for item in sections["newly_promoted"]] == ["company:voker.ai"]
+    assert [item["entity_id"] for item in sections["demoted_category_context"]] == ["company:arize.com"]
+    assert [item["entity_id"] for item in sections["repeated_research_deeper"]] == ["company:repeat.ai"]
+    assert [item["entity_id"] for item in sections["skipped_or_incomplete"]] == ["company:aide-memory.dev"]
+    assert [item["entity_id"] for item in sections["stale_or_missing_from_latest"]] == ["company:stale.ai"]
+    assert report["top_missing_evidence_buckets"][0] == {"missing_evidence": "max_candidates_exceeded", "count": 1}
+    assert any(action["entity_id"] == "company:voker.ai" and action["next_action"] == "Owner follow-up" for action in report["recommended_actions"])
+    assert any(action["entity_id"] == "company:aide-memory.dev" and action["next_action"] == "Rerun bounded HN completion" for action in report["recommended_actions"])
+    for action in report["recommended_actions"]:
+        assert {
+            "entity_name",
+            "domain",
+            "current_route",
+            "current_action",
+            "status_movement",
+            "source_lanes_seen",
+            "missing_evidence",
+            "why_next_best_action",
+        } <= set(action)
+
+
+def test_write_ledger_action_report_reads_ledger_and_renders_markdown(tmp_path: Path):
+    from signal_ledger import write_ledger_action_report
+
+    ledger_path = tmp_path / "company_signal_ledger.json"
+    report_dir = tmp_path / "current-ledger-action-report-2026-05-24"
+    _write_json(
+        ledger_path,
+        {
+            "generated_at": "2026-05-24T00:00:00Z",
+            "runs_backfilled": [{"run_id": "current-latest-run", "run_sequence": 0}],
+            "summary": {"entities": 2, "sightings": 2, "assign_owner_entities": 1, "unsafe_promotions": 0},
+            "entities": [
+                {
+                    "entity_id": "company:voker.ai",
+                    "name": "Voker",
+                    "domain": "voker.ai",
+                    "current_route": "Assign Owner",
+                    "current_action": "Assign owner",
+                    "status_movement": "promoted",
+                    "source_lanes_seen": ["HN", "YC", "web"],
+                    "missing_evidence": [],
+                    "last_seen_run": "current-latest-run",
+                    "sighting_history": [{"completion_status": "completed_clean", "missing_evidence": []}],
+                },
+                {
+                    "entity_id": "company:aide-memory.dev",
+                    "name": "Aide-memory",
+                    "domain": "aide-memory.dev",
+                    "current_route": "Research Deeper",
+                    "current_action": "Research deeper",
+                    "status_movement": "repeated",
+                    "source_lanes_seen": ["HN", "web"],
+                    "missing_evidence": ["max_candidates_exceeded"],
+                    "last_seen_run": "current-latest-run",
+                    "sighting_history": [{"completion_status": "skipped_budget", "partial_reason": "max_candidates_exceeded"}],
+                },
+            ],
+        },
+    )
+
+    result = write_ledger_action_report(
+        ledger_path=ledger_path,
+        report_dir=report_dir,
+        generated_at="2026-05-24T12:00:00Z",
+    )
+
+    markdown = (report_dir / "README.md").read_text()
+    report_json = json.loads((report_dir / "ledger-action-report.json").read_text())
+    assert result["report"] == str(report_dir / "README.md")
+    assert result["report_json"] == str(report_dir / "ledger-action-report.json")
+    assert "# Ledger Action Report" in markdown
+    assert "## Current Assign Owner" in markdown
+    assert "## Skipped or Incomplete Rows" in markdown
+    assert "## Recommended Next Codex Actions" in markdown
+    assert "Voker" in markdown
+    assert "Aide-memory" in markdown
+    assert report_json["sections"]["current_assign_owner"][0]["entity_id"] == "company:voker.ai"

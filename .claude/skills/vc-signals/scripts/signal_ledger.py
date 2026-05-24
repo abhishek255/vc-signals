@@ -18,6 +18,7 @@ REPO_ROOT = SKILL_DIR.parent.parent.parent
 DEFAULT_RUNS_ROOT = REPO_ROOT / "docs" / "radar-runs"
 DEFAULT_LEDGER_PATH = SKILL_DIR / "data" / "radar_runs" / "company_signal_ledger.json"
 DEFAULT_REPORT_DIR = DEFAULT_RUNS_ROOT / "current-signal-ledger-backfill-2026-05-24"
+DEFAULT_ACTION_REPORT_DIR = DEFAULT_RUNS_ROOT / "current-ledger-action-report-2026-05-24"
 
 WEEKLY_FOCUS_SECTIONS = (
     "partner_focus",
@@ -825,6 +826,218 @@ def write_backfill_report(ledger: dict, report_dir: Path = DEFAULT_REPORT_DIR) -
     return path
 
 
+def _latest_run_id(ledger: dict) -> str:
+    runs = ledger.get("runs_backfilled") or []
+    if runs:
+        latest = max(runs, key=lambda item: (int(item.get("run_sequence", 0) or 0), item.get("run_date", ""), item.get("run_id", "")))
+        return latest.get("run_id", "")
+    return max((entity.get("last_seen_run", "") for entity in ledger.get("entities", [])), default="")
+
+
+def _is_skipped_or_incomplete(entity: dict) -> bool:
+    if "max_candidates_exceeded" in (entity.get("missing_evidence") or []):
+        return True
+    for sighting in entity.get("sighting_history") or []:
+        if sighting.get("completion_status") == "skipped_budget":
+            return True
+        if sighting.get("partial_reason"):
+            return True
+    return False
+
+
+def _report_item(entity: dict) -> dict:
+    return {
+        "entity_id": entity.get("entity_id", ""),
+        "entity_name": entity.get("name", ""),
+        "domain": entity.get("domain", ""),
+        "current_route": entity.get("current_route", ""),
+        "current_action": entity.get("current_action", ""),
+        "status_movement": entity.get("status_movement", ""),
+        "source_lanes_seen": entity.get("source_lanes_seen") or [],
+        "missing_evidence": entity.get("missing_evidence") or [],
+        "last_seen_run": entity.get("last_seen_run", ""),
+        "sightings_count": entity.get("sightings_count", 0),
+    }
+
+
+def _missing_evidence_buckets(entities: list[dict]) -> list[dict]:
+    counts = Counter(
+        missing
+        for entity in entities
+        for missing in (entity.get("missing_evidence") or [])
+        if missing
+    )
+    priority = {"max_candidates_exceeded": 0}
+    return [
+        {"missing_evidence": missing, "count": count}
+        for missing, count in sorted(counts.items(), key=lambda item: (-item[1], priority.get(item[0], 10), item[0]))
+    ]
+
+
+def _action_for_entity(entity: dict, *, latest_run_id: str) -> dict:
+    item = _report_item(entity)
+    route = entity.get("current_route", "")
+    action = entity.get("current_action", "")
+    movement = entity.get("status_movement", "")
+    missing = entity.get("missing_evidence") or []
+    stale = bool(latest_run_id and entity.get("last_seen_run") != latest_run_id)
+    skipped = _is_skipped_or_incomplete(entity)
+
+    if action == "Assign owner":
+        next_action = "Owner follow-up"
+        why = "Current Assign Owner with complete owner-readiness evidence; route to a human owner without changing gates."
+    elif skipped:
+        next_action = "Rerun bounded HN completion"
+        why = "Budget-skipped or partial HN sighting; preserve it as incomplete and rerun completion before any owner action."
+    elif route == "Category Context" or action == "Monitor only" or movement == "demoted":
+        next_action = "Keep as category context"
+        why = "Demoted or too-late/current context row; keep visible for market memory, not owner-routing."
+    elif stale:
+        next_action = "Check stale status"
+        why = "Entity was not seen in the latest run; check whether it faded before spending validation budget."
+    elif route == "Research Deeper":
+        next_action = "Fill missing evidence"
+        why = f"Research Deeper row still needs: {', '.join(missing) if missing else 'clear next evidence'}."
+    else:
+        next_action = "Review ledger state"
+        why = "Ledger state does not map to a stronger automated action yet."
+
+    item["next_action"] = next_action
+    item["why_next_best_action"] = why
+    return item
+
+
+def build_ledger_action_report(ledger: dict, *, generated_at: str | None = None) -> dict:
+    entities = list(ledger.get("entities") or [])
+    latest_run_id = _latest_run_id(ledger)
+    current_assign_owner = [entity for entity in entities if entity.get("current_action") == "Assign owner"]
+    newly_promoted = [entity for entity in entities if entity.get("status_movement") == "promoted"]
+    demoted_category = [
+        entity
+        for entity in entities
+        if entity.get("status_movement") == "demoted"
+        or entity.get("current_route") == "Category Context"
+        or entity.get("current_action") == "Monitor only"
+    ]
+    skipped_incomplete = [entity for entity in entities if _is_skipped_or_incomplete(entity)]
+    stale = [entity for entity in entities if latest_run_id and entity.get("last_seen_run") != latest_run_id]
+    repeated_research = [
+        entity
+        for entity in entities
+        if entity.get("current_route") == "Research Deeper"
+        and entity.get("status_movement") == "repeated"
+        and entity not in skipped_incomplete
+        and entity not in stale
+    ]
+
+    action_entities = []
+    for group in (current_assign_owner, skipped_incomplete, demoted_category, repeated_research, stale):
+        for entity in group:
+            if entity.get("entity_id") not in {item.get("entity_id") for item in action_entities}:
+                action_entities.append(entity)
+
+    return {
+        "generated_at": generated_at or _now_iso(),
+        "ledger_generated_at": ledger.get("generated_at", ""),
+        "latest_run_id": latest_run_id,
+        "summary": ledger.get("summary", {}),
+        "sections": {
+            "current_assign_owner": [_report_item(entity) for entity in current_assign_owner],
+            "newly_promoted": [_report_item(entity) for entity in newly_promoted],
+            "demoted_category_context": [_report_item(entity) for entity in demoted_category],
+            "repeated_research_deeper": [_report_item(entity) for entity in repeated_research],
+            "skipped_or_incomplete": [_report_item(entity) for entity in skipped_incomplete],
+            "stale_or_missing_from_latest": [_report_item(entity) for entity in stale],
+        },
+        "top_missing_evidence_buckets": _missing_evidence_buckets(entities),
+        "recommended_actions": [_action_for_entity(entity, latest_run_id=latest_run_id) for entity in action_entities],
+    }
+
+
+def _format_item_line(item: dict) -> str:
+    lanes = ", ".join(item.get("source_lanes_seen") or ["none"])
+    missing = ", ".join(item.get("missing_evidence") or ["none"])
+    return (
+        f"- {item.get('entity_name', '')} ({item.get('domain', '') or item.get('entity_id', '')})"
+        f" - {item.get('current_route', '')} / {item.get('current_action', '')}"
+        f" - movement: {item.get('status_movement', '')}"
+        f" - lanes: {lanes}"
+        f" - missing: {missing}"
+    )
+
+
+def render_ledger_action_report_markdown(report: dict) -> str:
+    lines = [
+        "# Ledger Action Report",
+        "",
+        f"Generated: {report.get('generated_at', '')}",
+        f"Ledger generated: {report.get('ledger_generated_at', '')}",
+        f"Latest run: {report.get('latest_run_id', '')}",
+        "",
+        "## Summary",
+        "",
+    ]
+    summary = report.get("summary") or {}
+    for key in ("entities", "sightings", "assign_owner_entities", "unsafe_promotions"):
+        lines.append(f"- {key.replace('_', ' ').title()}: {summary.get(key, 0)}")
+
+    section_titles = (
+        ("current_assign_owner", "Current Assign Owner"),
+        ("newly_promoted", "Newly Promoted"),
+        ("demoted_category_context", "Demoted / Too Late / Category Context"),
+        ("repeated_research_deeper", "Repeated Research Deeper Rows"),
+        ("skipped_or_incomplete", "Skipped or Incomplete Rows"),
+        ("stale_or_missing_from_latest", "Stale or Missing From Latest Run"),
+    )
+    for key, title in section_titles:
+        lines.extend(["", f"## {title}", ""])
+        items = report.get("sections", {}).get(key) or []
+        if items:
+            lines.extend(_format_item_line(item) for item in items)
+        else:
+            lines.append("- None")
+
+    lines.extend(["", "## Top Missing Evidence Buckets", ""])
+    buckets = report.get("top_missing_evidence_buckets") or []
+    if buckets:
+        for bucket in buckets[:15]:
+            lines.append(f"- {bucket['missing_evidence']}: {bucket['count']}")
+    else:
+        lines.append("- None")
+
+    lines.extend(["", "## Recommended Next Codex Actions", ""])
+    actions = report.get("recommended_actions") or []
+    if actions:
+        for item in actions[:25]:
+            lines.append(_format_item_line(item))
+            lines.append(f"  - Next: {item.get('next_action', '')}")
+            lines.append(f"  - Why: {item.get('why_next_best_action', '')}")
+    else:
+        lines.append("- None")
+    return "\n".join(lines) + "\n"
+
+
+def write_ledger_action_report(
+    *,
+    ledger_path: Path = DEFAULT_LEDGER_PATH,
+    report_dir: Path = DEFAULT_ACTION_REPORT_DIR,
+    generated_at: str | None = None,
+) -> dict:
+    ledger = _read_json(Path(ledger_path)) or {}
+    report = build_ledger_action_report(ledger, generated_at=generated_at)
+    report_dir = Path(report_dir)
+    report_dir.mkdir(parents=True, exist_ok=True)
+    markdown_path = report_dir / "README.md"
+    json_path = report_dir / "ledger-action-report.json"
+    markdown_path.write_text(render_ledger_action_report_markdown(report))
+    json_path.write_text(json.dumps(report, indent=2, sort_keys=True))
+    return {
+        "report": str(markdown_path),
+        "report_json": str(json_path),
+        "recommended_actions": len(report.get("recommended_actions") or []),
+    }
+
+
 def backfill_recent_artifacts(
     *,
     runs_root: Path = DEFAULT_RUNS_ROOT,
@@ -867,6 +1080,13 @@ def _parse_args(argv: list[str]) -> dict:
 def _cli_main() -> None:
     args = _parse_args(sys.argv[1:])
     command = (args.get("_positional") or ["backfill"])[0]
+    if command == "action-report":
+        result = write_ledger_action_report(
+            ledger_path=Path(args.get("ledger_path", DEFAULT_LEDGER_PATH)),
+            report_dir=Path(args.get("report_dir", DEFAULT_ACTION_REPORT_DIR)),
+        )
+        print(json.dumps(result, indent=2))
+        return
     if command != "backfill":
         print(json.dumps({"error": f"Unknown command: {command}"}))
         return
