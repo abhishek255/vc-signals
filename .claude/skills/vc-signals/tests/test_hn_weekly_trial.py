@@ -188,7 +188,7 @@ def test_hn_weekly_trial_markdown_shows_ranked_review_rows_without_dump():
         "assign_owner_rows": 1,
         "action_blocked_by_attio_rows": 0,
         "unsafe_promotions": 0,
-        "runtime": {"candidates_completed": 14, "stage_failures": 11},
+        "runtime": {"candidates_completed": 14, "stage_failures": 11, "attio_skipped": 1},
         "review_rows": review_rows,
     }
 
@@ -199,6 +199,7 @@ def test_hn_weekly_trial_markdown_shows_ranked_review_rows_without_dump():
     assert "Research 4" in markdown
     assert "Research 5" not in markdown
     assert "13 project-only rows summarized separately" in markdown
+    assert "skipped 1" in markdown
 
 
 def test_hn_weekly_trial_writes_row_review_package_with_priorities(tmp_path):
@@ -244,6 +245,8 @@ def test_hn_weekly_trial_writes_row_review_package_with_priorities(tmp_path):
                 "evidence_dimensions": ["customer"],
                 "missing_evidence": ["maturity_query_timeout", "no founder/team evidence"],
                 "attio_status": "unknown",
+                "attio_skipped": True,
+                "attio_skip_reason": "owner_actionable_evidence_incomplete",
                 "unsafe_promotion": False,
             },
         ],
@@ -255,9 +258,13 @@ def test_hn_weekly_trial_writes_row_review_package_with_priorities(tmp_path):
     assert str(tmp_path / "hn-trial-row-review.md") in result["artifacts"]
     review_json = json.loads((tmp_path / "hn-trial-row-review.json").read_text())
     assert review_json["summary"]["priority_split"] == {"high_priority": 1, "normal_priority": 1}
+    assert review_json["summary"]["attio_skipped"] == 1
+    assert review_json["summary"]["attio_skip_reasons"] == {"owner_actionable_evidence_incomplete": 1}
     review_md = (tmp_path / "hn-trial-row-review.md").read_text()
     assert "Priority: normal_priority" in review_md
     assert "Priority: high_priority" in review_md
+    assert "Attio skipped rows: 1" in review_md
+    assert "Attio skipped: owner-actionable evidence incomplete" in review_md
     assert "maturity_query_timeout" in review_md
     assert "weekly-preview.md" not in review_md
 

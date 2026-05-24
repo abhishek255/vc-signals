@@ -249,6 +249,11 @@ def _row_review_payload(payload: dict) -> dict:
     priority_split = Counter(row.get("priority", "unknown") or "unknown" for row in rows)
     completion_split = Counter(row.get("completion_status", "unknown") or "unknown" for row in rows)
     action_split = Counter(row.get("final_action", "unknown") or "unknown" for row in rows)
+    attio_skip_reasons = Counter(
+        row.get("attio_skip_reason")
+        for row in rows
+        if (row.get("attio_skipped") or row.get("attio_skip_reason")) and row.get("attio_skip_reason")
+    )
     return {
         "phase": payload.get("label", "Phase 6C HN Launch Trial"),
         "summary": {
@@ -256,12 +261,20 @@ def _row_review_payload(payload: dict) -> dict:
             "priority_split": dict(priority_split),
             "completion_split": dict(completion_split),
             "action_split": dict(action_split),
+            "attio_skipped": sum(1 for row in rows if row.get("attio_skipped") or row.get("attio_skip_reason")),
+            "attio_skip_reasons": dict(attio_skip_reasons),
             "unsafe_promotions": int(payload.get("unsafe_promotions", 0) or 0),
             "project_only_rows": int(payload.get("project_only_rows", 0) or 0),
             "product_context_rows": int(payload.get("product_context_rows", 0) or 0),
         },
         "rows": rows,
     }
+
+
+def _human_attio_skip_reason(reason: str) -> str:
+    if reason == "owner_actionable_evidence_incomplete":
+        return "owner-actionable evidence incomplete"
+    return reason.replace("_", " ") if reason else "unknown"
 
 
 def _row_review_markdown(payload: dict) -> str:
@@ -275,6 +288,8 @@ def _row_review_markdown(payload: dict) -> str:
         f"- Priority split: {_format_counter(summary.get('priority_split') or {})}",
         f"- Completion split: {_format_counter(summary.get('completion_split') or {})}",
         f"- Action split: {_format_counter(summary.get('action_split') or {})}",
+        f"- Attio skipped rows: {summary.get('attio_skipped', 0)}",
+        f"- Attio skip reasons: {_format_counter(summary.get('attio_skip_reasons') or {})}",
         f"- Unsafe promotions: {summary.get('unsafe_promotions', 0)}",
         f"- Project-only rows summarized: {summary.get('project_only_rows', 0)}",
         f"- Product/context rows separated: {summary.get('product_context_rows', 0)}",
@@ -302,6 +317,8 @@ def _row_review_markdown(payload: dict) -> str:
                 f"- Unsafe promotion: {bool(row.get('unsafe_promotion'))}",
             ]
         )
+        if row.get("attio_skipped") or row.get("attio_skip_reason"):
+            lines.append(f"- Attio skipped: {_human_attio_skip_reason(row.get('attio_skip_reason') or '')}")
         provenance = row.get("assign_owner_evidence_provenance") or {}
         if provenance:
             attio = provenance.get("attio_status_evidence") or {}
@@ -362,6 +379,7 @@ def _markdown(payload: dict) -> str:
                 f"- Attio: checks {runtime.get('attio_checks_attempted', runtime.get('attio_checks', 0))}, "
                 f"successes {runtime.get('attio_successes', 0)}, "
                 f"timeouts {runtime.get('attio_timeouts', 0)}, "
+                f"skipped {runtime.get('attio_skipped', 0)}, "
                 f"cache hits {runtime.get('attio_cache_hits', 0)}",
                 f"- Completion split: clean {runtime.get('completed_clean', 0)}, "
                 f"stage-failed {runtime.get('completed_with_stage_failure', 0)}, "

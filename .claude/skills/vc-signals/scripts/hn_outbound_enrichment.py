@@ -816,6 +816,8 @@ def _review_rows(rows: list[dict], ledger_items: list[dict]) -> list[dict]:
             "evidence_dimensions": evidence_dimensions,
             "evidence_completeness": len(evidence_dimensions),
             "attio_status": row.get("attio_status", ""),
+            "attio_skipped": bool(ledger.get("attio_skipped") or row.get("attio_skipped")),
+            "attio_skip_reason": ledger.get("attio_skip_reason") or row.get("attio_skip_reason") or "",
             "missing_evidence": missing,
             "weak_stage_funding_hints": list(row.get("weak_stage_funding_hints") or []),
             "unsafe_promotion": bool(row.get("unsafe_promotion")),
@@ -863,6 +865,11 @@ def _review_sort_key(row: dict) -> tuple:
 
 
 def _runtime_ledger_payload(items: list[dict], *, runtime: _RuntimeBudget) -> dict:
+    attio_skip_reasons: dict[str, int] = {}
+    for item in items:
+        reason = item.get("attio_skip_reason") or ""
+        if reason:
+            attio_skip_reasons[reason] = attio_skip_reasons.get(reason, 0) + int(item.get("attio_skipped", 0) or 1)
     return {
         "summary": {
             "candidates_seen": len(items),
@@ -885,6 +892,11 @@ def _runtime_ledger_payload(items: list[dict], *, runtime: _RuntimeBudget) -> di
             "attio_cache_fresh_hits": sum(int(item.get("attio_cache_fresh_hits", 0)) for item in items),
             "attio_cache_stale_hits": sum(int(item.get("attio_cache_stale_hits", 0)) for item in items),
             "attio_cache_expired_hits": sum(int(item.get("attio_cache_expired_hits", 0)) for item in items),
+            "attio_skipped": sum(int(item.get("attio_skipped", 0)) for item in items),
+            "attio_skipped_owner_actionable_evidence_incomplete": attio_skip_reasons.get(
+                "owner_actionable_evidence_incomplete", 0
+            ),
+            "attio_skip_reasons": attio_skip_reasons,
             "attio_blocked_owner_ready_rows": sum(1 for item in items if item.get("attio_blocked_owner_ready")),
             "page_fetches": runtime.page_fetches,
             "timeouts": runtime.timeouts,
@@ -2066,6 +2078,8 @@ def _markdown(payload: dict) -> str:
         "attio_cache_hits",
         "attio_cache_fresh_hits",
         "attio_cache_stale_hits",
+        "attio_skipped",
+        "attio_skipped_owner_actionable_evidence_incomplete",
         "attio_blocked_owner_ready_rows",
         "page_fetches",
         "timeouts",

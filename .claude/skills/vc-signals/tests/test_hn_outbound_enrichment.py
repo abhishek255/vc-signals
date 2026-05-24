@@ -680,6 +680,11 @@ def test_hn_attio_budget_is_reserved_for_owner_actionable_rows():
     assert loud_ledger["attio_checks"] == 0
     assert loud_ledger["attio_skipped"] == 1
     assert loud_ledger["attio_skip_reason"] == "owner_actionable_evidence_incomplete"
+    assert result["runtime_ledger"]["summary"]["attio_skipped"] == 1
+    assert result["runtime_ledger"]["summary"]["attio_skipped_owner_actionable_evidence_incomplete"] == 1
+    review_rows = {row["name"]: row for row in result["review_rows"]}
+    assert review_rows["Loud"]["attio_skipped"] is True
+    assert review_rows["Loud"]["attio_skip_reason"] == "owner_actionable_evidence_incomplete"
     assert rows["Veris"]["recommended_action"] == "Assign owner"
     assert rows["Veris"]["assign_owner"] is True
     assert veris_ledger["attio_checks"] == 1
