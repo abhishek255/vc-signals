@@ -1372,6 +1372,7 @@ def _skipped_maturity_report(candidate: Candidate, reason: str) -> dict:
 
 
 def _row_from_candidate(candidate: Candidate, original_row: dict, identity_report: dict) -> dict:
+    candidate = _promote_yc_company_profile_stage_context(candidate)
     score, basis, missing, next_step = score_owner_readiness(candidate)
     score, basis, missing, next_step, evidence = _strict_hn_owner_outputs(candidate, score, basis, missing, next_step)
     action = _recommended_action(candidate, score, missing)
@@ -1556,6 +1557,59 @@ def _clean_maturity_basis(candidate: Candidate) -> list[str]:
     if candidate.maturity_status != "unknown" and len(basis) > 1:
         basis = [item for item in basis if item != "maturity_not_verified"]
     return basis
+
+
+def _promote_yc_company_profile_stage_context(candidate: Candidate) -> Candidate:
+    yc_urls = _yc_company_profile_stage_urls(candidate)
+    if (
+        not yc_urls
+        or not _has_accelerator_batch_context(candidate)
+        or candidate.category_anchor
+        or candidate.maturity_status in LATE_OR_CONTEXT_STATUSES
+    ):
+        return candidate
+    out = Candidate.from_dict(candidate.to_dict())
+    out.maturity_status = "seed_to_series_b"
+    out.lead_route = "sourcing_candidate"
+    out.maturity_basis = list(dict.fromkeys(list(out.maturity_basis) + ["yc_company_profile_stage_evidence"]))
+    out.maturity_evidence_urls = list(dict.fromkeys(list(out.maturity_evidence_urls) + yc_urls))[:5]
+    out.stage_funding_evidence = list(dict.fromkeys(list(out.stage_funding_evidence) + yc_urls))[:5]
+    out.owner_readiness_score = 0
+    out.owner_readiness_basis = []
+    out.missing_owner_evidence = []
+    out.recommended_owner_action = ""
+    out.recommended_next_validation_step = ""
+    return out
+
+
+def _yc_company_profile_stage_urls(candidate: Candidate) -> list[str]:
+    urls = list(candidate.stage_funding_evidence) + list(candidate.maturity_evidence_urls) + list(candidate.sources)
+    for metadata in candidate.evidence_metadata:
+        if isinstance(metadata, dict):
+            urls.extend(str(metadata.get(key) or "") for key in ("source_url", "outbound_url", "url"))
+    return [
+        url
+        for url in dict.fromkeys(url for url in urls if url)
+        if "ycombinator.com/companies/" in url.lower()
+    ][:5]
+
+
+def _has_accelerator_batch_context(candidate: Candidate) -> bool:
+    text = " ".join(
+        str(value or "")
+        for value in [
+            candidate.name,
+            candidate.display_name,
+            candidate.canonical_name,
+            candidate.why_on_radar,
+            candidate.source_headline,
+            *list(candidate.maturity_basis or []),
+        ]
+    )
+    return bool(
+        any("accelerator_batch_evidence" in basis.lower() for basis in candidate.maturity_basis)
+        or re.search(r"(?:YC|Y\s+Combinator)\s+[SWF]\d{2}", text, re.IGNORECASE)
+    )
 
 
 def _strict_hn_owner_outputs(

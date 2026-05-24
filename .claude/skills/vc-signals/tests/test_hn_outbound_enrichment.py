@@ -671,6 +671,50 @@ def test_twill_yc_context_needs_corroboration_before_seed_status():
     assert row["assign_owner"] is False
 
 
+def test_hn_yc_company_profile_counts_as_durable_seed_stage_evidence():
+    from hn_outbound_enrichment import run_hn_outbound_enrichment
+
+    yc_profile = "https://www.ycombinator.com/companies/voker/jobs"
+
+    result = run_hn_outbound_enrichment(
+        _phase6b_payload(
+            company_rows=[
+                _hn_outbound(
+                    name="Voker (YC S24)",
+                    official_url="https://voker.ai",
+                    outbound_domain="voker.ai",
+                    company_domain="voker.ai",
+                    source_title="Launch HN: Voker (YC S24) - Analytics for AI Agents",
+                    source_text="Hey HN, we're Alex Rudolph and Tyler Postle, co-founders of Voker.ai.",
+                    maturity_status="early_stage_context",
+                    maturity_basis=["accelerator_batch_evidence: YC S24"],
+                    maturity_evidence_urls=[yc_profile],
+                )
+            ]
+        ),
+        page_fetcher=lambda url: (
+            "<html><title>Voker</title><body>"
+            "Voker was founded by Tyler Postle and Alex Rudolph. "
+            "Enterprise teams use Voker for agent analytics. Get started today."
+            "</body></html>"
+        ),
+        query_runner=lambda topic, **kwargs: {"items": []},
+        attio_matcher=lambda candidate: {"attio_status": "no_match", "attio_action": "assign owner"},
+    )
+
+    row = result["enriched_outbound_candidates"][0]
+    assert row["canonical_name"] == "Voker"
+    assert row["identity_type"] == "verified_company"
+    assert row["maturity_status"] == "seed_to_series_b"
+    assert "yc_company_profile_stage_evidence" in row["maturity_basis"]
+    assert row["stage_funding_evidence"] == [yc_profile]
+    assert "stage_funding_evidence" in row["owner_readiness_basis"]
+    assert "no stage/funding evidence" not in row["missing_owner_evidence"]
+    assert row["recommended_action"] == "Assign owner"
+    assert row["assign_owner"] is True
+    assert result["summary"]["unsafe_promotions"] == 0
+
+
 def test_veris_official_page_founder_handoff_removes_founder_missing():
     from hn_outbound_enrichment import run_hn_outbound_enrichment
 
