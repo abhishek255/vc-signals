@@ -31,15 +31,20 @@ GENERIC_NAME_WORDS = {
     "Build",
     "Contact",
     "Corner",
+    "Companies",
     "Customer",
     "Customers",
+    "Directory",
     "Enterprise",
+    "Founder",
     "Founders",
     "Future",
+    "Jobs",
     "Marketing",
     "Our",
     "Playbook",
     "Security",
+    "Startup",
     "Super",
     "Take",
     "Team",
@@ -195,6 +200,23 @@ def _role_label(raw: str) -> str:
     return "founder/team"
 
 
+def _role_points_to_different_company(role_text: str, company_name: str) -> bool:
+    company = _normalized(company_name)
+    if not company:
+        return False
+    organizations: list[str] = []
+    for match in re.finditer(
+        r"\b(?:of|at)\s+(?P<org>[A-Z][A-Za-z0-9&.-]*(?:\s+[A-Z][A-Za-z0-9&.-]*){0,4})",
+        role_text or "",
+    ):
+        org = _normalized(match.group("org"))
+        if org:
+            organizations.append(org)
+    if any(company in org or org in company for org in organizations):
+        return False
+    return bool(organizations)
+
+
 def _extract_founders_from_text(*, company_name: str, text: str, url: str) -> tuple[list[dict], list[str]]:
     if not url:
         return [], ["evidence_url_required"]
@@ -221,6 +243,9 @@ def _extract_founders_from_text(*, company_name: str, text: str, url: str) -> tu
         name = match.group("name")
         role_text = match.group("role")
         local_text = text[max(0, match.start() - 120) : match.end() + 120]
+        if _role_points_to_different_company(role_text, company_name):
+            rejection_reasons.append("role_points_to_different_company")
+            continue
         if _valid_person_name(name, company_name) and _company_in_text(company_name, local_text):
             profiles.append({"name": name, "role": _role_label(role_text), "source": url})
 

@@ -190,6 +190,46 @@ def test_generic_team_language_does_not_count(tmp_path):
     assert "no source-backed named founder/team evidence" in report["items"][0]["missing_founder_evidence"]
 
 
+def test_customer_testimonial_roles_do_not_become_founder_profiles():
+    from founder_team_verification import extract_named_founder_profiles_from_text
+
+    profiles, rejected = extract_named_founder_profiles_from_text(
+        company_names=["Voker"],
+        url="https://voker.ai",
+        text=(
+            "Voker is analytics for AI agents. "
+            '"Voker made it possible to monitor and optimize our AI features quickly." '
+            "Ben Yahalom, CEO of True Classic. "
+            '"Voker has allowed us to optimize our agents in production." '
+            "Carlos Moreno, CTO of Dutch. "
+            '"With Voker, we can iterate on improving our agents much faster." '
+            "Ariel Herrera, CTO of Coffee Clozers."
+        ),
+    )
+
+    assert profiles == []
+    assert "role_points_to_different_company" in rejected
+
+
+def test_yc_navigation_words_do_not_become_founder_names():
+    from founder_team_verification import extract_named_founder_profiles_from_text
+
+    profiles, rejected = extract_named_founder_profiles_from_text(
+        company_names=["Voker"],
+        url="https://www.ycombinator.com/companies/voker",
+        text=(
+            "Startup Jobs Founder Directory Voker Active Founders "
+            "Tyler Postle, Co-Founder of Voker. Alex Rudolph, Co-Founder of Voker."
+        ),
+    )
+
+    assert profiles == [
+        {"name": "Tyler Postle", "role": "co-founder", "source": "https://www.ycombinator.com/companies/voker"},
+        {"name": "Alex Rudolph", "role": "co-founder", "source": "https://www.ycombinator.com/companies/voker"},
+    ]
+    assert "no_named_founder_pattern" not in rejected
+
+
 def test_company_name_must_match_founder_evidence(tmp_path):
     from founder_team_verification import enrich_founder_team_verification
 
