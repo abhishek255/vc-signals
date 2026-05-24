@@ -506,6 +506,32 @@ def test_run_query_handles_timeout(tmp_path, monkeypatch):
     assert result["items"] == []
 
 
+def test_run_query_preserves_timeout_stderr_and_stdout(tmp_path, monkeypatch):
+    import subprocess
+    from last30days_adapter import run_query
+
+    vendor = _make_vendor(tmp_path)
+    monkeypatch.setattr("last30days_adapter._find_python", lambda: "python3")
+
+    def raise_timeout(*a, **kw):
+        raise subprocess.TimeoutExpired(
+            cmd=a[0] if a else "",
+            timeout=90,
+            output="partial source trace",
+            stderr="[RedditPublic] HTTP 429 rate limited\n[ScrapeCreators] HTTP 402 Payment Required",
+        )
+
+    monkeypatch.setattr("last30days_adapter.subprocess.run", raise_timeout)
+
+    result = run_query("topic", vendor_path=vendor, timeout_seconds=90)
+
+    assert result["error"] == "last30days query timed out (90s)"
+    assert "HTTP 429" in result["stderr"]
+    assert "HTTP 402" in result["stderr"]
+    assert result["raw_output"] == "partial source trace"
+    assert result["items"] == []
+
+
 def test_run_query_handles_malformed_json(tmp_path, monkeypatch):
     from last30days_adapter import run_query
 

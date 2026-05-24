@@ -579,6 +579,28 @@ def test_build_sector_collection_queries_uses_youtube_for_oss_fallback():
     assert all("youtube" in query["sources"] for query in queries[1:])
 
 
+def test_build_sector_collection_queries_splits_reddit_from_grounded_oss_company_discovery(monkeypatch):
+    import radar_run
+    from radar_run import build_sector_collection_queries
+
+    monkeypatch.setattr(radar_run, "load_reddit_sources_config", lambda: {})
+    config = {"oss": {"display_name": "Open Source Radar", "discovery_queries": []}}
+
+    queries = build_sector_collection_queries(
+        "oss",
+        config,
+        grounded_available=True,
+        social_available=True,
+        max_queries=3,
+    )
+
+    company_query = next(query for query in queries if query["kind"] == "company_discovery")
+    assert "grounding" in company_query["sources"]
+    assert "reddit" not in company_query["sources"]
+    assert company_query["exclude_sources"] == "reddit"
+    assert company_query["source_policy"] == "oss_company_discovery_reddit_split"
+
+
 def test_build_sector_collection_queries_uses_social_sources_for_vertical_ai():
     from radar_run import build_sector_collection_queries
 
@@ -685,6 +707,69 @@ def test_collect_live_evidence_preserves_last30days_stderr_in_source_health(monk
     assert "last30days exited with code 1" in warning
     assert "temporary failure in name resolution" in warning
     assert "api.github.com" in warning
+
+
+def test_collect_live_evidence_classifies_reddit_and_scrapecreators_as_degraded(monkeypatch):
+    import radar_run
+
+    def fake_run_query(topic, **kwargs):
+        return {
+            "items": [],
+            "clusters": [],
+            "warnings": [],
+            "error": "last30days query timed out (90s)",
+            "stderr": "[RedditPublic] HTTP 429 rate limited\n[ScrapeCreators] HTTP 402 Payment Required",
+        }
+
+    monkeypatch.setattr(radar_run, "run_query", fake_run_query)
+    monkeypatch.setattr(radar_run, "run_trending", lambda sector, limit: {"repos": [], "warnings": []})
+    monkeypatch.setattr(radar_run, "_grounded_search_available", lambda: False)
+    monkeypatch.setattr(radar_run, "_social_search_available", lambda: False)
+
+    evidence = radar_run.collect_live_evidence(
+        sectors=("devtools",),
+        github_limit=0,
+        max_queries_per_sector=1,
+        query_timeout_seconds=90,
+    )
+
+    diagnostic = evidence["last30days"]["devtools"]["query_diagnostics"][0]
+    assert diagnostic["source_health_classification"] == "degraded_source_health"
+    assert diagnostic["degraded_signals"] == ["reddit_429", "scrapecreators_402"]
+    assert "HTTP 429" in diagnostic["stderr_excerpt"]
+    assert evidence["source_health"][0]["status"] == "degraded"
+
+
+def test_collect_live_evidence_passes_exclude_sources_to_last30days(monkeypatch):
+    import radar_run
+
+    calls = []
+
+    def fake_run_query(topic, **kwargs):
+        calls.append(kwargs)
+        return {"items": [], "clusters": [], "warnings": []}
+
+    monkeypatch.setattr(
+        radar_run,
+        "build_sector_collection_queries",
+        lambda *a, **kw: [
+            {
+                "kind": "company_discovery",
+                "topic": "open source startup companies",
+                "sources": "grounding,hackernews,youtube",
+                "exclude_sources": "reddit",
+                "lookback_days": 30,
+            }
+        ],
+    )
+    monkeypatch.setattr(radar_run, "run_query", fake_run_query)
+    monkeypatch.setattr(radar_run, "run_trending", lambda sector, limit: {"repos": [], "warnings": []})
+    monkeypatch.setattr(radar_run, "_grounded_search_available", lambda: True)
+    monkeypatch.setattr(radar_run, "_social_search_available", lambda: True)
+
+    radar_run.collect_live_evidence(sectors=("oss",), github_limit=0, max_queries_per_sector=1)
+
+    assert calls[0]["exclude_sources"] == "reddit"
 
 
 def test_collect_live_evidence_filters_reddit_items_outside_requested_subreddits(monkeypatch):

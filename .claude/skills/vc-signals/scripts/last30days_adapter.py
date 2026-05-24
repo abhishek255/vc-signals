@@ -68,6 +68,14 @@ def _configured_value(value: str) -> bool:
     return normalized not in PLACEHOLDER_VALUES
 
 
+def _decode_subprocess_stream(value) -> str:
+    if value is None:
+        return ""
+    if isinstance(value, bytes):
+        return value.decode("utf-8", errors="replace")
+    return str(value)
+
+
 def check_availability(
     vendor_path: Path | None = None,
     config_path: Path | None = None,
@@ -303,8 +311,15 @@ def run_query(
             cwd=str(skill_root),
             env=env,
         )
-    except subprocess.TimeoutExpired:
-        return {"error": f"last30days query timed out ({timeout_seconds}s)", "items": []}
+    except subprocess.TimeoutExpired as exc:
+        timeout_result = {"error": f"last30days query timed out ({timeout_seconds}s)", "items": []}
+        stderr = _decode_subprocess_stream(getattr(exc, "stderr", None))
+        stdout = _decode_subprocess_stream(getattr(exc, "stdout", None) or getattr(exc, "output", None))
+        if stderr:
+            timeout_result["stderr"] = stderr[:4000]
+        if stdout:
+            timeout_result["raw_output"] = stdout[:2000]
+        return timeout_result
     except FileNotFoundError:
         return {"error": f"Python not found: {python_cmd}", "items": []}
 

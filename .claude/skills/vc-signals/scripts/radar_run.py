@@ -311,6 +311,29 @@ def _source_health(source: str, status: str, *, fresh_items: int = 0, duration_s
     }
 
 
+def _diagnostic_excerpt(value: object, *, limit: int = 800) -> str:
+    text = str(value or "").strip()
+    return text[:limit]
+
+
+def _degraded_source_signals(*parts: object) -> list[str]:
+    text = "\n".join(str(part or "") for part in parts if part).lower()
+    signals = []
+    if "reddit" in text and "429" in text:
+        signals.append("reddit_429")
+    if "scrapecreators" in text and "402" in text:
+        signals.append("scrapecreators_402")
+    return signals
+
+
+def _source_health_status(errors: list[str], degraded_error_count: int) -> str:
+    if not errors:
+        return "complete"
+    if degraded_error_count and degraded_error_count == len(errors):
+        return "degraded"
+    return "error"
+
+
 def _github_timeout_handler(signum, frame):  # pragma: no cover - exercised through alarm behavior
     raise GithubCollectionTimeout("github_collection_timeout")
 
@@ -455,6 +478,15 @@ def _without_regular_hn(sources: str, *, hn_launch_trial_only: bool = False) -> 
         part
         for part in str(sources or "").split(",")
         if part and part.strip().lower() != "hackernews"
+    )
+
+
+def _without_sources(sources: str, *excluded_sources: str) -> str:
+    excluded = {source.strip().lower() for source in excluded_sources if source.strip()}
+    return ",".join(
+        part.strip()
+        for part in str(sources or "").split(",")
+        if part.strip() and part.strip().lower() not in excluded
     )
 
 
@@ -639,12 +671,28 @@ def build_sector_collection_queries(
             {
                 "kind": "company_discovery",
                 "topic": f"{display_name} startups Seed Series A Series B emerging companies funding founder traction",
-                "sources": _without_regular_hn(
+                "sources": _without_sources(
+                    _without_regular_hn(
+                        _sources("grounding", "reddit", "hackernews", social_available=social_available, vertical_social=(sector_slug == "vertical-ai")),
+                        hn_launch_trial_only=hn_launch_trial_only,
+                    ),
+                    "reddit",
+                )
+                if sector_slug == "oss"
+                else _without_regular_hn(
                     _sources("grounding", "reddit", "hackernews", social_available=social_available, vertical_social=(sector_slug == "vertical-ai")),
                     hn_launch_trial_only=hn_launch_trial_only,
                 ),
                 "web_backend": "auto",
                 "lookback_days": lookback_days,
+                **(
+                    {
+                        "exclude_sources": "reddit",
+                        "source_policy": "oss_company_discovery_reddit_split",
+                    }
+                    if sector_slug == "oss"
+                    else {}
+                ),
             }
         )
 
@@ -1884,6 +1932,7 @@ def collect_live_evidence(
             clusters = []
             warnings = []
             errors = []
+            degraded_error_count = 0
             query_diagnostics = []
             for index, query_spec in enumerate(query_specs, start=1):
                 if progress:
@@ -1901,6 +1950,7 @@ def collect_live_evidence(
                     auto_resolve=True,
                     store=True,
                     web_backend=query_spec.get("web_backend"),
+                    exclude_sources=query_spec.get("exclude_sources"),
                     timeout_seconds=query_timeout_seconds,
                 )
                 raw_items_returned = len(result.get("items", []) or [])
@@ -1920,25 +1970,41 @@ def collect_live_evidence(
                         f"{query_spec['kind']}: filtered {leaked_reddit_items} reddit items outside requested subreddits"
                     )
                 clusters.extend(result.get("clusters", []))
-                warnings.extend(result.get("warnings", []))
-                query_diagnostics.append({
+                result_warnings = list(result.get("warnings", []))
+                warnings.extend(result_warnings)
+                stderr_excerpt = _diagnostic_excerpt(result.get("stderr"))
+                degraded_signals = _degraded_source_signals(
+                    result.get("error"),
+                    result.get("stderr"),
+                    result.get("raw_output"),
+                    *result_warnings,
+                )
+                diagnostic = {
                     "kind": query_spec.get("kind", ""),
                     "topic": query_spec.get("topic", ""),
                     "sources": query_spec.get("sources", ""),
+                    "exclude_sources": query_spec.get("exclude_sources", ""),
                     "candidate_eligible": query_spec.get("candidate_eligible", True),
                     "raw_items_returned": raw_items_returned,
                     "accepted_items": len(accepted_items),
                     "filtered_items": leaked_reddit_items,
                     "filtered_reddit_outside_subreddits": leaked_reddit_items,
                     "error": result.get("error", ""),
-                    "warnings": list(result.get("warnings", [])),
-                })
+                    "warnings": result_warnings,
+                    "source_health_classification": "degraded_source_health" if degraded_signals else "",
+                }
+                if stderr_excerpt:
+                    diagnostic["stderr_excerpt"] = stderr_excerpt
+                if degraded_signals:
+                    diagnostic["degraded_signals"] = degraded_signals
+                query_diagnostics.append(diagnostic)
                 if result.get("error"):
                     error_message = result["error"]
-                    stderr_excerpt = (result.get("stderr") or "").strip()
                     if stderr_excerpt:
                         error_message = f"{error_message}: {stderr_excerpt[:300]}"
                     errors.append(error_message)
+                    if degraded_signals:
+                        degraded_error_count += 1
                     evidence["warnings"].append(f"{sector}: {error_message}")
             items = filter_evidence(_dedupe_items(items))
             evidence["last30days"][sector] = {
@@ -1953,7 +2019,7 @@ def collect_live_evidence(
             evidence["source_health"].append(
                 _source_health(
                     f"last30days:{sector}",
-                    "error" if errors else "complete",
+                    _source_health_status(errors, degraded_error_count),
                     fresh_items=len(items),
                     duration_seconds=time.monotonic() - started,
                     warnings=errors or warnings,
