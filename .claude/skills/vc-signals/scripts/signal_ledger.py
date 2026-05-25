@@ -537,8 +537,8 @@ def _entity_from_history(entity_id: str, history: list[dict]) -> dict:
     history = sorted(
         history,
         key=lambda item: (
-            item.get("run_date", ""),
             int(item.get("run_sequence", 0) or 0),
+            item.get("run_date", ""),
             item.get("run_id", ""),
             item.get("source_file", ""),
         ),
@@ -1373,7 +1373,8 @@ def build_partner_decision_packet(
         actions,
         entities_by_id,
         lambda action: action.get("post_completion_disposition") == "continue_research"
-        or action.get("next_action") == "Continue focused evidence search",
+        or action.get("next_action") == "Continue focused evidence search"
+        or action.get("next_action") == "Fill missing evidence",
     )
     parked = _packet_items_from_actions(
         actions,

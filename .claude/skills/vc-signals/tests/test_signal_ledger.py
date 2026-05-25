@@ -109,6 +109,63 @@ def test_ledger_schema_merges_domain_entities_and_preserves_history(tmp_path: Pa
     assert entity["status_movement"] == "repeated"
 
 
+def test_ledger_uses_append_sequence_for_dateless_runtime_runs(tmp_path: Path):
+    from signal_ledger import build_company_signal_ledger
+
+    earlier = tmp_path / "current-weekly-e2e-dry-run-2026-05-24"
+    latest = tmp_path / "loop-1-weekly"
+    _write_json(
+        earlier / "owner-readiness.json",
+        {
+            "items": [
+                {
+                    "candidate_key": "zencoder.ai",
+                    "name": "Zencoder",
+                    "domain": "zencoder.ai",
+                    "owner_readiness_score": 60,
+                    "missing_owner_evidence": ["no founder/team evidence", "no stage/funding evidence"],
+                    "recommended_owner_action": "Research deeper",
+                    "evidence_urls": ["https://zencoder.ai/"],
+                }
+            ]
+        },
+    )
+    _write_json(
+        latest / "owner-readiness.json",
+        {
+            "items": [
+                {
+                    "candidate_key": "zencoder.ai",
+                    "name": "Zencoder",
+                    "domain": "zencoder.ai",
+                    "owner_readiness_score": 85,
+                    "missing_owner_evidence": ["no stage/funding evidence"],
+                    "recommended_owner_action": "Research deeper",
+                    "founder_team_evidence": ["https://example.com/zencoder-founder"],
+                    "customer_buyer_pull_evidence": ["https://zencoder.ai/customers"],
+                    "evidence_urls": [
+                        "https://example.com/zencoder-founder",
+                        "https://zencoder.ai/customers",
+                    ],
+                }
+            ]
+        },
+    )
+
+    ledger = build_company_signal_ledger([earlier, latest], generated_at="2026-05-24T00:00:00Z")
+    zencoder = _entity(ledger, "company:zencoder.ai")
+
+    assert zencoder["last_seen_run"] == latest.name
+    assert zencoder["missing_evidence"] == ["no stage/funding evidence"]
+    assert zencoder["evidence_dimensions"] == {
+        "identity": True,
+        "founder": True,
+        "stage": False,
+        "customer_commercial": True,
+    }
+    assert zencoder["sighting_history"][-1]["run_id"] == latest.name
+
+
 def test_project_rows_do_not_merge_with_same_named_company(tmp_path: Path):
     from signal_ledger import build_company_signal_ledger
 
@@ -907,7 +964,7 @@ def test_partner_decision_packet_groups_actions_and_builds_owner_packet():
             {"run_id": latest_weekly, "run_sequence": 1},
             {"run_id": completion_run, "run_sequence": 2},
         ],
-        "summary": {"entities": 6, "sightings": 13, "assign_owner_entities": 1, "unsafe_promotions": 0},
+        "summary": {"entities": 7, "sightings": 19, "assign_owner_entities": 1, "unsafe_promotions": 0},
         "entities": [
             {
                 "entity_id": "company:voker.ai",
@@ -996,6 +1053,31 @@ def test_partner_decision_packet_groups_actions_and_builds_owner_packet():
                 ],
             },
             {
+                "entity_id": "company:zencoder.ai",
+                "name": "Zencoder",
+                "domain": "zencoder.ai",
+                "entity_type": "company",
+                "first_seen_run": "current-prior-run",
+                "last_seen_run": completion_run,
+                "current_route": "Research Deeper",
+                "current_action": "Research deeper",
+                "best_historical_action": "Research deeper",
+                "attio_status_current": "no_match",
+                "evidence_dimensions": {"identity": True, "founder": True, "stage": False, "customer_commercial": True},
+                "missing_evidence": ["no stage/funding evidence"],
+                "latest_evidence_urls": ["https://zencoder.ai/", "https://example.com/zencoder-founder"],
+                "sightings_count": 6,
+                "source_lanes_seen": ["web"],
+                "status_movement": "repeated",
+                "sighting_history": [
+                    {
+                        "run_id": completion_run,
+                        "completion_status": "",
+                        "missing_evidence": ["no stage/funding evidence"],
+                    }
+                ],
+            },
+            {
                 "entity_id": "company:arize.com",
                 "name": "Arize",
                 "domain": "arize.com",
@@ -1079,7 +1161,7 @@ def test_partner_decision_packet_groups_actions_and_builds_owner_packet():
         "https://voker.ai",
         "https://www.ycombinator.com/companies/voker",
     ]
-    assert [item["entity_name"] for item in packet["sections"]["continue_research"]] == ["Datapoint AI"]
+    assert [item["entity_name"] for item in packet["sections"]["continue_research"]] == ["Zencoder", "Datapoint AI"]
     assert [item["entity_name"] for item in packet["sections"]["parked_until_new_signal"]] == ["Aide-memory"]
     assert {item["entity_name"] for item in packet["sections"]["category_project_context"]} == {"Arize", "Triyambakam Apex Corp"}
     assert [item["entity_name"] for item in packet["sections"]["stale_skipped_rows"]] == ["Skipped AI"]
