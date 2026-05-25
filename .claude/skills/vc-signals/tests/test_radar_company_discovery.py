@@ -218,6 +218,101 @@ def test_collect_company_discovery_budget_records_skipped_queries_and_partial(tm
     assert (tmp_path / "company-discovery.json").exists()
 
 
+def test_weekly_budget_runs_movement_discovery_before_exact_identity():
+    from radar_company_discovery import DiscoveryRunBudget, collect_company_discovery
+    from radar_models import FocusItem
+
+    calls = []
+
+    def fake_query(topic, **_kwargs):
+        calls.append(topic)
+        return {"items": [], "warnings": []}
+
+    focus = FocusItem(
+        id="zencoder",
+        name="Zencoder",
+        market_movement="Devtools OSS workflow tooling",
+        market_sector="Devtools",
+        missing_evidence=["no verified domain", "no founder/team evidence"],
+        evidence_urls=["https://zencoder.ai/"],
+        recommended_action="Research deeper",
+        noise_risk_score=30,
+        why_focus_this_week="Zencoder has an AI coding workflow signal.",
+    )
+
+    result = collect_company_discovery(
+        [],
+        focus_items=[focus],
+        query_runner=fake_query,
+        grounded_available=True,
+        social_available=False,
+        run_budget=DiscoveryRunBudget.for_mode(
+            "weekly",
+            max_company_discovery_queries=2,
+            max_maturity_queries=0,
+            max_article_fetches=0,
+            per_movement_query_cap=2,
+        ),
+    )
+
+    completed_families = [
+        event["query_family"]
+        for event in result["runtime_ledger"]["query_events"]
+        if event["status"] == "completed"
+    ]
+
+    assert completed_families == ["official_company_page", "funding_launch_article"]
+    assert all('"Zencoder"' not in topic for topic in calls)
+
+
+def test_focus_movement_company_search_is_deduped_across_rows():
+    from radar_company_discovery import build_company_discovery_queries
+    from radar_models import FocusItem
+
+    focus_items = [
+        FocusItem(
+            id="auto",
+            name="Auto",
+            market_movement="AI data infrastructure",
+            market_sector="Cybersecurity",
+            missing_evidence=["no verified domain"],
+            evidence_urls=["https://github.com/example/auto"],
+            recommended_action="Research deeper",
+            noise_risk_score=30,
+            why_focus_this_week="Auto appeared in AI data infrastructure signal.",
+        ),
+        FocusItem(
+            id="arize",
+            name="Arize",
+            market_movement="AI data infrastructure",
+            market_sector="AI Infra",
+            missing_evidence=["no verified domain"],
+            evidence_urls=["https://arize.com/"],
+            recommended_action="Research deeper",
+            noise_risk_score=30,
+            why_focus_this_week="Arize appeared in AI data infrastructure signal.",
+        ),
+    ]
+
+    queries = build_company_discovery_queries(
+        [],
+        focus_items=focus_items,
+        grounded_available=True,
+        social_available=False,
+    )
+
+    movement_queries = [
+        query
+        for query in queries
+        if query["kind"] in {"focus_movement_company_search", "focus_movement_funding_search"}
+    ]
+
+    assert [query["query_family"] for query in movement_queries] == [
+        "official_company_page",
+        "funding_launch_article",
+    ]
+
+
 def test_collect_company_discovery_uses_query_cache_before_live_call(tmp_path):
     from radar_company_discovery import DiscoveryRunBudget, _query_cache_path, collect_company_discovery
 

@@ -470,7 +470,7 @@ def build_company_discovery_queries(
             (
                 "focus_movement_company_search",
                 "official_company_page",
-                f"{movement} startup company platform official {item.market_sector}",
+                f"{movement} startup company platform official",
                 ["official_company_page"],
             ),
             (
@@ -634,9 +634,9 @@ def _query_priority(query: dict) -> dict:
     prior_yield = int(query.get("prior_yield") or 0)
     generic_penalty = 30 if _is_broad_movement(movement) or (movement or "").lower() in GENERIC_MOVEMENTS else 0
     family_bonus = {
-        "exact_row_identity": 10,
         "official_company_page": 8,
         "funding_launch_article": 6,
+        "exact_row_identity": 0,
         "yc_accelerator": 4,
         "company_context": 0,
     }.get(query.get("query_family", ""), 0)
