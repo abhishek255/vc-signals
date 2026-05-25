@@ -3172,6 +3172,89 @@ def test_run_weekly_artifacts_feeds_verified_discovery_into_identity_resolution(
     assert result["weekly_focus"].endswith("weekly-focus.md")
 
 
+def test_run_weekly_artifacts_applies_optional_weak_source_identity_enrichment(tmp_path, monkeypatch):
+    import json
+    import radar_run
+
+    monkeypatch.setattr(
+        radar_run,
+        "collect_live_evidence",
+        lambda **kwargs: {
+            "last30days": {},
+            "github": [],
+            "product_hunt": [
+                {
+                    "source": "producthunt",
+                    "source_lane": "Product Hunt",
+                    "name": "AgentFence",
+                    "title": "AgentFence",
+                    "description": "Permission firewall for AI agents",
+                    "product_hunt_url": "https://www.producthunt.com/products/agentfence",
+                    "url": "https://www.producthunt.com/products/agentfence",
+                    "domain": "",
+                    "action": "research deeper",
+                    "lead_route": "research_deeper",
+                    "missing_evidence": ["official_domain_identity_not_confirmed"],
+                }
+            ],
+            "warnings": [],
+            "source_health": [{"source": "product_hunt", "status": "complete", "fresh_items": 1}],
+        },
+    )
+    monkeypatch.setattr(radar_run, "load_candidate_history", lambda: {})
+    monkeypatch.setattr(radar_run, "save_candidate_history", lambda history: None)
+    monkeypatch.setattr(radar_run, "apply_candidate_enrichment", lambda candidates: candidates)
+    monkeypatch.setattr(radar_run, "_grounded_search_available", lambda: True)
+    monkeypatch.setattr(radar_run, "_social_search_available", lambda: False)
+    monkeypatch.setattr(
+        radar_run,
+        "collect_company_discovery",
+        lambda *args, **kwargs: {
+            "queries": [],
+            "items": [],
+            "accepted_leads": [],
+            "rejected_leads": [],
+            "warnings": [],
+            "errors": [],
+            "query_diagnostics": [],
+            "summary": {"accepted": 0, "rejected": 0},
+            "discovery_yield_trial": {"enabled": False},
+        },
+    )
+
+    def fake_run_query(topic, **kwargs):
+        assert "AgentFence" in topic
+        assert kwargs["sources"] == "grounding"
+        return {
+            "items": [
+                {
+                    "source": "grounding",
+                    "title": "AgentFence - AI agent permissions",
+                    "url": "https://agentfence.dev",
+                    "snippet": "AgentFence is a startup building a permission firewall for AI agents.",
+                }
+            ],
+            "warnings": [],
+        }
+
+    monkeypatch.setattr(radar_run, "run_query", fake_run_query)
+
+    result = radar_run.run_weekly_artifacts(
+        output_dir=tmp_path,
+        sectors=("devtools",),
+        github_limit=0,
+        product_hunt_limit=1,
+        candidate_limit=10,
+        weak_source_identity_enrichment_limit=3,
+    )
+
+    candidates = json.loads((tmp_path / "candidates.json").read_text())
+    assert candidates[0]["domain"] == "agentfence.dev"
+    assert result["weak_source_identity_enrichment_json"].endswith("weak-source-identity-enrichment.json")
+    report = json.loads((tmp_path / "weak-source-identity-enrichment.json").read_text())
+    assert report["summary"]["domains_resolved"] == 1
+
+
 def test_run_weekly_artifacts_does_not_promote_vibe_discovery_result(tmp_path, monkeypatch):
     import json
     import radar_run

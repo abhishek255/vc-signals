@@ -70,6 +70,7 @@ from metadata_loss import build_metadata_loss_report
 from founder_team_verification import enrich_founder_team_verification, write_founder_team_verification_json
 from owner_evidence import enrich_owner_evidence, write_owner_evidence_json
 from owner_readiness import enrich_owner_readiness, write_owner_readiness_json
+from weak_source_identity_enrichment import enrich_weak_source_identity, write_weak_source_identity_enrichment_json
 from hn_weekly_trial import HNLaunchTrialConfig, run_hn_launch_weekly_trial
 from radar_oss import enrich_oss_candidate
 from canonical_identity import canonicalize_identity
@@ -2120,6 +2121,7 @@ def run_weekly_artifacts(
     hn_launch_trial_config: HNLaunchTrialConfig | None = None,
     exclude_yc: bool = False,
     hn_launch_trial_only: bool = False,
+    weak_source_identity_enrichment_limit: int = 0,
     update_signal_ledger: bool = False,
     signal_ledger_path: Path | None = None,
 ) -> dict:
@@ -2128,6 +2130,7 @@ def run_weekly_artifacts(
     company_discovery_path = output_dir / "company-discovery.json"
     runtime_ledger_path = output_dir / "runtime-ledger.json"
     coverage_report_path = output_dir / "coverage-report.json"
+    weak_source_identity_enrichment_path = output_dir / "weak-source-identity-enrichment.json"
     evidence = collect_live_evidence(
         sectors=sectors,
         github_limit=github_limit,
@@ -2178,6 +2181,26 @@ def run_weekly_artifacts(
     source_errors = _source_errors_from_evidence(evidence)
     scored_candidates = _score_sort_limit_candidates(promotion["candidates"], candidate_limit)
     scored_candidates = apply_candidate_enrichment(scored_candidates)
+    if weak_source_identity_enrichment_limit > 0:
+        scored_candidates, weak_source_identity_enrichment_report = enrich_weak_source_identity(
+            scored_candidates,
+            query_runner=enrichment_query_runner,
+            cache_dir=output_dir / "weak-source-identity-cache",
+            max_candidates=weak_source_identity_enrichment_limit,
+        )
+    else:
+        weak_source_identity_enrichment_report = {
+            "summary": {
+                "enabled": False,
+                "eligible": 0,
+                "skipped": 0,
+                "queries_run": 0,
+                "query_cache_hits": 0,
+                "domains_resolved": 0,
+                "unresolved": 0,
+            },
+            "items": [],
+        }
     scored_candidates, identity_resolutions = prepare_candidates_for_weekly_focus(
         scored_candidates,
         _attio_client_from_env(),
@@ -2242,6 +2265,7 @@ def run_weekly_artifacts(
     runtime_ledger["source_health"] = list(evidence.get("source_health", []))
     runtime_ledger_path.write_text(json.dumps(runtime_ledger, indent=2))
     coverage_report_path.write_text(json.dumps(company_discovery.get("coverage_report", {}), indent=2))
+    write_weak_source_identity_enrichment_json(weak_source_identity_enrichment_report, weak_source_identity_enrichment_path)
     identity_resolution_path.write_text(json.dumps([item.to_dict() for item in identity_resolutions], indent=2, sort_keys=True))
     metadata_loss_report = build_metadata_loss_report(
         evidence=evidence,
@@ -2330,6 +2354,7 @@ def run_weekly_artifacts(
         "coverage_report": str(coverage_report_path),
         "identity_resolution_json": str(identity_resolution_path),
         "metadata_loss_report": str(metadata_loss_report_path),
+        "weak_source_identity_enrichment_json": str(weak_source_identity_enrichment_path),
         "owner_evidence_json": str(owner_evidence_path),
         "founder_team_verification_json": str(founder_team_verification_path),
         "owner_readiness_json": str(owner_readiness_path),
@@ -2732,6 +2757,13 @@ def _cli_main() -> None:
             hn_launch_trial_config=_hn_launch_trial_config_from_args(args),
             exclude_yc=_get_bool_arg(args, "exclude_yc", "no_yc"),
             hn_launch_trial_only=_get_bool_arg(args, "hn_launch_trial_only", "hn_trial_only"),
+            weak_source_identity_enrichment_limit=_get_int_arg(
+                args,
+                "weak_source_identity_enrichment_limit",
+                "weak_identity_enrichment_limit",
+                "weak_source_identity_limit",
+                default=0,
+            ),
             update_signal_ledger=_get_bool_arg(args, "update_signal_ledger", "updateSignalLedger"),
             signal_ledger_path=Path(args["signal_ledger_path"]) if "signal_ledger_path" in args else None,
         )
