@@ -1233,6 +1233,25 @@ def test_source_gaps_distinguish_bounded_validation_timeouts():
     assert "true source failure" not in artifact.source_gaps[1]
 
 
+def test_source_gaps_drop_product_hunt_missing_claim_when_lane_runs():
+    from radar_focus import build_weekly_focus_artifact
+
+    artifact = build_weekly_focus_artifact(
+        candidates=[],
+        source_health=[
+            {
+                "source": "product_hunt",
+                "status": "complete",
+                "fresh_items": 20,
+            }
+        ],
+        run_id="2026-05-25",
+    )
+
+    assert "Product Hunt" not in artifact.source_gaps[0]
+    assert "package-registry" in artifact.source_gaps[0]
+
+
 def test_render_weekly_focus_markdown_has_executive_snapshot_and_compact_basis():
     from radar_focus import build_weekly_focus_artifact, render_weekly_focus_markdown
 

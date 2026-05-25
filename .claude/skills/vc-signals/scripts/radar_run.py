@@ -35,6 +35,11 @@ except ImportError:  # pragma: no cover - only for damaged installs
     run_trending = None
 
 try:
+    from product_hunt_launches import run_product_hunt_launches
+except ImportError:  # pragma: no cover - only for damaged installs
+    run_product_hunt_launches = None
+
+try:
     from last30days_adapter import check_availability as check_last30days_availability
     from last30days_adapter import run_query
 except ImportError:  # pragma: no cover - only for damaged installs
@@ -872,7 +877,7 @@ def _candidate_domain_from_item(item: dict) -> str:
         return f"{slug}.com"
 
     domain = _domain_from_url(url)
-    if domain in {"news.ycombinator.com", "reddit.com", "github.com", "medium.com", "substack.com"}:
+    if domain in {"news.ycombinator.com", "reddit.com", "github.com", "medium.com", "substack.com", "producthunt.com"}:
         return ""
     return domain
 
@@ -1368,6 +1373,25 @@ def build_signals_from_evidence(evidence: dict) -> dict:
                 existing.reason = ""
         else:
             coverage["oss"] = SectorCoverage(sector="oss", raw_signals=len(github_signals), reason="")
+
+    product_hunt_signals = []
+    for launch in evidence.get("product_hunt", []):
+        item = {
+            **launch,
+            "source": "producthunt",
+            "title": launch.get("title") or launch.get("name", ""),
+            "url": launch.get("product_hunt_url") or launch.get("url", ""),
+            "description": launch.get("description") or launch.get("tagline", ""),
+        }
+        signal = classify_source_item(sector="company-formation", item=item)
+        signals.append(signal)
+        product_hunt_signals.append(signal)
+    if product_hunt_signals:
+        coverage["company-formation"] = SectorCoverage(
+            sector="company-formation",
+            raw_signals=len(product_hunt_signals),
+            reason="" if any(signal.can_create_candidate for signal in product_hunt_signals) else "No candidate-eligible Product Hunt launches.",
+        )
 
     discovery_signals = []
     for item in _filter_company_discovery_items(evidence.get("company_discovery", {}).get("items", [])):
@@ -1904,15 +1928,17 @@ def collect_live_evidence(
     sectors: tuple[str, ...] = DEFAULT_SECTORS,
     lookback_days: int = 30,
     github_limit: int = 40,
+    product_hunt_limit: int = 0,
     max_queries_per_sector: int = 3,
     query_timeout_seconds: int | None = None,
     github_timeout_seconds: int | None = DEFAULT_GITHUB_TIMEOUT_SECONDS,
+    product_hunt_timeout_seconds: int | None = 20,
     progress: bool = False,
     exclude_yc: bool = False,
     hn_launch_trial_only: bool = False,
 ) -> dict:
     """Collect raw last30days and GitHub evidence for the weekly radar."""
-    evidence = {"last30days": {}, "github": [], "warnings": [], "source_health": []}
+    evidence = {"last30days": {}, "github": [], "product_hunt": [], "warnings": [], "source_health": []}
     sector_config = load_sector_config()
     grounded_available = _grounded_search_available()
     social_available = _social_search_available()
@@ -2040,6 +2066,37 @@ def collect_live_evidence(
     if github.get("error"):
         evidence["warnings"].append(github["error"])
 
+    if product_hunt_limit > 0:
+        started = time.monotonic()
+        if progress:
+            print("[vc-signals] product_hunt: collecting launches", file=sys.stderr, flush=True)
+        if not run_product_hunt_launches:
+            warning = "Product Hunt launch adapter unavailable"
+            evidence["warnings"].append(warning)
+            evidence["source_health"].append(
+                _source_health("product_hunt", "unavailable", fresh_items=0, warnings=[warning])
+            )
+        else:
+            result = run_product_hunt_launches(
+                limit=product_hunt_limit,
+                timeout_seconds=product_hunt_timeout_seconds,
+            )
+            launches = result.get("launches", []) or []
+            warnings = list(result.get("warnings", []) or [])
+            evidence["product_hunt"] = launches
+            evidence["warnings"].extend(warnings)
+            if result.get("error"):
+                evidence["warnings"].append(result["error"])
+            evidence["source_health"].append(
+                _source_health(
+                    "product_hunt",
+                    "complete" if launches else "empty",
+                    fresh_items=len(launches),
+                    duration_seconds=time.monotonic() - started,
+                    warnings=warnings,
+                )
+            )
+
     return evidence
 
 
@@ -2048,11 +2105,13 @@ def run_weekly_artifacts(
     output_dir: Path = DEFAULT_OUTPUT_DIR,
     sectors: tuple[str, ...] = DEFAULT_SECTORS,
     github_limit: int = 40,
+    product_hunt_limit: int = 0,
     max_queries_per_sector: int = 3,
     candidate_limit: int = 15,
     with_synthesis: bool = False,
     query_timeout_seconds: int | None = None,
     github_timeout_seconds: int | None = DEFAULT_GITHUB_TIMEOUT_SECONDS,
+    product_hunt_timeout_seconds: int | None = 20,
     progress: bool = False,
     discovery_budget: DiscoveryRunBudget | None = None,
     discovery_budget_mode: str = "weekly",
@@ -2072,9 +2131,11 @@ def run_weekly_artifacts(
     evidence = collect_live_evidence(
         sectors=sectors,
         github_limit=github_limit,
+        product_hunt_limit=product_hunt_limit,
         max_queries_per_sector=max_queries_per_sector,
         query_timeout_seconds=query_timeout_seconds,
         github_timeout_seconds=github_timeout_seconds,
+        product_hunt_timeout_seconds=product_hunt_timeout_seconds,
         progress=progress,
         exclude_yc=exclude_yc,
         hn_launch_trial_only=hn_launch_trial_only,
@@ -2598,6 +2659,7 @@ def _cli_main() -> None:
         evidence = collect_live_evidence(
             sectors=parse_sectors_arg(args.get("sectors")),
             github_limit=int(args.get("github_limit", 40)),
+            product_hunt_limit=int(args.get("product_hunt_limit", args.get("producthunt_limit", 0))),
             max_queries_per_sector=_get_int_arg(
                 args,
                 "max_queries_per_sector",
@@ -2615,12 +2677,19 @@ def _cli_main() -> None:
                 "github_timeout_seconds",
                 default=60 if first_pass else DEFAULT_GITHUB_TIMEOUT_SECONDS,
             ),
+            product_hunt_timeout_seconds=_get_int_arg(
+                args,
+                "product_hunt_timeout",
+                "product_hunt_timeout_seconds",
+                "producthunt_timeout",
+                default=20,
+            ),
             progress=bool(args.get("progress", False)),
             exclude_yc=_get_bool_arg(args, "exclude_yc", "no_yc"),
             hn_launch_trial_only=_get_bool_arg(args, "hn_launch_trial_only", "hn_trial_only"),
         )
         path = save_raw_evidence(evidence, output_dir=output_dir)
-        print(json.dumps({"saved": str(path), "github_count": len(evidence.get("github", []))}))
+        print(json.dumps({"saved": str(path), "github_count": len(evidence.get("github", [])), "product_hunt_count": len(evidence.get("product_hunt", []))}))
         return
 
     if command == "weekly":
@@ -2630,6 +2699,7 @@ def _cli_main() -> None:
             output_dir=output_dir,
             sectors=parse_sectors_arg(args.get("sectors")),
             github_limit=int(args.get("github_limit", 40)),
+            product_hunt_limit=int(args.get("product_hunt_limit", args.get("producthunt_limit", 0))),
             max_queries_per_sector=_get_int_arg(
                 args,
                 "max_queries_per_sector",
@@ -2648,6 +2718,13 @@ def _cli_main() -> None:
                 "github_timeout",
                 "github_timeout_seconds",
                 default=60 if first_pass else DEFAULT_GITHUB_TIMEOUT_SECONDS,
+            ),
+            product_hunt_timeout_seconds=_get_int_arg(
+                args,
+                "product_hunt_timeout",
+                "product_hunt_timeout_seconds",
+                "producthunt_timeout",
+                default=20,
             ),
             progress=bool(args.get("progress", True)),
             discovery_budget=_discovery_budget_from_args(args, first_pass=first_pass),

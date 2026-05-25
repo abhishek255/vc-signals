@@ -32,6 +32,28 @@ def test_hn_show_can_create_candidate():
     assert signal.can_create_candidate is True
 
 
+def test_product_hunt_launch_can_create_research_deeper_candidate():
+    from radar_sources import classify_source_item
+
+    signal = classify_source_item(
+        sector="company-formation",
+        item={
+            "source": "producthunt",
+            "title": "AgentFence by Ada Rao",
+            "url": "https://www.producthunt.com/products/agentfence",
+            "description": "Permission firewall for AI agents",
+            "company_name": "AgentFence",
+            "maker_name": "Ada Rao",
+            "action": "research deeper",
+        },
+    )
+
+    assert signal.role == "producthunt_launch"
+    assert signal.can_create_candidate is True
+    assert signal.metadata["source_lane"] == "Product Hunt"
+    assert signal.metadata["action"] == "research deeper"
+
+
 def test_github_issue_cannot_create_candidate():
     from radar_sources import classify_source_item
 

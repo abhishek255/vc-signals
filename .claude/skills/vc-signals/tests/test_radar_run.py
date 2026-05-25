@@ -268,6 +268,90 @@ def test_save_raw_evidence_writes_json(tmp_path):
     assert json.loads(path.read_text())["github"][0]["full_name"] == "x/y"
 
 
+def test_collect_live_evidence_includes_product_hunt_when_enabled(monkeypatch):
+    import radar_run
+
+    monkeypatch.setattr(radar_run, "run_query", None)
+    monkeypatch.setattr(radar_run, "run_trending", lambda **kwargs: {"repos": [], "warnings": []})
+    monkeypatch.setattr(
+        radar_run,
+        "run_product_hunt_launches",
+        lambda limit, timeout_seconds=None: {
+            "launches": [
+                {
+                    "source": "producthunt",
+                    "name": "AgentFence",
+                    "url": "https://www.producthunt.com/products/agentfence",
+                }
+            ],
+            "warnings": [],
+        },
+    )
+
+    evidence = radar_run.collect_live_evidence(
+        sectors=(),
+        github_limit=0,
+        product_hunt_limit=5,
+        product_hunt_timeout_seconds=3,
+    )
+
+    assert evidence["product_hunt"][0]["name"] == "AgentFence"
+    product_hunt_health = next(item for item in evidence["source_health"] if item["source"] == "product_hunt")
+    assert product_hunt_health["status"] == "complete"
+    assert product_hunt_health["fresh_items"] == 1
+
+
+def test_build_signals_from_product_hunt_evidence():
+    import radar_run
+
+    result = radar_run.build_signals_from_evidence(
+        {
+            "last30days": {},
+            "github": [],
+            "product_hunt": [
+                {
+                    "source": "producthunt",
+                    "name": "AgentFence",
+                    "title": "AgentFence by Ada Rao",
+                    "description": "Permission firewall for AI agents",
+                    "url": "https://www.producthunt.com/products/agentfence",
+                    "action": "research deeper",
+                }
+            ],
+        }
+    )
+
+    assert result["signals"][0].source == "producthunt"
+    assert result["signals"][0].role == "producthunt_launch"
+    assert result["signals"][0].can_create_candidate is True
+    assert result["coverage"]["company-formation"].raw_signals == 1
+
+
+def test_product_hunt_launch_without_resolved_domain_does_not_use_marketplace_domain():
+    from radar_run import promote_signals_to_candidates
+    from radar_sources import classify_source_item
+
+    signal = classify_source_item(
+        sector="company-formation",
+        item={
+            "source": "producthunt",
+            "name": "AgentFence",
+            "company_name": "AgentFence",
+            "title": "AgentFence by Ada Rao",
+            "description": "Permission firewall for AI agents",
+            "url": "https://www.producthunt.com/products/agentfence",
+            "action": "research deeper",
+            "missing_evidence": ["official_domain_identity_not_confirmed"],
+        },
+    )
+
+    result = promote_signals_to_candidates([signal])
+
+    assert result["candidates"][0].domain == ""
+    assert result["candidates"][0].action == "research deeper"
+    assert result["candidates"][0].source_lane == "Product Hunt"
+
+
 def test_build_sector_collection_queries_adds_grounded_company_discovery():
     from radar_run import build_sector_collection_queries
 

@@ -1089,9 +1089,26 @@ def _source_gap_error(error: str, *, source_gap_context: str = "") -> str:
     return error
 
 
-def _source_gaps(sector_intelligence: list[SectorIntelligence] | None, *, source_gap_context: str = "") -> list[str]:
+def _source_lane_ran(source_health: list[dict] | None, aliases: set[str]) -> bool:
+    for row in source_health or []:
+        source = str(row.get("source") or "").strip().lower().replace("-", "_")
+        status = str(row.get("status") or "").strip().lower()
+        if source in aliases and status not in {"", "disabled", "skipped", "skipped_disabled"}:
+            return True
+    return False
+
+
+def _source_gaps(
+    sector_intelligence: list[SectorIntelligence] | None,
+    *,
+    source_gap_context: str = "",
+    source_health: list[dict] | None = None,
+) -> list[str]:
+    missing_adapters = ["X", "Product Hunt", "package-registry"]
+    if _source_lane_ran(source_health, {"product_hunt", "producthunt"}):
+        missing_adapters.remove("Product Hunt")
     gaps = [
-        "No X/Product Hunt/package-registry adapters in Phase 1A/1B; focus list is based on current candidates, signals, and Attio fields only."
+        f"No {'/'.join(missing_adapters)} adapters in Phase 1A/1B; focus list is based on current candidates, signals, and Attio fields only."
     ]
     for item in sector_intelligence or []:
         if item.source_errors:
@@ -1218,7 +1235,11 @@ def build_weekly_focus_artifact(
     new_to_marathon = _new_to_marathon(partner_focus + extended_watchlist)
     action_items = partner_focus + extended_watchlist + oss_project_watch
     workflow_view = _workflow_view(action_items)
-    gaps = _source_gaps(sector_intelligence, source_gap_context=source_gap_context)
+    gaps = _source_gaps(
+        sector_intelligence,
+        source_gap_context=source_gap_context,
+        source_health=source_health,
+    )
     focus_and_watchlist_ids = {item.id for item in partner_focus + extended_watchlist + oss_project_watch}
     appendix = {
         "needs_more_evidence": [

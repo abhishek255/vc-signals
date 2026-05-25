@@ -7,6 +7,8 @@ SOURCE_LANE_LABELS = {
     "reddit": "Reddit",
     "hackernews": "Hacker News",
     "github": "OSS",
+    "producthunt": "Product Hunt",
+    "product_hunt": "Product Hunt",
     "grounding": "Grounded web",
     "web": "Grounded web",
     "youtube": "YouTube",
@@ -105,6 +107,20 @@ def classify_source_item(*, sector: str, item: dict) -> Signal:
             can_create_candidate=True,
             evidence_strength=45,
             reason="GitHub repo results can create OSS project candidates.",
+            metadata=metadata,
+        )
+
+    if source in {"producthunt", "product_hunt"}:
+        return Signal(
+            source="producthunt",
+            role="producthunt_launch",
+            title=title,
+            url=url,
+            sector=sector,
+            text=text,
+            can_create_candidate=True,
+            evidence_strength=45,
+            reason="Product Hunt launches can create weak company-formation candidates for research, not owner routing.",
             metadata=metadata,
         )
 
