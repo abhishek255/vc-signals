@@ -208,6 +208,48 @@ def test_project_rows_do_not_merge_with_same_named_company(tmp_path: Path):
     assert ledger["ambiguous_merges"][0]["reason"] == "same_name_different_entity_ids"
 
 
+def test_github_candidate_key_merges_with_project_row(tmp_path: Path):
+    from signal_ledger import build_company_signal_ledger
+
+    run_dir = tmp_path / "current-github-momentum-validation-2026-05-25"
+    _write_json(
+        run_dir / "weekly-focus.json",
+        {
+            "oss_project_watch": [
+                {
+                    "id": "repo:github.com/affaan-m/agentshield",
+                    "name": "affaan-m/agentshield",
+                    "project_url": "https://github.com/affaan-m/agentshield",
+                    "recommended_action": "Research deeper",
+                    "identity_type": "oss_project_watch",
+                    "evidence_urls": ["https://github.com/affaan-m/agentshield"],
+                    "missing_evidence": ["no verified domain", "OSS/project-only row"],
+                }
+            ],
+        },
+    )
+    _write_json(
+        run_dir / "founder-team-verification.json",
+        {
+            "items": [
+                {
+                    "candidate_key": "affaan-m/agentshield",
+                    "name": "affaan-m/agentshield",
+                    "missing_owner_evidence": ["OSS/project-only row"],
+                    "recommended_owner_action": "Research deeper",
+                }
+            ]
+        },
+    )
+
+    ledger = build_company_signal_ledger([run_dir], generated_at="2026-05-25T00:00:00Z")
+    project = _entity(ledger, "project:github.com/affaan-m/agentshield")
+
+    assert project["entity_type"] == "project"
+    assert project["sightings_count"] == 1
+    assert "entity:affaan-m-agentshield" not in {entity["entity_id"] for entity in ledger["entities"]}
+
+
 def test_voker_is_promoted_to_assign_owner_with_hn_history(tmp_path: Path):
     from signal_ledger import build_company_signal_ledger
 

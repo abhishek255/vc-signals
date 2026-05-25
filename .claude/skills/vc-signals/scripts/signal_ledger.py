@@ -107,6 +107,41 @@ def _github_project_key(url: str) -> str:
     return ""
 
 
+def _github_repo_key_from_text(value: str) -> str:
+    value = _clean_string(value)
+    if not value:
+        return ""
+    if "://" in value:
+        return _github_project_key(value)
+    value = value.removeprefix("repo:").removeprefix("project:")
+    if value.startswith("github.com/"):
+        parts = value.split("/")
+        if len(parts) >= 3:
+            owner, repo = parts[1], parts[2]
+        else:
+            return ""
+    elif value.count("/") == 1 and not value.startswith("/"):
+        owner, repo = value.split("/", 1)
+    else:
+        return ""
+    if not re.fullmatch(r"[A-Za-z0-9_.-]+", owner or ""):
+        return ""
+    if not re.fullmatch(r"[A-Za-z0-9_.-]+", repo or ""):
+        return ""
+    return f"github.com/{owner}/{repo}".lower()
+
+
+def _row_has_oss_project_signal(row: dict) -> bool:
+    text_values = [
+        row.get("identity_type"),
+        row.get("candidate_type"),
+        row.get("source_lane"),
+        row.get("lead_route"),
+    ]
+    missing = list(row.get("missing_evidence") or []) + list(row.get("missing_owner_evidence") or [])
+    return any("oss" in _clean_string(value).lower() for value in text_values) or "OSS/project-only row" in missing
+
+
 def _extract_date(run_id: str) -> str:
     match = re.search(r"20\d{2}-\d{2}-\d{2}", run_id)
     return match.group(0) if match else ""
@@ -212,6 +247,10 @@ def _project_key_from_row(row: dict) -> str:
         if value.startswith(("repo:", "project:")):
             value = value.split(":", 1)[1]
             return value.lower()
+        if key in {"candidate_key", "stable_key", "source_candidate_id"} and _row_has_oss_project_signal(row):
+            project = _github_repo_key_from_text(value)
+            if project:
+                return project
     return ""
 
 
