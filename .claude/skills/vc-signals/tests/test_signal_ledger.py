@@ -719,6 +719,123 @@ def test_ledger_action_report_refines_completed_clean_missing_evidence_recommend
     assert actions["company:budget-skipped.ai"] == "Rerun bounded HN completion"
 
 
+def test_ledger_action_report_adds_post_completion_dispositions_and_cooldowns():
+    from signal_ledger import build_ledger_action_report
+
+    completion_run = "current-ledger-driven-completion-2026-05-24"
+    base = {
+        "current_route": "Research Deeper",
+        "current_action": "Research deeper",
+        "status_movement": "repeated",
+        "source_lanes_seen": ["HN", "web"],
+        "last_seen_run": completion_run,
+    }
+    ledger = {
+        "generated_at": "2026-05-24T00:00:00Z",
+        "runs_backfilled": [{"run_id": completion_run, "run_sequence": 2}],
+        "summary": {"entities": 5, "sightings": 5, "assign_owner_entities": 1, "unsafe_promotions": 0},
+        "entities": [
+            {
+                "entity_id": "company:voker.ai",
+                "name": "Voker",
+                "domain": "voker.ai",
+                "current_route": "Assign Owner",
+                "current_action": "Assign owner",
+                "status_movement": "promoted",
+                "source_lanes_seen": ["HN", "YC", "web"],
+                "missing_evidence": [],
+                "last_seen_run": "current-weekly-hn-default-runtime-patch-validation-2026-05-24",
+                "sighting_history": [{"run_id": "current-weekly-hn-default-runtime-patch-validation-2026-05-24"}],
+            },
+            {
+                **base,
+                "entity_id": "company:parked.ai",
+                "name": "Parked AI",
+                "domain": "parked.ai",
+                "missing_evidence": ["no stage/funding evidence", "no commercial/funding evidence", "no customer/buyer pull evidence"],
+                "evidence_dimensions": {"identity": True, "founder": True, "stage": False, "customer_commercial": False},
+                "sighting_history": [
+                    {
+                        "run_id": completion_run,
+                        "completion_status": "completed_clean",
+                        "missing_evidence": ["no stage/funding evidence", "no commercial/funding evidence", "no customer/buyer pull evidence"],
+                    }
+                ],
+            },
+            {
+                **base,
+                "entity_id": "company:continue.ai",
+                "name": "Continue AI",
+                "domain": "continue.ai",
+                "missing_evidence": ["no founder/team evidence", "no stage/funding evidence"],
+                "evidence_dimensions": {"identity": True, "founder": False, "stage": False, "customer_commercial": True},
+                "sighting_history": [
+                    {
+                        "run_id": completion_run,
+                        "completion_status": "completed_clean",
+                        "missing_evidence": ["no founder/team evidence", "no stage/funding evidence"],
+                    }
+                ],
+            },
+            {
+                **base,
+                "entity_id": "company:identity.ai",
+                "name": "Identity AI",
+                "domain": "identity.ai",
+                "missing_evidence": ["official_domain_identity_not_confirmed", "no founder/team evidence"],
+                "evidence_dimensions": {"identity": False, "founder": False, "stage": False, "customer_commercial": False},
+                "sighting_history": [
+                    {
+                        "run_id": completion_run,
+                        "completion_status": "completed_clean",
+                        "missing_evidence": ["official_domain_identity_not_confirmed", "no founder/team evidence"],
+                    }
+                ],
+            },
+            {
+                **base,
+                "entity_id": "company:project-space.hf.space",
+                "name": "Project Space",
+                "domain": "project-space.hf.space",
+                "missing_evidence": [
+                    "official_domain_identity_not_confirmed",
+                    "no verified Attio-safe company identity",
+                    "no customer/buyer pull evidence",
+                ],
+                "evidence_dimensions": {"identity": True, "founder": True, "stage": False, "customer_commercial": False},
+                "sighting_history": [
+                    {
+                        "run_id": completion_run,
+                        "completion_status": "completed_clean",
+                        "missing_evidence": [
+                            "official_domain_identity_not_confirmed",
+                            "no verified Attio-safe company identity",
+                            "no customer/buyer pull evidence",
+                        ],
+                    }
+                ],
+            },
+        ],
+    }
+
+    report = build_ledger_action_report(ledger, generated_at="2026-05-24T12:00:00Z")
+    actions = {item["entity_id"]: item for item in report["recommended_actions"]}
+
+    assert actions["company:voker.ai"]["post_completion_disposition"] == "owner_follow_up"
+    assert actions["company:voker.ai"]["next_action"] == "Owner follow-up"
+    assert actions["company:parked.ai"]["post_completion_disposition"] == "park_until_new_signal"
+    assert actions["company:parked.ai"]["next_action"] == "Park until new signal"
+    assert actions["company:parked.ai"]["cooldown"] == "until_new_signal"
+    assert actions["company:continue.ai"]["post_completion_disposition"] == "continue_research"
+    assert actions["company:continue.ai"]["next_action"] == "Continue focused evidence search"
+    assert actions["company:continue.ai"]["cooldown"] == "none"
+    assert actions["company:identity.ai"]["post_completion_disposition"] == "verify_identity"
+    assert actions["company:identity.ai"]["next_action"] == "Verify official identity"
+    assert actions["company:project-space.hf.space"]["post_completion_disposition"] == "category_or_project_watch"
+    assert actions["company:project-space.hf.space"]["next_action"] == "Track as project/context until company formation"
+    assert all(item["next_action"] != "Run targeted evidence search" for item in actions.values())
+
+
 def test_write_ledger_action_report_reads_ledger_and_renders_markdown(tmp_path: Path):
     from signal_ledger import write_ledger_action_report
 

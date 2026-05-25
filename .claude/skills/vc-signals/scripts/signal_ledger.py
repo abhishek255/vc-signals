@@ -870,6 +870,15 @@ def _is_project_tracking_row(entity: dict, missing: list[str]) -> bool:
     )
 
 
+def _is_platform_project_or_context_row(entity: dict, missing: list[str]) -> bool:
+    domain = normalize_domain(entity.get("domain", ""))
+    return (
+        _is_project_tracking_row(entity, missing)
+        or domain.endswith(".hf.space")
+        or (entity.get("entity_type") == "product/context" and _has_identity_gap(missing))
+    )
+
+
 def _has_targeted_evidence_gap(missing: list[str]) -> bool:
     evidence_gaps = {
         "no founder/team evidence",
@@ -882,6 +891,65 @@ def _has_targeted_evidence_gap(missing: list[str]) -> bool:
 
 def _only_attio_unknown(missing: list[str]) -> bool:
     return set(missing) == {"Attio status unknown"}
+
+
+def _is_completion_artifact_sighting(sighting: dict) -> bool:
+    return "ledger-driven-completion" in (sighting.get("run_id", "") or sighting.get("artifact_path", ""))
+
+
+def _is_post_completion_entity(entity: dict) -> bool:
+    latest = _latest_sighting(entity)
+    return latest.get("completion_status") == "completed_clean" and _is_completion_artifact_sighting(latest)
+
+
+def _should_continue_after_completion(entity: dict, missing: list[str]) -> bool:
+    dims = entity.get("evidence_dimensions") or {}
+    has_customer_or_commercial = bool(dims.get("customer_commercial"))
+    concrete_remaining = {"no founder/team evidence", "no stage/funding evidence"} & set(missing)
+    broad_failed_gaps = {"no commercial/funding evidence", "no customer/buyer pull evidence"} & set(missing)
+    return has_customer_or_commercial and bool(concrete_remaining) and not broad_failed_gaps
+
+
+def _should_park_after_completion(missing: list[str]) -> bool:
+    already_tried_gaps = {
+        "no stage/funding evidence",
+        "no commercial/funding evidence",
+        "no customer/buyer pull evidence",
+    }
+    return bool(already_tried_gaps & set(missing))
+
+
+def _post_completion_disposition(entity: dict) -> str:
+    action = entity.get("current_action", "")
+    route = entity.get("current_route", "")
+    movement = entity.get("status_movement", "")
+    missing = entity.get("missing_evidence") or []
+
+    if action == "Assign owner":
+        return "owner_follow_up"
+    if route == "Category Context" or action == "Monitor only" or movement == "demoted":
+        return "category_or_project_watch"
+    if not _is_post_completion_entity(entity):
+        return "none"
+    if _is_platform_project_or_context_row(entity, missing):
+        return "category_or_project_watch"
+    if _has_identity_gap(missing):
+        return "verify_identity"
+    if _should_continue_after_completion(entity, missing):
+        return "continue_research"
+    if _should_park_after_completion(missing):
+        return "park_until_new_signal"
+    if _has_targeted_evidence_gap(missing):
+        return "continue_research"
+    return "park_until_new_signal"
+
+
+def _cooldown_for_disposition(disposition: str) -> str:
+    if disposition == "park_until_new_signal":
+        return "until_new_signal"
+    if disposition == "category_or_project_watch":
+        return "until_company_formation_or_new_signal"
+    return "none"
 
 
 def _report_item(entity: dict) -> dict:
@@ -922,6 +990,7 @@ def _action_for_entity(entity: dict, *, latest_run_id: str) -> dict:
     stale = bool(latest_run_id and entity.get("last_seen_run") != latest_run_id)
     skipped = _is_skipped_or_incomplete(entity)
     latest = _latest_sighting(entity)
+    disposition = _post_completion_disposition(entity)
 
     if action == "Assign owner":
         next_action = "Owner follow-up"
@@ -929,12 +998,24 @@ def _action_for_entity(entity: dict, *, latest_run_id: str) -> dict:
     elif route == "Category Context" or action == "Monitor only" or movement == "demoted":
         next_action = "Keep as category context"
         why = "Demoted or too-late/current context row; keep visible for market memory, not owner-routing."
+    elif disposition == "category_or_project_watch":
+        next_action = "Track as project/context until company formation"
+        why = "Post-completion row still lacks Attio-safe company identity; keep it visible as project/context memory until a new company signal appears."
     elif stale:
         next_action = "Check stale status"
         why = "Entity was not seen in the latest run; check whether it faded before spending validation budget."
     elif skipped:
         next_action = "Rerun bounded HN completion"
         why = "Budget-skipped or partial HN sighting; preserve it as incomplete and rerun completion before any owner action."
+    elif disposition == "verify_identity":
+        next_action = "Verify official identity"
+        why = "Completion pass still could not confirm official company identity; verify identity before enrichment, Attio, or owner action."
+    elif disposition == "park_until_new_signal":
+        next_action = "Park until new signal"
+        why = "Completion pass already tried the targeted search and still lacked durable stage, commercial, or customer proof; stop spending cycles until new signal appears."
+    elif disposition == "continue_research":
+        next_action = "Continue focused evidence search"
+        why = "Completion pass found enough durable signal to justify one focused follow-up on the remaining concrete proof item."
     elif _has_identity_gap(missing):
         next_action = "Verify official identity"
         why = "Official company identity is not confirmed; verify domain/source identity before enrichment, Attio, or owner action."
@@ -956,6 +1037,8 @@ def _action_for_entity(entity: dict, *, latest_run_id: str) -> dict:
 
     item["next_action"] = next_action
     item["why_next_best_action"] = why
+    item["post_completion_disposition"] = disposition
+    item["cooldown"] = _cooldown_for_disposition(disposition)
     return item
 
 
@@ -1063,6 +1146,8 @@ def render_ledger_action_report_markdown(report: dict) -> str:
     if actions:
         for item in actions[:25]:
             lines.append(_format_item_line(item))
+            lines.append(f"  - Disposition: {item.get('post_completion_disposition', 'none')}")
+            lines.append(f"  - Cooldown: {item.get('cooldown', 'none')}")
             lines.append(f"  - Next: {item.get('next_action', '')}")
             lines.append(f"  - Why: {item.get('why_next_best_action', '')}")
     else:
