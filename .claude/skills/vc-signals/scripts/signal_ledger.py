@@ -19,6 +19,7 @@ DEFAULT_RUNS_ROOT = REPO_ROOT / "docs" / "radar-runs"
 DEFAULT_LEDGER_PATH = SKILL_DIR / "data" / "radar_runs" / "company_signal_ledger.json"
 DEFAULT_REPORT_DIR = DEFAULT_RUNS_ROOT / "current-signal-ledger-backfill-2026-05-24"
 DEFAULT_ACTION_REPORT_DIR = DEFAULT_RUNS_ROOT / "current-ledger-action-report-2026-05-24"
+DEFAULT_PARTNER_PACKET_DIR = DEFAULT_RUNS_ROOT / "current-partner-decision-packet-2026-05-24"
 
 WEEKLY_FOCUS_SECTIONS = (
     "partner_focus",
@@ -1176,6 +1177,396 @@ def write_ledger_action_report(
     }
 
 
+def _index_entities(ledger: dict) -> dict[str, dict]:
+    return {entity.get("entity_id", ""): entity for entity in ledger.get("entities", []) if entity.get("entity_id")}
+
+
+def _index_actions(action_report: dict) -> dict[str, dict]:
+    return {item.get("entity_id", ""): item for item in action_report.get("recommended_actions", []) if item.get("entity_id")}
+
+
+def _latest_owner_readiness_score(entity: dict):
+    history = sorted(
+        entity.get("sighting_history") or [],
+        key=lambda item: (
+            int(item.get("run_sequence", 0) or 0),
+            item.get("run_date", ""),
+            item.get("run_id", ""),
+            item.get("source_file", ""),
+        ),
+    )
+    for sighting in reversed(history):
+        if sighting.get("owner_readiness_score") is not None:
+            return sighting.get("owner_readiness_score")
+    return None
+
+
+def _human_action_for_packet(entity: dict, action: dict) -> str:
+    next_action = action.get("next_action", "")
+    missing = ", ".join(entity.get("missing_evidence") or action.get("missing_evidence") or [])
+    if next_action == "Owner follow-up":
+        return "Assign a Marathon owner for partner review."
+    if next_action == "Continue focused evidence search":
+        suffix = f" for {missing}" if missing else ""
+        return f"Run one focused evidence pass{suffix}; do not route to owner until the gaps are source-backed."
+    if next_action == "Park until new signal":
+        return "Ignore for now; revisit only when a fresh external signal or durable new evidence appears."
+    if next_action == "Track as project/context until company formation":
+        return "Keep as project/context memory; revisit only if a real company identity or formation signal appears."
+    if next_action == "Keep as category context":
+        return "Use as market context only; do not route to owner."
+    if next_action == "Track OSS/company formation":
+        return "Track whether the project forms a company before treating it as owner-ready."
+    if next_action == "Rerun bounded HN completion":
+        return "Rerun bounded HN completion before any owner-readiness decision."
+    if next_action == "Check stale status":
+        return "Wait for the next weekly run or confirm the signal reappears before spending research budget."
+    if next_action == "Verify official identity":
+        return "Verify official domain and company identity before enrichment, Attio, or owner routing."
+    if next_action == "Fill missing evidence":
+        suffix = f": {missing}" if missing else "."
+        return f"Fill the missing evidence{suffix}"
+    return next_action or "Review ledger state."
+
+
+def _owner_packet_for_entity(entity: dict, action: dict) -> dict:
+    dims = entity.get("evidence_dimensions") or {}
+    complete_dims = all(
+        bool(dims.get(key))
+        for key in ("identity", "founder", "stage", "customer_commercial")
+    )
+    why_parts = []
+    if complete_dims:
+        why_parts.append("identity, founder/team, stage/funding, and customer/commercial evidence are complete")
+    if not entity.get("missing_evidence"):
+        why_parts.append("no missing owner-readiness evidence remains in the ledger")
+    if entity.get("attio_status_current") and entity.get("attio_status_current") != "unknown":
+        why_parts.append(f"Attio read status is {entity.get('attio_status_current')}")
+    score = _latest_owner_readiness_score(entity)
+    if score is not None:
+        why_parts.append(f"latest owner-readiness score is {score}")
+    risks = list(entity.get("missing_evidence") or [])
+    if not risks:
+        risks = [
+            "Owner-ready means ready for human review, not an investment recommendation.",
+            "Partner still needs diligence on buyer urgency, market timing, fundraising status, and Marathon fit.",
+            "Attio remains read-only; no CRM writeback was performed.",
+        ]
+    return {
+        "why_owner_ready": "; ".join(why_parts) or action.get("why_next_best_action", ""),
+        "evidence_urls": entity.get("latest_evidence_urls") or [],
+        "remaining_risks": risks,
+        "suggested_next_action": "Assign a Marathon owner for partner review.",
+    }
+
+
+def _packet_item(entity: dict, action: dict | None = None) -> dict:
+    action = action or {}
+    latest = _latest_sighting(entity)
+    item = {
+        "entity_id": entity.get("entity_id", ""),
+        "entity_name": entity.get("name", ""),
+        "domain": entity.get("domain", ""),
+        "entity_type": entity.get("entity_type", ""),
+        "current_route": entity.get("current_route", ""),
+        "current_action": entity.get("current_action", ""),
+        "best_historical_action": entity.get("best_historical_action", ""),
+        "status_movement": entity.get("status_movement", ""),
+        "source_lanes_seen": entity.get("source_lanes_seen") or [],
+        "first_seen_run": entity.get("first_seen_run", ""),
+        "last_seen_run": entity.get("last_seen_run", ""),
+        "sightings_count": entity.get("sightings_count", 0),
+        "attio_status_current": entity.get("attio_status_current", "unknown"),
+        "evidence_dimensions": entity.get("evidence_dimensions") or {},
+        "missing_evidence": entity.get("missing_evidence") or [],
+        "latest_evidence_urls": entity.get("latest_evidence_urls") or [],
+        "latest_completion_status": latest.get("completion_status", ""),
+        "latest_source_file": latest.get("source_file", ""),
+        "next_action": action.get("next_action", ""),
+        "next_human_action": _human_action_for_packet(entity, action),
+        "why_system_call": action.get("why_next_best_action", ""),
+        "post_completion_disposition": action.get("post_completion_disposition", "none"),
+        "cooldown": action.get("cooldown", "none"),
+    }
+    if item["next_action"] == "Owner follow-up":
+        item["owner_packet"] = _owner_packet_for_entity(entity, action)
+    return item
+
+
+def _packet_sort_key(item: dict) -> tuple:
+    return (
+        0 if item.get("domain") == "voker.ai" else 1,
+        -int(item.get("sightings_count", 0) or 0),
+        item.get("entity_name", ""),
+    )
+
+
+def _packet_items_from_actions(
+    actions: list[dict],
+    entities_by_id: dict[str, dict],
+    predicate,
+) -> list[dict]:
+    items = []
+    for action in actions:
+        entity = entities_by_id.get(action.get("entity_id", ""))
+        if entity and predicate(action):
+            items.append(_packet_item(entity, action))
+    return sorted(items, key=_packet_sort_key)
+
+
+def _packet_items_from_section(
+    section_items: list[dict],
+    entities_by_id: dict[str, dict],
+    actions_by_id: dict[str, dict],
+    *,
+    exclude_ids: set[str] | None = None,
+) -> list[dict]:
+    exclude_ids = exclude_ids or set()
+    items = []
+    for section_item in section_items:
+        entity_id = section_item.get("entity_id", "")
+        if entity_id in exclude_ids:
+            continue
+        entity = entities_by_id.get(entity_id)
+        if entity:
+            items.append(_packet_item(entity, actions_by_id.get(entity_id, {})))
+    return sorted(items, key=_packet_sort_key)
+
+
+def _names_for_summary(items: list[dict], *, limit: int = 3) -> str:
+    if not items:
+        return "none"
+    names = [item.get("entity_name", "") for item in items[:limit]]
+    if len(items) > limit:
+        names.append(f"+{len(items) - limit} more")
+    return ", ".join(name for name in names if name)
+
+
+def _build_packet_executive_summary(packet_summary: dict, sections: dict, source_summary: dict) -> list[str]:
+    return [
+        f"Act now: {packet_summary['owner_follow_up']} owner follow-up ({_names_for_summary(sections['owner_follow_up'])}).",
+        f"Continue research: {packet_summary['continue_research']} focused follow-up ({_names_for_summary(sections['continue_research'])}).",
+        f"Ignore for now: {packet_summary['parked_until_new_signal']} rows are parked until a new signal appears.",
+        f"Context only: {packet_summary['category_project_context']} category/project/context rows are visible for memory, not owner routing.",
+        f"Stale/skipped: {packet_summary['stale_skipped_rows']} rows need either a future reappearance or bounded completion before more effort.",
+        f"Safety: unsafe promotions remain {source_summary.get('unsafe_promotions', 0)}; Attio remains read-only.",
+    ]
+
+
+def build_partner_decision_packet(
+    ledger: dict,
+    *,
+    action_report: dict | None = None,
+    generated_at: str | None = None,
+) -> dict:
+    action_report = action_report or build_ledger_action_report(ledger, generated_at=generated_at)
+    entities_by_id = _index_entities(ledger)
+    actions = list(action_report.get("recommended_actions") or [])
+    actions_by_id = _index_actions(action_report)
+
+    owner_follow_up = _packet_items_from_actions(
+        actions,
+        entities_by_id,
+        lambda action: action.get("next_action") == "Owner follow-up",
+    )
+    continue_research = _packet_items_from_actions(
+        actions,
+        entities_by_id,
+        lambda action: action.get("post_completion_disposition") == "continue_research"
+        or action.get("next_action") == "Continue focused evidence search",
+    )
+    parked = _packet_items_from_actions(
+        actions,
+        entities_by_id,
+        lambda action: action.get("post_completion_disposition") == "park_until_new_signal"
+        or action.get("next_action") == "Park until new signal",
+    )
+    category_project_context = _packet_items_from_actions(
+        actions,
+        entities_by_id,
+        lambda action: action.get("post_completion_disposition") == "category_or_project_watch"
+        or action.get("next_action") in {
+            "Keep as category context",
+            "Track as project/context until company formation",
+            "Track OSS/company formation",
+        },
+    )
+
+    primary_ids = {
+        item["entity_id"]
+        for group in (owner_follow_up, continue_research, parked, category_project_context)
+        for item in group
+    }
+    stale_skipped_by_id = {}
+    for section_key in ("skipped_or_incomplete", "stale_or_missing_from_latest"):
+        for item in action_report.get("sections", {}).get(section_key) or []:
+            entity_id = item.get("entity_id", "")
+            if entity_id and entity_id not in primary_ids:
+                stale_skipped_by_id[entity_id] = item
+    stale_skipped = _packet_items_from_section(
+        list(stale_skipped_by_id.values()),
+        entities_by_id,
+        actions_by_id,
+        exclude_ids=primary_ids,
+    )
+
+    sections = {
+        "owner_follow_up": owner_follow_up,
+        "continue_research": continue_research,
+        "parked_until_new_signal": parked,
+        "category_project_context": category_project_context,
+        "stale_skipped_rows": stale_skipped,
+    }
+    packet_summary = {
+        "entities": ledger.get("summary", {}).get("entities", 0),
+        "sightings": ledger.get("summary", {}).get("sightings", 0),
+        "unsafe_promotions": ledger.get("summary", {}).get("unsafe_promotions", 0),
+        "owner_follow_up": len(owner_follow_up),
+        "continue_research": len(continue_research),
+        "parked_until_new_signal": len(parked),
+        "category_project_context": len(category_project_context),
+        "stale_skipped_rows": len(stale_skipped),
+    }
+    changed = {
+        "promoted": _packet_items_from_section(
+            action_report.get("sections", {}).get("newly_promoted") or [],
+            entities_by_id,
+            actions_by_id,
+        ),
+        "demoted_or_category": _packet_items_from_section(
+            action_report.get("sections", {}).get("demoted_category_context") or [],
+            entities_by_id,
+            actions_by_id,
+        ),
+        "repeated_research_deeper": _packet_items_from_section(
+            action_report.get("sections", {}).get("repeated_research_deeper") or [],
+            entities_by_id,
+            actions_by_id,
+        ),
+        "stale_or_skipped": stale_skipped,
+    }
+    return {
+        "generated_at": generated_at or _now_iso(),
+        "ledger_generated_at": ledger.get("generated_at", ""),
+        "action_report_generated_at": action_report.get("generated_at", ""),
+        "latest_run_id": action_report.get("latest_run_id") or _latest_run_id(ledger),
+        "summary": packet_summary,
+        "executive_summary": _build_packet_executive_summary(packet_summary, sections, ledger.get("summary", {})),
+        "sections": sections,
+        "what_changed_since_prior_run": changed,
+    }
+
+
+def _format_packet_item(item: dict) -> list[str]:
+    missing = ", ".join(item.get("missing_evidence") or ["none"])
+    evidence = ", ".join(item.get("latest_evidence_urls")[:3] or ["none"])
+    lines = [
+        f"### {item.get('entity_name', '')}",
+        "",
+        f"- Domain: {item.get('domain', '') or item.get('entity_id', '')}",
+        f"- Route/action: {item.get('current_route', '')} / {item.get('current_action', '')}",
+        f"- System call: {item.get('next_action', '') or 'Review ledger state'}",
+        f"- Next human action: {item.get('next_human_action', '')}",
+        f"- Why: {item.get('why_system_call', '') or 'Ledger state carried forward for partner visibility.'}",
+        f"- Missing evidence: {missing}",
+        f"- Cooldown: {item.get('cooldown', 'none')}",
+        f"- Evidence: {evidence}",
+    ]
+    return lines
+
+
+def _render_packet_section(lines: list[str], title: str, items: list[dict], *, limit: int = 12) -> None:
+    lines.extend(["", f"## {title}", ""])
+    if not items:
+        lines.append("- None")
+        return
+    if len(items) > limit:
+        lines.append(f"_Showing top {limit} of {len(items)} rows._")
+        lines.append("")
+    for item in items[:limit]:
+        lines.extend(_format_packet_item(item))
+        lines.append("")
+
+
+def render_partner_decision_packet_markdown(packet: dict) -> str:
+    lines = [
+        "# Weekly Partner Decision Packet",
+        "",
+        f"Generated: {packet.get('generated_at', '')}",
+        f"Ledger generated: {packet.get('ledger_generated_at', '')}",
+        f"Action report generated: {packet.get('action_report_generated_at', '')}",
+        f"Latest run: {packet.get('latest_run_id', '')}",
+        "",
+        "## Executive Summary",
+        "",
+    ]
+    for item in packet.get("executive_summary") or []:
+        lines.append(f"- {item}")
+
+    lines.extend(["", "## Owner Follow-up", ""])
+    owner_items = packet.get("sections", {}).get("owner_follow_up") or []
+    if not owner_items:
+        lines.append("- None")
+    for item in owner_items:
+        lines.extend(_format_packet_item(item))
+        owner_packet = item.get("owner_packet") or {}
+        lines.extend(
+            [
+                f"- Why owner-ready: {owner_packet.get('why_owner_ready', '')}",
+                "- Remaining risks:",
+            ]
+        )
+        for risk in owner_packet.get("remaining_risks") or ["none listed"]:
+            lines.append(f"  - {risk}")
+        lines.append(f"- Suggested next action: {owner_packet.get('suggested_next_action', '')}")
+        lines.append("")
+
+    _render_packet_section(lines, "Continue Research", packet.get("sections", {}).get("continue_research") or [])
+    _render_packet_section(lines, "Parked Until New Signal", packet.get("sections", {}).get("parked_until_new_signal") or [])
+    _render_packet_section(lines, "Category / Project / Context", packet.get("sections", {}).get("category_project_context") or [])
+    _render_packet_section(lines, "Stale / Skipped Rows", packet.get("sections", {}).get("stale_skipped_rows") or [])
+
+    lines.extend(["", "## What Changed Since Prior Run", ""])
+    changes = packet.get("what_changed_since_prior_run") or {}
+    change_titles = (
+        ("promoted", "Promoted"),
+        ("demoted_or_category", "Demoted / Category Context"),
+        ("repeated_research_deeper", "Repeated Research Deeper"),
+        ("stale_or_skipped", "Stale / Skipped"),
+    )
+    for key, title in change_titles:
+        items = changes.get(key) or []
+        lines.append(f"- {title}: {len(items)} ({_names_for_summary(items, limit=5)})")
+    return "\n".join(lines).rstrip() + "\n"
+
+
+def write_partner_decision_packet(
+    *,
+    ledger_path: Path = DEFAULT_LEDGER_PATH,
+    action_report_path: Path | None = DEFAULT_ACTION_REPORT_DIR / "ledger-action-report.json",
+    packet_dir: Path = DEFAULT_PARTNER_PACKET_DIR,
+    generated_at: str | None = None,
+) -> dict:
+    ledger = _read_json(Path(ledger_path)) or {}
+    action_report = None
+    if action_report_path and Path(action_report_path).exists():
+        action_report = _read_json(Path(action_report_path))
+    packet = build_partner_decision_packet(ledger, action_report=action_report, generated_at=generated_at)
+    packet_dir = Path(packet_dir)
+    packet_dir.mkdir(parents=True, exist_ok=True)
+    markdown_path = packet_dir / "README.md"
+    json_path = packet_dir / "partner-decision-packet.json"
+    markdown_path.write_text(render_partner_decision_packet_markdown(packet))
+    json_path.write_text(json.dumps(packet, indent=2, sort_keys=True))
+    return {
+        "packet": str(markdown_path),
+        "packet_json": str(json_path),
+        "owner_follow_up": len(packet.get("sections", {}).get("owner_follow_up") or []),
+        "continue_research": len(packet.get("sections", {}).get("continue_research") or []),
+        "parked_until_new_signal": len(packet.get("sections", {}).get("parked_until_new_signal") or []),
+    }
+
+
 def backfill_recent_artifacts(
     *,
     runs_root: Path = DEFAULT_RUNS_ROOT,
@@ -1222,6 +1613,14 @@ def _cli_main() -> None:
         result = write_ledger_action_report(
             ledger_path=Path(args.get("ledger_path", DEFAULT_LEDGER_PATH)),
             report_dir=Path(args.get("report_dir", DEFAULT_ACTION_REPORT_DIR)),
+        )
+        print(json.dumps(result, indent=2))
+        return
+    if command == "partner-packet":
+        result = write_partner_decision_packet(
+            ledger_path=Path(args.get("ledger_path", DEFAULT_LEDGER_PATH)),
+            action_report_path=Path(args.get("action_report_path", DEFAULT_ACTION_REPORT_DIR / "ledger-action-report.json")),
+            packet_dir=Path(args.get("packet_dir", args.get("report_dir", DEFAULT_PARTNER_PACKET_DIR))),
         )
         print(json.dumps(result, indent=2))
         return

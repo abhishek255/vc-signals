@@ -893,3 +893,280 @@ def test_write_ledger_action_report_reads_ledger_and_renders_markdown(tmp_path: 
     assert "Voker" in markdown
     assert "Aide-memory" in markdown
     assert report_json["sections"]["current_assign_owner"][0]["entity_id"] == "company:voker.ai"
+
+
+def test_partner_decision_packet_groups_actions_and_builds_owner_packet():
+    from signal_ledger import build_ledger_action_report, build_partner_decision_packet
+
+    completion_run = "current-ledger-driven-completion-2026-05-24"
+    latest_weekly = "current-weekly-hn-default-runtime-patch-validation-2026-05-24"
+    ledger = {
+        "generated_at": "2026-05-24T00:00:00Z",
+        "runs_backfilled": [
+            {"run_id": "current-prior-run", "run_sequence": 0},
+            {"run_id": latest_weekly, "run_sequence": 1},
+            {"run_id": completion_run, "run_sequence": 2},
+        ],
+        "summary": {"entities": 6, "sightings": 13, "assign_owner_entities": 1, "unsafe_promotions": 0},
+        "entities": [
+            {
+                "entity_id": "company:voker.ai",
+                "name": "Voker",
+                "domain": "voker.ai",
+                "entity_type": "company",
+                "first_seen_run": "current-prior-run",
+                "last_seen_run": latest_weekly,
+                "current_route": "Assign Owner",
+                "current_action": "Assign owner",
+                "best_historical_action": "Assign owner",
+                "attio_status_current": "no_match",
+                "evidence_dimensions": {"identity": True, "founder": True, "stage": True, "customer_commercial": True},
+                "missing_evidence": [],
+                "latest_evidence_urls": [
+                    "https://news.ycombinator.com/item?id=48109962",
+                    "https://voker.ai",
+                    "https://www.ycombinator.com/companies/voker",
+                ],
+                "sightings_count": 3,
+                "source_lanes_seen": ["HN", "YC", "web"],
+                "status_movement": "promoted",
+                "sighting_history": [
+                    {"run_id": "current-prior-run", "action": "Research deeper", "completion_status": "completed_with_stage_failure"},
+                    {
+                        "run_id": latest_weekly,
+                        "action": "Assign owner",
+                        "completion_status": "completed_clean",
+                        "owner_readiness_score": 90,
+                    },
+                ],
+            },
+            {
+                "entity_id": "company:trydatapoint.com",
+                "name": "Datapoint AI",
+                "domain": "trydatapoint.com",
+                "entity_type": "company",
+                "first_seen_run": "current-prior-run",
+                "last_seen_run": completion_run,
+                "current_route": "Research Deeper",
+                "current_action": "Research deeper",
+                "best_historical_action": "Research deeper",
+                "attio_status_current": "no_match",
+                "evidence_dimensions": {"identity": True, "founder": False, "stage": False, "customer_commercial": True},
+                "missing_evidence": ["no founder/team evidence", "no stage/funding evidence"],
+                "latest_evidence_urls": ["https://trydatapoint.com/", "https://news.ycombinator.com/item?id=48241139"],
+                "sightings_count": 4,
+                "source_lanes_seen": ["HN", "web"],
+                "status_movement": "repeated",
+                "sighting_history": [
+                    {
+                        "run_id": completion_run,
+                        "completion_status": "completed_clean",
+                        "owner_readiness_score": 60,
+                        "missing_evidence": ["no founder/team evidence", "no stage/funding evidence"],
+                    }
+                ],
+            },
+            {
+                "entity_id": "company:aide-memory.dev",
+                "name": "Aide-memory",
+                "domain": "aide-memory.dev",
+                "entity_type": "company",
+                "first_seen_run": "current-prior-run",
+                "last_seen_run": completion_run,
+                "current_route": "Research Deeper",
+                "current_action": "Research deeper",
+                "best_historical_action": "Research deeper",
+                "attio_status_current": "unknown",
+                "evidence_dimensions": {"identity": True, "founder": True, "stage": False, "customer_commercial": False},
+                "missing_evidence": ["no stage/funding evidence", "no commercial/funding evidence", "no customer/buyer pull evidence"],
+                "latest_evidence_urls": ["https://www.aide-memory.dev/blog/launch"],
+                "sightings_count": 4,
+                "source_lanes_seen": ["HN", "web"],
+                "status_movement": "repeated",
+                "sighting_history": [
+                    {
+                        "run_id": completion_run,
+                        "completion_status": "completed_clean",
+                        "missing_evidence": [
+                            "no stage/funding evidence",
+                            "no commercial/funding evidence",
+                            "no customer/buyer pull evidence",
+                        ],
+                    }
+                ],
+            },
+            {
+                "entity_id": "company:arize.com",
+                "name": "Arize",
+                "domain": "arize.com",
+                "entity_type": "market anchor",
+                "first_seen_run": "current-prior-run",
+                "last_seen_run": latest_weekly,
+                "current_route": "Category Context",
+                "current_action": "Monitor only",
+                "best_historical_action": "Research deeper",
+                "attio_status_current": "unknown",
+                "evidence_dimensions": {"identity": True, "founder": False, "stage": False, "customer_commercial": False},
+                "missing_evidence": ["category context / mature incumbent"],
+                "latest_evidence_urls": ["https://arize.com/"],
+                "sightings_count": 2,
+                "source_lanes_seen": ["web"],
+                "status_movement": "demoted",
+                "sighting_history": [{"run_id": latest_weekly, "completion_status": ""}],
+            },
+            {
+                "entity_id": "company:triyambakam-apex-corp.hf.space",
+                "name": "Triyambakam Apex Corp",
+                "domain": "triyambakam-apex-corp.hf.space",
+                "entity_type": "company",
+                "first_seen_run": "current-prior-run",
+                "last_seen_run": completion_run,
+                "current_route": "Research Deeper",
+                "current_action": "Research deeper",
+                "best_historical_action": "Research deeper",
+                "attio_status_current": "unknown",
+                "evidence_dimensions": {"identity": True, "founder": True, "stage": False, "customer_commercial": False},
+                "missing_evidence": ["official_domain_identity_not_confirmed", "no verified Attio-safe company identity"],
+                "latest_evidence_urls": ["https://triyambakam-apex-corp.hf.space/"],
+                "sightings_count": 3,
+                "source_lanes_seen": ["HN", "web"],
+                "status_movement": "repeated",
+                "sighting_history": [
+                    {
+                        "run_id": completion_run,
+                        "completion_status": "completed_clean",
+                        "missing_evidence": ["official_domain_identity_not_confirmed", "no verified Attio-safe company identity"],
+                    }
+                ],
+            },
+            {
+                "entity_id": "company:skipped.ai",
+                "name": "Skipped AI",
+                "domain": "skipped.ai",
+                "entity_type": "company",
+                "first_seen_run": "current-prior-run",
+                "last_seen_run": "current-prior-run",
+                "current_route": "Research Deeper",
+                "current_action": "Research deeper",
+                "best_historical_action": "Research deeper",
+                "attio_status_current": "unknown",
+                "evidence_dimensions": {"identity": True, "founder": False, "stage": False, "customer_commercial": False},
+                "missing_evidence": ["max_candidates_exceeded"],
+                "latest_evidence_urls": ["https://news.ycombinator.com/item?id=1"],
+                "sightings_count": 1,
+                "source_lanes_seen": ["HN"],
+                "status_movement": "repeated",
+                "sighting_history": [
+                    {
+                        "run_id": "current-prior-run",
+                        "completion_status": "skipped_budget",
+                        "partial_reason": "max_candidates_exceeded",
+                    }
+                ],
+            },
+        ],
+    }
+
+    action_report = build_ledger_action_report(ledger, generated_at="2026-05-24T12:00:00Z")
+    packet = build_partner_decision_packet(ledger, action_report=action_report, generated_at="2026-05-24T13:00:00Z")
+
+    assert packet["summary"]["owner_follow_up"] == 1
+    assert packet["sections"]["owner_follow_up"][0]["entity_id"] == "company:voker.ai"
+    assert packet["sections"]["owner_follow_up"][0]["owner_packet"]["suggested_next_action"] == "Assign a Marathon owner for partner review."
+    assert "identity, founder/team, stage/funding, and customer/commercial evidence are complete" in packet["sections"]["owner_follow_up"][0]["owner_packet"]["why_owner_ready"]
+    assert packet["sections"]["owner_follow_up"][0]["owner_packet"]["evidence_urls"] == [
+        "https://news.ycombinator.com/item?id=48109962",
+        "https://voker.ai",
+        "https://www.ycombinator.com/companies/voker",
+    ]
+    assert [item["entity_name"] for item in packet["sections"]["continue_research"]] == ["Datapoint AI"]
+    assert [item["entity_name"] for item in packet["sections"]["parked_until_new_signal"]] == ["Aide-memory"]
+    assert {item["entity_name"] for item in packet["sections"]["category_project_context"]} == {"Arize", "Triyambakam Apex Corp"}
+    assert [item["entity_name"] for item in packet["sections"]["stale_skipped_rows"]] == ["Skipped AI"]
+    assert packet["what_changed_since_prior_run"]["promoted"][0]["entity_name"] == "Voker"
+    assert packet["what_changed_since_prior_run"]["demoted_or_category"][0]["entity_name"] == "Arize"
+
+
+def test_write_partner_decision_packet_reads_inputs_and_renders_markdown(tmp_path: Path):
+    from signal_ledger import build_ledger_action_report, write_partner_decision_packet
+
+    ledger = {
+        "generated_at": "2026-05-24T00:00:00Z",
+        "runs_backfilled": [{"run_id": "current-latest-run", "run_sequence": 0}],
+        "summary": {"entities": 2, "sightings": 2, "assign_owner_entities": 1, "unsafe_promotions": 0},
+        "entities": [
+            {
+                "entity_id": "company:voker.ai",
+                "name": "Voker",
+                "domain": "voker.ai",
+                "entity_type": "company",
+                "first_seen_run": "current-latest-run",
+                "last_seen_run": "current-latest-run",
+                "current_route": "Assign Owner",
+                "current_action": "Assign owner",
+                "best_historical_action": "Assign owner",
+                "attio_status_current": "no_match",
+                "evidence_dimensions": {"identity": True, "founder": True, "stage": True, "customer_commercial": True},
+                "missing_evidence": [],
+                "latest_evidence_urls": ["https://voker.ai", "https://www.ycombinator.com/companies/voker"],
+                "sightings_count": 1,
+                "source_lanes_seen": ["YC", "web"],
+                "status_movement": "promoted",
+                "sighting_history": [{"run_id": "current-latest-run", "completion_status": "completed_clean", "owner_readiness_score": 90}],
+            },
+            {
+                "entity_id": "company:trydatapoint.com",
+                "name": "Datapoint AI",
+                "domain": "trydatapoint.com",
+                "entity_type": "company",
+                "first_seen_run": "current-latest-run",
+                "last_seen_run": "current-latest-run",
+                "current_route": "Research Deeper",
+                "current_action": "Research deeper",
+                "best_historical_action": "Research deeper",
+                "attio_status_current": "no_match",
+                "evidence_dimensions": {"identity": True, "founder": False, "stage": False, "customer_commercial": True},
+                "missing_evidence": ["no founder/team evidence", "no stage/funding evidence"],
+                "latest_evidence_urls": ["https://trydatapoint.com"],
+                "sightings_count": 1,
+                "source_lanes_seen": ["web"],
+                "status_movement": "repeated",
+                "sighting_history": [
+                    {
+                        "run_id": "current-ledger-driven-completion-2026-05-24",
+                        "completion_status": "completed_clean",
+                        "missing_evidence": ["no founder/team evidence", "no stage/funding evidence"],
+                    }
+                ],
+            },
+        ],
+    }
+    ledger_path = tmp_path / "company_signal_ledger.json"
+    action_report_path = tmp_path / "ledger-action-report.json"
+    packet_dir = tmp_path / "current-partner-decision-packet-2026-05-24"
+    _write_json(ledger_path, ledger)
+    _write_json(action_report_path, build_ledger_action_report(ledger, generated_at="2026-05-24T12:00:00Z"))
+
+    result = write_partner_decision_packet(
+        ledger_path=ledger_path,
+        action_report_path=action_report_path,
+        packet_dir=packet_dir,
+        generated_at="2026-05-24T13:00:00Z",
+    )
+
+    markdown = (packet_dir / "README.md").read_text()
+    packet_json = json.loads((packet_dir / "partner-decision-packet.json").read_text())
+    assert result["packet"] == str(packet_dir / "README.md")
+    assert result["packet_json"] == str(packet_dir / "partner-decision-packet.json")
+    assert "# Weekly Partner Decision Packet" in markdown
+    assert "## Executive Summary" in markdown
+    assert "## Owner Follow-up" in markdown
+    assert "## Continue Research" in markdown
+    assert "## Parked Until New Signal" in markdown
+    assert "## Category / Project / Context" in markdown
+    assert "## Stale / Skipped Rows" in markdown
+    assert "## What Changed Since Prior Run" in markdown
+    assert "Voker" in markdown
+    assert "Datapoint AI" in markdown
+    assert "Assign a Marathon owner for partner review." in markdown
+    assert packet_json["sections"]["owner_follow_up"][0]["entity_id"] == "company:voker.ai"
