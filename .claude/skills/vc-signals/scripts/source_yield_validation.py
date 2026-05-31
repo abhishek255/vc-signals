@@ -12,6 +12,9 @@ from typing import Any
 
 REVIEW_WORTHY_ACTIONS = {"research deeper", "contact maintainer", "watch"}
 DEFAULT_ASSIGN_OWNER_ALLOWLIST = ("Voker",)
+MARKET_SIGNAL_LIMIT = 5
+EVIDENCE_GAP_LIMIT = 12
+WATCHLIST_LIMIT = 12
 
 
 def _read_json(path: Path, default: Any) -> Any:
@@ -111,6 +114,298 @@ def _review_worthy_summary(row: dict) -> dict:
             }
         ),
     }
+
+
+def _row_project_url(row: dict) -> str:
+    candidates = (
+        _as_list(row.get("sources"))
+        + _as_list(row.get("source_outbound_urls"))
+        + _as_list(row.get("evidence_urls"))
+        + [row.get("source"), row.get("url"), row.get("project_url")]
+    )
+    for url in candidates:
+        value = str(url or "").strip()
+        if "github.com/" in value:
+            return value
+    for url in candidates:
+        value = str(url or "").strip()
+        if value.startswith(("http://", "https://")):
+            return value
+    return ""
+
+
+def _row_evidence_urls(row: dict) -> list[str]:
+    urls = []
+    for value in (
+        _as_list(row.get("sources"))
+        + _as_list(row.get("source_outbound_urls"))
+        + _as_list(row.get("evidence_urls"))
+        + _as_list(row.get("founder_team_evidence"))
+        + _as_list(row.get("stage_funding_evidence"))
+        + _as_list(row.get("customer_buyer_evidence"))
+        + [row.get("source"), row.get("url"), row.get("project_url")]
+    ):
+        url = str(value or "").strip()
+        if url.startswith(("http://", "https://")) and url not in urls:
+            urls.append(url)
+    return urls
+
+
+def _row_market_sector(row: dict) -> str:
+    return str(row.get("market_sector") or row.get("sector") or "").strip()
+
+
+def _inferred_market_theme(row: dict) -> str:
+    text = " ".join(
+        str(row.get(key) or "")
+        for key in ("name", "source_headline", "tagline", "why_on_radar", "description", "theme")
+    ).lower()
+    if "agent" in text and any(term in text for term in ("security", "vulnerab", "permission", "mcp")):
+        return "AI agent security"
+    if any(term in text for term in ("github action", "github actions", "ci/cd", "continuous integration", "pipeline")):
+        if "security" in text or "red team" in text:
+            return "CI/CD security"
+        return "Devtools workflow automation"
+    if any(term in text for term in ("pull request", "pr", "code review")) and any(term in text for term in ("ai", "slop", "agent")):
+        return "AI code quality control"
+    if any(term in text for term in ("kubernetes", "deployment", "continuous delivery")):
+        return "Kubernetes delivery automation"
+    if any(term in text for term in ("eval", "benchmark", "swe")) and "agent" in text:
+        return "Agent reliability and evals"
+    return ""
+
+
+def _row_theme(row: dict) -> str:
+    theme = str(row.get("theme") or row.get("market_movement") or "").strip()
+    if theme and theme != "Emerging technical signal":
+        return theme
+    return _inferred_market_theme(row) or theme
+
+
+def _is_github_or_oss_row(row: dict) -> bool:
+    return _row_source_bucket(row) == "github"
+
+
+def _market_signal_score(row: dict) -> tuple[int, list[str]]:
+    score = 0
+    basis = []
+    if str(row.get("weekly_tag") or "").upper() == "NEW":
+        score += 15
+        basis.append("new_this_week")
+    stars_30d = int(row.get("stars_30d") or 0)
+    stars = int(row.get("stars") or 0)
+    if stars_30d >= 100:
+        score += 30
+        basis.append("very_high_star_velocity")
+    elif stars_30d >= 50:
+        score += 25
+        basis.append("high_star_velocity")
+    elif stars_30d >= 10:
+        score += 10
+        basis.append("some_star_velocity")
+    if stars >= 500:
+        score += 15
+        basis.append("large_existing_interest")
+    elif stars >= 100:
+        score += 10
+        basis.append("meaningful_existing_interest")
+    theme = _row_theme(row)
+    if theme and theme != "Emerging technical signal":
+        score += 20
+        basis.append("specific_market_theme")
+    elif theme:
+        score += 5
+        basis.append("generic_theme_needs_clustering")
+    if _row_market_sector(row):
+        score += 10
+        basis.append("market_sector_classified")
+    action = _normalized_action(row)
+    if action == "contact maintainer":
+        score += 10
+        basis.append("maintainer_outreach_worthy")
+    elif action in REVIEW_WORTHY_ACTIONS:
+        score += 5
+        basis.append("research_actionable")
+    if int(row.get("evidence_confidence_score") or 0) >= 40:
+        score += 10
+        basis.append("evidence_confidence_medium")
+    if _row_domain(row):
+        score += 5
+        basis.append("project_or_company_domain_present")
+    if int(row.get("source_count") or 0) > 1:
+        score += 10
+        basis.append("multi_source_echo")
+    text = " ".join(str(row.get(key) or "") for key in ("name", "why_on_radar", "why_this_may_be_noise", "theme")).lower()
+    if any(term in text for term in ("free titles", "gaming freebies", "captcha")):
+        score -= 30
+        basis.append("consumer_or_low_fit_noise")
+    if any(term in text for term in ("daily news", "news brief", "newsletter", "market analysis", "行情")):
+        score -= 25
+        basis.append("content_aggregation_less_company_formation")
+    return max(0, min(100, score)), basis
+
+
+def _market_signal_summary(row: dict) -> dict:
+    score, basis = _market_signal_score(row)
+    project_url = _row_project_url(row)
+    theme = _row_theme(row) or "Emerging technical signal"
+    missing = list(dict.fromkeys(_as_list(row.get("missing_owner_evidence")) + _as_list(row.get("missing_identity_evidence"))))
+    if not missing:
+        missing = ["company formation evidence not yet complete"]
+    return {
+        "name": _row_name(row),
+        "project_url": project_url,
+        "domain": _row_domain(row),
+        "source_lane": row.get("source_lane", ""),
+        "market_sector": _row_market_sector(row),
+        "theme": theme,
+        "market_signal_score": score,
+        "score_basis": basis,
+        "stars": row.get("stars", 0),
+        "stars_30d": row.get("stars_30d", 0),
+        "repo_age_days": row.get("repo_age_days", 0),
+        "action": row.get("action", ""),
+        "why_it_matters": row.get("why_on_radar", ""),
+        "why_not_company_yet": "; ".join(str(item) for item in missing),
+        "suggested_company_search": f"{theme} startups founder pricing customers funding",
+        "evidence_urls": _row_evidence_urls(row)[:5],
+        "promotion_path": "Review-Worthy Market Signal -> company search theme -> Review-Worthy Company when identity/founder/stage evidence clears.",
+    }
+
+
+def build_review_worthy_market_signals(candidate_rows: list[dict], *, limit: int = MARKET_SIGNAL_LIMIT) -> list[dict]:
+    rows = []
+    seen = set()
+    for row in candidate_rows:
+        if not _is_github_or_oss_row(row):
+            continue
+        if not _row_project_url(row):
+            continue
+        score, _basis = _market_signal_score(row)
+        if score < 55:
+            continue
+        key = _row_project_url(row) or _row_name(row)
+        if key in seen:
+            continue
+        seen.add(key)
+        rows.append(_market_signal_summary(row))
+    return sorted(rows, key=lambda item: (item["market_signal_score"], int(item.get("stars_30d") or 0)), reverse=True)[:limit]
+
+
+def _company_evidence_gaps(row: dict) -> list[str]:
+    gaps = []
+    if not _row_domain(row):
+        gaps.append("official_domain_missing")
+    if not _has_founder_evidence(row) and not _has_value(row.get("maintainer_profiles")):
+        gaps.append("founder_or_maintainer_missing")
+    if not _has_stage_or_size_evidence(row):
+        gaps.append("stage_funding_or_headcount_missing")
+    if not (_has_value(row.get("company_linkedin")) or _has_value(row.get("company_x"))):
+        gaps.append("company_social_or_linkedin_missing")
+    if not (_has_value(row.get("customer_buyer_evidence")) or _has_value(row.get("customer_buyer_evidence_types"))):
+        gaps.append("commercial_or_customer_signal_missing")
+    for gap in _as_list(row.get("missing_owner_evidence")) + _as_list(row.get("missing_identity_evidence")):
+        normalized = str(gap or "").strip()
+        if normalized and normalized not in gaps:
+            gaps.append(normalized)
+    return gaps
+
+
+def _gap_next_step(gaps: list[str], row: dict) -> str:
+    if "official_domain_missing" in gaps or "no verified domain" in gaps:
+        return "Resolve official domain from launch text, project docs, founder profile, or web search."
+    if "founder_or_maintainer_missing" in gaps:
+        return "Find founder or maintainer identity from website, GitHub org, LinkedIn, HN, or X."
+    if "stage_funding_or_headcount_missing" in gaps:
+        return "Find stage, funding, headcount, careers, or company profile evidence."
+    if "commercial_or_customer_signal_missing" in gaps:
+        return "Check pricing, docs, customers, case studies, waitlist, careers, or deployment evidence."
+    source = _row_source_bucket(row)
+    if source == "github":
+        return "Use this as a market signal and search for companies building around the theme."
+    return "Run one focused evidence check before promoting."
+
+
+def _evidence_gap_score(row: dict) -> int:
+    score = int(row.get("investment_interest_score") or 0) + int(row.get("evidence_confidence_score") or 0)
+    if _row_source_bucket(row) in {"product_hunt", "x", "github", "manual_web"}:
+        score += 25
+    if _normalized_action(row) in {"contact maintainer", "research deeper"}:
+        score += 15
+    score += min(30, int(row.get("stars_30d") or 0) // 5)
+    text = " ".join(str(row.get(key) or "") for key in ("name", "why_on_radar", "theme")).lower()
+    if any(term in text for term in ("daily news", "news brief", "newsletter", "market analysis", "行情")):
+        score -= 25
+    return score
+
+
+def _evidence_gap_row(row: dict) -> dict:
+    gaps = _company_evidence_gaps(row)
+    return {
+        "name": _row_name(row),
+        "domain": _row_domain(row),
+        "project_url": _row_project_url(row),
+        "source_lane": row.get("source_lane", ""),
+        "market_sector": _row_market_sector(row),
+        "theme": _row_theme(row),
+        "action": row.get("action", ""),
+        "tier": row.get("tier", ""),
+        "gap_priority_score": _evidence_gap_score(row),
+        "missing_evidence": gaps,
+        "next_step": _gap_next_step(gaps, row),
+        "promotion_target": "Review-Worthy Company" if _row_source_bucket(row) != "github" else "Review-Worthy Company or supporting Market Signal",
+        "evidence_urls": _row_evidence_urls(row)[:5],
+    }
+
+
+def build_evidence_gap_queue(
+    candidate_rows: list[dict],
+    review_worthy_rows: list[dict],
+    *,
+    limit: int = EVIDENCE_GAP_LIMIT,
+) -> list[dict]:
+    review_keys = {_row_domain(row) or _row_name(row) for row in review_worthy_rows}
+    rows = []
+    seen = set()
+    for row in candidate_rows:
+        bucket = _row_source_bucket(row)
+        if bucket == "yc_directory":
+            continue
+        key = _row_domain(row) or _row_project_url(row) or _row_name(row)
+        if not key or key in seen or key in review_keys:
+            continue
+        gaps = _company_evidence_gaps(row)
+        if not gaps:
+            continue
+        seen.add(key)
+        rows.append(_evidence_gap_row(row))
+    return sorted(rows, key=lambda item: item["gap_priority_score"], reverse=True)[:limit]
+
+
+def build_launch_and_oss_watch(candidate_rows: list[dict], market_signals: list[dict], gap_queue: list[dict]) -> list[dict]:
+    promoted = {item.get("project_url") or item.get("domain") or item.get("name") for item in market_signals + gap_queue}
+    rows = []
+    for row in candidate_rows:
+        bucket = _row_source_bucket(row)
+        if bucket not in {"product_hunt", "x", "github"}:
+            continue
+        key = _row_project_url(row) or _row_domain(row) or _row_name(row)
+        if key in promoted:
+            continue
+        rows.append(
+            {
+                "name": _row_name(row),
+                "source_lane": row.get("source_lane", ""),
+                "domain": _row_domain(row),
+                "project_url": _row_project_url(row),
+                "theme": _row_theme(row),
+                "action": row.get("action", ""),
+                "why_keep": row.get("why_on_radar", ""),
+                "why_not_promoted": row.get("why_this_may_be_noise", "") or "Not enough evidence for company or market-signal promotion yet.",
+                "evidence_urls": _row_evidence_urls(row)[:3],
+            }
+        )
+    return rows[:WATCHLIST_LIMIT]
 
 
 def _workflow_assign_owner_rows(weekly_focus: dict) -> list[dict]:
@@ -353,6 +648,9 @@ def build_source_yield_validation_report(
     assign_owner_names = _assign_owner_names(assign_owner_rows)
     candidate_assign_owner_names = [_row_name(row) for row in candidate_rows if _normalized_action(row) == "assign owner"]
     review_worthy_rows = [_review_worthy_summary(row) for row in candidate_rows if is_net_new_review_worthy_candidate(row)]
+    market_signals = build_review_worthy_market_signals(candidate_rows)
+    evidence_gap_queue = build_evidence_gap_queue(candidate_rows, review_worthy_rows)
+    launch_watch = build_launch_and_oss_watch(candidate_rows, market_signals, evidence_gap_queue)
 
     allowlist = {name.lower() for name in assign_owner_allowlist}
     weekly_owner_set = {name.lower() for name in assign_owner_names}
@@ -428,6 +726,19 @@ def build_source_yield_validation_report(
             "review_worthy_target_met": net_new_count >= target_review_worthy_count,
         },
         "review_worthy_rows": review_worthy_rows,
+        "review_worthy_market_signals": market_signals,
+        "evidence_gap_queue": evidence_gap_queue,
+        "launch_and_oss_watch": launch_watch,
+        "two_track_summary": {
+            "review_worthy_companies": len(review_worthy_rows),
+            "review_worthy_market_signals": len(market_signals),
+            "evidence_gap_queue": len(evidence_gap_queue),
+            "launch_and_oss_watch": len(launch_watch),
+            "interpretation": (
+                "Companies need official identity plus founder/stage/size evidence. "
+                "Market signals can be review-worthy when OSS/theme momentum is strong even before a company exists."
+            ),
+        },
         "source_counts": _source_counts(raw_evidence if isinstance(raw_evidence, dict) else {}, run_path),
         "source_diversity": _source_diversity_summary(
             candidate_rows=candidate_rows,
@@ -459,13 +770,20 @@ def build_source_yield_decision_packet(report: dict, weekly_focus: dict) -> dict
         for row in assign_owner_rows
     ]
     review_rows = report["review_worthy_rows"]
+    market_signals = report.get("review_worthy_market_signals", [])
+    evidence_gap_queue = report.get("evidence_gap_queue", [])
+    launch_watch = report.get("launch_and_oss_watch", [])
     return {
         "generated_at": report["generated_at"],
-        "packet_type": "source_yield_strict_decision_packet",
+        "packet_type": "source_yield_two_track_decision_packet",
         "source_run_dir": report["run_dir"],
         "summary": {
             "goal_reached": report["goal_assessment"]["goal_reached"],
             "owner_follow_up": len(owner_follow_up),
+            "review_worthy_companies": len(review_rows),
+            "review_worthy_market_signals": len(market_signals),
+            "evidence_gap_queue": len(evidence_gap_queue),
+            "launch_and_oss_watch": len(launch_watch),
             "review_worthy_research": len(review_rows),
             "continue_research": len(review_rows),
             "unsafe_promotions": 0 if report["goal_assessment"]["assign_owner_bar_preserved"] else 1,
@@ -473,8 +791,12 @@ def build_source_yield_decision_packet(report: dict, weekly_focus: dict) -> dict
         },
         "sections": {
             "owner_follow_up": owner_follow_up,
+            "review_worthy_companies": review_rows,
             "review_worthy_research": review_rows,
+            "review_worthy_market_signals": market_signals,
+            "evidence_gap_queue": evidence_gap_queue,
             "continue_research": review_rows,
+            "launch_and_oss_watch": launch_watch,
             "source_caveats": report["caveats"],
         },
     }
@@ -488,6 +810,9 @@ def build_source_yield_ledger_action_report(report: dict) -> dict:
         "summary": {
             "goal_reached": report["goal_assessment"]["goal_reached"],
             "assign_owner_entities": len(report["goal_assessment"]["assign_owner_names"]),
+            "review_worthy_company_entities": report["goal_assessment"]["net_new_review_worthy_count"],
+            "review_worthy_market_signal_entities": len(report.get("review_worthy_market_signals", [])),
+            "evidence_gap_entities": len(report.get("evidence_gap_queue", [])),
             "review_worthy_research_entities": report["goal_assessment"]["net_new_review_worthy_count"],
             "unsafe_promotions": 0 if report["goal_assessment"]["assign_owner_bar_preserved"] else 1,
         },
@@ -501,6 +826,16 @@ def build_source_yield_ledger_action_report(report: dict) -> dict:
                 "action": "Review worthy - research deeper",
                 "count": report["goal_assessment"]["net_new_review_worthy_count"],
                 "names": [row["name"] for row in report["review_worthy_rows"]],
+            },
+            {
+                "action": "Review worthy - market signal",
+                "count": len(report.get("review_worthy_market_signals", [])),
+                "names": [row["name"] for row in report.get("review_worthy_market_signals", [])],
+            },
+            {
+                "action": "Evidence gap queue",
+                "count": len(report.get("evidence_gap_queue", [])),
+                "names": [row["name"] for row in report.get("evidence_gap_queue", [])],
             },
         ],
         "caveats": report["caveats"],
@@ -517,8 +852,10 @@ def render_source_yield_markdown(report: dict) -> str:
         f"- Assign Owner rows: {', '.join(assessment['assign_owner_names']) or 'none'}",
         f"- Assign Owner bar preserved: {'yes' if assessment['assign_owner_bar_preserved'] else 'no'}",
         f"- Net-new credible Review-Worthy rows: {assessment['net_new_review_worthy_count']} / {assessment['target_net_new_review_worthy_count']}",
+        f"- Review-Worthy Market Signals: {len(report.get('review_worthy_market_signals', []))}",
+        f"- Evidence Gap Queue rows: {len(report.get('evidence_gap_queue', []))}",
         "",
-        "## Review-Worthy Rows",
+        "## Review-Worthy Companies",
         "",
         "| Company | Domain | Action | Stage | Raised | Headcount | Source |",
         "| --- | --- | --- | --- | --- | --- | --- |",
@@ -533,6 +870,46 @@ def render_source_yield_markdown(report: dict) -> str:
                 raised=str(row["raised"]).replace("|", "/"),
                 headcount=str(row["headcount"]).replace("|", "/"),
                 source_lane=str(row["source_lane"]).replace("|", "/"),
+            )
+        )
+    lines.extend(
+        [
+            "",
+            "## Review-Worthy Market Signals",
+            "",
+            "| Signal | Theme | Sector | Score | 30d Stars | Why It Matters | Next Search |",
+            "| --- | --- | --- | --- | --- | --- | --- |",
+        ]
+    )
+    for row in report.get("review_worthy_market_signals", []):
+        lines.append(
+            "| {name} | {theme} | {sector} | {score} | {stars_30d} | {why} | {search} |".format(
+                name=str(row.get("name", "")).replace("|", "/"),
+                theme=str(row.get("theme", "")).replace("|", "/"),
+                sector=str(row.get("market_sector", "")).replace("|", "/"),
+                score=str(row.get("market_signal_score", "")).replace("|", "/"),
+                stars_30d=str(row.get("stars_30d", "")).replace("|", "/"),
+                why=str(row.get("why_it_matters", "")).replace("|", "/"),
+                search=str(row.get("suggested_company_search", "")).replace("|", "/"),
+            )
+        )
+    lines.extend(
+        [
+            "",
+            "## Evidence Gap Queue",
+            "",
+            "| Row | Source | Missing Evidence | Next Step | Promotion Target |",
+            "| --- | --- | --- | --- | --- |",
+        ]
+    )
+    for row in report.get("evidence_gap_queue", []):
+        lines.append(
+            "| {name} | {source} | {gaps} | {next_step} | {target} |".format(
+                name=str(row.get("name", "")).replace("|", "/"),
+                source=str(row.get("source_lane", "")).replace("|", "/"),
+                gaps=", ".join(str(gap).replace("|", "/") for gap in row.get("missing_evidence", [])[:4]),
+                next_step=str(row.get("next_step", "")).replace("|", "/"),
+                target=str(row.get("promotion_target", "")).replace("|", "/"),
             )
         )
     diversity = report.get("source_diversity", {})

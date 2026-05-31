@@ -1,10 +1,13 @@
 {
-  "generated_at": "2026-05-31T22:15:56.538644+00:00",
+  "generated_at": "2026-05-31T22:37:25.743839+00:00",
   "report_type": "source_yield_strict_action_report",
   "source_run_dir": "docs/radar-runs/current-deep-dive-validation-2026-05-31-r4",
   "summary": {
     "goal_reached": true,
     "assign_owner_entities": 1,
+    "review_worthy_company_entities": 16,
+    "review_worthy_market_signal_entities": 5,
+    "evidence_gap_entities": 12,
     "review_worthy_research_entities": 16,
     "unsafe_promotions": 0
   },
@@ -36,6 +39,35 @@
         "Roger",
         "Undermind",
         "Evolvere BioSciences"
+      ]
+    },
+    {
+      "action": "Review worthy - market signal",
+      "count": 5,
+      "names": [
+        "pullfrog/pullfrog",
+        "affaan-m/agentshield",
+        "redwoodjs/agent-ci",
+        "azat-io/actions-up",
+        "peakoss/anti-slop"
+      ]
+    },
+    {
+      "action": "Evidence gap queue",
+      "count": 12,
+      "names": [
+        "affaan-m/agentshield",
+        "pullfrog/pullfrog",
+        "azat-io/actions-up",
+        "boostsecurityio/smokedmeat",
+        "redwoodjs/agent-ci",
+        "peakoss/anti-slop",
+        "FinBot",
+        "Open Source Alternative Finder",
+        "leiting-eric/DailyBrief",
+        "spaceraccoon/vulnerability-spoiler-alert-action",
+        "Libra AI",
+        "SKYLENAGE-AI/SWE-CI"
       ]
     }
   ],

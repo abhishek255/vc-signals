@@ -128,9 +128,78 @@ def test_decision_packet_uses_only_weekly_assign_owner(tmp_path):
     packet = build_source_yield_decision_packet(report, weekly_focus)
 
     assert packet["summary"]["owner_follow_up"] == 1
+    assert packet["summary"]["review_worthy_companies"] == 1
     assert packet["summary"]["review_worthy_research"] == 1
     assert packet["sections"]["owner_follow_up"][0]["name"] == "Voker"
+    assert packet["sections"]["review_worthy_companies"][0]["name"] == "Goldbridge"
     assert packet["sections"]["review_worthy_research"][0]["name"] == "Goldbridge"
+
+
+def test_validation_report_promotes_oss_market_signals_and_gap_queue(tmp_path):
+    from source_yield_validation import (
+        build_source_yield_decision_packet,
+        build_source_yield_validation_report,
+        render_source_yield_markdown,
+    )
+
+    run_dir = tmp_path / "run"
+    _write_json(
+        run_dir / "candidates.json",
+        [
+            _candidate(),
+            _candidate(
+                name="redwoodjs/agent-ci",
+                domain="agent-ci.dev",
+                source_lane="OSS",
+                candidate_type="oss_project",
+                source="https://github.com/redwoodjs/agent-ci",
+                sources=["https://github.com/redwoodjs/agent-ci"],
+                theme="Emerging technical signal",
+                market_sector="Devtools",
+                weekly_tag="NEW",
+                action="watch",
+                founders=[],
+                stage="",
+                raised="",
+                headcount="",
+                stars=700,
+                stars_30d=90,
+                repo_age_days=100,
+                identity_type="oss_with_commercial_intent",
+                missing_owner_evidence=["OSS/project-only row"],
+                why_on_radar="Agent-CI is local GitHub Actions for agents. +90 stars in 30d.",
+            ),
+        ],
+    )
+    weekly_focus = {
+        "workflow_view": {
+            "Assign owner": [
+                {
+                    "name": "Voker",
+                    "company_domain": "voker.ai",
+                    "recommended_action": "Assign owner",
+                }
+            ]
+        }
+    }
+    _write_json(run_dir / "weekly-focus.json", weekly_focus)
+    _write_json(run_dir / "runtime-ledger.json", {"source_health": []})
+    _write_json(run_dir / "2026-05-31-raw-evidence.json", {"github": [{}], "product_hunt": [], "x_launches": [], "yc_directory": []})
+    _write_json(run_dir / "hn-launch-trial" / "hn-trial-row-review.json", {"summary": {"rows": 1, "action_split": {"Assign owner": 1}}})
+
+    report = build_source_yield_validation_report(run_dir, target_review_worthy_count=1)
+    packet = build_source_yield_decision_packet(report, weekly_focus)
+    markdown = render_source_yield_markdown(report)
+
+    assert report["two_track_summary"]["review_worthy_companies"] == 1
+    assert report["two_track_summary"]["review_worthy_market_signals"] == 1
+    assert report["review_worthy_market_signals"][0]["name"] == "redwoodjs/agent-ci"
+    assert report["review_worthy_market_signals"][0]["theme"] == "Devtools workflow automation"
+    assert report["evidence_gap_queue"][0]["name"] == "redwoodjs/agent-ci"
+    assert packet["summary"]["review_worthy_market_signals"] == 1
+    assert packet["sections"]["review_worthy_market_signals"][0]["promotion_path"].startswith("Review-Worthy Market Signal")
+    assert "## Review-Worthy Market Signals" in markdown
+    assert "## Evidence Gap Queue" in markdown
 
 
 def test_validation_report_uses_latest_raw_evidence_and_reports_source_diversity(tmp_path):

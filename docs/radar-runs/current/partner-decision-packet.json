@@ -1,10 +1,14 @@
 {
-  "generated_at": "2026-05-31T22:15:56.538644+00:00",
-  "packet_type": "source_yield_strict_decision_packet",
+  "generated_at": "2026-05-31T22:37:25.743839+00:00",
+  "packet_type": "source_yield_two_track_decision_packet",
   "source_run_dir": "docs/radar-runs/current-deep-dive-validation-2026-05-31-r4",
   "summary": {
     "goal_reached": true,
     "owner_follow_up": 1,
+    "review_worthy_companies": 16,
+    "review_worthy_market_signals": 5,
+    "evidence_gap_queue": 12,
+    "launch_and_oss_watch": 9,
     "review_worthy_research": 16,
     "continue_research": 16,
     "unsafe_promotions": 0,
@@ -24,6 +28,317 @@
           "https://www.ycombinator.com/companies/voker"
         ],
         "why_system_call": "Only row clearing the strict weekly Assign Owner gate."
+      }
+    ],
+    "review_worthy_companies": [
+      {
+        "name": "Superunit",
+        "domain": "superunit.com",
+        "action": "research deeper",
+        "tier": "Watchlist",
+        "source_lane": "YC Directory",
+        "founders": [
+          "Peter Marler",
+          "Zach Yellin-Flaherty"
+        ],
+        "stage": "PRE_SEED",
+        "raised": 500000,
+        "headcount": 2,
+        "company_linkedin": "https://www.linkedin.com/company/superunit-ai",
+        "company_x": "https://x.com/SuperunitHQ",
+        "evidence_urls": [
+          "http://superunit.com",
+          "https://superunit.com"
+        ]
+      },
+      {
+        "name": "Goldbridge",
+        "domain": "goldbridgebanking.com",
+        "action": "research deeper",
+        "tier": "Watchlist",
+        "source_lane": "YC Directory",
+        "founders": [
+          "Alvin Salehi",
+          "Greg Rami"
+        ],
+        "stage": "PRE_SEED",
+        "raised": 500000,
+        "headcount": 5,
+        "company_linkedin": "https://www.linkedin.com/company/goldbridgebanking",
+        "company_x": "https://x.com/trygoldbridge",
+        "evidence_urls": [
+          "https://www.goldbridgebanking.com/"
+        ]
+      },
+      {
+        "name": "Simplex",
+        "domain": "simplex.sh",
+        "action": "research deeper",
+        "tier": "Needs More Evidence",
+        "source_lane": "YC Directory",
+        "founders": [
+          "Shreya Karpoor",
+          "Marco Nocito"
+        ],
+        "stage": "PRE_SEED",
+        "raised": 500000,
+        "headcount": 5,
+        "company_linkedin": "https://www.linkedin.com/company/usesimplex",
+        "company_x": "https://x.com/usesimplex",
+        "evidence_urls": [
+          "https://simplex.sh"
+        ]
+      },
+      {
+        "name": "Miru",
+        "domain": "mirurobotics.com",
+        "action": "research deeper",
+        "tier": "Needs More Evidence",
+        "source_lane": "YC Directory",
+        "founders": [
+          "Armel Talla",
+          "Vedant Nair",
+          "Benjamin Smidt"
+        ],
+        "stage": "PRE_SEED",
+        "raised": 500000,
+        "headcount": 4,
+        "company_linkedin": "https://www.linkedin.com/company/miruml",
+        "company_x": "https://x.com/mirurobotics",
+        "evidence_urls": [
+          "https://www.mirurobotics.com"
+        ]
+      },
+      {
+        "name": "Apten",
+        "domain": "apten.ai",
+        "action": "research deeper",
+        "tier": "Needs More Evidence",
+        "source_lane": "YC Directory",
+        "founders": [
+          "Daniel Ho",
+          "Roshan Kumaraswamy"
+        ],
+        "stage": "PRE_SEED",
+        "raised": 500000,
+        "headcount": 4,
+        "company_linkedin": "https://www.linkedin.com/company/apten",
+        "company_x": "https://twitter.com/Apten_AI",
+        "evidence_urls": [
+          "https://www.apten.ai/",
+          "https://www.ycombinator.com/companies/apten",
+          "https://www.ycombinator.com/companies/apten/jobs"
+        ]
+      },
+      {
+        "name": "Doublezero",
+        "domain": "doublezero.tech",
+        "action": "research deeper",
+        "tier": "Needs More Evidence",
+        "source_lane": "YC Directory",
+        "founders": [
+          "Scott Moss",
+          "Travis Ueki"
+        ],
+        "stage": "PRE_SEED",
+        "raised": 500000,
+        "headcount": 1,
+        "company_linkedin": "https://www.linkedin.com/company/doublezero-tech",
+        "company_x": "",
+        "evidence_urls": [
+          "https://doublezero.tech"
+        ]
+      },
+      {
+        "name": "Menza",
+        "domain": "menza.ai",
+        "action": "research deeper",
+        "tier": "Needs More Evidence",
+        "source_lane": "YC Directory",
+        "founders": [
+          "Qasim Munye",
+          "Mariam Ahmed"
+        ],
+        "stage": "PRE_SEED",
+        "raised": 500000,
+        "headcount": 6,
+        "company_linkedin": "https://www.linkedin.com/company/menzaai",
+        "company_x": "https://x.com/menzaai",
+        "evidence_urls": [
+          "https://menza.ai/"
+        ]
+      },
+      {
+        "name": "jo",
+        "domain": "askjo.ai",
+        "action": "research deeper",
+        "tier": "Needs More Evidence",
+        "source_lane": "YC Directory",
+        "founders": [
+          "Pradeep Elankumaran",
+          "Kevin Li"
+        ],
+        "stage": "PRE_SEED",
+        "raised": 500000,
+        "headcount": 2,
+        "company_linkedin": "https://www.linkedin.com/company/askjoai",
+        "company_x": "https://www.x.com/askjoai",
+        "evidence_urls": [
+          "https://askjo.ai"
+        ]
+      },
+      {
+        "name": "Poka Labs",
+        "domain": "pokalabs.com",
+        "action": "research deeper",
+        "tier": "Needs More Evidence",
+        "source_lane": "YC Directory",
+        "founders": [
+          "Andrew Bass",
+          "Malay Shah"
+        ],
+        "stage": "PRE_SEED",
+        "raised": 2500000,
+        "headcount": 5,
+        "company_linkedin": "https://www.linkedin.com/company/pokalabs/",
+        "company_x": "",
+        "evidence_urls": [
+          "https://www.pokalabs.com/"
+        ]
+      },
+      {
+        "name": "Spur",
+        "domain": "spurtest.com",
+        "action": "research deeper",
+        "tier": "Needs More Evidence",
+        "source_lane": "YC Directory",
+        "founders": [
+          "Sneha Sivakumar",
+          "Anushka Nijhawan"
+        ],
+        "stage": "SEED",
+        "raised": 5000000,
+        "headcount": 76,
+        "company_linkedin": "https://www.linkedin.com/company/spur-test/",
+        "company_x": "https://x.com/spurtest",
+        "evidence_urls": [
+          "https://www.spurtest.com/"
+        ]
+      },
+      {
+        "name": "Coval",
+        "domain": "coval.dev",
+        "action": "research deeper",
+        "tier": "Needs More Evidence",
+        "source_lane": "YC Directory",
+        "founders": [
+          "Brooke Hopkins"
+        ],
+        "stage": "SEED",
+        "raised": 3800000,
+        "headcount": 20,
+        "company_linkedin": "https://www.linkedin.com/company/covaldev",
+        "company_x": "https://x.com/covaldev",
+        "evidence_urls": [
+          "https://coval.dev"
+        ]
+      },
+      {
+        "name": "Ångström AI",
+        "domain": "angstrom-ai.com",
+        "action": "research deeper",
+        "tier": "Needs More Evidence",
+        "source_lane": "YC Directory",
+        "founders": [
+          "Javier Antoran",
+          "Jose Miguel Hernandez Lobato",
+          "Laurence Midgley"
+        ],
+        "stage": "PRE_SEED",
+        "raised": 500000,
+        "headcount": 4,
+        "company_linkedin": "https://www.linkedin.com/company/angstrom-ai/",
+        "company_x": "https://x.com/Angstrom_ai",
+        "evidence_urls": [
+          "https://www.angstrom-ai.com"
+        ]
+      },
+      {
+        "name": "Ultra",
+        "domain": "ultra.tech",
+        "action": "research deeper",
+        "tier": "Needs More Evidence",
+        "source_lane": "YC Directory",
+        "founders": [
+          "Jon Miller Schwartz",
+          "Max Friefeld",
+          "Chetan Parthiban"
+        ],
+        "stage": "SEED",
+        "raised": 4250000,
+        "headcount": 20,
+        "company_linkedin": "https://www.linkedin.com/company/ultraroboticsco",
+        "company_x": "https://x.com/Ultraroboticsco",
+        "evidence_urls": [
+          "https://ultra.tech"
+        ]
+      },
+      {
+        "name": "Roger",
+        "domain": "hireroger.com",
+        "action": "research deeper",
+        "tier": "Needs More Evidence",
+        "source_lane": "YC Directory",
+        "founders": [
+          "Rithwik Pattikonda"
+        ],
+        "stage": "PRE_SEED",
+        "raised": 500000,
+        "headcount": 19,
+        "company_linkedin": "https://www.linkedin.com/company/augmentbiz/",
+        "company_x": "",
+        "evidence_urls": [
+          "https://hireroger.com"
+        ]
+      },
+      {
+        "name": "Undermind",
+        "domain": "undermind.ai",
+        "action": "research deeper",
+        "tier": "Needs More Evidence",
+        "source_lane": "YC Directory",
+        "founders": [
+          "Joshua Ramette",
+          "Tom Hartke"
+        ],
+        "stage": "PRE_SEED",
+        "raised": 500000,
+        "headcount": 4,
+        "company_linkedin": "https://www.linkedin.com/company/undermind-ai",
+        "company_x": "https://twitter.com/UndermindAI",
+        "evidence_urls": [
+          "https://www.undermind.ai"
+        ]
+      },
+      {
+        "name": "Evolvere BioSciences",
+        "domain": "evolverebiosciences.com",
+        "action": "research deeper",
+        "tier": "Needs More Evidence",
+        "source_lane": "YC Directory",
+        "founders": [
+          "Adam Winnifrith",
+          "Piotr Jedryszek",
+          "Weronika Slesak"
+        ],
+        "stage": "PRE_SEED",
+        "raised": 500000,
+        "headcount": 6,
+        "company_linkedin": "",
+        "company_x": "",
+        "evidence_urls": [
+          "https://www.evolverebiosciences.com/"
+        ]
       }
     ],
     "review_worthy_research": [
@@ -337,6 +652,461 @@
         ]
       }
     ],
+    "review_worthy_market_signals": [
+      {
+        "name": "pullfrog/pullfrog",
+        "project_url": "https://github.com/pullfrog/pullfrog",
+        "domain": "pullfrog.com",
+        "source_lane": "OSS",
+        "market_sector": "Devtools",
+        "theme": "Devtools workflow automation",
+        "market_signal_score": 100,
+        "score_basis": [
+          "new_this_week",
+          "very_high_star_velocity",
+          "large_existing_interest",
+          "specific_market_theme",
+          "market_sector_classified",
+          "maintainer_outreach_worthy",
+          "evidence_confidence_medium",
+          "project_or_company_domain_present"
+        ],
+        "stars": 694,
+        "stars_30d": 194,
+        "repo_age_days": 299,
+        "action": "contact maintainer",
+        "why_it_matters": "Open-source model-agnostic BYOK GitHub bot that runs in GitHub Actions +194 stars in 30d.",
+        "why_not_company_yet": "OSS/project-only row",
+        "suggested_company_search": "Devtools workflow automation startups founder pricing customers funding",
+        "evidence_urls": [
+          "https://github.com/pullfrog/pullfrog",
+          "https://pullfrog.com"
+        ],
+        "promotion_path": "Review-Worthy Market Signal -> company search theme -> Review-Worthy Company when identity/founder/stage evidence clears."
+      },
+      {
+        "name": "affaan-m/agentshield",
+        "project_url": "https://github.com/affaan-m/agentshield",
+        "domain": "",
+        "source_lane": "OSS",
+        "market_sector": "Cybersecurity",
+        "theme": "AI agent security",
+        "market_signal_score": 100,
+        "score_basis": [
+          "new_this_week",
+          "very_high_star_velocity",
+          "large_existing_interest",
+          "specific_market_theme",
+          "market_sector_classified",
+          "maintainer_outreach_worthy",
+          "evidence_confidence_medium"
+        ],
+        "stars": 749,
+        "stars_30d": 149,
+        "repo_age_days": 109,
+        "action": "contact maintainer",
+        "why_it_matters": "AI agent security scanner. Detect vulnerabilities in agent configurations, MCP servers, and tool permissions. Available as CLI, GitHub Action, ECC plugin, and GitHub App integration. 🛡️ +149 stars in 30d.",
+        "why_not_company_yet": "OSS/project-only row; no verified domain",
+        "suggested_company_search": "AI agent security startups founder pricing customers funding",
+        "evidence_urls": [
+          "https://github.com/affaan-m/agentshield",
+          "https://cerebralvalley.ai/e/claude-code-hackathon"
+        ],
+        "promotion_path": "Review-Worthy Market Signal -> company search theme -> Review-Worthy Company when identity/founder/stage evidence clears."
+      },
+      {
+        "name": "redwoodjs/agent-ci",
+        "project_url": "https://github.com/redwoodjs/agent-ci",
+        "domain": "agent-ci.dev",
+        "source_lane": "OSS",
+        "market_sector": "Devtools",
+        "theme": "Devtools workflow automation",
+        "market_signal_score": 100,
+        "score_basis": [
+          "new_this_week",
+          "high_star_velocity",
+          "large_existing_interest",
+          "specific_market_theme",
+          "market_sector_classified",
+          "research_actionable",
+          "evidence_confidence_medium",
+          "project_or_company_domain_present"
+        ],
+        "stars": 697,
+        "stars_30d": 78,
+        "repo_age_days": 111,
+        "action": "watch",
+        "why_it_matters": "Agent-CI is local GitHub Actions for your agents. +78 stars in 30d.",
+        "why_not_company_yet": "OSS/project-only row",
+        "suggested_company_search": "Devtools workflow automation startups founder pricing customers funding",
+        "evidence_urls": [
+          "https://github.com/redwoodjs/agent-ci",
+          "https://agent-ci.dev"
+        ],
+        "promotion_path": "Review-Worthy Market Signal -> company search theme -> Review-Worthy Company when identity/founder/stage evidence clears."
+      },
+      {
+        "name": "azat-io/actions-up",
+        "project_url": "https://github.com/azat-io/actions-up",
+        "domain": "",
+        "source_lane": "OSS",
+        "market_sector": "Devtools",
+        "theme": "Devtools workflow automation",
+        "market_signal_score": 100,
+        "score_basis": [
+          "new_this_week",
+          "high_star_velocity",
+          "large_existing_interest",
+          "specific_market_theme",
+          "market_sector_classified",
+          "maintainer_outreach_worthy",
+          "evidence_confidence_medium"
+        ],
+        "stars": 577,
+        "stars_30d": 59,
+        "repo_age_days": 278,
+        "action": "contact maintainer",
+        "why_it_matters": "🌊 Interactive CLI tool to update GitHub Actions to latest versions with SHA pinning +59 stars in 30d.",
+        "why_not_company_yet": "OSS/project-only row; no verified domain",
+        "suggested_company_search": "Devtools workflow automation startups founder pricing customers funding",
+        "evidence_urls": [
+          "https://github.com/azat-io/actions-up"
+        ],
+        "promotion_path": "Review-Worthy Market Signal -> company search theme -> Review-Worthy Company when identity/founder/stage evidence clears."
+      },
+      {
+        "name": "peakoss/anti-slop",
+        "project_url": "https://github.com/peakoss/anti-slop",
+        "domain": "",
+        "source_lane": "OSS",
+        "market_sector": "Devtools",
+        "theme": "Devtools workflow automation",
+        "market_signal_score": 100,
+        "score_basis": [
+          "new_this_week",
+          "high_star_velocity",
+          "large_existing_interest",
+          "specific_market_theme",
+          "market_sector_classified",
+          "research_actionable",
+          "evidence_confidence_medium"
+        ],
+        "stars": 679,
+        "stars_30d": 59,
+        "repo_age_days": 111,
+        "action": "watch",
+        "why_it_matters": "A GitHub action that detects and automatically closes low-quality and AI slop PRs. +59 stars in 30d.",
+        "why_not_company_yet": "OSS/project-only row; no verified domain",
+        "suggested_company_search": "Devtools workflow automation startups founder pricing customers funding",
+        "evidence_urls": [
+          "https://github.com/peakoss/anti-slop"
+        ],
+        "promotion_path": "Review-Worthy Market Signal -> company search theme -> Review-Worthy Company when identity/founder/stage evidence clears."
+      }
+    ],
+    "evidence_gap_queue": [
+      {
+        "name": "affaan-m/agentshield",
+        "domain": "",
+        "project_url": "https://github.com/affaan-m/agentshield",
+        "source_lane": "OSS",
+        "market_sector": "Cybersecurity",
+        "theme": "AI agent security",
+        "action": "contact maintainer",
+        "tier": "Watchlist",
+        "gap_priority_score": 174,
+        "missing_evidence": [
+          "official_domain_missing",
+          "stage_funding_or_headcount_missing",
+          "company_social_or_linkedin_missing",
+          "commercial_or_customer_signal_missing",
+          "OSS/project-only row",
+          "no verified domain"
+        ],
+        "next_step": "Resolve official domain from launch text, project docs, founder profile, or web search.",
+        "promotion_target": "Review-Worthy Company or supporting Market Signal",
+        "evidence_urls": [
+          "https://github.com/affaan-m/agentshield",
+          "https://cerebralvalley.ai/e/claude-code-hackathon"
+        ]
+      },
+      {
+        "name": "pullfrog/pullfrog",
+        "domain": "pullfrog.com",
+        "project_url": "https://github.com/pullfrog/pullfrog",
+        "source_lane": "OSS",
+        "market_sector": "Devtools",
+        "theme": "Devtools workflow automation",
+        "action": "contact maintainer",
+        "tier": "Watchlist",
+        "gap_priority_score": 170,
+        "missing_evidence": [
+          "stage_funding_or_headcount_missing",
+          "company_social_or_linkedin_missing",
+          "commercial_or_customer_signal_missing",
+          "OSS/project-only row"
+        ],
+        "next_step": "Find stage, funding, headcount, careers, or company profile evidence.",
+        "promotion_target": "Review-Worthy Company or supporting Market Signal",
+        "evidence_urls": [
+          "https://github.com/pullfrog/pullfrog",
+          "https://pullfrog.com"
+        ]
+      },
+      {
+        "name": "azat-io/actions-up",
+        "domain": "",
+        "project_url": "https://github.com/azat-io/actions-up",
+        "source_lane": "OSS",
+        "market_sector": "Devtools",
+        "theme": "Devtools workflow automation",
+        "action": "contact maintainer",
+        "tier": "Watchlist",
+        "gap_priority_score": 141,
+        "missing_evidence": [
+          "official_domain_missing",
+          "stage_funding_or_headcount_missing",
+          "company_social_or_linkedin_missing",
+          "commercial_or_customer_signal_missing",
+          "OSS/project-only row",
+          "no verified domain"
+        ],
+        "next_step": "Resolve official domain from launch text, project docs, founder profile, or web search.",
+        "promotion_target": "Review-Worthy Company or supporting Market Signal",
+        "evidence_urls": [
+          "https://github.com/azat-io/actions-up"
+        ]
+      },
+      {
+        "name": "boostsecurityio/smokedmeat",
+        "domain": "",
+        "project_url": "https://github.com/boostsecurityio/smokedmeat",
+        "source_lane": "OSS",
+        "market_sector": "Cybersecurity",
+        "theme": "AI agent security",
+        "action": "watch",
+        "tier": "Watchlist",
+        "gap_priority_score": 140,
+        "missing_evidence": [
+          "official_domain_missing",
+          "stage_funding_or_headcount_missing",
+          "company_social_or_linkedin_missing",
+          "commercial_or_customer_signal_missing",
+          "OSS/project-only row",
+          "no verified domain"
+        ],
+        "next_step": "Resolve official domain from launch text, project docs, founder profile, or web search.",
+        "promotion_target": "Review-Worthy Company or supporting Market Signal",
+        "evidence_urls": [
+          "https://github.com/boostsecurityio/smokedmeat"
+        ]
+      },
+      {
+        "name": "redwoodjs/agent-ci",
+        "domain": "agent-ci.dev",
+        "project_url": "https://github.com/redwoodjs/agent-ci",
+        "source_lane": "OSS",
+        "market_sector": "Devtools",
+        "theme": "Devtools workflow automation",
+        "action": "watch",
+        "tier": "Watchlist",
+        "gap_priority_score": 135,
+        "missing_evidence": [
+          "stage_funding_or_headcount_missing",
+          "company_social_or_linkedin_missing",
+          "commercial_or_customer_signal_missing",
+          "OSS/project-only row"
+        ],
+        "next_step": "Find stage, funding, headcount, careers, or company profile evidence.",
+        "promotion_target": "Review-Worthy Company or supporting Market Signal",
+        "evidence_urls": [
+          "https://github.com/redwoodjs/agent-ci",
+          "https://agent-ci.dev"
+        ]
+      },
+      {
+        "name": "peakoss/anti-slop",
+        "domain": "",
+        "project_url": "https://github.com/peakoss/anti-slop",
+        "source_lane": "OSS",
+        "market_sector": "Devtools",
+        "theme": "Devtools workflow automation",
+        "action": "watch",
+        "tier": "Watchlist",
+        "gap_priority_score": 126,
+        "missing_evidence": [
+          "official_domain_missing",
+          "stage_funding_or_headcount_missing",
+          "company_social_or_linkedin_missing",
+          "commercial_or_customer_signal_missing",
+          "OSS/project-only row",
+          "no verified domain"
+        ],
+        "next_step": "Resolve official domain from launch text, project docs, founder profile, or web search.",
+        "promotion_target": "Review-Worthy Company or supporting Market Signal",
+        "evidence_urls": [
+          "https://github.com/peakoss/anti-slop"
+        ]
+      },
+      {
+        "name": "FinBot",
+        "domain": "",
+        "project_url": "https://x.com/SCMagazine/status/2060816268152729946",
+        "source_lane": "X",
+        "market_sector": "Cybersecurity",
+        "theme": "AI agent security",
+        "action": "research deeper",
+        "tier": "Needs More Evidence",
+        "gap_priority_score": 115,
+        "missing_evidence": [
+          "official_domain_missing",
+          "founder_or_maintainer_missing",
+          "stage_funding_or_headcount_missing",
+          "commercial_or_customer_signal_missing",
+          "no verified Attio-safe company identity",
+          "no founder/team evidence",
+          "no stage/funding evidence",
+          "Attio status unknown",
+          "no verified domain",
+          "no founder or maintainer identity"
+        ],
+        "next_step": "Resolve official domain from launch text, project docs, founder profile, or web search.",
+        "promotion_target": "Review-Worthy Company",
+        "evidence_urls": [
+          "https://x.com/SCMagazine/status/2060816268152729946"
+        ]
+      },
+      {
+        "name": "Open Source Alternative Finder",
+        "domain": "opensourcealternatives.to",
+        "project_url": "https://www.producthunt.com/products/open-source-alternative-finder?utm_campaign=producthunt-api&utm_medium=api-v2&utm_source=Application%3A+VC+Signals+%28ID%3A+286430%29",
+        "source_lane": "Product Hunt",
+        "market_sector": "Unclassified",
+        "theme": "Vertical AI operations",
+        "action": "research deeper",
+        "tier": "Needs More Evidence",
+        "gap_priority_score": 115,
+        "missing_evidence": [
+          "founder_or_maintainer_missing",
+          "stage_funding_or_headcount_missing",
+          "company_social_or_linkedin_missing",
+          "commercial_or_customer_signal_missing",
+          "no verified Attio-safe company identity",
+          "no founder/team evidence",
+          "no stage/funding evidence",
+          "no commercial/funding evidence",
+          "no founder or maintainer identity"
+        ],
+        "next_step": "Find founder or maintainer identity from website, GitHub org, LinkedIn, HN, or X.",
+        "promotion_target": "Review-Worthy Company",
+        "evidence_urls": [
+          "https://www.producthunt.com/products/open-source-alternative-finder?utm_campaign=producthunt-api&utm_medium=api-v2&utm_source=Application%3A+VC+Signals+%28ID%3A+286430%29",
+          "https://www.producthunt.com/r/UUJW2SY55KMO42?utm_campaign=producthunt-api&utm_medium=api-v2&utm_source=Application%3A+VC+Signals+%28ID%3A+286430%29",
+          "https://www.opensourcealternatives.to/"
+        ]
+      },
+      {
+        "name": "leiting-eric/DailyBrief",
+        "domain": "",
+        "project_url": "https://github.com/leiting-eric/DailyBrief",
+        "source_lane": "OSS",
+        "market_sector": "Devtools",
+        "theme": "Devtools workflow automation",
+        "action": "watch",
+        "tier": "Watchlist",
+        "gap_priority_score": 111,
+        "missing_evidence": [
+          "official_domain_missing",
+          "stage_funding_or_headcount_missing",
+          "company_social_or_linkedin_missing",
+          "commercial_or_customer_signal_missing",
+          "OSS/project-only row",
+          "no verified domain"
+        ],
+        "next_step": "Resolve official domain from launch text, project docs, founder profile, or web search.",
+        "promotion_target": "Review-Worthy Company or supporting Market Signal",
+        "evidence_urls": [
+          "https://github.com/leiting-eric/DailyBrief",
+          "https://leiting-eric.github.io/DailyBrief/"
+        ]
+      },
+      {
+        "name": "spaceraccoon/vulnerability-spoiler-alert-action",
+        "domain": "",
+        "project_url": "https://github.com/spaceraccoon/vulnerability-spoiler-alert-action",
+        "source_lane": "OSS",
+        "market_sector": "Cybersecurity",
+        "theme": "AI agent security",
+        "action": "map ecosystem",
+        "tier": "Watchlist",
+        "gap_priority_score": 111,
+        "missing_evidence": [
+          "official_domain_missing",
+          "stage_funding_or_headcount_missing",
+          "company_social_or_linkedin_missing",
+          "commercial_or_customer_signal_missing",
+          "OSS/project-only row",
+          "no verified domain"
+        ],
+        "next_step": "Resolve official domain from launch text, project docs, founder profile, or web search.",
+        "promotion_target": "Review-Worthy Company or supporting Market Signal",
+        "evidence_urls": [
+          "https://github.com/spaceraccoon/vulnerability-spoiler-alert-action"
+        ]
+      },
+      {
+        "name": "Libra AI",
+        "domain": "",
+        "project_url": "https://x.com/alifcoder/status/2054946182414418288",
+        "source_lane": "X",
+        "market_sector": "AI Infra",
+        "theme": "AI data infrastructure",
+        "action": "research deeper",
+        "tier": "Needs More Evidence",
+        "gap_priority_score": 110,
+        "missing_evidence": [
+          "official_domain_missing",
+          "founder_or_maintainer_missing",
+          "stage_funding_or_headcount_missing",
+          "commercial_or_customer_signal_missing",
+          "no verified Attio-safe company identity",
+          "no founder/team evidence",
+          "no stage/funding evidence",
+          "Attio status unknown",
+          "no verified domain",
+          "no founder or maintainer identity"
+        ],
+        "next_step": "Resolve official domain from launch text, project docs, founder profile, or web search.",
+        "promotion_target": "Review-Worthy Company",
+        "evidence_urls": [
+          "https://x.com/alifcoder/status/2054946182414418288"
+        ]
+      },
+      {
+        "name": "SKYLENAGE-AI/SWE-CI",
+        "domain": "",
+        "project_url": "https://github.com/SKYLENAGE-AI/SWE-CI",
+        "source_lane": "OSS",
+        "market_sector": "AI Infra",
+        "theme": "Agent reliability and evals",
+        "action": "map ecosystem",
+        "tier": "Watchlist",
+        "gap_priority_score": 106,
+        "missing_evidence": [
+          "official_domain_missing",
+          "stage_funding_or_headcount_missing",
+          "company_social_or_linkedin_missing",
+          "commercial_or_customer_signal_missing",
+          "OSS/project-only row",
+          "no verified domain"
+        ],
+        "next_step": "Resolve official domain from launch text, project docs, founder profile, or web search.",
+        "promotion_target": "Review-Worthy Company or supporting Market Signal",
+        "evidence_urls": [
+          "https://github.com/SKYLENAGE-AI/SWE-CI"
+        ]
+      }
+    ],
     "continue_research": [
       {
         "name": "Superunit",
@@ -645,6 +1415,130 @@
         "company_x": "",
         "evidence_urls": [
           "https://www.evolverebiosciences.com/"
+        ]
+      }
+    ],
+    "launch_and_oss_watch": [
+      {
+        "name": "inview-club/devops-cases",
+        "source_lane": "OSS",
+        "domain": "",
+        "project_url": "https://github.com/inview-club/devops-cases",
+        "theme": "Kubernetes delivery automation",
+        "action": "map ecosystem",
+        "why_keep": "Practical DevOps cases for learning automation, infrastructure management, and continuous delivery +3 stars in 30d.",
+        "why_not_promoted": "Needs verification across stronger company/founder/customer evidence.",
+        "evidence_urls": [
+          "https://github.com/inview-club/devops-cases"
+        ]
+      },
+      {
+        "name": "mizchi/actrun",
+        "source_lane": "OSS",
+        "domain": "",
+        "project_url": "https://github.com/mizchi/actrun",
+        "theme": "Devtools workflow automation",
+        "action": "map ecosystem",
+        "why_keep": "GitHub Actions compatible local runner +14 stars in 30d.",
+        "why_not_promoted": "Needs verification across stronger company/founder/customer evidence.",
+        "evidence_urls": [
+          "https://github.com/mizchi/actrun"
+        ]
+      },
+      {
+        "name": "ready-to-release/eac",
+        "source_lane": "OSS",
+        "domain": "",
+        "project_url": "https://github.com/ready-to-release/eac",
+        "theme": "Kubernetes delivery automation",
+        "action": "map ecosystem",
+        "why_keep": " Audit-ready Continuous Delivery for regulated industries. +1 stars in 30d.",
+        "why_not_promoted": "Needs verification across stronger company/founder/customer evidence.",
+        "evidence_urls": [
+          "https://github.com/ready-to-release/eac",
+          "https://ready-to-release.github.io/eac/"
+        ]
+      },
+      {
+        "name": "kuberik/kuberik",
+        "source_lane": "OSS",
+        "domain": "kuberik.com",
+        "project_url": "https://github.com/kuberik/kuberik",
+        "theme": "Kubernetes delivery automation",
+        "action": "map ecosystem",
+        "why_keep": "Kubernetes-native continuous delivery. Safe, hands-off deployments. +23 stars in 30d.",
+        "why_not_promoted": "Needs verification across stronger company/founder/customer evidence.",
+        "evidence_urls": [
+          "https://github.com/kuberik/kuberik",
+          "https://kuberik.com"
+        ]
+      },
+      {
+        "name": "SawyerHood/gitclaw",
+        "source_lane": "OSS",
+        "domain": "",
+        "project_url": "https://github.com/SawyerHood/gitclaw",
+        "theme": "Devtools workflow automation",
+        "action": "watch",
+        "why_keep": "OpenClaw but it runs entirely on github actions +3 stars in 30d.",
+        "why_not_promoted": "Needs verification across stronger company/founder/customer evidence.",
+        "evidence_urls": [
+          "https://github.com/SawyerHood/gitclaw"
+        ]
+      },
+      {
+        "name": "Harness Starter Kit",
+        "source_lane": "Product Hunt",
+        "domain": "",
+        "project_url": "https://www.producthunt.com/products/harness-starter-kit?utm_campaign=producthunt-api&utm_medium=api-v2&utm_source=Application%3A+VC+Signals+%28ID%3A+286430%29",
+        "theme": "Emerging technical signal",
+        "action": "research deeper",
+        "why_keep": "Harness Starter Kit: Repo guardrails for reliable AI coding agents",
+        "why_not_promoted": "Product Hunt API launch row; needs official domain, founder/team, stage, and customer evidence before owner routing.",
+        "evidence_urls": [
+          "https://www.producthunt.com/products/harness-starter-kit?utm_campaign=producthunt-api&utm_medium=api-v2&utm_source=Application%3A+VC+Signals+%28ID%3A+286430%29",
+          "https://www.producthunt.com/r/G23EUZKIVDMV2U?utm_campaign=producthunt-api&utm_medium=api-v2&utm_source=Application%3A+VC+Signals+%28ID%3A+286430%29"
+        ]
+      },
+      {
+        "name": "AnyFrame",
+        "source_lane": "Product Hunt",
+        "domain": "",
+        "project_url": "https://www.producthunt.com/products/anyframe-2?utm_campaign=producthunt-api&utm_medium=api-v2&utm_source=Application%3A+VC+Signals+%28ID%3A+286430%29",
+        "theme": "Emerging technical signal",
+        "action": "research deeper",
+        "why_keep": "AnyFrame: Platform for every agent your team builds",
+        "why_not_promoted": "Product Hunt API launch row; needs official domain, founder/team, stage, and customer evidence before owner routing.",
+        "evidence_urls": [
+          "https://www.producthunt.com/products/anyframe-2?utm_campaign=producthunt-api&utm_medium=api-v2&utm_source=Application%3A+VC+Signals+%28ID%3A+286430%29",
+          "https://www.producthunt.com/r/5TIN5TV3EG6TT7?utm_campaign=producthunt-api&utm_medium=api-v2&utm_source=Application%3A+VC+Signals+%28ID%3A+286430%29"
+        ]
+      },
+      {
+        "name": "Launci",
+        "source_lane": "Product Hunt",
+        "domain": "",
+        "project_url": "https://www.producthunt.com/products/launci?utm_campaign=producthunt-api&utm_medium=api-v2&utm_source=Application%3A+VC+Signals+%28ID%3A+286430%29",
+        "theme": "Emerging technical signal",
+        "action": "research deeper",
+        "why_keep": "Launci: the go-to-market agent",
+        "why_not_promoted": "Product Hunt API launch row; needs official domain, founder/team, stage, and customer evidence before owner routing.",
+        "evidence_urls": [
+          "https://www.producthunt.com/products/launci?utm_campaign=producthunt-api&utm_medium=api-v2&utm_source=Application%3A+VC+Signals+%28ID%3A+286430%29",
+          "https://www.producthunt.com/r/D5IR75ZOSMCL2H?utm_campaign=producthunt-api&utm_medium=api-v2&utm_source=Application%3A+VC+Signals+%28ID%3A+286430%29"
+        ]
+      },
+      {
+        "name": "Ossbase",
+        "source_lane": "X",
+        "domain": "",
+        "project_url": "https://x.com/wtAngat/status/2060627169781469354",
+        "theme": "Emerging technical signal",
+        "action": "research deeper",
+        "why_keep": "I launched Ossbase yesterday. Last night, @NikolDimit already added the platform’s first project: Voiden API Client 🚀 Ossbase’s goal: make o: I launched Ossbase yesterday. Last night, @NikolDimit already added the platform’s first project: Voiden API Client 🚀 Ossbase’s goal: make open source alternatives to proprietary software easier to discover.",
+        "why_not_promoted": "X launch/social-confidence row; needs official identity, durable founder/team, stage/funding, customer, and Marathon context before owner routing.",
+        "evidence_urls": [
+          "https://x.com/wtAngat/status/2060627169781469354"
         ]
       }
     ],
