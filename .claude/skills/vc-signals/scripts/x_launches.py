@@ -251,7 +251,11 @@ def resolve_x_launch_domain_via_web(
 
 def normalize_x_launch_item(item: dict, query: dict) -> dict:
     website = item.get("website") or item.get("homepage") or item.get("outbound_url") or ""
-    domain = _domain_from_url(website) or str(item.get("domain") or "").strip().lower().removeprefix("www.")
+    website_domain = _domain_from_url(website)
+    raw_domain = website_domain or str(item.get("domain") or "").strip().lower().removeprefix("www.")
+    domain = raw_domain if _domain_allowed(raw_domain) else ""
+    if website and website_domain and not _domain_allowed(website_domain):
+        website = ""
     company_name = item.get("company_name") or item.get("name") or _company_name_from_title(item.get("title", ""))
     missing = []
     if not company_name:
@@ -332,6 +336,10 @@ def run_x_launches(
             warnings.append(f"{source}: {error}")
         for item in payload.get("items", []) or []:
             launch = normalize_x_launch_item(item, query)
+            if not launch["domain"] and not _resolvable_company_name(launch["company_name"]):
+                if launch["company_name"]:
+                    warnings.append(f"{launch['company_name']}: X launch skipped because company name is too generic")
+                continue
             if not launch["domain"] and launch["company_name"] and domain_resolver:
                 resolved = domain_resolver(launch, query_runner=query_runner, timeout_seconds=timeout_seconds)
                 resolved_url = str(resolved.get("url") or "").strip() if isinstance(resolved, dict) else ""

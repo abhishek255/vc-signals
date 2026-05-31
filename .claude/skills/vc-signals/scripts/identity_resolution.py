@@ -24,9 +24,13 @@ BLOCKED_OUTBOUND_DOMAINS = {
     "github.com",
     "news.ycombinator.com",
     "ycombinator.com",
+    "producthunt.com",
     "x.com",
     "twitter.com",
     "linkedin.com",
+    "instagram.com",
+    "threads.net",
+    "tiktok.com",
     "t.me",
     "telegram.me",
     "telegram.org",
@@ -70,7 +74,7 @@ def _normalize_domain(value: str) -> str:
 def _domain_from_url(url: str) -> str:
     parsed = urlparse(url)
     domain = _normalize_domain(parsed.netloc)
-    if domain in {"github.com", "news.ycombinator.com", "www.github.com"}:
+    if not domain or _is_blocked_outbound_domain(domain):
         return ""
     return domain
 
@@ -114,6 +118,8 @@ def _marketplace_project_urls(candidate: Candidate) -> list[str]:
 def _candidate_domain_authority(candidate: Candidate, candidate_domain: str) -> tuple[bool, list[str]]:
     if not candidate_domain:
         return False, []
+    if _is_blocked_outbound_domain(candidate_domain):
+        return False, ["source_domain_not_company_proof"]
     if _marketplace_project_urls(candidate):
         return False, ["marketplace_project_page_not_company_proof"]
     return True, []
@@ -368,7 +374,7 @@ def resolve_from_existing_urls(candidate: Candidate, fetch_cache: dict | None = 
         if direct_domain and is_marketplace_project_page(url=url, domain=direct_domain, title=candidate.why_on_radar):
             hints["verified_domain_basis"].append("marketplace_project_page_not_company_proof")
             hints["resolved_from"].append("source_url")
-        elif direct_domain and "news.ycombinator.com" not in url:
+        elif direct_domain:
             hints["verified_domain"] = hints["verified_domain"] or direct_domain
             hints["domain_confidence"] = "High"
             hints["verified_domain_basis"].append("company_url_already_present")
@@ -473,7 +479,7 @@ def resolve_from_evidence_metadata(candidate: Candidate) -> dict:
                 hints["resolved_from"].append("metadata")
 
         direct_domain = _normalize_domain(item.get("domain") or "")
-        if direct_domain and source not in {"github"} and not hints["verified_domain"]:
+        if direct_domain and source not in {"github"} and not _is_blocked_outbound_domain(direct_domain) and not hints["verified_domain"]:
             hints["verified_domain"] = direct_domain
             hints["domain_confidence"] = "High" if source in {"hackernews", "hn"} and outbound_url else "Medium"
             basis = "hn_outbound_url_metadata" if source in {"hackernews", "hn"} and outbound_url else "source_domain_metadata"

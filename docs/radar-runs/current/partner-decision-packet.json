@@ -1,12 +1,12 @@
 {
-  "generated_at": "2026-05-31T19:42:47.735637+00:00",
+  "generated_at": "2026-05-31T22:15:56.538644+00:00",
   "packet_type": "source_yield_strict_decision_packet",
-  "source_run_dir": "docs/radar-runs/current-combined-source-yield-validation-2026-05-31",
+  "source_run_dir": "docs/radar-runs/current-deep-dive-validation-2026-05-31-r4",
   "summary": {
     "goal_reached": true,
     "owner_follow_up": 1,
-    "review_worthy_research": 9,
-    "continue_research": 9,
+    "review_worthy_research": 16,
+    "continue_research": 16,
     "unsafe_promotions": 0,
     "assign_owner_bar_preserved": true
   },
@@ -28,6 +28,26 @@
     ],
     "review_worthy_research": [
       {
+        "name": "Superunit",
+        "domain": "superunit.com",
+        "action": "research deeper",
+        "tier": "Watchlist",
+        "source_lane": "YC Directory",
+        "founders": [
+          "Peter Marler",
+          "Zach Yellin-Flaherty"
+        ],
+        "stage": "PRE_SEED",
+        "raised": 500000,
+        "headcount": 2,
+        "company_linkedin": "https://www.linkedin.com/company/superunit-ai",
+        "company_x": "https://x.com/SuperunitHQ",
+        "evidence_urls": [
+          "http://superunit.com",
+          "https://superunit.com"
+        ]
+      },
+      {
         "name": "Goldbridge",
         "domain": "goldbridgebanking.com",
         "action": "research deeper",
@@ -86,6 +106,46 @@
         ]
       },
       {
+        "name": "Apten",
+        "domain": "apten.ai",
+        "action": "research deeper",
+        "tier": "Needs More Evidence",
+        "source_lane": "YC Directory",
+        "founders": [
+          "Daniel Ho",
+          "Roshan Kumaraswamy"
+        ],
+        "stage": "PRE_SEED",
+        "raised": 500000,
+        "headcount": 4,
+        "company_linkedin": "https://www.linkedin.com/company/apten",
+        "company_x": "https://twitter.com/Apten_AI",
+        "evidence_urls": [
+          "https://www.apten.ai/",
+          "https://www.ycombinator.com/companies/apten",
+          "https://www.ycombinator.com/companies/apten/jobs"
+        ]
+      },
+      {
+        "name": "Doublezero",
+        "domain": "doublezero.tech",
+        "action": "research deeper",
+        "tier": "Needs More Evidence",
+        "source_lane": "YC Directory",
+        "founders": [
+          "Scott Moss",
+          "Travis Ueki"
+        ],
+        "stage": "PRE_SEED",
+        "raised": 500000,
+        "headcount": 1,
+        "company_linkedin": "https://www.linkedin.com/company/doublezero-tech",
+        "company_x": "",
+        "evidence_urls": [
+          "https://doublezero.tech"
+        ]
+      },
+      {
         "name": "Menza",
         "domain": "menza.ai",
         "action": "research deeper",
@@ -101,9 +161,7 @@
         "company_linkedin": "https://www.linkedin.com/company/menzaai",
         "company_x": "https://x.com/menzaai",
         "evidence_urls": [
-          "https://menza.ai/",
-          "https://menza.ai/blog",
-          "https://www.ycombinator.com/companies/menza"
+          "https://menza.ai/"
         ]
       },
       {
@@ -199,11 +257,108 @@
         "company_x": "https://x.com/Angstrom_ai",
         "evidence_urls": [
           "https://www.angstrom-ai.com"
+        ]
+      },
+      {
+        "name": "Ultra",
+        "domain": "ultra.tech",
+        "action": "research deeper",
+        "tier": "Needs More Evidence",
+        "source_lane": "YC Directory",
+        "founders": [
+          "Jon Miller Schwartz",
+          "Max Friefeld",
+          "Chetan Parthiban"
+        ],
+        "stage": "SEED",
+        "raised": 4250000,
+        "headcount": 20,
+        "company_linkedin": "https://www.linkedin.com/company/ultraroboticsco",
+        "company_x": "https://x.com/Ultraroboticsco",
+        "evidence_urls": [
+          "https://ultra.tech"
+        ]
+      },
+      {
+        "name": "Roger",
+        "domain": "hireroger.com",
+        "action": "research deeper",
+        "tier": "Needs More Evidence",
+        "source_lane": "YC Directory",
+        "founders": [
+          "Rithwik Pattikonda"
+        ],
+        "stage": "PRE_SEED",
+        "raised": 500000,
+        "headcount": 19,
+        "company_linkedin": "https://www.linkedin.com/company/augmentbiz/",
+        "company_x": "",
+        "evidence_urls": [
+          "https://hireroger.com"
+        ]
+      },
+      {
+        "name": "Undermind",
+        "domain": "undermind.ai",
+        "action": "research deeper",
+        "tier": "Needs More Evidence",
+        "source_lane": "YC Directory",
+        "founders": [
+          "Joshua Ramette",
+          "Tom Hartke"
+        ],
+        "stage": "PRE_SEED",
+        "raised": 500000,
+        "headcount": 4,
+        "company_linkedin": "https://www.linkedin.com/company/undermind-ai",
+        "company_x": "https://twitter.com/UndermindAI",
+        "evidence_urls": [
+          "https://www.undermind.ai"
+        ]
+      },
+      {
+        "name": "Evolvere BioSciences",
+        "domain": "evolverebiosciences.com",
+        "action": "research deeper",
+        "tier": "Needs More Evidence",
+        "source_lane": "YC Directory",
+        "founders": [
+          "Adam Winnifrith",
+          "Piotr Jedryszek",
+          "Weronika Slesak"
+        ],
+        "stage": "PRE_SEED",
+        "raised": 500000,
+        "headcount": 6,
+        "company_linkedin": "",
+        "company_x": "",
+        "evidence_urls": [
+          "https://www.evolverebiosciences.com/"
         ]
       }
     ],
     "continue_research": [
       {
+        "name": "Superunit",
+        "domain": "superunit.com",
+        "action": "research deeper",
+        "tier": "Watchlist",
+        "source_lane": "YC Directory",
+        "founders": [
+          "Peter Marler",
+          "Zach Yellin-Flaherty"
+        ],
+        "stage": "PRE_SEED",
+        "raised": 500000,
+        "headcount": 2,
+        "company_linkedin": "https://www.linkedin.com/company/superunit-ai",
+        "company_x": "https://x.com/SuperunitHQ",
+        "evidence_urls": [
+          "http://superunit.com",
+          "https://superunit.com"
+        ]
+      },
+      {
         "name": "Goldbridge",
         "domain": "goldbridgebanking.com",
         "action": "research deeper",
@@ -262,6 +417,46 @@
         ]
       },
       {
+        "name": "Apten",
+        "domain": "apten.ai",
+        "action": "research deeper",
+        "tier": "Needs More Evidence",
+        "source_lane": "YC Directory",
+        "founders": [
+          "Daniel Ho",
+          "Roshan Kumaraswamy"
+        ],
+        "stage": "PRE_SEED",
+        "raised": 500000,
+        "headcount": 4,
+        "company_linkedin": "https://www.linkedin.com/company/apten",
+        "company_x": "https://twitter.com/Apten_AI",
+        "evidence_urls": [
+          "https://www.apten.ai/",
+          "https://www.ycombinator.com/companies/apten",
+          "https://www.ycombinator.com/companies/apten/jobs"
+        ]
+      },
+      {
+        "name": "Doublezero",
+        "domain": "doublezero.tech",
+        "action": "research deeper",
+        "tier": "Needs More Evidence",
+        "source_lane": "YC Directory",
+        "founders": [
+          "Scott Moss",
+          "Travis Ueki"
+        ],
+        "stage": "PRE_SEED",
+        "raised": 500000,
+        "headcount": 1,
+        "company_linkedin": "https://www.linkedin.com/company/doublezero-tech",
+        "company_x": "",
+        "evidence_urls": [
+          "https://doublezero.tech"
+        ]
+      },
+      {
         "name": "Menza",
         "domain": "menza.ai",
         "action": "research deeper",
@@ -277,9 +472,7 @@
         "company_linkedin": "https://www.linkedin.com/company/menzaai",
         "company_x": "https://x.com/menzaai",
         "evidence_urls": [
-          "https://menza.ai/",
-          "https://menza.ai/blog",
-          "https://www.ycombinator.com/companies/menza"
+          "https://menza.ai/"
         ]
       },
       {
@@ -375,6 +568,83 @@
         "company_x": "https://x.com/Angstrom_ai",
         "evidence_urls": [
           "https://www.angstrom-ai.com"
+        ]
+      },
+      {
+        "name": "Ultra",
+        "domain": "ultra.tech",
+        "action": "research deeper",
+        "tier": "Needs More Evidence",
+        "source_lane": "YC Directory",
+        "founders": [
+          "Jon Miller Schwartz",
+          "Max Friefeld",
+          "Chetan Parthiban"
+        ],
+        "stage": "SEED",
+        "raised": 4250000,
+        "headcount": 20,
+        "company_linkedin": "https://www.linkedin.com/company/ultraroboticsco",
+        "company_x": "https://x.com/Ultraroboticsco",
+        "evidence_urls": [
+          "https://ultra.tech"
+        ]
+      },
+      {
+        "name": "Roger",
+        "domain": "hireroger.com",
+        "action": "research deeper",
+        "tier": "Needs More Evidence",
+        "source_lane": "YC Directory",
+        "founders": [
+          "Rithwik Pattikonda"
+        ],
+        "stage": "PRE_SEED",
+        "raised": 500000,
+        "headcount": 19,
+        "company_linkedin": "https://www.linkedin.com/company/augmentbiz/",
+        "company_x": "",
+        "evidence_urls": [
+          "https://hireroger.com"
+        ]
+      },
+      {
+        "name": "Undermind",
+        "domain": "undermind.ai",
+        "action": "research deeper",
+        "tier": "Needs More Evidence",
+        "source_lane": "YC Directory",
+        "founders": [
+          "Joshua Ramette",
+          "Tom Hartke"
+        ],
+        "stage": "PRE_SEED",
+        "raised": 500000,
+        "headcount": 4,
+        "company_linkedin": "https://www.linkedin.com/company/undermind-ai",
+        "company_x": "https://twitter.com/UndermindAI",
+        "evidence_urls": [
+          "https://www.undermind.ai"
+        ]
+      },
+      {
+        "name": "Evolvere BioSciences",
+        "domain": "evolverebiosciences.com",
+        "action": "research deeper",
+        "tier": "Needs More Evidence",
+        "source_lane": "YC Directory",
+        "founders": [
+          "Adam Winnifrith",
+          "Piotr Jedryszek",
+          "Weronika Slesak"
+        ],
+        "stage": "PRE_SEED",
+        "raised": 500000,
+        "headcount": 6,
+        "company_linkedin": "",
+        "company_x": "",
+        "evidence_urls": [
+          "https://www.evolverebiosciences.com/"
         ]
       }
     ],

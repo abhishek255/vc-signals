@@ -819,6 +819,29 @@ def _domain_from_url(url: str) -> str:
     return host
 
 
+SOURCE_ONLY_DOMAINS = {
+    "news.ycombinator.com",
+    "reddit.com",
+    "github.com",
+    "medium.com",
+    "substack.com",
+    "producthunt.com",
+    "x.com",
+    "twitter.com",
+    "linkedin.com",
+    "instagram.com",
+    "threads.net",
+    "tiktok.com",
+    "youtube.com",
+    "youtu.be",
+}
+
+
+def _is_source_only_domain(domain: str) -> bool:
+    normalized = (domain or "").strip().lower().removeprefix("www.")
+    return any(normalized == blocked or normalized.endswith(f".{blocked}") for blocked in SOURCE_ONLY_DOMAINS)
+
+
 def _yc_slug_from_url(url: str) -> str | None:
     parsed = urlparse(url or "")
     host = (parsed.netloc or "").lower()
@@ -843,7 +866,7 @@ def _homepage_name_from_domain(domain: str) -> str | None:
     if len(parts) < 2:
         return None
     stem = parts[-2]
-    if not stem or stem in {"amazon", "aws", "google", "microsoft", "openai", "producthunt", "github"}:
+    if not stem or _is_source_only_domain(host) or stem in {"amazon", "aws", "google", "microsoft", "openai"}:
         return None
     if any(char.isdigit() for char in stem):
         return stem
@@ -899,7 +922,8 @@ def _is_github_issue_or_pr(item: dict) -> bool:
 def _candidate_domain_from_item(item: dict) -> str:
     domain = (item.get("domain") or "").strip().lower()
     if domain:
-        return domain.removeprefix("www.")
+        domain = domain.removeprefix("www.")
+        return "" if _is_source_only_domain(domain) else domain
 
     url = item.get("url", "")
     slug = _yc_slug_from_url(url)
@@ -907,7 +931,7 @@ def _candidate_domain_from_item(item: dict) -> str:
         return f"{slug}.com"
 
     domain = _domain_from_url(url)
-    if domain in {"news.ycombinator.com", "reddit.com", "github.com", "medium.com", "substack.com", "producthunt.com"}:
+    if _is_source_only_domain(domain):
         return ""
     return domain
 
@@ -1099,7 +1123,14 @@ def merge_attio_context(companies: list[dict], attio_client=None) -> list[dict]:
 
     def should_skip_attio(company: dict) -> bool:
         name = company.get("name") or ""
-        return is_oss_project(company) and "/" in name and not company.get("domain")
+        if is_oss_project(company) and "/" in name and not company.get("domain"):
+            return True
+        source_lane = (company.get("source_lane") or "").strip().lower()
+        candidate_type = (company.get("candidate_type") or "").strip().lower()
+        social_lanes = {"x", "instagram", "tiktok", "threads", "youtube"}
+        if not company.get("domain") and (source_lane in social_lanes or candidate_type in {"social_launch", "product_demo"}):
+            return True
+        return False
 
     def skipped(company: dict) -> dict:
         return {
@@ -1931,11 +1962,54 @@ def _score_sort_limit_candidates(candidates: list[Candidate], candidate_limit: i
     ]
     scored = [_enforce_candidate_action_safety(candidate) for candidate in scored]
     visible = [candidate for candidate in scored if candidate.tier != "Filtered"]
-    return sorted(
+    ranked = sorted(
         visible,
         key=lambda c: (c.tier == "Partner Review", c.investment_interest_score, c.evidence_confidence_score),
         reverse=True,
-    )[:candidate_limit]
+    )
+    return _keep_source_coverage(ranked, candidate_limit)
+
+
+def _source_coverage_bucket(candidate: Candidate) -> str:
+    source_lane = (candidate.source_lane or "").strip().lower()
+    source = (candidate.source or "").strip().lower()
+    candidate_type = (candidate.candidate_type or "").strip().lower()
+    if "product hunt" in source_lane or "producthunt" in source:
+        return "product_hunt"
+    if source_lane == "x" or "x.com/" in source or "twitter.com/" in source:
+        return "x"
+    if "grounded web" in source_lane or candidate_type == "company_web":
+        return "manual_web"
+    return ""
+
+
+def _keep_source_coverage(ranked: list[Candidate], candidate_limit: int) -> list[Candidate]:
+    selected = list(ranked[:candidate_limit])
+    if candidate_limit < 10:
+        return selected
+    selected_keys = {candidate.stable_key or candidate.domain or candidate.name for candidate in selected}
+    protected_lanes = ("product_hunt", "x", "manual_web")
+    for lane in protected_lanes:
+        if any(_source_coverage_bucket(candidate) == lane for candidate in selected):
+            continue
+        replacement = next(
+            (
+                candidate
+                for candidate in ranked
+                if _source_coverage_bucket(candidate) == lane
+                and candidate.domain
+                and (candidate.stable_key or candidate.domain or candidate.name) not in selected_keys
+            ),
+            None,
+        )
+        if replacement is None:
+            continue
+        if len(selected) < candidate_limit:
+            selected.append(replacement)
+        else:
+            selected[-1] = replacement
+        selected_keys = {candidate.stable_key or candidate.domain or candidate.name for candidate in selected}
+    return selected
 
 
 def _apply_attio_to_candidates(candidates: list[Candidate], attio_client=None) -> list[Candidate]:
@@ -2308,6 +2382,7 @@ def run_weekly_artifacts(
     weak_source_identity_enrichment_limit: int = 0,
     update_signal_ledger: bool = False,
     signal_ledger_path: Path | None = None,
+    history_data_dir: Path | None = None,
 ) -> dict:
     """Collect evidence and render a weekly partner preview in one command."""
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -2432,10 +2507,14 @@ def run_weekly_artifacts(
         "providers": {},
     }
     run_date = datetime.now(timezone.utc).strftime("%Y-%m-%d")
-    history_result = apply_weekly_tags(scored_candidates, load_candidate_history(), run_date=run_date)
+    history = load_candidate_history(history_data_dir) if history_data_dir is not None else load_candidate_history()
+    history_result = apply_weekly_tags(scored_candidates, history, run_date=run_date)
     scored_candidates = history_result.candidates
     partner_review = select_partner_review(scored_candidates)
-    save_candidate_history(history_result.history)
+    if history_data_dir is not None:
+        save_candidate_history(history_result.history, history_data_dir)
+    else:
+        save_candidate_history(history_result.history)
     _update_sector_coverage(signal_result["coverage"], sectors, scored_candidates, promotion["rejected"])
     sector_intelligence = build_sector_intelligence(
         sectors=sectors,
@@ -2571,6 +2650,8 @@ def run_weekly_artifacts(
         "companies": len(scored_candidates),
         "sectors": list(sectors),
     }
+    if history_data_dir is not None:
+        result["history_data_dir"] = str(history_data_dir)
     if hn_launch_trial.get("enabled"):
         result["hn_launch_trial"] = str(output_dir / "hn-launch-trial")
     if synthesis_path:
@@ -3010,6 +3091,7 @@ def _cli_main() -> None:
             ),
             update_signal_ledger=_get_bool_arg(args, "update_signal_ledger", "updateSignalLedger"),
             signal_ledger_path=Path(args["signal_ledger_path"]) if "signal_ledger_path" in args else None,
+            history_data_dir=Path(args["history_data_dir"]) if "history_data_dir" in args else None,
         )
         print(json.dumps(result))
         return

@@ -148,6 +148,155 @@ def _source_counts(raw_evidence: dict, run_dir: Path) -> dict:
     return counts
 
 
+def _latest_raw_evidence_path(run_path: Path) -> Path:
+    matches = sorted(
+        run_path.glob("*-raw-evidence.json"),
+        key=lambda path: (path.stat().st_mtime, path.name),
+        reverse=True,
+    )
+    if matches:
+        return matches[0]
+    return run_path / "2026-05-31-raw-evidence.json"
+
+
+def _domain_from_url(url: str) -> str:
+    if not url or "://" not in url:
+        return ""
+    try:
+        from urllib.parse import urlparse
+
+        host = urlparse(url).netloc.lower().removeprefix("www.")
+        return host
+    except Exception:
+        return ""
+
+
+def _looks_like_source_or_directory_domain(domain: str) -> bool:
+    normalized = (domain or "").lower().strip().removeprefix("www.")
+    blocked = {
+        "apps.apple.com",
+        "github.com",
+        "linkedin.com",
+        "news.ycombinator.com",
+        "producthunt.com",
+        "reddit.com",
+        "twitter.com",
+        "x.com",
+        "youtube.com",
+    }
+    return any(normalized == item or normalized.endswith(f".{item}") for item in blocked)
+
+
+def _official_domain_hint(item: dict) -> str:
+    domain = _row_domain(item)
+    if domain and not _looks_like_source_or_directory_domain(domain):
+        return domain
+    for key in ("website", "homepage", "resolved_url"):
+        candidate = _domain_from_url(str(item.get(key) or ""))
+        if candidate and not _looks_like_source_or_directory_domain(candidate):
+            return candidate
+    return ""
+
+
+def _row_source_bucket(row: dict) -> str:
+    text = " ".join(
+        str(value or "")
+        for value in (
+            row.get("source_lane"),
+            row.get("candidate_type"),
+            row.get("evidence_role"),
+            row.get("source"),
+            row.get("url"),
+        )
+    ).lower()
+    if "producthunt" in text or "product hunt" in text:
+        return "product_hunt"
+    if "yc directory" in text or "ycombinator.com/companies" in text or "yc_company" in text:
+        return "yc_directory"
+    if "news.ycombinator.com" in text or "hackernews" in text or "hacker news" in text:
+        return "hn"
+    if "github.com" in text or "oss_project" in text or row.get("source_lane") == "OSS":
+        return "github"
+    if "x.com" in text or "twitter.com" in text or row.get("source_lane") == "X":
+        return "x"
+    if "grounded web" in text or "company_discovery" in text or "official_company_page" in text:
+        return "manual_web"
+    return "other"
+
+
+def _count_by_source_bucket(rows: list[dict]) -> dict[str, int]:
+    counts: dict[str, int] = {}
+    for row in rows:
+        bucket = _row_source_bucket(row)
+        counts[bucket] = counts.get(bucket, 0) + 1
+    return counts
+
+
+def _raw_domain_resolution_summary(raw_evidence: dict) -> dict:
+    product_hunt = raw_evidence.get("product_hunt") if isinstance(raw_evidence, dict) else []
+    x_launches = raw_evidence.get("x_launches") if isinstance(raw_evidence, dict) else []
+    product_hunt = product_hunt if isinstance(product_hunt, list) else []
+    x_launches = x_launches if isinstance(x_launches, list) else []
+    ph_resolved = [
+        item
+        for item in product_hunt
+        if _official_domain_hint(item)
+    ]
+    x_resolved = [
+        item
+        for item in x_launches
+        if _official_domain_hint(item)
+    ]
+    return {
+        "product_hunt": {
+            "launches": len(product_hunt),
+            "resolved_domains": len(ph_resolved),
+            "unresolved_domains": max(0, len(product_hunt) - len(ph_resolved)),
+        },
+        "x": {
+            "launches": len(x_launches),
+            "resolved_domains": len(x_resolved),
+            "unresolved_domains": max(0, len(x_launches) - len(x_resolved)),
+        },
+    }
+
+
+def _source_diversity_summary(
+    *,
+    candidate_rows: list[dict],
+    review_worthy_rows: list[dict],
+    raw_evidence: dict,
+    run_dir: Path,
+) -> dict:
+    review_counts = _count_by_source_bucket(review_worthy_rows)
+    candidate_counts = _count_by_source_bucket(candidate_rows)
+    hn_summary = _hn_launch_trial_summary(run_dir)
+    hn_assign_owner_count = (hn_summary.get("action_split") or {}).get("Assign owner", 0)
+    if hn_assign_owner_count:
+        review_counts["hn"] = review_counts.get("hn", 0) + hn_assign_owner_count
+    desired = ("hn", "github", "product_hunt", "x", "manual_web", "yc_directory")
+    non_yc_review_worthy = sum(
+        count for bucket, count in review_counts.items() if bucket != "yc_directory"
+    )
+    review_lanes = [bucket for bucket in desired if review_counts.get(bucket, 0)]
+    return {
+        "desired_source_lanes": list(desired),
+        "candidate_rows_by_source_lane": {bucket: candidate_counts.get(bucket, 0) for bucket in desired},
+        "review_worthy_rows_by_source_lane": {bucket: review_counts.get(bucket, 0) for bucket in desired},
+        "review_worthy_source_lanes": review_lanes,
+        "non_yc_review_worthy_count": non_yc_review_worthy,
+        "yc_review_worthy_count": review_counts.get("yc_directory", 0),
+        "raw_domain_resolution": _raw_domain_resolution_summary(raw_evidence),
+        "hn_launch_trial_rows": hn_summary.get("rows", 0),
+        "hn_launch_trial_assign_owner": hn_assign_owner_count,
+        "source_diversity_proven": non_yc_review_worthy > 0 and len(review_lanes) >= 2,
+        "interpretation": (
+            "Source diversity is proven when at least one non-YC lane produces a partner-grade row. "
+            "HN Assign Owner rows count here; raw Product Hunt/X/GitHub/manual-web rows are discovery coverage until they clear the same evidence bar."
+        ),
+    }
+
+
 def _ledger_packet_warning(run_dir: Path, strict_assign_owner_names: list[str]) -> dict:
     packet = _read_json(run_dir / "final-partner-packet" / "partner-decision-packet.json", {})
     sections = packet.get("sections") if isinstance(packet, dict) else {}
@@ -195,7 +344,7 @@ def build_source_yield_validation_report(
     candidates = _read_json(run_path / "candidates.json", [])
     weekly_focus = _read_json(run_path / "weekly-focus.json", {})
     runtime_ledger = _read_json(run_path / "runtime-ledger.json", {})
-    raw_evidence = _read_json(run_path / "2026-05-31-raw-evidence.json", {})
+    raw_evidence = _read_json(_latest_raw_evidence_path(run_path), {})
     company_discovery = _read_json(run_path / "company-discovery.json", {})
     manual_targets = _read_json(run_path / "manual-enrichment-targets.json", {})
 
@@ -280,6 +429,12 @@ def build_source_yield_validation_report(
         },
         "review_worthy_rows": review_worthy_rows,
         "source_counts": _source_counts(raw_evidence if isinstance(raw_evidence, dict) else {}, run_path),
+        "source_diversity": _source_diversity_summary(
+            candidate_rows=candidate_rows,
+            review_worthy_rows=review_worthy_rows,
+            raw_evidence=raw_evidence if isinstance(raw_evidence, dict) else {},
+            run_dir=run_path,
+        ),
         "source_health": source_health_summary,
         "source_access": _manual_mode_summary(runtime_ledger if isinstance(runtime_ledger, dict) else {}),
         "manual_enrichment_summary": manual_targets.get("summary", {}) if isinstance(manual_targets, dict) else {},
@@ -378,6 +533,27 @@ def render_source_yield_markdown(report: dict) -> str:
                 raised=str(row["raised"]).replace("|", "/"),
                 headcount=str(row["headcount"]).replace("|", "/"),
                 source_lane=str(row["source_lane"]).replace("|", "/"),
+            )
+        )
+    diversity = report.get("source_diversity", {})
+    lines.extend(["", "## Source Diversity", ""])
+    lines.append(
+        "- Non-YC review-worthy rows: {non_yc}".format(
+            non_yc=diversity.get("non_yc_review_worthy_count", 0)
+        )
+    )
+    lines.append(
+        "- Review-worthy lanes: {lanes}".format(
+            lanes=", ".join(diversity.get("review_worthy_source_lanes", [])) or "none"
+        )
+    )
+    for source, item in (diversity.get("raw_domain_resolution") or {}).items():
+        lines.append(
+            "- {source}: launches={launches}, resolved_domains={resolved}, unresolved_domains={unresolved}".format(
+                source=source,
+                launches=item.get("launches", 0),
+                resolved=item.get("resolved_domains", 0),
+                unresolved=item.get("unresolved_domains", 0),
             )
         )
     lines.extend(["", "## Source Health", ""])

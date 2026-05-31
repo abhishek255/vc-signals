@@ -19,6 +19,7 @@ REQUIRED_ARTIFACTS = [
 OPTIONAL_ARTIFACTS = [
     "source-yield-validation-report.json",
     "source-yield-validation-report.md",
+    "targeted-manual-enrichment.json",
 ]
 
 
@@ -30,6 +31,7 @@ def build_current_run_manifest(
     ledger_action_report: Path | str,
     source_yield_validation_report: Path | str | None = None,
     source_yield_validation_markdown: Path | str | None = None,
+    targeted_manual_enrichment_report: Path | str | None = None,
     generated_at: str | None = None,
 ) -> dict:
     inputs = {
@@ -43,6 +45,9 @@ def build_current_run_manifest(
     if source_yield_validation_markdown:
         inputs["source_yield_validation_markdown"] = str(source_yield_validation_markdown)
         decision_artifacts.append("source-yield-validation-report.md")
+    if targeted_manual_enrichment_report:
+        inputs["targeted_manual_enrichment_report"] = str(targeted_manual_enrichment_report)
+        decision_artifacts.append("targeted-manual-enrichment.json")
     return {
         "generated_at": generated_at or datetime.now(timezone.utc).isoformat(),
         "source_run_dir": str(source_run_dir),
@@ -114,6 +119,8 @@ def _readme_text(manifest: dict, partner_packet: dict, ledger_report: dict) -> s
         lines.append("- `source-yield-validation-report.json`")
     if "source-yield-validation-report.md" in manifest.get("decision_artifacts", []):
         lines.append("- `source-yield-validation-report.md`")
+    if "targeted-manual-enrichment.json" in manifest.get("decision_artifacts", []):
+        lines.append("- `targeted-manual-enrichment.json`")
     lines.extend(
         [
             "",
@@ -132,6 +139,7 @@ def write_blessed_current_run(
     ledger_action_report: Path | str,
     source_yield_validation_report: Path | str | None = None,
     source_yield_validation_markdown: Path | str | None = None,
+    targeted_manual_enrichment_report: Path | str | None = None,
     prune_current: bool = False,
 ) -> dict:
     source_run = Path(source_run_dir)
@@ -140,6 +148,7 @@ def write_blessed_current_run(
     ledger_src = Path(ledger_action_report)
     report_src = Path(source_yield_validation_report) if source_yield_validation_report else None
     report_md_src = Path(source_yield_validation_markdown) if source_yield_validation_markdown else None
+    targeted_manual_src = Path(targeted_manual_enrichment_report) if targeted_manual_enrichment_report else None
     if source_run.resolve() == current.resolve():
         raise ValueError("source_run_dir and current_dir must be different paths")
     current.mkdir(parents=True, exist_ok=True)
@@ -148,6 +157,7 @@ def write_blessed_current_run(
     ledger_dst = current / "ledger-action-report.json"
     report_dst = current / "source-yield-validation-report.json"
     report_md_dst = current / "source-yield-validation-report.md"
+    targeted_manual_dst = current / "targeted-manual-enrichment.json"
     manifest_path = current / "run-manifest.json"
     manifest = build_current_run_manifest(
         source_run_dir=source_run,
@@ -156,6 +166,7 @@ def write_blessed_current_run(
         ledger_action_report=ledger_src,
         source_yield_validation_report=report_src,
         source_yield_validation_markdown=report_md_src,
+        targeted_manual_enrichment_report=targeted_manual_src,
     )
     if prune_current:
         keep_names = set(REQUIRED_ARTIFACTS + OPTIONAL_ARTIFACTS)
@@ -175,6 +186,10 @@ def write_blessed_current_run(
         shutil.copyfile(report_md_src, report_md_dst)
     elif report_md_dst.exists():
         report_md_dst.unlink()
+    if targeted_manual_src:
+        _copy_json(targeted_manual_src, targeted_manual_dst, {"summary": {"source_missing": str(targeted_manual_src)}})
+    elif targeted_manual_dst.exists():
+        targeted_manual_dst.unlink()
     manifest_path.write_text(json.dumps(manifest, indent=2))
     (current / "README.md").write_text(_readme_text(manifest, _read_json(partner_dst), _read_json(ledger_dst)))
     return {
@@ -210,6 +225,7 @@ def main() -> None:
         ledger_action_report=Path(args["ledger_action_report"]),
         source_yield_validation_report=Path(args["source_yield_validation_report"]) if args.get("source_yield_validation_report") else None,
         source_yield_validation_markdown=Path(args["source_yield_validation_markdown"]) if args.get("source_yield_validation_markdown") else None,
+        targeted_manual_enrichment_report=Path(args["targeted_manual_enrichment_report"]) if args.get("targeted_manual_enrichment_report") else None,
         prune_current=bool(args.get("prune_current")),
     )
     print(json.dumps(result, indent=2))

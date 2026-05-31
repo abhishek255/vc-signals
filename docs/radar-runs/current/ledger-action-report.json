@@ -1,11 +1,11 @@
 {
-  "generated_at": "2026-05-31T19:42:47.735637+00:00",
+  "generated_at": "2026-05-31T22:15:56.538644+00:00",
   "report_type": "source_yield_strict_action_report",
-  "source_run_dir": "docs/radar-runs/current-combined-source-yield-validation-2026-05-31",
+  "source_run_dir": "docs/radar-runs/current-deep-dive-validation-2026-05-31-r4",
   "summary": {
     "goal_reached": true,
     "assign_owner_entities": 1,
-    "review_worthy_research_entities": 9,
+    "review_worthy_research_entities": 16,
     "unsafe_promotions": 0
   },
   "actions": [
@@ -18,17 +18,24 @@
     },
     {
       "action": "Review worthy - research deeper",
-      "count": 9,
+      "count": 16,
       "names": [
+        "Superunit",
         "Goldbridge",
         "Simplex",
         "Miru",
+        "Apten",
+        "Doublezero",
         "Menza",
         "jo",
         "Poka Labs",
         "Spur",
         "Coval",
-        "Ångström AI"
+        "Ångström AI",
+        "Ultra",
+        "Roger",
+        "Undermind",
+        "Evolvere BioSciences"
       ]
     }
   ],

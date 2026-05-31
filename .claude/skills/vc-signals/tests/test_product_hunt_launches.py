@@ -204,6 +204,29 @@ def test_product_hunt_web_fallback_does_not_treat_third_party_profiles_as_offici
     assert "no verified official domain" in result["warning"]
 
 
+def test_product_hunt_web_fallback_rejects_app_directory_subdomains():
+    from product_hunt_launches import resolve_launch_domain_via_web
+
+    def fake_query_runner(**_kwargs):
+        return {
+            "items": [
+                {
+                    "title": "ChartBuilder for Android - Download the APK from Uptodown",
+                    "url": "https://chartbuilder.en.uptodown.com/android",
+                    "snippet": "Customizable chart creation app.",
+                }
+            ]
+        }
+
+    result = resolve_launch_domain_via_web(
+        {"name": "Chartbuilder", "tagline": "Turn raw data into export-ready charts with AI"},
+        query_runner=fake_query_runner,
+    )
+
+    assert result["url"] == ""
+    assert "no verified official domain" in result["warning"]
+
+
 def test_parse_product_hunt_api_posts_preserves_makers_and_launch_metrics():
     from product_hunt_launches import parse_product_hunt_api_posts
 

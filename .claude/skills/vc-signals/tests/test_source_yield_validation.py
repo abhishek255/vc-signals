@@ -93,6 +93,8 @@ def test_validation_report_preserves_assign_owner_bar_and_flags_ledger_packet(tm
     assert report["goal_assessment"]["net_new_review_worthy_count"] == 1
     assert report["source_counts"]["hn_launch_trial_rows"] == 5
     assert report["source_counts"]["hn_launch_assign_owner"] == 1
+    assert report["source_diversity"]["review_worthy_rows_by_source_lane"]["hn"] == 1
+    assert report["source_diversity"]["source_diversity_proven"] is True
     assert report["ledger_partner_packet_warning"]["unsafe_for_blessed_decision"] is True
     assert "last30days sector queries were degraded" in report["caveats"][0]
 
@@ -129,3 +131,68 @@ def test_decision_packet_uses_only_weekly_assign_owner(tmp_path):
     assert packet["summary"]["review_worthy_research"] == 1
     assert packet["sections"]["owner_follow_up"][0]["name"] == "Voker"
     assert packet["sections"]["review_worthy_research"][0]["name"] == "Goldbridge"
+
+
+def test_validation_report_uses_latest_raw_evidence_and_reports_source_diversity(tmp_path):
+    from source_yield_validation import build_source_yield_validation_report, render_source_yield_markdown
+
+    run_dir = tmp_path / "run"
+    _write_json(
+        run_dir / "candidates.json",
+        [
+            _candidate(),
+            _candidate(
+                name="Clipto",
+                domain="clipto.com",
+                source_lane="Product Hunt",
+                founders=["Asha Mehta"],
+                stage="SEED",
+                raised=1200000,
+                headcount=8,
+            ),
+        ],
+    )
+    _write_json(
+        run_dir / "weekly-focus.json",
+        {
+            "workflow_view": {
+                "Assign owner": [
+                    {
+                        "name": "Voker",
+                        "company_domain": "voker.ai",
+                        "recommended_action": "Assign owner",
+                    }
+                ]
+            }
+        },
+    )
+    _write_json(run_dir / "runtime-ledger.json", {"source_health": []})
+    _write_json(run_dir / "2026-05-30-raw-evidence.json", {"product_hunt": [], "github": [], "yc_directory": [], "x_launches": []})
+    _write_json(
+        run_dir / "2026-05-31-raw-evidence.json",
+        {
+            "product_hunt": [
+                {"name": "Clipto", "domain": "clipto.com"},
+                {
+                    "name": "Unresolved",
+                    "domain": "",
+                    "outbound_url": "https://www.producthunt.com/r/abc123",
+                },
+            ],
+            "x_launches": [{"name": "Signal", "website": "https://signalco.ai"}],
+            "github": [{}],
+            "yc_directory": [{}],
+        },
+    )
+    _write_json(run_dir / "hn-launch-trial" / "hn-trial-row-review.json", {"summary": {"rows": 2}})
+
+    report = build_source_yield_validation_report(run_dir, target_review_worthy_count=2)
+
+    assert report["source_counts"]["product_hunt"] == 2
+    assert report["source_counts"]["x_launches"] == 1
+    assert report["source_diversity"]["review_worthy_rows_by_source_lane"]["product_hunt"] == 1
+    assert report["source_diversity"]["review_worthy_rows_by_source_lane"]["yc_directory"] == 1
+    assert report["source_diversity"]["non_yc_review_worthy_count"] == 1
+    assert report["source_diversity"]["source_diversity_proven"] is True
+    assert report["source_diversity"]["raw_domain_resolution"]["product_hunt"]["resolved_domains"] == 1
+    assert "Non-YC review-worthy rows: 1" in render_source_yield_markdown(report)

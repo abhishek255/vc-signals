@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-05-31T19:42:47.735637+00:00",
-  "run_dir": "docs/radar-runs/current-combined-source-yield-validation-2026-05-31",
+  "generated_at": "2026-05-31T22:15:56.538644+00:00",
+  "run_dir": "docs/radar-runs/current-deep-dive-validation-2026-05-31-r4",
   "goal_assessment": {
     "goal_reached": true,
     "target_assign_owner": [
@@ -15,10 +15,30 @@
     "unexpected_weekly_assign_owner_names": [],
     "unexpected_candidate_assign_owner_names": [],
     "target_net_new_review_worthy_count": 5,
-    "net_new_review_worthy_count": 9,
+    "net_new_review_worthy_count": 16,
     "review_worthy_target_met": true
   },
   "review_worthy_rows": [
+    {
+      "name": "Superunit",
+      "domain": "superunit.com",
+      "action": "research deeper",
+      "tier": "Watchlist",
+      "source_lane": "YC Directory",
+      "founders": [
+        "Peter Marler",
+        "Zach Yellin-Flaherty"
+      ],
+      "stage": "PRE_SEED",
+      "raised": 500000,
+      "headcount": 2,
+      "company_linkedin": "https://www.linkedin.com/company/superunit-ai",
+      "company_x": "https://x.com/SuperunitHQ",
+      "evidence_urls": [
+        "http://superunit.com",
+        "https://superunit.com"
+      ]
+    },
     {
       "name": "Goldbridge",
       "domain": "goldbridgebanking.com",
@@ -78,6 +98,46 @@
       ]
     },
     {
+      "name": "Apten",
+      "domain": "apten.ai",
+      "action": "research deeper",
+      "tier": "Needs More Evidence",
+      "source_lane": "YC Directory",
+      "founders": [
+        "Daniel Ho",
+        "Roshan Kumaraswamy"
+      ],
+      "stage": "PRE_SEED",
+      "raised": 500000,
+      "headcount": 4,
+      "company_linkedin": "https://www.linkedin.com/company/apten",
+      "company_x": "https://twitter.com/Apten_AI",
+      "evidence_urls": [
+        "https://www.apten.ai/",
+        "https://www.ycombinator.com/companies/apten",
+        "https://www.ycombinator.com/companies/apten/jobs"
+      ]
+    },
+    {
+      "name": "Doublezero",
+      "domain": "doublezero.tech",
+      "action": "research deeper",
+      "tier": "Needs More Evidence",
+      "source_lane": "YC Directory",
+      "founders": [
+        "Scott Moss",
+        "Travis Ueki"
+      ],
+      "stage": "PRE_SEED",
+      "raised": 500000,
+      "headcount": 1,
+      "company_linkedin": "https://www.linkedin.com/company/doublezero-tech",
+      "company_x": "",
+      "evidence_urls": [
+        "https://doublezero.tech"
+      ]
+    },
+    {
       "name": "Menza",
       "domain": "menza.ai",
       "action": "research deeper",
@@ -93,9 +153,7 @@
       "company_linkedin": "https://www.linkedin.com/company/menzaai",
       "company_x": "https://x.com/menzaai",
       "evidence_urls": [
-        "https://menza.ai/",
-        "https://menza.ai/blog",
-        "https://www.ycombinator.com/companies/menza"
+        "https://menza.ai/"
       ]
     },
     {
@@ -192,112 +250,248 @@
       "evidence_urls": [
         "https://www.angstrom-ai.com"
       ]
+    },
+    {
+      "name": "Ultra",
+      "domain": "ultra.tech",
+      "action": "research deeper",
+      "tier": "Needs More Evidence",
+      "source_lane": "YC Directory",
+      "founders": [
+        "Jon Miller Schwartz",
+        "Max Friefeld",
+        "Chetan Parthiban"
+      ],
+      "stage": "SEED",
+      "raised": 4250000,
+      "headcount": 20,
+      "company_linkedin": "https://www.linkedin.com/company/ultraroboticsco",
+      "company_x": "https://x.com/Ultraroboticsco",
+      "evidence_urls": [
+        "https://ultra.tech"
+      ]
+    },
+    {
+      "name": "Roger",
+      "domain": "hireroger.com",
+      "action": "research deeper",
+      "tier": "Needs More Evidence",
+      "source_lane": "YC Directory",
+      "founders": [
+        "Rithwik Pattikonda"
+      ],
+      "stage": "PRE_SEED",
+      "raised": 500000,
+      "headcount": 19,
+      "company_linkedin": "https://www.linkedin.com/company/augmentbiz/",
+      "company_x": "",
+      "evidence_urls": [
+        "https://hireroger.com"
+      ]
+    },
+    {
+      "name": "Undermind",
+      "domain": "undermind.ai",
+      "action": "research deeper",
+      "tier": "Needs More Evidence",
+      "source_lane": "YC Directory",
+      "founders": [
+        "Joshua Ramette",
+        "Tom Hartke"
+      ],
+      "stage": "PRE_SEED",
+      "raised": 500000,
+      "headcount": 4,
+      "company_linkedin": "https://www.linkedin.com/company/undermind-ai",
+      "company_x": "https://twitter.com/UndermindAI",
+      "evidence_urls": [
+        "https://www.undermind.ai"
+      ]
+    },
+    {
+      "name": "Evolvere BioSciences",
+      "domain": "evolverebiosciences.com",
+      "action": "research deeper",
+      "tier": "Needs More Evidence",
+      "source_lane": "YC Directory",
+      "founders": [
+        "Adam Winnifrith",
+        "Piotr Jedryszek",
+        "Weronika Slesak"
+      ],
+      "stage": "PRE_SEED",
+      "raised": 500000,
+      "headcount": 6,
+      "company_linkedin": "",
+      "company_x": "",
+      "evidence_urls": [
+        "https://www.evolverebiosciences.com/"
+      ]
     }
   ],
   "source_counts": {
     "github": 14,
-    "product_hunt": 10,
-    "yc_directory": 18,
-    "x_launches": 2,
+    "product_hunt": 20,
+    "yc_directory": 23,
+    "x_launches": 4,
     "last30days_queries": 6,
     "hn_launch_trial_rows": 5,
     "hn_launch_assign_owner": 1,
     "hn_launch_unsafe_promotions": 0
   },
+  "source_diversity": {
+    "desired_source_lanes": [
+      "hn",
+      "github",
+      "product_hunt",
+      "x",
+      "manual_web",
+      "yc_directory"
+    ],
+    "candidate_rows_by_source_lane": {
+      "hn": 0,
+      "github": 14,
+      "product_hunt": 4,
+      "x": 3,
+      "manual_web": 1,
+      "yc_directory": 16
+    },
+    "review_worthy_rows_by_source_lane": {
+      "hn": 1,
+      "github": 0,
+      "product_hunt": 0,
+      "x": 0,
+      "manual_web": 0,
+      "yc_directory": 16
+    },
+    "review_worthy_source_lanes": [
+      "hn",
+      "yc_directory"
+    ],
+    "non_yc_review_worthy_count": 1,
+    "yc_review_worthy_count": 16,
+    "raw_domain_resolution": {
+      "product_hunt": {
+        "launches": 20,
+        "resolved_domains": 5,
+        "unresolved_domains": 15
+      },
+      "x": {
+        "launches": 4,
+        "resolved_domains": 1,
+        "unresolved_domains": 3
+      }
+    },
+    "hn_launch_trial_rows": 5,
+    "hn_launch_trial_assign_owner": 1,
+    "source_diversity_proven": true,
+    "interpretation": "Source diversity is proven when at least one non-YC lane produces a partner-grade row. HN Assign Owner rows count here; raw Product Hunt/X/GitHub/manual-web rows are discovery coverage until they clear the same evidence bar."
+  },
   "source_health": [
     {
       "source": "last30days:devtools",
-      "status": "error",
+      "status": "complete",
       "fresh_items": 0,
-      "duration_seconds": 83.39,
-      "warnings": [
-        "last30days query timed out (60s): [safari] Permission denied reading Cookies.binarycookies. Enable Full Disk Access for Terminal in System Settings > Privacy & Security > Full Disk Access.\n[safari] Permission denied reading Cookies.binarycookies. Enable Full Disk Access for Terminal in System Settings > Privacy & Security > Full Dis"
-      ]
+      "duration_seconds": 34.27,
+      "warnings": []
     },
     {
       "source": "last30days:cybersecurity",
-      "status": "degraded",
-      "fresh_items": 0,
-      "duration_seconds": 102.38,
+      "status": "complete",
+      "fresh_items": 1,
+      "duration_seconds": 35.75,
       "warnings": [
-        "last30days query timed out (60s): [safari] Permission denied reading Cookies.binarycookies. Enable Full Disk Access for Terminal in System Settings > Privacy & Security > Full Disk Access.\n[safari] Permission denied reading Cookies.binarycookies. Enable Full Disk Access for Terminal in System Settings > Privacy & Security > Full Dis"
+        "reddit_pain: filtered 1 reddit items outside requested subreddits",
+        "Evidence is thin for this topic."
       ]
     },
     {
       "source": "last30days:ai-infra",
       "status": "degraded",
       "fresh_items": 0,
-      "duration_seconds": 86.65,
+      "duration_seconds": 73.55,
       "warnings": [
-        "last30days query timed out (60s): [safari] Permission denied reading Cookies.binarycookies. Enable Full Disk Access for Terminal in System Settings > Privacy & Security > Full Disk Access.\n[safari] Permission denied reading Cookies.binarycookies. Enable Full Disk Access for Terminal in System Settings > Privacy & Security > Full Dis"
+        "last30days query timed out (60s): /last30days · researching: LLMOps pain OR LLM inference cost OR agent evaluation failure\n⏳ \u001b[95mProcessing\u001b[0m Removing duplicates...\n[Resolve] Resolved 2 subreddits, x_handle='', github_user='amitshekhariitbhu', github_repos=['langfuse/langfuse', 'amitshekhariitbhu/ai-engineering-interview-question"
       ]
     },
     {
       "source": "last30days:vertical-ai",
-      "status": "error",
+      "status": "degraded",
       "fresh_items": 0,
-      "duration_seconds": 84.33,
+      "duration_seconds": 88.27,
       "warnings": [
-        "last30days query timed out (60s): [safari] Permission denied reading Cookies.binarycookies. Enable Full Disk Access for Terminal in System Settings > Privacy & Security > Full Disk Access.\n[safari] Permission denied reading Cookies.binarycookies. Enable Full Disk Access for Terminal in System Settings > Privacy & Security > Full Dis"
+        "last30days query timed out (60s): /last30days · researching: manual workflow pain OR AI agent for operations OR AI SDR frustration\n⏳ \u001b[95mProcessing\u001b[0m Finding patterns...\n[Resolve] Resolved 4 subreddits, x_handle='', github_user='msitarzewski', github_repos=['msitarzewski/agency-agents', 'KirKruglov/claude-skills-kit', 'franklioxy"
       ]
     },
     {
       "source": "last30days:data-infra",
       "status": "degraded",
       "fresh_items": 0,
-      "duration_seconds": 81.65,
+      "duration_seconds": 76.0,
       "warnings": [
-        "last30days query timed out (60s): [safari] Permission denied reading Cookies.binarycookies. Enable Full Disk Access for Terminal in System Settings > Privacy & Security > Full Disk Access.\n[safari] Permission denied reading Cookies.binarycookies. Enable Full Disk Access for Terminal in System Settings > Privacy & Security > Full Dis"
+        "last30days query timed out (60s): /last30days · researching: data pipeline testing pain OR data lineage pain OR data quality incident\n⏳ \u001b[95mProcessing\u001b[0m Removing duplicates...\n[Web] Reddit rate-limited, halting enrichment: Reddit rate limited (429) fetching https://www.reddit.com/r/dataengineering/comments/1tcqtz5/common_challeng"
       ]
     },
     {
       "source": "last30days:oss",
       "status": "degraded",
       "fresh_items": 0,
-      "duration_seconds": 83.25,
+      "duration_seconds": 76.46,
       "warnings": [
-        "last30days query timed out (60s): [safari] Permission denied reading Cookies.binarycookies. Enable Full Disk Access for Terminal in System Settings > Privacy & Security > Full Disk Access.\n[safari] Permission denied reading Cookies.binarycookies. Enable Full Disk Access for Terminal in System Settings > Privacy & Security > Full Dis"
+        "last30days query timed out (60s): /last30days · researching: open source tool adoption OR GitHub repo production use OR maintainer burnout\n⏳ \u001b[95mProcessing\u001b[0m Scoring and ranking...\n[Resolve] Resolved 0 subreddits, x_handle='', github_user='trending', github_repos=[], context_len=300, category=None\n[AutoResolve] GitHub user: @tren"
       ]
     },
     {
       "source": "github",
       "status": "complete",
       "fresh_items": 25,
-      "duration_seconds": 19.76,
+      "duration_seconds": 19.46,
       "warnings": []
     },
     {
       "source": "product_hunt",
       "status": "complete",
-      "fresh_items": 10,
-      "duration_seconds": 113.17,
+      "fresh_items": 20,
+      "duration_seconds": 183.33,
       "warnings": [
-        "Second Brain for AI: 403 Forbidden; web resolver failed: last30days query timed out (30s)",
+        "Second Brain for AI: 403 Forbidden; web resolver found no verified official domain",
         "TabTasker: 403 Forbidden; web resolver found no verified official domain",
+        "Marqly 5.0: 403 Forbidden; web resolver found no verified official domain",
         "Web Clipper for NotebookLM: 403 Forbidden; web resolver found no verified official domain",
         "Zoomix: 403 Forbidden; web resolver found no verified official domain",
         "Harness Starter Kit: 403 Forbidden; web resolver found no verified official domain",
-        "Hum: 403 Forbidden; web resolver found no verified official domain"
+        "CoffeePomodoro: 403 Forbidden; web resolver found no verified official domain",
+        "ColorCraft: 403 Forbidden; web resolver found no verified official domain",
+        "AnyFrame: 403 Forbidden; web resolver found no verified official domain",
+        "JSON Kit: 403 Forbidden; web resolver found no verified official domain",
+        "Skipper Study: 403 Forbidden; web resolver found no verified official domain",
+        "Launci: 403 Forbidden; web resolver found no verified official domain",
+        "MatriLens: 403 Forbidden; web resolver found no verified official domain",
+        "Samata Health: 403 Forbidden; web resolver found no verified official domain",
+        "CollectMonial: 403 Forbidden; web resolver found no verified official domain"
       ]
     },
     {
       "source": "yc_directory",
       "status": "complete",
-      "fresh_items": 18,
-      "duration_seconds": 6.47,
+      "fresh_items": 23,
+      "duration_seconds": 9.48,
       "warnings": []
     },
     {
       "source": "x_launches",
       "status": "complete",
-      "fresh_items": 2,
-      "duration_seconds": 355.72,
+      "fresh_items": 4,
+      "duration_seconds": 404.4,
       "warnings": [
         "Top evidence is highly concentrated in one source.",
         "Top evidence is highly concentrated in one source.",
+        "FinBot: X domain resolver found no verified official domain",
         "Top evidence is highly concentrated in one source.",
-        "Evidence is thin for this topic.",
-        "Top evidence is highly concentrated in one source."
+        "Top evidence is highly concentrated in one source.",
+        "Libra AI: X domain resolver found no verified official domain",
+        "Top evidence is highly concentrated in one source.",
+        "Ossbase: X domain resolver found no verified official domain"
       ]
     },
     {
@@ -328,45 +522,42 @@
     "recommendation": "Product Hunt and X are configured; Coresignal, Crunchbase, and LinkedIn are intentionally manual-mode for now."
   },
   "manual_enrichment_summary": {
-    "targets": 3,
-    "with_missing_linkedin": 3,
-    "with_missing_founder_team": 0,
-    "with_missing_stage_or_funding": 2,
-    "excluded_complete_or_low_value": 22,
+    "targets": 4,
+    "with_missing_linkedin": 4,
+    "with_missing_founder_team": 1,
+    "with_missing_stage_or_funding": 3,
+    "excluded_complete_or_low_value": 34,
     "selection_policy": "Domain required; concrete missing evidence required; category/context rows excluded; ranked by action, tier, owner readiness, partner priority, and evidence scores."
   },
   "company_discovery_summary": {
-    "queries_run": 12,
-    "verification_queries_run": 2,
-    "maturity_queries_run": 4,
-    "article_fetches_attempted": 6,
-    "provider_items_seen": 111,
+    "queries_run": 27,
+    "verification_queries_run": 5,
+    "maturity_queries_run": 2,
+    "article_fetches_attempted": 8,
+    "provider_items_seen": 160,
     "cache_hits": 0,
     "stale_cache_hits": 0,
     "maturity_cache_hits": 0,
     "stale_maturity_cache_hits": 0,
-    "live_calls": 16,
+    "live_calls": 29,
     "partial": true,
     "budget_exceeded": true,
     "source_type_counts": {
-      "unknown": 52,
-      "listicle_or_seo": 7,
-      "directory_page": 5,
-      "official_company_page": 9,
-      "publisher_article": 19,
-      "content_platform": 3,
-      "funding_press_release": 5,
-      "github_repo": 11
+      "listicle_or_seo": 33,
+      "unknown": 85,
+      "publisher_article": 25,
+      "official_company_page": 6,
+      "content_platform": 5,
+      "directory_page": 3,
+      "github_repo": 3
     },
-    "accepted": 4,
-    "rejected": 95,
+    "accepted": 2,
+    "rejected": 115,
     "grounded_available": true
   },
   "ledger_partner_packet_warning": {
-    "generated_partner_packet_owner_follow_up_count": 1,
-    "generated_partner_packet_owner_follow_up_names": [
-      "Voker"
-    ],
+    "generated_partner_packet_owner_follow_up_count": 0,
+    "generated_partner_packet_owner_follow_up_names": [],
     "strict_weekly_assign_owner_names": [
       "Voker"
     ],

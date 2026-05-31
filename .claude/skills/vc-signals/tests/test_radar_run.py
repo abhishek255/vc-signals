@@ -216,6 +216,28 @@ def test_merge_attio_context_skips_domainless_oss_repo_names():
     assert result[0]["action"] == "watch"
 
 
+def test_merge_attio_context_skips_domainless_social_launches():
+    from radar_run import merge_attio_context
+
+    class FakeAttio:
+        def match_company(self, company):
+            raise AssertionError("domainless social launch should not be sent to Attio")
+
+    companies = [
+        {
+            "name": "WhiteHacker AI",
+            "sector": "Cybersecurity",
+            "source_lane": "X",
+            "candidate_type": "social_launch",
+            "domain": "",
+            "action": "research deeper",
+        }
+    ]
+    result = merge_attio_context(companies, FakeAttio())
+    assert result[0]["attio_status"] == "no_match"
+    assert result[0]["action"] == "research deeper"
+
+
 def test_merge_attio_context_preserves_likely_too_late_label():
     from radar_run import merge_attio_context
 
@@ -523,6 +545,32 @@ def test_product_hunt_launch_without_resolved_domain_does_not_use_marketplace_do
     assert result["candidates"][0].domain == ""
     assert result["candidates"][0].action == "research deeper"
     assert result["candidates"][0].source_lane == "Product Hunt"
+
+
+def test_x_launch_without_resolved_domain_does_not_use_social_domain():
+    from radar_run import promote_signals_to_candidates
+    from radar_sources import classify_source_item
+
+    signal = classify_source_item(
+        sector="company-formation",
+        item={
+            "source": "x",
+            "name": "WhiteHacker AI",
+            "company_name": "WhiteHacker AI",
+            "title": "We just launched WhiteHacker AI on Product Hunt",
+            "description": "AI security launch post with social proof but no official website.",
+            "url": "https://x.com/founder/status/1",
+            "company_x": "https://x.com/founder/status/1",
+            "action": "research deeper",
+            "missing_evidence": ["official_domain_identity_not_confirmed"],
+        },
+    )
+
+    result = promote_signals_to_candidates([signal])
+
+    assert result["candidates"][0].domain == ""
+    assert result["candidates"][0].stable_key != "company:x.com"
+    assert result["candidates"][0].source_lane == "X"
 
 
 def test_build_sector_collection_queries_adds_grounded_company_discovery():
@@ -1883,6 +1931,47 @@ def test_score_sort_limit_demotes_attio_assign_owner_on_low_evidence():
     scored = _score_sort_limit_candidates([candidate], 1)[0]
 
     assert scored.action == "research deeper"
+
+
+def test_score_sort_limit_keeps_domain_resolved_launch_lane_coverage():
+    from radar_models import Candidate
+    from radar_run import _score_sort_limit_candidates
+
+    crowded = [
+        Candidate(
+            name=f"Repo {index}",
+            sector="OSS",
+            theme="OSS signal",
+            source=f"https://github.com/example/repo-{index}",
+            source_lane="OSS",
+            candidate_type="oss_project",
+            investment_interest_score=90 - index,
+            evidence_confidence_score=80,
+            investment_interest="High",
+            evidence_confidence="High",
+            tier="Watchlist",
+        )
+        for index in range(12)
+    ]
+    product_hunt = Candidate(
+        name="AgentFence",
+        domain="agentfence.dev",
+        sector="Company Formation",
+        theme="AI agent security",
+        source="https://www.producthunt.com/products/agentfence",
+        source_lane="Product Hunt",
+        candidate_type="producthunt_launch",
+        investment_interest_score=35,
+        evidence_confidence_score=35,
+        investment_interest="Low",
+        evidence_confidence="Low",
+        tier="Needs More Evidence",
+    )
+
+    selected = _score_sort_limit_candidates([*crowded, product_hunt], 10)
+
+    assert len(selected) == 10
+    assert any(candidate.source_lane == "Product Hunt" for candidate in selected)
 
 
 def test_maturity_category_cleanup_routes_blackduck_to_category_context():

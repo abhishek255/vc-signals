@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-05-31T19:42:56.562402+00:00",
-  "source_run_dir": "docs/radar-runs/current-combined-source-yield-validation-2026-05-31",
+  "generated_at": "2026-05-31T22:16:05.251520+00:00",
+  "source_run_dir": "docs/radar-runs/current-deep-dive-validation-2026-05-31-r4",
   "blessed_current_dir": "docs/radar-runs/current",
   "required_artifacts": [
     "README.md",
@@ -10,13 +10,15 @@
   ],
   "decision_artifacts": [
     "source-yield-validation-report.json",
-    "source-yield-validation-report.md"
+    "source-yield-validation-report.md",
+    "targeted-manual-enrichment.json"
   ],
   "inputs": {
-    "partner_decision_packet": "docs/radar-runs/current-combined-source-yield-validation-2026-05-31/source-yield-decision-packet/partner-decision-packet.json",
-    "ledger_action_report": "docs/radar-runs/current-combined-source-yield-validation-2026-05-31/source-yield-decision-packet/ledger-action-report.json",
-    "source_yield_validation_report": "docs/radar-runs/current-combined-source-yield-validation-2026-05-31/source-yield-validation-report.json",
-    "source_yield_validation_markdown": "docs/radar-runs/current-combined-source-yield-validation-2026-05-31/source-yield-validation-report.md"
+    "partner_decision_packet": "docs/radar-runs/current-deep-dive-validation-2026-05-31-r4/source-yield-decision-packet/partner-decision-packet.json",
+    "ledger_action_report": "docs/radar-runs/current-deep-dive-validation-2026-05-31-r4/source-yield-decision-packet/ledger-action-report.json",
+    "source_yield_validation_report": "docs/radar-runs/current-deep-dive-validation-2026-05-31-r4/source-yield-validation-report.json",
+    "source_yield_validation_markdown": "docs/radar-runs/current-deep-dive-validation-2026-05-31-r4/source-yield-validation-report.md",
+    "targeted_manual_enrichment_report": "docs/radar-runs/current-deep-dive-validation-2026-05-31-r4/targeted-manual-enrichment.json"
   },
   "policy": {
     "assign_owner_gate": "unchanged_high_confidence_only",

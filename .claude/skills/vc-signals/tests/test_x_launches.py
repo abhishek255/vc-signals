@@ -105,7 +105,7 @@ def test_run_x_launches_resolves_missing_domain_via_web():
     assert "official_domain_identity_not_confirmed" not in result["launches"][0]["missing_evidence"]
 
 
-def test_run_x_launches_does_not_resolve_generic_company_names():
+def test_run_x_launches_drops_generic_company_names_without_domains():
     from x_launches import run_x_launches
 
     calls = []
@@ -132,8 +132,35 @@ def test_run_x_launches_does_not_resolve_generic_company_names():
     )
 
     assert [call["sources"] for call in calls] == ["x"]
+    assert result["launches"] == []
+    assert "company name is too generic" in result["warnings"][0]
+
+
+def test_run_x_launches_does_not_treat_x_domain_as_official_identity():
+    from x_launches import run_x_launches
+
+    result = run_x_launches(
+        movements=[{"movement": "devtools workflow automation", "market_sector": "Devtools"}],
+        env={"XAI_API_KEY": "xai-key"},
+        query_runner=lambda **_kwargs: {
+            "items": [
+                {
+                    "source": "x",
+                    "title": "Just launched Xell, an open-source SSH workspace",
+                    "url": "https://x.com/founder/status/1",
+                    "company_name": "Xell",
+                    "domain": "x.com",
+                    "snippet": "Just launched Xell for developers.",
+                }
+            ]
+        },
+        domain_resolver=lambda *_args, **_kwargs: {"url": "", "warning": "no verified official domain"},
+        limit=5,
+    )
+
     assert result["launches"][0]["domain"] == ""
-    assert "company name too generic" in result["warnings"][0]
+    assert result["launches"][0]["website"] == ""
+    assert "official_domain_identity_not_confirmed" in result["launches"][0]["missing_evidence"]
 
 
 def test_run_x_launches_surfaces_backend_forbidden_as_unavailable():

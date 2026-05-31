@@ -44,6 +44,28 @@ def test_launch_style_missing_domain_stays_research_deeper(monkeypatch):
     assert result.attio_safe_to_match is False
 
 
+def test_social_source_url_is_not_verified_company_domain():
+    from identity_resolution import resolve_candidate_identity
+
+    result = resolve_candidate_identity(
+        _candidate(
+            name="WhiteHacker AI",
+            source="https://x.com/founder/status/1",
+            sources=["https://x.com/founder/status/1"],
+            candidate_type="social_launch",
+            stable_key="x:whitehacker-ai",
+            why_on_radar="We just launched WhiteHacker AI on Product Hunt.",
+        ),
+        hn_cache={},
+    )
+
+    assert result.verified_domain == ""
+    assert result.candidate_domain == ""
+    assert result.identity_type != "verified_company"
+    assert result.attio_safe_to_match is False
+    assert "no verified domain" in result.missing_identity_evidence
+
+
 def test_launch_style_with_domain_and_founder_can_assign_owner():
     from identity_resolution import resolve_candidate_identity
 
