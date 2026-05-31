@@ -1,0 +1,387 @@
+{
+  "generated_at": "2026-05-31T19:42:47.735637+00:00",
+  "packet_type": "source_yield_strict_decision_packet",
+  "source_run_dir": "docs/radar-runs/current-combined-source-yield-validation-2026-05-31",
+  "summary": {
+    "goal_reached": true,
+    "owner_follow_up": 1,
+    "review_worthy_research": 9,
+    "continue_research": 9,
+    "unsafe_promotions": 0,
+    "assign_owner_bar_preserved": true
+  },
+  "sections": {
+    "owner_follow_up": [
+      {
+        "name": "Voker",
+        "domain": "voker.ai",
+        "recommended_action": "Assign owner",
+        "lead_route": "sourcing_candidate",
+        "owner_readiness_score": 90,
+        "evidence_urls": [
+          "https://news.ycombinator.com/item?id=48109962",
+          "https://voker.ai",
+          "https://www.ycombinator.com/companies/voker"
+        ],
+        "why_system_call": "Only row clearing the strict weekly Assign Owner gate."
+      }
+    ],
+    "review_worthy_research": [
+      {
+        "name": "Goldbridge",
+        "domain": "goldbridgebanking.com",
+        "action": "research deeper",
+        "tier": "Watchlist",
+        "source_lane": "YC Directory",
+        "founders": [
+          "Alvin Salehi",
+          "Greg Rami"
+        ],
+        "stage": "PRE_SEED",
+        "raised": 500000,
+        "headcount": 5,
+        "company_linkedin": "https://www.linkedin.com/company/goldbridgebanking",
+        "company_x": "https://x.com/trygoldbridge",
+        "evidence_urls": [
+          "https://www.goldbridgebanking.com/"
+        ]
+      },
+      {
+        "name": "Simplex",
+        "domain": "simplex.sh",
+        "action": "research deeper",
+        "tier": "Needs More Evidence",
+        "source_lane": "YC Directory",
+        "founders": [
+          "Shreya Karpoor",
+          "Marco Nocito"
+        ],
+        "stage": "PRE_SEED",
+        "raised": 500000,
+        "headcount": 5,
+        "company_linkedin": "https://www.linkedin.com/company/usesimplex",
+        "company_x": "https://x.com/usesimplex",
+        "evidence_urls": [
+          "https://simplex.sh"
+        ]
+      },
+      {
+        "name": "Miru",
+        "domain": "mirurobotics.com",
+        "action": "research deeper",
+        "tier": "Needs More Evidence",
+        "source_lane": "YC Directory",
+        "founders": [
+          "Armel Talla",
+          "Vedant Nair",
+          "Benjamin Smidt"
+        ],
+        "stage": "PRE_SEED",
+        "raised": 500000,
+        "headcount": 4,
+        "company_linkedin": "https://www.linkedin.com/company/miruml",
+        "company_x": "https://x.com/mirurobotics",
+        "evidence_urls": [
+          "https://www.mirurobotics.com"
+        ]
+      },
+      {
+        "name": "Menza",
+        "domain": "menza.ai",
+        "action": "research deeper",
+        "tier": "Needs More Evidence",
+        "source_lane": "YC Directory",
+        "founders": [
+          "Qasim Munye",
+          "Mariam Ahmed"
+        ],
+        "stage": "PRE_SEED",
+        "raised": 500000,
+        "headcount": 6,
+        "company_linkedin": "https://www.linkedin.com/company/menzaai",
+        "company_x": "https://x.com/menzaai",
+        "evidence_urls": [
+          "https://menza.ai/",
+          "https://menza.ai/blog",
+          "https://www.ycombinator.com/companies/menza"
+        ]
+      },
+      {
+        "name": "jo",
+        "domain": "askjo.ai",
+        "action": "research deeper",
+        "tier": "Needs More Evidence",
+        "source_lane": "YC Directory",
+        "founders": [
+          "Pradeep Elankumaran",
+          "Kevin Li"
+        ],
+        "stage": "PRE_SEED",
+        "raised": 500000,
+        "headcount": 2,
+        "company_linkedin": "https://www.linkedin.com/company/askjoai",
+        "company_x": "https://www.x.com/askjoai",
+        "evidence_urls": [
+          "https://askjo.ai"
+        ]
+      },
+      {
+        "name": "Poka Labs",
+        "domain": "pokalabs.com",
+        "action": "research deeper",
+        "tier": "Needs More Evidence",
+        "source_lane": "YC Directory",
+        "founders": [
+          "Andrew Bass",
+          "Malay Shah"
+        ],
+        "stage": "PRE_SEED",
+        "raised": 2500000,
+        "headcount": 5,
+        "company_linkedin": "https://www.linkedin.com/company/pokalabs/",
+        "company_x": "",
+        "evidence_urls": [
+          "https://www.pokalabs.com/"
+        ]
+      },
+      {
+        "name": "Spur",
+        "domain": "spurtest.com",
+        "action": "research deeper",
+        "tier": "Needs More Evidence",
+        "source_lane": "YC Directory",
+        "founders": [
+          "Sneha Sivakumar",
+          "Anushka Nijhawan"
+        ],
+        "stage": "SEED",
+        "raised": 5000000,
+        "headcount": 76,
+        "company_linkedin": "https://www.linkedin.com/company/spur-test/",
+        "company_x": "https://x.com/spurtest",
+        "evidence_urls": [
+          "https://www.spurtest.com/"
+        ]
+      },
+      {
+        "name": "Coval",
+        "domain": "coval.dev",
+        "action": "research deeper",
+        "tier": "Needs More Evidence",
+        "source_lane": "YC Directory",
+        "founders": [
+          "Brooke Hopkins"
+        ],
+        "stage": "SEED",
+        "raised": 3800000,
+        "headcount": 20,
+        "company_linkedin": "https://www.linkedin.com/company/covaldev",
+        "company_x": "https://x.com/covaldev",
+        "evidence_urls": [
+          "https://coval.dev"
+        ]
+      },
+      {
+        "name": "Ångström AI",
+        "domain": "angstrom-ai.com",
+        "action": "research deeper",
+        "tier": "Needs More Evidence",
+        "source_lane": "YC Directory",
+        "founders": [
+          "Javier Antoran",
+          "Jose Miguel Hernandez Lobato",
+          "Laurence Midgley"
+        ],
+        "stage": "PRE_SEED",
+        "raised": 500000,
+        "headcount": 4,
+        "company_linkedin": "https://www.linkedin.com/company/angstrom-ai/",
+        "company_x": "https://x.com/Angstrom_ai",
+        "evidence_urls": [
+          "https://www.angstrom-ai.com"
+        ]
+      }
+    ],
+    "continue_research": [
+      {
+        "name": "Goldbridge",
+        "domain": "goldbridgebanking.com",
+        "action": "research deeper",
+        "tier": "Watchlist",
+        "source_lane": "YC Directory",
+        "founders": [
+          "Alvin Salehi",
+          "Greg Rami"
+        ],
+        "stage": "PRE_SEED",
+        "raised": 500000,
+        "headcount": 5,
+        "company_linkedin": "https://www.linkedin.com/company/goldbridgebanking",
+        "company_x": "https://x.com/trygoldbridge",
+        "evidence_urls": [
+          "https://www.goldbridgebanking.com/"
+        ]
+      },
+      {
+        "name": "Simplex",
+        "domain": "simplex.sh",
+        "action": "research deeper",
+        "tier": "Needs More Evidence",
+        "source_lane": "YC Directory",
+        "founders": [
+          "Shreya Karpoor",
+          "Marco Nocito"
+        ],
+        "stage": "PRE_SEED",
+        "raised": 500000,
+        "headcount": 5,
+        "company_linkedin": "https://www.linkedin.com/company/usesimplex",
+        "company_x": "https://x.com/usesimplex",
+        "evidence_urls": [
+          "https://simplex.sh"
+        ]
+      },
+      {
+        "name": "Miru",
+        "domain": "mirurobotics.com",
+        "action": "research deeper",
+        "tier": "Needs More Evidence",
+        "source_lane": "YC Directory",
+        "founders": [
+          "Armel Talla",
+          "Vedant Nair",
+          "Benjamin Smidt"
+        ],
+        "stage": "PRE_SEED",
+        "raised": 500000,
+        "headcount": 4,
+        "company_linkedin": "https://www.linkedin.com/company/miruml",
+        "company_x": "https://x.com/mirurobotics",
+        "evidence_urls": [
+          "https://www.mirurobotics.com"
+        ]
+      },
+      {
+        "name": "Menza",
+        "domain": "menza.ai",
+        "action": "research deeper",
+        "tier": "Needs More Evidence",
+        "source_lane": "YC Directory",
+        "founders": [
+          "Qasim Munye",
+          "Mariam Ahmed"
+        ],
+        "stage": "PRE_SEED",
+        "raised": 500000,
+        "headcount": 6,
+        "company_linkedin": "https://www.linkedin.com/company/menzaai",
+        "company_x": "https://x.com/menzaai",
+        "evidence_urls": [
+          "https://menza.ai/",
+          "https://menza.ai/blog",
+          "https://www.ycombinator.com/companies/menza"
+        ]
+      },
+      {
+        "name": "jo",
+        "domain": "askjo.ai",
+        "action": "research deeper",
+        "tier": "Needs More Evidence",
+        "source_lane": "YC Directory",
+        "founders": [
+          "Pradeep Elankumaran",
+          "Kevin Li"
+        ],
+        "stage": "PRE_SEED",
+        "raised": 500000,
+        "headcount": 2,
+        "company_linkedin": "https://www.linkedin.com/company/askjoai",
+        "company_x": "https://www.x.com/askjoai",
+        "evidence_urls": [
+          "https://askjo.ai"
+        ]
+      },
+      {
+        "name": "Poka Labs",
+        "domain": "pokalabs.com",
+        "action": "research deeper",
+        "tier": "Needs More Evidence",
+        "source_lane": "YC Directory",
+        "founders": [
+          "Andrew Bass",
+          "Malay Shah"
+        ],
+        "stage": "PRE_SEED",
+        "raised": 2500000,
+        "headcount": 5,
+        "company_linkedin": "https://www.linkedin.com/company/pokalabs/",
+        "company_x": "",
+        "evidence_urls": [
+          "https://www.pokalabs.com/"
+        ]
+      },
+      {
+        "name": "Spur",
+        "domain": "spurtest.com",
+        "action": "research deeper",
+        "tier": "Needs More Evidence",
+        "source_lane": "YC Directory",
+        "founders": [
+          "Sneha Sivakumar",
+          "Anushka Nijhawan"
+        ],
+        "stage": "SEED",
+        "raised": 5000000,
+        "headcount": 76,
+        "company_linkedin": "https://www.linkedin.com/company/spur-test/",
+        "company_x": "https://x.com/spurtest",
+        "evidence_urls": [
+          "https://www.spurtest.com/"
+        ]
+      },
+      {
+        "name": "Coval",
+        "domain": "coval.dev",
+        "action": "research deeper",
+        "tier": "Needs More Evidence",
+        "source_lane": "YC Directory",
+        "founders": [
+          "Brooke Hopkins"
+        ],
+        "stage": "SEED",
+        "raised": 3800000,
+        "headcount": 20,
+        "company_linkedin": "https://www.linkedin.com/company/covaldev",
+        "company_x": "https://x.com/covaldev",
+        "evidence_urls": [
+          "https://coval.dev"
+        ]
+      },
+      {
+        "name": "Ångström AI",
+        "domain": "angstrom-ai.com",
+        "action": "research deeper",
+        "tier": "Needs More Evidence",
+        "source_lane": "YC Directory",
+        "founders": [
+          "Javier Antoran",
+          "Jose Miguel Hernandez Lobato",
+          "Laurence Midgley"
+        ],
+        "stage": "PRE_SEED",
+        "raised": 500000,
+        "headcount": 4,
+        "company_linkedin": "https://www.linkedin.com/company/angstrom-ai/",
+        "company_x": "https://x.com/Angstrom_ai",
+        "evidence_urls": [
+          "https://www.angstrom-ai.com"
+        ]
+      }
+    ],
+    "source_caveats": [
+      "last30days sector queries were degraded or errored, mostly from Safari cookie permissions and timeouts.",
+      "Product Hunt API worked, but several launch redirects still needed fallback domain resolution or stayed unresolved.",
+      "X worked as a launch signal, but evidence was thin and still needs domain enrichment for some rows."
+    ]
+  }
+}

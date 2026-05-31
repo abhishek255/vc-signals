@@ -285,6 +285,8 @@ def test_collect_live_evidence_includes_product_hunt_when_enabled(monkeypatch):
                 }
             ],
             "warnings": [],
+            "source_mode": "api",
+            "source_meta": {"endpoint": "https://api.producthunt.com/v2/api/graphql"},
         },
     )
 
@@ -299,6 +301,177 @@ def test_collect_live_evidence_includes_product_hunt_when_enabled(monkeypatch):
     product_hunt_health = next(item for item in evidence["source_health"] if item["source"] == "product_hunt")
     assert product_hunt_health["status"] == "complete"
     assert product_hunt_health["fresh_items"] == 1
+    assert evidence["product_hunt_meta"]["source_mode"] == "api"
+    assert evidence["product_hunt_meta"]["endpoint"].endswith("/graphql")
+
+
+def test_collect_live_evidence_includes_yc_directory_when_enabled(monkeypatch):
+    import radar_run
+
+    monkeypatch.setattr(radar_run, "run_query", None)
+    monkeypatch.setattr(radar_run, "run_trending", lambda **kwargs: {"repos": [], "warnings": []})
+    monkeypatch.setattr(
+        radar_run,
+        "run_yc_directory",
+        lambda limit, timeout_seconds=None: {
+            "companies": [
+                {
+                    "source": "yc_directory",
+                    "name": "AgentForge",
+                    "url": "https://www.ycombinator.com/companies/agentforge",
+                    "website": "https://agentforge.dev",
+                    "domain": "agentforge.dev",
+                    "action": "research deeper",
+                }
+            ],
+            "warnings": [],
+            "source_meta": {"endpoint": "https://yc-oss.github.io/api/companies/all.json"},
+        },
+    )
+
+    evidence = radar_run.collect_live_evidence(
+        sectors=(),
+        github_limit=0,
+        yc_directory_limit=5,
+        yc_directory_timeout_seconds=3,
+    )
+
+    assert evidence["yc_directory"][0]["name"] == "AgentForge"
+    yc_health = next(item for item in evidence["source_health"] if item["source"] == "yc_directory")
+    assert yc_health["status"] == "complete"
+    assert yc_health["fresh_items"] == 1
+
+
+def test_collect_live_evidence_reports_x_launch_unavailable_when_enabled(monkeypatch):
+    import radar_run
+
+    monkeypatch.setattr(radar_run, "run_query", lambda *args, **kwargs: {"items": [], "clusters": [], "warnings": []})
+    monkeypatch.setattr(radar_run, "run_trending", lambda **kwargs: {"repos": [], "warnings": []})
+    monkeypatch.setattr(
+        radar_run,
+        "run_x_launches",
+        lambda **kwargs: {
+            "launches": [],
+            "warnings": ["X launch lane skipped: configure XAI_API_KEY or X AUTH_TOKEN/CT0 in last30days config."],
+            "status": "unavailable",
+            "queries": [],
+        },
+    )
+
+    evidence = radar_run.collect_live_evidence(
+        sectors=(),
+        github_limit=0,
+        x_launch_limit=5,
+    )
+
+    x_health = next(item for item in evidence["source_health"] if item["source"] == "x_launches")
+    assert x_health["status"] == "unavailable"
+    assert "X launch lane skipped" in x_health["warnings"][0]
+
+
+def test_build_signals_from_yc_and_x_evidence():
+    import radar_run
+
+    result = radar_run.build_signals_from_evidence(
+        {
+            "last30days": {},
+            "github": [],
+            "product_hunt": [],
+            "yc_directory": [
+                {
+                    "source": "yc_directory",
+                    "name": "AgentForge",
+                    "title": "AgentForge | Y Combinator",
+                    "url": "https://www.ycombinator.com/companies/agentforge",
+                    "website": "https://agentforge.dev",
+                    "domain": "agentforge.dev",
+                    "action": "research deeper",
+                }
+            ],
+            "x_launches": [
+                {
+                    "source": "x",
+                    "company_name": "AgentForge",
+                    "title": "Launching AgentForge for AI agent security",
+                    "url": "https://x.com/founder/status/1",
+                    "website": "https://agentforge.dev",
+                    "domain": "agentforge.dev",
+                    "action": "research deeper",
+                }
+            ],
+        }
+    )
+
+    assert {signal.role for signal in result["signals"]} == {"yc_company", "social_launch"}
+    assert all(signal.can_create_candidate for signal in result["signals"])
+
+
+def test_candidate_from_yc_signal_uses_description_and_rich_founder_profiles():
+    import radar_run
+    from radar_models import Signal
+
+    candidate = radar_run._candidate_from_signal(
+        Signal(
+            source="yc_directory",
+            role="yc_company",
+            title="AgentForge | Y Combinator",
+            url="https://www.ycombinator.com/companies/agentforge",
+            text="Developer security platform for AI agent workflows.",
+            can_create_candidate=True,
+            metadata={
+                "source": "yc_directory",
+                "source_lane": "YC Directory",
+                "company_name": "AgentForge",
+                "domain": "agentforge.dev",
+                "website": "https://agentforge.dev",
+                "description": "Developer security platform for AI agent workflows.",
+                "founders": ["Asha Rao"],
+                "founder_profiles": [
+                    {
+                        "name": "Asha Rao",
+                        "role": "Co-Founder",
+                        "linkedin": "https://www.linkedin.com/in/asharao",
+                        "x": "https://x.com/asharao",
+                    }
+                ],
+                "action": "research deeper",
+            },
+        )
+    )
+
+    assert "Developer security platform" in candidate.why_on_radar
+    assert candidate.founder_profiles == [
+        {
+            "name": "Asha Rao",
+            "linkedin": "https://www.linkedin.com/in/asharao",
+            "x": "https://x.com/asharao",
+        }
+    ]
+
+
+def test_yc_only_candidate_cannot_assign_owner_without_corroboration():
+    import radar_run
+    from radar_models import Candidate
+
+    candidate = Candidate(
+        name="AgentForge",
+        domain="agentforge.dev",
+        sector="Devtools",
+        theme="AI agent security",
+        source="https://www.ycombinator.com/companies/agentforge",
+        candidate_type="yc_company",
+        source_lane="YC Directory",
+        source_count=1,
+        tier="Watchlist",
+        evidence_confidence="Medium",
+        action="assign owner",
+        owner_readiness_score=100,
+        missing_owner_evidence=[],
+    )
+
+    result = radar_run._enforce_candidate_action_safety(candidate)
+
+    assert result.action == "research deeper"
 
 
 def test_build_signals_from_product_hunt_evidence():

@@ -579,6 +579,96 @@ def test_hn_outbound_skipped_candidate_never_becomes_assign_owner(tmp_path: Path
     assert skipped["sighting_history"][0]["completion_status"] == "skipped_budget"
 
 
+def test_owner_readiness_assign_owner_cannot_override_weekly_gate(tmp_path: Path):
+    from signal_ledger import build_company_signal_ledger, build_ledger_action_report, build_partner_decision_packet
+
+    run_dir = tmp_path / "current-combined-source-yield-validation-2026-05-31"
+    _write_json(
+        run_dir / "candidates.json",
+        [
+            {
+                "name": "Miru",
+                "domain": "mirurobotics.com",
+                "action": "research deeper",
+                "lead_route": "research_deeper",
+                "source_lane": "YC Directory",
+                "missing_evidence": [],
+            }
+        ],
+    )
+    _write_json(
+        run_dir / "owner-readiness.json",
+        {
+            "items": [
+                {
+                    "candidate_key": "mirurobotics.com",
+                    "name": "Miru",
+                    "domain": "mirurobotics.com",
+                    "owner_readiness_score": 100,
+                    "recommended_owner_action": "Assign owner",
+                    "missing_owner_evidence": [],
+                    "founder_team_evidence": ["https://www.ycombinator.com/companies/miru"],
+                    "stage_funding_evidence": ["https://www.ycombinator.com/companies/miru"],
+                    "customer_buyer_evidence": ["https://mirurobotics.com"],
+                }
+            ]
+        },
+    )
+
+    ledger = build_company_signal_ledger([run_dir], generated_at="2026-05-31T00:00:00Z")
+    action_report = build_ledger_action_report(ledger, generated_at="2026-05-31T01:00:00Z")
+    packet = build_partner_decision_packet(ledger, action_report=action_report, generated_at="2026-05-31T02:00:00Z")
+    miru = _entity(ledger, "company:mirurobotics.com")
+
+    assert miru["current_action"] == "Research deeper"
+    assert miru["current_route"] == "Research Deeper"
+    assert miru["sighting_history"][0]["ungated_owner_recommendation"] is True
+    assert ledger["summary"]["assign_owner_entities"] == 0
+    assert packet["summary"]["owner_follow_up"] == 0
+
+
+def test_weekly_assign_owner_gate_survives_lower_priority_owner_readiness(tmp_path: Path):
+    from signal_ledger import build_company_signal_ledger
+
+    run_dir = tmp_path / "current-combined-source-yield-validation-2026-05-31"
+    _write_json(
+        run_dir / "weekly-focus.json",
+        {
+            "partner_focus": [
+                {
+                    "name": "Voker",
+                    "company_domain": "voker.ai",
+                    "recommended_action": "Assign owner",
+                    "lead_route": "sourcing_candidate",
+                    "missing_evidence": [],
+                }
+            ]
+        },
+    )
+    _write_json(
+        run_dir / "owner-readiness.json",
+        {
+            "items": [
+                {
+                    "candidate_key": "voker.ai",
+                    "name": "Voker",
+                    "domain": "voker.ai",
+                    "owner_readiness_score": 65,
+                    "recommended_owner_action": "Research deeper",
+                    "missing_owner_evidence": ["no stage/funding evidence"],
+                }
+            ]
+        },
+    )
+
+    ledger = build_company_signal_ledger([run_dir], generated_at="2026-05-31T00:00:00Z")
+    voker = _entity(ledger, "company:voker.ai")
+
+    assert voker["current_action"] == "Assign owner"
+    assert voker["current_route"] == "Assign Owner"
+    assert ledger["summary"]["assign_owner_entities"] == 1
+
+
 def test_weekly_cli_threads_optional_ledger_update_hook(tmp_path: Path, monkeypatch, capsys):
     import radar_run
 

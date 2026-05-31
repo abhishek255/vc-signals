@@ -1,0 +1,26 @@
+{
+  "generated_at": "2026-05-31T19:42:56.562402+00:00",
+  "source_run_dir": "docs/radar-runs/current-combined-source-yield-validation-2026-05-31",
+  "blessed_current_dir": "docs/radar-runs/current",
+  "required_artifacts": [
+    "README.md",
+    "partner-decision-packet.json",
+    "ledger-action-report.json",
+    "run-manifest.json"
+  ],
+  "decision_artifacts": [
+    "source-yield-validation-report.json",
+    "source-yield-validation-report.md"
+  ],
+  "inputs": {
+    "partner_decision_packet": "docs/radar-runs/current-combined-source-yield-validation-2026-05-31/source-yield-decision-packet/partner-decision-packet.json",
+    "ledger_action_report": "docs/radar-runs/current-combined-source-yield-validation-2026-05-31/source-yield-decision-packet/ledger-action-report.json",
+    "source_yield_validation_report": "docs/radar-runs/current-combined-source-yield-validation-2026-05-31/source-yield-validation-report.json",
+    "source_yield_validation_markdown": "docs/radar-runs/current-combined-source-yield-validation-2026-05-31/source-yield-validation-report.md"
+  },
+  "policy": {
+    "assign_owner_gate": "unchanged_high_confidence_only",
+    "review_worthy_goal": "increase credible Review-Worthy rows without unsafe owner promotion",
+    "cleanup_mode": "bless_current_without_deleting_experiments"
+  }
+}

@@ -46,6 +46,7 @@ def _find_vendor_path() -> Path:
 DEFAULT_VENDOR_PATH = _find_vendor_path()
 DEFAULT_CONFIG_PATH = Path.home() / ".config" / "last30days" / ".env"
 PLACEHOLDER_VALUES = {"", "...", "TODO", "YOUR_KEY", "YOUR_API_KEY", "<YOUR_API_KEY>"}
+TRUTHY_ENV_VALUES = {"1", "true", "yes", "on"}
 IDENTITY_USEFUL_FIELDS = (
     "outbound_url",
     "resolved_url",
@@ -66,6 +67,31 @@ IDENTITY_USEFUL_FIELDS = (
 def _configured_value(value: str) -> bool:
     normalized = value.strip().strip("\"'")
     return normalized not in PLACEHOLDER_VALUES
+
+
+def _truthy_env(value: object) -> bool:
+    return str(value or "").strip().lower() in TRUTHY_ENV_VALUES
+
+
+def _load_env_file(path: Path = DEFAULT_CONFIG_PATH) -> dict[str, str]:
+    env: dict[str, str] = {}
+    if not path.exists():
+        return env
+    for line in path.read_text().splitlines():
+        stripped = line.strip()
+        if not stripped or stripped.startswith("#") or "=" not in stripped:
+            continue
+        key, value = stripped.split("=", 1)
+        env[key.strip()] = value.strip().strip("\"'")
+    return env
+
+
+def _disable_browser_cookie_lookup(env: dict[str, str], detection_env: dict[str, str]) -> None:
+    if _truthy_env(detection_env.get("LAST30DAYS_ALLOW_BROWSER_COOKIES")):
+        return
+    env["FROM_BROWSER"] = "off"
+    env["LAST30DAYS_DISABLE_BROWSER_COOKIES"] = "1"
+    env["BIRD_DISABLE_BROWSER_COOKIES"] = "1"
 
 
 def _decode_subprocess_stream(value) -> str:
@@ -295,6 +321,11 @@ def run_query(
     env = os.environ.copy()
     if extra_env:
         env.update({key: str(value) for key, value in extra_env.items()})
+    detection_env = _load_env_file(DEFAULT_CONFIG_PATH)
+    detection_env.update(os.environ)
+    if extra_env:
+        detection_env.update({key: str(value) for key, value in extra_env.items()})
+    _disable_browser_cookie_lookup(env, detection_env)
     if include_sources:
         env["INCLUDE_SOURCES"] = include_sources
     if exclude_sources:

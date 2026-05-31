@@ -1,0 +1,381 @@
+{
+  "generated_at": "2026-05-31T19:42:47.735637+00:00",
+  "run_dir": "docs/radar-runs/current-combined-source-yield-validation-2026-05-31",
+  "goal_assessment": {
+    "goal_reached": true,
+    "target_assign_owner": [
+      "Voker"
+    ],
+    "assign_owner_names": [
+      "Voker"
+    ],
+    "candidate_assign_owner_names": [],
+    "voker_assign_owner_present": true,
+    "assign_owner_bar_preserved": true,
+    "unexpected_weekly_assign_owner_names": [],
+    "unexpected_candidate_assign_owner_names": [],
+    "target_net_new_review_worthy_count": 5,
+    "net_new_review_worthy_count": 9,
+    "review_worthy_target_met": true
+  },
+  "review_worthy_rows": [
+    {
+      "name": "Goldbridge",
+      "domain": "goldbridgebanking.com",
+      "action": "research deeper",
+      "tier": "Watchlist",
+      "source_lane": "YC Directory",
+      "founders": [
+        "Alvin Salehi",
+        "Greg Rami"
+      ],
+      "stage": "PRE_SEED",
+      "raised": 500000,
+      "headcount": 5,
+      "company_linkedin": "https://www.linkedin.com/company/goldbridgebanking",
+      "company_x": "https://x.com/trygoldbridge",
+      "evidence_urls": [
+        "https://www.goldbridgebanking.com/"
+      ]
+    },
+    {
+      "name": "Simplex",
+      "domain": "simplex.sh",
+      "action": "research deeper",
+      "tier": "Needs More Evidence",
+      "source_lane": "YC Directory",
+      "founders": [
+        "Shreya Karpoor",
+        "Marco Nocito"
+      ],
+      "stage": "PRE_SEED",
+      "raised": 500000,
+      "headcount": 5,
+      "company_linkedin": "https://www.linkedin.com/company/usesimplex",
+      "company_x": "https://x.com/usesimplex",
+      "evidence_urls": [
+        "https://simplex.sh"
+      ]
+    },
+    {
+      "name": "Miru",
+      "domain": "mirurobotics.com",
+      "action": "research deeper",
+      "tier": "Needs More Evidence",
+      "source_lane": "YC Directory",
+      "founders": [
+        "Armel Talla",
+        "Vedant Nair",
+        "Benjamin Smidt"
+      ],
+      "stage": "PRE_SEED",
+      "raised": 500000,
+      "headcount": 4,
+      "company_linkedin": "https://www.linkedin.com/company/miruml",
+      "company_x": "https://x.com/mirurobotics",
+      "evidence_urls": [
+        "https://www.mirurobotics.com"
+      ]
+    },
+    {
+      "name": "Menza",
+      "domain": "menza.ai",
+      "action": "research deeper",
+      "tier": "Needs More Evidence",
+      "source_lane": "YC Directory",
+      "founders": [
+        "Qasim Munye",
+        "Mariam Ahmed"
+      ],
+      "stage": "PRE_SEED",
+      "raised": 500000,
+      "headcount": 6,
+      "company_linkedin": "https://www.linkedin.com/company/menzaai",
+      "company_x": "https://x.com/menzaai",
+      "evidence_urls": [
+        "https://menza.ai/",
+        "https://menza.ai/blog",
+        "https://www.ycombinator.com/companies/menza"
+      ]
+    },
+    {
+      "name": "jo",
+      "domain": "askjo.ai",
+      "action": "research deeper",
+      "tier": "Needs More Evidence",
+      "source_lane": "YC Directory",
+      "founders": [
+        "Pradeep Elankumaran",
+        "Kevin Li"
+      ],
+      "stage": "PRE_SEED",
+      "raised": 500000,
+      "headcount": 2,
+      "company_linkedin": "https://www.linkedin.com/company/askjoai",
+      "company_x": "https://www.x.com/askjoai",
+      "evidence_urls": [
+        "https://askjo.ai"
+      ]
+    },
+    {
+      "name": "Poka Labs",
+      "domain": "pokalabs.com",
+      "action": "research deeper",
+      "tier": "Needs More Evidence",
+      "source_lane": "YC Directory",
+      "founders": [
+        "Andrew Bass",
+        "Malay Shah"
+      ],
+      "stage": "PRE_SEED",
+      "raised": 2500000,
+      "headcount": 5,
+      "company_linkedin": "https://www.linkedin.com/company/pokalabs/",
+      "company_x": "",
+      "evidence_urls": [
+        "https://www.pokalabs.com/"
+      ]
+    },
+    {
+      "name": "Spur",
+      "domain": "spurtest.com",
+      "action": "research deeper",
+      "tier": "Needs More Evidence",
+      "source_lane": "YC Directory",
+      "founders": [
+        "Sneha Sivakumar",
+        "Anushka Nijhawan"
+      ],
+      "stage": "SEED",
+      "raised": 5000000,
+      "headcount": 76,
+      "company_linkedin": "https://www.linkedin.com/company/spur-test/",
+      "company_x": "https://x.com/spurtest",
+      "evidence_urls": [
+        "https://www.spurtest.com/"
+      ]
+    },
+    {
+      "name": "Coval",
+      "domain": "coval.dev",
+      "action": "research deeper",
+      "tier": "Needs More Evidence",
+      "source_lane": "YC Directory",
+      "founders": [
+        "Brooke Hopkins"
+      ],
+      "stage": "SEED",
+      "raised": 3800000,
+      "headcount": 20,
+      "company_linkedin": "https://www.linkedin.com/company/covaldev",
+      "company_x": "https://x.com/covaldev",
+      "evidence_urls": [
+        "https://coval.dev"
+      ]
+    },
+    {
+      "name": "Ångström AI",
+      "domain": "angstrom-ai.com",
+      "action": "research deeper",
+      "tier": "Needs More Evidence",
+      "source_lane": "YC Directory",
+      "founders": [
+        "Javier Antoran",
+        "Jose Miguel Hernandez Lobato",
+        "Laurence Midgley"
+      ],
+      "stage": "PRE_SEED",
+      "raised": 500000,
+      "headcount": 4,
+      "company_linkedin": "https://www.linkedin.com/company/angstrom-ai/",
+      "company_x": "https://x.com/Angstrom_ai",
+      "evidence_urls": [
+        "https://www.angstrom-ai.com"
+      ]
+    }
+  ],
+  "source_counts": {
+    "github": 14,
+    "product_hunt": 10,
+    "yc_directory": 18,
+    "x_launches": 2,
+    "last30days_queries": 6,
+    "hn_launch_trial_rows": 5,
+    "hn_launch_assign_owner": 1,
+    "hn_launch_unsafe_promotions": 0
+  },
+  "source_health": [
+    {
+      "source": "last30days:devtools",
+      "status": "error",
+      "fresh_items": 0,
+      "duration_seconds": 83.39,
+      "warnings": [
+        "last30days query timed out (60s): [safari] Permission denied reading Cookies.binarycookies. Enable Full Disk Access for Terminal in System Settings > Privacy & Security > Full Disk Access.\n[safari] Permission denied reading Cookies.binarycookies. Enable Full Disk Access for Terminal in System Settings > Privacy & Security > Full Dis"
+      ]
+    },
+    {
+      "source": "last30days:cybersecurity",
+      "status": "degraded",
+      "fresh_items": 0,
+      "duration_seconds": 102.38,
+      "warnings": [
+        "last30days query timed out (60s): [safari] Permission denied reading Cookies.binarycookies. Enable Full Disk Access for Terminal in System Settings > Privacy & Security > Full Disk Access.\n[safari] Permission denied reading Cookies.binarycookies. Enable Full Disk Access for Terminal in System Settings > Privacy & Security > Full Dis"
+      ]
+    },
+    {
+      "source": "last30days:ai-infra",
+      "status": "degraded",
+      "fresh_items": 0,
+      "duration_seconds": 86.65,
+      "warnings": [
+        "last30days query timed out (60s): [safari] Permission denied reading Cookies.binarycookies. Enable Full Disk Access for Terminal in System Settings > Privacy & Security > Full Disk Access.\n[safari] Permission denied reading Cookies.binarycookies. Enable Full Disk Access for Terminal in System Settings > Privacy & Security > Full Dis"
+      ]
+    },
+    {
+      "source": "last30days:vertical-ai",
+      "status": "error",
+      "fresh_items": 0,
+      "duration_seconds": 84.33,
+      "warnings": [
+        "last30days query timed out (60s): [safari] Permission denied reading Cookies.binarycookies. Enable Full Disk Access for Terminal in System Settings > Privacy & Security > Full Disk Access.\n[safari] Permission denied reading Cookies.binarycookies. Enable Full Disk Access for Terminal in System Settings > Privacy & Security > Full Dis"
+      ]
+    },
+    {
+      "source": "last30days:data-infra",
+      "status": "degraded",
+      "fresh_items": 0,
+      "duration_seconds": 81.65,
+      "warnings": [
+        "last30days query timed out (60s): [safari] Permission denied reading Cookies.binarycookies. Enable Full Disk Access for Terminal in System Settings > Privacy & Security > Full Disk Access.\n[safari] Permission denied reading Cookies.binarycookies. Enable Full Disk Access for Terminal in System Settings > Privacy & Security > Full Dis"
+      ]
+    },
+    {
+      "source": "last30days:oss",
+      "status": "degraded",
+      "fresh_items": 0,
+      "duration_seconds": 83.25,
+      "warnings": [
+        "last30days query timed out (60s): [safari] Permission denied reading Cookies.binarycookies. Enable Full Disk Access for Terminal in System Settings > Privacy & Security > Full Disk Access.\n[safari] Permission denied reading Cookies.binarycookies. Enable Full Disk Access for Terminal in System Settings > Privacy & Security > Full Dis"
+      ]
+    },
+    {
+      "source": "github",
+      "status": "complete",
+      "fresh_items": 25,
+      "duration_seconds": 19.76,
+      "warnings": []
+    },
+    {
+      "source": "product_hunt",
+      "status": "complete",
+      "fresh_items": 10,
+      "duration_seconds": 113.17,
+      "warnings": [
+        "Second Brain for AI: 403 Forbidden; web resolver failed: last30days query timed out (30s)",
+        "TabTasker: 403 Forbidden; web resolver found no verified official domain",
+        "Web Clipper for NotebookLM: 403 Forbidden; web resolver found no verified official domain",
+        "Zoomix: 403 Forbidden; web resolver found no verified official domain",
+        "Harness Starter Kit: 403 Forbidden; web resolver found no verified official domain",
+        "Hum: 403 Forbidden; web resolver found no verified official domain"
+      ]
+    },
+    {
+      "source": "yc_directory",
+      "status": "complete",
+      "fresh_items": 18,
+      "duration_seconds": 6.47,
+      "warnings": []
+    },
+    {
+      "source": "x_launches",
+      "status": "complete",
+      "fresh_items": 2,
+      "duration_seconds": 355.72,
+      "warnings": [
+        "Top evidence is highly concentrated in one source.",
+        "Top evidence is highly concentrated in one source.",
+        "Top evidence is highly concentrated in one source.",
+        "Evidence is thin for this topic.",
+        "Top evidence is highly concentrated in one source."
+      ]
+    },
+    {
+      "source": "hn_launch_trial",
+      "status": "complete",
+      "fresh_items": 5,
+      "duration_seconds": 0,
+      "warnings": []
+    }
+  ],
+  "source_access": {
+    "configured": [
+      "Product Hunt API",
+      "X"
+    ],
+    "manual_mode": [
+      "Crunchbase",
+      "Coresignal",
+      "LinkedIn"
+    ],
+    "missing": [
+      "PitchBook",
+      "People Data Labs",
+      "Dealroom",
+      "Apollo",
+      "Clay"
+    ],
+    "recommendation": "Product Hunt and X are configured; Coresignal, Crunchbase, and LinkedIn are intentionally manual-mode for now."
+  },
+  "manual_enrichment_summary": {
+    "targets": 3,
+    "with_missing_linkedin": 3,
+    "with_missing_founder_team": 0,
+    "with_missing_stage_or_funding": 2,
+    "excluded_complete_or_low_value": 22,
+    "selection_policy": "Domain required; concrete missing evidence required; category/context rows excluded; ranked by action, tier, owner readiness, partner priority, and evidence scores."
+  },
+  "company_discovery_summary": {
+    "queries_run": 12,
+    "verification_queries_run": 2,
+    "maturity_queries_run": 4,
+    "article_fetches_attempted": 6,
+    "provider_items_seen": 111,
+    "cache_hits": 0,
+    "stale_cache_hits": 0,
+    "maturity_cache_hits": 0,
+    "stale_maturity_cache_hits": 0,
+    "live_calls": 16,
+    "partial": true,
+    "budget_exceeded": true,
+    "source_type_counts": {
+      "unknown": 52,
+      "listicle_or_seo": 7,
+      "directory_page": 5,
+      "official_company_page": 9,
+      "publisher_article": 19,
+      "content_platform": 3,
+      "funding_press_release": 5,
+      "github_repo": 11
+    },
+    "accepted": 4,
+    "rejected": 95,
+    "grounded_available": true
+  },
+  "ledger_partner_packet_warning": {
+    "generated_partner_packet_owner_follow_up_count": 1,
+    "generated_partner_packet_owner_follow_up_names": [
+      "Voker"
+    ],
+    "strict_weekly_assign_owner_names": [
+      "Voker"
+    ],
+    "unsafe_for_blessed_decision": false,
+    "warning": ""
+  },
+  "caveats": [
+    "last30days sector queries were degraded or errored, mostly from Safari cookie permissions and timeouts.",
+    "Product Hunt API worked, but several launch redirects still needed fallback domain resolution or stayed unresolved.",
+    "X worked as a launch signal, but evidence was thin and still needs domain enrichment for some rows."
+  ]
+}

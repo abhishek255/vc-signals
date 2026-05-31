@@ -37,6 +37,10 @@ JSON_ITEM_FILES = (
     "main-owner-evidence.json",
     "main-founder-team.json",
 )
+OWNER_READINESS_FILES = {
+    "owner-readiness.json",
+    "main-owner-readiness.json",
+}
 HN_ROW_FILES = (
     "hn-launch-trial/hn-trial-row-review.json",
     "hn-completion/hn-trial-row-review.json",
@@ -335,6 +339,30 @@ def _action_from_row(row: dict) -> str:
     return ""
 
 
+def _is_owner_readiness_source(source_file: str) -> bool:
+    return Path(source_file).name in OWNER_READINESS_FILES
+
+
+def _action_source_priority(source_file: str, raw_kind: str) -> int:
+    if raw_kind == "hn_row_review":
+        return 40
+    if source_file == "weekly-focus.json":
+        return 35
+    if source_file == "candidates.json":
+        return 30
+    if raw_kind == "hn_skipped_candidate":
+        return 25
+    if _is_owner_readiness_source(source_file):
+        return 10
+    return 20
+
+
+def _gate_owner_readiness_action(action: str, source_file: str) -> tuple[str, bool]:
+    if action == "Assign owner" and _is_owner_readiness_source(source_file):
+        return "Research deeper", True
+    return action, False
+
+
 def _route_from_row(row: dict, action: str) -> str:
     lead_route = _clean_string(row.get("lead_route")).lower()
     query_status = _clean_string(row.get("query_status")).lower()
@@ -425,6 +453,7 @@ def _missing_from_row(row: dict) -> list[str]:
 
 def _sighting_from_row(row: dict, *, run_dir: Path, source_file: str, raw_kind: str) -> dict:
     action = _action_from_row(row)
+    action, ungated_owner_recommendation = _gate_owner_readiness_action(action, source_file)
     route = _route_from_row(row, action)
     urls = _urls_from_row(row)
     entity_id = _entity_id(row)
@@ -448,6 +477,8 @@ def _sighting_from_row(row: dict, *, run_dir: Path, source_file: str, raw_kind: 
         "raw_kind": raw_kind,
         "route": route,
         "action": action or "Observed",
+        "action_source_priority": _action_source_priority(source_file, raw_kind),
+        "ungated_owner_recommendation": ungated_owner_recommendation,
         "attio_status": _clean_string(row.get("attio_status")),
         "attio_owner": _clean_string(row.get("attio_owner")),
         "attio_action": _clean_string(row.get("attio_action")),
@@ -464,14 +495,19 @@ def _sighting_from_row(row: dict, *, run_dir: Path, source_file: str, raw_kind: 
 
 def _merge_run_sighting(existing: dict, new: dict) -> dict:
     merged = dict(existing)
-    for key in ("name", "canonical_name", "domain", "project_key", "entity_type", "route", "action", "source_file", "raw_kind"):
+    for key in ("name", "canonical_name", "domain", "project_key", "entity_type"):
         if new.get(key):
             merged[key] = new[key]
+    if int(new.get("action_source_priority", 0) or 0) >= int(existing.get("action_source_priority", 0) or 0):
+        for key in ("route", "action", "source_file", "raw_kind", "action_source_priority"):
+            if new.get(key):
+                merged[key] = new[key]
     for key in ("attio_status", "attio_owner", "attio_action", "completion_status", "partial_reason"):
         if new.get(key):
             merged[key] = new[key]
     if "owner_readiness_score" in new and new.get("owner_readiness_score") is not None:
         merged["owner_readiness_score"] = new.get("owner_readiness_score")
+    merged["ungated_owner_recommendation"] = bool(existing.get("ungated_owner_recommendation")) or bool(new.get("ungated_owner_recommendation"))
     merged["unsafe_promotion"] = bool(existing.get("unsafe_promotion")) or bool(new.get("unsafe_promotion"))
     merged["source_lanes"] = _ordered_lanes((existing.get("source_lanes") or []) + (new.get("source_lanes") or []))
     merged["evidence_urls"] = _unique((existing.get("evidence_urls") or []) + (new.get("evidence_urls") or []))

@@ -22,4 +22,18 @@ build/
 .claude/skills/vc-signals/data/companies/company_index.json
 .claude/skills/vc-signals/data/companies/enrichment_cache.json
 .claude/skills/vc-signals/data/companies/candidate_history.json
+.claude/skills/vc-signals/data/companies/hn_enrichment_cache.json
+.claude/skills/vc-signals/data/radar_runs/
 vendor/
+.DS_Store
+**/.DS_Store
+
+# Radar run outputs: keep the blessed pointer, ignore generated experiment bulk.
+docs/radar-runs/current/*
+!docs/radar-runs/current/README.md
+!docs/radar-runs/current/partner-decision-packet.json
+!docs/radar-runs/current/ledger-action-report.json
+!docs/radar-runs/current/run-manifest.json
+!docs/radar-runs/current/source-yield-validation-report.json
+!docs/radar-runs/current/source-yield-validation-report.md
+docs/radar-runs/current-*/*

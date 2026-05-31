@@ -40,11 +40,32 @@ except ImportError:  # pragma: no cover - only for damaged installs
     run_product_hunt_launches = None
 
 try:
+    from yc_directory import run_yc_directory
+except ImportError:  # pragma: no cover - only for damaged installs
+    run_yc_directory = None
+
+try:
+    from x_launches import run_x_launches
+except ImportError:  # pragma: no cover - only for damaged installs
+    run_x_launches = None
+
+try:
     from last30days_adapter import check_availability as check_last30days_availability
     from last30days_adapter import run_query
 except ImportError:  # pragma: no cover - only for damaged installs
     check_last30days_availability = None
     run_query = None
+
+try:
+    from manual_enrichment_targets import build_manual_enrichment_targets, write_manual_enrichment_targets_json
+except ImportError:  # pragma: no cover - only for damaged installs
+    build_manual_enrichment_targets = None
+    write_manual_enrichment_targets_json = None
+
+try:
+    from source_access import detect_enrichment_provider_access
+except ImportError:  # pragma: no cover - only for damaged installs
+    detect_enrichment_provider_access = None
 
 from radar_models import Candidate, EvidenceMetadata, FocusItem, RejectedSignal, SectorCoverage
 from radar_company_discovery import (
@@ -738,6 +759,14 @@ def _social_search_available() -> bool:
     return bool((availability.get("source_capabilities") or {}).get("social"))
 
 
+def _x_launch_movements_for_sectors(sectors: tuple[str, ...]) -> list[dict]:
+    movements = []
+    for sector in sectors or DEFAULT_SECTORS:
+        label = SECTOR_LABELS.get(sector, sector)
+        movements.append({"movement": f"{label} product launch", "market_sector": label})
+    return movements
+
+
 def parse_sectors_arg(value: str | None) -> tuple[str, ...]:
     if not value or value.strip().lower() == "all":
         return DEFAULT_SECTORS
@@ -892,17 +921,26 @@ def _profile_url(item: dict, *keys: str) -> str:
 
 
 def _founder_profiles_from_item(item: dict) -> list[dict]:
-    founders = item.get("founders") or item.get("founder_profiles") or []
+    founders = []
+    raw_profiles = item.get("founder_profiles") or []
+    raw_founders = item.get("founders") or []
+    if isinstance(raw_profiles, list):
+        founders.extend(raw_profiles)
+    if isinstance(raw_founders, list):
+        founders.extend(raw_founders)
     profiles = []
     if isinstance(founders, list):
+        seen = set()
         for founder in founders:
             if not isinstance(founder, dict):
                 continue
             name = (founder.get("name") or "").strip()
             linkedin = _profile_url(founder, "linkedin", "linkedin_url")
             x_url = _profile_url(founder, "x", "x_url", "twitter", "twitter_url")
-            if name or linkedin or x_url:
+            key = (name, linkedin, x_url)
+            if (name or linkedin or x_url) and key not in seen:
                 profiles.append({"name": name, "linkedin": linkedin, "x": x_url})
+                seen.add(key)
     return profiles
 
 
@@ -1281,6 +1319,8 @@ def _candidate_from_signal(signal) -> Candidate | None:
     why = signal.title
     if velocity.get("stars_last_30d") is not None:
         why = f"{item.get('description') or signal.title} +{velocity.get('stars_last_30d')} stars in 30d."
+    elif signal.role in {"producthunt_launch", "yc_company", "social_launch"} and signal.text:
+        why = f"{signal.title}: {signal.text}"
 
     domain = _candidate_domain_from_item(item)
     source_headline = item.get("source_headline") or item.get("title") or signal.title
@@ -1292,6 +1332,9 @@ def _candidate_from_signal(signal) -> Candidate | None:
         raw_title=source_headline,
         source_headline=source_headline,
     )
+    default_action = "watch" if signal.role == "oss_project" else "assign owner"
+    if signal.role in {"producthunt_launch", "yc_company", "social_launch"}:
+        default_action = "research deeper"
 
     candidate = Candidate(
         name=identity["display_name"] or name,
@@ -1312,7 +1355,7 @@ def _candidate_from_signal(signal) -> Candidate | None:
         company_x=_profile_url(item, "company_x", "x_url", "twitter_url", "twitter"),
         founder_profiles=_founder_profiles_from_item(item),
         engagement=item.get("engagement", {}),
-        action=item.get("action") or ("watch" if signal.role == "oss_project" else "assign owner"),
+        action=item.get("action") or default_action,
         maturity_status=item.get("maturity_status") or "unknown",
         maturity_basis=list(item.get("maturity_basis") or []),
         maturity_evidence_urls=list(item.get("maturity_evidence_urls") or []),
@@ -1393,6 +1436,56 @@ def build_signals_from_evidence(evidence: dict) -> dict:
             raw_signals=len(product_hunt_signals),
             reason="" if any(signal.can_create_candidate for signal in product_hunt_signals) else "No candidate-eligible Product Hunt launches.",
         )
+
+    yc_directory_signals = []
+    for company in evidence.get("yc_directory", []):
+        item = {
+            **company,
+            "source": "yc_directory",
+            "title": company.get("title") or company.get("name", ""),
+            "url": company.get("yc_url") or company.get("url", ""),
+            "description": company.get("description") or company.get("tagline", ""),
+        }
+        signal = classify_source_item(sector="company-formation", item=item)
+        signals.append(signal)
+        yc_directory_signals.append(signal)
+    if yc_directory_signals:
+        existing = coverage.get("company-formation")
+        if existing:
+            existing.raw_signals += len(yc_directory_signals)
+            if any(signal.can_create_candidate for signal in yc_directory_signals):
+                existing.reason = ""
+        else:
+            coverage["company-formation"] = SectorCoverage(
+                sector="company-formation",
+                raw_signals=len(yc_directory_signals),
+                reason="" if any(signal.can_create_candidate for signal in yc_directory_signals) else "No candidate-eligible YC directory rows.",
+            )
+
+    x_launch_signals = []
+    for launch in evidence.get("x_launches", []):
+        item = {
+            **launch,
+            "source": "x",
+            "title": launch.get("title") or launch.get("name", ""),
+            "url": launch.get("company_x") or launch.get("url", ""),
+            "description": launch.get("description") or launch.get("snippet", ""),
+        }
+        signal = classify_source_item(sector="company-formation", item=item)
+        signals.append(signal)
+        x_launch_signals.append(signal)
+    if x_launch_signals:
+        existing = coverage.get("company-formation")
+        if existing:
+            existing.raw_signals += len(x_launch_signals)
+            if any(signal.can_create_candidate for signal in x_launch_signals):
+                existing.reason = ""
+        else:
+            coverage["company-formation"] = SectorCoverage(
+                sector="company-formation",
+                raw_signals=len(x_launch_signals),
+                reason="" if any(signal.can_create_candidate for signal in x_launch_signals) else "No candidate-eligible X launches.",
+            )
 
     discovery_signals = []
     for item in _filter_company_discovery_items(evidence.get("company_discovery", {}).get("items", [])):
@@ -1625,6 +1718,11 @@ def promote_signals_to_candidates(signals: list) -> dict:
 def _enforce_candidate_action_safety(candidate: Candidate) -> Candidate:
     action = (candidate.action or "").strip().lower()
     if action != "assign owner":
+        return candidate
+    weak_single_source_lanes = {"product hunt", "yc directory", "x"}
+    source_lane = (candidate.source_lane or "").strip().lower()
+    if source_lane in weak_single_source_lanes and int(candidate.source_count or 0) < 2:
+        candidate.action = "research deeper"
         return candidate
     if candidate.evidence_confidence == "Low" or candidate.tier == "Needs More Evidence":
         candidate.action = "research deeper"
@@ -1930,16 +2028,28 @@ def collect_live_evidence(
     lookback_days: int = 30,
     github_limit: int = 40,
     product_hunt_limit: int = 0,
+    yc_directory_limit: int = 0,
+    x_launch_limit: int = 0,
     max_queries_per_sector: int = 3,
     query_timeout_seconds: int | None = None,
     github_timeout_seconds: int | None = DEFAULT_GITHUB_TIMEOUT_SECONDS,
     product_hunt_timeout_seconds: int | None = 20,
+    yc_directory_timeout_seconds: int | None = 20,
+    x_launch_timeout_seconds: int | None = 45,
     progress: bool = False,
     exclude_yc: bool = False,
     hn_launch_trial_only: bool = False,
 ) -> dict:
     """Collect raw last30days and GitHub evidence for the weekly radar."""
-    evidence = {"last30days": {}, "github": [], "product_hunt": [], "warnings": [], "source_health": []}
+    evidence = {
+        "last30days": {},
+        "github": [],
+        "product_hunt": [],
+        "yc_directory": [],
+        "x_launches": [],
+        "warnings": [],
+        "source_health": [],
+    }
     sector_config = load_sector_config()
     grounded_available = _grounded_search_available()
     social_available = _social_search_available()
@@ -2085,6 +2195,10 @@ def collect_live_evidence(
             launches = result.get("launches", []) or []
             warnings = list(result.get("warnings", []) or [])
             evidence["product_hunt"] = launches
+            evidence["product_hunt_meta"] = {
+                **(result.get("source_meta", {}) or {}),
+                "source_mode": result.get("source_mode", ""),
+            }
             evidence["warnings"].extend(warnings)
             if result.get("error"):
                 evidence["warnings"].append(result["error"])
@@ -2092,6 +2206,72 @@ def collect_live_evidence(
                 _source_health(
                     "product_hunt",
                     "complete" if launches else "empty",
+                    fresh_items=len(launches),
+                    duration_seconds=time.monotonic() - started,
+                    warnings=warnings,
+                )
+            )
+
+    if yc_directory_limit > 0 and not exclude_yc:
+        started = time.monotonic()
+        if progress:
+            print("[vc-signals] yc_directory: collecting public YC rows", file=sys.stderr, flush=True)
+        if not run_yc_directory:
+            warning = "YC directory adapter unavailable"
+            evidence["warnings"].append(warning)
+            evidence["source_health"].append(
+                _source_health("yc_directory", "unavailable", fresh_items=0, warnings=[warning])
+            )
+        else:
+            result = run_yc_directory(
+                limit=yc_directory_limit,
+                timeout_seconds=yc_directory_timeout_seconds,
+            )
+            companies = result.get("companies", []) or []
+            warnings = list(result.get("warnings", []) or [])
+            evidence["yc_directory"] = companies
+            evidence["yc_directory_meta"] = result.get("source_meta", {})
+            evidence["warnings"].extend(warnings)
+            if result.get("error"):
+                evidence["warnings"].append(result["error"])
+            evidence["source_health"].append(
+                _source_health(
+                    "yc_directory",
+                    "complete" if companies else "empty",
+                    fresh_items=len(companies),
+                    duration_seconds=time.monotonic() - started,
+                    warnings=warnings,
+                )
+            )
+
+    if x_launch_limit > 0:
+        started = time.monotonic()
+        if progress:
+            print("[vc-signals] x_launches: collecting X launch/social confidence", file=sys.stderr, flush=True)
+        if not run_x_launches:
+            warning = "X launch adapter unavailable"
+            evidence["warnings"].append(warning)
+            evidence["source_health"].append(
+                _source_health("x_launches", "unavailable", fresh_items=0, warnings=[warning])
+            )
+        else:
+            x_result = run_x_launches(
+                movements=_x_launch_movements_for_sectors(sectors),
+                query_runner=run_query,
+                limit=x_launch_limit,
+                lookback_days=lookback_days,
+                timeout_seconds=x_launch_timeout_seconds,
+            )
+            launches = x_result.get("launches", []) or []
+            warnings = list(x_result.get("warnings", []) or [])
+            evidence["x_launches"] = launches
+            evidence["x_launch_queries"] = x_result.get("queries", [])
+            evidence["warnings"].extend(warnings)
+            status = x_result.get("status") or ("complete" if launches else "empty")
+            evidence["source_health"].append(
+                _source_health(
+                    "x_launches",
+                    status,
                     fresh_items=len(launches),
                     duration_seconds=time.monotonic() - started,
                     warnings=warnings,
@@ -2107,12 +2287,16 @@ def run_weekly_artifacts(
     sectors: tuple[str, ...] = DEFAULT_SECTORS,
     github_limit: int = 40,
     product_hunt_limit: int = 0,
+    yc_directory_limit: int = 0,
+    x_launch_limit: int = 0,
     max_queries_per_sector: int = 3,
     candidate_limit: int = 15,
     with_synthesis: bool = False,
     query_timeout_seconds: int | None = None,
     github_timeout_seconds: int | None = DEFAULT_GITHUB_TIMEOUT_SECONDS,
     product_hunt_timeout_seconds: int | None = 20,
+    yc_directory_timeout_seconds: int | None = 20,
+    x_launch_timeout_seconds: int | None = 45,
     progress: bool = False,
     discovery_budget: DiscoveryRunBudget | None = None,
     discovery_budget_mode: str = "weekly",
@@ -2131,14 +2315,19 @@ def run_weekly_artifacts(
     runtime_ledger_path = output_dir / "runtime-ledger.json"
     coverage_report_path = output_dir / "coverage-report.json"
     weak_source_identity_enrichment_path = output_dir / "weak-source-identity-enrichment.json"
+    manual_enrichment_targets_path = output_dir / "manual-enrichment-targets.json"
     evidence = collect_live_evidence(
         sectors=sectors,
         github_limit=github_limit,
         product_hunt_limit=product_hunt_limit,
+        yc_directory_limit=yc_directory_limit,
+        x_launch_limit=x_launch_limit,
         max_queries_per_sector=max_queries_per_sector,
         query_timeout_seconds=query_timeout_seconds,
         github_timeout_seconds=github_timeout_seconds,
         product_hunt_timeout_seconds=product_hunt_timeout_seconds,
+        yc_directory_timeout_seconds=yc_directory_timeout_seconds,
+        x_launch_timeout_seconds=x_launch_timeout_seconds,
         progress=progress,
         exclude_yc=exclude_yc,
         hn_launch_trial_only=hn_launch_trial_only,
@@ -2231,6 +2420,17 @@ def run_weekly_artifacts(
         max_queries=0,
     )
     scored_candidates = _score_sort_limit_candidates(scored_candidates, candidate_limit)
+    if build_manual_enrichment_targets:
+        manual_enrichment_targets_report = build_manual_enrichment_targets(scored_candidates, limit=min(candidate_limit, 10))
+    else:
+        manual_enrichment_targets_report = {
+            "summary": {"targets": 0, "error": "manual enrichment target builder unavailable"},
+            "items": [],
+        }
+    source_access_report = detect_enrichment_provider_access() if detect_enrichment_provider_access else {
+        "summary": {"configured": [], "missing": [], "error": "source access detector unavailable"},
+        "providers": {},
+    }
     run_date = datetime.now(timezone.utc).strftime("%Y-%m-%d")
     history_result = apply_weekly_tags(scored_candidates, load_candidate_history(), run_date=run_date)
     scored_candidates = history_result.candidates
@@ -2263,6 +2463,7 @@ def run_weekly_artifacts(
     company_discovery_path.write_text(json.dumps(company_discovery, indent=2))
     runtime_ledger = dict(company_discovery.get("runtime_ledger", {}))
     runtime_ledger["source_health"] = list(evidence.get("source_health", []))
+    runtime_ledger["source_access"] = source_access_report
     runtime_ledger_path.write_text(json.dumps(runtime_ledger, indent=2))
     coverage_report_path.write_text(json.dumps(company_discovery.get("coverage_report", {}), indent=2))
     write_weak_source_identity_enrichment_json(weak_source_identity_enrichment_report, weak_source_identity_enrichment_path)
@@ -2277,6 +2478,10 @@ def run_weekly_artifacts(
     write_owner_evidence_json(owner_evidence_report, owner_evidence_path)
     write_founder_team_verification_json(founder_team_verification_report, founder_team_verification_path)
     write_owner_readiness_json(owner_readiness_report, owner_readiness_path)
+    if write_manual_enrichment_targets_json:
+        write_manual_enrichment_targets_json(manual_enrichment_targets_report, manual_enrichment_targets_path)
+    else:
+        manual_enrichment_targets_path.write_text(json.dumps(manual_enrichment_targets_report, indent=2))
     synthesis = None
     synthesis_path = None
     if with_synthesis:
@@ -2358,6 +2563,7 @@ def run_weekly_artifacts(
         "owner_evidence_json": str(owner_evidence_path),
         "founder_team_verification_json": str(founder_team_verification_path),
         "owner_readiness_json": str(owner_readiness_path),
+        "manual_enrichment_targets_json": str(manual_enrichment_targets_path),
         "preview": str(preview_path),
         "weekly_focus_json": str(weekly_focus_json_path),
         "weekly_focus": str(weekly_focus_path),
@@ -2685,6 +2891,8 @@ def _cli_main() -> None:
             sectors=parse_sectors_arg(args.get("sectors")),
             github_limit=int(args.get("github_limit", 40)),
             product_hunt_limit=int(args.get("product_hunt_limit", args.get("producthunt_limit", 0))),
+            yc_directory_limit=int(args.get("yc_directory_limit", args.get("yc_limit", 0))),
+            x_launch_limit=int(args.get("x_launch_limit", args.get("x_limit", 0))),
             max_queries_per_sector=_get_int_arg(
                 args,
                 "max_queries_per_sector",
@@ -2709,12 +2917,32 @@ def _cli_main() -> None:
                 "producthunt_timeout",
                 default=20,
             ),
+            yc_directory_timeout_seconds=_get_int_arg(
+                args,
+                "yc_directory_timeout",
+                "yc_directory_timeout_seconds",
+                "yc_timeout",
+                default=20,
+            ),
+            x_launch_timeout_seconds=_get_int_arg(
+                args,
+                "x_launch_timeout",
+                "x_launch_timeout_seconds",
+                "x_timeout",
+                default=45,
+            ),
             progress=bool(args.get("progress", False)),
             exclude_yc=_get_bool_arg(args, "exclude_yc", "no_yc"),
             hn_launch_trial_only=_get_bool_arg(args, "hn_launch_trial_only", "hn_trial_only"),
         )
         path = save_raw_evidence(evidence, output_dir=output_dir)
-        print(json.dumps({"saved": str(path), "github_count": len(evidence.get("github", [])), "product_hunt_count": len(evidence.get("product_hunt", []))}))
+        print(json.dumps({
+            "saved": str(path),
+            "github_count": len(evidence.get("github", [])),
+            "product_hunt_count": len(evidence.get("product_hunt", [])),
+            "yc_directory_count": len(evidence.get("yc_directory", [])),
+            "x_launch_count": len(evidence.get("x_launches", [])),
+        }))
         return
 
     if command == "weekly":
@@ -2725,6 +2953,8 @@ def _cli_main() -> None:
             sectors=parse_sectors_arg(args.get("sectors")),
             github_limit=int(args.get("github_limit", 40)),
             product_hunt_limit=int(args.get("product_hunt_limit", args.get("producthunt_limit", 0))),
+            yc_directory_limit=int(args.get("yc_directory_limit", args.get("yc_limit", 0))),
+            x_launch_limit=int(args.get("x_launch_limit", args.get("x_limit", 0))),
             max_queries_per_sector=_get_int_arg(
                 args,
                 "max_queries_per_sector",
@@ -2750,6 +2980,20 @@ def _cli_main() -> None:
                 "product_hunt_timeout_seconds",
                 "producthunt_timeout",
                 default=20,
+            ),
+            yc_directory_timeout_seconds=_get_int_arg(
+                args,
+                "yc_directory_timeout",
+                "yc_directory_timeout_seconds",
+                "yc_timeout",
+                default=20,
+            ),
+            x_launch_timeout_seconds=_get_int_arg(
+                args,
+                "x_launch_timeout",
+                "x_launch_timeout_seconds",
+                "x_timeout",
+                default=45,
             ),
             progress=bool(args.get("progress", True)),
             discovery_budget=_discovery_budget_from_args(args, first_pass=first_pass),

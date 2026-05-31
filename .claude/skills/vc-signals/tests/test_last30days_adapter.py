@@ -476,6 +476,53 @@ def test_run_query_sets_source_environment_overrides(tmp_path, monkeypatch):
     assert env["LAST30DAYS_YOUTUBE_SSH_HOST"] == "homebox"
 
 
+def test_run_query_disables_browser_cookie_lookup_by_default(tmp_path, monkeypatch):
+    from last30days_adapter import run_query
+
+    vendor = _make_vendor(tmp_path)
+    monkeypatch.setattr("last30days_adapter._find_python", lambda: "python3")
+    completed = MagicMock(returncode=0, stdout=json.dumps({"items_by_source": {}}), stderr="")
+    calls = []
+
+    def fake_run(cmd, **kwargs):
+        calls.append((cmd, kwargs))
+        return completed
+
+    monkeypatch.setattr("last30days_adapter.subprocess.run", fake_run)
+
+    run_query("agent infra", vendor_path=vendor, extra_env={"XAI_API_KEY": "xai-test", "FROM_BROWSER": "safari"})
+
+    env = calls[0][1]["env"]
+    assert env["FROM_BROWSER"] == "off"
+    assert env["LAST30DAYS_DISABLE_BROWSER_COOKIES"] == "1"
+    assert env["BIRD_DISABLE_BROWSER_COOKIES"] == "1"
+
+
+def test_run_query_allows_explicit_browser_cookie_override(tmp_path, monkeypatch):
+    from last30days_adapter import run_query
+
+    vendor = _make_vendor(tmp_path)
+    monkeypatch.setattr("last30days_adapter._find_python", lambda: "python3")
+    completed = MagicMock(returncode=0, stdout=json.dumps({"items_by_source": {}}), stderr="")
+    calls = []
+
+    def fake_run(cmd, **kwargs):
+        calls.append((cmd, kwargs))
+        return completed
+
+    monkeypatch.setattr("last30days_adapter.subprocess.run", fake_run)
+
+    run_query(
+        "agent infra",
+        vendor_path=vendor,
+        extra_env={"LAST30DAYS_ALLOW_BROWSER_COOKIES": "true", "FROM_BROWSER": "firefox"},
+    )
+
+    env = calls[0][1]["env"]
+    assert env["FROM_BROWSER"] == "firefox"
+    assert "LAST30DAYS_DISABLE_BROWSER_COOKIES" not in env
+
+
 def test_run_query_handles_nonzero_exit(tmp_path, monkeypatch):
     from last30days_adapter import run_query
 
