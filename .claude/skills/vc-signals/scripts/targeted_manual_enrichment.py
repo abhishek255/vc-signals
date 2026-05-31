@@ -26,13 +26,37 @@ def _domain_from_url(url: str) -> str:
     return domain[4:] if domain.startswith("www.") else domain
 
 
-def _load_targets(run_dir: Path) -> list[dict]:
+def _targets_from_source_yield_gap_queue(run_dir: Path) -> list[dict]:
+    source_yield_path = run_dir / "source-yield-validation-report.json"
+    if not source_yield_path.exists():
+        return []
+    payload = json.loads(source_yield_path.read_text())
+    items = payload.get("evidence_gap_queue") or []
+    normalized = []
+    for item in items:
+        if not isinstance(item, dict):
+            continue
+        row = dict(item)
+        row["recommended_next_step"] = row.get("recommended_next_step") or row.get("next_step") or ""
+        normalized.append(row)
+    return normalized
+
+
+def _load_targets(run_dir: Path, *, target_source: str = "manual_or_gap_queue") -> list[dict]:
+    if target_source == "evidence_gap_queue":
+        items = _targets_from_source_yield_gap_queue(run_dir)
+        if items:
+            return items
+        raise FileNotFoundError(f"source-yield evidence gap queue missing: {run_dir / 'source-yield-validation-report.json'}")
     path = run_dir / "manual-enrichment-targets.json"
-    if not path.exists():
-        raise FileNotFoundError(f"manual enrichment targets missing: {path}")
-    payload = json.loads(path.read_text())
-    items = payload.get("items") or []
-    return [item for item in items if isinstance(item, dict)]
+    if path.exists():
+        payload = json.loads(path.read_text())
+        items = payload.get("items") or []
+        return [item for item in items if isinstance(item, dict)]
+    items = _targets_from_source_yield_gap_queue(run_dir)
+    if items:
+        return items
+    raise FileNotFoundError(f"manual enrichment targets missing: {path}")
 
 
 def build_target_queries(target: dict, *, queries_per_target: int = 2) -> list[dict]:
@@ -43,14 +67,39 @@ def build_target_queries(target: dict, *, queries_per_target: int = 2) -> list[d
     quoted_identity = f'"{name}" "{domain}"'.strip()
     quoted_name = f'"{search_name}"'
 
-    queries = [
+    queries = []
+    if "official_domain_missing" in missing:
+        queries.append(
+            {
+                "kind": "official_domain",
+                "query": f'{quoted_name} official website company startup product',
+                "why": "Resolve the official company or product website before any promotion.",
+            }
+        )
+    queries.append(
         {
             "kind": "linkedin_company_and_founders",
             "query": f'{quoted_name} LinkedIn company founder co-founder CEO CTO',
             "why": "Find company LinkedIn and founder/team sources.",
         }
-    ]
-    if missing & {"stage_or_funding_missing", "headcount_missing", "founder_team_missing"}:
+    )
+    if missing & {"commercial_or_customer_signal_missing", "customer_buyer_evidence_missing"}:
+        queries.append(
+            {
+                "kind": "commercial_customer_proof",
+                "query": f'{quoted_identity or quoted_name} pricing customers case studies docs users deployments',
+                "why": "Find commercial proof such as pricing, customers, case studies, docs, or deployments.",
+            }
+        )
+    if "pricing_docs_or_careers_missing" in missing:
+        queries.append(
+            {
+                "kind": "pricing_docs_careers",
+                "query": f'{quoted_identity or quoted_name} pricing docs careers jobs hiring customers',
+                "why": "Find pricing, docs, careers, jobs, or customer-facing pages.",
+            }
+        )
+    if missing & {"stage_or_funding_missing", "stage_funding_or_headcount_missing", "headcount_missing", "founder_team_missing"}:
         queries.append(
             {
                 "kind": "funding_stage_headcount",
@@ -119,14 +168,18 @@ def _evidence_hints(items: list[dict], target: dict) -> dict:
 def _unresolved_gaps(target: dict, hints: dict) -> list[str]:
     unresolved = []
     missing = set(target.get("missing_evidence") or [])
-    if "company_linkedin_missing" in missing and not hints["company_linkedin_candidates"]:
+    if ("company_linkedin_missing" in missing or "company_linkedin_or_social_missing" in missing) and not hints["company_linkedin_candidates"]:
         unresolved.append("company_linkedin_still_missing")
     if "founder_team_missing" in missing and not hints["founder_linkedin_candidates"]:
         unresolved.append("founder_team_source_still_missing")
-    if "stage_or_funding_missing" in missing and not hints["funding_metadata_candidates"]:
+    if ("stage_or_funding_missing" in missing or "stage_funding_or_headcount_missing" in missing) and not hints["funding_metadata_candidates"]:
         unresolved.append("stage_or_funding_source_still_missing")
-    if "headcount_missing" in missing and not hints["careers_or_headcount_candidates"]:
+    if ("headcount_missing" in missing or "stage_funding_or_headcount_missing" in missing) and not hints["careers_or_headcount_candidates"]:
         unresolved.append("headcount_source_still_missing")
+    if "official_domain_missing" in missing and not hints["official_domain_hits"]:
+        unresolved.append("official_domain_still_missing")
+    if "pricing_docs_or_careers_missing" in missing and not hints["careers_or_headcount_candidates"]:
+        unresolved.append("pricing_docs_or_careers_still_missing")
     return unresolved
 
 
@@ -212,10 +265,11 @@ def main() -> None:
     parser.add_argument("--queries-per-target", type=int, default=2)
     parser.add_argument("--timeout-seconds", type=int, default=45)
     parser.add_argument("--output-name", default=DEFAULT_OUTPUT_NAME)
+    parser.add_argument("--target-source", choices=("manual_or_gap_queue", "evidence_gap_queue"), default="manual_or_gap_queue")
     args = parser.parse_args()
 
     run_dir = Path(args.run_dir)
-    targets = _load_targets(run_dir)
+    targets = _load_targets(run_dir, target_source=args.target_source)
     report = enrich_targets(
         targets,
         limit=args.limit,

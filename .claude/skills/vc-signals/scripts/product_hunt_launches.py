@@ -375,6 +375,53 @@ def _maker_profiles(post: dict) -> list[dict]:
     return profiles
 
 
+def _maker_evidence_urls(profiles: list[dict]) -> list[str]:
+    return [
+        str(profile.get("product_hunt_url") or "").strip()
+        for profile in profiles
+        if str(profile.get("product_hunt_url") or "").strip()
+    ]
+
+
+def _is_product_hunt_launch(item: dict) -> bool:
+    return (
+        str(item.get("source_detail") or "").strip() == "api"
+        or str(item.get("source_lane") or "").strip().lower() == "product hunt"
+        or str(item.get("source") or "").strip().lower() in {"producthunt", "product_hunt"}
+    )
+
+
+def _product_hunt_missing_evidence(item: dict) -> list[str]:
+    missing = []
+    if not _normalize_domain(str(item.get("domain") or item.get("website") or "")):
+        missing.append("official_domain_identity_not_confirmed")
+    if not (item.get("maker_profiles") or item.get("maker_name") or item.get("founder_team_evidence")):
+        missing.append("founder_team_missing")
+    if not (item.get("stage") or item.get("raised") or item.get("headcount") or item.get("stage_funding_evidence")):
+        missing.append("stage_funding_or_headcount_missing")
+    if not (item.get("customer_buyer_evidence") or item.get("customer_buyer_evidence_types")):
+        missing.append("commercial_or_customer_signal_missing")
+    if not (item.get("pricing_evidence") or item.get("docs_evidence") or item.get("careers_evidence")):
+        missing.append("pricing_docs_or_careers_missing")
+    if not (item.get("company_linkedin") or item.get("company_x")):
+        missing.append("company_linkedin_or_social_missing")
+    return missing
+
+
+def _refresh_product_hunt_conversion_fields(item: dict) -> None:
+    if not _is_product_hunt_launch(item):
+        return
+    item["missing_evidence"] = _product_hunt_missing_evidence(item)
+    if item.get("domain"):
+        item["product_hunt_conversion_status"] = (
+            "domain_resolved_needs_company_evidence"
+            if item["missing_evidence"]
+            else "domain_resolved_company_evidence_complete"
+        )
+    else:
+        item["product_hunt_conversion_status"] = "needs_official_domain"
+
+
 def normalize_product_hunt_api_post(post: dict) -> dict:
     name = _clean_text(str(post.get("name") or ""))
     tagline = _clean_text(str(post.get("tagline") or post.get("description") or ""))
@@ -383,7 +430,7 @@ def normalize_product_hunt_api_post(post: dict) -> dict:
     maker_name = ", ".join(profile["name"] for profile in maker_profiles if profile.get("name"))
     product_hunt_url = str(post.get("url") or "").strip()
     outbound_url = _first_website_link(post)
-    return {
+    item = {
         "source": "producthunt",
         "source_lane": "Product Hunt",
         "source_detail": "api",
@@ -404,6 +451,13 @@ def normalize_product_hunt_api_post(post: dict) -> dict:
         "votes_count": post.get("votesCount") or 0,
         "comments_count": post.get("commentsCount") or 0,
         "daily_rank": post.get("dailyRank"),
+        "launch_evidence": {
+            "votes_count": post.get("votesCount") or 0,
+            "comments_count": post.get("commentsCount") or 0,
+            "daily_rank": post.get("dailyRank"),
+            "product_hunt_url": product_hunt_url,
+        },
+        "founder_team_evidence": _maker_evidence_urls(maker_profiles),
         "action": "research deeper",
         "lead_route": "research_deeper",
         "missing_evidence": ["official_domain_identity_not_confirmed"],
@@ -412,6 +466,8 @@ def normalize_product_hunt_api_post(post: dict) -> dict:
             "and customer evidence before owner routing."
         ),
     }
+    _refresh_product_hunt_conversion_fields(item)
+    return item
 
 
 PRODUCT_HUNT_POSTS_QUERY = """
@@ -606,6 +662,7 @@ def enrich_launch_domains(
             if "official_domain_identity_not_confirmed" not in missing:
                 missing.append("official_domain_identity_not_confirmed")
             item["missing_evidence"] = missing
+        _refresh_product_hunt_conversion_fields(item)
         enriched.append(item)
     return enriched
 

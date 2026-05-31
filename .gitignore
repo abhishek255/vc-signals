@@ -36,5 +36,7 @@ docs/radar-runs/current/*
 !docs/radar-runs/current/run-manifest.json
 !docs/radar-runs/current/source-yield-validation-report.json
 !docs/radar-runs/current/source-yield-validation-report.md
+!docs/radar-runs/current/source-yield-repeatability-report.json
+!docs/radar-runs/current/source-yield-repeatability-report.md
 !docs/radar-runs/current/targeted-manual-enrichment.json
 docs/radar-runs/current-*/*

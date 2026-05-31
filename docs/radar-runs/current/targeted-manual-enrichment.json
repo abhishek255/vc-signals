@@ -1,69 +1,81 @@
 {
-  "generated_at": "2026-05-31T22:14:11.046117+00:00",
+  "generated_at": "2026-05-31T23:41:21.920569+00:00",
   "policy": "Manual-mode enrichment for the top targets only. Uses public web search snippets/results and keeps LinkedIn/Crunchbase-style checks as human review cues.",
   "summary": {
-    "targets_considered": 4,
-    "targets_enriched": 3,
-    "queries_run": 6,
-    "items_seen": 15,
+    "targets_considered": 11,
+    "targets_enriched": 5,
+    "queries_run": 20,
+    "items_seen": 0,
     "errors": 0,
-    "queries_per_target": 2,
-    "limit": 3
+    "queries_per_target": 4,
+    "limit": 5
   },
   "items": [
     {
-      "name": "Evolvere BioSciences",
-      "domain": "evolverebiosciences.com",
-      "source_lane": "",
-      "action": "research deeper",
-      "tier": "Needs More Evidence",
+      "name": "affaan-m/agentshield",
+      "domain": "",
+      "source_lane": "OSS",
+      "action": "contact maintainer",
+      "tier": "Watchlist",
       "missing_evidence": [
-        "company_linkedin_missing"
+        "official_domain_missing",
+        "stage_funding_or_headcount_missing",
+        "company_linkedin_or_social_missing",
+        "commercial_or_customer_signal_missing",
+        "pricing_docs_or_careers_missing",
+        "OSS/project-only row",
+        "no verified domain"
       ],
-      "recommended_next_step": "Ready for owner assignment",
+      "recommended_next_step": "Resolve official domain from launch text, project docs, founder profile, or web search.",
       "queries": [
         {
+          "kind": "official_domain",
+          "query": "\"agentshield\" official website company startup product",
+          "why": "Resolve the official company or product website before any promotion.",
+          "error": "",
+          "items_seen": 0,
+          "top_items": [],
+          "warnings": [
+            "No candidates survived retrieval and ranking.",
+            "Evidence is thin for this topic.",
+            "Some sources failed: grounding",
+            "No source returned usable items."
+          ],
+          "errors_by_source": {
+            "grounding": "HTTP 402: Payment Required"
+          }
+        },
+        {
           "kind": "linkedin_company_and_founders",
-          "query": "\"Evolvere BioSciences\" LinkedIn company founder co-founder CEO CTO",
+          "query": "\"agentshield\" LinkedIn company founder co-founder CEO CTO",
           "why": "Find company LinkedIn and founder/team sources.",
           "error": "",
-          "items_seen": 3,
-          "top_items": [
-            {
-              "title": "Biotech Startups funded by Y Combinator (YC) 2026 | Y Combinator",
-              "url": "https://www.ycombinator.com/companies/industry/biotech",
-              "domain": "ycombinator.com",
-              "source": "grounding",
-              "snippet": "Evolvere BioSciences \u00b7 <strong>S2024 \u2022 Active \u2022 3 employees \u2022 Oxford, UK</strong> \u00b7",
-              "published_at": "2026-05-19"
-            },
-            {
-              "title": "How Evolvere BioSciences Is Advancing Antibiotics \u2014 Hiretop",
-              "url": "https://hiretop.com/articles-archive/evolvere-bioscience-next-generation-antibiotics/",
-              "domain": "hiretop.com",
-              "source": "grounding",
-              "snippet": "<strong>Weronika \u015alesak</strong> is a Co-Founder and an evolutionary biologist. She has worked in prestigious microbiology laboratories, including the University of Oxford and Institut Pasteur, studying high-throughput experimental evolution and antibiotic ...",
-              "published_at": "2025-12-10"
-            },
-            {
-              "title": "Evolvere BioSciences - 2025 Funding Rounds & List of Investors - Tracxn",
-              "url": "https://tracxn.com/d/companies/evolvere-biosciences/__Kh7-mp_ToJryKM5ORjQ9bLe-FtFnSTvu7nA7nB47BWA/funding-and-investors",
-              "domain": "tracxn.com",
-              "source": "grounding",
-              "snippet": "Explore Evolvere BioSciences&#x27; funding history with round-wise details and complete investor list.",
-              "published_at": "2025-09-20"
-            }
-          ],
+          "items_seen": 0,
+          "top_items": [],
           "warnings": [
+            "No candidates survived retrieval and ranking.",
             "Evidence is thin for this topic.",
-            "Top evidence is highly concentrated in one source."
+            "Some sources failed: grounding",
+            "No source returned usable items."
           ],
+          "errors_by_source": {
+            "grounding": "HTTP 402: Payment Required"
+          }
+        },
+        {
+          "kind": "commercial_customer_proof",
+          "query": "\"affaan-m/agentshield\" \"\" pricing customers case studies docs users deployments",
+          "why": "Find commercial proof such as pricing, customers, case studies, docs, or deployments.",
+          "error": "",
+          "items_seen": 0,
+          "top_items": [],
+          "warnings": [],
           "errors_by_source": {}
         },
         {
-          "kind": "company_linkedin",
-          "query": "\"Evolvere BioSciences\" site:linkedin.com/company LinkedIn company",
-          "why": "Fill the missing company LinkedIn field.",
+          "kind": "pricing_docs_careers",
+          "query": "\"affaan-m/agentshield\" \"\" pricing docs careers jobs hiring customers",
+          "why": "Find pricing, docs, careers, jobs, or customer-facing pages.",
           "error": "",
           "items_seen": 0,
           "top_items": [],
@@ -76,161 +88,82 @@
         "company_linkedin_candidates": [],
         "founder_linkedin_candidates": [],
         "funding_metadata_candidates": [],
-        "careers_or_headcount_candidates": [
-          {
-            "title": "Biotech Startups funded by Y Combinator (YC) 2026 | Y Combinator",
-            "url": "https://www.ycombinator.com/companies/industry/biotech",
-            "domain": "ycombinator.com"
-          }
-        ]
+        "careers_or_headcount_candidates": []
       },
       "unresolved_gaps": [
-        "company_linkedin_still_missing"
+        "company_linkedin_still_missing",
+        "stage_or_funding_source_still_missing",
+        "headcount_source_still_missing",
+        "official_domain_still_missing",
+        "pricing_docs_or_careers_still_missing"
       ],
       "manual_policy": "Public web-search assist only; do not scrape gated LinkedIn/Crunchbase pages."
     },
     {
-      "name": "Open Source Alternative Finder",
-      "domain": "opensourcealternatives.to",
-      "source_lane": "",
-      "action": "research deeper",
-      "tier": "Needs More Evidence",
+      "name": "pullfrog/pullfrog",
+      "domain": "pullfrog.com",
+      "source_lane": "OSS",
+      "action": "contact maintainer",
+      "tier": "Watchlist",
       "missing_evidence": [
-        "company_linkedin_missing",
-        "founder_team_missing",
-        "headcount_missing",
-        "stage_or_funding_missing"
+        "stage_funding_or_headcount_missing",
+        "company_linkedin_or_social_missing",
+        "commercial_or_customer_signal_missing",
+        "pricing_docs_or_careers_missing",
+        "OSS/project-only row"
       ],
-      "recommended_next_step": "Find founder/team source",
+      "recommended_next_step": "Find stage, funding, headcount, careers, or company profile evidence.",
       "queries": [
         {
           "kind": "linkedin_company_and_founders",
-          "query": "\"Open Source Alternative Finder\" LinkedIn company founder co-founder CEO CTO",
+          "query": "\"pullfrog\" LinkedIn company founder co-founder CEO CTO",
           "why": "Find company LinkedIn and founder/team sources.",
           "error": "",
-          "items_seen": 6,
-          "top_items": [
-            {
-              "title": "GitHub - piotrkulpinski/openalternative: Curated list of open source alternatives to proprietary software. \u00b7 GitHub",
-              "url": "https://github.com/piotrkulpinski/openalternative",
-              "domain": "github.com",
-              "source": "grounding",
-              "snippet": "An awesome list of open source alternatives to proprietary software, maintained by OpenAlternative.",
-              "published_at": "2026-05-19"
-            },
-            {
-              "title": "Open Source Alternatives to Paid Software",
-              "url": "https://www.opensourcealternatives.to/",
-              "domain": "opensourcealternatives.to",
-              "source": "grounding",
-              "snippet": "Explore Open Source Alternatives to Paid Software. Compare curated, self-hosted tools with active GitHub repos across dev, AI, marketing, and productivity.",
-              "published_at": "2026-05-16"
-            },
-            {
-              "title": "r/sysadmin on Reddit: Curated list of 1028 opensource alternatives to proprietary software",
-              "url": "https://www.reddit.com/r/sysadmin/comments/1qme4fu/curated_list_of_1028_opensource_alternatives_to/",
-              "domain": "reddit.com",
-              "source": "grounding",
-              "snippet": "Offering Wings3d as an alternative to 3dsmax is hilarious. It&#x27;s a nice program, don&#x27;t get me wrong, but it probably doesn&#x27;t even have 1% of the feature set ... There is something blocking the loading the main html document. Looks like something server side is blocking the render. The page can take any where between 1s and 6s to render. ... You are going to want to fix that before you end up paying $$$$ to Vercel for egress. ... It has open source alternatives for open source proje",
-              "published_at": "2026-01-25"
-            },
-            {
-              "title": "r/selfhosted on Reddit: Is there a good, up-to-date site for finding open-source alternatives to SaaS products?",
-              "url": "https://www.reddit.com/r/selfhosted/comments/1p80fui/is_there_a_good_uptodate_site_for_finding/",
-              "domain": "reddit.com",
-              "source": "grounding",
-              "snippet": "I sometimes browse awesome-self-hosted on GitHub. If I want something specific, I ask CharGPT, \u201cself hosted alternative to x\u201d I discover cool things like MediaCMS on the XDA blog.",
-              "published_at": "2025-11-27"
-            },
-            {
-              "title": "About Us | Open Source Alternative Finder",
-              "url": "https://aiopentec.github.io/opensource-alternative-finder/about/",
-              "domain": "aiopentec.github.io",
-              "source": "grounding",
-              "snippet": "Helping teams and individuals discover free, open-source alternatives to expensive SaaS tools \u2014 since 2024.",
-              "published_at": "2026-03-16"
-            },
-            {
-              "title": "Open-source software: a directory of the best alternatives",
-              "url": "https://baserow.io/blog/open-source-alternatives",
-              "domain": "baserow.io",
-              "source": "grounding",
-              "snippet": "Operating systems: Linux remains the most widely recognized open source operating system, powering everything from smartphones to servers. Its adaptability demonstrates the strength of community-driven development. Productivity tools: Joplin for note-taking or OnlyOffice for word processing offer strong replacements for closed source software. Customer support and collaboration: Tools like Chatwoot or Mattermost serve as alternatives to traditional proprietary product suites.",
-              "published_at": "2025-09-25"
-            }
-          ],
+          "items_seen": 0,
+          "top_items": [],
           "warnings": [
-            "Top evidence is highly concentrated in one source."
+            "No candidates survived retrieval and ranking.",
+            "Evidence is thin for this topic.",
+            "Some sources failed: grounding",
+            "No source returned usable items."
           ],
+          "errors_by_source": {
+            "grounding": "HTTP 402: Payment Required"
+          }
+        },
+        {
+          "kind": "commercial_customer_proof",
+          "query": "\"pullfrog/pullfrog\" \"pullfrog.com\" pricing customers case studies docs users deployments",
+          "why": "Find commercial proof such as pricing, customers, case studies, docs, or deployments.",
+          "error": "",
+          "items_seen": 0,
+          "top_items": [],
+          "warnings": [],
+          "errors_by_source": {}
+        },
+        {
+          "kind": "pricing_docs_careers",
+          "query": "\"pullfrog/pullfrog\" \"pullfrog.com\" pricing docs careers jobs hiring customers",
+          "why": "Find pricing, docs, careers, jobs, or customer-facing pages.",
+          "error": "",
+          "items_seen": 0,
+          "top_items": [],
+          "warnings": [],
           "errors_by_source": {}
         },
         {
           "kind": "funding_stage_headcount",
-          "query": "\"Open Source Alternative Finder\" \"opensourcealternatives.to\" seed funding headcount Crunchbase Dealroom careers founders",
+          "query": "\"pullfrog/pullfrog\" \"pullfrog.com\" seed funding headcount Crunchbase Dealroom careers founders",
           "why": "Find public funding/stage/headcount metadata hints.",
           "error": "",
-          "items_seen": 5,
-          "top_items": [
-            {
-              "title": "GitHub - piotrkulpinski/openalternative: Curated list of open source alternatives to proprietary software. \u00b7 GitHub",
-              "url": "https://github.com/piotrkulpinski/openalternative",
-              "domain": "github.com",
-              "source": "grounding",
-              "snippet": "An awesome list of open source alternatives to proprietary software, maintained by OpenAlternative.",
-              "published_at": "2026-05-19"
-            },
-            {
-              "title": "Open Source Alternatives to Paid Software",
-              "url": "https://www.opensourcealternatives.to/",
-              "domain": "opensourcealternatives.to",
-              "source": "grounding",
-              "snippet": "Explore Open Source Alternatives to Paid Software. Compare curated, self-hosted tools with active GitHub repos across dev, AI, marketing, and productivity.",
-              "published_at": "2026-05-16"
-            },
-            {
-              "title": "r/sysadmin on Reddit: Curated list of 1028 opensource alternatives to proprietary software",
-              "url": "https://www.reddit.com/r/sysadmin/comments/1qme4fu/curated_list_of_1028_opensource_alternatives_to/",
-              "domain": "reddit.com",
-              "source": "grounding",
-              "snippet": "Offering Wings3d as an alternative to 3dsmax is hilarious. It&#x27;s a nice program, don&#x27;t get me wrong, but it probably doesn&#x27;t even have 1% of the feature set ... There is something blocking the loading the main html document. Looks like something server side is blocking the render. The page can take any where between 1s and 6s to render. ... You are going to want to fix that before you end up paying $$$$ to Vercel for egress. ... It has open source alternatives for open source proje",
-              "published_at": "2026-01-25"
-            },
-            {
-              "title": "r/selfhosted on Reddit: Is there a good, up-to-date site for finding open-source alternatives to SaaS products?",
-              "url": "https://www.reddit.com/r/selfhosted/comments/1p80fui/is_there_a_good_uptodate_site_for_finding/",
-              "domain": "reddit.com",
-              "source": "grounding",
-              "snippet": "I sometimes browse awesome-self-hosted on GitHub. If I want something specific, I ask CharGPT, \u201cself hosted alternative to x\u201d I discover cool things like MediaCMS on the XDA blog.",
-              "published_at": "2025-11-27"
-            },
-            {
-              "title": "Open-source software: a directory of the best alternatives",
-              "url": "https://baserow.io/blog/open-source-alternatives",
-              "domain": "baserow.io",
-              "source": "grounding",
-              "snippet": "Operating systems: Linux remains the most widely recognized open source operating system, powering everything from smartphones to servers. Its adaptability demonstrates the strength of community-driven development. Productivity tools: Joplin for note-taking or OnlyOffice for word processing offer strong replacements for closed source software. Customer support and collaboration: Tools like Chatwoot or Mattermost serve as alternatives to traditional proprietary product suites.",
-              "published_at": "2025-09-25"
-            }
-          ],
-          "warnings": [
-            "Top evidence is highly concentrated in one source."
-          ],
+          "items_seen": 0,
+          "top_items": [],
+          "warnings": [],
           "errors_by_source": {}
         }
       ],
       "evidence_hints": {
-        "official_domain_hits": [
-          {
-            "title": "Open Source Alternatives to Paid Software",
-            "url": "https://www.opensourcealternatives.to/",
-            "domain": "opensourcealternatives.to"
-          },
-          {
-            "title": "Open Source Alternatives to Paid Software",
-            "url": "https://www.opensourcealternatives.to/",
-            "domain": "opensourcealternatives.to"
-          }
-        ],
+        "official_domain_hits": [],
         "company_linkedin_candidates": [],
         "founder_linkedin_candidates": [],
         "funding_metadata_candidates": [],
@@ -238,44 +171,238 @@
       },
       "unresolved_gaps": [
         "company_linkedin_still_missing",
-        "founder_team_source_still_missing",
         "stage_or_funding_source_still_missing",
-        "headcount_source_still_missing"
+        "headcount_source_still_missing",
+        "pricing_docs_or_careers_still_missing"
+      ],
+      "manual_policy": "Public web-search assist only; do not scrape gated LinkedIn/Crunchbase pages."
+    },
+    {
+      "name": "azat-io/actions-up",
+      "domain": "",
+      "source_lane": "OSS",
+      "action": "contact maintainer",
+      "tier": "Watchlist",
+      "missing_evidence": [
+        "official_domain_missing",
+        "stage_funding_or_headcount_missing",
+        "company_linkedin_or_social_missing",
+        "commercial_or_customer_signal_missing",
+        "pricing_docs_or_careers_missing",
+        "OSS/project-only row",
+        "no verified domain"
+      ],
+      "recommended_next_step": "Resolve official domain from launch text, project docs, founder profile, or web search.",
+      "queries": [
+        {
+          "kind": "official_domain",
+          "query": "\"actions-up\" official website company startup product",
+          "why": "Resolve the official company or product website before any promotion.",
+          "error": "",
+          "items_seen": 0,
+          "top_items": [],
+          "warnings": [
+            "No candidates survived retrieval and ranking.",
+            "Evidence is thin for this topic.",
+            "Some sources failed: grounding",
+            "No source returned usable items."
+          ],
+          "errors_by_source": {
+            "grounding": "HTTP 402: Payment Required"
+          }
+        },
+        {
+          "kind": "linkedin_company_and_founders",
+          "query": "\"actions-up\" LinkedIn company founder co-founder CEO CTO",
+          "why": "Find company LinkedIn and founder/team sources.",
+          "error": "",
+          "items_seen": 0,
+          "top_items": [],
+          "warnings": [
+            "No candidates survived retrieval and ranking.",
+            "Evidence is thin for this topic.",
+            "Some sources failed: grounding",
+            "No source returned usable items."
+          ],
+          "errors_by_source": {
+            "grounding": "HTTP 402: Payment Required"
+          }
+        },
+        {
+          "kind": "commercial_customer_proof",
+          "query": "\"azat-io/actions-up\" \"\" pricing customers case studies docs users deployments",
+          "why": "Find commercial proof such as pricing, customers, case studies, docs, or deployments.",
+          "error": "",
+          "items_seen": 0,
+          "top_items": [],
+          "warnings": [],
+          "errors_by_source": {}
+        },
+        {
+          "kind": "pricing_docs_careers",
+          "query": "\"azat-io/actions-up\" \"\" pricing docs careers jobs hiring customers",
+          "why": "Find pricing, docs, careers, jobs, or customer-facing pages.",
+          "error": "",
+          "items_seen": 0,
+          "top_items": [],
+          "warnings": [],
+          "errors_by_source": {}
+        }
+      ],
+      "evidence_hints": {
+        "official_domain_hits": [],
+        "company_linkedin_candidates": [],
+        "founder_linkedin_candidates": [],
+        "funding_metadata_candidates": [],
+        "careers_or_headcount_candidates": []
+      },
+      "unresolved_gaps": [
+        "company_linkedin_still_missing",
+        "stage_or_funding_source_still_missing",
+        "headcount_source_still_missing",
+        "official_domain_still_missing",
+        "pricing_docs_or_careers_still_missing"
+      ],
+      "manual_policy": "Public web-search assist only; do not scrape gated LinkedIn/Crunchbase pages."
+    },
+    {
+      "name": "boostsecurityio/smokedmeat",
+      "domain": "",
+      "source_lane": "OSS",
+      "action": "watch",
+      "tier": "Watchlist",
+      "missing_evidence": [
+        "official_domain_missing",
+        "stage_funding_or_headcount_missing",
+        "company_linkedin_or_social_missing",
+        "commercial_or_customer_signal_missing",
+        "pricing_docs_or_careers_missing",
+        "OSS/project-only row",
+        "no verified domain"
+      ],
+      "recommended_next_step": "Resolve official domain from launch text, project docs, founder profile, or web search.",
+      "queries": [
+        {
+          "kind": "official_domain",
+          "query": "\"smokedmeat\" official website company startup product",
+          "why": "Resolve the official company or product website before any promotion.",
+          "error": "",
+          "items_seen": 0,
+          "top_items": [],
+          "warnings": [
+            "No candidates survived retrieval and ranking.",
+            "Evidence is thin for this topic.",
+            "Some sources failed: grounding",
+            "No source returned usable items."
+          ],
+          "errors_by_source": {
+            "grounding": "HTTP 402: Payment Required"
+          }
+        },
+        {
+          "kind": "linkedin_company_and_founders",
+          "query": "\"smokedmeat\" LinkedIn company founder co-founder CEO CTO",
+          "why": "Find company LinkedIn and founder/team sources.",
+          "error": "",
+          "items_seen": 0,
+          "top_items": [],
+          "warnings": [
+            "No candidates survived retrieval and ranking.",
+            "Evidence is thin for this topic.",
+            "Some sources failed: grounding",
+            "No source returned usable items."
+          ],
+          "errors_by_source": {
+            "grounding": "HTTP 402: Payment Required"
+          }
+        },
+        {
+          "kind": "commercial_customer_proof",
+          "query": "\"boostsecurityio/smokedmeat\" \"\" pricing customers case studies docs users deployments",
+          "why": "Find commercial proof such as pricing, customers, case studies, docs, or deployments.",
+          "error": "",
+          "items_seen": 0,
+          "top_items": [],
+          "warnings": [],
+          "errors_by_source": {}
+        },
+        {
+          "kind": "pricing_docs_careers",
+          "query": "\"boostsecurityio/smokedmeat\" \"\" pricing docs careers jobs hiring customers",
+          "why": "Find pricing, docs, careers, jobs, or customer-facing pages.",
+          "error": "",
+          "items_seen": 0,
+          "top_items": [],
+          "warnings": [],
+          "errors_by_source": {}
+        }
+      ],
+      "evidence_hints": {
+        "official_domain_hits": [],
+        "company_linkedin_candidates": [],
+        "founder_linkedin_candidates": [],
+        "funding_metadata_candidates": [],
+        "careers_or_headcount_candidates": []
+      },
+      "unresolved_gaps": [
+        "company_linkedin_still_missing",
+        "stage_or_funding_source_still_missing",
+        "headcount_source_still_missing",
+        "official_domain_still_missing",
+        "pricing_docs_or_careers_still_missing"
       ],
       "manual_policy": "Public web-search assist only; do not scrape gated LinkedIn/Crunchbase pages."
     },
     {
       "name": "redwoodjs/agent-ci",
       "domain": "agent-ci.dev",
-      "source_lane": "",
+      "source_lane": "OSS",
       "action": "watch",
       "tier": "Watchlist",
       "missing_evidence": [
-        "company_linkedin_missing",
-        "headcount_missing",
-        "stage_or_funding_missing"
+        "stage_funding_or_headcount_missing",
+        "company_linkedin_or_social_missing",
+        "commercial_or_customer_signal_missing",
+        "pricing_docs_or_careers_missing",
+        "OSS/project-only row"
       ],
-      "recommended_next_step": "Track OSS/project formation",
+      "recommended_next_step": "Find stage, funding, headcount, careers, or company profile evidence.",
       "queries": [
         {
           "kind": "linkedin_company_and_founders",
           "query": "\"agent-ci\" LinkedIn company founder co-founder CEO CTO",
           "why": "Find company LinkedIn and founder/team sources.",
           "error": "",
-          "items_seen": 1,
-          "top_items": [
-            {
-              "title": "GitHub - redwoodjs/agent-ci: Agent-CI is local GitHub Actions for your agents. \u00b7 GitHub",
-              "url": "https://github.com/redwoodjs/agent-ci",
-              "domain": "github.com",
-              "source": "grounding",
-              "snippet": "Agent-CI is <strong>local GitHub Actions for your agents</strong>. Contribute to redwoodjs/agent-ci development by creating an account on GitHub.",
-              "published_at": "2026-05-08"
-            }
-          ],
+          "items_seen": 0,
+          "top_items": [],
           "warnings": [
-            "Evidence is thin for this topic."
+            "No candidates survived retrieval and ranking.",
+            "Evidence is thin for this topic.",
+            "Some sources failed: grounding",
+            "No source returned usable items."
           ],
+          "errors_by_source": {
+            "grounding": "HTTP 402: Payment Required"
+          }
+        },
+        {
+          "kind": "commercial_customer_proof",
+          "query": "\"redwoodjs/agent-ci\" \"agent-ci.dev\" pricing customers case studies docs users deployments",
+          "why": "Find commercial proof such as pricing, customers, case studies, docs, or deployments.",
+          "error": "",
+          "items_seen": 0,
+          "top_items": [],
+          "warnings": [],
+          "errors_by_source": {}
+        },
+        {
+          "kind": "pricing_docs_careers",
+          "query": "\"redwoodjs/agent-ci\" \"agent-ci.dev\" pricing docs careers jobs hiring customers",
+          "why": "Find pricing, docs, careers, jobs, or customer-facing pages.",
+          "error": "",
+          "items_seen": 0,
+          "top_items": [],
+          "warnings": [],
           "errors_by_source": {}
         },
         {
@@ -299,10 +426,11 @@
       "unresolved_gaps": [
         "company_linkedin_still_missing",
         "stage_or_funding_source_still_missing",
-        "headcount_source_still_missing"
+        "headcount_source_still_missing",
+        "pricing_docs_or_careers_still_missing"
       ],
       "manual_policy": "Public web-search assist only; do not scrape gated LinkedIn/Crunchbase pages."
     }
   ],
-  "run_dir": "docs/radar-runs/current-deep-dive-validation-2026-05-31-r4"
+  "run_dir": "docs/radar-runs/current-deep-dive-validation-2026-05-31-r5"
 }

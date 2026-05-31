@@ -265,3 +265,143 @@ def test_validation_report_uses_latest_raw_evidence_and_reports_source_diversity
     assert report["source_diversity"]["source_diversity_proven"] is True
     assert report["source_diversity"]["raw_domain_resolution"]["product_hunt"]["resolved_domains"] == 1
     assert "Non-YC review-worthy rows: 1" in render_source_yield_markdown(report)
+
+
+def test_validation_report_includes_targets_and_operational_gap_buckets(tmp_path):
+    from source_yield_validation import build_source_yield_validation_report, render_source_yield_markdown
+
+    run_dir = tmp_path / "run"
+    _write_json(
+        run_dir / "candidates.json",
+        [
+            _candidate(),
+            _candidate(
+                name="AgentFence",
+                domain="agentfence.dev",
+                source_lane="Product Hunt",
+                weekly_tag="NEW",
+                action="research deeper",
+                founders=[],
+                stage="",
+                raised="",
+                headcount="",
+                customer_buyer_evidence=[],
+                missing_owner_evidence=["pricing_docs_or_careers_missing"],
+            ),
+        ],
+    )
+    _write_json(
+        run_dir / "weekly-focus.json",
+        {"workflow_view": {"Assign owner": [{"name": "Voker", "company_domain": "voker.ai"}]}},
+    )
+    _write_json(run_dir / "runtime-ledger.json", {"source_health": []})
+    _write_json(run_dir / "2026-05-31-raw-evidence.json", {"product_hunt": [{"name": "AgentFence", "domain": "agentfence.dev"}]})
+
+    report = build_source_yield_validation_report(run_dir, target_review_worthy_count=1)
+    markdown = render_source_yield_markdown(report)
+
+    assert report["source_yield_targets"]["assign_owner"]["min"] == 1
+    assert report["source_yield_targets"]["unsafe_promotions"]["max"] == 0
+    assert report["target_status"]["unsafe_promotions"]["met"] is True
+    assert report["structured_provider_decision"]["status"] == "public_sources_still_sufficient_for_next_pass"
+    gap = report["evidence_gap_queue"][0]
+    assert gap["name"] == "AgentFence"
+    assert gap["gap_buckets"]["founder_team"]["status"] == "missing"
+    assert gap["gap_buckets"]["stage_funding_headcount"]["status"] == "missing"
+    assert gap["gap_buckets"]["commercial_customer_signal"]["status"] == "missing"
+    assert gap["gap_buckets"]["pricing_docs_careers"]["status"] == "missing"
+    assert "LinkedIn" in gap["manual_check_sources"]
+    assert "## Source-Yield Targets" in markdown
+    assert "Review-Worthy Companies" in markdown
+
+
+def test_structured_provider_decision_recommends_trial_when_public_sources_miss_company_target(tmp_path):
+    from source_yield_validation import build_source_yield_validation_report
+
+    run_dir = tmp_path / "run"
+    _write_json(run_dir / "candidates.json", [_candidate()])
+    _write_json(
+        run_dir / "weekly-focus.json",
+        {"workflow_view": {"Assign owner": [{"name": "Voker", "company_domain": "voker.ai"}]}},
+    )
+    _write_json(run_dir / "runtime-ledger.json", {"source_health": []})
+    _write_json(run_dir / "2026-05-31-raw-evidence.json", {"product_hunt": [{"name": "AgentFence", "domain": ""}]})
+    _write_json(
+        run_dir / "targeted-manual-enrichment.json",
+        {"summary": {"targets_enriched": 5, "items_seen": 0, "queries_run": 20}},
+    )
+
+    report = build_source_yield_validation_report(run_dir, target_review_worthy_count=8)
+
+    decision = report["structured_provider_decision"]
+    assert decision["status"] == "recommend_structured_provider_trial"
+    assert decision["best_unlock"] == "Coresignal or Crunchbase-style company metadata"
+    assert "Review-Worthy Company target missed" in decision["reasons"]
+
+
+def test_repeatability_report_compares_multiple_validation_runs(tmp_path):
+    from source_yield_validation import build_repeatability_validation_report
+
+    first = tmp_path / "run-a"
+    second = tmp_path / "run-b"
+    for run_dir, ph_count in ((first, 1), (second, 2)):
+        _write_json(run_dir / "candidates.json", [_candidate()])
+        _write_json(
+            run_dir / "weekly-focus.json",
+            {"workflow_view": {"Assign owner": [{"name": "Voker", "company_domain": "voker.ai"}]}},
+        )
+        _write_json(run_dir / "runtime-ledger.json", {"source_health": []})
+        _write_json(
+            run_dir / "2026-05-31-raw-evidence.json",
+            {"product_hunt": [{"name": f"PH {idx}", "domain": f"ph{idx}.dev"} for idx in range(ph_count)]},
+        )
+
+    repeatability = build_repeatability_validation_report([first, second], target_review_worthy_count=1)
+
+    assert repeatability["summary"]["runs_compared"] == 2
+    assert repeatability["summary"]["repeatability_proven"] is True
+    assert repeatability["summary"]["unsafe_promotions_total"] == 0
+    assert repeatability["runs"][0]["review_worthy_companies"] == 1
+    assert repeatability["source_lane_totals"]["product_hunt"]["raw_launches"] == 3
+
+
+def test_raw_product_hunt_and_x_launches_feed_gap_queue_when_not_candidates(tmp_path):
+    from source_yield_validation import build_source_yield_validation_report
+
+    run_dir = tmp_path / "run"
+    _write_json(run_dir / "candidates.json", [_candidate()])
+    _write_json(
+        run_dir / "weekly-focus.json",
+        {"workflow_view": {"Assign owner": [{"name": "Voker", "company_domain": "voker.ai"}]}},
+    )
+    _write_json(run_dir / "runtime-ledger.json", {"source_health": []})
+    _write_json(
+        run_dir / "2026-05-31-raw-evidence.json",
+        {
+            "product_hunt": [
+                {
+                    "name": "AgentFence",
+                    "domain": "agentfence.dev",
+                    "product_hunt_url": "https://www.producthunt.com/products/agentfence",
+                    "tagline": "Permission firewall for AI agents",
+                    "missing_evidence": ["stage_funding_or_headcount_missing"],
+                }
+            ],
+            "x_launches": [
+                {
+                    "company_name": "BuildGraph",
+                    "url": "https://x.com/founder/status/1",
+                    "snippet": "Testing an early workflow graph for developer teams.",
+                    "missing_evidence": ["official_domain_identity_not_confirmed"],
+                    "action": "watch",
+                }
+            ],
+        },
+    )
+
+    report = build_source_yield_validation_report(run_dir, target_review_worthy_count=1)
+
+    gap_names = {row["name"] for row in report["evidence_gap_queue"]}
+    assert {"AgentFence", "BuildGraph"} <= gap_names
+    assert report["source_diversity"]["candidate_rows_by_source_lane"]["product_hunt"] == 1
+    assert report["source_diversity"]["candidate_rows_by_source_lane"]["x"] == 1

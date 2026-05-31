@@ -1,8 +1,8 @@
 {
-  "generated_at": "2026-05-31T22:37:25.743839+00:00",
-  "run_dir": "docs/radar-runs/current-deep-dive-validation-2026-05-31-r4",
+  "generated_at": "2026-05-31T23:46:17.915290+00:00",
+  "run_dir": "docs/radar-runs/current-deep-dive-validation-2026-05-31-r5",
   "goal_assessment": {
-    "goal_reached": true,
+    "goal_reached": false,
     "target_assign_owner": [
       "Voker"
     ],
@@ -14,9 +14,72 @@
     "assign_owner_bar_preserved": true,
     "unexpected_weekly_assign_owner_names": [],
     "unexpected_candidate_assign_owner_names": [],
-    "target_net_new_review_worthy_count": 5,
-    "net_new_review_worthy_count": 16,
-    "review_worthy_target_met": true
+    "target_net_new_review_worthy_count": 8,
+    "net_new_review_worthy_count": 4,
+    "review_worthy_target_met": false
+  },
+  "source_yield_targets": {
+    "assign_owner": {
+      "min": 1,
+      "max": 3,
+      "allow_above_max": false
+    },
+    "review_worthy_companies": {
+      "min": 8,
+      "max": 15,
+      "allow_above_max": true
+    },
+    "review_worthy_market_signals": {
+      "min": 5,
+      "max": 10,
+      "allow_above_max": true
+    },
+    "evidence_gap_queue": {
+      "min": 10,
+      "max": 15,
+      "allow_above_max": true
+    },
+    "unsafe_promotions": {
+      "max": 0,
+      "allow_above_max": false
+    }
+  },
+  "target_status": {
+    "assign_owner": {
+      "count": 1,
+      "min": 1,
+      "max": 3,
+      "met": true,
+      "status": "met"
+    },
+    "review_worthy_companies": {
+      "count": 4,
+      "min": 8,
+      "max": 15,
+      "met": false,
+      "status": "below_min"
+    },
+    "review_worthy_market_signals": {
+      "count": 5,
+      "min": 5,
+      "max": 10,
+      "met": true,
+      "status": "met"
+    },
+    "evidence_gap_queue": {
+      "count": 12,
+      "min": 10,
+      "max": 15,
+      "met": true,
+      "status": "met"
+    },
+    "unsafe_promotions": {
+      "count": 0,
+      "min": null,
+      "max": 0,
+      "met": true,
+      "status": "met"
+    }
   },
   "review_worthy_rows": [
     {
@@ -59,273 +122,43 @@
       ]
     },
     {
-      "name": "Simplex",
-      "domain": "simplex.sh",
+      "name": "Comfy Deploy",
+      "domain": "comfydeploy.com",
       "action": "research deeper",
-      "tier": "Needs More Evidence",
+      "tier": "Watchlist",
       "source_lane": "YC Directory",
       "founders": [
-        "Shreya Karpoor",
-        "Marco Nocito"
-      ],
-      "stage": "PRE_SEED",
-      "raised": 500000,
-      "headcount": 5,
-      "company_linkedin": "https://www.linkedin.com/company/usesimplex",
-      "company_x": "https://x.com/usesimplex",
-      "evidence_urls": [
-        "https://simplex.sh"
-      ]
-    },
-    {
-      "name": "Miru",
-      "domain": "mirurobotics.com",
-      "action": "research deeper",
-      "tier": "Needs More Evidence",
-      "source_lane": "YC Directory",
-      "founders": [
-        "Armel Talla",
-        "Vedant Nair",
-        "Benjamin Smidt"
-      ],
-      "stage": "PRE_SEED",
-      "raised": 500000,
-      "headcount": 4,
-      "company_linkedin": "https://www.linkedin.com/company/miruml",
-      "company_x": "https://x.com/mirurobotics",
-      "evidence_urls": [
-        "https://www.mirurobotics.com"
-      ]
-    },
-    {
-      "name": "Apten",
-      "domain": "apten.ai",
-      "action": "research deeper",
-      "tier": "Needs More Evidence",
-      "source_lane": "YC Directory",
-      "founders": [
-        "Daniel Ho",
-        "Roshan Kumaraswamy"
-      ],
-      "stage": "PRE_SEED",
-      "raised": 500000,
-      "headcount": 4,
-      "company_linkedin": "https://www.linkedin.com/company/apten",
-      "company_x": "https://twitter.com/Apten_AI",
-      "evidence_urls": [
-        "https://www.apten.ai/",
-        "https://www.ycombinator.com/companies/apten",
-        "https://www.ycombinator.com/companies/apten/jobs"
-      ]
-    },
-    {
-      "name": "Doublezero",
-      "domain": "doublezero.tech",
-      "action": "research deeper",
-      "tier": "Needs More Evidence",
-      "source_lane": "YC Directory",
-      "founders": [
-        "Scott Moss",
-        "Travis Ueki"
+        "Nicholas Kao",
+        "Benny Kok"
       ],
       "stage": "PRE_SEED",
       "raised": 500000,
       "headcount": 1,
-      "company_linkedin": "https://www.linkedin.com/company/doublezero-tech",
-      "company_x": "",
+      "company_linkedin": "https://www.linkedin.com/company/comfy-deploy",
+      "company_x": "https://x.com/comfydeploy",
       "evidence_urls": [
-        "https://doublezero.tech"
+        "https://comfydeploy.com"
       ]
     },
     {
-      "name": "Menza",
-      "domain": "menza.ai",
+      "name": "Hamming AI",
+      "domain": "hamming.ai",
       "action": "research deeper",
-      "tier": "Needs More Evidence",
+      "tier": "Watchlist",
       "source_lane": "YC Directory",
       "founders": [
-        "Qasim Munye",
-        "Mariam Ahmed"
-      ],
-      "stage": "PRE_SEED",
-      "raised": 500000,
-      "headcount": 6,
-      "company_linkedin": "https://www.linkedin.com/company/menzaai",
-      "company_x": "https://x.com/menzaai",
-      "evidence_urls": [
-        "https://menza.ai/"
-      ]
-    },
-    {
-      "name": "jo",
-      "domain": "askjo.ai",
-      "action": "research deeper",
-      "tier": "Needs More Evidence",
-      "source_lane": "YC Directory",
-      "founders": [
-        "Pradeep Elankumaran",
-        "Kevin Li"
-      ],
-      "stage": "PRE_SEED",
-      "raised": 500000,
-      "headcount": 2,
-      "company_linkedin": "https://www.linkedin.com/company/askjoai",
-      "company_x": "https://www.x.com/askjoai",
-      "evidence_urls": [
-        "https://askjo.ai"
-      ]
-    },
-    {
-      "name": "Poka Labs",
-      "domain": "pokalabs.com",
-      "action": "research deeper",
-      "tier": "Needs More Evidence",
-      "source_lane": "YC Directory",
-      "founders": [
-        "Andrew Bass",
-        "Malay Shah"
-      ],
-      "stage": "PRE_SEED",
-      "raised": 2500000,
-      "headcount": 5,
-      "company_linkedin": "https://www.linkedin.com/company/pokalabs/",
-      "company_x": "",
-      "evidence_urls": [
-        "https://www.pokalabs.com/"
-      ]
-    },
-    {
-      "name": "Spur",
-      "domain": "spurtest.com",
-      "action": "research deeper",
-      "tier": "Needs More Evidence",
-      "source_lane": "YC Directory",
-      "founders": [
-        "Sneha Sivakumar",
-        "Anushka Nijhawan"
+        "Sumanyu Sharma"
       ],
       "stage": "SEED",
-      "raised": 5000000,
-      "headcount": 76,
-      "company_linkedin": "https://www.linkedin.com/company/spur-test/",
-      "company_x": "https://x.com/spurtest",
+      "raised": 4550000,
+      "headcount": 14,
+      "company_linkedin": "https://www.linkedin.com/company/hamming-ai/",
+      "company_x": "https://twitter.com/HammingAI",
       "evidence_urls": [
-        "https://www.spurtest.com/"
-      ]
-    },
-    {
-      "name": "Coval",
-      "domain": "coval.dev",
-      "action": "research deeper",
-      "tier": "Needs More Evidence",
-      "source_lane": "YC Directory",
-      "founders": [
-        "Brooke Hopkins"
-      ],
-      "stage": "SEED",
-      "raised": 3800000,
-      "headcount": 20,
-      "company_linkedin": "https://www.linkedin.com/company/covaldev",
-      "company_x": "https://x.com/covaldev",
-      "evidence_urls": [
-        "https://coval.dev"
-      ]
-    },
-    {
-      "name": "Ångström AI",
-      "domain": "angstrom-ai.com",
-      "action": "research deeper",
-      "tier": "Needs More Evidence",
-      "source_lane": "YC Directory",
-      "founders": [
-        "Javier Antoran",
-        "Jose Miguel Hernandez Lobato",
-        "Laurence Midgley"
-      ],
-      "stage": "PRE_SEED",
-      "raised": 500000,
-      "headcount": 4,
-      "company_linkedin": "https://www.linkedin.com/company/angstrom-ai/",
-      "company_x": "https://x.com/Angstrom_ai",
-      "evidence_urls": [
-        "https://www.angstrom-ai.com"
-      ]
-    },
-    {
-      "name": "Ultra",
-      "domain": "ultra.tech",
-      "action": "research deeper",
-      "tier": "Needs More Evidence",
-      "source_lane": "YC Directory",
-      "founders": [
-        "Jon Miller Schwartz",
-        "Max Friefeld",
-        "Chetan Parthiban"
-      ],
-      "stage": "SEED",
-      "raised": 4250000,
-      "headcount": 20,
-      "company_linkedin": "https://www.linkedin.com/company/ultraroboticsco",
-      "company_x": "https://x.com/Ultraroboticsco",
-      "evidence_urls": [
-        "https://ultra.tech"
-      ]
-    },
-    {
-      "name": "Roger",
-      "domain": "hireroger.com",
-      "action": "research deeper",
-      "tier": "Needs More Evidence",
-      "source_lane": "YC Directory",
-      "founders": [
-        "Rithwik Pattikonda"
-      ],
-      "stage": "PRE_SEED",
-      "raised": 500000,
-      "headcount": 19,
-      "company_linkedin": "https://www.linkedin.com/company/augmentbiz/",
-      "company_x": "",
-      "evidence_urls": [
-        "https://hireroger.com"
-      ]
-    },
-    {
-      "name": "Undermind",
-      "domain": "undermind.ai",
-      "action": "research deeper",
-      "tier": "Needs More Evidence",
-      "source_lane": "YC Directory",
-      "founders": [
-        "Joshua Ramette",
-        "Tom Hartke"
-      ],
-      "stage": "PRE_SEED",
-      "raised": 500000,
-      "headcount": 4,
-      "company_linkedin": "https://www.linkedin.com/company/undermind-ai",
-      "company_x": "https://twitter.com/UndermindAI",
-      "evidence_urls": [
-        "https://www.undermind.ai"
-      ]
-    },
-    {
-      "name": "Evolvere BioSciences",
-      "domain": "evolverebiosciences.com",
-      "action": "research deeper",
-      "tier": "Needs More Evidence",
-      "source_lane": "YC Directory",
-      "founders": [
-        "Adam Winnifrith",
-        "Piotr Jedryszek",
-        "Weronika Slesak"
-      ],
-      "stage": "PRE_SEED",
-      "raised": 500000,
-      "headcount": 6,
-      "company_linkedin": "",
-      "company_x": "",
-      "evidence_urls": [
-        "https://www.evolverebiosciences.com/"
+        "https://hamming.ai/",
+        "https://hamming.ai/blog",
+        "https://hamming.ai/customers",
+        "https://www.businesswire.com/news/home/20241218104943/en/Hamming.ai-Announces-%243.8-Million-Seed-Led-by-Mischief"
       ]
     }
   ],
@@ -348,11 +181,11 @@
         "evidence_confidence_medium",
         "project_or_company_domain_present"
       ],
-      "stars": 694,
-      "stars_30d": 194,
+      "stars": 695,
+      "stars_30d": 195,
       "repo_age_days": 299,
       "action": "contact maintainer",
-      "why_it_matters": "Open-source model-agnostic BYOK GitHub bot that runs in GitHub Actions +194 stars in 30d.",
+      "why_it_matters": "Open-source model-agnostic BYOK GitHub bot that runs in GitHub Actions +195 stars in 30d.",
       "why_not_company_yet": "OSS/project-only row",
       "suggested_company_search": "Devtools workflow automation startups founder pricing customers funding",
       "evidence_urls": [
@@ -495,10 +328,45 @@
       "missing_evidence": [
         "official_domain_missing",
         "stage_funding_or_headcount_missing",
-        "company_social_or_linkedin_missing",
+        "company_linkedin_or_social_missing",
         "commercial_or_customer_signal_missing",
+        "pricing_docs_or_careers_missing",
         "OSS/project-only row",
         "no verified domain"
+      ],
+      "gap_buckets": {
+        "official_domain": {
+          "status": "missing",
+          "missing_evidence": "official_domain_missing"
+        },
+        "founder_team": {
+          "status": "present",
+          "missing_evidence": ""
+        },
+        "stage_funding_headcount": {
+          "status": "missing",
+          "missing_evidence": "stage_funding_or_headcount_missing"
+        },
+        "commercial_customer_signal": {
+          "status": "missing",
+          "missing_evidence": "commercial_or_customer_signal_missing"
+        },
+        "pricing_docs_careers": {
+          "status": "missing",
+          "missing_evidence": "pricing_docs_or_careers_missing"
+        },
+        "linkedin_manual_check": {
+          "status": "missing",
+          "missing_evidence": "company_linkedin_or_social_missing"
+        }
+      },
+      "manual_check_sources": [
+        "Manual web resolver",
+        "Crunchbase-style web search",
+        "company careers page",
+        "company website/docs/customers",
+        "pricing/docs/careers pages",
+        "LinkedIn"
       ],
       "next_step": "Resolve official domain from launch text, project docs, founder profile, or web search.",
       "promotion_target": "Review-Worthy Company or supporting Market Signal",
@@ -519,9 +387,43 @@
       "gap_priority_score": 170,
       "missing_evidence": [
         "stage_funding_or_headcount_missing",
-        "company_social_or_linkedin_missing",
+        "company_linkedin_or_social_missing",
         "commercial_or_customer_signal_missing",
+        "pricing_docs_or_careers_missing",
         "OSS/project-only row"
+      ],
+      "gap_buckets": {
+        "official_domain": {
+          "status": "present",
+          "missing_evidence": ""
+        },
+        "founder_team": {
+          "status": "present",
+          "missing_evidence": ""
+        },
+        "stage_funding_headcount": {
+          "status": "missing",
+          "missing_evidence": "stage_funding_or_headcount_missing"
+        },
+        "commercial_customer_signal": {
+          "status": "missing",
+          "missing_evidence": "commercial_or_customer_signal_missing"
+        },
+        "pricing_docs_careers": {
+          "status": "missing",
+          "missing_evidence": "pricing_docs_or_careers_missing"
+        },
+        "linkedin_manual_check": {
+          "status": "missing",
+          "missing_evidence": "company_linkedin_or_social_missing"
+        }
+      },
+      "manual_check_sources": [
+        "Crunchbase-style web search",
+        "company careers page",
+        "company website/docs/customers",
+        "pricing/docs/careers pages",
+        "LinkedIn"
       ],
       "next_step": "Find stage, funding, headcount, careers, or company profile evidence.",
       "promotion_target": "Review-Worthy Company or supporting Market Signal",
@@ -543,10 +445,45 @@
       "missing_evidence": [
         "official_domain_missing",
         "stage_funding_or_headcount_missing",
-        "company_social_or_linkedin_missing",
+        "company_linkedin_or_social_missing",
         "commercial_or_customer_signal_missing",
+        "pricing_docs_or_careers_missing",
         "OSS/project-only row",
         "no verified domain"
+      ],
+      "gap_buckets": {
+        "official_domain": {
+          "status": "missing",
+          "missing_evidence": "official_domain_missing"
+        },
+        "founder_team": {
+          "status": "present",
+          "missing_evidence": ""
+        },
+        "stage_funding_headcount": {
+          "status": "missing",
+          "missing_evidence": "stage_funding_or_headcount_missing"
+        },
+        "commercial_customer_signal": {
+          "status": "missing",
+          "missing_evidence": "commercial_or_customer_signal_missing"
+        },
+        "pricing_docs_careers": {
+          "status": "missing",
+          "missing_evidence": "pricing_docs_or_careers_missing"
+        },
+        "linkedin_manual_check": {
+          "status": "missing",
+          "missing_evidence": "company_linkedin_or_social_missing"
+        }
+      },
+      "manual_check_sources": [
+        "Manual web resolver",
+        "Crunchbase-style web search",
+        "company careers page",
+        "company website/docs/customers",
+        "pricing/docs/careers pages",
+        "LinkedIn"
       ],
       "next_step": "Resolve official domain from launch text, project docs, founder profile, or web search.",
       "promotion_target": "Review-Worthy Company or supporting Market Signal",
@@ -567,10 +504,45 @@
       "missing_evidence": [
         "official_domain_missing",
         "stage_funding_or_headcount_missing",
-        "company_social_or_linkedin_missing",
+        "company_linkedin_or_social_missing",
         "commercial_or_customer_signal_missing",
+        "pricing_docs_or_careers_missing",
         "OSS/project-only row",
         "no verified domain"
+      ],
+      "gap_buckets": {
+        "official_domain": {
+          "status": "missing",
+          "missing_evidence": "official_domain_missing"
+        },
+        "founder_team": {
+          "status": "present",
+          "missing_evidence": ""
+        },
+        "stage_funding_headcount": {
+          "status": "missing",
+          "missing_evidence": "stage_funding_or_headcount_missing"
+        },
+        "commercial_customer_signal": {
+          "status": "missing",
+          "missing_evidence": "commercial_or_customer_signal_missing"
+        },
+        "pricing_docs_careers": {
+          "status": "missing",
+          "missing_evidence": "pricing_docs_or_careers_missing"
+        },
+        "linkedin_manual_check": {
+          "status": "missing",
+          "missing_evidence": "company_linkedin_or_social_missing"
+        }
+      },
+      "manual_check_sources": [
+        "Manual web resolver",
+        "Crunchbase-style web search",
+        "company careers page",
+        "company website/docs/customers",
+        "pricing/docs/careers pages",
+        "LinkedIn"
       ],
       "next_step": "Resolve official domain from launch text, project docs, founder profile, or web search.",
       "promotion_target": "Review-Worthy Company or supporting Market Signal",
@@ -590,9 +562,43 @@
       "gap_priority_score": 135,
       "missing_evidence": [
         "stage_funding_or_headcount_missing",
-        "company_social_or_linkedin_missing",
+        "company_linkedin_or_social_missing",
         "commercial_or_customer_signal_missing",
+        "pricing_docs_or_careers_missing",
         "OSS/project-only row"
+      ],
+      "gap_buckets": {
+        "official_domain": {
+          "status": "present",
+          "missing_evidence": ""
+        },
+        "founder_team": {
+          "status": "present",
+          "missing_evidence": ""
+        },
+        "stage_funding_headcount": {
+          "status": "missing",
+          "missing_evidence": "stage_funding_or_headcount_missing"
+        },
+        "commercial_customer_signal": {
+          "status": "missing",
+          "missing_evidence": "commercial_or_customer_signal_missing"
+        },
+        "pricing_docs_careers": {
+          "status": "missing",
+          "missing_evidence": "pricing_docs_or_careers_missing"
+        },
+        "linkedin_manual_check": {
+          "status": "missing",
+          "missing_evidence": "company_linkedin_or_social_missing"
+        }
+      },
+      "manual_check_sources": [
+        "Crunchbase-style web search",
+        "company careers page",
+        "company website/docs/customers",
+        "pricing/docs/careers pages",
+        "LinkedIn"
       ],
       "next_step": "Find stage, funding, headcount, careers, or company profile evidence.",
       "promotion_target": "Review-Worthy Company or supporting Market Signal",
@@ -614,10 +620,45 @@
       "missing_evidence": [
         "official_domain_missing",
         "stage_funding_or_headcount_missing",
-        "company_social_or_linkedin_missing",
+        "company_linkedin_or_social_missing",
         "commercial_or_customer_signal_missing",
+        "pricing_docs_or_careers_missing",
         "OSS/project-only row",
         "no verified domain"
+      ],
+      "gap_buckets": {
+        "official_domain": {
+          "status": "missing",
+          "missing_evidence": "official_domain_missing"
+        },
+        "founder_team": {
+          "status": "present",
+          "missing_evidence": ""
+        },
+        "stage_funding_headcount": {
+          "status": "missing",
+          "missing_evidence": "stage_funding_or_headcount_missing"
+        },
+        "commercial_customer_signal": {
+          "status": "missing",
+          "missing_evidence": "commercial_or_customer_signal_missing"
+        },
+        "pricing_docs_careers": {
+          "status": "missing",
+          "missing_evidence": "pricing_docs_or_careers_missing"
+        },
+        "linkedin_manual_check": {
+          "status": "missing",
+          "missing_evidence": "company_linkedin_or_social_missing"
+        }
+      },
+      "manual_check_sources": [
+        "Manual web resolver",
+        "Crunchbase-style web search",
+        "company careers page",
+        "company website/docs/customers",
+        "pricing/docs/careers pages",
+        "LinkedIn"
       ],
       "next_step": "Resolve official domain from launch text, project docs, founder profile, or web search.",
       "promotion_target": "Review-Worthy Company or supporting Market Signal",
@@ -626,60 +667,66 @@
       ]
     },
     {
-      "name": "FinBot",
+      "name": "jacobdjwilson/awesome-annual-security-reports",
       "domain": "",
-      "project_url": "https://x.com/SCMagazine/status/2060816268152729946",
-      "source_lane": "X",
+      "project_url": "https://github.com/jacobdjwilson/awesome-annual-security-reports",
+      "source_lane": "OSS",
       "market_sector": "Cybersecurity",
       "theme": "AI agent security",
-      "action": "research deeper",
-      "tier": "Needs More Evidence",
+      "action": "ignore",
+      "tier": "Watchlist",
       "gap_priority_score": 115,
       "missing_evidence": [
         "official_domain_missing",
-        "founder_or_maintainer_missing",
+        "founder_team_missing",
         "stage_funding_or_headcount_missing",
+        "company_linkedin_or_social_missing",
         "commercial_or_customer_signal_missing",
-        "no verified Attio-safe company identity",
-        "no founder/team evidence",
-        "no stage/funding evidence",
-        "Attio status unknown",
+        "pricing_docs_or_careers_missing",
+        "OSS/project-only row",
         "no verified domain",
         "no founder or maintainer identity"
       ],
-      "next_step": "Resolve official domain from launch text, project docs, founder profile, or web search.",
-      "promotion_target": "Review-Worthy Company",
-      "evidence_urls": [
-        "https://x.com/SCMagazine/status/2060816268152729946"
-      ]
-    },
-    {
-      "name": "Open Source Alternative Finder",
-      "domain": "opensourcealternatives.to",
-      "project_url": "https://www.producthunt.com/products/open-source-alternative-finder?utm_campaign=producthunt-api&utm_medium=api-v2&utm_source=Application%3A+VC+Signals+%28ID%3A+286430%29",
-      "source_lane": "Product Hunt",
-      "market_sector": "Unclassified",
-      "theme": "Vertical AI operations",
-      "action": "research deeper",
-      "tier": "Needs More Evidence",
-      "gap_priority_score": 115,
-      "missing_evidence": [
-        "founder_or_maintainer_missing",
-        "stage_funding_or_headcount_missing",
-        "company_social_or_linkedin_missing",
-        "commercial_or_customer_signal_missing",
-        "no verified Attio-safe company identity",
-        "no founder/team evidence",
-        "no stage/funding evidence",
-        "no commercial/funding evidence",
-        "no founder or maintainer identity"
+      "gap_buckets": {
+        "official_domain": {
+          "status": "missing",
+          "missing_evidence": "official_domain_missing"
+        },
+        "founder_team": {
+          "status": "missing",
+          "missing_evidence": "founder_team_missing"
+        },
+        "stage_funding_headcount": {
+          "status": "missing",
+          "missing_evidence": "stage_funding_or_headcount_missing"
+        },
+        "commercial_customer_signal": {
+          "status": "missing",
+          "missing_evidence": "commercial_or_customer_signal_missing"
+        },
+        "pricing_docs_careers": {
+          "status": "missing",
+          "missing_evidence": "pricing_docs_or_careers_missing"
+        },
+        "linkedin_manual_check": {
+          "status": "missing",
+          "missing_evidence": "company_linkedin_or_social_missing"
+        }
+      },
+      "manual_check_sources": [
+        "Manual web resolver",
+        "LinkedIn",
+        "Product Hunt maker page",
+        "GitHub/X founder profile",
+        "Crunchbase-style web search",
+        "company careers page",
+        "company website/docs/customers",
+        "pricing/docs/careers pages"
       ],
-      "next_step": "Find founder or maintainer identity from website, GitHub org, LinkedIn, HN, or X.",
-      "promotion_target": "Review-Worthy Company",
+      "next_step": "Resolve official domain from launch text, project docs, founder profile, or web search.",
+      "promotion_target": "Review-Worthy Company or supporting Market Signal",
       "evidence_urls": [
-        "https://www.producthunt.com/products/open-source-alternative-finder?utm_campaign=producthunt-api&utm_medium=api-v2&utm_source=Application%3A+VC+Signals+%28ID%3A+286430%29",
-        "https://www.producthunt.com/r/UUJW2SY55KMO42?utm_campaign=producthunt-api&utm_medium=api-v2&utm_source=Application%3A+VC+Signals+%28ID%3A+286430%29",
-        "https://www.opensourcealternatives.to/"
+        "https://github.com/jacobdjwilson/awesome-annual-security-reports"
       ]
     },
     {
@@ -695,10 +742,45 @@
       "missing_evidence": [
         "official_domain_missing",
         "stage_funding_or_headcount_missing",
-        "company_social_or_linkedin_missing",
+        "company_linkedin_or_social_missing",
         "commercial_or_customer_signal_missing",
+        "pricing_docs_or_careers_missing",
         "OSS/project-only row",
         "no verified domain"
+      ],
+      "gap_buckets": {
+        "official_domain": {
+          "status": "missing",
+          "missing_evidence": "official_domain_missing"
+        },
+        "founder_team": {
+          "status": "present",
+          "missing_evidence": ""
+        },
+        "stage_funding_headcount": {
+          "status": "missing",
+          "missing_evidence": "stage_funding_or_headcount_missing"
+        },
+        "commercial_customer_signal": {
+          "status": "missing",
+          "missing_evidence": "commercial_or_customer_signal_missing"
+        },
+        "pricing_docs_careers": {
+          "status": "missing",
+          "missing_evidence": "pricing_docs_or_careers_missing"
+        },
+        "linkedin_manual_check": {
+          "status": "missing",
+          "missing_evidence": "company_linkedin_or_social_missing"
+        }
+      },
+      "manual_check_sources": [
+        "Manual web resolver",
+        "Crunchbase-style web search",
+        "company careers page",
+        "company website/docs/customers",
+        "pricing/docs/careers pages",
+        "LinkedIn"
       ],
       "next_step": "Resolve official domain from launch text, project docs, founder profile, or web search.",
       "promotion_target": "Review-Worthy Company or supporting Market Signal",
@@ -720,10 +802,45 @@
       "missing_evidence": [
         "official_domain_missing",
         "stage_funding_or_headcount_missing",
-        "company_social_or_linkedin_missing",
+        "company_linkedin_or_social_missing",
         "commercial_or_customer_signal_missing",
+        "pricing_docs_or_careers_missing",
         "OSS/project-only row",
         "no verified domain"
+      ],
+      "gap_buckets": {
+        "official_domain": {
+          "status": "missing",
+          "missing_evidence": "official_domain_missing"
+        },
+        "founder_team": {
+          "status": "present",
+          "missing_evidence": ""
+        },
+        "stage_funding_headcount": {
+          "status": "missing",
+          "missing_evidence": "stage_funding_or_headcount_missing"
+        },
+        "commercial_customer_signal": {
+          "status": "missing",
+          "missing_evidence": "commercial_or_customer_signal_missing"
+        },
+        "pricing_docs_careers": {
+          "status": "missing",
+          "missing_evidence": "pricing_docs_or_careers_missing"
+        },
+        "linkedin_manual_check": {
+          "status": "missing",
+          "missing_evidence": "company_linkedin_or_social_missing"
+        }
+      },
+      "manual_check_sources": [
+        "Manual web resolver",
+        "Crunchbase-style web search",
+        "company careers page",
+        "company website/docs/customers",
+        "pricing/docs/careers pages",
+        "LinkedIn"
       ],
       "next_step": "Resolve official domain from launch text, project docs, founder profile, or web search.",
       "promotion_target": "Review-Worthy Company or supporting Market Signal",
@@ -732,124 +849,287 @@
       ]
     },
     {
-      "name": "Libra AI",
+      "name": "rohitg00/awesome-claude-code-toolkit",
       "domain": "",
-      "project_url": "https://x.com/alifcoder/status/2054946182414418288",
-      "source_lane": "X",
+      "project_url": "https://github.com/rohitg00/awesome-claude-code-toolkit",
+      "source_lane": "OSS",
       "market_sector": "AI Infra",
-      "theme": "AI data infrastructure",
-      "action": "research deeper",
+      "theme": "Agent runtime infrastructure",
+      "action": "ignore",
       "tier": "Needs More Evidence",
-      "gap_priority_score": 110,
+      "gap_priority_score": 105,
       "missing_evidence": [
         "official_domain_missing",
-        "founder_or_maintainer_missing",
+        "founder_team_missing",
         "stage_funding_or_headcount_missing",
+        "company_linkedin_or_social_missing",
         "commercial_or_customer_signal_missing",
-        "no verified Attio-safe company identity",
-        "no founder/team evidence",
-        "no stage/funding evidence",
-        "Attio status unknown",
+        "pricing_docs_or_careers_missing",
+        "OSS/project-only row",
         "no verified domain",
         "no founder or maintainer identity"
       ],
-      "next_step": "Resolve official domain from launch text, project docs, founder profile, or web search.",
-      "promotion_target": "Review-Worthy Company",
-      "evidence_urls": [
-        "https://x.com/alifcoder/status/2054946182414418288"
-      ]
-    },
-    {
-      "name": "SKYLENAGE-AI/SWE-CI",
-      "domain": "",
-      "project_url": "https://github.com/SKYLENAGE-AI/SWE-CI",
-      "source_lane": "OSS",
-      "market_sector": "AI Infra",
-      "theme": "Agent reliability and evals",
-      "action": "map ecosystem",
-      "tier": "Watchlist",
-      "gap_priority_score": 106,
-      "missing_evidence": [
-        "official_domain_missing",
-        "stage_funding_or_headcount_missing",
-        "company_social_or_linkedin_missing",
-        "commercial_or_customer_signal_missing",
-        "OSS/project-only row",
-        "no verified domain"
+      "gap_buckets": {
+        "official_domain": {
+          "status": "missing",
+          "missing_evidence": "official_domain_missing"
+        },
+        "founder_team": {
+          "status": "missing",
+          "missing_evidence": "founder_team_missing"
+        },
+        "stage_funding_headcount": {
+          "status": "missing",
+          "missing_evidence": "stage_funding_or_headcount_missing"
+        },
+        "commercial_customer_signal": {
+          "status": "missing",
+          "missing_evidence": "commercial_or_customer_signal_missing"
+        },
+        "pricing_docs_careers": {
+          "status": "missing",
+          "missing_evidence": "pricing_docs_or_careers_missing"
+        },
+        "linkedin_manual_check": {
+          "status": "missing",
+          "missing_evidence": "company_linkedin_or_social_missing"
+        }
+      },
+      "manual_check_sources": [
+        "Manual web resolver",
+        "LinkedIn",
+        "Product Hunt maker page",
+        "GitHub/X founder profile",
+        "Crunchbase-style web search",
+        "company careers page",
+        "company website/docs/customers",
+        "pricing/docs/careers pages"
       ],
       "next_step": "Resolve official domain from launch text, project docs, founder profile, or web search.",
       "promotion_target": "Review-Worthy Company or supporting Market Signal",
       "evidence_urls": [
-        "https://github.com/SKYLENAGE-AI/SWE-CI"
+        "https://github.com/rohitg00/awesome-claude-code-toolkit"
+      ]
+    },
+    {
+      "name": "Arize",
+      "domain": "arize.com",
+      "project_url": "https://arize.com/",
+      "source_lane": "Grounded web",
+      "market_sector": "AI Infra",
+      "theme": "AI data infrastructure",
+      "action": "monitor only",
+      "tier": "Needs More Evidence",
+      "gap_priority_score": 105,
+      "missing_evidence": [
+        "founder_team_missing",
+        "company_linkedin_or_social_missing",
+        "commercial_or_customer_signal_missing",
+        "pricing_docs_or_careers_missing",
+        "category context / mature incumbent",
+        "no founder or maintainer identity"
+      ],
+      "gap_buckets": {
+        "official_domain": {
+          "status": "present",
+          "missing_evidence": ""
+        },
+        "founder_team": {
+          "status": "missing",
+          "missing_evidence": "founder_team_missing"
+        },
+        "stage_funding_headcount": {
+          "status": "present",
+          "missing_evidence": ""
+        },
+        "commercial_customer_signal": {
+          "status": "missing",
+          "missing_evidence": "commercial_or_customer_signal_missing"
+        },
+        "pricing_docs_careers": {
+          "status": "missing",
+          "missing_evidence": "pricing_docs_or_careers_missing"
+        },
+        "linkedin_manual_check": {
+          "status": "missing",
+          "missing_evidence": "company_linkedin_or_social_missing"
+        }
+      },
+      "manual_check_sources": [
+        "LinkedIn",
+        "Product Hunt maker page",
+        "GitHub/X founder profile",
+        "company website/docs/customers",
+        "pricing/docs/careers pages"
+      ],
+      "next_step": "Find founder or maintainer identity from website, GitHub org, LinkedIn, HN, or X.",
+      "promotion_target": "Review-Worthy Company",
+      "evidence_urls": [
+        "https://arize.com/"
+      ]
+    },
+    {
+      "name": "Clipto",
+      "domain": "clipto.com",
+      "project_url": "https://www.clipto.com/media-tool/youtube-mp4",
+      "source_lane": "Product Hunt",
+      "market_sector": "Company Formation",
+      "theme": "",
+      "action": "research deeper",
+      "tier": "Evidence Gap",
+      "gap_priority_score": 100,
+      "missing_evidence": [
+        "stage_funding_or_headcount_missing",
+        "company_linkedin_or_social_missing",
+        "commercial_or_customer_signal_missing",
+        "pricing_docs_or_careers_missing"
+      ],
+      "gap_buckets": {
+        "official_domain": {
+          "status": "present",
+          "missing_evidence": ""
+        },
+        "founder_team": {
+          "status": "present",
+          "missing_evidence": ""
+        },
+        "stage_funding_headcount": {
+          "status": "missing",
+          "missing_evidence": "stage_funding_or_headcount_missing"
+        },
+        "commercial_customer_signal": {
+          "status": "missing",
+          "missing_evidence": "commercial_or_customer_signal_missing"
+        },
+        "pricing_docs_careers": {
+          "status": "missing",
+          "missing_evidence": "pricing_docs_or_careers_missing"
+        },
+        "linkedin_manual_check": {
+          "status": "missing",
+          "missing_evidence": "company_linkedin_or_social_missing"
+        }
+      },
+      "manual_check_sources": [
+        "Crunchbase-style web search",
+        "company careers page",
+        "company website/docs/customers",
+        "pricing/docs/careers pages",
+        "LinkedIn"
+      ],
+      "next_step": "Find stage, funding, headcount, careers, or company profile evidence.",
+      "promotion_target": "Review-Worthy Company",
+      "evidence_urls": [
+        "https://www.clipto.com/media-tool/youtube-mp4",
+        "https://www.producthunt.com/products/clipto-ai?utm_campaign=producthunt-api&utm_medium=api-v2&utm_source=Application%3A+VC+Signals+%28ID%3A+286430%29"
       ]
     }
   ],
   "launch_and_oss_watch": [
     {
-      "name": "inview-club/devops-cases",
-      "source_lane": "OSS",
-      "domain": "",
-      "project_url": "https://github.com/inview-club/devops-cases",
-      "theme": "Kubernetes delivery automation",
-      "action": "map ecosystem",
-      "why_keep": "Practical DevOps cases for learning automation, infrastructure management, and continuous delivery +3 stars in 30d.",
-      "why_not_promoted": "Needs verification across stronger company/founder/customer evidence.",
+      "name": "Oura Ring 5",
+      "source_lane": "Product Hunt",
+      "domain": "ouraring.com",
+      "project_url": "https://ouraring.com/blog/introducing-oura-ring-5/",
+      "theme": "",
+      "action": "research deeper",
+      "why_keep": "The world’s smallest smart ring, now even better",
+      "why_not_promoted": "Product Hunt API launch row; needs official domain, founder/team, stage, and customer evidence before owner routing.",
       "evidence_urls": [
-        "https://github.com/inview-club/devops-cases"
+        "https://ouraring.com/blog/introducing-oura-ring-5/",
+        "https://www.producthunt.com/products/oura?utm_campaign=producthunt-api&utm_medium=api-v2&utm_source=Application%3A+VC+Signals+%28ID%3A+286430%29"
       ]
     },
     {
-      "name": "mizchi/actrun",
-      "source_lane": "OSS",
+      "name": "Second Brain for AI",
+      "source_lane": "Product Hunt",
       "domain": "",
-      "project_url": "https://github.com/mizchi/actrun",
-      "theme": "Devtools workflow automation",
-      "action": "map ecosystem",
-      "why_keep": "GitHub Actions compatible local runner +14 stars in 30d.",
-      "why_not_promoted": "Needs verification across stronger company/founder/customer evidence.",
+      "project_url": "https://www.producthunt.com/products/second-brain-cloudflare?utm_campaign=producthunt-api&utm_medium=api-v2&utm_source=Application%3A+VC+Signals+%28ID%3A+286430%29",
+      "theme": "",
+      "action": "research deeper",
+      "why_keep": "Persistent memory for Claude, ChatGPT & Cursor. Free.",
+      "why_not_promoted": "Product Hunt API launch row; needs official domain, founder/team, stage, and customer evidence before owner routing.",
       "evidence_urls": [
-        "https://github.com/mizchi/actrun"
+        "https://www.producthunt.com/products/second-brain-cloudflare?utm_campaign=producthunt-api&utm_medium=api-v2&utm_source=Application%3A+VC+Signals+%28ID%3A+286430%29"
       ]
     },
     {
-      "name": "ready-to-release/eac",
-      "source_lane": "OSS",
+      "name": "TabTasker",
+      "source_lane": "Product Hunt",
       "domain": "",
-      "project_url": "https://github.com/ready-to-release/eac",
-      "theme": "Kubernetes delivery automation",
-      "action": "map ecosystem",
-      "why_keep": " Audit-ready Continuous Delivery for regulated industries. +1 stars in 30d.",
-      "why_not_promoted": "Needs verification across stronger company/founder/customer evidence.",
+      "project_url": "https://www.producthunt.com/products/tabtasker?utm_campaign=producthunt-api&utm_medium=api-v2&utm_source=Application%3A+VC+Signals+%28ID%3A+286430%29",
+      "theme": "",
+      "action": "research deeper",
+      "why_keep": "Zero servers. Total privacy. Your new favorite toolbox.",
+      "why_not_promoted": "Product Hunt API launch row; needs official domain, founder/team, stage, and customer evidence before owner routing.",
       "evidence_urls": [
-        "https://github.com/ready-to-release/eac",
-        "https://ready-to-release.github.io/eac/"
+        "https://www.producthunt.com/products/tabtasker?utm_campaign=producthunt-api&utm_medium=api-v2&utm_source=Application%3A+VC+Signals+%28ID%3A+286430%29"
       ]
     },
     {
-      "name": "kuberik/kuberik",
-      "source_lane": "OSS",
-      "domain": "kuberik.com",
-      "project_url": "https://github.com/kuberik/kuberik",
-      "theme": "Kubernetes delivery automation",
-      "action": "map ecosystem",
-      "why_keep": "Kubernetes-native continuous delivery. Safe, hands-off deployments. +23 stars in 30d.",
-      "why_not_promoted": "Needs verification across stronger company/founder/customer evidence.",
+      "name": "Marqly 5.0",
+      "source_lane": "Product Hunt",
+      "domain": "",
+      "project_url": "https://www.producthunt.com/products/marqly?utm_campaign=producthunt-api&utm_medium=api-v2&utm_source=Application%3A+VC+Signals+%28ID%3A+286430%29",
+      "theme": "",
+      "action": "research deeper",
+      "why_keep": "Your AI-powered bookmark manager",
+      "why_not_promoted": "Product Hunt API launch row; needs official domain, founder/team, stage, and customer evidence before owner routing.",
       "evidence_urls": [
-        "https://github.com/kuberik/kuberik",
-        "https://kuberik.com"
+        "https://www.producthunt.com/products/marqly?utm_campaign=producthunt-api&utm_medium=api-v2&utm_source=Application%3A+VC+Signals+%28ID%3A+286430%29"
       ]
     },
     {
-      "name": "SawyerHood/gitclaw",
-      "source_lane": "OSS",
+      "name": "Web Clipper for NotebookLM",
+      "source_lane": "Product Hunt",
       "domain": "",
-      "project_url": "https://github.com/SawyerHood/gitclaw",
-      "theme": "Devtools workflow automation",
-      "action": "watch",
-      "why_keep": "OpenClaw but it runs entirely on github actions +3 stars in 30d.",
-      "why_not_promoted": "Needs verification across stronger company/founder/customer evidence.",
+      "project_url": "https://www.producthunt.com/products/web-clipper-for-notebooklm?utm_campaign=producthunt-api&utm_medium=api-v2&utm_source=Application%3A+VC+Signals+%28ID%3A+286430%29",
+      "theme": "",
+      "action": "research deeper",
+      "why_keep": "Your ultimate NotebookLM's Chrome Extension",
+      "why_not_promoted": "Product Hunt API launch row; needs official domain, founder/team, stage, and customer evidence before owner routing.",
       "evidence_urls": [
-        "https://github.com/SawyerHood/gitclaw"
+        "https://www.producthunt.com/products/web-clipper-for-notebooklm?utm_campaign=producthunt-api&utm_medium=api-v2&utm_source=Application%3A+VC+Signals+%28ID%3A+286430%29"
+      ]
+    },
+    {
+      "name": "Copycat Cafe",
+      "source_lane": "Product Hunt",
+      "domain": "copycatcafe.com",
+      "project_url": "https://copycatcafe.com/blog/best-spanish-learning-apps",
+      "theme": "",
+      "action": "research deeper",
+      "why_keep": "Learn your next language by copying native speakers",
+      "why_not_promoted": "Product Hunt API launch row; needs official domain, founder/team, stage, and customer evidence before owner routing.",
+      "evidence_urls": [
+        "https://copycatcafe.com/blog/best-spanish-learning-apps",
+        "https://www.producthunt.com/products/copycat-cafe?utm_campaign=producthunt-api&utm_medium=api-v2&utm_source=Application%3A+VC+Signals+%28ID%3A+286430%29"
+      ]
+    },
+    {
+      "name": "Zoomix",
+      "source_lane": "Product Hunt",
+      "domain": "",
+      "project_url": "https://www.producthunt.com/products/zoomix?utm_campaign=producthunt-api&utm_medium=api-v2&utm_source=Application%3A+VC+Signals+%28ID%3A+286430%29",
+      "theme": "",
+      "action": "research deeper",
+      "why_keep": "Create beautiful product demos with smooth zoom effects.",
+      "why_not_promoted": "Product Hunt API launch row; needs official domain, founder/team, stage, and customer evidence before owner routing.",
+      "evidence_urls": [
+        "https://www.producthunt.com/products/zoomix?utm_campaign=producthunt-api&utm_medium=api-v2&utm_source=Application%3A+VC+Signals+%28ID%3A+286430%29"
+      ]
+    },
+    {
+      "name": "Uindow",
+      "source_lane": "Product Hunt",
+      "domain": "",
+      "project_url": "https://www.producthunt.com/products/uindow?utm_campaign=producthunt-api&utm_medium=api-v2&utm_source=Application%3A+VC+Signals+%28ID%3A+286430%29",
+      "theme": "",
+      "action": "research deeper",
+      "why_keep": "The programmable browser with trusted interactions",
+      "why_not_promoted": "Product Hunt API launch row; needs official domain, founder/team, stage, and customer evidence before owner routing.",
+      "evidence_urls": [
+        "https://www.producthunt.com/products/uindow?utm_campaign=producthunt-api&utm_medium=api-v2&utm_source=Application%3A+VC+Signals+%28ID%3A+286430%29"
       ]
     },
     {
@@ -857,69 +1137,68 @@
       "source_lane": "Product Hunt",
       "domain": "",
       "project_url": "https://www.producthunt.com/products/harness-starter-kit?utm_campaign=producthunt-api&utm_medium=api-v2&utm_source=Application%3A+VC+Signals+%28ID%3A+286430%29",
-      "theme": "Emerging technical signal",
+      "theme": "",
       "action": "research deeper",
-      "why_keep": "Harness Starter Kit: Repo guardrails for reliable AI coding agents",
+      "why_keep": "Repo guardrails for reliable AI coding agents",
       "why_not_promoted": "Product Hunt API launch row; needs official domain, founder/team, stage, and customer evidence before owner routing.",
       "evidence_urls": [
-        "https://www.producthunt.com/products/harness-starter-kit?utm_campaign=producthunt-api&utm_medium=api-v2&utm_source=Application%3A+VC+Signals+%28ID%3A+286430%29",
-        "https://www.producthunt.com/r/G23EUZKIVDMV2U?utm_campaign=producthunt-api&utm_medium=api-v2&utm_source=Application%3A+VC+Signals+%28ID%3A+286430%29"
+        "https://www.producthunt.com/products/harness-starter-kit?utm_campaign=producthunt-api&utm_medium=api-v2&utm_source=Application%3A+VC+Signals+%28ID%3A+286430%29"
       ]
     },
     {
-      "name": "AnyFrame",
+      "name": "Hum",
+      "source_lane": "Product Hunt",
+      "domain": "humanizeai.pro",
+      "project_url": "https://www.humanizeai.pro/",
+      "theme": "",
+      "action": "research deeper",
+      "why_keep": "Make your website feel alive with realtime visitor presence",
+      "why_not_promoted": "Product Hunt API launch row; needs official domain, founder/team, stage, and customer evidence before owner routing.",
+      "evidence_urls": [
+        "https://www.humanizeai.pro/",
+        "https://www.producthunt.com/products/hum-5?utm_campaign=producthunt-api&utm_medium=api-v2&utm_source=Application%3A+VC+Signals+%28ID%3A+286430%29"
+      ]
+    },
+    {
+      "name": "CoffeePomodoro",
       "source_lane": "Product Hunt",
       "domain": "",
-      "project_url": "https://www.producthunt.com/products/anyframe-2?utm_campaign=producthunt-api&utm_medium=api-v2&utm_source=Application%3A+VC+Signals+%28ID%3A+286430%29",
-      "theme": "Emerging technical signal",
+      "project_url": "https://www.producthunt.com/products/coffeepomodoro?utm_campaign=producthunt-api&utm_medium=api-v2&utm_source=Application%3A+VC+Signals+%28ID%3A+286430%29",
+      "theme": "",
       "action": "research deeper",
-      "why_keep": "AnyFrame: Platform for every agent your team builds",
+      "why_keep": "Brew your productivity, one Pomodoro at a time",
       "why_not_promoted": "Product Hunt API launch row; needs official domain, founder/team, stage, and customer evidence before owner routing.",
       "evidence_urls": [
-        "https://www.producthunt.com/products/anyframe-2?utm_campaign=producthunt-api&utm_medium=api-v2&utm_source=Application%3A+VC+Signals+%28ID%3A+286430%29",
-        "https://www.producthunt.com/r/5TIN5TV3EG6TT7?utm_campaign=producthunt-api&utm_medium=api-v2&utm_source=Application%3A+VC+Signals+%28ID%3A+286430%29"
+        "https://www.producthunt.com/products/coffeepomodoro?utm_campaign=producthunt-api&utm_medium=api-v2&utm_source=Application%3A+VC+Signals+%28ID%3A+286430%29"
       ]
     },
     {
-      "name": "Launci",
+      "name": "ColorCraft",
       "source_lane": "Product Hunt",
       "domain": "",
-      "project_url": "https://www.producthunt.com/products/launci?utm_campaign=producthunt-api&utm_medium=api-v2&utm_source=Application%3A+VC+Signals+%28ID%3A+286430%29",
-      "theme": "Emerging technical signal",
+      "project_url": "https://www.producthunt.com/products/colorcraft-2?utm_campaign=producthunt-api&utm_medium=api-v2&utm_source=Application%3A+VC+Signals+%28ID%3A+286430%29",
+      "theme": "",
       "action": "research deeper",
-      "why_keep": "Launci: the go-to-market agent",
+      "why_keep": "Batch-recolor 500+ sprites in seconds",
       "why_not_promoted": "Product Hunt API launch row; needs official domain, founder/team, stage, and customer evidence before owner routing.",
       "evidence_urls": [
-        "https://www.producthunt.com/products/launci?utm_campaign=producthunt-api&utm_medium=api-v2&utm_source=Application%3A+VC+Signals+%28ID%3A+286430%29",
-        "https://www.producthunt.com/r/D5IR75ZOSMCL2H?utm_campaign=producthunt-api&utm_medium=api-v2&utm_source=Application%3A+VC+Signals+%28ID%3A+286430%29"
-      ]
-    },
-    {
-      "name": "Ossbase",
-      "source_lane": "X",
-      "domain": "",
-      "project_url": "https://x.com/wtAngat/status/2060627169781469354",
-      "theme": "Emerging technical signal",
-      "action": "research deeper",
-      "why_keep": "I launched Ossbase yesterday. Last night, @NikolDimit already added the platform’s first project: Voiden API Client 🚀 Ossbase’s goal: make o: I launched Ossbase yesterday. Last night, @NikolDimit already added the platform’s first project: Voiden API Client 🚀 Ossbase’s goal: make open source alternatives to proprietary software easier to discover.",
-      "why_not_promoted": "X launch/social-confidence row; needs official identity, durable founder/team, stage/funding, customer, and Marathon context before owner routing.",
-      "evidence_urls": [
-        "https://x.com/wtAngat/status/2060627169781469354"
+        "https://www.producthunt.com/products/colorcraft-2?utm_campaign=producthunt-api&utm_medium=api-v2&utm_source=Application%3A+VC+Signals+%28ID%3A+286430%29"
       ]
     }
   ],
   "two_track_summary": {
-    "review_worthy_companies": 16,
+    "review_worthy_companies": 4,
     "review_worthy_market_signals": 5,
     "evidence_gap_queue": 12,
-    "launch_and_oss_watch": 9,
+    "launch_and_oss_watch": 12,
+    "raw_launch_rows_preserved": 27,
     "interpretation": "Companies need official identity plus founder/stage/size evidence. Market signals can be review-worthy when OSS/theme momentum is strong even before a company exists."
   },
   "source_counts": {
     "github": 14,
     "product_hunt": 20,
-    "yc_directory": 23,
-    "x_launches": 4,
+    "yc_directory": 55,
+    "x_launches": 7,
     "last30days_queries": 6,
     "hn_launch_trial_rows": 5,
     "hn_launch_assign_owner": 1,
@@ -936,11 +1215,11 @@
     ],
     "candidate_rows_by_source_lane": {
       "hn": 0,
-      "github": 14,
-      "product_hunt": 4,
-      "x": 3,
+      "github": 10,
+      "product_hunt": 20,
+      "x": 7,
       "manual_web": 1,
-      "yc_directory": 16
+      "yc_directory": 4
     },
     "review_worthy_rows_by_source_lane": {
       "hn": 1,
@@ -948,14 +1227,14 @@
       "product_hunt": 0,
       "x": 0,
       "manual_web": 0,
-      "yc_directory": 16
+      "yc_directory": 4
     },
     "review_worthy_source_lanes": [
       "hn",
       "yc_directory"
     ],
     "non_yc_review_worthy_count": 1,
-    "yc_review_worthy_count": 16,
+    "yc_review_worthy_count": 4,
     "raw_domain_resolution": {
       "product_hunt": {
         "launches": 20,
@@ -963,9 +1242,9 @@
         "unresolved_domains": 15
       },
       "x": {
-        "launches": 4,
+        "launches": 7,
         "resolved_domains": 1,
-        "unresolved_domains": 3
+        "unresolved_domains": 6
       }
     },
     "hn_launch_trial_rows": 5,
@@ -973,47 +1252,68 @@
     "source_diversity_proven": true,
     "interpretation": "Source diversity is proven when at least one non-YC lane produces a partner-grade row. HN Assign Owner rows count here; raw Product Hunt/X/GitHub/manual-web rows are discovery coverage until they clear the same evidence bar."
   },
+  "structured_provider_decision": {
+    "status": "recommend_structured_provider_trial",
+    "best_unlock": "Coresignal or Crunchbase-style company metadata",
+    "reasons": [
+      "Review-Worthy Company target missed",
+      "21 Product Hunt/X launch domains still unresolved",
+      "Targeted public manual enrichment found no usable snippets"
+    ],
+    "policy": "Only consider paid structured data after public discovery/manual enrichment misses the company-yield target. Keep LinkedIn/Crunchbase-style checks manual for top rows unless compliant provider access is configured."
+  },
   "source_health": [
     {
       "source": "last30days:devtools",
       "status": "complete",
-      "fresh_items": 0,
-      "duration_seconds": 34.27,
-      "warnings": []
+      "fresh_items": 49,
+      "duration_seconds": 165.69,
+      "warnings": [
+        "Top evidence is highly concentrated in one source.",
+        "Evidence is thin for this topic.",
+        "Top evidence is highly concentrated in one source."
+      ]
     },
     {
       "source": "last30days:cybersecurity",
       "status": "complete",
-      "fresh_items": 1,
-      "duration_seconds": 35.75,
+      "fresh_items": 72,
+      "duration_seconds": 223.29,
       "warnings": [
-        "reddit_pain: filtered 1 reddit items outside requested subreddits",
-        "Evidence is thin for this topic."
+        "Evidence is thin for this topic.",
+        "Top evidence is highly concentrated in one source.",
+        "Top evidence is highly concentrated in one source.",
+        "Top evidence is highly concentrated in one source.",
+        "Top evidence is highly concentrated in one source.",
+        "Top evidence is highly concentrated in one source.",
+        "Top evidence is highly concentrated in one source.",
+        "Top evidence is highly concentrated in one source."
       ]
     },
     {
       "source": "last30days:ai-infra",
       "status": "degraded",
-      "fresh_items": 0,
-      "duration_seconds": 73.55,
+      "fresh_items": 59,
+      "duration_seconds": 271.17,
       "warnings": [
-        "last30days query timed out (60s): /last30days · researching: LLMOps pain OR LLM inference cost OR agent evaluation failure\n⏳ \u001b[95mProcessing\u001b[0m Removing duplicates...\n[Resolve] Resolved 2 subreddits, x_handle='', github_user='amitshekhariitbhu', github_repos=['langfuse/langfuse', 'amitshekhariitbhu/ai-engineering-interview-question"
+        "last30days query timed out (60s): /last30days · researching: LLMOps pain OR LLM inference cost OR agent evaluation failure\n⏳ \u001b[95mProcessing\u001b[0m Removing duplicates...\n[Web] Reddit rate-limited, halting enrichment: Reddit rate limited (429) fetching https://www.reddit.com/r/LocalLLM/comments/1tek00h/why_is_llm_is_so_expensive/\n[Reso"
       ]
     },
     {
       "source": "last30days:vertical-ai",
       "status": "degraded",
-      "fresh_items": 0,
-      "duration_seconds": 88.27,
+      "fresh_items": 50,
+      "duration_seconds": 350.38,
       "warnings": [
-        "last30days query timed out (60s): /last30days · researching: manual workflow pain OR AI agent for operations OR AI SDR frustration\n⏳ \u001b[95mProcessing\u001b[0m Finding patterns...\n[Resolve] Resolved 4 subreddits, x_handle='', github_user='msitarzewski', github_repos=['msitarzewski/agency-agents', 'KirKruglov/claude-skills-kit', 'franklioxy"
+        "last30days query timed out (60s): /last30days · researching: manual workflow pain OR AI agent for operations OR AI SDR frustration\n⏳ \u001b[95mProcessing\u001b[0m Finding patterns...\n[Resolve] Resolved 4 subreddits, x_handle='', github_user='msitarzewski', github_repos=['msitarzewski/agency-agents', 'franklioxygen/agent-workflows', 'KirKruglo",
+        "last30days query timed out (60s): /last30days · researching: vertical AI startups gaining traction Seed Series A Series B founder customer traction\n⏳ \u001b[95mProcessing\u001b[0m Scoring and ranking...\n[Web] Reddit rate-limited, halting enrichment: Reddit rate limited (429) fetching https://www.reddit.com/r/AI_Agents/comments/1tm5n18/a_solo_"
       ]
     },
     {
       "source": "last30days:data-infra",
       "status": "degraded",
-      "fresh_items": 0,
-      "duration_seconds": 76.0,
+      "fresh_items": 62,
+      "duration_seconds": 283.73,
       "warnings": [
         "last30days query timed out (60s): /last30days · researching: data pipeline testing pain OR data lineage pain OR data quality incident\n⏳ \u001b[95mProcessing\u001b[0m Removing duplicates...\n[Web] Reddit rate-limited, halting enrichment: Reddit rate limited (429) fetching https://www.reddit.com/r/dataengineering/comments/1tcqtz5/common_challeng"
       ]
@@ -1021,63 +1321,67 @@
     {
       "source": "last30days:oss",
       "status": "degraded",
-      "fresh_items": 0,
-      "duration_seconds": 76.46,
+      "fresh_items": 18,
+      "duration_seconds": 176.18,
       "warnings": [
-        "last30days query timed out (60s): /last30days · researching: open source tool adoption OR GitHub repo production use OR maintainer burnout\n⏳ \u001b[95mProcessing\u001b[0m Scoring and ranking...\n[Resolve] Resolved 0 subreddits, x_handle='', github_user='trending', github_repos=[], context_len=300, category=None\n[AutoResolve] GitHub user: @tren"
+        "last30days query timed out (60s): /last30days · researching: open source tool adoption OR GitHub repo production use OR maintainer burnout\n⏳ \u001b[95mProcessing\u001b[0m Finding patterns...\n[Resolve] Resolved 0 subreddits, x_handle='', github_user='trending', github_repos=[], context_len=300, category=None\n[AutoResolve] GitHub user: @trendin",
+        "last30days query timed out (60s): /last30days · researching: fast growing open source AI ML startups GitHub Seed Series A Series B founder customer traction\n⏳ \u001b[95mProcessing\u001b[0m Removing duplicates...\n[Web] Reddit rate-limited, halting enrichment: Reddit rate limited (429) fetching https://www.reddit.com/r/Entrepreneur/comments/1t7"
       ]
     },
     {
       "source": "github",
       "status": "complete",
       "fresh_items": 25,
-      "duration_seconds": 19.46,
+      "duration_seconds": 19.56,
       "warnings": []
     },
     {
       "source": "product_hunt",
       "status": "complete",
       "fresh_items": 20,
-      "duration_seconds": 183.33,
+      "duration_seconds": 211.0,
       "warnings": [
         "Second Brain for AI: 403 Forbidden; web resolver found no verified official domain",
         "TabTasker: 403 Forbidden; web resolver found no verified official domain",
         "Marqly 5.0: 403 Forbidden; web resolver found no verified official domain",
         "Web Clipper for NotebookLM: 403 Forbidden; web resolver found no verified official domain",
         "Zoomix: 403 Forbidden; web resolver found no verified official domain",
+        "Uindow: 403 Forbidden; web resolver found no verified official domain",
         "Harness Starter Kit: 403 Forbidden; web resolver found no verified official domain",
         "CoffeePomodoro: 403 Forbidden; web resolver found no verified official domain",
         "ColorCraft: 403 Forbidden; web resolver found no verified official domain",
         "AnyFrame: 403 Forbidden; web resolver found no verified official domain",
         "JSON Kit: 403 Forbidden; web resolver found no verified official domain",
+        "Mixstream: 403 Forbidden; web resolver found no verified official domain",
         "Skipper Study: 403 Forbidden; web resolver found no verified official domain",
         "Launci: 403 Forbidden; web resolver found no verified official domain",
-        "MatriLens: 403 Forbidden; web resolver found no verified official domain",
-        "Samata Health: 403 Forbidden; web resolver found no verified official domain",
-        "CollectMonial: 403 Forbidden; web resolver found no verified official domain"
+        "MatriLens: 403 Forbidden; web resolver found no verified official domain"
       ]
     },
     {
       "source": "yc_directory",
       "status": "complete",
-      "fresh_items": 23,
-      "duration_seconds": 9.48,
+      "fresh_items": 55,
+      "duration_seconds": 16.71,
       "warnings": []
     },
     {
       "source": "x_launches",
       "status": "complete",
-      "fresh_items": 4,
-      "duration_seconds": 404.4,
+      "fresh_items": 7,
+      "duration_seconds": 445.35,
       "warnings": [
         "Top evidence is highly concentrated in one source.",
-        "Top evidence is highly concentrated in one source.",
-        "FinBot: X domain resolver found no verified official domain",
+        "Command Line: X domain resolver found no verified official domain",
+        "Xell: X domain resolver found no verified official domain",
+        "SkyPort: X domain resolver found no verified official domain",
+        "Envio: X domain resolver found no verified official domain",
         "Top evidence is highly concentrated in one source.",
         "Top evidence is highly concentrated in one source.",
         "Libra AI: X domain resolver found no verified official domain",
         "Top evidence is highly concentrated in one source.",
-        "Ossbase: X domain resolver found no verified official domain"
+        "Exchange OS: X domain resolver found no verified official domain",
+        "Top evidence is highly concentrated in one source."
       ]
     },
     {
@@ -1108,37 +1412,46 @@
     "recommendation": "Product Hunt and X are configured; Coresignal, Crunchbase, and LinkedIn are intentionally manual-mode for now."
   },
   "manual_enrichment_summary": {
-    "targets": 4,
-    "with_missing_linkedin": 4,
-    "with_missing_founder_team": 1,
-    "with_missing_stage_or_funding": 3,
-    "excluded_complete_or_low_value": 34,
+    "targets": 2,
+    "with_missing_linkedin": 2,
+    "with_missing_founder_team": 0,
+    "with_missing_stage_or_funding": 2,
+    "excluded_complete_or_low_value": 13,
     "selection_policy": "Domain required; concrete missing evidence required; category/context rows excluded; ranked by action, tier, owner readiness, partner priority, and evidence scores."
   },
+  "targeted_manual_enrichment_summary": {
+    "targets_considered": 11,
+    "targets_enriched": 5,
+    "queries_run": 20,
+    "items_seen": 0,
+    "errors": 0,
+    "queries_per_target": 4,
+    "limit": 5
+  },
   "company_discovery_summary": {
-    "queries_run": 27,
-    "verification_queries_run": 5,
-    "maturity_queries_run": 2,
+    "queries_run": 19,
+    "verification_queries_run": 3,
+    "maturity_queries_run": 1,
     "article_fetches_attempted": 8,
-    "provider_items_seen": 160,
+    "provider_items_seen": 123,
     "cache_hits": 0,
     "stale_cache_hits": 0,
     "maturity_cache_hits": 0,
     "stale_maturity_cache_hits": 0,
-    "live_calls": 29,
-    "partial": true,
-    "budget_exceeded": true,
+    "live_calls": 20,
+    "partial": false,
+    "budget_exceeded": false,
     "source_type_counts": {
-      "listicle_or_seo": 33,
-      "unknown": 85,
-      "publisher_article": 25,
-      "official_company_page": 6,
-      "content_platform": 5,
+      "listicle_or_seo": 28,
       "directory_page": 3,
-      "github_repo": 3
+      "content_platform": 3,
+      "official_company_page": 6,
+      "unknown": 59,
+      "publisher_article": 19,
+      "github_repo": 5
     },
-    "accepted": 2,
-    "rejected": 115,
+    "accepted": 1,
+    "rejected": 75,
     "grounded_available": true
   },
   "ledger_partner_packet_warning": {

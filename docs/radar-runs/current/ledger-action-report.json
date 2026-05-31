@@ -1,14 +1,14 @@
 {
-  "generated_at": "2026-05-31T22:37:25.743839+00:00",
+  "generated_at": "2026-05-31T23:46:17.915290+00:00",
   "report_type": "source_yield_strict_action_report",
-  "source_run_dir": "docs/radar-runs/current-deep-dive-validation-2026-05-31-r4",
+  "source_run_dir": "docs/radar-runs/current-deep-dive-validation-2026-05-31-r5",
   "summary": {
-    "goal_reached": true,
+    "goal_reached": false,
     "assign_owner_entities": 1,
-    "review_worthy_company_entities": 16,
+    "review_worthy_company_entities": 4,
     "review_worthy_market_signal_entities": 5,
     "evidence_gap_entities": 12,
-    "review_worthy_research_entities": 16,
+    "review_worthy_research_entities": 4,
     "unsafe_promotions": 0
   },
   "actions": [
@@ -21,24 +21,12 @@
     },
     {
       "action": "Review worthy - research deeper",
-      "count": 16,
+      "count": 4,
       "names": [
         "Superunit",
         "Goldbridge",
-        "Simplex",
-        "Miru",
-        "Apten",
-        "Doublezero",
-        "Menza",
-        "jo",
-        "Poka Labs",
-        "Spur",
-        "Coval",
-        "Ångström AI",
-        "Ultra",
-        "Roger",
-        "Undermind",
-        "Evolvere BioSciences"
+        "Comfy Deploy",
+        "Hamming AI"
       ]
     },
     {
@@ -62,12 +50,12 @@
         "boostsecurityio/smokedmeat",
         "redwoodjs/agent-ci",
         "peakoss/anti-slop",
-        "FinBot",
-        "Open Source Alternative Finder",
+        "jacobdjwilson/awesome-annual-security-reports",
         "leiting-eric/DailyBrief",
         "spaceraccoon/vulnerability-spoiler-alert-action",
-        "Libra AI",
-        "SKYLENAGE-AI/SWE-CI"
+        "rohitg00/awesome-claude-code-toolkit",
+        "Arize",
+        "Clipto"
       ]
     }
   ],

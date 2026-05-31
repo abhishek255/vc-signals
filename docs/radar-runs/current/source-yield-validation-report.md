@@ -1,11 +1,21 @@
 # Source Yield Validation
 
-- Goal reached: yes
+- Goal reached: no
 - Assign Owner rows: Voker
 - Assign Owner bar preserved: yes
-- Net-new credible Review-Worthy rows: 16 / 5
+- Net-new credible Review-Worthy rows: 4 / 8
 - Review-Worthy Market Signals: 5
 - Evidence Gap Queue rows: 12
+
+## Source-Yield Targets
+
+| Metric | Count | Target | Status |
+| --- | --- | --- | --- |
+| Assign Owner | 1 | min 1, max 3 | met |
+| Review Worthy Companies | 4 | min 8, max 15 | below_min |
+| Review Worthy Market Signals | 5 | min 5, max 10 | met |
+| Evidence Gap Queue | 12 | min 10, max 15 | met |
+| Unsafe Promotions | 0 | max 0 | met |
 
 ## Review-Worthy Companies
 
@@ -13,26 +23,14 @@
 | --- | --- | --- | --- | --- | --- | --- |
 | Superunit | superunit.com | research deeper | PRE_SEED | 500000 | 2 | YC Directory |
 | Goldbridge | goldbridgebanking.com | research deeper | PRE_SEED | 500000 | 5 | YC Directory |
-| Simplex | simplex.sh | research deeper | PRE_SEED | 500000 | 5 | YC Directory |
-| Miru | mirurobotics.com | research deeper | PRE_SEED | 500000 | 4 | YC Directory |
-| Apten | apten.ai | research deeper | PRE_SEED | 500000 | 4 | YC Directory |
-| Doublezero | doublezero.tech | research deeper | PRE_SEED | 500000 | 1 | YC Directory |
-| Menza | menza.ai | research deeper | PRE_SEED | 500000 | 6 | YC Directory |
-| jo | askjo.ai | research deeper | PRE_SEED | 500000 | 2 | YC Directory |
-| Poka Labs | pokalabs.com | research deeper | PRE_SEED | 2500000 | 5 | YC Directory |
-| Spur | spurtest.com | research deeper | SEED | 5000000 | 76 | YC Directory |
-| Coval | coval.dev | research deeper | SEED | 3800000 | 20 | YC Directory |
-| Ångström AI | angstrom-ai.com | research deeper | PRE_SEED | 500000 | 4 | YC Directory |
-| Ultra | ultra.tech | research deeper | SEED | 4250000 | 20 | YC Directory |
-| Roger | hireroger.com | research deeper | PRE_SEED | 500000 | 19 | YC Directory |
-| Undermind | undermind.ai | research deeper | PRE_SEED | 500000 | 4 | YC Directory |
-| Evolvere BioSciences | evolverebiosciences.com | research deeper | PRE_SEED | 500000 | 6 | YC Directory |
+| Comfy Deploy | comfydeploy.com | research deeper | PRE_SEED | 500000 | 1 | YC Directory |
+| Hamming AI | hamming.ai | research deeper | SEED | 4550000 | 14 | YC Directory |
 
 ## Review-Worthy Market Signals
 
 | Signal | Theme | Sector | Score | 30d Stars | Why It Matters | Next Search |
 | --- | --- | --- | --- | --- | --- | --- |
-| pullfrog/pullfrog | Devtools workflow automation | Devtools | 100 | 194 | Open-source model-agnostic BYOK GitHub bot that runs in GitHub Actions +194 stars in 30d. | Devtools workflow automation startups founder pricing customers funding |
+| pullfrog/pullfrog | Devtools workflow automation | Devtools | 100 | 195 | Open-source model-agnostic BYOK GitHub bot that runs in GitHub Actions +195 stars in 30d. | Devtools workflow automation startups founder pricing customers funding |
 | affaan-m/agentshield | AI agent security | Cybersecurity | 100 | 149 | AI agent security scanner. Detect vulnerabilities in agent configurations, MCP servers, and tool permissions. Available as CLI, GitHub Action, ECC plugin, and GitHub App integration. 🛡️ +149 stars in 30d. | AI agent security startups founder pricing customers funding |
 | redwoodjs/agent-ci | Devtools workflow automation | Devtools | 100 | 78 | Agent-CI is local GitHub Actions for your agents. +78 stars in 30d. | Devtools workflow automation startups founder pricing customers funding |
 | azat-io/actions-up | Devtools workflow automation | Devtools | 100 | 59 | 🌊 Interactive CLI tool to update GitHub Actions to latest versions with SHA pinning +59 stars in 30d. | Devtools workflow automation startups founder pricing customers funding |
@@ -42,38 +40,46 @@
 
 | Row | Source | Missing Evidence | Next Step | Promotion Target |
 | --- | --- | --- | --- | --- |
-| affaan-m/agentshield | OSS | official_domain_missing, stage_funding_or_headcount_missing, company_social_or_linkedin_missing, commercial_or_customer_signal_missing | Resolve official domain from launch text, project docs, founder profile, or web search. | Review-Worthy Company or supporting Market Signal |
-| pullfrog/pullfrog | OSS | stage_funding_or_headcount_missing, company_social_or_linkedin_missing, commercial_or_customer_signal_missing, OSS/project-only row | Find stage, funding, headcount, careers, or company profile evidence. | Review-Worthy Company or supporting Market Signal |
-| azat-io/actions-up | OSS | official_domain_missing, stage_funding_or_headcount_missing, company_social_or_linkedin_missing, commercial_or_customer_signal_missing | Resolve official domain from launch text, project docs, founder profile, or web search. | Review-Worthy Company or supporting Market Signal |
-| boostsecurityio/smokedmeat | OSS | official_domain_missing, stage_funding_or_headcount_missing, company_social_or_linkedin_missing, commercial_or_customer_signal_missing | Resolve official domain from launch text, project docs, founder profile, or web search. | Review-Worthy Company or supporting Market Signal |
-| redwoodjs/agent-ci | OSS | stage_funding_or_headcount_missing, company_social_or_linkedin_missing, commercial_or_customer_signal_missing, OSS/project-only row | Find stage, funding, headcount, careers, or company profile evidence. | Review-Worthy Company or supporting Market Signal |
-| peakoss/anti-slop | OSS | official_domain_missing, stage_funding_or_headcount_missing, company_social_or_linkedin_missing, commercial_or_customer_signal_missing | Resolve official domain from launch text, project docs, founder profile, or web search. | Review-Worthy Company or supporting Market Signal |
-| FinBot | X | official_domain_missing, founder_or_maintainer_missing, stage_funding_or_headcount_missing, commercial_or_customer_signal_missing | Resolve official domain from launch text, project docs, founder profile, or web search. | Review-Worthy Company |
-| Open Source Alternative Finder | Product Hunt | founder_or_maintainer_missing, stage_funding_or_headcount_missing, company_social_or_linkedin_missing, commercial_or_customer_signal_missing | Find founder or maintainer identity from website, GitHub org, LinkedIn, HN, or X. | Review-Worthy Company |
-| leiting-eric/DailyBrief | OSS | official_domain_missing, stage_funding_or_headcount_missing, company_social_or_linkedin_missing, commercial_or_customer_signal_missing | Resolve official domain from launch text, project docs, founder profile, or web search. | Review-Worthy Company or supporting Market Signal |
-| spaceraccoon/vulnerability-spoiler-alert-action | OSS | official_domain_missing, stage_funding_or_headcount_missing, company_social_or_linkedin_missing, commercial_or_customer_signal_missing | Resolve official domain from launch text, project docs, founder profile, or web search. | Review-Worthy Company or supporting Market Signal |
-| Libra AI | X | official_domain_missing, founder_or_maintainer_missing, stage_funding_or_headcount_missing, commercial_or_customer_signal_missing | Resolve official domain from launch text, project docs, founder profile, or web search. | Review-Worthy Company |
-| SKYLENAGE-AI/SWE-CI | OSS | official_domain_missing, stage_funding_or_headcount_missing, company_social_or_linkedin_missing, commercial_or_customer_signal_missing | Resolve official domain from launch text, project docs, founder profile, or web search. | Review-Worthy Company or supporting Market Signal |
+| affaan-m/agentshield | OSS | official_domain_missing, stage_funding_or_headcount_missing, company_linkedin_or_social_missing, commercial_or_customer_signal_missing | Resolve official domain from launch text, project docs, founder profile, or web search. | Review-Worthy Company or supporting Market Signal |
+| pullfrog/pullfrog | OSS | stage_funding_or_headcount_missing, company_linkedin_or_social_missing, commercial_or_customer_signal_missing, pricing_docs_or_careers_missing | Find stage, funding, headcount, careers, or company profile evidence. | Review-Worthy Company or supporting Market Signal |
+| azat-io/actions-up | OSS | official_domain_missing, stage_funding_or_headcount_missing, company_linkedin_or_social_missing, commercial_or_customer_signal_missing | Resolve official domain from launch text, project docs, founder profile, or web search. | Review-Worthy Company or supporting Market Signal |
+| boostsecurityio/smokedmeat | OSS | official_domain_missing, stage_funding_or_headcount_missing, company_linkedin_or_social_missing, commercial_or_customer_signal_missing | Resolve official domain from launch text, project docs, founder profile, or web search. | Review-Worthy Company or supporting Market Signal |
+| redwoodjs/agent-ci | OSS | stage_funding_or_headcount_missing, company_linkedin_or_social_missing, commercial_or_customer_signal_missing, pricing_docs_or_careers_missing | Find stage, funding, headcount, careers, or company profile evidence. | Review-Worthy Company or supporting Market Signal |
+| peakoss/anti-slop | OSS | official_domain_missing, stage_funding_or_headcount_missing, company_linkedin_or_social_missing, commercial_or_customer_signal_missing | Resolve official domain from launch text, project docs, founder profile, or web search. | Review-Worthy Company or supporting Market Signal |
+| jacobdjwilson/awesome-annual-security-reports | OSS | official_domain_missing, founder_team_missing, stage_funding_or_headcount_missing, company_linkedin_or_social_missing | Resolve official domain from launch text, project docs, founder profile, or web search. | Review-Worthy Company or supporting Market Signal |
+| leiting-eric/DailyBrief | OSS | official_domain_missing, stage_funding_or_headcount_missing, company_linkedin_or_social_missing, commercial_or_customer_signal_missing | Resolve official domain from launch text, project docs, founder profile, or web search. | Review-Worthy Company or supporting Market Signal |
+| spaceraccoon/vulnerability-spoiler-alert-action | OSS | official_domain_missing, stage_funding_or_headcount_missing, company_linkedin_or_social_missing, commercial_or_customer_signal_missing | Resolve official domain from launch text, project docs, founder profile, or web search. | Review-Worthy Company or supporting Market Signal |
+| rohitg00/awesome-claude-code-toolkit | OSS | official_domain_missing, founder_team_missing, stage_funding_or_headcount_missing, company_linkedin_or_social_missing | Resolve official domain from launch text, project docs, founder profile, or web search. | Review-Worthy Company or supporting Market Signal |
+| Arize | Grounded web | founder_team_missing, company_linkedin_or_social_missing, commercial_or_customer_signal_missing, pricing_docs_or_careers_missing | Find founder or maintainer identity from website, GitHub org, LinkedIn, HN, or X. | Review-Worthy Company |
+| Clipto | Product Hunt | stage_funding_or_headcount_missing, company_linkedin_or_social_missing, commercial_or_customer_signal_missing, pricing_docs_or_careers_missing | Find stage, funding, headcount, careers, or company profile evidence. | Review-Worthy Company |
 
 ## Source Diversity
 
 - Non-YC review-worthy rows: 1
 - Review-worthy lanes: hn, yc_directory
 - product_hunt: launches=20, resolved_domains=5, unresolved_domains=15
-- x: launches=4, resolved_domains=1, unresolved_domains=3
+- x: launches=7, resolved_domains=1, unresolved_domains=6
+
+## Structured Provider Decision
+
+- Status: recommend_structured_provider_trial
+- Best unlock: Coresignal or Crunchbase-style company metadata
+- Reason: Review-Worthy Company target missed
+- Reason: 21 Product Hunt/X launch domains still unresolved
+- Reason: Targeted public manual enrichment found no usable snippets
 
 ## Source Health
 
-- last30days:devtools: complete, fresh_items=0, duration_seconds=34.27
-- last30days:cybersecurity: complete, fresh_items=1, duration_seconds=35.75
-- last30days:ai-infra: degraded, fresh_items=0, duration_seconds=73.55
-- last30days:vertical-ai: degraded, fresh_items=0, duration_seconds=88.27
-- last30days:data-infra: degraded, fresh_items=0, duration_seconds=76.0
-- last30days:oss: degraded, fresh_items=0, duration_seconds=76.46
-- github: complete, fresh_items=25, duration_seconds=19.46
-- product_hunt: complete, fresh_items=20, duration_seconds=183.33
-- yc_directory: complete, fresh_items=23, duration_seconds=9.48
-- x_launches: complete, fresh_items=4, duration_seconds=404.4
+- last30days:devtools: complete, fresh_items=49, duration_seconds=165.69
+- last30days:cybersecurity: complete, fresh_items=72, duration_seconds=223.29
+- last30days:ai-infra: degraded, fresh_items=59, duration_seconds=271.17
+- last30days:vertical-ai: degraded, fresh_items=50, duration_seconds=350.38
+- last30days:data-infra: degraded, fresh_items=62, duration_seconds=283.73
+- last30days:oss: degraded, fresh_items=18, duration_seconds=176.18
+- github: complete, fresh_items=25, duration_seconds=19.56
+- product_hunt: complete, fresh_items=20, duration_seconds=211.0
+- yc_directory: complete, fresh_items=55, duration_seconds=16.71
+- x_launches: complete, fresh_items=7, duration_seconds=445.35
 - hn_launch_trial: complete, fresh_items=5, duration_seconds=0
 
 ## Caveats

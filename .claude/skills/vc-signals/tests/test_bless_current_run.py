@@ -40,11 +40,15 @@ def test_write_blessed_current_run_can_prune_stale_pointer_files(tmp_path):
     ledger = run_dir / "ledger-action-report.json"
     report = run_dir / "source-yield-validation-report.json"
     report_md = run_dir / "source-yield-validation-report.md"
+    repeatability = run_dir / "source-yield-repeatability-report.json"
+    repeatability_md = run_dir / "source-yield-repeatability-report.md"
     targeted_manual = run_dir / "targeted-manual-enrichment.json"
     packet.write_text(json.dumps({"summary": {"owner_follow_up": 1}}))
     ledger.write_text(json.dumps({"summary": {"assign_owner_entities": 1}}))
     report.write_text(json.dumps({"goal_assessment": {"goal_reached": True}}))
     report_md.write_text("# Source Yield Validation\n")
+    repeatability.write_text(json.dumps({"summary": {"runs_compared": 3}}))
+    repeatability_md.write_text("# Source Yield Repeatability\n")
     targeted_manual.write_text(json.dumps({"summary": {"targets_enriched": 3}}))
     current_dir = tmp_path / "current"
     current_dir.mkdir()
@@ -57,6 +61,8 @@ def test_write_blessed_current_run_can_prune_stale_pointer_files(tmp_path):
         ledger_action_report=ledger,
         source_yield_validation_report=report,
         source_yield_validation_markdown=report_md,
+        source_yield_repeatability_report=repeatability,
+        source_yield_repeatability_markdown=repeatability_md,
         targeted_manual_enrichment_report=targeted_manual,
         prune_current=True,
     )
@@ -64,10 +70,13 @@ def test_write_blessed_current_run_can_prune_stale_pointer_files(tmp_path):
     assert result["manifest"] == str(current_dir / "run-manifest.json")
     assert not (current_dir / "stale-raw-evidence.json").exists()
     assert (current_dir / "source-yield-validation-report.json").exists()
+    assert (current_dir / "source-yield-repeatability-report.json").exists()
     assert (current_dir / "targeted-manual-enrichment.json").exists()
     manifest = json.loads((current_dir / "run-manifest.json").read_text())
     assert manifest["decision_artifacts"] == [
         "source-yield-validation-report.json",
         "source-yield-validation-report.md",
+        "source-yield-repeatability-report.json",
+        "source-yield-repeatability-report.md",
         "targeted-manual-enrichment.json",
     ]

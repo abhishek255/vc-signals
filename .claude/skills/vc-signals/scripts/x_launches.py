@@ -167,6 +167,37 @@ def _resolvable_company_name(name: str) -> bool:
     return len(normalized) >= 4 and normalized not in GENERIC_COMPANY_NAMES
 
 
+def _launch_intent_score(item: dict) -> tuple[int, list[str]]:
+    text = " ".join(
+        str(item.get(key) or "")
+        for key in ("title", "snippet", "description", "body", "text", "container")
+    ).lower()
+    score = 0
+    basis = []
+    if any(term in text for term in ("we launched", "i launched", "just launched", "launching today")):
+        score += 35
+        basis.append("first_person_launch_language")
+    elif any(term in text for term in ("launches", "launched", "launching", "announcing", "shipped")):
+        score += 25
+        basis.append("launch_language")
+    if any(term in text for term in ("founder", "co-founder", "ceo", "cto")):
+        score += 15
+        basis.append("operator_context")
+    if any(term in text for term in ("waitlist", "beta", "private beta", "early access")):
+        score += 10
+        basis.append("early_product_signal")
+    if item.get("website") or item.get("homepage") or item.get("domain"):
+        score += 20
+        basis.append("identity_link_present")
+    if item.get("author"):
+        score += 5
+        basis.append("author_present")
+    if item.get("company_name") or item.get("name"):
+        score += 10
+        basis.append("company_name_present")
+    return min(100, score), basis
+
+
 def _verify_domain_candidate(launch: dict, item: dict, candidate_url: str) -> tuple[bool, list[str]]:
     domain = _domain_from_url(candidate_url) or str(item.get("domain") or "").strip().lower().removeprefix("www.")
     if not _domain_allowed(domain):
@@ -262,6 +293,10 @@ def normalize_x_launch_item(item: dict, query: dict) -> dict:
         missing.append("company_name_missing")
     if not domain:
         missing.append("official_domain_identity_not_confirmed")
+    launch_score, launch_basis = _launch_intent_score({**item, "company_name": company_name, "website": website, "domain": domain})
+    action = "research deeper" if launch_score >= 65 else "watch"
+    if launch_score < 65:
+        missing.append("launch_intent_low")
     return {
         "source": "x",
         "source_lane": "X",
@@ -279,8 +314,19 @@ def normalize_x_launch_item(item: dict, query: dict) -> dict:
         "movement": query.get("movement", ""),
         "market_sector": query.get("market_sector", ""),
         "query_topic": query.get("topic", ""),
-        "action": "research deeper",
-        "lead_route": "research_deeper",
+        "launch_intent_score": launch_score,
+        "launch_intent_basis": launch_basis,
+        "social_confidence_evidence": [
+            {
+                "source": "x",
+                "url": item.get("url") or item.get("x_url") or "",
+                "author": item.get("author", ""),
+                "published_at": item.get("published_at", ""),
+                "title": item.get("title") or company_name,
+            }
+        ],
+        "action": action,
+        "lead_route": "research_deeper" if action == "research deeper" else "watch",
         "missing_evidence": missing,
         "why_this_may_be_noise": (
             "X launch/social-confidence row; needs official identity, durable founder/team, "

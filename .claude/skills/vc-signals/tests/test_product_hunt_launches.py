@@ -267,6 +267,41 @@ def test_parse_product_hunt_api_posts_preserves_makers_and_launch_metrics():
     assert launches[0]["comments_count"] == 42
     assert launches[0]["daily_rank"] == 3
     assert launches[0]["outbound_url"] == "https://agentfence.dev"
+    assert launches[0]["launch_evidence"]["votes_count"] == 321
+    assert launches[0]["launch_evidence"]["comments_count"] == 42
+    assert launches[0]["founder_team_evidence"] == ["https://www.producthunt.com/@adarao"]
+    assert "founder_team_missing" not in launches[0]["missing_evidence"]
+
+
+def test_product_hunt_launch_conversion_status_tracks_domain_and_manual_gaps():
+    from product_hunt_launches import enrich_launch_domains, normalize_product_hunt_api_post
+
+    launch = normalize_product_hunt_api_post(
+        {
+            "name": "AgentFence",
+            "tagline": "Permission firewall for AI agents",
+            "url": "https://www.producthunt.com/products/agentfence",
+            "website": "https://www.producthunt.com/r/abc",
+            "votesCount": 100,
+            "commentsCount": 10,
+            "makers": [{"name": "Ada Rao", "username": "adarao", "url": "https://www.producthunt.com/@adarao"}],
+        }
+    )
+
+    enriched = enrich_launch_domains(
+        [launch],
+        resolver=lambda _url: ("", "403 Forbidden"),
+        fallback_resolver=lambda *_args, **_kwargs: {"url": "https://agentfence.dev"},
+    )
+
+    assert enriched[0]["domain"] == "agentfence.dev"
+    assert enriched[0]["product_hunt_conversion_status"] == "domain_resolved_needs_company_evidence"
+    assert enriched[0]["missing_evidence"] == [
+        "stage_funding_or_headcount_missing",
+        "commercial_or_customer_signal_missing",
+        "pricing_docs_or_careers_missing",
+        "company_linkedin_or_social_missing",
+    ]
 
 
 def test_run_product_hunt_launches_uses_api_when_token_exists(monkeypatch):

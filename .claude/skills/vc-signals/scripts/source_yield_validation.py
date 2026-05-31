@@ -15,6 +15,13 @@ DEFAULT_ASSIGN_OWNER_ALLOWLIST = ("Voker",)
 MARKET_SIGNAL_LIMIT = 5
 EVIDENCE_GAP_LIMIT = 12
 WATCHLIST_LIMIT = 12
+DEFAULT_SOURCE_YIELD_TARGETS = {
+    "assign_owner": {"min": 1, "max": 3, "allow_above_max": False},
+    "review_worthy_companies": {"min": 5, "max": 15, "allow_above_max": True},
+    "review_worthy_market_signals": {"min": 5, "max": 10, "allow_above_max": True},
+    "evidence_gap_queue": {"min": 10, "max": 15, "allow_above_max": True},
+    "unsafe_promotions": {"max": 0, "allow_above_max": False},
+}
 
 
 def _read_json(path: Path, default: Any) -> Any:
@@ -65,6 +72,16 @@ def _row_domain(row: dict) -> str:
 
 def _has_founder_evidence(row: dict) -> bool:
     return _has_value(row.get("founders")) or _has_value(row.get("founder_profiles"))
+
+
+def _has_founder_or_operator_evidence(row: dict) -> bool:
+    return (
+        _has_founder_evidence(row)
+        or _has_value(row.get("founder_team_evidence"))
+        or _has_value(row.get("maker_profiles"))
+        or _has_value(row.get("maker_name"))
+        or _has_value(row.get("maintainer_profiles"))
+    )
 
 
 def _has_stage_or_size_evidence(row: dict) -> bool:
@@ -296,15 +313,30 @@ def _company_evidence_gaps(row: dict) -> list[str]:
     gaps = []
     if not _row_domain(row):
         gaps.append("official_domain_missing")
-    if not _has_founder_evidence(row) and not _has_value(row.get("maintainer_profiles")):
-        gaps.append("founder_or_maintainer_missing")
+    if not _has_founder_or_operator_evidence(row):
+        gaps.append("founder_team_missing")
     if not _has_stage_or_size_evidence(row):
         gaps.append("stage_funding_or_headcount_missing")
     if not (_has_value(row.get("company_linkedin")) or _has_value(row.get("company_x"))):
-        gaps.append("company_social_or_linkedin_missing")
+        gaps.append("company_linkedin_or_social_missing")
     if not (_has_value(row.get("customer_buyer_evidence")) or _has_value(row.get("customer_buyer_evidence_types"))):
         gaps.append("commercial_or_customer_signal_missing")
-    for gap in _as_list(row.get("missing_owner_evidence")) + _as_list(row.get("missing_identity_evidence")):
+    if not (
+        _has_value(row.get("pricing_evidence"))
+        or _has_value(row.get("docs_evidence"))
+        or _has_value(row.get("careers_evidence"))
+        or any(
+            term in str(url).lower()
+            for url in _row_evidence_urls(row)
+            for term in ("/pricing", "/docs", "/customers", "/careers", "/jobs")
+        )
+    ):
+        gaps.append("pricing_docs_or_careers_missing")
+    for gap in (
+        _as_list(row.get("missing_owner_evidence"))
+        + _as_list(row.get("missing_identity_evidence"))
+        + _as_list(row.get("missing_evidence"))
+    ):
         normalized = str(gap or "").strip()
         if normalized and normalized not in gaps:
             gaps.append(normalized)
@@ -314,7 +346,7 @@ def _company_evidence_gaps(row: dict) -> list[str]:
 def _gap_next_step(gaps: list[str], row: dict) -> str:
     if "official_domain_missing" in gaps or "no verified domain" in gaps:
         return "Resolve official domain from launch text, project docs, founder profile, or web search."
-    if "founder_or_maintainer_missing" in gaps:
+    if "founder_team_missing" in gaps or "founder_or_maintainer_missing" in gaps:
         return "Find founder or maintainer identity from website, GitHub org, LinkedIn, HN, or X."
     if "stage_funding_or_headcount_missing" in gaps:
         return "Find stage, funding, headcount, careers, or company profile evidence."
@@ -324,6 +356,58 @@ def _gap_next_step(gaps: list[str], row: dict) -> str:
     if source == "github":
         return "Use this as a market signal and search for companies building around the theme."
     return "Run one focused evidence check before promoting."
+
+
+def _gap_bucket_status(is_missing: bool, missing_key: str) -> dict:
+    return {
+        "status": "missing" if is_missing else "present",
+        "missing_evidence": missing_key if is_missing else "",
+    }
+
+
+def _gap_buckets(row: dict, gaps: list[str]) -> dict:
+    gap_set = set(gaps)
+    return {
+        "official_domain": _gap_bucket_status("official_domain_missing" in gap_set, "official_domain_missing"),
+        "founder_team": _gap_bucket_status(
+            "founder_team_missing" in gap_set or "founder_or_maintainer_missing" in gap_set,
+            "founder_team_missing",
+        ),
+        "stage_funding_headcount": _gap_bucket_status(
+            "stage_funding_or_headcount_missing" in gap_set,
+            "stage_funding_or_headcount_missing",
+        ),
+        "commercial_customer_signal": _gap_bucket_status(
+            "commercial_or_customer_signal_missing" in gap_set,
+            "commercial_or_customer_signal_missing",
+        ),
+        "pricing_docs_careers": _gap_bucket_status(
+            "pricing_docs_or_careers_missing" in gap_set,
+            "pricing_docs_or_careers_missing",
+        ),
+        "linkedin_manual_check": _gap_bucket_status(
+            "company_linkedin_or_social_missing" in gap_set or "company_social_or_linkedin_missing" in gap_set,
+            "company_linkedin_or_social_missing",
+        ),
+    }
+
+
+def _manual_check_sources(gaps: list[str], row: dict) -> list[str]:
+    sources = []
+    gap_set = set(gaps)
+    if "official_domain_missing" in gap_set:
+        sources.append("Manual web resolver")
+    if "founder_team_missing" in gap_set or "founder_or_maintainer_missing" in gap_set:
+        sources.extend(["LinkedIn", "Product Hunt maker page", "GitHub/X founder profile"])
+    if "stage_funding_or_headcount_missing" in gap_set:
+        sources.extend(["Crunchbase-style web search", "company careers page"])
+    if "commercial_or_customer_signal_missing" in gap_set:
+        sources.append("company website/docs/customers")
+    if "pricing_docs_or_careers_missing" in gap_set:
+        sources.append("pricing/docs/careers pages")
+    if "company_linkedin_or_social_missing" in gap_set or "company_social_or_linkedin_missing" in gap_set:
+        sources.append("LinkedIn")
+    return list(dict.fromkeys(sources))
 
 
 def _evidence_gap_score(row: dict) -> int:
@@ -352,6 +436,8 @@ def _evidence_gap_row(row: dict) -> dict:
         "tier": row.get("tier", ""),
         "gap_priority_score": _evidence_gap_score(row),
         "missing_evidence": gaps,
+        "gap_buckets": _gap_buckets(row, gaps),
+        "manual_check_sources": _manual_check_sources(gaps, row),
         "next_step": _gap_next_step(gaps, row),
         "promotion_target": "Review-Worthy Company" if _row_source_bucket(row) != "github" else "Review-Worthy Company or supporting Market Signal",
         "evidence_urls": _row_evidence_urls(row)[:5],
@@ -556,6 +642,65 @@ def _raw_domain_resolution_summary(raw_evidence: dict) -> dict:
     }
 
 
+def _raw_source_launch_rows(raw_evidence: dict) -> list[dict]:
+    rows = []
+    product_hunt = raw_evidence.get("product_hunt") if isinstance(raw_evidence, dict) else []
+    x_launches = raw_evidence.get("x_launches") if isinstance(raw_evidence, dict) else []
+    for item in product_hunt if isinstance(product_hunt, list) else []:
+        if not isinstance(item, dict):
+            continue
+        rows.append(
+            {
+                "name": item.get("name") or item.get("company_name") or item.get("title") or "",
+                "domain": item.get("domain") or "",
+                "source_lane": "Product Hunt",
+                "source": item.get("product_hunt_url") or item.get("url") or "",
+                "url": item.get("product_hunt_url") or item.get("url") or "",
+                "website": item.get("website") or "",
+                "tagline": item.get("tagline") or item.get("description") or "",
+                "weekly_tag": "NEW",
+                "action": item.get("action") or "research deeper",
+                "tier": "Evidence Gap",
+                "market_sector": item.get("market_sector") or "Company Formation",
+                "why_on_radar": item.get("tagline") or item.get("description") or "Product Hunt launch.",
+                "why_this_may_be_noise": item.get("why_this_may_be_noise") or "Raw Product Hunt launch; needs company evidence before promotion.",
+                "missing_evidence": item.get("missing_evidence") or [],
+                "founder_profiles": item.get("maker_profiles") or item.get("founder_profiles") or [],
+                "founders": item.get("founders") or [],
+                "founder_team_evidence": item.get("founder_team_evidence") or [],
+                "source_outbound_urls": [url for url in (item.get("website"), item.get("product_hunt_url"), item.get("url")) if url],
+                "investment_interest_score": 35,
+                "evidence_confidence_score": 25 if item.get("domain") else 15,
+            }
+        )
+    for item in x_launches if isinstance(x_launches, list) else []:
+        if not isinstance(item, dict):
+            continue
+        rows.append(
+            {
+                "name": item.get("company_name") or item.get("name") or item.get("title") or "",
+                "domain": item.get("domain") or "",
+                "source_lane": "X",
+                "source": item.get("company_x") or item.get("url") or "",
+                "url": item.get("company_x") or item.get("url") or "",
+                "website": item.get("website") or "",
+                "tagline": item.get("snippet") or item.get("description") or "",
+                "weekly_tag": "NEW",
+                "action": item.get("action") or "watch",
+                "tier": "Evidence Gap",
+                "market_sector": item.get("market_sector") or "Company Formation",
+                "why_on_radar": item.get("snippet") or item.get("description") or "X launch/social-confidence signal.",
+                "why_this_may_be_noise": item.get("why_this_may_be_noise") or "Raw X launch signal; needs official identity and durable company evidence.",
+                "missing_evidence": item.get("missing_evidence") or [],
+                "company_x": item.get("company_x") or item.get("url") or "",
+                "source_outbound_urls": [url for url in (item.get("website"), item.get("company_x"), item.get("url")) if url],
+                "investment_interest_score": 30,
+                "evidence_confidence_score": min(45, int(item.get("launch_intent_score") or 0)),
+            }
+        )
+    return [row for row in rows if _row_name(row)]
+
+
 def _source_diversity_summary(
     *,
     candidate_rows: list[dict],
@@ -628,6 +773,63 @@ def _manual_mode_summary(runtime_ledger: dict) -> dict:
     }
 
 
+def _source_yield_targets(target_review_worthy_count: int) -> dict:
+    targets = json.loads(json.dumps(DEFAULT_SOURCE_YIELD_TARGETS))
+    targets["review_worthy_companies"]["min"] = target_review_worthy_count
+    return targets
+
+
+def _target_result(count: int, bounds: dict) -> dict:
+    minimum = bounds.get("min")
+    maximum = bounds.get("max")
+    allow_above_max = bool(bounds.get("allow_above_max"))
+    meets_min = minimum is None or count >= int(minimum)
+    meets_max = maximum is None or count <= int(maximum) or allow_above_max
+    status = "met" if meets_min and meets_max else "below_min" if not meets_min else "above_max"
+    return {
+        "count": count,
+        "min": minimum,
+        "max": maximum,
+        "met": meets_min and meets_max,
+        "status": status,
+    }
+
+
+def _target_status(targets: dict, counts: dict) -> dict:
+    return {
+        key: _target_result(int(counts.get(key, 0)), bounds)
+        for key, bounds in targets.items()
+    }
+
+
+def _structured_provider_decision(
+    *,
+    target_status: dict,
+    source_diversity: dict,
+    targeted_manual_enrichment: dict,
+) -> dict:
+    reasons = []
+    if not target_status.get("review_worthy_companies", {}).get("met", False):
+        reasons.append("Review-Worthy Company target missed")
+    raw_resolution = source_diversity.get("raw_domain_resolution") or {}
+    unresolved = sum(int(item.get("unresolved_domains") or 0) for item in raw_resolution.values())
+    if unresolved:
+        reasons.append(f"{unresolved} Product Hunt/X launch domains still unresolved")
+    manual_summary = targeted_manual_enrichment.get("summary") if isinstance(targeted_manual_enrichment, dict) else {}
+    if manual_summary and int(manual_summary.get("targets_enriched") or 0) and int(manual_summary.get("items_seen") or 0) == 0:
+        reasons.append("Targeted public manual enrichment found no usable snippets")
+    status = "recommend_structured_provider_trial" if reasons and "Review-Worthy Company target missed" in reasons else "public_sources_still_sufficient_for_next_pass"
+    return {
+        "status": status,
+        "best_unlock": "Coresignal or Crunchbase-style company metadata" if status == "recommend_structured_provider_trial" else "",
+        "reasons": reasons,
+        "policy": (
+            "Only consider paid structured data after public discovery/manual enrichment misses the company-yield target. "
+            "Keep LinkedIn/Crunchbase-style checks manual for top rows unless compliant provider access is configured."
+        ),
+    }
+
+
 def build_source_yield_validation_report(
     run_dir: Path | str,
     *,
@@ -642,15 +844,18 @@ def build_source_yield_validation_report(
     raw_evidence = _read_json(_latest_raw_evidence_path(run_path), {})
     company_discovery = _read_json(run_path / "company-discovery.json", {})
     manual_targets = _read_json(run_path / "manual-enrichment-targets.json", {})
+    targeted_manual_enrichment = _read_json(run_path / "targeted-manual-enrichment.json", {})
 
     candidate_rows = candidates if isinstance(candidates, list) else []
+    raw_source_rows = _raw_source_launch_rows(raw_evidence if isinstance(raw_evidence, dict) else {})
+    source_yield_rows = candidate_rows + raw_source_rows
     assign_owner_rows = _workflow_assign_owner_rows(weekly_focus if isinstance(weekly_focus, dict) else {})
     assign_owner_names = _assign_owner_names(assign_owner_rows)
     candidate_assign_owner_names = [_row_name(row) for row in candidate_rows if _normalized_action(row) == "assign owner"]
     review_worthy_rows = [_review_worthy_summary(row) for row in candidate_rows if is_net_new_review_worthy_candidate(row)]
-    market_signals = build_review_worthy_market_signals(candidate_rows)
-    evidence_gap_queue = build_evidence_gap_queue(candidate_rows, review_worthy_rows)
-    launch_watch = build_launch_and_oss_watch(candidate_rows, market_signals, evidence_gap_queue)
+    market_signals = build_review_worthy_market_signals(source_yield_rows)
+    evidence_gap_queue = build_evidence_gap_queue(source_yield_rows, review_worthy_rows)
+    launch_watch = build_launch_and_oss_watch(source_yield_rows, market_signals, evidence_gap_queue)
 
     allowlist = {name.lower() for name in assign_owner_allowlist}
     weekly_owner_set = {name.lower() for name in assign_owner_names}
@@ -709,6 +914,29 @@ def build_source_yield_validation_report(
 
     net_new_count = len(review_worthy_rows)
     goal_reached = assign_owner_bar_preserved and net_new_count >= target_review_worthy_count
+    unsafe_promotions = 0 if assign_owner_bar_preserved else 1
+    targets = _source_yield_targets(target_review_worthy_count)
+    target_status = _target_status(
+        targets,
+        {
+            "assign_owner": len(assign_owner_names),
+            "review_worthy_companies": net_new_count,
+            "review_worthy_market_signals": len(market_signals),
+            "evidence_gap_queue": len(evidence_gap_queue),
+            "unsafe_promotions": unsafe_promotions,
+        },
+    )
+    source_diversity = _source_diversity_summary(
+        candidate_rows=source_yield_rows,
+        review_worthy_rows=review_worthy_rows,
+        raw_evidence=raw_evidence if isinstance(raw_evidence, dict) else {},
+        run_dir=run_path,
+    )
+    structured_decision = _structured_provider_decision(
+        target_status=target_status,
+        source_diversity=source_diversity,
+        targeted_manual_enrichment=targeted_manual_enrichment if isinstance(targeted_manual_enrichment, dict) else {},
+    )
     return {
         "generated_at": generated_at or datetime.now(timezone.utc).isoformat(),
         "run_dir": str(run_path),
@@ -725,6 +953,8 @@ def build_source_yield_validation_report(
             "net_new_review_worthy_count": net_new_count,
             "review_worthy_target_met": net_new_count >= target_review_worthy_count,
         },
+        "source_yield_targets": targets,
+        "target_status": target_status,
         "review_worthy_rows": review_worthy_rows,
         "review_worthy_market_signals": market_signals,
         "evidence_gap_queue": evidence_gap_queue,
@@ -734,25 +964,118 @@ def build_source_yield_validation_report(
             "review_worthy_market_signals": len(market_signals),
             "evidence_gap_queue": len(evidence_gap_queue),
             "launch_and_oss_watch": len(launch_watch),
+            "raw_launch_rows_preserved": len(raw_source_rows),
             "interpretation": (
                 "Companies need official identity plus founder/stage/size evidence. "
                 "Market signals can be review-worthy when OSS/theme momentum is strong even before a company exists."
             ),
         },
         "source_counts": _source_counts(raw_evidence if isinstance(raw_evidence, dict) else {}, run_path),
-        "source_diversity": _source_diversity_summary(
-            candidate_rows=candidate_rows,
-            review_worthy_rows=review_worthy_rows,
-            raw_evidence=raw_evidence if isinstance(raw_evidence, dict) else {},
-            run_dir=run_path,
-        ),
+        "source_diversity": source_diversity,
+        "structured_provider_decision": structured_decision,
         "source_health": source_health_summary,
         "source_access": _manual_mode_summary(runtime_ledger if isinstance(runtime_ledger, dict) else {}),
         "manual_enrichment_summary": manual_targets.get("summary", {}) if isinstance(manual_targets, dict) else {},
+        "targeted_manual_enrichment_summary": (
+            targeted_manual_enrichment.get("summary", {}) if isinstance(targeted_manual_enrichment, dict) else {}
+        ),
         "company_discovery_summary": company_discovery.get("summary", {}) if isinstance(company_discovery, dict) else {},
         "ledger_partner_packet_warning": ledger_warning,
         "caveats": caveats,
     }
+
+
+def build_repeatability_validation_report(
+    run_dirs: list[Path | str],
+    *,
+    target_review_worthy_count: int = 5,
+    assign_owner_allowlist: tuple[str, ...] = DEFAULT_ASSIGN_OWNER_ALLOWLIST,
+    generated_at: str | None = None,
+) -> dict:
+    runs = []
+    lane_totals: dict[str, dict[str, int]] = {}
+    unsafe_total = 0
+    for run_dir in run_dirs:
+        report = build_source_yield_validation_report(
+            run_dir,
+            target_review_worthy_count=target_review_worthy_count,
+            assign_owner_allowlist=assign_owner_allowlist,
+        )
+        assessment = report["goal_assessment"]
+        unsafe = 0 if assessment["assign_owner_bar_preserved"] else 1
+        unsafe_total += unsafe
+        diversity = report.get("source_diversity", {})
+        raw_resolution = diversity.get("raw_domain_resolution") or {}
+        for lane, item in raw_resolution.items():
+            totals = lane_totals.setdefault(lane, {"raw_launches": 0, "resolved_domains": 0, "unresolved_domains": 0})
+            totals["raw_launches"] += int(item.get("launches") or 0)
+            totals["resolved_domains"] += int(item.get("resolved_domains") or 0)
+            totals["unresolved_domains"] += int(item.get("unresolved_domains") or 0)
+        runs.append(
+            {
+                "run_dir": str(run_dir),
+                "goal_reached": assessment["goal_reached"],
+                "assign_owner": len(assessment["assign_owner_names"]),
+                "assign_owner_bar_preserved": assessment["assign_owner_bar_preserved"],
+                "review_worthy_companies": assessment["net_new_review_worthy_count"],
+                "review_worthy_market_signals": len(report.get("review_worthy_market_signals", [])),
+                "evidence_gap_queue": len(report.get("evidence_gap_queue", [])),
+                "unsafe_promotions": unsafe,
+                "review_worthy_source_lanes": diversity.get("review_worthy_source_lanes", []),
+                "source_diversity_proven": diversity.get("source_diversity_proven", False),
+                "target_status": report.get("target_status", {}),
+            }
+        )
+    compared = len(runs)
+    repeatability_proven = (
+        compared >= 2
+        and unsafe_total == 0
+        and all(run["assign_owner_bar_preserved"] for run in runs)
+        and all(run["review_worthy_companies"] >= target_review_worthy_count for run in runs)
+    )
+    return {
+        "generated_at": generated_at or datetime.now(timezone.utc).isoformat(),
+        "summary": {
+            "runs_compared": compared,
+            "repeatability_proven": repeatability_proven,
+            "unsafe_promotions_total": unsafe_total,
+            "all_runs_preserved_assign_owner_bar": all(run["assign_owner_bar_preserved"] for run in runs),
+            "min_review_worthy_companies": min((run["review_worthy_companies"] for run in runs), default=0),
+            "min_market_signals": min((run["review_worthy_market_signals"] for run in runs), default=0),
+            "min_evidence_gap_queue": min((run["evidence_gap_queue"] for run in runs), default=0),
+            "interpretation": (
+                "Repeatability is proven when multiple validation runs preserve the strict Assign Owner gate, "
+                "keep unsafe promotions at zero, and hit the Review-Worthy Company floor."
+            ),
+        },
+        "source_lane_totals": lane_totals,
+        "runs": runs,
+    }
+
+
+def render_repeatability_markdown(report: dict) -> str:
+    lines = [
+        "# Source Yield Repeatability",
+        "",
+        f"- Runs compared: {report['summary']['runs_compared']}",
+        f"- Repeatability proven: {'yes' if report['summary']['repeatability_proven'] else 'no'}",
+        f"- Unsafe promotions total: {report['summary']['unsafe_promotions_total']}",
+        "",
+        "| Run | Assign Owner | Review-Worthy Companies | Market Signals | Evidence Gaps | Unsafe |",
+        "| --- | --- | --- | --- | --- | --- |",
+    ]
+    for run in report.get("runs", []):
+        lines.append(
+            "| {run_dir} | {owner} | {companies} | {signals} | {gaps} | {unsafe} |".format(
+                run_dir=str(run.get("run_dir", "")).replace("|", "/"),
+                owner=run.get("assign_owner", 0),
+                companies=run.get("review_worthy_companies", 0),
+                signals=run.get("review_worthy_market_signals", 0),
+                gaps=run.get("evidence_gap_queue", 0),
+                unsafe=run.get("unsafe_promotions", 0),
+            )
+        )
+    return "\n".join(lines) + "\n"
 
 
 def build_source_yield_decision_packet(report: dict, weekly_focus: dict) -> dict:
@@ -788,6 +1111,7 @@ def build_source_yield_decision_packet(report: dict, weekly_focus: dict) -> dict
             "continue_research": len(review_rows),
             "unsafe_promotions": 0 if report["goal_assessment"]["assign_owner_bar_preserved"] else 1,
             "assign_owner_bar_preserved": report["goal_assessment"]["assign_owner_bar_preserved"],
+            "source_yield_target_status": report.get("target_status", {}),
         },
         "sections": {
             "owner_follow_up": owner_follow_up,
@@ -855,11 +1179,34 @@ def render_source_yield_markdown(report: dict) -> str:
         f"- Review-Worthy Market Signals: {len(report.get('review_worthy_market_signals', []))}",
         f"- Evidence Gap Queue rows: {len(report.get('evidence_gap_queue', []))}",
         "",
+        "## Source-Yield Targets",
+        "",
+        "| Metric | Count | Target | Status |",
+        "| --- | --- | --- | --- |",
+    ]
+    for metric, status_row in report.get("target_status", {}).items():
+        target_parts = []
+        if status_row.get("min") is not None:
+            target_parts.append(f"min {status_row['min']}")
+        if status_row.get("max") is not None:
+            target_parts.append(f"max {status_row['max']}")
+        lines.append(
+            "| {metric} | {count} | {target} | {status} |".format(
+                metric=metric.replace("_", " ").title(),
+                count=status_row.get("count", 0),
+                target=", ".join(target_parts) or "n/a",
+                status=status_row.get("status", ""),
+            )
+        )
+    lines.extend(
+        [
+            "",
         "## Review-Worthy Companies",
         "",
         "| Company | Domain | Action | Stage | Raised | Headcount | Source |",
         "| --- | --- | --- | --- | --- | --- | --- |",
-    ]
+        ]
+    )
     for row in report["review_worthy_rows"]:
         lines.append(
             "| {name} | {domain} | {action} | {stage} | {raised} | {headcount} | {source_lane} |".format(
@@ -933,6 +1280,13 @@ def render_source_yield_markdown(report: dict) -> str:
                 unresolved=item.get("unresolved_domains", 0),
             )
         )
+    provider_decision = report.get("structured_provider_decision", {})
+    lines.extend(["", "## Structured Provider Decision", ""])
+    lines.append(f"- Status: {provider_decision.get('status', 'unknown')}")
+    if provider_decision.get("best_unlock"):
+        lines.append(f"- Best unlock: {provider_decision['best_unlock']}")
+    for reason in provider_decision.get("reasons", []):
+        lines.append(f"- Reason: {reason}")
     lines.extend(["", "## Source Health", ""])
     for item in report["source_health"]:
         lines.append(
@@ -953,6 +1307,7 @@ def write_source_yield_outputs(
     target_review_worthy_count: int = 5,
     assign_owner_allowlist: tuple[str, ...] = DEFAULT_ASSIGN_OWNER_ALLOWLIST,
     packet_dir: Path | str | None = None,
+    repeatability_run_dirs: list[Path | str] | None = None,
 ) -> dict:
     run_path = Path(run_dir)
     report = build_source_yield_validation_report(
@@ -975,13 +1330,26 @@ def write_source_yield_outputs(
         "# Source Yield Decision Packet\n\n"
         "This packet is the strict source-yield sprint decision view. It keeps Assign Owner limited to rows that cleared the weekly workflow gate.\n"
     )
-    return {
+    result = {
         "report_json": str(report_json_path),
         "report_markdown": str(report_md_path),
         "partner_decision_packet": str(packet_path / "partner-decision-packet.json"),
         "ledger_action_report": str(packet_path / "ledger-action-report.json"),
         "goal_reached": report["goal_assessment"]["goal_reached"],
     }
+    if repeatability_run_dirs:
+        repeatability = build_repeatability_validation_report(
+            repeatability_run_dirs,
+            target_review_worthy_count=target_review_worthy_count,
+            assign_owner_allowlist=assign_owner_allowlist,
+        )
+        repeat_json_path = run_path / "source-yield-repeatability-report.json"
+        repeat_md_path = run_path / "source-yield-repeatability-report.md"
+        _write_json(repeat_json_path, repeatability)
+        repeat_md_path.write_text(render_repeatability_markdown(repeatability))
+        result["repeatability_report_json"] = str(repeat_json_path)
+        result["repeatability_report_markdown"] = str(repeat_md_path)
+    return result
 
 
 def _parse_args() -> argparse.Namespace:
@@ -990,6 +1358,7 @@ def _parse_args() -> argparse.Namespace:
     parser.add_argument("--target-review-worthy-count", type=int, default=5)
     parser.add_argument("--assign-owner-allowlist", default=",".join(DEFAULT_ASSIGN_OWNER_ALLOWLIST))
     parser.add_argument("--packet-dir", default="")
+    parser.add_argument("--repeatability-run-dir", action="append", default=[])
     return parser.parse_args()
 
 
@@ -1001,6 +1370,7 @@ def main() -> None:
         target_review_worthy_count=args.target_review_worthy_count,
         assign_owner_allowlist=allowlist or DEFAULT_ASSIGN_OWNER_ALLOWLIST,
         packet_dir=args.packet_dir or None,
+        repeatability_run_dirs=args.repeatability_run_dir,
     )
     print(json.dumps(result, indent=2))
 

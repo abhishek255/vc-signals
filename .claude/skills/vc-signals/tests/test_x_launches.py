@@ -60,6 +60,8 @@ def test_run_x_launches_normalizes_company_launch_items_when_credentials_exist()
     assert result["launches"][0]["company_name"] == "AgentForge"
     assert result["launches"][0]["domain"] == "agentforge.dev"
     assert result["launches"][0]["action"] == "research deeper"
+    assert result["launches"][0]["launch_intent_score"] >= 70
+    assert result["launches"][0]["social_confidence_evidence"][0]["author"] == "Asha Rao"
 
 
 def test_run_x_launches_resolves_missing_domain_via_web():
@@ -134,6 +136,35 @@ def test_run_x_launches_drops_generic_company_names_without_domains():
     assert [call["sources"] for call in calls] == ["x"]
     assert result["launches"] == []
     assert "company name is too generic" in result["warnings"][0]
+
+
+def test_x_launch_preserves_lower_confidence_chatter_as_watch_when_identity_exists():
+    from x_launches import run_x_launches
+
+    result = run_x_launches(
+        movements=[{"movement": "devtools workflow automation", "market_sector": "Devtools"}],
+        env={"XAI_API_KEY": "xai-key"},
+        query_runner=lambda **_kwargs: {
+            "items": [
+                {
+                    "source": "x",
+                    "title": "Quiet beta notes from BuildGraph",
+                    "url": "https://x.com/founder/status/1",
+                    "company_name": "BuildGraph",
+                    "website": "https://buildgraph.dev",
+                    "author": "Ira Shah",
+                    "snippet": "Testing an early workflow graph for developer teams.",
+                }
+            ]
+        },
+        limit=5,
+    )
+
+    assert result["launches"][0]["company_name"] == "BuildGraph"
+    assert result["launches"][0]["action"] == "watch"
+    assert result["launches"][0]["lead_route"] == "watch"
+    assert result["launches"][0]["launch_intent_score"] < 60
+    assert "launch_intent_low" in result["launches"][0]["missing_evidence"]
 
 
 def test_run_x_launches_does_not_treat_x_domain_as_official_identity():

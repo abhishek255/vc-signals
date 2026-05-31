@@ -1,4 +1,5 @@
 import sys
+import json
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
@@ -21,6 +22,76 @@ def test_build_target_queries_focuses_linkedin_and_funding_gaps():
     assert "Crunchbase" in queries[1]["query"]
     assert '"AgentFence"' in queries[0]["query"]
     assert '"AgentFence" "agentfence.dev"' in queries[1]["query"]
+
+
+def test_build_target_queries_cover_domain_and_commercial_gaps():
+    from targeted_manual_enrichment import build_target_queries
+
+    queries = build_target_queries(
+        {
+            "name": "AgentFence",
+            "domain": "",
+            "missing_evidence": [
+                "official_domain_missing",
+                "commercial_or_customer_signal_missing",
+                "pricing_docs_or_careers_missing",
+            ],
+        },
+        queries_per_target=4,
+    )
+
+    kinds = [query["kind"] for query in queries]
+    assert kinds == [
+        "official_domain",
+        "linkedin_company_and_founders",
+        "commercial_customer_proof",
+        "pricing_docs_careers",
+    ]
+    assert "official website" in queries[0]["query"]
+    assert "pricing" in queries[2]["query"]
+    assert "careers" in queries[3]["query"]
+
+
+def test_load_targets_falls_back_to_source_yield_evidence_gap_queue(tmp_path):
+    from targeted_manual_enrichment import _load_targets
+
+    run_dir = tmp_path / "run"
+    run_dir.mkdir()
+    (run_dir / "source-yield-validation-report.json").write_text(
+        json.dumps(
+            {
+                "evidence_gap_queue": [
+                    {
+                        "name": "AgentFence",
+                        "domain": "agentfence.dev",
+                        "source_lane": "Product Hunt",
+                        "missing_evidence": ["founder_team_missing"],
+                        "next_step": "Find founder/team evidence.",
+                    }
+                ]
+            }
+        )
+    )
+
+    targets = _load_targets(run_dir)
+
+    assert targets[0]["name"] == "AgentFence"
+    assert targets[0]["recommended_next_step"] == "Find founder/team evidence."
+
+
+def test_load_targets_can_force_source_yield_gap_queue_when_manual_targets_exist(tmp_path):
+    from targeted_manual_enrichment import _load_targets
+
+    run_dir = tmp_path / "run"
+    run_dir.mkdir()
+    (run_dir / "manual-enrichment-targets.json").write_text(json.dumps({"items": [{"name": "ManualTarget"}]}))
+    (run_dir / "source-yield-validation-report.json").write_text(
+        json.dumps({"evidence_gap_queue": [{"name": "GapTarget", "next_step": "Resolve evidence."}]})
+    )
+
+    targets = _load_targets(run_dir, target_source="evidence_gap_queue")
+
+    assert targets[0]["name"] == "GapTarget"
 
 
 def test_enrich_targets_reports_public_search_hints_without_scraping():
