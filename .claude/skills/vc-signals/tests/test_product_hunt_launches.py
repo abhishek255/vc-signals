@@ -369,6 +369,30 @@ def test_product_hunt_web_fallback_checks_link_lists_for_official_domain():
     assert result["evidence"]["domain"] == "agentfence.dev"
 
 
+def test_product_hunt_web_fallback_checks_urls_embedded_in_snippets():
+    from product_hunt_launches import resolve_launch_domain_via_web
+
+    def fake_query_runner(**_kwargs):
+        return {
+            "items": [
+                {
+                    "title": "AgentFence launches on Product Hunt",
+                    "url": "https://news.example.com/agentfence",
+                    "snippet": "AgentFence is a permission firewall for AI agents. Official site: https://agentfence.dev",
+                }
+            ]
+        }
+
+    result = resolve_launch_domain_via_web(
+        {"name": "AgentFence", "tagline": "Permission firewall for AI agents"},
+        query_runner=fake_query_runner,
+    )
+
+    assert result["url"] == "https://agentfence.dev"
+    assert result["evidence"]["domain"] == "agentfence.dev"
+    assert "url_extracted_from_text" in result["evidence"]["verification"]
+
+
 def test_run_product_hunt_launches_falls_back_to_feed_when_api_fails(monkeypatch):
     import product_hunt_launches
 

@@ -1,0 +1,601 @@
+{
+  "generated_at": "2026-06-01T02:08:47.438944+00:00",
+  "run_dir": "docs/radar-runs/current-deep-dive-validation-2026-05-31-r6",
+  "policy": "Run Coresignal/Crunchbase/LinkedIn-style checks only on top Evidence Gap rows. Use direct provider access when configured; otherwise store public/manual evidence hints and unresolved gaps.",
+  "summary": {
+    "targets_considered": 4,
+    "targets_enriched": 4,
+    "queries_run": 12,
+    "items_seen": 20,
+    "errors": 0,
+    "direct_provider_access": [],
+    "manual_mode_providers": [
+      "Crunchbase",
+      "Coresignal",
+      "LinkedIn"
+    ],
+    "targets_with_structured_hints": 2,
+    "limit": 15,
+    "queries_per_target": 3,
+    "max_runtime_seconds": 480,
+    "stopped_early": false
+  },
+  "source_access": {
+    "configured": [
+      "Product Hunt API",
+      "X"
+    ],
+    "manual_mode": [
+      "Crunchbase",
+      "Coresignal",
+      "LinkedIn"
+    ],
+    "missing": [
+      "PitchBook",
+      "People Data Labs",
+      "Dealroom",
+      "Apollo",
+      "Clay"
+    ],
+    "recommendation": "Product Hunt and X are configured; Coresignal, Crunchbase, and LinkedIn are intentionally manual-mode for now."
+  },
+  "items": [
+    {
+      "name": "FinBot",
+      "domain": "",
+      "source_lane": "X",
+      "missing_evidence": [
+        "official_domain_missing",
+        "founder_team_missing",
+        "stage_funding_or_headcount_missing",
+        "commercial_or_customer_signal_missing",
+        "pricing_docs_or_careers_missing",
+        "no verified Attio-safe company identity",
+        "no founder/team evidence",
+        "no stage/funding evidence",
+        "Attio status unknown",
+        "no verified domain",
+        "no founder or maintainer identity"
+      ],
+      "recommended_next_step": "Resolve official domain from launch text, project docs, founder profile, or web search.",
+      "provider_status": "manual_mode_no_direct_key",
+      "direct_provider_access": [],
+      "manual_mode_providers": [
+        "Crunchbase",
+        "Coresignal",
+        "LinkedIn"
+      ],
+      "queries": [
+        {
+          "provider": "Crunchbase",
+          "query": "\"FinBot\" Crunchbase organization founders funding stage investors headcount",
+          "fields": [
+            "funding_stage",
+            "founders",
+            "investors",
+            "company_identity"
+          ],
+          "items_seen": 2,
+          "top_items": [
+            {
+              "title": "Finbot - 2026 Company Profile, Team, Funding, Competitors & Financials - Tracxn",
+              "url": "https://tracxn.com/d/companies/finbot/__qMZQfJ57jxQR_rswBIWm4wIG7zJ8_cVedQK605EY_ss",
+              "domain": "tracxn.com",
+              "source": "grounding",
+              "snippet": "View details of Finbot&#x27;s funding rounds and investors ... The founders of Finbot are Naveen Jagannathan, Chandra Sekar S and Ronald Raajesh P.",
+              "published_at": "2026-04-29"
+            },
+            {
+              "title": "Reducing Time-to-Insight in Company Financial Data by 90%",
+              "url": "https://softwaremill.com/reducing-time-to-insight-in-company-financial-data-by-90/",
+              "domain": "softwaremill.com",
+              "source": "grounding",
+              "snippet": "Next phases included the so-called \u201cmanagers rollout\u201d to get more people from other divisions like sales or marketing, to test the FinBot, gather additional insights on the queries they are interested in, and the like. The full organizational rollout was the last phase and included some preparations on the development team side, like building a demo for users to watch and learn, making sure the Google SSO works across the company, and final touches to UI/UX for an even better final experience.",
+              "published_at": "2026-03-13"
+            }
+          ],
+          "error": "",
+          "warnings": [
+            "Evidence is thin for this topic."
+          ],
+          "errors_by_source": {}
+        },
+        {
+          "provider": "Coresignal",
+          "query": "\"FinBot\" Coresignal company LinkedIn headcount employees website",
+          "fields": [
+            "headcount",
+            "company_linkedin",
+            "official_domain",
+            "company_identity"
+          ],
+          "items_seen": 3,
+          "top_items": [
+            {
+              "title": "FinBot - 2026 Company Profile, Team & Competitors - Tracxn",
+              "url": "https://tracxn.com/d/companies/finbot/__mUIA60HE0WWr7fF4mt8TNdrpmHnl3Kh0nG-plORF4rU",
+              "domain": "tracxn.com",
+              "source": "grounding",
+              "snippet": "FinBot has <strong>1 employees</strong> as of Jul 24.",
+              "published_at": "2026-05-18"
+            },
+            {
+              "title": "Finbot Limited",
+              "url": "https://www.hkstp.org/en/directory/information-communications-technology/finbot-limited",
+              "domain": "hkstp.org",
+              "source": "grounding",
+              "snippet": "Finbot is <strong>a fin-tech company that provides solution for financial institutions and market participants</strong>.",
+              "published_at": "2026-04-08"
+            },
+            {
+              "title": "Finbot - 2026 Company Profile, Team, Funding, Competitors & Financials - Tracxn",
+              "url": "https://tracxn.com/d/companies/finbot/__qMZQfJ57jxQR_rswBIWm4wIG7zJ8_cVedQK605EY_ss",
+              "domain": "tracxn.com",
+              "source": "grounding",
+              "snippet": "Finbot has <strong>32 employees</strong> as of Mar 26.",
+              "published_at": "2026-04-29"
+            }
+          ],
+          "error": "",
+          "warnings": [
+            "Evidence is thin for this topic.",
+            "Top evidence is highly concentrated in one source."
+          ],
+          "errors_by_source": {}
+        },
+        {
+          "provider": "LinkedIn",
+          "query": "\"FinBot\" LinkedIn company founders employees headcount",
+          "fields": [
+            "company_linkedin",
+            "founders",
+            "headcount"
+          ],
+          "items_seen": 3,
+          "top_items": [
+            {
+              "title": "FinBot - 2026 Company Profile, Team & Competitors - Tracxn",
+              "url": "https://tracxn.com/d/companies/finbot/__mUIA60HE0WWr7fF4mt8TNdrpmHnl3Kh0nG-plORF4rU",
+              "domain": "tracxn.com",
+              "source": "grounding",
+              "snippet": "FinBot has not raised any funding rounds yet. ... The founders of FinBot is Amandeep Midha.",
+              "published_at": "2026-05-18"
+            },
+            {
+              "title": "Finbot - 2026 Company Profile, Team, Funding, Competitors & Financials - Tracxn",
+              "url": "https://tracxn.com/d/companies/finbot/__qMZQfJ57jxQR_rswBIWm4wIG7zJ8_cVedQK605EY_ss",
+              "domain": "tracxn.com",
+              "source": "grounding",
+              "snippet": "View details of Finbot&#x27;s funding rounds and investors ... The founders of Finbot are Naveen Jagannathan, Chandra Sekar S and Ronald Raajesh P.",
+              "published_at": "2026-04-29"
+            },
+            {
+              "title": "Finbot Limited",
+              "url": "https://www.hkstp.org/en/directory/information-communications-technology/finbot-limited",
+              "domain": "hkstp.org",
+              "source": "grounding",
+              "snippet": "https://www.aosummit.com ... \u00b7 Information Communications Technology Black Barrels Limited \u00b7 <strong>Hong Kong Science &amp; Technology Parks Corporation</strong> - Company Directory - Finbot Limited...",
+              "published_at": "2026-04-08"
+            }
+          ],
+          "error": "",
+          "warnings": [
+            "Evidence is thin for this topic.",
+            "Top evidence is highly concentrated in one source."
+          ],
+          "errors_by_source": {}
+        }
+      ],
+      "structured_hints": {
+        "funding_stage_candidates": [
+          {
+            "title": "Finbot - 2026 Company Profile, Team, Funding, Competitors & Financials - Tracxn",
+            "url": "https://tracxn.com/d/companies/finbot/__qMZQfJ57jxQR_rswBIWm4wIG7zJ8_cVedQK605EY_ss",
+            "domain": "tracxn.com",
+            "source": "grounding",
+            "snippet": "View details of Finbot&#x27;s funding rounds and investors ... The founders of Finbot are Naveen Jagannathan, Chandra Sekar S and Ronald Raajesh P.",
+            "published_at": "2026-04-29"
+          },
+          {
+            "title": "FinBot - 2026 Company Profile, Team & Competitors - Tracxn",
+            "url": "https://tracxn.com/d/companies/finbot/__mUIA60HE0WWr7fF4mt8TNdrpmHnl3Kh0nG-plORF4rU",
+            "domain": "tracxn.com",
+            "source": "grounding",
+            "snippet": "FinBot has not raised any funding rounds yet. ... The founders of FinBot is Amandeep Midha.",
+            "published_at": "2026-05-18"
+          }
+        ],
+        "company_linkedin_candidates": [],
+        "headcount_candidates": [
+          {
+            "title": "FinBot - 2026 Company Profile, Team & Competitors - Tracxn",
+            "url": "https://tracxn.com/d/companies/finbot/__mUIA60HE0WWr7fF4mt8TNdrpmHnl3Kh0nG-plORF4rU",
+            "domain": "tracxn.com",
+            "source": "grounding",
+            "snippet": "FinBot has <strong>1 employees</strong> as of Jul 24.",
+            "published_at": "2026-05-18"
+          },
+          {
+            "title": "Finbot - 2026 Company Profile, Team, Funding, Competitors & Financials - Tracxn",
+            "url": "https://tracxn.com/d/companies/finbot/__qMZQfJ57jxQR_rswBIWm4wIG7zJ8_cVedQK605EY_ss",
+            "domain": "tracxn.com",
+            "source": "grounding",
+            "snippet": "Finbot has <strong>32 employees</strong> as of Mar 26.",
+            "published_at": "2026-04-29"
+          }
+        ],
+        "founder_candidates": [
+          {
+            "title": "Finbot - 2026 Company Profile, Team, Funding, Competitors & Financials - Tracxn",
+            "url": "https://tracxn.com/d/companies/finbot/__qMZQfJ57jxQR_rswBIWm4wIG7zJ8_cVedQK605EY_ss",
+            "domain": "tracxn.com",
+            "source": "grounding",
+            "snippet": "View details of Finbot&#x27;s funding rounds and investors ... The founders of Finbot are Naveen Jagannathan, Chandra Sekar S and Ronald Raajesh P.",
+            "published_at": "2026-04-29"
+          },
+          {
+            "title": "Finbot Limited",
+            "url": "https://www.hkstp.org/en/directory/information-communications-technology/finbot-limited",
+            "domain": "hkstp.org",
+            "source": "grounding",
+            "snippet": "Finbot is <strong>a fin-tech company that provides solution for financial institutions and market participants</strong>.",
+            "published_at": "2026-04-08"
+          },
+          {
+            "title": "FinBot - 2026 Company Profile, Team & Competitors - Tracxn",
+            "url": "https://tracxn.com/d/companies/finbot/__mUIA60HE0WWr7fF4mt8TNdrpmHnl3Kh0nG-plORF4rU",
+            "domain": "tracxn.com",
+            "source": "grounding",
+            "snippet": "FinBot has not raised any funding rounds yet. ... The founders of FinBot is Amandeep Midha.",
+            "published_at": "2026-05-18"
+          }
+        ]
+      },
+      "policy": "Top-gap-only provider trial. Public/manual mode does not equal verified provider data unless a direct provider key is configured and used."
+    },
+    {
+      "name": "Arize",
+      "domain": "arize.com",
+      "source_lane": "Grounded web",
+      "missing_evidence": [
+        "founder_team_missing",
+        "company_linkedin_or_social_missing",
+        "commercial_or_customer_signal_missing",
+        "pricing_docs_or_careers_missing",
+        "category context / mature incumbent",
+        "no founder or maintainer identity"
+      ],
+      "recommended_next_step": "Find founder or maintainer identity from website, GitHub org, LinkedIn, HN, or X.",
+      "provider_status": "manual_mode_no_direct_key",
+      "direct_provider_access": [],
+      "manual_mode_providers": [
+        "Crunchbase",
+        "Coresignal",
+        "LinkedIn"
+      ],
+      "queries": [
+        {
+          "provider": "Crunchbase",
+          "query": "\"Arize\" \"arize.com\" Crunchbase organization founders funding stage investors headcount",
+          "fields": [
+            "funding_stage",
+            "founders",
+            "investors",
+            "company_identity"
+          ],
+          "items_seen": 3,
+          "top_items": [
+            {
+              "title": "GitHub - Arize-ai/phoenix: AI Observability & Evaluation \u00b7 GitHub",
+              "url": "https://github.com/arize-ai/phoenix",
+              "domain": "github.com",
+              "source": "grounding",
+              "snippet": "AI Observability &amp; Evaluation. Contribute to Arize-ai/phoenix development by creating an account on GitHub.",
+              "published_at": "2026-05-27"
+            },
+            {
+              "title": "Observe 2026 - Arize AI",
+              "url": "https://arize.com/observe/",
+              "domain": "arize.com",
+              "source": "grounding",
+              "snippet": "Arize Observe | June 4, 2026. The AI agent &amp; evaluation conference showcasing Arize AX and Arize Phoenix, leading AI observability platforms",
+              "published_at": "2026-05-20"
+            },
+            {
+              "title": "Aparna Dhinakaran - Arize AI | LinkedIn",
+              "url": "https://www.linkedin.com/in/aparnadhinakaran",
+              "domain": "linkedin.com",
+              "source": "grounding",
+              "snippet": "The founding team is built for this: - Jae Gwan Park (CEO): Product-first founder, memory systems research at UofT and MIT - Ashwin Gopinath (CSO): Former MIT professor, created &quot;Reflexion&quot; (NeurIPS 2023), agents that learn from mistakes, 2x founder - Andrey Starenky (CTO): Early Vapi engineer, ex-IBM, built to process enterprise-scale data firehose Together is an operator-led fund. We invest in problems we&#x27;ve lived. This is one of them. Many congrats Jae, Ashwin and Andrey, we ar",
+              "published_at": "2026-02-26"
+            }
+          ],
+          "error": "",
+          "warnings": [
+            "Evidence is thin for this topic.",
+            "Top evidence is highly concentrated in one source."
+          ],
+          "errors_by_source": {}
+        },
+        {
+          "provider": "Coresignal",
+          "query": "\"Arize\" \"arize.com\" Coresignal company LinkedIn headcount employees website",
+          "fields": [
+            "headcount",
+            "company_linkedin",
+            "official_domain",
+            "company_identity"
+          ],
+          "items_seen": 5,
+          "top_items": [
+            {
+              "title": "GitHub - Arize-ai/phoenix: AI Observability & Evaluation \u00b7 GitHub",
+              "url": "https://github.com/arize-ai/phoenix",
+              "domain": "github.com",
+              "source": "grounding",
+              "snippet": "AI Observability &amp; Evaluation. Contribute to Arize-ai/phoenix development by creating an account on GitHub.",
+              "published_at": "2026-05-27"
+            },
+            {
+              "title": "GitHub - Arize-ai/arize-skills: Agent skills for Arize \u2014 datasets, experiments, and traces via the ax CLI",
+              "url": "https://github.com/Arize-ai/arize-skills",
+              "domain": "github.com",
+              "source": "grounding",
+              "snippet": "Install the Arize skills plugin from https://github.com/Arize-ai/arize-skills, then use the arize-trace skill to export and analyze recent traces from my project.",
+              "published_at": "2026-03-09"
+            },
+            {
+              "title": "Manish Jindal - Arize AI | LinkedIn",
+              "url": "https://www.linkedin.com/in/mjindal/",
+              "domain": "linkedin.com",
+              "source": "grounding",
+              "snippet": "President of Revenue at Arize AI - leader in AI evals and observability\u2026 \u00b7 Experience: Arize AI \u00b7 Location: San Francisco \u00b7 <strong>500+ connections</strong> on LinkedIn. View Manish Jindal\u2019s profile on LinkedIn, a professional community of 1 billion members.",
+              "published_at": "2026-03-25"
+            },
+            {
+              "title": "Aparna Dhinakaran - Arize AI | LinkedIn",
+              "url": "https://www.linkedin.com/in/aparnadhinakaran",
+              "domain": "linkedin.com",
+              "source": "grounding",
+              "snippet": "Experience: Arize AI \u00b7 Education: University of California, Berkeley \u00b7 Location: Berkeley \u00b7 <strong>500+ connections</strong> on LinkedIn. View Aparna Dhinakaran\u2019s profile on LinkedIn, a professional community of 1 billion members.",
+              "published_at": "2026-02-26"
+            },
+            {
+              "title": "Cari Knight (Levine) - Arize AI | LinkedIn",
+              "url": "https://www.linkedin.com/in/cari-levine/",
+              "domain": "linkedin.com",
+              "source": "grounding",
+              "snippet": "Experience: Arize AI \u00b7 Location: Los Angeles Metropolitan Area \u00b7 <strong>500+ connections</strong> on LinkedIn. View Cari Knight (Levine)\u2019s profile on LinkedIn, a professional community of 1 billion members.",
+              "published_at": "2026-03-25"
+            }
+          ],
+          "error": "",
+          "warnings": [
+            "Top evidence is highly concentrated in one source."
+          ],
+          "errors_by_source": {}
+        },
+        {
+          "provider": "LinkedIn",
+          "query": "\"Arize\" \"arize.com\" LinkedIn company founders employees headcount",
+          "fields": [
+            "company_linkedin",
+            "founders",
+            "headcount"
+          ],
+          "items_seen": 4,
+          "top_items": [
+            {
+              "title": "Manish Jindal - Arize AI | LinkedIn",
+              "url": "https://www.linkedin.com/in/mjindal/",
+              "domain": "linkedin.com",
+              "source": "grounding",
+              "snippet": "If you&#x27;re an AE who wants to: \u2705 Work on a problem that matters \u2705 Sell into the fastest-growing segment in tech \u2705 Help Fortune 500s and AI-native companies make their models perform \u2705 Be part of a team that&#x27;s moving with urgency and intention \u2705 Earn competitive comp \u2014 our AEs are performing and getting paid for it \u2705 And have fun and learn while doing it ...we&#x27;d love to talk. We have roles open across the US, EMEA, and APAC. Check out our open positions here - https://arize.com/care",
+              "published_at": "2026-03-25"
+            },
+            {
+              "title": "Cari Knight (Levine) - Arize AI | LinkedIn",
+              "url": "https://www.linkedin.com/in/cari-levine/",
+              "domain": "linkedin.com",
+              "source": "grounding",
+              "snippet": "What are you up to on June 4? Come hang with us and... Uber. OpenAI. DeepMind. Cursor. Anthropic. Factory. WorkOS. CrewAI. Mastra. Daytona. Anyscale. TripAdvisor. Upstart. OpenClaw. June 4, SF: https://arize.com/observe",
+              "published_at": "2026-03-25"
+            },
+            {
+              "title": "Aparna Dhinakaran - Arize AI | LinkedIn",
+              "url": "https://www.linkedin.com/in/aparnadhinakaran",
+              "domain": "linkedin.com",
+              "source": "grounding",
+              "snippet": "Thanks to Arize AI&#x27;s head of open source Mikyo King for this piece 2025 marked the widespread adoption of coding agents\u2026 ... We\u2019ve worked with thousands of customers building AI agents, and we\u2019ve also spent the last two years building our own\u2026 ... This piece is co-authored by my co-founder Jason Lopatecki In their recent essay making the rounds, Jaya Gupta and Ashu\u2026",
+              "published_at": "2026-02-26"
+            },
+            {
+              "title": "Terms of Service - Arize AI",
+              "url": "https://arize.com/terms-of-service/",
+              "domain": "arize.com",
+              "source": "grounding",
+              "snippet": "READ THESE TERMS CAREFULLY BEFORE ACCESSING OR USING OUR SERVICES. YOU MUST AFFIRMATIVELY ACCEPT THESE TERMS WHEN SIGNING UP FOR AN ARIZE ACCOUNT AND, IF APPLICABLE, PAY THE FEES AS SET FORTH ON ARIZE\u2019S WEBSITE, AVAILABLE AT https://arize.com/pricing, IN ORDER TO ACCESS OR USE OUR SERVICES.",
+              "published_at": "2025-11-03"
+            }
+          ],
+          "error": "",
+          "warnings": [
+            "Evidence is thin for this topic.",
+            "Top evidence is highly concentrated in one source."
+          ],
+          "errors_by_source": {}
+        }
+      ],
+      "structured_hints": {
+        "funding_stage_candidates": [],
+        "company_linkedin_candidates": [],
+        "headcount_candidates": [],
+        "founder_candidates": [
+          {
+            "title": "Aparna Dhinakaran - Arize AI | LinkedIn",
+            "url": "https://www.linkedin.com/in/aparnadhinakaran",
+            "domain": "linkedin.com",
+            "source": "grounding",
+            "snippet": "The founding team is built for this: - Jae Gwan Park (CEO): Product-first founder, memory systems research at UofT and MIT - Ashwin Gopinath (CSO): Former MIT professor, created &quot;Reflexion&quot; (NeurIPS 2023), agents that learn from mistakes, 2x founder - Andrey Starenky (CTO): Early Vapi engineer, ex-IBM, built to process enterprise-scale data firehose Together is an operator-led fund. We invest in problems we&#x27;ve lived. This is one of them. Many congrats Jae, Ashwin and Andrey, we ar",
+            "published_at": "2026-02-26"
+          },
+          {
+            "title": "Cari Knight (Levine) - Arize AI | LinkedIn",
+            "url": "https://www.linkedin.com/in/cari-levine/",
+            "domain": "linkedin.com",
+            "source": "grounding",
+            "snippet": "What are you up to on June 4? Come hang with us and... Uber. OpenAI. DeepMind. Cursor. Anthropic. Factory. WorkOS. CrewAI. Mastra. Daytona. Anyscale. TripAdvisor. Upstart. OpenClaw. June 4, SF: https://arize.com/observe",
+            "published_at": "2026-03-25"
+          }
+        ]
+      },
+      "policy": "Top-gap-only provider trial. Public/manual mode does not equal verified provider data unless a direct provider key is configured and used."
+    },
+    {
+      "name": "pullfrog/pullfrog",
+      "domain": "pullfrog.com",
+      "source_lane": "OSS",
+      "missing_evidence": [
+        "stage_funding_or_headcount_missing",
+        "company_linkedin_or_social_missing",
+        "commercial_or_customer_signal_missing",
+        "pricing_docs_or_careers_missing",
+        "OSS/project-only row"
+      ],
+      "recommended_next_step": "Find stage, funding, headcount, careers, or company profile evidence.",
+      "provider_status": "manual_mode_no_direct_key",
+      "direct_provider_access": [],
+      "manual_mode_providers": [
+        "Crunchbase",
+        "Coresignal",
+        "LinkedIn"
+      ],
+      "queries": [
+        {
+          "provider": "Crunchbase",
+          "query": "\"pullfrog/pullfrog\" \"pullfrog.com\" Crunchbase organization founders funding stage investors headcount",
+          "fields": [
+            "funding_stage",
+            "founders",
+            "investors",
+            "company_identity"
+          ],
+          "items_seen": 0,
+          "top_items": [],
+          "error": "",
+          "warnings": [],
+          "errors_by_source": {}
+        },
+        {
+          "provider": "Coresignal",
+          "query": "\"pullfrog/pullfrog\" \"pullfrog.com\" Coresignal company LinkedIn headcount employees website",
+          "fields": [
+            "headcount",
+            "company_linkedin",
+            "official_domain",
+            "company_identity"
+          ],
+          "items_seen": 0,
+          "top_items": [],
+          "error": "",
+          "warnings": [],
+          "errors_by_source": {}
+        },
+        {
+          "provider": "LinkedIn",
+          "query": "\"pullfrog/pullfrog\" \"pullfrog.com\" LinkedIn company founders employees headcount",
+          "fields": [
+            "company_linkedin",
+            "founders",
+            "headcount"
+          ],
+          "items_seen": 0,
+          "top_items": [],
+          "error": "",
+          "warnings": [],
+          "errors_by_source": {}
+        }
+      ],
+      "structured_hints": {
+        "funding_stage_candidates": [],
+        "company_linkedin_candidates": [],
+        "headcount_candidates": [],
+        "founder_candidates": []
+      },
+      "policy": "Top-gap-only provider trial. Public/manual mode does not equal verified provider data unless a direct provider key is configured and used."
+    },
+    {
+      "name": "redwoodjs/agent-ci",
+      "domain": "agent-ci.dev",
+      "source_lane": "OSS",
+      "missing_evidence": [
+        "stage_funding_or_headcount_missing",
+        "company_linkedin_or_social_missing",
+        "commercial_or_customer_signal_missing",
+        "pricing_docs_or_careers_missing",
+        "OSS/project-only row"
+      ],
+      "recommended_next_step": "Find stage, funding, headcount, careers, or company profile evidence.",
+      "provider_status": "manual_mode_no_direct_key",
+      "direct_provider_access": [],
+      "manual_mode_providers": [
+        "Crunchbase",
+        "Coresignal",
+        "LinkedIn"
+      ],
+      "queries": [
+        {
+          "provider": "Crunchbase",
+          "query": "\"redwoodjs/agent-ci\" \"agent-ci.dev\" Crunchbase organization founders funding stage investors headcount",
+          "fields": [
+            "funding_stage",
+            "founders",
+            "investors",
+            "company_identity"
+          ],
+          "items_seen": 0,
+          "top_items": [],
+          "error": "",
+          "warnings": [],
+          "errors_by_source": {}
+        },
+        {
+          "provider": "Coresignal",
+          "query": "\"redwoodjs/agent-ci\" \"agent-ci.dev\" Coresignal company LinkedIn headcount employees website",
+          "fields": [
+            "headcount",
+            "company_linkedin",
+            "official_domain",
+            "company_identity"
+          ],
+          "items_seen": 0,
+          "top_items": [],
+          "error": "",
+          "warnings": [],
+          "errors_by_source": {}
+        },
+        {
+          "provider": "LinkedIn",
+          "query": "\"redwoodjs/agent-ci\" \"agent-ci.dev\" LinkedIn company founders employees headcount",
+          "fields": [
+            "company_linkedin",
+            "founders",
+            "headcount"
+          ],
+          "items_seen": 0,
+          "top_items": [],
+          "error": "",
+          "warnings": [],
+          "errors_by_source": {}
+        }
+      ],
+      "structured_hints": {
+        "funding_stage_candidates": [],
+        "company_linkedin_candidates": [],
+        "headcount_candidates": [],
+        "founder_candidates": []
+      },
+      "policy": "Top-gap-only provider trial. Public/manual mode does not equal verified provider data unless a direct provider key is configured and used."
+    }
+  ]
+}

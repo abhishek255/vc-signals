@@ -139,6 +139,21 @@ def _candidate_urls_from_item(item: dict) -> list[str]:
             value = str(link or "").strip()
         if value:
             urls.append(value)
+    urls.extend(_text_extracted_urls_from_item(item))
+    return list(dict.fromkeys(urls))
+
+
+def _urls_from_text(value: str) -> list[str]:
+    urls = []
+    for match in re.findall(r"https?://[^\s<>)\\\"']+", value or ""):
+        urls.append(match.rstrip(".,;:!?]})"))
+    return urls
+
+
+def _text_extracted_urls_from_item(item: dict) -> list[str]:
+    urls = []
+    for key in ("title", "snippet", "description", "body", "text", "container"):
+        urls.extend(_urls_from_text(str(item.get(key) or "")))
     return list(dict.fromkeys(urls))
 
 
@@ -227,6 +242,27 @@ def _verify_domain_candidate(launch: dict, item: dict, candidate_url: str) -> tu
     return domain_name_match and text_match, reasons
 
 
+def resolve_embedded_launch_text_domain(item: dict, launch: dict) -> dict:
+    for candidate_url in _text_extracted_urls_from_item(item):
+        verified, reasons = _verify_domain_candidate(launch, item, candidate_url)
+        if not verified:
+            continue
+        domain = _domain_from_url(candidate_url)
+        return {
+            "url": candidate_url if "://" in candidate_url else f"https://{domain}",
+            "warning": "",
+            "evidence": {
+                "source": "embedded_launch_text_url",
+                "domain": domain,
+                "url": candidate_url,
+                "title": item.get("title", ""),
+                "snippet": item.get("snippet", ""),
+                "verification": reasons + ["url_extracted_from_text"],
+            },
+        }
+    return {"url": "", "warning": "no verified embedded launch URL"}
+
+
 def _web_domain_query(launch: dict) -> str:
     name = str(launch.get("company_name") or launch.get("name") or "").strip()
     description = str(launch.get("description") or launch.get("snippet") or launch.get("title") or "").strip()
@@ -293,11 +329,22 @@ def normalize_x_launch_item(item: dict, query: dict) -> dict:
         missing.append("company_name_missing")
     if not domain:
         missing.append("official_domain_identity_not_confirmed")
+    domain_resolution_source = ""
+    domain_resolution_evidence = {}
+    if not domain and company_name:
+        embedded = resolve_embedded_launch_text_domain(item, {"company_name": company_name, "description": item.get("snippet") or item.get("description") or item.get("text") or ""})
+        resolved_url = str(embedded.get("url") or "").strip()
+        if resolved_url:
+            website = resolved_url
+            domain = _domain_from_url(resolved_url)
+            domain_resolution_source = "embedded_launch_text_url"
+            domain_resolution_evidence = embedded.get("evidence") or {}
+            missing = [gap for gap in missing if gap != "official_domain_identity_not_confirmed"]
     launch_score, launch_basis = _launch_intent_score({**item, "company_name": company_name, "website": website, "domain": domain})
     action = "research deeper" if launch_score >= 65 else "watch"
     if launch_score < 65:
         missing.append("launch_intent_low")
-    return {
+    row = {
         "source": "x",
         "source_lane": "X",
         "name": company_name,
@@ -333,6 +380,11 @@ def normalize_x_launch_item(item: dict, query: dict) -> dict:
             "stage/funding, customer, and Marathon context before owner routing."
         ),
     }
+    if domain_resolution_source:
+        row["domain_resolution_source"] = domain_resolution_source
+    if domain_resolution_evidence:
+        row["domain_resolution_evidence"] = domain_resolution_evidence
+    return row
 
 
 def run_x_launches(

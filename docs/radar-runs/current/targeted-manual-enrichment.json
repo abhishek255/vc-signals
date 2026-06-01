@@ -1,14 +1,16 @@
 {
-  "generated_at": "2026-05-31T23:41:21.920569+00:00",
+  "generated_at": "2026-06-01T02:17:06.298034+00:00",
   "policy": "Manual-mode enrichment for the top targets only. Uses public web search snippets/results and keeps LinkedIn/Crunchbase-style checks as human review cues.",
   "summary": {
-    "targets_considered": 11,
-    "targets_enriched": 5,
-    "queries_run": 20,
-    "items_seen": 0,
+    "targets_considered": 12,
+    "targets_enriched": 10,
+    "queries_run": 38,
+    "items_seen": 55,
     "errors": 0,
     "queries_per_target": 4,
-    "limit": 5
+    "limit": 15,
+    "max_runtime_seconds": 480,
+    "stopped_early": true
   },
   "items": [
     {
@@ -33,34 +35,91 @@
           "query": "\"agentshield\" official website company startup product",
           "why": "Resolve the official company or product website before any promotion.",
           "error": "",
-          "items_seen": 0,
-          "top_items": [],
-          "warnings": [
-            "No candidates survived retrieval and ranking.",
-            "Evidence is thin for this topic.",
-            "Some sources failed: grounding",
-            "No source returned usable items."
+          "items_seen": 5,
+          "top_items": [
+            {
+              "title": "AgentShield \u2014 Guardian Agent Security Platform",
+              "url": "https://lablab.ai/ai-hackathons/techex-intelligent-enterprise-solutions-hackathon/agentshield/agentshield-guardian-agent-security-platform",
+              "domain": "lablab.ai",
+              "source": "grounding",
+              "snippet": "AgentShield is <strong>the first complete security platform for the agentic coding era</strong>. Developers now give AI agents full system access \u2014 Claude Code, Cursor, and OpenClaw agents read files, run shell commands, install plugins, and hold API keys, often with zero guardrails.",
+              "published_at": "2026-05-18"
+            },
+            {
+              "title": "AGentShield \u2013 Open benchmark of 6 AI agent security tools (537 test cases) | Hacker News",
+              "url": "https://news.ycombinator.com/item?id=47025096",
+              "domain": "news.ycombinator.com",
+              "source": "grounding",
+              "snippet": "<strong>Composite scores range from ~39 to ~98.</strong> The spread is larger than I expected. Tool abuse detection is weak across the board. Several providers that catch &gt;95% of prompt injections miss most unauthorized tool calls. Over-refusal is under-tested in the industry.",
+              "published_at": "2026-02-16"
+            },
+            {
+              "title": "AgentShield - YouTube",
+              "url": "https://www.youtube.com/watch?v=4V2_JM1E23Y",
+              "domain": "youtube.com",
+              "source": "grounding",
+              "snippet": "\ud83d\ude80 Build AI Agents\u2026 But Make Them SAFE \ud83d\udee1\ufe0fWhat if your AI agent could think, act\u2026 and defend itself at the same time?Welcome to AgentShield \u2014 the future of s...",
+              "published_at": "2026-04-28"
+            },
+            {
+              "title": "What is AgentShield? The Software vs. The TV Show",
+              "url": "https://www.vouched.id/learn/blog/agentshield-software-vs-show",
+              "domain": "vouched.id",
+              "source": "grounding",
+              "snippet": "As your usage increases, your per-verification cost decreases, making it more economical to protect your entire user base. We believe in supporting innovation, so be sure to ask about any special programs we may have for early-stage startups. When you assess the cost of AgentShield, it&#x27;s crucial to weigh it against the cost of inaction.",
+              "published_at": "2026-02-05"
+            },
+            {
+              "title": "piwheels - agentshield-ai",
+              "url": "https://www.piwheels.org/project/agentshield-ai/",
+              "domain": "piwheels.org",
+              "source": "grounding",
+              "snippet": "The piwheels project page for agentshield-ai: Monitor and protect your AI agents in production",
+              "published_at": "2026-03-06"
+            }
           ],
-          "errors_by_source": {
-            "grounding": "HTTP 402: Payment Required"
-          }
+          "warnings": [
+            "Top evidence is highly concentrated in one source."
+          ],
+          "errors_by_source": {}
         },
         {
           "kind": "linkedin_company_and_founders",
           "query": "\"agentshield\" LinkedIn company founder co-founder CEO CTO",
           "why": "Find company LinkedIn and founder/team sources.",
           "error": "",
-          "items_seen": 0,
-          "top_items": [],
-          "warnings": [
-            "No candidates survived retrieval and ranking.",
-            "Evidence is thin for this topic.",
-            "Some sources failed: grounding",
-            "No source returned usable items."
+          "items_seen": 3,
+          "top_items": [
+            {
+              "title": "Sakhil Chawla - Socioh | LinkedIn",
+              "url": "https://www.linkedin.com/in/sakhilchawla/",
+              "domain": "linkedin.com",
+              "source": "grounding",
+              "snippet": "What this unlocks: 1. **One source of truth.** When the design system updates, `create-component` updates once. Engineers pull, agent gets the new behavior. 2. **Safety gating.** AgentShield catches prompt-injection patterns, secrets accidentally pasted into CLAUDE.md, overly broad tool allowlists.",
+              "published_at": "2026-05-11"
+            },
+            {
+              "title": "What is AgentShield? The Software vs. The TV Show",
+              "url": "https://www.vouched.id/learn/blog/agentshield-software-vs-show",
+              "domain": "vouched.id",
+              "source": "grounding",
+              "snippet": "AgentShield is designed as more than just a software tool; it\u2019s <strong>a platform built for partnership</strong>. The company actively fosters a collaborative ecosystem by working closely with realtors, brokers, builders, and developers.",
+              "published_at": "2026-02-05"
+            },
+            {
+              "title": "Affaan Mustafa - Founder @ It\u00f4 | ETFs for Prediction Markets",
+              "url": "https://www.linkedin.com/in/affaanmustafa/",
+              "domain": "linkedin.com",
+              "source": "grounding",
+              "snippet": "\u00b7 Experience: ECC Tools \u00b7 Education: UC San Diego \u00b7 Location: San Francisco \u00b7 500+ connections on LinkedIn. View <strong>Affaan Mustafa</strong>\u2019s profile on LinkedIn, a professional community of 1 billion members.",
+              "published_at": "2026-03-25"
+            }
           ],
-          "errors_by_source": {
-            "grounding": "HTTP 402: Payment Required"
-          }
+          "warnings": [
+            "Evidence is thin for this topic.",
+            "Top evidence is highly concentrated in one source."
+          ],
+          "errors_by_source": {}
         },
         {
           "kind": "commercial_customer_proof",
@@ -86,7 +145,18 @@
       "evidence_hints": {
         "official_domain_hits": [],
         "company_linkedin_candidates": [],
-        "founder_linkedin_candidates": [],
+        "founder_linkedin_candidates": [
+          {
+            "title": "Sakhil Chawla - Socioh | LinkedIn",
+            "url": "https://www.linkedin.com/in/sakhilchawla/",
+            "domain": "linkedin.com"
+          },
+          {
+            "title": "Affaan Mustafa - Founder @ It\u00f4 | ETFs for Prediction Markets",
+            "url": "https://www.linkedin.com/in/affaanmustafa/",
+            "domain": "linkedin.com"
+          }
+        ],
         "funding_metadata_candidates": [],
         "careers_or_headcount_candidates": []
       },
@@ -119,17 +189,46 @@
           "query": "\"pullfrog\" LinkedIn company founder co-founder CEO CTO",
           "why": "Find company LinkedIn and founder/team sources.",
           "error": "",
-          "items_seen": 0,
-          "top_items": [],
-          "warnings": [
-            "No candidates survived retrieval and ranking.",
-            "Evidence is thin for this topic.",
-            "Some sources failed: grounding",
-            "No source returned usable items."
+          "items_seen": 4,
+          "top_items": [
+            {
+              "title": "GitHub - pullfrog/pullfrog: Open-source model-agnostic BYOK GitHub bot that runs in GitHub Actions \u00b7 GitHub",
+              "url": "https://github.com/pullfrog/pullfrog",
+              "domain": "github.com",
+              "source": "grounding",
+              "snippet": "Open-source model-agnostic BYOK GitHub bot that runs in GitHub Actions - pullfrog/pullfrog",
+              "published_at": "2026-05-27"
+            },
+            {
+              "title": "Pullfrog AI: Open-Source CodeRabbit Alternative Powered by GitHub Actions - InfoQ",
+              "url": "https://www.infoq.com/news/2026/05/pullfrog-ai-github/",
+              "domain": "infoq.com",
+              "source": "grounding",
+              "snippet": "Pullfrog is an open-source AI-powered GitHub bot by <strong>Colin McDonnell</strong>, designed for automation in GitHub Actions. It supports a model-agnostic approach, allowing integration with various LLM providers.",
+              "published_at": "2026-05-27"
+            },
+            {
+              "title": "Pullfrog (@pullfrogai) / X",
+              "url": "https://x.com/pullfrogai",
+              "domain": "x.com",
+              "source": "grounding",
+              "snippet": "Click to Follow pullfrogai \u00b7 Pullfrog \u00b7 @pullfrogai \u00b7 The ultimate GitHub integration for your favorite coding agents Join the Discord \u2192 https://discord.gg/8y96raFg8e \u00b7 pullfrog.com \u00b7 Joined August 2025 \u00b7 2 Following \u00b7 346 Followers \u00b7 @pullfrogai hasn\u2019t posted \u00b7",
+              "published_at": "2025-08-01"
+            },
+            {
+              "title": "Pullfrog: Deluxe - Kotaku",
+              "url": "https://kotaku.com/games/pullfrog-deluxe",
+              "domain": "kotaku.com",
+              "source": "grounding",
+              "snippet": "All the Latest Game Footage and Images from Pullfrog: Deluxe Start Slideshow \u00b7 Tetris meets frog! A little puzzle platformer made for Pico-8, equal parts fun and challenging. Help a little frog clear as many lines as possible by using its tongue to pull around blocks in the air.",
+              "published_at": "2025-10-26"
+            }
           ],
-          "errors_by_source": {
-            "grounding": "HTTP 402: Payment Required"
-          }
+          "warnings": [
+            "Evidence is thin for this topic.",
+            "Top evidence is highly concentrated in one source."
+          ],
+          "errors_by_source": {}
         },
         {
           "kind": "commercial_customer_proof",
@@ -163,7 +262,13 @@
         }
       ],
       "evidence_hints": {
-        "official_domain_hits": [],
+        "official_domain_hits": [
+          {
+            "title": "Pullfrog (@pullfrogai) / X",
+            "url": "https://x.com/pullfrogai",
+            "domain": "x.com"
+          }
+        ],
         "company_linkedin_candidates": [],
         "founder_linkedin_candidates": [],
         "funding_metadata_candidates": [],
@@ -199,34 +304,42 @@
           "query": "\"actions-up\" official website company startup product",
           "why": "Resolve the official company or product website before any promotion.",
           "error": "",
-          "items_seen": 0,
-          "top_items": [],
-          "warnings": [
-            "No candidates survived retrieval and ranking.",
-            "Evidence is thin for this topic.",
-            "Some sources failed: grounding",
-            "No source returned usable items."
+          "items_seen": 1,
+          "top_items": [
+            {
+              "title": "GitHub - azat-io/actions-up: \ud83c\udf0a Interactive CLI tool to update GitHub Actions to latest versions with SHA pinning",
+              "url": "https://github.com/azat-io/actions-up",
+              "domain": "github.com",
+              "source": "grounding",
+              "snippet": "<strong>Interactively upgrade and pin actions to exact commit SHAs for secure, reproducible CI, or preserve tag-style references when you need to stay on tags</strong>.",
+              "published_at": "2026-04-08"
+            }
           ],
-          "errors_by_source": {
-            "grounding": "HTTP 402: Payment Required"
-          }
+          "warnings": [
+            "Evidence is thin for this topic."
+          ],
+          "errors_by_source": {}
         },
         {
           "kind": "linkedin_company_and_founders",
           "query": "\"actions-up\" LinkedIn company founder co-founder CEO CTO",
           "why": "Find company LinkedIn and founder/team sources.",
           "error": "",
-          "items_seen": 0,
-          "top_items": [],
-          "warnings": [
-            "No candidates survived retrieval and ranking.",
-            "Evidence is thin for this topic.",
-            "Some sources failed: grounding",
-            "No source returned usable items."
+          "items_seen": 1,
+          "top_items": [
+            {
+              "title": "GitHub - azat-io/actions-up: \ud83c\udf0a Interactive CLI tool to update GitHub Actions to latest versions with SHA pinning",
+              "url": "https://github.com/azat-io/actions-up",
+              "domain": "github.com",
+              "source": "grounding",
+              "snippet": "Flexible update styles: Use SHA pinning by default, or preserve tag-style references with --style preserve ... Keeping GitHub Actions updated is critical and time-consuming.",
+              "published_at": "2026-04-08"
+            }
           ],
-          "errors_by_source": {
-            "grounding": "HTTP 402: Payment Required"
-          }
+          "warnings": [
+            "Evidence is thin for this topic."
+          ],
+          "errors_by_source": {}
         },
         {
           "kind": "commercial_customer_proof",
@@ -287,34 +400,99 @@
           "query": "\"smokedmeat\" official website company startup product",
           "why": "Resolve the official company or product website before any promotion.",
           "error": "",
-          "items_seen": 0,
-          "top_items": [],
-          "warnings": [
-            "No candidates survived retrieval and ranking.",
-            "Evidence is thin for this topic.",
-            "Some sources failed: grounding",
-            "No source returned usable items."
+          "items_seen": 6,
+          "top_items": [
+            {
+              "title": "GitHub - boostsecurityio/smokedmeat: A CI/CD Red Team Framework for demonstrating Build Pipeline security risks. \u00b7 GitHub",
+              "url": "https://github.com/boostsecurityio/smokedmeat",
+              "domain": "github.com",
+              "source": "grounding",
+              "snippet": "Counter checks for newer SmokedMeat releases at startup.",
+              "published_at": "2026-05-12"
+            },
+            {
+              "title": "Show HN: SmokedMeat, like Metasploit, but for CI/CD (open-source) | Hacker News",
+              "url": "https://news.ycombinator.com/item?id=47780608",
+              "domain": "news.ycombinator.com",
+              "source": "grounding",
+              "snippet": "Two years ago today, our small research team open sourced poutine, a SAST scanner for CI/CD pipelines (very similar to zizmor, but written in Go and customizable using Rego DSL). It finds the vulnerabilities in your build pipelines. As all security engineers know, running SAST and filing a ...",
+              "published_at": "2026-04-17"
+            },
+            {
+              "title": "SmokedMeat: Open-source tool shows what attackers do inside CI/CD pipelines - 31Wedge",
+              "url": "https://31wedge.com/smokedmeat-open-source-tool-shows-what-attackers-do-inside-ci-cd-pipelines/",
+              "domain": "31wedge.com",
+              "source": "grounding",
+              "snippet": "Source: Help Net Security Author: Mirko Zorz URL: https://www.helpnetsecurity.com/2026/04/20/smokedmeat-ci-cd-pipeline-attacks/ ## ONE SENTENCE SUMMARY: SmokedMeat is an open-source tool simulating real CI/CD exploit chains to demonstrate impact, prioritize fixes, and prevent supply-chain cascades.",
+              "published_at": "2026-04-20"
+            },
+            {
+              "title": "SmokedMeat: Open-source tool shows what attackers do inside CI/CD pipelines - Help Net Security",
+              "url": "https://www.helpnetsecurity.com/2026/04/20/smokedmeat-ci-cd-pipeline-attacks/",
+              "domain": "helpnetsecurity.com",
+              "source": "grounding",
+              "snippet": "SmokedMeat is an open-source tool that runs live CI/CD pipeline attacks against your own infrastructure to show real exploit impact.de",
+              "published_at": "2026-04-20"
+            },
+            {
+              "title": "SmokedMeat: A Red Team Tool to Hack Your Pipelines First | Boost Security Labs",
+              "url": "https://labs.boostsecurity.io/articles/introducing-smokedmeat/",
+              "domain": "labs.boostsecurity.io",
+              "source": "grounding",
+              "snippet": "In March 2026, TeamPCP unleashed mayhem on the software supply chain: compromising Trivy, LiteLLM, KICS, Telnyx, and dozens of npm packages, proving that CI/CD pipelines are the softest target. Today we&#x27;re open-sourcing SmokedMeat, the first red team framework for build pipelines (i.e. CI/CD), so defenders can finally see the full kill chain for themselves.",
+              "published_at": "2026-04-15"
+            },
+            {
+              "title": "MarkhorSmokedMeat",
+              "url": "https://markhorsmokedmeat.com/",
+              "domain": "markhorsmokedmeat.com",
+              "source": "grounding",
+              "snippet": "STARTERS French fries Rs.540 Cheese Fries Rs.820 Jalapenos Cheese Fries Rs.920 Mushroom and Cheese fries Rs.950 Steak fries with cheese Rs.1510 Bacon baked potato gratin Rs.1350 Brisket Loaded Fries",
+              "published_at": "2026-05-06"
+            }
           ],
-          "errors_by_source": {
-            "grounding": "HTTP 402: Payment Required"
-          }
+          "warnings": [
+            "Top evidence is highly concentrated in one source."
+          ],
+          "errors_by_source": {}
         },
         {
           "kind": "linkedin_company_and_founders",
           "query": "\"smokedmeat\" LinkedIn company founder co-founder CEO CTO",
           "why": "Find company LinkedIn and founder/team sources.",
           "error": "",
-          "items_seen": 0,
-          "top_items": [],
-          "warnings": [
-            "No candidates survived retrieval and ranking.",
-            "Evidence is thin for this topic.",
-            "Some sources failed: grounding",
-            "No source returned usable items."
+          "items_seen": 3,
+          "top_items": [
+            {
+              "title": "GitHub - boostsecurityio/smokedmeat: A CI/CD Red Team Framework for demonstrating Build Pipeline security risks. \u00b7 GitHub",
+              "url": "https://github.com/boostsecurityio/smokedmeat",
+              "domain": "github.com",
+              "source": "grounding",
+              "snippet": "SmokedMeat is <strong>a post-exploitation framework for CI/CD pipelines</strong>.",
+              "published_at": "2026-05-12"
+            },
+            {
+              "title": "SmokedMeat: A Red Team Tool to Hack Your Pipelines First | Boost Security Labs",
+              "url": "https://labs.boostsecurity.io/articles/introducing-smokedmeat/",
+              "domain": "labs.boostsecurity.io",
+              "source": "grounding",
+              "snippet": "Before open-sourcing, we put SmokedMeat in the hands of seasoned offensive security practitioners and supply chain researchers: Red Teamers at Fortune 500 companies, security teams at large enterprises, and Piergiorgio Ladisa, author of the first PhD thesis on modern software supply chain threats.",
+              "published_at": "2026-04-15"
+            },
+            {
+              "title": "MarkhorSmokedMeat",
+              "url": "https://markhorsmokedmeat.com/",
+              "domain": "markhorsmokedmeat.com",
+              "source": "grounding",
+              "snippet": "STARTERS French fries Rs.540 Cheese Fries Rs.820 Jalapenos Cheese Fries Rs.920 Mushroom and Cheese fries Rs.950 Steak fries with cheese Rs.1510 Bacon baked potato gratin Rs.1350 Brisket Loaded Fries",
+              "published_at": "2026-05-06"
+            }
           ],
-          "errors_by_source": {
-            "grounding": "HTTP 402: Payment Required"
-          }
+          "warnings": [
+            "Evidence is thin for this topic.",
+            "Top evidence is highly concentrated in one source."
+          ],
+          "errors_by_source": {}
         },
         {
           "kind": "commercial_customer_proof",
@@ -373,17 +551,21 @@
           "query": "\"agent-ci\" LinkedIn company founder co-founder CEO CTO",
           "why": "Find company LinkedIn and founder/team sources.",
           "error": "",
-          "items_seen": 0,
-          "top_items": [],
-          "warnings": [
-            "No candidates survived retrieval and ranking.",
-            "Evidence is thin for this topic.",
-            "Some sources failed: grounding",
-            "No source returned usable items."
+          "items_seen": 1,
+          "top_items": [
+            {
+              "title": "GitHub - redwoodjs/agent-ci: Agent-CI is local GitHub Actions for your agents. \u00b7 GitHub",
+              "url": "https://github.com/redwoodjs/agent-ci",
+              "domain": "github.com",
+              "source": "grounding",
+              "snippet": "Agent-CI is <strong>local GitHub Actions for your agents</strong>. Contribute to redwoodjs/agent-ci development by creating an account on GitHub.",
+              "published_at": "2026-05-08"
+            }
           ],
-          "errors_by_source": {
-            "grounding": "HTTP 402: Payment Required"
-          }
+          "warnings": [
+            "Evidence is thin for this topic."
+          ],
+          "errors_by_source": {}
         },
         {
           "kind": "commercial_customer_proof",
@@ -430,7 +612,655 @@
         "pricing_docs_or_careers_still_missing"
       ],
       "manual_policy": "Public web-search assist only; do not scrape gated LinkedIn/Crunchbase pages."
+    },
+    {
+      "name": "peakoss/anti-slop",
+      "domain": "",
+      "source_lane": "OSS",
+      "action": "watch",
+      "tier": "Watchlist",
+      "missing_evidence": [
+        "official_domain_missing",
+        "stage_funding_or_headcount_missing",
+        "company_linkedin_or_social_missing",
+        "commercial_or_customer_signal_missing",
+        "pricing_docs_or_careers_missing",
+        "OSS/project-only row",
+        "no verified domain"
+      ],
+      "recommended_next_step": "Resolve official domain from launch text, project docs, founder profile, or web search.",
+      "queries": [
+        {
+          "kind": "official_domain",
+          "query": "\"anti-slop\" official website company startup product",
+          "why": "Resolve the official company or product website before any promotion.",
+          "error": "",
+          "items_seen": 2,
+          "top_items": [
+            {
+              "title": "r/vibecoding on Reddit: All AI websites (and designs) look the same, has anyone managed an \"anti AI slop design\" patterns ?",
+              "url": "https://www.reddit.com/r/vibecoding/comments/1rr0dwy/all_ai_websites_and_designs_look_the_same_has/",
+              "domain": "reddit.com",
+              "source": "grounding",
+              "snippet": "I managed to write a good &quot;anti slop&quot; prompt for my most important project and it works, but I&#x27;m lacking a more general one...",
+              "published_at": "2026-03-11"
+            },
+            {
+              "title": "I Built an Anti-Slop Website With Claude Code in 21 Minutes (Part 1) - YouTube",
+              "url": "https://www.youtube.com/watch?v=89Fh_Ppw1A8",
+              "domain": "youtube.com",
+              "source": "grounding",
+              "snippet": "Traditional websites are dead. In this video, I build an epic, multi-page &quot;anti-slop&quot; website in just 21 mins using Variant and Claude Code. This is Part 1 o...",
+              "published_at": "2026-03-18"
+            }
+          ],
+          "warnings": [
+            "Evidence is thin for this topic."
+          ],
+          "errors_by_source": {}
+        },
+        {
+          "kind": "linkedin_company_and_founders",
+          "query": "\"anti-slop\" LinkedIn company founder co-founder CEO CTO",
+          "why": "Find company LinkedIn and founder/team sources.",
+          "error": "",
+          "items_seen": 2,
+          "top_items": [
+            {
+              "title": "anti-slop \u00b7 GitHub Topics \u00b7 GitHub",
+              "url": "https://github.com/topics/anti-slop",
+              "domain": "github.com",
+              "source": "grounding",
+              "snippet": "ai writing gemini copilot claude content-writing writing-style llm prompt-engineering chatgpt ai-detection system-prompt agent-skill anti-slop authentic-writing ... Un skill Claude pour \u00e9crire du contenu qui sonne humain. Inspir\u00e9 de stop-slop, adapt\u00e9 au fran\u00e7ais et personnalisable avec ta propre voix. ... Claude Code skill: researches topics across 5-8 real sources and writes data-backed LinkedIn posts in your voice \u2014 not AI writing",
+              "published_at": "2026-02-18"
+            },
+            {
+              "title": "GitHub - peakoss/anti-slop: A GitHub action that detects and automatically closes low-quality and AI slop PRs. \u00b7 GitHub",
+              "url": "https://github.com/peakoss/anti-slop",
+              "domain": "github.com",
+              "source": "grounding",
+              "snippet": "Fast: The entire action runs in under 15 seconds which means slop PRs are caught and closed before you even notice them. Keep open source open: The beauty of open source is that anyone can contribute.",
+              "published_at": "2026-04-16"
+            }
+          ],
+          "warnings": [
+            "Evidence is thin for this topic."
+          ],
+          "errors_by_source": {}
+        },
+        {
+          "kind": "commercial_customer_proof",
+          "query": "\"peakoss/anti-slop\" \"\" pricing customers case studies docs users deployments",
+          "why": "Find commercial proof such as pricing, customers, case studies, docs, or deployments.",
+          "error": "",
+          "items_seen": 0,
+          "top_items": [],
+          "warnings": [],
+          "errors_by_source": {}
+        },
+        {
+          "kind": "pricing_docs_careers",
+          "query": "\"peakoss/anti-slop\" \"\" pricing docs careers jobs hiring customers",
+          "why": "Find pricing, docs, careers, jobs, or customer-facing pages.",
+          "error": "",
+          "items_seen": 0,
+          "top_items": [],
+          "warnings": [],
+          "errors_by_source": {}
+        }
+      ],
+      "evidence_hints": {
+        "official_domain_hits": [],
+        "company_linkedin_candidates": [],
+        "founder_linkedin_candidates": [],
+        "funding_metadata_candidates": [],
+        "careers_or_headcount_candidates": []
+      },
+      "unresolved_gaps": [
+        "company_linkedin_still_missing",
+        "stage_or_funding_source_still_missing",
+        "headcount_source_still_missing",
+        "official_domain_still_missing",
+        "pricing_docs_or_careers_still_missing"
+      ],
+      "manual_policy": "Public web-search assist only; do not scrape gated LinkedIn/Crunchbase pages."
+    },
+    {
+      "name": "leiting-eric/DailyBrief",
+      "domain": "",
+      "source_lane": "OSS",
+      "action": "watch",
+      "tier": "Watchlist",
+      "missing_evidence": [
+        "official_domain_missing",
+        "stage_funding_or_headcount_missing",
+        "company_linkedin_or_social_missing",
+        "commercial_or_customer_signal_missing",
+        "pricing_docs_or_careers_missing",
+        "OSS/project-only row",
+        "no verified domain"
+      ],
+      "recommended_next_step": "Resolve official domain from launch text, project docs, founder profile, or web search.",
+      "queries": [
+        {
+          "kind": "official_domain",
+          "query": "\"DailyBrief\" official website company startup product",
+          "why": "Resolve the official company or product website before any promotion.",
+          "error": "",
+          "items_seen": 3,
+          "top_items": [
+            {
+              "title": "DailyBrief - 2026 Company Profile, Team, Competitors & Financials - Tracxn",
+              "url": "https://tracxn.com/d/companies/dailybrief/__RttZQFW7OSAeNznKF5g0nXncJs-E_pwSYNIcp4LoenU",
+              "domain": "tracxn.com",
+              "source": "grounding",
+              "snippet": "Abhinav Bhat: Co-Founder &amp; Product Head of DailyBrief. View details of DailyBrief&#x27;s Founder profiles and Board Members \u00b7 DailyBrief has 71 employees as of Aug 25. The total employee count is 22.0% more than what it was in Aug 24. Here is DailyBrief&#x27;s employee count trend over the years: Uncover DailyBrief&#x27;s growth story! Sign up today! ... Our Google Chrome extension lets you view company details while browsing their websitesInstall Tracxn Extension",
+              "published_at": "2026-03-18"
+            },
+            {
+              "title": "Terms & Conditions \u00bb Daily Brief",
+              "url": "https://dailybrief.ca/terms-conditions/",
+              "domain": "dailybrief.ca",
+              "source": "grounding",
+              "snippet": "\ud83d\udce7 Email: elexilyworldnews@gmail.com \ud83c\udf10 Website: <strong>https://dailybrief.ca/</strong>",
+              "published_at": "2026-02-11"
+            },
+            {
+              "title": "DailyBrief - News that matters - Google Play \u306e\u30a2\u30d7\u30ea",
+              "url": "https://play.google.com/store/apps/details?id=in.ideastoday&hl=en_US",
+              "domain": "play.google.com",
+              "source": "grounding",
+              "snippet": "DailyBrief gets you news, views and ideas that matter, in brief, from top journalists, experts, and thought-leaders in India and around the world. Stay informed and save time without the toxicity and endless chatter of social media. Our creators watch top media outlets &amp; brief you only about things that matter to you, in short, like you are a VIP.",
+              "published_at": "2026-04-22"
+            }
+          ],
+          "warnings": [
+            "Evidence is thin for this topic.",
+            "Top evidence is highly concentrated in one source."
+          ],
+          "errors_by_source": {}
+        },
+        {
+          "kind": "linkedin_company_and_founders",
+          "query": "\"DailyBrief\" LinkedIn company founder co-founder CEO CTO",
+          "why": "Find company LinkedIn and founder/team sources.",
+          "error": "",
+          "items_seen": 2,
+          "top_items": [
+            {
+              "title": "DailyBrief - 2026 Company Profile, Team, Competitors & Financials - Tracxn",
+              "url": "https://tracxn.com/d/companies/dailybrief/__RttZQFW7OSAeNznKF5g0nXncJs-E_pwSYNIcp4LoenU",
+              "domain": "tracxn.com",
+              "source": "grounding",
+              "snippet": "Linkedin \u00b7 Twitter \u00b7 Facebook \u00b7 Email \u00b7 Copy Url \u00b7 Request page removal \u00b7 DailyBrief is <strong>an unfunded company based in Mumbai (India), founded in 2020 by Umang Agarwal and Abhinav Bhat</strong>.",
+              "published_at": "2026-03-18"
+            },
+            {
+              "title": "Newslaundry - 2026 Company Profile, Team, Funding, Competitors & Financials - Tracxn",
+              "url": "https://tracxn.com/d/companies/newslaundry/__Fm68BUdgATM04bwqLdKXW7pB1TWMZmkCl0AVE3YXBKc",
+              "domain": "tracxn.com",
+              "source": "grounding",
+              "snippet": "Newslaundry has raised $882K in funding from Omidyar Network India, with a current valuation of \u20b9*****. The company has 1490 active competitors, including 8 funded and 9 that have exited. Its top competitors include companies like Scroll.in, DailyBrief and The Quint.",
+              "published_at": "2026-05-07"
+            }
+          ],
+          "warnings": [
+            "Evidence is thin for this topic."
+          ],
+          "errors_by_source": {}
+        },
+        {
+          "kind": "commercial_customer_proof",
+          "query": "\"leiting-eric/DailyBrief\" \"\" pricing customers case studies docs users deployments",
+          "why": "Find commercial proof such as pricing, customers, case studies, docs, or deployments.",
+          "error": "",
+          "items_seen": 0,
+          "top_items": [],
+          "warnings": [],
+          "errors_by_source": {}
+        },
+        {
+          "kind": "pricing_docs_careers",
+          "query": "\"leiting-eric/DailyBrief\" \"\" pricing docs careers jobs hiring customers",
+          "why": "Find pricing, docs, careers, jobs, or customer-facing pages.",
+          "error": "",
+          "items_seen": 0,
+          "top_items": [],
+          "warnings": [],
+          "errors_by_source": {}
+        }
+      ],
+      "evidence_hints": {
+        "official_domain_hits": [],
+        "company_linkedin_candidates": [],
+        "founder_linkedin_candidates": [],
+        "funding_metadata_candidates": [],
+        "careers_or_headcount_candidates": [
+          {
+            "title": "DailyBrief - 2026 Company Profile, Team, Competitors & Financials - Tracxn",
+            "url": "https://tracxn.com/d/companies/dailybrief/__RttZQFW7OSAeNznKF5g0nXncJs-E_pwSYNIcp4LoenU",
+            "domain": "tracxn.com"
+          }
+        ]
+      },
+      "unresolved_gaps": [
+        "company_linkedin_still_missing",
+        "stage_or_funding_source_still_missing",
+        "official_domain_still_missing"
+      ],
+      "manual_policy": "Public web-search assist only; do not scrape gated LinkedIn/Crunchbase pages."
+    },
+    {
+      "name": "spaceraccoon/vulnerability-spoiler-alert-action",
+      "domain": "",
+      "source_lane": "OSS",
+      "action": "map ecosystem",
+      "tier": "Watchlist",
+      "missing_evidence": [
+        "official_domain_missing",
+        "stage_funding_or_headcount_missing",
+        "company_linkedin_or_social_missing",
+        "commercial_or_customer_signal_missing",
+        "pricing_docs_or_careers_missing",
+        "OSS/project-only row",
+        "no verified domain"
+      ],
+      "recommended_next_step": "Resolve official domain from launch text, project docs, founder profile, or web search.",
+      "queries": [
+        {
+          "kind": "official_domain",
+          "query": "\"vulnerability-spoiler-alert-action\" official website company startup product",
+          "why": "Resolve the official company or product website before any promotion.",
+          "error": "",
+          "items_seen": 4,
+          "top_items": [
+            {
+              "title": "Discovering Negative-Days with LLM Workflows | Spaceraccoon's Blog",
+              "url": "https://spaceraccoon.dev/discovering-negative-days-llm-workflows/",
+              "domain": "spaceraccoon.dev",
+              "source": "grounding",
+              "snippet": "You can customise it to run your own models, create Slack alerts instead of GitHub Issues, and so on. However, if you just want to take this for a spin, I\u2019ve open-sourced (lol) the action at https://github.com/spaceraccoon/vulnerability-spoiler-alert-action (or GitHub Marketplace) - check it out and let me know if anything breaks.",
+              "published_at": "2026-02-07"
+            },
+            {
+              "title": "GitHub - spaceraccoon/vulnerability-spoiler-alert-action: GitHub Action to alert on security patches before the CVE drops. \u00b7 GitHub",
+              "url": "https://github.com/spaceraccoon/vulnerability-spoiler-alert-action",
+              "domain": "github.com",
+              "source": "grounding",
+              "snippet": "- uses: spaceraccoon/vulnerability-spoiler-alert-action@v1 with: api-key: ${{ secrets.ANTHROPIC_API_KEY }} repositories: | [ {&quot;owner&quot;: &quot;expressjs&quot;, &quot;repo&quot;: &quot;express&quot;}, {&quot;owner&quot;: &quot;lodash&quot;, &quot;repo&quot;: &quot;lodash&quot;}, {&quot;owner&quot;: &quot;axios&quot;, &quot;repo&quot;: &quot;axios&quot;}, {&quot;owner&quot;: &quot;chalk&quot;, &quot;repo&quot;: &quot;chalk&quot;} ]",
+              "published_at": "2026-03-14"
+            },
+            {
+              "title": "GitHub - spaceraccoon/vulnerability-spoiler-alert: A monitoring hub that watches popular open-source repositories and uses AI to detect when commits are patching security vulnerabilities - often before a CVE is even assigned. Findings are published to a retro-themed website with an RSS feed. \u00b7 GitHub",
+              "url": "https://github.com/spaceraccoon/vulnerability-spoiler-alert",
+              "domain": "github.com",
+              "source": "grounding",
+              "snippet": "<strong>A monitoring hub that watches popular open-source repositories and uses AI to detect when commits are patching security vulnerabilities</strong> - often before a CVE is even assigned. Findings are published to a retro-themed website with an RSS feed.",
+              "published_at": "2026-02-10"
+            },
+            {
+              "title": "[Vulnerability] vercel/next.js: Code Injection \u00b7 Issue #17 \u00b7 spaceraccoon/vulnerability-spoiler-alert",
+              "url": "https://github.com/spaceraccoon/vulnerability-spoiler-alert/issues/17",
+              "domain": "github.com",
+              "source": "grounding",
+              "snippet": "--- *This issue was automatically created by [Vulnerability Spoiler Alert](https://github.com/spaceraccoon/vulnerability-spoiler-alert-action).* *Detected at: 2026-02-13T19:07:44.592Z*",
+              "published_at": "2026-02-13"
+            }
+          ],
+          "warnings": [
+            "Evidence is thin for this topic.",
+            "Top evidence is highly concentrated in one source."
+          ],
+          "errors_by_source": {}
+        },
+        {
+          "kind": "linkedin_company_and_founders",
+          "query": "\"vulnerability-spoiler-alert-action\" LinkedIn company founder co-founder CEO CTO",
+          "why": "Find company LinkedIn and founder/team sources.",
+          "error": "",
+          "items_seen": 4,
+          "top_items": [
+            {
+              "title": "Discovering Negative-Days with LLM Workflows | Spaceraccoon's Blog",
+              "url": "https://spaceraccoon.dev/discovering-negative-days-llm-workflows/",
+              "domain": "spaceraccoon.dev",
+              "source": "grounding",
+              "snippet": "You can customise it to run your own models, create Slack alerts instead of GitHub Issues, and so on. However, if you just want to take this for a spin, I\u2019ve open-sourced (lol) the action at https://github.com/spaceraccoon/vulnerability-spoiler-alert-action (or GitHub Marketplace) - check it out and let me know if anything breaks.",
+              "published_at": "2026-02-07"
+            },
+            {
+              "title": "[Vulnerability] vercel/next.js: Code Injection \u00b7 Issue #17 \u00b7 spaceraccoon/vulnerability-spoiler-alert",
+              "url": "https://github.com/spaceraccoon/vulnerability-spoiler-alert/issues/17",
+              "domain": "github.com",
+              "source": "grounding",
+              "snippet": "--- *This issue was automatically created by [Vulnerability Spoiler Alert](https://github.com/spaceraccoon/vulnerability-spoiler-alert-action).* *Detected at: 2026-02-13T19:07:44.592Z*",
+              "published_at": "2026-02-13"
+            },
+            {
+              "title": "GitHub - spaceraccoon/vulnerability-spoiler-alert: A monitoring hub that watches popular open-source repositories and uses AI to detect when commits are patching security vulnerabilities - often before a CVE is even assigned. Findings are published to a retro-themed website with an RSS feed. \u00b7 GitHub",
+              "url": "https://github.com/spaceraccoon/vulnerability-spoiler-alert",
+              "domain": "github.com",
+              "source": "grounding",
+              "snippet": "You can trigger it manually via <strong>Actions &gt; Monitor Vulnerabilities &gt; Run workflow</strong>.",
+              "published_at": "2026-02-10"
+            },
+            {
+              "title": "GitHub - spaceraccoon/vulnerability-spoiler-alert-action: GitHub Action to alert on security patches before the CVE drops. \u00b7 GitHub",
+              "url": "https://github.com/spaceraccoon/vulnerability-spoiler-alert-action",
+              "domain": "github.com",
+              "source": "grounding",
+              "snippet": "name: Vulnerability Monitor on: schedule: - cron: &#x27;0 */6 * * *&#x27; # Every 6 hours workflow_dispatch: permissions: contents: write issues: write jobs: monitor: runs-on: ubuntu-latest steps: - uses: actions/checkout@v4 - uses: spaceraccoon/vulnerability-spoiler-alert-action@v1 with: api-key: ${{ secrets.ANTHROPIC_API_KEY }} repositories: | [ {&quot;owner&quot;: &quot;expressjs&quot;, &quot;repo&quot;: &quot;express&quot;}, {&quot;owner&quot;: &quot;lodash&quot;, &quot;repo&quot;: &quot;lod",
+              "published_at": "2026-03-14"
+            }
+          ],
+          "warnings": [
+            "Evidence is thin for this topic.",
+            "Top evidence is highly concentrated in one source."
+          ],
+          "errors_by_source": {}
+        },
+        {
+          "kind": "commercial_customer_proof",
+          "query": "\"spaceraccoon/vulnerability-spoiler-alert-action\" \"\" pricing customers case studies docs users deployments",
+          "why": "Find commercial proof such as pricing, customers, case studies, docs, or deployments.",
+          "error": "",
+          "items_seen": 0,
+          "top_items": [],
+          "warnings": [],
+          "errors_by_source": {}
+        },
+        {
+          "kind": "pricing_docs_careers",
+          "query": "\"spaceraccoon/vulnerability-spoiler-alert-action\" \"\" pricing docs careers jobs hiring customers",
+          "why": "Find pricing, docs, careers, jobs, or customer-facing pages.",
+          "error": "",
+          "items_seen": 0,
+          "top_items": [],
+          "warnings": [],
+          "errors_by_source": {}
+        }
+      ],
+      "evidence_hints": {
+        "official_domain_hits": [],
+        "company_linkedin_candidates": [],
+        "founder_linkedin_candidates": [],
+        "funding_metadata_candidates": [],
+        "careers_or_headcount_candidates": [
+          {
+            "title": "GitHub - spaceraccoon/vulnerability-spoiler-alert-action: GitHub Action to alert on security patches before the CVE drops. \u00b7 GitHub",
+            "url": "https://github.com/spaceraccoon/vulnerability-spoiler-alert-action",
+            "domain": "github.com"
+          }
+        ]
+      },
+      "unresolved_gaps": [
+        "company_linkedin_still_missing",
+        "stage_or_funding_source_still_missing",
+        "official_domain_still_missing"
+      ],
+      "manual_policy": "Public web-search assist only; do not scrape gated LinkedIn/Crunchbase pages."
+    },
+    {
+      "name": "rohitg00/awesome-claude-code-toolkit",
+      "domain": "",
+      "source_lane": "OSS",
+      "action": "ignore",
+      "tier": "Needs More Evidence",
+      "missing_evidence": [
+        "official_domain_missing",
+        "founder_team_missing",
+        "stage_funding_or_headcount_missing",
+        "company_linkedin_or_social_missing",
+        "commercial_or_customer_signal_missing",
+        "pricing_docs_or_careers_missing",
+        "OSS/project-only row",
+        "no verified domain",
+        "no founder or maintainer identity"
+      ],
+      "recommended_next_step": "Resolve official domain from launch text, project docs, founder profile, or web search.",
+      "queries": [
+        {
+          "kind": "official_domain",
+          "query": "\"awesome-claude-code-toolkit\" official website company startup product",
+          "why": "Resolve the official company or product website before any promotion.",
+          "error": "",
+          "items_seen": 4,
+          "top_items": [
+            {
+              "title": "GitHub - rohitg00/awesome-claude-code-toolkit: The most comprehensive toolkit for Claude Code -- 135 agents, 35 curated skills, 42 commands, 176+ plugins, 20 hooks, 15 rules, 7 templates, 14 MCP configs, 26 companion apps, 52 ecosystem entries, and more. \u00b7 GitHub",
+              "url": "https://github.com/rohitg00/awesome-claude-code-toolkit",
+              "domain": "github.com",
+              "source": "grounding",
+              "snippet": "One-line business idea \u2192 autonomous MVP via a 7-agent startup team (PM / Developer / Designer / Architect / Critic / Code-Reviewer / QA). 4-reviewer isolated-worktree gate, Quality Ratchet, MVP-First pipeline. See the installation guide for the bash install.sh flow (plugin-marketplace listing is in progress). MIT licensed. TemplateClaw - Developer template hub and project scaffolding tool packaged as a Claude Code Plugin. 32 production-ready templates across 6 categories (Landing Pages, Dashboar",
+              "published_at": "2026-05-12"
+            },
+            {
+              "title": "GitHub - rohitg00/awesome-claude-design: Claude Design DESIGN.md prompts by aesthetic family, remix recipes, skills, video teardowns, X signal, honest community takes. \u00b7 GitHub",
+              "url": "https://github.com/rohitg00/awesome-claude-design",
+              "domain": "github.com",
+              "source": "grounding",
+              "snippet": "google-labs-code/design.md \u2014 official DESIGN.md spec from Google Labs Code, Apache 2.0; see docs/spec.md ... rohitg00/awesome-claude-code-toolkit \u2014 sibling meta-toolkit: 135 agents, 35 skills, 42 commands, 176 plugins",
+              "published_at": "2026-04-17"
+            },
+            {
+              "title": "awesome-claude-code-toolkit: The Revolutionary AI Coding Arsenal",
+              "url": "https://converter.brightcoding.dev/blog/awesome-claude-code-toolkit-the-revolutionary-ai-coding-arsenal",
+              "domain": "converter.brightcoding.dev",
+              "source": "grounding",
+              "snippet": "Use this method if you want to modify the toolkit or contribute back to the community. # Clone to Claude Code&#x27;s plugins directory git clone https://github.com/rohitg00/awesome-claude-code-toolkit.git ~/.claude/plugins/claude-code-toolkit # Navigate to the directory cd ~/.claude/plugins/claude-code-toolkit # Run the setup script ./setup/install.sh --dev # Verify installation claude --plugin-dir ~/.claude/plugins/claude-code-toolkit --help",
+              "published_at": "2026-04-08"
+            },
+            {
+              "title": "awesome-claude-code-toolkit/CONTRIBUTING.md at main \u00b7 rohitg00/awesome-claude-code-toolkit",
+              "url": "https://github.com/rohitg00/awesome-claude-code-toolkit/blob/main/CONTRIBUTING.md",
+              "domain": "github.com",
+              "source": "grounding",
+              "snippet": "The most comprehensive toolkit for Claude Code -- 135 agents, 35 curated skills (+400,000 via SkillKit), 42 commands, 150+ plugins, 19 hooks, 15 rules, 7 templates, 8 MCP configs, and more. - awesome-claude-code-toolkit/CONTRIBUTING.md at main \u00b7 rohitg00/awesome-claude-code-toolkit",
+              "published_at": "2026-02-05"
+            }
+          ],
+          "warnings": [
+            "Evidence is thin for this topic.",
+            "Top evidence is highly concentrated in one source."
+          ],
+          "errors_by_source": {}
+        },
+        {
+          "kind": "linkedin_company_and_founders",
+          "query": "\"awesome-claude-code-toolkit\" LinkedIn company founder co-founder CEO CTO",
+          "why": "Find company LinkedIn and founder/team sources.",
+          "error": "",
+          "items_seen": 2,
+          "top_items": [
+            {
+              "title": "GitHub - rohitg00/awesome-claude-code-toolkit: The most comprehensive toolkit for Claude Code -- 135 agents, 35 curated skills, 42 commands, 176+ plugins, 20 hooks, 15 rules, 7 templates, 14 MCP configs, 26 companion apps, 52 ecosystem entries, and more. \u00b7 GitHub",
+              "url": "https://github.com/rohitg00/awesome-claude-code-toolkit",
+              "domain": "github.com",
+              "source": "grounding",
+              "snippet": "Install: /plugin marketplace add rohitg00/pro-workflow ... <strong>Garry Tan</strong>&#x27;s exact Claude Code setup: 6 opinionated tools that serve as CEO, Eng Manager, Release Manager, and QA Engineer.",
+              "published_at": "2026-05-12"
+            },
+            {
+              "title": "GitHub - rohitg00/awesome-claude-design: Claude Design DESIGN.md prompts by aesthetic family, remix recipes, skills, video teardowns, X signal, honest community takes. \u00b7 GitHub",
+              "url": "https://github.com/rohitg00/awesome-claude-design",
+              "domain": "github.com",
+              "source": "grounding",
+              "snippet": "git clone https://github.com/OneRedOak/claude-code-workflows cp -r claude-code-workflows/design-review/.claude/* .claude/ ComposioHQ/awesome-claude-skills \u2014 canvas-design \u2014 design philosophy \u2192 poster/PDF artifact, two-phase ... Owl-Listener/designer-skills \u2014 Marie-Claire Dean&#x27;s 63 skills + 27 commands + 8 plugins, MIT \u2014 covering research, systems, strategy, UI, interaction, prototyping, ops, and the toolkit itself",
+              "published_at": "2026-04-17"
+            }
+          ],
+          "warnings": [
+            "Evidence is thin for this topic."
+          ],
+          "errors_by_source": {}
+        },
+        {
+          "kind": "commercial_customer_proof",
+          "query": "\"rohitg00/awesome-claude-code-toolkit\" \"\" pricing customers case studies docs users deployments",
+          "why": "Find commercial proof such as pricing, customers, case studies, docs, or deployments.",
+          "error": "",
+          "items_seen": 0,
+          "top_items": [],
+          "warnings": [],
+          "errors_by_source": {}
+        },
+        {
+          "kind": "pricing_docs_careers",
+          "query": "\"rohitg00/awesome-claude-code-toolkit\" \"\" pricing docs careers jobs hiring customers",
+          "why": "Find pricing, docs, careers, jobs, or customer-facing pages.",
+          "error": "",
+          "items_seen": 0,
+          "top_items": [],
+          "warnings": [],
+          "errors_by_source": {}
+        }
+      ],
+      "evidence_hints": {
+        "official_domain_hits": [],
+        "company_linkedin_candidates": [],
+        "founder_linkedin_candidates": [],
+        "funding_metadata_candidates": [],
+        "careers_or_headcount_candidates": []
+      },
+      "unresolved_gaps": [
+        "company_linkedin_still_missing",
+        "founder_team_source_still_missing",
+        "stage_or_funding_source_still_missing",
+        "headcount_source_still_missing",
+        "official_domain_still_missing",
+        "pricing_docs_or_careers_still_missing"
+      ],
+      "manual_policy": "Public web-search assist only; do not scrape gated LinkedIn/Crunchbase pages."
+    },
+    {
+      "name": "jacobdjwilson/awesome-annual-security-reports",
+      "domain": "",
+      "source_lane": "OSS",
+      "action": "ignore",
+      "tier": "Needs More Evidence",
+      "missing_evidence": [
+        "official_domain_missing",
+        "founder_team_missing",
+        "stage_funding_or_headcount_missing",
+        "company_linkedin_or_social_missing",
+        "commercial_or_customer_signal_missing",
+        "pricing_docs_or_careers_missing",
+        "OSS/project-only row",
+        "no verified domain",
+        "no founder or maintainer identity"
+      ],
+      "recommended_next_step": "Resolve official domain from launch text, project docs, founder profile, or web search.",
+      "queries": [
+        {
+          "kind": "official_domain",
+          "query": "\"awesome-annual-security-reports\" official website company startup product",
+          "why": "Resolve the official company or product website before any promotion.",
+          "error": "",
+          "items_seen": 4,
+          "top_items": [
+            {
+              "title": "GitHub - jacobdjwilson/awesome-annual-security-reports: A curated list of annual cyber security reports \u00b7 GitHub",
+              "url": "https://github.com/jacobdjwilson/awesome-annual-security-reports",
+              "domain": "github.com",
+              "source": "grounding",
+              "snippet": "A curated list of annual cyber security reports. Contribute to jacobdjwilson/awesome-annual-security-reports development by creating an account on GitHub.",
+              "published_at": "2026-05-13"
+            },
+            {
+              "title": "[Report Discovery] GuidePoint 2026 \u2014 Identity Access Management Maturity Report \u00b7 Issue #1103 \u00b7 jacobdjwilson/awesome-annual-security-reports",
+              "url": "https://github.com/jacobdjwilson/awesome-annual-security-reports/issues/1103",
+              "domain": "github.com",
+              "source": "grounding",
+              "snippet": "Jan 18, 2026 ... As we publish our fourth annual report ... <strong>vulnerabilities and weak security controls impacting remote access solutions to establish initial</strong>.",
+              "published_at": "2026-03-31"
+            },
+            {
+              "title": "[Report Discovery] SilentPush 2026 \u2014 Threat Actor Study \u00b7 Issue #1110 \u00b7 jacobdjwilson/awesome-annual-security-reports",
+              "url": "https://github.com/jacobdjwilson/awesome-annual-security-reports/issues/1110",
+              "domain": "github.com",
+              "source": "grounding",
+              "snippet": "Auto-discovered by the Security Report Discovery workflow. ... automateddirect-pdfreport-suggestionSuggest a new annual security reportSuggest a new annual security report",
+              "published_at": "2026-03-31"
+            },
+            {
+              "title": "[Report Discovery] Proofpoint 2026 \u2014 Cyber Insecurity Healthcare \u00b7 Issue #1107 \u00b7 jacobdjwilson/awesome-annual-security-reports",
+              "url": "https://github.com/jacobdjwilson/awesome-annual-security-reports/issues/1107",
+              "domain": "github.com",
+              "source": "grounding",
+              "snippet": "Auto-discovered by the Security Report Discovery workflow. ... automateddirect-pdfreport-suggestionSuggest a new annual security reportSuggest a new annual security report",
+              "published_at": "2026-03-31"
+            }
+          ],
+          "warnings": [
+            "Evidence is thin for this topic.",
+            "Top evidence is highly concentrated in one source."
+          ],
+          "errors_by_source": {}
+        },
+        {
+          "kind": "linkedin_company_and_founders",
+          "query": "\"awesome-annual-security-reports\" LinkedIn company founder co-founder CEO CTO",
+          "why": "Find company LinkedIn and founder/team sources.",
+          "error": "",
+          "items_seen": 4,
+          "top_items": [
+            {
+              "title": "[tl;dr sec] #305 - AI SAST, Awesome Annual Security Reports, Block Risky Dependencies",
+              "url": "https://tldrsec.com/p/tldr-sec-305",
+              "domain": "tldrsec.com",
+              "source": "grounding",
+              "snippet": "jacobdjwilson/awesome-annual-security-reports HUGE collection of annual cyber security reports by <strong>Jacob Wilson</strong> from various vendors, categorized by Analysis or Survey, across: Industry Trends, Threat Intelligence, Application Security, Cloud ...",
+              "published_at": "2025-11-13"
+            },
+            {
+              "title": "[Report Discovery] GuidePoint 2026 \u2014 Identity Access Management Maturity Report \u00b7 Issue #1103 \u00b7 jacobdjwilson/awesome-annual-security-reports",
+              "url": "https://github.com/jacobdjwilson/awesome-annual-security-reports/issues/1103",
+              "domain": "github.com",
+              "source": "grounding",
+              "snippet": "Jan 18, 2026 ... As we publish our fourth annual report ... <strong>vulnerabilities and weak security controls impacting remote access solutions to establish initial</strong>.",
+              "published_at": "2026-03-31"
+            },
+            {
+              "title": "[Report Discovery] Proofpoint 2026 \u2014 Cyber Insecurity Healthcare \u00b7 Issue #1107 \u00b7 jacobdjwilson/awesome-annual-security-reports",
+              "url": "https://github.com/jacobdjwilson/awesome-annual-security-reports/issues/1107",
+              "domain": "github.com",
+              "source": "grounding",
+              "snippet": "Sep 15, 2025 ... \u2022 <strong>Market Conduct Mental Health Parity Annual Report submission system</strong> ... \u25ab Partnering with BITS and SOTS on Cyber Security initiatives ...",
+              "published_at": "2026-03-31"
+            },
+            {
+              "title": "GitHub - jacobdjwilson/awesome-annual-security-reports: A curated list of annual cyber security reports \u00b7 GitHub",
+              "url": "https://github.com/jacobdjwilson/awesome-annual-security-reports",
+              "domain": "github.com",
+              "source": "grounding",
+              "snippet": "Honeywell - Cyber Threat Report (2025) - Focuses on cybersecurity incidents impacting operational technology environments and the increasing cybersecurity and non-compliance risks faced by companies. Key findings include a 46% increase in ransomware extortion incidents, the emergence of the CL0P ransomware group as a dominant actor, and an increase in attacks targeting agriculture and food production. Huntress - Threat Report (2025) - Analyzes the 2024 cyber threat landscape, focusing on ransomw",
+              "published_at": "2026-05-13"
+            }
+          ],
+          "warnings": [
+            "Evidence is thin for this topic.",
+            "Top evidence is highly concentrated in one source."
+          ],
+          "errors_by_source": {}
+        }
+      ],
+      "evidence_hints": {
+        "official_domain_hits": [],
+        "company_linkedin_candidates": [],
+        "founder_linkedin_candidates": [],
+        "funding_metadata_candidates": [],
+        "careers_or_headcount_candidates": []
+      },
+      "unresolved_gaps": [
+        "company_linkedin_still_missing",
+        "founder_team_source_still_missing",
+        "stage_or_funding_source_still_missing",
+        "headcount_source_still_missing",
+        "official_domain_still_missing",
+        "pricing_docs_or_careers_still_missing"
+      ],
+      "manual_policy": "Public web-search assist only; do not scrape gated LinkedIn/Crunchbase pages."
     }
   ],
-  "run_dir": "docs/radar-runs/current-deep-dive-validation-2026-05-31-r5"
+  "run_dir": "docs/radar-runs/current-deep-dive-validation-2026-05-31-r6"
 }

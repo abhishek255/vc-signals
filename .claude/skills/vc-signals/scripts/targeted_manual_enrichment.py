@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import time
 from datetime import datetime, timezone
 from pathlib import Path
 from urllib.parse import urlparse
@@ -189,6 +190,7 @@ def enrich_targets(
     limit: int = 3,
     queries_per_target: int = 2,
     timeout_seconds: int = 45,
+    max_runtime_seconds: int | None = None,
     query_runner=run_query,
 ) -> dict:
     selected = targets[:limit]
@@ -196,11 +198,19 @@ def enrich_targets(
     total_queries = 0
     total_items = 0
     total_errors = 0
+    stopped_early = False
+    started_at = time.monotonic()
 
     for target in selected:
+        if max_runtime_seconds is not None and time.monotonic() - started_at >= max_runtime_seconds:
+            stopped_early = True
+            break
         query_rows = []
         collected_items = []
         for query in build_target_queries(target, queries_per_target=queries_per_target):
+            if max_runtime_seconds is not None and time.monotonic() - started_at >= max_runtime_seconds:
+                stopped_early = True
+                break
             total_queries += 1
             payload = query_runner(
                 query["query"],
@@ -253,6 +263,8 @@ def enrich_targets(
             "errors": total_errors,
             "queries_per_target": queries_per_target,
             "limit": limit,
+            "max_runtime_seconds": max_runtime_seconds,
+            "stopped_early": stopped_early,
         },
         "items": rows,
     }
@@ -264,6 +276,7 @@ def main() -> None:
     parser.add_argument("--limit", type=int, default=3)
     parser.add_argument("--queries-per-target", type=int, default=2)
     parser.add_argument("--timeout-seconds", type=int, default=45)
+    parser.add_argument("--max-runtime-seconds", type=int, default=None)
     parser.add_argument("--output-name", default=DEFAULT_OUTPUT_NAME)
     parser.add_argument("--target-source", choices=("manual_or_gap_queue", "evidence_gap_queue"), default="manual_or_gap_queue")
     args = parser.parse_args()
@@ -275,6 +288,7 @@ def main() -> None:
         limit=args.limit,
         queries_per_target=args.queries_per_target,
         timeout_seconds=args.timeout_seconds,
+        max_runtime_seconds=args.max_runtime_seconds,
     )
     report["run_dir"] = str(run_dir)
     output_path = run_dir / args.output_name

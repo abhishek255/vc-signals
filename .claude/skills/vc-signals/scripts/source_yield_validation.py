@@ -845,6 +845,7 @@ def build_source_yield_validation_report(
     company_discovery = _read_json(run_path / "company-discovery.json", {})
     manual_targets = _read_json(run_path / "manual-enrichment-targets.json", {})
     targeted_manual_enrichment = _read_json(run_path / "targeted-manual-enrichment.json", {})
+    structured_provider_trial = _read_json(run_path / "structured-provider-trial.json", {})
 
     candidate_rows = candidates if isinstance(candidates, list) else []
     raw_source_rows = _raw_source_launch_rows(raw_evidence if isinstance(raw_evidence, dict) else {})
@@ -978,6 +979,9 @@ def build_source_yield_validation_report(
         "manual_enrichment_summary": manual_targets.get("summary", {}) if isinstance(manual_targets, dict) else {},
         "targeted_manual_enrichment_summary": (
             targeted_manual_enrichment.get("summary", {}) if isinstance(targeted_manual_enrichment, dict) else {}
+        ),
+        "structured_provider_trial_summary": (
+            structured_provider_trial.get("summary", {}) if isinstance(structured_provider_trial, dict) else {}
         ),
         "company_discovery_summary": company_discovery.get("summary", {}) if isinstance(company_discovery, dict) else {},
         "ledger_partner_packet_warning": ledger_warning,
@@ -1287,6 +1291,16 @@ def render_source_yield_markdown(report: dict) -> str:
         lines.append(f"- Best unlock: {provider_decision['best_unlock']}")
     for reason in provider_decision.get("reasons", []):
         lines.append(f"- Reason: {reason}")
+    provider_trial = report.get("structured_provider_trial_summary", {})
+    if provider_trial:
+        lines.append(
+            "- Trial: targets={targets}, hints={hints}, direct_access={direct}, manual_mode={manual}".format(
+                targets=provider_trial.get("targets_enriched", 0),
+                hints=provider_trial.get("targets_with_structured_hints", 0),
+                direct=", ".join(provider_trial.get("direct_provider_access", [])) or "none",
+                manual=", ".join(provider_trial.get("manual_mode_providers", [])) or "none",
+            )
+        )
     lines.extend(["", "## Source Health", ""])
     for item in report["source_health"]:
         lines.append(

@@ -107,6 +107,37 @@ def test_run_x_launches_resolves_missing_domain_via_web():
     assert "official_domain_identity_not_confirmed" not in result["launches"][0]["missing_evidence"]
 
 
+def test_run_x_launches_resolves_official_url_embedded_in_x_snippet_without_web_fallback():
+    from x_launches import run_x_launches
+
+    def forbidden_resolver(*_args, **_kwargs):
+        raise AssertionError("embedded official URLs should resolve before web fallback")
+
+    result = run_x_launches(
+        movements=[{"movement": "Devtools product launch", "market_sector": "Devtools"}],
+        env={"XAI_API_KEY": "xai-key"},
+        query_runner=lambda **_kwargs: {
+            "items": [
+                {
+                    "source": "x",
+                    "title": "Just launched Xell, an open-source SSH workspace",
+                    "url": "https://x.com/founder/status/1",
+                    "company_name": "Xell",
+                    "author": "Ildy Silva",
+                    "snippet": "Just launched Xell for developers. Try it at https://xell.pro #OpenSource #DevTools",
+                }
+            ]
+        },
+        domain_resolver=forbidden_resolver,
+        limit=5,
+    )
+
+    assert result["launches"][0]["website"] == "https://xell.pro"
+    assert result["launches"][0]["domain"] == "xell.pro"
+    assert result["launches"][0]["domain_resolution_source"] == "embedded_launch_text_url"
+    assert "official_domain_identity_not_confirmed" not in result["launches"][0]["missing_evidence"]
+
+
 def test_run_x_launches_drops_generic_company_names_without_domains():
     from x_launches import run_x_launches
 

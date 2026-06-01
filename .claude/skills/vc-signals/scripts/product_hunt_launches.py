@@ -231,6 +231,20 @@ def _candidate_url_from_item(item: dict) -> str:
     return urls[0] if urls else ""
 
 
+def _urls_from_text(value: str) -> list[str]:
+    urls = []
+    for match in re.findall(r"https?://[^\s<>)\\\"']+", value or ""):
+        urls.append(match.rstrip(".,;:!?]})"))
+    return urls
+
+
+def _text_extracted_urls_from_item(item: dict) -> list[str]:
+    urls = []
+    for key in ("title", "snippet", "description", "body", "text", "container"):
+        urls.extend(_urls_from_text(str(item.get(key) or "")))
+    return list(dict.fromkeys(urls))
+
+
 def _candidate_urls_from_item(item: dict) -> list[str]:
     urls = []
     for key in ("website", "homepage", "resolved_url", "outbound_url", "url"):
@@ -244,6 +258,7 @@ def _candidate_urls_from_item(item: dict) -> list[str]:
             value = str(link or "").strip()
         if value:
             urls.append(value)
+    urls.extend(_text_extracted_urls_from_item(item))
     return list(dict.fromkeys(urls))
 
 
@@ -281,6 +296,8 @@ def _verify_domain_candidate(launch: dict, item: dict) -> tuple[bool, list[str]]
         reasons.append("search_result_mentions_product_name")
     if len(tagline_hits) >= 2:
         reasons.append("search_result_matches_tagline")
+    if url in _text_extracted_urls_from_item(item):
+        reasons.append("url_extracted_from_text")
     return domain_name_match and text_match, reasons
 
 

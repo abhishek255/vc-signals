@@ -1,14 +1,14 @@
 {
-  "generated_at": "2026-05-31T23:46:17.915290+00:00",
+  "generated_at": "2026-06-01T02:17:14.928542+00:00",
   "report_type": "source_yield_strict_action_report",
-  "source_run_dir": "docs/radar-runs/current-deep-dive-validation-2026-05-31-r5",
+  "source_run_dir": "docs/radar-runs/current-deep-dive-validation-2026-05-31-r6",
   "summary": {
     "goal_reached": false,
     "assign_owner_entities": 1,
-    "review_worthy_company_entities": 4,
+    "review_worthy_company_entities": 3,
     "review_worthy_market_signal_entities": 5,
     "evidence_gap_entities": 12,
-    "review_worthy_research_entities": 4,
+    "review_worthy_research_entities": 3,
     "unsafe_promotions": 0
   },
   "actions": [
@@ -21,12 +21,11 @@
     },
     {
       "action": "Review worthy - research deeper",
-      "count": 4,
+      "count": 3,
       "names": [
         "Superunit",
         "Goldbridge",
-        "Comfy Deploy",
-        "Hamming AI"
+        "Comfy Deploy"
       ]
     },
     {
@@ -50,12 +49,12 @@
         "boostsecurityio/smokedmeat",
         "redwoodjs/agent-ci",
         "peakoss/anti-slop",
-        "jacobdjwilson/awesome-annual-security-reports",
         "leiting-eric/DailyBrief",
         "spaceraccoon/vulnerability-spoiler-alert-action",
         "rohitg00/awesome-claude-code-toolkit",
-        "Arize",
-        "Clipto"
+        "jacobdjwilson/awesome-annual-security-reports",
+        "FinBot",
+        "Arize"
       ]
     }
   ],

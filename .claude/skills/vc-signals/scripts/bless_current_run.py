@@ -22,6 +22,7 @@ OPTIONAL_ARTIFACTS = [
     "source-yield-repeatability-report.json",
     "source-yield-repeatability-report.md",
     "targeted-manual-enrichment.json",
+    "structured-provider-trial.json",
 ]
 
 
@@ -36,6 +37,7 @@ def build_current_run_manifest(
     source_yield_repeatability_report: Path | str | None = None,
     source_yield_repeatability_markdown: Path | str | None = None,
     targeted_manual_enrichment_report: Path | str | None = None,
+    structured_provider_trial_report: Path | str | None = None,
     generated_at: str | None = None,
 ) -> dict:
     inputs = {
@@ -58,6 +60,9 @@ def build_current_run_manifest(
     if targeted_manual_enrichment_report:
         inputs["targeted_manual_enrichment_report"] = str(targeted_manual_enrichment_report)
         decision_artifacts.append("targeted-manual-enrichment.json")
+    if structured_provider_trial_report:
+        inputs["structured_provider_trial_report"] = str(structured_provider_trial_report)
+        decision_artifacts.append("structured-provider-trial.json")
     return {
         "generated_at": generated_at or datetime.now(timezone.utc).isoformat(),
         "source_run_dir": str(source_run_dir),
@@ -135,6 +140,8 @@ def _readme_text(manifest: dict, partner_packet: dict, ledger_report: dict) -> s
         lines.append("- `source-yield-repeatability-report.md`")
     if "targeted-manual-enrichment.json" in manifest.get("decision_artifacts", []):
         lines.append("- `targeted-manual-enrichment.json`")
+    if "structured-provider-trial.json" in manifest.get("decision_artifacts", []):
+        lines.append("- `structured-provider-trial.json`")
     lines.extend(
         [
             "",
@@ -156,6 +163,7 @@ def write_blessed_current_run(
     source_yield_repeatability_report: Path | str | None = None,
     source_yield_repeatability_markdown: Path | str | None = None,
     targeted_manual_enrichment_report: Path | str | None = None,
+    structured_provider_trial_report: Path | str | None = None,
     prune_current: bool = False,
 ) -> dict:
     source_run = Path(source_run_dir)
@@ -167,6 +175,7 @@ def write_blessed_current_run(
     repeatability_src = Path(source_yield_repeatability_report) if source_yield_repeatability_report else None
     repeatability_md_src = Path(source_yield_repeatability_markdown) if source_yield_repeatability_markdown else None
     targeted_manual_src = Path(targeted_manual_enrichment_report) if targeted_manual_enrichment_report else None
+    structured_provider_src = Path(structured_provider_trial_report) if structured_provider_trial_report else None
     if source_run.resolve() == current.resolve():
         raise ValueError("source_run_dir and current_dir must be different paths")
     current.mkdir(parents=True, exist_ok=True)
@@ -178,6 +187,7 @@ def write_blessed_current_run(
     repeatability_dst = current / "source-yield-repeatability-report.json"
     repeatability_md_dst = current / "source-yield-repeatability-report.md"
     targeted_manual_dst = current / "targeted-manual-enrichment.json"
+    structured_provider_dst = current / "structured-provider-trial.json"
     manifest_path = current / "run-manifest.json"
     manifest = build_current_run_manifest(
         source_run_dir=source_run,
@@ -189,6 +199,7 @@ def write_blessed_current_run(
         source_yield_repeatability_report=repeatability_src,
         source_yield_repeatability_markdown=repeatability_md_src,
         targeted_manual_enrichment_report=targeted_manual_src,
+        structured_provider_trial_report=structured_provider_src,
     )
     if prune_current:
         keep_names = set(REQUIRED_ARTIFACTS + OPTIONAL_ARTIFACTS)
@@ -220,6 +231,10 @@ def write_blessed_current_run(
         _copy_json(targeted_manual_src, targeted_manual_dst, {"summary": {"source_missing": str(targeted_manual_src)}})
     elif targeted_manual_dst.exists():
         targeted_manual_dst.unlink()
+    if structured_provider_src:
+        _copy_json(structured_provider_src, structured_provider_dst, {"summary": {"source_missing": str(structured_provider_src)}})
+    elif structured_provider_dst.exists():
+        structured_provider_dst.unlink()
     manifest_path.write_text(json.dumps(manifest, indent=2))
     (current / "README.md").write_text(_readme_text(manifest, _read_json(partner_dst), _read_json(ledger_dst)))
     return {
@@ -258,6 +273,7 @@ def main() -> None:
         source_yield_repeatability_report=Path(args["source_yield_repeatability_report"]) if args.get("source_yield_repeatability_report") else None,
         source_yield_repeatability_markdown=Path(args["source_yield_repeatability_markdown"]) if args.get("source_yield_repeatability_markdown") else None,
         targeted_manual_enrichment_report=Path(args["targeted_manual_enrichment_report"]) if args.get("targeted_manual_enrichment_report") else None,
+        structured_provider_trial_report=Path(args["structured_provider_trial_report"]) if args.get("structured_provider_trial_report") else None,
         prune_current=bool(args.get("prune_current")),
     )
     print(json.dumps(result, indent=2))
