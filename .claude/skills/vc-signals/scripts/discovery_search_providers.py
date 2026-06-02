@@ -4,14 +4,19 @@ import hashlib
 import json
 import os
 import time
+from base64 import b64encode
 from pathlib import Path
 from urllib.parse import urlencode
 from urllib.request import Request, urlopen
+
+from paid_search_guardrails import current_paid_search_guard, provider_cost_usd
 
 
 PROVIDER_ENV_KEYS = {
     "brave": ("BRAVE_API_KEY",),
     "exa": ("EXA_API_KEY",),
+    "serper": ("SERPER_API_KEY",),
+    "dataforseo": ("DATAFORSEO_LOGIN", "DATAFORSEO_PASSWORD"),
     "you": ("YOU_API_KEY", "YDC_API_KEY"),
     "perplexity_search": ("PERPLEXITY_API_KEY",),
 }
@@ -86,6 +91,9 @@ def run_provider_query(
             cached["cache_status"] = "hit"
             cached["skipped"] = False
             cached["skip_reason"] = ""
+            guard = current_paid_search_guard()
+            if guard:
+                guard.record_cache_hit(provider=provider, query=topic, module="discovery_search_providers")
             return cached
         except json.JSONDecodeError:
             pass
@@ -105,6 +113,30 @@ def run_provider_query(
             "capabilities": _provider_capabilities(provider, {}),
         }
 
+    guard = current_paid_search_guard()
+    reservation = None
+    if guard:
+        reservation = guard.reserve(
+            provider=provider,
+            query=topic,
+            module="discovery_search_providers",
+            estimated_cost_usd=provider_cost_usd(provider),
+        )
+        if not reservation.get("allowed"):
+            guard.record(reservation, cache_status="skip", result_count=0)
+            return {
+                "provider": provider,
+                "query_id": query.get("query_id") or query.get("id") or "",
+                "query": topic,
+                "items": [],
+                "skipped": True,
+                "skip_reason": reservation.get("skip_reason") or "paid_search_skipped",
+                "cache_status": "skip",
+                "latency_ms": 0,
+                "cost_usd": 0.0,
+                "capabilities": _provider_capabilities(provider, {}),
+            }
+
     started = time.monotonic()
     raw_items = []
     cost_usd = 0.0
@@ -121,6 +153,12 @@ def run_provider_query(
             "livecrawl_available": True,
             "cost_estimated": True,
         }
+    elif provider == "serper":
+        raw_items = _run_serper(topic, api_key, max_results, timeout_seconds, http_post)
+        cost_usd = provider_cost_usd(provider)
+    elif provider == "dataforseo":
+        raw_items = _run_dataforseo(topic, max_results, timeout_seconds, http_post, env=env)
+        cost_usd = provider_cost_usd(provider)
     elif provider == "you":
         raw_items = _run_you(topic, api_key, max_results, timeout_seconds, http_get)
     elif provider == "perplexity_search":
@@ -152,6 +190,11 @@ def run_provider_query(
     result["query_family"] = query.get("query_family", "")
     result["movement"] = query.get("movement", "")
     result["market_sector"] = query.get("market_sector", "")
+    if result["cost_usd"] == 0.0:
+        result["cost_usd"] = provider_cost_usd(provider)
+
+    if guard and reservation:
+        guard.record(reservation, cache_status="miss", result_count=len(result.get("items") or []))
 
     if cache_path:
         cache_path.parent.mkdir(parents=True, exist_ok=True)
@@ -183,6 +226,45 @@ def _run_exa(topic: str, api_key: str, max_results: int, timeout_seconds: int, h
         timeout_seconds=timeout_seconds,
         http_post=http_post,
     )
+
+
+def _run_serper(topic: str, api_key: str, max_results: int, timeout_seconds: int, http_post) -> list[dict]:
+    payload = _http_post_json(
+        "https://google.serper.dev/search",
+        headers={"X-API-KEY": api_key, "Content-Type": "application/json"},
+        payload={"q": topic, "num": max_results},
+        timeout_seconds=timeout_seconds,
+        http_post=http_post,
+    )
+    return payload.get("organic") or payload.get("results") or []
+
+
+def _run_dataforseo(topic: str, max_results: int, timeout_seconds: int, http_post, *, env: dict | None = None) -> list[dict]:
+    lookup = env or os.environ
+    login = lookup.get("DATAFORSEO_LOGIN", "")
+    password = lookup.get("DATAFORSEO_PASSWORD", "")
+    token = b64encode(f"{login}:{password}".encode("utf-8")).decode("ascii")
+    payload = _http_post_json(
+        "https://api.dataforseo.com/v3/serp/google/organic/live/regular",
+        headers={"Authorization": f"Basic {token}", "Content-Type": "application/json"},
+        payload=[
+            {
+                "keyword": topic,
+                "location_code": int(lookup.get("DATAFORSEO_LOCATION_CODE") or "2840"),
+                "language_code": lookup.get("DATAFORSEO_LANGUAGE_CODE") or "en",
+                "depth": max_results,
+            }
+        ],
+        timeout_seconds=timeout_seconds,
+        http_post=http_post,
+    )
+    items = []
+    for task in payload.get("tasks") or []:
+        for result in task.get("result") or []:
+            for item in result.get("items") or []:
+                if item.get("type") in ("organic", "featured_snippet", ""):
+                    items.append(item)
+    return items
 
 
 def _run_you(topic: str, api_key: str, max_results: int, timeout_seconds: int, http_get) -> list[dict]:
@@ -233,6 +315,10 @@ def _http_post_json(url: str, *, headers: dict, payload: dict, timeout_seconds: 
 
 def _provider_api_key(provider: str, env: dict | None = None) -> str:
     lookup = env or os.environ
+    if provider == "dataforseo":
+        login = lookup.get("DATAFORSEO_LOGIN")
+        password = lookup.get("DATAFORSEO_PASSWORD")
+        return f"{login}:{password}" if login and password else ""
     for key in PROVIDER_ENV_KEYS.get(provider, ()):
         value = lookup.get(key)
         if value:

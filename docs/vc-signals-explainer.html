@@ -131,7 +131,7 @@
     <h2>How the weekly radar works</h2>
     <p class="desc">The important idea: launch chatter is a starting signal, not the answer. The system has to resolve the official domain, inspect the company surface, separate companies from market signals, and explain every gap.</p>
     <div class="flow">
-      <div class="node"><strong>1. Source collection</strong><span>Pull signal from Product Hunt, X, Hacker News, GitHub, YC, Exa/Brave web search, and manual-mode company metadata checks.</span></div>
+      <div class="node"><strong>1. Source collection</strong><span>Pull signal from Product Hunt, X, Hacker News, GitHub, YC, Exa/Serper/guarded Brave web search, and manual-mode company metadata checks.</span></div>
       <div class="arrow">↓</div>
       <div class="split">
         <div class="node" style="border-left-color:var(--green)"><strong>2A. Company candidates</strong><span>Launches, websites, pricing, docs, customers, careers, founder pages, YC/company rows, and official domains.</span></div>
@@ -173,7 +173,7 @@
       </div>
       <div class="card">
         <h3 class="red">Source Health and Caveats</h3>
-        <p>Shows which providers worked, degraded, timed out, or returned thin evidence, so a weak run is explainable.</p>
+        <p>Shows which providers worked, degraded, timed out, returned thin evidence, or consumed paid-search budget, so a weak or expensive run is explainable.</p>
       </div>
     </div>
   </section>
@@ -246,6 +246,7 @@
       <tr><td>ledger-action-report.json</td><td>Promotion audit; unsafe owner promotions must remain zero.</td></tr>
       <tr><td>targeted-manual-enrichment.json</td><td>Focused checks for the top evidence gaps.</td></tr>
       <tr><td>structured-provider-trial.json</td><td>Manual-mode Coresignal/Crunchbase/LinkedIn-style metadata hints when direct keys are absent.</td></tr>
+      <tr><td>runtime-ledger.json</td><td>Run budget, source health, source access, and paid-search spend summary.</td></tr>
       <tr><td>review-worthy-sanity-check.md</td><td>Human click-check of the 8 Review-Worthy companies before partner review.</td></tr>
       <tr><td>run-manifest.json</td><td>The pointer to the one blessed source run.</td></tr>
     </table>

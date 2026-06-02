@@ -2789,6 +2789,7 @@ def test_run_weekly_artifacts_writes_runtime_ledger_and_coverage_report(tmp_path
             max_maturity_queries=0,
             max_article_fetches=0,
         ),
+        discovery_cache_dir=tmp_path / "provider-cache",
     )
 
     ledger = json.loads((tmp_path / "runtime-ledger.json").read_text())
@@ -2798,6 +2799,9 @@ def test_run_weekly_artifacts_writes_runtime_ledger_and_coverage_report(tmp_path
     assert result["runtime_ledger"].endswith("runtime-ledger.json")
     assert result["coverage_report"].endswith("coverage-report.json")
     assert ledger["completed_queries"] == 1
+    assert ledger["paid_search"]["enabled"] is True
+    assert ledger["paid_search"]["mode"] == "weekly"
+    assert ledger["paid_search"]["estimated_spend_usd"] >= 0
     assert discovery["summary"]["partial"] is True
     assert coverage["recommended_deep_dive"]
 
@@ -3649,6 +3653,9 @@ def test_run_weekly_artifacts_applies_hard_evidence_to_product_hunt_rows(tmp_pat
     import json
     import radar_run
 
+    shared_cache = tmp_path / "shared-provider-cache"
+    seen_cache_dirs = []
+    monkeypatch.setenv("VC_SIGNALS_PROVIDER_CACHE_DIR", str(shared_cache))
     monkeypatch.setenv("VC_SIGNALS_HARD_EVIDENCE_ENABLE_LIVE", "1")
     monkeypatch.setattr(
         radar_run,
@@ -3697,6 +3704,7 @@ def test_run_weekly_artifacts_applies_hard_evidence_to_product_hunt_rows(tmp_pat
     )
 
     def fake_hard_evidence(rows, **kwargs):
+        seen_cache_dirs.append(kwargs["cache_dir"])
         enriched = []
         for row in rows:
             item = dict(row)
@@ -3735,6 +3743,7 @@ def test_run_weekly_artifacts_applies_hard_evidence_to_product_hunt_rows(tmp_pat
     assert raw_evidence["product_hunt"][0]["domain"] == "clipto.ai"
     report = json.loads((tmp_path / "hard-evidence-dossiers.json").read_text())
     assert report["summary"]["official_domains_resolved"] == 1
+    assert seen_cache_dirs[0] == shared_cache / "hard-evidence" / "product_hunt"
 
 
 def test_run_weekly_artifacts_does_not_promote_vibe_discovery_result(tmp_path, monkeypatch):
@@ -4089,6 +4098,49 @@ def test_cli_weekly_runs_collect_and_preview(tmp_path, monkeypatch, capsys):
     assert result["preview"] == str(tmp_path / "preview.md")
     assert seen["max_queries_per_sector"] == 3
     assert seen["query_timeout_seconds"] is None
+
+
+def test_cli_weekly_paid_search_dry_run_skips_live_collection(tmp_path, monkeypatch, capsys):
+    import radar_run
+
+    def should_not_collect(**_kwargs):
+        raise AssertionError("paid-search dry run should not collect live evidence")
+
+    monkeypatch.setattr(radar_run, "run_weekly_artifacts", should_not_collect)
+    monkeypatch.setattr(
+        "sys.argv",
+        [
+            "radar_run.py",
+            "weekly",
+            "--output-dir",
+            str(tmp_path),
+            "--sectors",
+            "devtools,ai-infra",
+            "--max-queries-per-sector",
+            "12",
+            "--product-hunt-limit",
+            "20",
+            "--x-launch-limit",
+            "10",
+            "--max-company-discovery-queries",
+            "30",
+            "--signal-investigation-limit",
+            "12",
+            "--discovery-budget-mode",
+            "deep_dive",
+            "--paid-search-dry-run",
+        ],
+    )
+
+    radar_run._cli_main()
+
+    payload = json.loads(capsys.readouterr().out)
+    preview = payload["paid_search_preview"]
+    assert payload["dry_run"] is True
+    assert preview["mode"] == "deep_dive"
+    assert preview["estimated_cost_usd"] > 0
+    assert preview["cache_dir"]
+    assert preview["ledger_path"]
 
 
 def test_cli_weekly_first_pass_uses_fast_trial_defaults(tmp_path, monkeypatch):

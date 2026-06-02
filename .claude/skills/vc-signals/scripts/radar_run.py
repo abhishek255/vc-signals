@@ -92,6 +92,13 @@ from founder_team_verification import enrich_founder_team_verification, write_fo
 from owner_evidence import enrich_owner_evidence, write_owner_evidence_json
 from owner_readiness import enrich_owner_readiness, write_owner_readiness_json
 from weak_source_identity_enrichment import enrich_weak_source_identity, write_weak_source_identity_enrichment_json
+from paid_search_guardrails import (
+    build_weekly_paid_search_preview,
+    configure_paid_search_guard,
+    paid_search_summary,
+    provider_cache_dir,
+    reset_paid_search_guard,
+)
 try:
     from signal_investigator import investigate_candidates, investigate_source_rows
 except ImportError:  # pragma: no cover - only for damaged installs
@@ -2506,9 +2513,15 @@ def run_weekly_artifacts(
     update_signal_ledger: bool = False,
     signal_ledger_path: Path | None = None,
     history_data_dir: Path | None = None,
+    paid_search_max_usd: float | None = None,
 ) -> dict:
     """Collect evidence and render a weekly partner preview in one command."""
     output_dir.mkdir(parents=True, exist_ok=True)
+    configure_paid_search_guard(
+        mode=discovery_budget_mode,
+        run_id=output_dir.name,
+        max_usd=paid_search_max_usd,
+    )
     company_discovery_path = output_dir / "company-discovery.json"
     runtime_ledger_path = output_dir / "runtime-ledger.json"
     coverage_report_path = output_dir / "coverage-report.json"
@@ -2551,7 +2564,7 @@ def run_weekly_artifacts(
                 evidence.get("product_hunt") or [],
                 source_lane="Product Hunt",
                 provider=hard_evidence_provider,
-                cache_dir=output_dir / "hard-evidence-provider-cache" / "product_hunt",
+                cache_dir=provider_cache_dir("hard-evidence/product_hunt"),
                 max_rows=hard_evidence_limit,
                 max_queries_per_row=2,
                 timeout_seconds=int(_cap_timeout(query_timeout_seconds, 12)),
@@ -2562,7 +2575,7 @@ def run_weekly_artifacts(
                 evidence.get("x_launches") or [],
                 source_lane="X",
                 provider=hard_evidence_provider,
-                cache_dir=output_dir / "hard-evidence-provider-cache" / "x",
+                cache_dir=provider_cache_dir("hard-evidence/x"),
                 max_rows=hard_evidence_limit,
                 max_queries_per_row=2,
                 timeout_seconds=int(_cap_timeout(query_timeout_seconds, 12)),
@@ -2596,7 +2609,7 @@ def run_weekly_artifacts(
         max_queries_per_theme=3,
         run_budget=resolved_discovery_budget,
         partial_output_path=company_discovery_path,
-        query_cache_dir=discovery_cache_dir or output_dir / "provider-query-cache",
+        query_cache_dir=discovery_cache_dir or provider_cache_dir("company-discovery"),
         trial_config=discovery_yield_trial_config,
         exclude_yc=exclude_yc,
     )
@@ -2760,6 +2773,7 @@ def run_weekly_artifacts(
     runtime_ledger = dict(company_discovery.get("runtime_ledger", {}))
     runtime_ledger["source_health"] = list(evidence.get("source_health", []))
     runtime_ledger["source_access"] = source_access_report
+    runtime_ledger["paid_search"] = paid_search_summary()
     runtime_ledger_path.write_text(json.dumps(runtime_ledger, indent=2))
     coverage_report_path.write_text(json.dumps(company_discovery.get("coverage_report", {}), indent=2))
     signal_investigation_path.write_text(json.dumps(signal_investigation_report, indent=2))
@@ -2888,6 +2902,7 @@ def run_weekly_artifacts(
         result["company_signal_ledger"] = ledger_update["ledger"]
         result["company_signal_ledger_entities"] = ledger_update["entities"]
         result["company_signal_ledger_sightings"] = ledger_update["sightings"]
+    reset_paid_search_guard()
     return result
 
 
@@ -2926,6 +2941,13 @@ def _get_int_arg(args: dict, *names: str, default: int | None = None) -> int | N
     for name in names:
         if name in args:
             return int(args[name])
+    return default
+
+
+def _get_float_arg(args: dict, *names: str, default: float | None = None) -> float | None:
+    for name in names:
+        if name in args:
+            return float(args[name])
     return default
 
 
@@ -3253,18 +3275,45 @@ def _cli_main() -> None:
     if command == "weekly":
         output_dir = Path(args.get("output_dir", DEFAULT_OUTPUT_DIR))
         first_pass = _get_bool_arg(args, "first_pass", "firstPass")
+        sectors = parse_sectors_arg(args.get("sectors"))
+        max_queries_per_sector = _get_int_arg(
+            args,
+            "max_queries_per_sector",
+            default=1 if first_pass else 3,
+        )
+        product_hunt_limit = int(args.get("product_hunt_limit", args.get("producthunt_limit", 0)))
+        x_launch_limit = int(args.get("x_launch_limit", args.get("x_limit", 0)))
+        discovery_budget = _discovery_budget_from_args(args, first_pass=first_pass)
+        discovery_budget_mode = args.get("discovery_budget_mode") or args.get("budget_mode") or ("smoke" if first_pass else "weekly")
+        signal_investigation_limit = _get_int_arg(
+            args,
+            "signal_investigation_limit",
+            "signal_investigator_limit",
+            default=None,
+        )
+        if _get_bool_arg(args, "paid_search_dry_run", "dry_run_cost"):
+            preview = build_weekly_paid_search_preview(
+                run_mode=discovery_budget_mode,
+                sectors=sectors,
+                max_queries_per_sector=max_queries_per_sector or 0,
+                product_hunt_limit=product_hunt_limit,
+                x_launch_limit=x_launch_limit,
+                company_discovery_queries=int(discovery_budget.max_company_discovery_queries or 0),
+                signal_investigation_limit=int(signal_investigation_limit or 0),
+                hard_evidence_live=(os.environ.get("VC_SIGNALS_HARD_EVIDENCE_ENABLE_LIVE") or "").strip().lower()
+                in {"1", "true", "yes"},
+                max_usd=_get_float_arg(args, "paid_search_max_usd", "paid_search_budget_usd", default=None),
+            )
+            print(json.dumps({"dry_run": True, "paid_search_preview": preview}))
+            return
         result = run_weekly_artifacts(
             output_dir=output_dir,
-            sectors=parse_sectors_arg(args.get("sectors")),
+            sectors=sectors,
             github_limit=int(args.get("github_limit", 40)),
-            product_hunt_limit=int(args.get("product_hunt_limit", args.get("producthunt_limit", 0))),
+            product_hunt_limit=product_hunt_limit,
             yc_directory_limit=int(args.get("yc_directory_limit", args.get("yc_limit", 0))),
-            x_launch_limit=int(args.get("x_launch_limit", args.get("x_limit", 0))),
-            max_queries_per_sector=_get_int_arg(
-                args,
-                "max_queries_per_sector",
-                default=1 if first_pass else 3,
-            ),
+            x_launch_limit=x_launch_limit,
+            max_queries_per_sector=max_queries_per_sector,
             candidate_limit=int(args.get("limit", 15)),
             with_synthesis=bool(args.get("with_synthesis", False)),
             query_timeout_seconds=_get_int_arg(
@@ -3301,17 +3350,13 @@ def _cli_main() -> None:
                 default=45,
             ),
             progress=bool(args.get("progress", True)),
-            discovery_budget=_discovery_budget_from_args(args, first_pass=first_pass),
+            discovery_budget=discovery_budget,
+            discovery_budget_mode=discovery_budget_mode,
             discovery_yield_trial_config=_discovery_yield_trial_config_from_args(args),
             hn_launch_trial_config=_hn_launch_trial_config_from_args(args),
             exclude_yc=_get_bool_arg(args, "exclude_yc", "no_yc"),
             hn_launch_trial_only=_get_bool_arg(args, "hn_launch_trial_only", "hn_trial_only"),
-            signal_investigation_limit=_get_int_arg(
-                args,
-                "signal_investigation_limit",
-                "signal_investigator_limit",
-                default=None,
-            ),
+            signal_investigation_limit=signal_investigation_limit,
             weak_source_identity_enrichment_limit=_get_int_arg(
                 args,
                 "weak_source_identity_enrichment_limit",
@@ -3322,6 +3367,7 @@ def _cli_main() -> None:
             update_signal_ledger=_get_bool_arg(args, "update_signal_ledger", "updateSignalLedger"),
             signal_ledger_path=Path(args["signal_ledger_path"]) if "signal_ledger_path" in args else None,
             history_data_dir=Path(args["history_data_dir"]) if "history_data_dir" in args else None,
+            paid_search_max_usd=_get_float_arg(args, "paid_search_max_usd", "paid_search_budget_usd", default=None),
         )
         print(json.dumps(result))
         return

@@ -418,6 +418,126 @@ def test_run_query_passes_new_last30days_flags(tmp_path, monkeypatch):
     assert "--save-dir=/tmp/vc-signals-last30days" in cmd
 
 
+def test_run_query_avoids_implicit_brave_auto_routing(tmp_path, monkeypatch):
+    from last30days_adapter import run_query
+
+    vendor = _make_vendor(tmp_path)
+    monkeypatch.setattr("last30days_adapter._find_python", lambda: "python3")
+    completed = MagicMock(returncode=0, stdout=json.dumps({"items_by_source": {}}), stderr="")
+    calls = []
+
+    def fake_run(cmd, **kwargs):
+        calls.append(cmd)
+        return completed
+
+    monkeypatch.setattr("last30days_adapter._run_last30days_command", fake_run)
+
+    run_query("agent infra", vendor_path=vendor, extra_env={"BRAVE_API_KEY": "brave-test"})
+
+    assert "--web-backend=none" in calls[0]
+
+
+def test_run_query_prefers_explicit_last30days_web_backend(tmp_path, monkeypatch):
+    from last30days_adapter import run_query
+
+    vendor = _make_vendor(tmp_path)
+    monkeypatch.setattr("last30days_adapter._find_python", lambda: "python3")
+    completed = MagicMock(returncode=0, stdout=json.dumps({"items_by_source": {}}), stderr="")
+    calls = []
+
+    def fake_run(cmd, **kwargs):
+        calls.append(cmd)
+        return completed
+
+    monkeypatch.setattr("last30days_adapter._run_last30days_command", fake_run)
+
+    run_query(
+        "agent infra",
+        vendor_path=vendor,
+        extra_env={
+            "BRAVE_API_KEY": "brave-test",
+            "VC_SIGNALS_LAST30DAYS_WEB_BACKEND": "serper",
+        },
+    )
+
+    assert "--web-backend=serper" in calls[0]
+    assert "--web-backend=none" not in calls[0]
+
+
+def test_run_query_prefers_exa_over_implicit_brave_when_available(tmp_path, monkeypatch):
+    from last30days_adapter import run_query
+
+    vendor = _make_vendor(tmp_path)
+    monkeypatch.setattr("last30days_adapter._find_python", lambda: "python3")
+    completed = MagicMock(returncode=0, stdout=json.dumps({"items_by_source": {}}), stderr="")
+    calls = []
+
+    def fake_run(cmd, **kwargs):
+        calls.append(cmd)
+        return completed
+
+    monkeypatch.setattr("last30days_adapter._run_last30days_command", fake_run)
+
+    run_query(
+        "agent infra",
+        vendor_path=vendor,
+        extra_env={"BRAVE_API_KEY": "brave-test", "EXA_API_KEY": "exa-test"},
+    )
+
+    assert "--web-backend=exa" in calls[0]
+
+
+def test_run_query_allows_implicit_brave_only_when_explicitly_enabled(tmp_path, monkeypatch):
+    from last30days_adapter import run_query
+
+    vendor = _make_vendor(tmp_path)
+    monkeypatch.setattr("last30days_adapter._find_python", lambda: "python3")
+    completed = MagicMock(returncode=0, stdout=json.dumps({"items_by_source": {}}), stderr="")
+    calls = []
+
+    def fake_run(cmd, **kwargs):
+        calls.append(cmd)
+        return completed
+
+    monkeypatch.setattr("last30days_adapter._run_last30days_command", fake_run)
+
+    run_query(
+        "agent infra",
+        vendor_path=vendor,
+        extra_env={"BRAVE_API_KEY": "brave-test", "VC_SIGNALS_ALLOW_BRAVE_AUTO": "1"},
+    )
+
+    assert not any(part.startswith("--web-backend=") for part in calls[0])
+
+
+def test_run_query_skips_grounding_when_paid_search_budget_exceeded(tmp_path, monkeypatch):
+    from last30days_adapter import run_query
+    from paid_search_guardrails import configure_paid_search_guard, reset_paid_search_guard
+
+    vendor = _make_vendor(tmp_path)
+    monkeypatch.setattr("last30days_adapter._find_python", lambda: "python3")
+    configure_paid_search_guard(mode="smoke", run_id="last30days-budget-test", max_usd=0.0, ledger_path=tmp_path / "ledger.jsonl")
+
+    def should_not_call(*_args, **_kwargs):
+        raise AssertionError("budget guard should skip last30days subprocess")
+
+    monkeypatch.setattr("last30days_adapter._run_last30days_command", should_not_call)
+
+    try:
+        result = run_query(
+            "agent infra",
+            vendor_path=vendor,
+            sources="grounding",
+            extra_env={"EXA_API_KEY": "exa-test"},
+        )
+    finally:
+        reset_paid_search_guard()
+
+    assert result["error"] == "paid_search_budget_exceeded"
+    assert result["items"] == []
+    assert result["paid_search"]["provider"] == "last30days_grounding"
+
+
 def test_run_query_passes_v33_alignment_flags(tmp_path, monkeypatch):
     from last30days_adapter import run_query
 

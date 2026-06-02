@@ -11,6 +11,8 @@ import sys
 from pathlib import Path
 from urllib.parse import urlparse
 
+from paid_search_guardrails import current_paid_search_guard, provider_cost_usd
+
 
 def _resolve_skill_root(vendor_path: Path) -> Path:
     """Return the runnable last30days skill root for flat or current nested layouts."""
@@ -93,6 +95,53 @@ def _disable_browser_cookie_lookup(env: dict[str, str], detection_env: dict[str,
     env["FROM_BROWSER"] = "off"
     env["LAST30DAYS_DISABLE_BROWSER_COOKIES"] = "1"
     env["BIRD_DISABLE_BROWSER_COOKIES"] = "1"
+
+
+def _has_configured_key(env: dict[str, str], key: str) -> bool:
+    return bool(_configured_value(str(env.get(key, ""))))
+
+
+def _default_web_backend_for_paid_safety(detection_env: dict[str, str]) -> str | None:
+    explicit = str(detection_env.get("VC_SIGNALS_LAST30DAYS_WEB_BACKEND") or "").strip()
+    if explicit:
+        return explicit
+    if _truthy_env(detection_env.get("VC_SIGNALS_ALLOW_BRAVE_AUTO")):
+        return None
+    for key, backend in (
+        ("EXA_API_KEY", "exa"),
+        ("SERPER_API_KEY", "serper"),
+        ("PARALLEL_API_KEY", "parallel"),
+    ):
+        if _has_configured_key(detection_env, key):
+            return backend
+    if _has_configured_key(detection_env, "BRAVE_API_KEY"):
+        return "none"
+    return None
+
+
+def _sources_include_grounding(sources: str | None) -> bool:
+    if not sources:
+        return False
+    source_names = {part.strip().lower() for part in sources.replace(";", ",").split(",") if part.strip()}
+    return bool(source_names & {"grounding", "web", "search", "all"})
+
+
+def _may_use_paid_grounding(
+    *,
+    sources: str | None,
+    auto_resolve: bool,
+    deep_research: bool,
+    web_backend: str | None,
+    detection_env: dict[str, str],
+) -> bool:
+    normalized_backend = str(web_backend or "").strip().lower()
+    if normalized_backend == "none":
+        return False
+    if normalized_backend:
+        return True
+    if _truthy_env(detection_env.get("VC_SIGNALS_ALLOW_BRAVE_AUTO")) and _has_configured_key(detection_env, "BRAVE_API_KEY"):
+        return True
+    return bool(auto_resolve or deep_research or _sources_include_grounding(sources))
 
 
 def _decode_subprocess_stream(value) -> str:
@@ -344,8 +393,6 @@ def run_query(
         cmd.append(f"--ig-creators={ig_creators}")
     if polymarket_keywords:
         cmd.append(f"--polymarket-keywords={polymarket_keywords}")
-    if web_backend:
-        cmd.append(f"--web-backend={web_backend}")
     if save_dir:
         cmd.append(f"--save-dir={save_dir}")
     if save_suffix:
@@ -370,12 +417,38 @@ def run_query(
     if extra_env:
         detection_env.update({key: str(value) for key, value in extra_env.items()})
     _disable_browser_cookie_lookup(env, detection_env)
+    effective_web_backend = web_backend or _default_web_backend_for_paid_safety(detection_env)
+    if effective_web_backend:
+        cmd.append(f"--web-backend={effective_web_backend}")
     if include_sources:
         env["INCLUDE_SOURCES"] = include_sources
     if exclude_sources:
         env["EXCLUDE_SOURCES"] = exclude_sources
     if youtube_ssh_host:
         env["LAST30DAYS_YOUTUBE_SSH_HOST"] = youtube_ssh_host
+
+    paid_search_guard = current_paid_search_guard()
+    paid_search_reservation = None
+    if paid_search_guard and _may_use_paid_grounding(
+        sources=sources,
+        auto_resolve=auto_resolve,
+        deep_research=deep_research,
+        web_backend=effective_web_backend,
+        detection_env=detection_env,
+    ):
+        paid_search_reservation = paid_search_guard.reserve(
+            provider="last30days_grounding",
+            query=topic,
+            module="last30days_adapter",
+            estimated_cost_usd=provider_cost_usd("last30days_grounding"),
+        )
+        if not paid_search_reservation.get("allowed"):
+            paid_search_guard.record(paid_search_reservation, cache_status="skip", result_count=0)
+            return {
+                "error": paid_search_reservation.get("skip_reason") or "paid_search_skipped",
+                "items": [],
+                "paid_search": paid_search_reservation,
+            }
 
     try:
         result = _run_last30days_command(
@@ -394,36 +467,54 @@ def run_query(
             timeout_result["stderr"] = stderr[:4000]
         if stdout:
             timeout_result["raw_output"] = stdout[:2000]
+        if paid_search_guard and paid_search_reservation:
+            timeout_result["paid_search"] = paid_search_guard.record(paid_search_reservation, cache_status="miss", result_count=0)
         return timeout_result
     except FileNotFoundError:
         return {"error": f"Python not found: {python_cmd}", "items": []}
 
     if result.returncode != 0:
-        return {
+        error_result = {
             "error": f"last30days exited with code {result.returncode}",
             "stderr": result.stderr[:500] if result.stderr else "",
             "items": [],
         }
+        if paid_search_guard and paid_search_reservation:
+            error_result["paid_search"] = paid_search_guard.record(paid_search_reservation, cache_status="miss", result_count=0)
+        return error_result
 
     if emit == "json":
         try:
             report = json.loads(result.stdout)
             items = normalize_report_items(report.get("items_by_source", {}))
-            return {
+            parsed_result = {
                 "topic": topic,
                 "items": items,
                 "clusters": report.get("clusters", []),
                 "warnings": report.get("warnings", []),
                 "errors_by_source": report.get("errors_by_source", {}),
             }
+            if paid_search_guard and paid_search_reservation:
+                parsed_result["paid_search"] = paid_search_guard.record(
+                    paid_search_reservation,
+                    cache_status="miss",
+                    result_count=len(items),
+                )
+            return parsed_result
         except json.JSONDecodeError:
-            return {
+            parse_result = {
                 "error": "Failed to parse last30days JSON output",
                 "raw_output": result.stdout[:1000],
                 "items": [],
             }
+            if paid_search_guard and paid_search_reservation:
+                parse_result["paid_search"] = paid_search_guard.record(paid_search_reservation, cache_status="miss", result_count=0)
+            return parse_result
     else:
-        return {"topic": topic, "raw_output": result.stdout, "items": []}
+        text_result = {"topic": topic, "raw_output": result.stdout, "items": []}
+        if paid_search_guard and paid_search_reservation:
+            text_result["paid_search"] = paid_search_guard.record(paid_search_reservation, cache_status="miss", result_count=0)
+        return text_result
 
 
 def _find_python() -> str | None:

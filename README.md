@@ -186,8 +186,10 @@ The setup wizard handles all of this for you. But if you want to know what each 
 | API Key | What it Unlocks | Cost | Required? |
 |---------|----------------|------|-----------|
 | **GitHub PAT** | Trending repos by star velocity | Free | Recommended |
-| **Brave Search** | Broader web search coverage | $5/1K queries ($5 free credit/month) | Optional |
+| **Brave Search** | Broader web search coverage when explicitly allowed | $5/1K queries ($5 free credit/month) | Optional, guarded |
 | **Exa API** | Richer web/content search for Product Hunt, launch pages, and official-domain resolution | Pay-per-use / free trial tiers vary | Recommended for source-yield work |
+| **Serper API** | Lower-cost Google-style search provider for A/B trials | Lower-cost pay-per-use tiers vary | Optional |
+| **DataForSEO** | Bulk SERP provider for provider A/B trials | Pay-per-use tiers vary | Optional |
 | **Product Hunt API token** | Structured launch source: products, makers, topics, launch text, and Product Hunt URLs | Free subject to Product Hunt access/terms | Recommended for launch discovery |
 | **ScrapeCreators** | TikTok, Instagram, YouTube search | ~$29/month | Optional |
 | **Direct LLM API fallback: OpenAI, Gemini, or xAI** | Standalone/non-harness synthesis or investigation fallback. Normal Claude Code/Codex runs use the harness LLM instead. | Pay-per-use / Free tiers vary | Optional, disabled by default |
@@ -196,6 +198,33 @@ The setup wizard handles all of this for you. But if you want to know what each 
 | **Attio token** | CRM match, stale/no-owner status, passed-company flags | Existing workspace | Recommended for Marathon |
 
 **You can skip any key** — the skill works with whatever you have and tells you what you're missing. If Brave/Parallel/Serper/Exa is missing, the weekly radar automatically uses a stricter non-grounded HN/GitHub fallback instead of broad noisy web discovery.
+
+### Paid Search Cost Controls
+
+Paid search is now guarded by default so validation runs do not quietly turn into a large Brave bill.
+
+- Shared provider cache: `~/.cache/vc-signals/provider-search-cache`
+- Spend ledger: `~/.cache/vc-signals/paid-search-ledger.jsonl`
+- Override cache: `VC_SIGNALS_PROVIDER_CACHE_DIR=/path/to/cache`
+- Override ledger: `VC_SIGNALS_PAID_SEARCH_LEDGER_PATH=/path/to/ledger.jsonl`
+- Override weekly cap: `VC_SIGNALS_PAID_SEARCH_MAX_USD=8`
+- Default caps: smoke/dev `$0.50`, manual enrichment `$2`, weekly `$8`, deep validation `$25`
+
+`last30days` no longer implicitly burns Brave just because `BRAVE_API_KEY` exists. It prefers `VC_SIGNALS_LAST30DAYS_WEB_BACKEND`, then Exa, Serper, or Parallel. If only Brave is configured, it passes `--web-backend=none` unless you explicitly set `VC_SIGNALS_ALLOW_BRAVE_AUTO=1`.
+
+Preview the paid-search cost before a weekly run:
+
+```bash
+python3 .claude/skills/vc-signals/scripts/radar_run.py weekly --sectors all --limit 50 --paid-search-dry-run
+```
+
+Compare provider cost/yield safely before switching away from Brave:
+
+```bash
+python3 .claude/skills/vc-signals/scripts/provider_ab_test.py --queries-file queries.json --providers brave,exa,serper,dataforseo
+```
+
+Add `--live --max-usd 1` only when you intentionally want to spend against the configured providers.
 
 ### How to Get Each API Key
 
@@ -315,6 +344,12 @@ python3 .claude/skills/vc-signals/scripts/radar_run.py weekly --sectors all --ou
 
 Use `--first-pass` only when someone is trying the workflow and wants a faster sanity check. Do not judge Marathon output quality from that mode.
 
+Before running an expensive validation, preview paid-search usage:
+
+```bash
+python3 .claude/skills/vc-signals/scripts/radar_run.py weekly --sectors all --output-dir docs/radar-runs/current --limit 50 --paid-search-dry-run
+```
+
 Then open:
 
 ```text
@@ -342,6 +377,8 @@ If the output is thin, that does not necessarily mean the sector is dead. It mea
 | `/vc-signals radar <sector\|all> [time]` | **Weekly company/project radar — up to 50 qualified rows organized by sector, theme, and evidence quality** |
 | `/vc-signals weekly <sector> [time]` | Alias for radar (kept for backward compatibility) |
 | `python3 .claude/skills/vc-signals/scripts/radar_run.py weekly --sectors all --output-dir docs/radar-runs/current --limit 50` | Deterministic local weekly run: saves raw evidence, normalized signals, scored candidates, and a partner preview |
+| `python3 .claude/skills/vc-signals/scripts/radar_run.py weekly --sectors all --limit 50 --paid-search-dry-run` | Cost preview: estimates paid search spend and exits before live collection |
+| `python3 .claude/skills/vc-signals/scripts/provider_ab_test.py --queries-file queries.json --providers brave,exa,serper,dataforseo` | Dry-run provider comparison for search cost/yield experiments |
 | `python3 .claude/skills/vc-signals/scripts/radar_run.py weekly --sectors all --output-dir docs/radar-runs/current --limit 50 --first-pass` | Fast smoke-test run: uses a smaller query budget and bounded per-query wait; useful for trying the flow, not for judging final radar quality |
 | `/vc-signals theme "<topic>" [time]` | Deep-dive into a specific theme |
 | `/vc-signals company "<name>" [time]` | Which rising themes is a company exposed to? |

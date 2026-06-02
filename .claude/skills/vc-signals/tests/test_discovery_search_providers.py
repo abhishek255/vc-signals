@@ -56,6 +56,13 @@ def test_provider_available_accepts_exa_api_key(monkeypatch):
     assert provider_available("exa") is True
 
 
+def test_provider_available_requires_dataforseo_login_and_password():
+    assert provider_available("dataforseo", env={}) is False
+    assert provider_available("dataforseo", env={"DATAFORSEO_LOGIN": "login"}) is False
+    assert provider_available("dataforseo", env={"DATAFORSEO_PASSWORD": "password"}) is False
+    assert provider_available("dataforseo", env={"DATAFORSEO_LOGIN": "login", "DATAFORSEO_PASSWORD": "password"}) is True
+
+
 def test_run_provider_query_records_unavailable_skip(monkeypatch, tmp_path):
     monkeypatch.delenv("BRAVE_API_KEY", raising=False)
 
@@ -233,3 +240,128 @@ def test_perplexity_search_uses_raw_results_only(monkeypatch, tmp_path):
     assert len(result["items"]) == 1
     serialized = json.dumps(result)
     assert "best" not in serialized
+
+
+def test_run_provider_query_skips_live_call_when_paid_search_budget_exceeded(monkeypatch, tmp_path):
+    from paid_search_guardrails import configure_paid_search_guard, reset_paid_search_guard
+
+    monkeypatch.setenv("BRAVE_API_KEY", "brave-key")
+    configure_paid_search_guard(mode="smoke", run_id="budget-test", max_usd=0.0, ledger_path=tmp_path / "ledger.jsonl")
+
+    def should_not_call(*_args, **_kwargs):
+        raise AssertionError("budget guard should skip live provider call")
+
+    try:
+        result = run_provider_query(
+            "brave",
+            {"query_id": "q1", "topic": "AI agent security startup"},
+            cache_dir=tmp_path,
+            http_get=should_not_call,
+        )
+    finally:
+        reset_paid_search_guard()
+
+    assert result["skipped"] is True
+    assert result["skip_reason"] == "paid_search_budget_exceeded"
+    assert result["cost_usd"] == 0.0
+
+
+def test_run_provider_query_cache_hit_does_not_spend_budget(monkeypatch, tmp_path):
+    from paid_search_guardrails import configure_paid_search_guard, reset_paid_search_guard
+
+    monkeypatch.setenv("BRAVE_API_KEY", "brave-key")
+    query = {"query_id": "q1", "topic": "AI agent security startup"}
+
+    def fake_http_get(url, *, headers, params, timeout_seconds):
+        return {"web": {"results": [{"title": "Agent Co", "url": "https://agentco.ai"}]}}
+
+    first = run_provider_query("brave", query, cache_dir=tmp_path, http_get=fake_http_get)
+    assert first["cache_status"] == "miss"
+
+    guard = configure_paid_search_guard(mode="smoke", run_id="cache-test", max_usd=0.0, ledger_path=tmp_path / "ledger.jsonl")
+
+    def should_not_call(*_args, **_kwargs):
+        raise AssertionError("cache hit should avoid live provider call")
+
+    try:
+        second = run_provider_query("brave", query, cache_dir=tmp_path, http_get=should_not_call)
+    finally:
+        reset_paid_search_guard()
+
+    assert second["cache_status"] == "hit"
+    assert guard.summary()["estimated_spend_usd"] == 0.0
+
+
+def test_serper_provider_uses_google_serper_endpoint(monkeypatch, tmp_path):
+    monkeypatch.setenv("SERPER_API_KEY", "serper-key")
+    seen = {}
+
+    def fake_http_post(url, *, headers, payload, timeout_seconds):
+        seen["url"] = url
+        seen["headers"] = headers
+        seen["payload"] = payload
+        return {
+            "organic": [
+                {
+                    "title": "AgentCo",
+                    "link": "https://agentco.ai",
+                    "snippet": "AgentCo builds AI agent security.",
+                }
+            ]
+        }
+
+    result = run_provider_query(
+        "serper",
+        {"query_id": "q1", "topic": "AI agent security startup"},
+        cache_dir=tmp_path,
+        max_results=5,
+        http_post=fake_http_post,
+    )
+
+    assert seen["url"] == "https://google.serper.dev/search"
+    assert seen["headers"]["X-API-KEY"] == "serper-key"
+    assert seen["payload"] == {"q": "AI agent security startup", "num": 5}
+    assert result["items"][0]["url"] == "https://agentco.ai"
+
+
+def test_dataforseo_provider_uses_live_google_organic_endpoint(monkeypatch, tmp_path):
+    monkeypatch.setenv("DATAFORSEO_LOGIN", "login")
+    monkeypatch.setenv("DATAFORSEO_PASSWORD", "password")
+    seen = {}
+
+    def fake_http_post(url, *, headers, payload, timeout_seconds):
+        seen["url"] = url
+        seen["headers"] = headers
+        seen["payload"] = payload
+        return {
+            "tasks": [
+                {
+                    "result": [
+                        {
+                            "items": [
+                                {
+                                    "type": "organic",
+                                    "title": "AgentCo",
+                                    "url": "https://agentco.ai",
+                                    "description": "AgentCo builds AI agent security.",
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
+
+    result = run_provider_query(
+        "dataforseo",
+        {"query_id": "q1", "topic": "AI agent security startup"},
+        cache_dir=tmp_path,
+        max_results=10,
+        http_post=fake_http_post,
+    )
+
+    assert seen["url"] == "https://api.dataforseo.com/v3/serp/google/organic/live/regular"
+    assert seen["headers"]["Authorization"].startswith("Basic ")
+    assert seen["payload"][0]["keyword"] == "AI agent security startup"
+    assert seen["payload"][0]["depth"] == 10
+    assert result["items"][0]["url"] == "https://agentco.ai"
