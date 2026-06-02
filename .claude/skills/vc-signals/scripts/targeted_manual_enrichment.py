@@ -10,21 +10,108 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import time
 from datetime import datetime, timezone
 from pathlib import Path
 from urllib.parse import urlparse
 
-from last30days_adapter import run_query
+from discovery_search_providers import load_provider_env_files, provider_available, run_provider_query
+from last30days_adapter import run_query as run_last30days_query
+from paid_search_guardrails import (
+    configure_paid_search_guard,
+    paid_search_summary,
+    provider_cache_dir,
+    reset_paid_search_guard,
+)
 
 
 DEFAULT_OUTPUT_NAME = "targeted-manual-enrichment.json"
+DEFAULT_PROVIDER_ORDER = ("exa", "brave")
+DEFAULT_MAX_RESULTS = 6
 
 
 def _domain_from_url(url: str) -> str:
     parsed = urlparse(url or "")
     domain = (parsed.netloc or "").lower().strip()
     return domain[4:] if domain.startswith("www.") else domain
+
+
+def _provider_order(value: str | None = None) -> list[str]:
+    raw = value or os.environ.get("VC_SIGNALS_TARGETED_MANUAL_PROVIDER_ORDER") or ",".join(DEFAULT_PROVIDER_ORDER)
+    return [part.strip().lower() for part in raw.split(",") if part.strip()]
+
+
+def run_public_search_query(
+    topic: str,
+    *,
+    sources: str = "web",
+    lookback_days: int = 365,
+    auto_resolve: bool = True,
+    store: bool = True,
+    timeout_seconds: int = 45,
+    provider_order: str | None = None,
+    max_results: int = DEFAULT_MAX_RESULTS,
+) -> dict:
+    """Run targeted public search through guarded direct providers before fallback.
+
+    The return shape intentionally matches last30days_adapter.run_query enough for
+    the enrichment pipeline: items, warnings, errors_by_source, and error.
+    """
+    load_provider_env_files()
+    errors_by_source: dict[str, str] = {}
+    configured_provider_seen = False
+    for provider in _provider_order(provider_order):
+        if not provider_available(provider):
+            errors_by_source[provider] = "missing_api_key"
+            continue
+        configured_provider_seen = True
+        try:
+            payload = run_provider_query(
+                provider,
+                {
+                    "query": topic,
+                    "query_family": "targeted_manual_enrichment",
+                },
+                cache_dir=provider_cache_dir("targeted-manual-enrichment"),
+                max_results=max_results,
+                timeout_seconds=timeout_seconds,
+            )
+        except Exception as exc:
+            errors_by_source[provider] = str(exc)
+            continue
+        if payload.get("skipped"):
+            errors_by_source[provider] = payload.get("skip_reason") or "provider_skipped"
+            continue
+        result = {
+            "items": payload.get("items") or [],
+            "provider": provider,
+            "warnings": payload.get("warnings") or [],
+            "errors_by_source": errors_by_source,
+            "cost_usd": payload.get("cost_usd", 0.0),
+            "cache_status": payload.get("cache_status", ""),
+        }
+        return result
+
+    if configured_provider_seen:
+        return {
+            "items": [],
+            "error": "direct_provider_search_unavailable",
+            "warnings": ["Configured direct search providers were unavailable, skipped, or over budget."],
+            "errors_by_source": errors_by_source,
+        }
+
+    payload = run_last30days_query(
+        topic,
+        sources=sources,
+        lookback_days=lookback_days,
+        auto_resolve=auto_resolve,
+        store=store,
+        timeout_seconds=timeout_seconds,
+    )
+    warnings = list(payload.get("warnings") or [])
+    warnings.append("direct_search_provider_unavailable_last30days_fallback")
+    return {**payload, "warnings": warnings, "errors_by_source": {**errors_by_source, **(payload.get("errors_by_source") or {})}}
 
 
 def _targets_from_source_yield_gap_queue(run_dir: Path) -> list[dict]:
@@ -217,8 +304,17 @@ def enrich_targets(
     queries_per_target: int = 2,
     timeout_seconds: int = 45,
     max_runtime_seconds: int | None = None,
-    query_runner=run_query,
+    query_runner=None,
+    provider_order: str | None = None,
+    max_results: int = DEFAULT_MAX_RESULTS,
 ) -> dict:
+    if query_runner is None:
+        query_runner = lambda topic, **kwargs: run_public_search_query(
+            topic,
+            provider_order=provider_order,
+            max_results=max_results,
+            **kwargs,
+        )
     selected = targets[:limit]
     rows = []
     total_queries = 0
@@ -291,6 +387,8 @@ def enrich_targets(
             "limit": limit,
             "max_runtime_seconds": max_runtime_seconds,
             "stopped_early": stopped_early,
+            "provider_order": _provider_order(provider_order),
+            "max_results": max_results,
         },
         "items": rows,
     }
@@ -303,6 +401,9 @@ def main() -> None:
     parser.add_argument("--queries-per-target", type=int, default=2)
     parser.add_argument("--timeout-seconds", type=int, default=45)
     parser.add_argument("--max-runtime-seconds", type=int, default=None)
+    parser.add_argument("--provider-order", default=None)
+    parser.add_argument("--max-results", type=int, default=DEFAULT_MAX_RESULTS)
+    parser.add_argument("--paid-search-max-usd", type=float, default=2.0)
     parser.add_argument("--output-name", default=DEFAULT_OUTPUT_NAME)
     parser.add_argument(
         "--target-source",
@@ -313,13 +414,24 @@ def main() -> None:
 
     run_dir = Path(args.run_dir)
     targets = _load_targets(run_dir, target_source=args.target_source)
-    report = enrich_targets(
-        targets,
-        limit=args.limit,
-        queries_per_target=args.queries_per_target,
-        timeout_seconds=args.timeout_seconds,
-        max_runtime_seconds=args.max_runtime_seconds,
+    configure_paid_search_guard(
+        mode="manual_enrichment",
+        run_id=f"targeted-manual-enrichment:{run_dir.name}",
+        max_usd=args.paid_search_max_usd,
     )
+    try:
+        report = enrich_targets(
+            targets,
+            limit=args.limit,
+            queries_per_target=args.queries_per_target,
+            timeout_seconds=args.timeout_seconds,
+            max_runtime_seconds=args.max_runtime_seconds,
+            provider_order=args.provider_order,
+            max_results=args.max_results,
+        )
+        report["paid_search"] = paid_search_summary()
+    finally:
+        reset_paid_search_guard()
     report["run_dir"] = str(run_dir)
     output_path = run_dir / args.output_name
     output_path.write_text(json.dumps(report, indent=2))

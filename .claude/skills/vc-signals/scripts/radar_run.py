@@ -2512,6 +2512,7 @@ def run_weekly_artifacts(
     exclude_yc: bool = False,
     hn_launch_trial_only: bool = False,
     signal_investigation_limit: int | None = None,
+    signal_investigation_max_runtime_seconds: int | None = 180,
     weak_source_identity_enrichment_limit: int = 0,
     update_signal_ledger: bool = False,
     signal_ledger_path: Path | None = None,
@@ -2560,11 +2561,17 @@ def run_weekly_artifacts(
         "true",
         "yes",
     }
-    official_site_crawl_enabled = (os.environ.get("VC_SIGNALS_OFFICIAL_SITE_CRAWL_ENABLE") or "").strip().lower() in {
+    official_site_crawl_disabled = (os.environ.get("VC_SIGNALS_OFFICIAL_SITE_CRAWL_DISABLE") or "").strip().lower() in {
         "1",
         "true",
         "yes",
     }
+    official_site_crawl_requested = (os.environ.get("VC_SIGNALS_OFFICIAL_SITE_CRAWL_ENABLE") or "").strip().lower() in {
+        "1",
+        "true",
+        "yes",
+    }
+    official_site_crawl_enabled = hard_evidence_live_enabled and official_site_crawl_requested and not official_site_crawl_disabled
     if enrich_source_rows_with_hard_evidence and hard_evidence_live_enabled:
         if evidence.get("product_hunt"):
             evidence["product_hunt"], hard_evidence_reports["Product Hunt"] = enrich_source_rows_with_hard_evidence(
@@ -2638,6 +2645,7 @@ def run_weekly_artifacts(
             query_runner=enrichment_query_runner,
             max_rows_per_lane=3,
             max_queries_per_row=1,
+            max_runtime_seconds=signal_investigation_max_runtime_seconds,
         )
         if investigate_source_rows and resolved_signal_investigation_limit > 0
         else {
@@ -2661,6 +2669,7 @@ def run_weekly_artifacts(
             query_runner=enrichment_query_runner,
             max_candidates=resolved_signal_investigation_limit,
             max_queries_per_candidate=2,
+            max_runtime_seconds=signal_investigation_max_runtime_seconds,
         )
     else:
         signal_investigation_report = {
@@ -3372,6 +3381,12 @@ def _cli_main() -> None:
             exclude_yc=_get_bool_arg(args, "exclude_yc", "no_yc"),
             hn_launch_trial_only=_get_bool_arg(args, "hn_launch_trial_only", "hn_trial_only"),
             signal_investigation_limit=signal_investigation_limit,
+            signal_investigation_max_runtime_seconds=_get_int_arg(
+                args,
+                "signal_investigation_max_runtime_seconds",
+                "signal_investigator_max_runtime_seconds",
+                default=180,
+            ),
             weak_source_identity_enrichment_limit=_get_int_arg(
                 args,
                 "weak_source_identity_enrichment_limit",

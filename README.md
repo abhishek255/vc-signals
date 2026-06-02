@@ -8,7 +8,7 @@ A skill/plugin for [Claude Code](https://docs.anthropic.com/en/docs/claude-code)
 
 ---
 
-> **Current state (June 2026 baseline):** VC Signals is now a tiered partner-review system, not just a ranked feed. The blessed current run separates **Assign Owner**, **Partner Review Companies**, **Review-Worthy Companies**, **Review-Worthy Market Signals**, and **Evidence Gap Queue** rows. It reached the current numeric target with 1 Assign Owner row, 13 Partner Review companies, 8 Review-Worthy companies, 5 market signals, 12 evidence gaps, and 0 unsafe promotions. The honest caveat: Product Hunt is carrying most of the non-YC company yield, and founder/stage/headcount evidence still needs focused manual checks before owner assignment.
+> **Current state (June 2026 baseline):** VC Signals is now a tiered partner-review system, not just a ranked feed. The blessed current run separates **Assign Owner**, **Partner Review Companies**, **Review-Worthy Companies**, **Review-Worthy Market Signals**, and **Evidence Gap Queue** rows. It reached the current numeric target with 1 Assign Owner row, 13 Partner Review companies, 8 Review-Worthy companies, 5 market signals, 12 evidence gaps, and 0 unsafe promotions. A June 2 repeatability check was more sober: three safe validations kept unsafe promotions at 0 and produced useful Partner Review / Market Signal / Evidence Gap rows, but only repeated 1 strict Review-Worthy Company. Product Hunt and X still need stronger official-domain and founder/company resolution, or top gaps need structured company metadata/manual checks.
 
 ---
 
@@ -401,7 +401,7 @@ The local partner command is:
 python3 .claude/skills/vc-signals/scripts/radar_run.py weekly --sectors all --output-dir docs/radar-runs/current --limit 50
 ```
 
-By default, this command keeps broad last30days paid grounding disabled. It still uses Product Hunt, YC, GitHub, X/social sources where configured, and direct Exa-first hard-evidence resolution when enabled. For an intentional deep run with broad last30days grounding, first run `--paid-search-dry-run`, then rerun with `VC_SIGNALS_ALLOW_LAST30DAYS_GROUNDING=1` or `--allow-last30days-grounding` plus a hard dollar cap. If you need a quick trial run, append `--first-pass`; that mode uses one query per sector and a 45-second query cap so a new user can see the shape of the artifact quickly.
+By default, this command keeps broad last30days paid grounding disabled. It still uses Product Hunt, YC, GitHub, X/social sources where configured, and direct Exa-first hard-evidence resolution when enabled. Signal investigation is runtime-capped by default so a weekly run finishes with explicit partial investigation instead of sitting quietly; override with `--signal-investigation-max-runtime-seconds` when needed. Official-site crawling is useful but slow, so it is targeted/opt-in with `VC_SIGNALS_OFFICIAL_SITE_CRAWL_ENABLE=1`. For an intentional deep run with broad last30days grounding, first run `--paid-search-dry-run`, then rerun with `VC_SIGNALS_ALLOW_LAST30DAYS_GROUNDING=1` or `--allow-last30days-grounding` plus a hard dollar cap. If you need a quick trial run, append `--first-pass`; that mode uses one query per sector and a 45-second query cap so a new user can see the shape of the artifact quickly.
 
 The artifact contains:
 
@@ -605,6 +605,8 @@ The result: a weekly forcing function to explore categories you might not have f
 
 **June 2026: Source-yield baseline and Partner Review packet.** The blessed current run now uses a tiered output model: Assign Owner, Partner Review Companies, Review-Worthy Companies, Review-Worthy Market Signals, Evidence Gap Queue, and Manual Evidence Queue. The current committed baseline hit 1 Assign Owner row, 13 Partner Review companies, 8 Review-Worthy companies, 5 market signals, 12 evidence gaps, and 0 unsafe promotions.
 
+**June 2026: Repeatability evidence-completion check.** Three safe validations preserved the strict safety gate with 0 unsafe promotions and repeatedly produced Partner Review, Market Signal, and Evidence Gap rows. They did not repeat the strict 8-15 Review-Worthy Company target: the broader run produced 14 Partner Review companies, 1 strict Review-Worthy Company, 5 market signals, and 12 evidence gaps. Product Hunt resolved 8 official domains from 15 hard-evidence investigations in the broader run; X returned 2 launch rows but 0 resolved official domains.
+
 **June 2026: Company dossier and LLM investigation layer.** Product Hunt, X, GitHub, HN, YC, Exa/Brave, and manual web evidence now feed a dossier-style workflow that resolves official domains, inspects official-site proof, blocks unsafe domain guesses, separates OSS market signals from company candidates, and records exact missing evidence.
 
 **May 2026: Theme-driven company discovery.** The weekly command now uses useful pain/theme evidence to run a second-pass company search, writes `company-discovery.json`, and renders "Company Discovery From Themes" in the partner brief.
@@ -647,7 +649,7 @@ The previous `/vc-signals weekly` command still works as an alias for `/vc-signa
 14. ✅ **LLM investigation as evidence processor** — LLMs plan searches and extract/critique evidence, but cannot promote unsupported claims.
 15. ◐ **Product Hunt/X conversion depth** — Product Hunt now contributes Review-Worthy rows, but founder/stage metadata is still thin; X works as launch radar but needs stronger official-domain and company-identity resolution.
 16. ◐ **Ecosystem and contact depth** — still needs richer maintainer contact enrichment, founder background synthesis, and OSS ecosystem map generation.
-17. **Repeatability validation** — prove the current source-yield targets across 2-3 weekly runs, not one blessed run.
+17. ◐ **Repeatability validation** — 3 safe validations were run; unsafe promotions stayed at 0, but strict Review-Worthy Company yield did not repeat yet.
 18. **Weekly delivery** — Monday 8:00 AM ET Slack teaser with an open/configurable destination and link or artifact for the full radar.
 19. **Theme depth** — drill-down surfaces actual sub-debates and company positioning, not just summaries.
 

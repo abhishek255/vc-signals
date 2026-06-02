@@ -664,6 +664,52 @@ def test_source_yield_targets_treat_above_max_as_not_met():
     assert status["review_worthy_companies"]["status"] == "above_max"
 
 
+def test_missing_assign_owner_is_not_an_unsafe_promotion(tmp_path):
+    from source_yield_validation import build_source_yield_validation_report
+
+    run_dir = tmp_path / "run"
+    _write_json(run_dir / "candidates.json", [_candidate(name="AgentFence", action="research deeper")])
+    _write_json(run_dir / "weekly-focus.json", {"workflow_view": {"Assign owner": []}})
+    _write_json(run_dir / "runtime-ledger.json", {"source_health": []})
+    _write_json(run_dir / "2026-05-31-raw-evidence.json", {"product_hunt": []})
+
+    report = build_source_yield_validation_report(run_dir, target_review_worthy_count=8)
+
+    assert report["target_status"]["assign_owner"]["status"] == "below_min"
+    assert report["goal_assessment"]["assign_owner_bar_preserved"] is False
+    assert report["goal_assessment"]["unsafe_promotions"] == 0
+    assert report["target_status"]["unsafe_promotions"]["met"] is True
+
+
+def test_unexpected_assign_owner_is_an_unsafe_promotion(tmp_path):
+    from source_yield_validation import build_source_yield_validation_report
+
+    run_dir = tmp_path / "run"
+    _write_json(run_dir / "candidates.json", [_candidate(name="AgentFence", action="Assign owner")])
+    _write_json(
+        run_dir / "weekly-focus.json",
+        {"workflow_view": {"Assign owner": [{"name": "AgentFence", "company_domain": "agentfence.dev"}]}},
+    )
+    _write_json(run_dir / "runtime-ledger.json", {"source_health": []})
+    _write_json(run_dir / "2026-05-31-raw-evidence.json", {"product_hunt": []})
+
+    report = build_source_yield_validation_report(run_dir, target_review_worthy_count=8)
+
+    assert report["goal_assessment"]["unsafe_promotions"] == 1
+    assert report["goal_assessment"]["unsafe_promotion_names"] == ["agentfence"]
+    assert report["target_status"]["unsafe_promotions"]["status"] == "above_max"
+
+
+def test_source_yield_default_review_worthy_floor_is_partner_goal():
+    from source_yield_validation import _source_yield_targets, DEFAULT_REVIEW_WORTHY_TARGET
+
+    targets = _source_yield_targets(target_review_worthy_count=DEFAULT_REVIEW_WORTHY_TARGET)
+
+    assert DEFAULT_REVIEW_WORTHY_TARGET == 8
+    assert targets["review_worthy_companies"]["min"] == 8
+    assert targets["partner_review_companies"]["min"] == 8
+
+
 def test_structured_provider_decision_recommends_trial_when_public_sources_miss_company_target(tmp_path):
     from source_yield_validation import build_source_yield_validation_report
 
@@ -712,6 +758,29 @@ def test_repeatability_report_compares_multiple_validation_runs(tmp_path):
     assert repeatability["summary"]["unsafe_promotions_total"] == 0
     assert repeatability["runs"][0]["review_worthy_companies"] == 1
     assert repeatability["source_lane_totals"]["product_hunt"]["raw_launches"] == 3
+
+
+def test_repeatability_report_recommends_structured_metadata_when_safe_runs_miss_floor(tmp_path):
+    from source_yield_validation import build_repeatability_validation_report
+
+    first = tmp_path / "run-a"
+    second = tmp_path / "run-b"
+    for run_dir in (first, second):
+        _write_json(run_dir / "candidates.json", [_candidate()])
+        _write_json(
+            run_dir / "weekly-focus.json",
+            {"workflow_view": {"Assign owner": [{"name": "Voker", "company_domain": "voker.ai"}]}},
+        )
+        _write_json(run_dir / "runtime-ledger.json", {"source_health": []})
+        _write_json(run_dir / "2026-05-31-raw-evidence.json", {"product_hunt": [], "x_launches": []})
+
+    repeatability = build_repeatability_validation_report([first, second], target_review_worthy_count=8)
+
+    recommendation = repeatability["summary"]["structured_data_recommendation"]
+    assert repeatability["summary"]["repeatability_proven"] is False
+    assert recommendation["status"] == "structured_metadata_or_stronger_resolver_required"
+    assert "Coresignal/Crunchbase-style" in recommendation["recommendation"]
+    assert "minimum observed was 1" in recommendation["reason"]
 
 
 def test_raw_product_hunt_and_x_launches_feed_gap_queue_when_not_candidates(tmp_path):

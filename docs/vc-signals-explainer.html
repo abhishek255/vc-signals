@@ -115,6 +115,7 @@
     <p class="desc">The output is not a trend newsletter and it is not a blind score list. It is a tiered review packet that keeps owner-ready rows separate from good/decent companies, market signals, and manual evidence gaps.</p>
     <div class="card">
       <p><strong>June 2026 blessed baseline:</strong> 1 Assign Owner row, 13 Partner Review companies, 8 Review-Worthy companies, 5 Review-Worthy market signals, 12 Evidence Gap rows, and 0 unsafe promotions.</p>
+      <p><strong>June 2 repeatability check:</strong> three safe validations kept unsafe promotions at 0 and repeatedly produced Partner Review / Market Signal / Evidence Gap rows, but only repeated 1 strict Review-Worthy Company. The system is conservative; source evidence yield is not repeatable enough yet.</p>
       <div style="overflow-x:auto; margin-top:12px;">
         <table>
           <tr><th>Tier</th><th>Example</th><th>Source</th><th>What It Means</th><th>Next Action</th></tr>
@@ -211,7 +212,7 @@
     <h2>Honest caveat</h2>
     <div class="card warn">
       <h3>Evidence yield is still the hard part</h3>
-      <p>The current baseline proves the packet shape and strict gates work. It does not prove repeatability across many weeks yet. Product Hunt carried most of the latest non-YC company yield, X is still thin, and founder/stage/headcount evidence often needs manual review or structured metadata access.</p>
+      <p>The current baseline proves the packet shape and strict gates work. The June 2 repeatability run shows the source-yield ceiling: the broader safe run produced 14 Partner Review companies, 1 strict Review-Worthy Company, 5 market signals, 12 evidence gaps, and 0 unsafe promotions. Product Hunt resolved 8 official domains from 15 hard-evidence investigations; X returned 2 launch rows but 0 resolved official domains. Founder/stage/headcount evidence still needs manual review, better PH/X resolution, or structured metadata access.</p>
     </div>
   </section>
 
@@ -246,6 +247,7 @@
       <tr><td>ledger-action-report.json</td><td>Promotion audit; unsafe owner promotions must remain zero.</td></tr>
       <tr><td>targeted-manual-enrichment.json</td><td>Focused checks for the top evidence gaps.</td></tr>
       <tr><td>structured-provider-trial.json</td><td>Manual-mode Coresignal/Crunchbase/LinkedIn-style metadata hints when direct keys are absent.</td></tr>
+      <tr><td>evidence-completion-repeatability-report.md</td><td>June 2 diagnostic comparison of safe weekly runs against the final source-yield target.</td></tr>
       <tr><td>runtime-ledger.json</td><td>Run budget, source health, source access, and paid-search spend summary.</td></tr>
       <tr><td>review-worthy-sanity-check.md</td><td>Human click-check of the 8 Review-Worthy companies before partner review.</td></tr>
       <tr><td>run-manifest.json</td><td>The pointer to the one blessed source run.</td></tr>

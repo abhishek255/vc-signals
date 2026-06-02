@@ -6,6 +6,7 @@ from __future__ import annotations
 import json
 import os
 import re
+import time
 from copy import deepcopy
 from pathlib import Path
 from typing import Any
@@ -876,6 +877,7 @@ def investigate_candidates(
     provider=None,
     max_candidates: int = 15,
     max_queries_per_candidate: int = 2,
+    max_runtime_seconds: int | float | None = None,
 ) -> tuple[list[Candidate], dict]:
     investigated: list[Candidate] = []
     items: list[dict] = []
@@ -892,10 +894,17 @@ def investigate_candidates(
         "official_domains_resolved": 0,
         "url_roles_classified": 0,
         "unsafe_domain_attempts_blocked": 0,
+        "max_runtime_seconds": max_runtime_seconds,
+        "stopped_early": False,
     }
     eligible_indices = [index for index, candidate in enumerate(candidates) if _eligible_candidate(candidate)][:max_candidates]
+    started_at = time.monotonic()
     for index, candidate in enumerate(candidates):
         if index not in eligible_indices:
+            investigated.append(Candidate.from_dict(candidate.to_dict()))
+            continue
+        if max_runtime_seconds is not None and time.monotonic() - started_at >= float(max_runtime_seconds):
+            summary["stopped_early"] = True
             investigated.append(Candidate.from_dict(candidate.to_dict()))
             continue
         packet = build_investigation_packet(candidate)
@@ -1006,6 +1015,7 @@ def investigate_source_rows(
     provider=None,
     max_rows_per_lane: int = 3,
     max_queries_per_row: int = 1,
+    max_runtime_seconds: int | float | None = None,
 ) -> dict:
     """Investigate weak source rows before candidate ranking drops them."""
 
@@ -1024,8 +1034,14 @@ def investigate_source_rows(
         "official_domains_resolved": 0,
         "url_roles_classified": 0,
         "unsafe_domain_attempts_blocked": 0,
+        "max_runtime_seconds": max_runtime_seconds,
+        "stopped_early": False,
     }
+    started_at = time.monotonic()
     for row in source_rows:
+        if max_runtime_seconds is not None and time.monotonic() - started_at >= float(max_runtime_seconds):
+            summary["stopped_early"] = True
+            break
         if not isinstance(row, dict):
             continue
         lane = _source_lane_from_row(row)

@@ -167,3 +167,62 @@ def test_enrich_targets_reports_public_search_hints_without_scraping():
     assert hints["company_linkedin_candidates"][0]["url"] == "https://www.linkedin.com/company/agentfence"
     assert hints["funding_metadata_candidates"][0]["url"] == "https://www.crunchbase.com/organization/agentfence"
     assert report["items"][0]["manual_policy"].startswith("Public web-search assist")
+
+
+def test_run_public_search_query_prefers_guarded_direct_provider(tmp_path, monkeypatch):
+    import targeted_manual_enrichment
+
+    calls = []
+
+    monkeypatch.setattr(targeted_manual_enrichment, "load_provider_env_files", lambda: {})
+    monkeypatch.setattr(targeted_manual_enrichment, "provider_available", lambda provider: provider == "exa")
+    monkeypatch.setattr(targeted_manual_enrichment, "provider_cache_dir", lambda namespace: tmp_path / namespace)
+
+    def fake_run_provider_query(provider, query, **kwargs):
+        calls.append((provider, query, kwargs))
+        return {
+            "items": [{"title": "AgentFence", "url": "https://agentfence.dev"}],
+            "skipped": False,
+            "cost_usd": 0.001,
+            "cache_status": "miss",
+        }
+
+    monkeypatch.setattr(targeted_manual_enrichment, "run_provider_query", fake_run_provider_query)
+
+    payload = targeted_manual_enrichment.run_public_search_query(
+        "AgentFence founder LinkedIn",
+        provider_order="exa,brave",
+        max_results=3,
+        timeout_seconds=9,
+    )
+
+    assert payload["provider"] == "exa"
+    assert payload["items"][0]["url"] == "https://agentfence.dev"
+    assert calls[0][0] == "exa"
+    assert calls[0][1]["query_family"] == "targeted_manual_enrichment"
+    assert calls[0][2]["max_results"] == 3
+    assert calls[0][2]["timeout_seconds"] == 9
+
+
+def test_run_public_search_query_falls_back_to_last30days_only_without_direct_provider(monkeypatch):
+    import targeted_manual_enrichment
+
+    calls = []
+
+    monkeypatch.setattr(targeted_manual_enrichment, "load_provider_env_files", lambda: {})
+    monkeypatch.setattr(targeted_manual_enrichment, "provider_available", lambda provider: False)
+
+    def fake_last30days(topic, **kwargs):
+        calls.append((topic, kwargs))
+        return {"items": [{"title": "Fallback", "url": "https://agentfence.dev"}], "warnings": []}
+
+    monkeypatch.setattr(targeted_manual_enrichment, "run_last30days_query", fake_last30days)
+
+    payload = targeted_manual_enrichment.run_public_search_query(
+        "AgentFence founder LinkedIn",
+        provider_order="exa,brave",
+    )
+
+    assert payload["items"][0]["title"] == "Fallback"
+    assert calls[0][0] == "AgentFence founder LinkedIn"
+    assert "direct_search_provider_unavailable_last30days_fallback" in payload["warnings"]

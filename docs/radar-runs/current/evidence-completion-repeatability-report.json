@@ -1,0 +1,63 @@
+{
+  "report_type": "evidence_completion_repeatability_report",
+  "generated_at": "2026-06-02T06:41:27Z",
+  "status": "repeatability_not_proven",
+  "blessed_partner_packet": "docs/radar-runs/full-source-dossier-validation-2026-06-01-r1",
+  "diagnostic_runs": [
+    {
+      "run_dir": "docs/radar-runs/evidence-completion-safe-bounded-fast-2026-06-02-r1",
+      "mode": "bounded_safe_weekly",
+      "assign_owner": 0,
+      "partner_review_companies": 17,
+      "review_worthy_companies": 1,
+      "review_worthy_market_signals": 5,
+      "evidence_gap_queue": 12,
+      "unsafe_promotions": 0
+    },
+    {
+      "run_dir": "docs/radar-runs/evidence-completion-safe-bounded-fast-2026-06-02-r2",
+      "mode": "bounded_safe_weekly",
+      "assign_owner": 0,
+      "partner_review_companies": 17,
+      "review_worthy_companies": 1,
+      "review_worthy_market_signals": 5,
+      "evidence_gap_queue": 12,
+      "unsafe_promotions": 0
+    },
+    {
+      "run_dir": "docs/radar-runs/evidence-completion-safe-weekly-2026-06-02-r4",
+      "mode": "broader_safe_weekly",
+      "assign_owner": 0,
+      "partner_review_companies": 14,
+      "review_worthy_companies": 1,
+      "review_worthy_market_signals": 5,
+      "evidence_gap_queue": 12,
+      "unsafe_promotions": 0
+    }
+  ],
+  "broader_run_source_yield": {
+    "product_hunt_launches": 20,
+    "product_hunt_hard_evidence_rows_investigated": 15,
+    "product_hunt_official_domains_resolved": 8,
+    "x_launches": 2,
+    "x_official_domains_resolved": 0,
+    "manual_targets_enriched": 12,
+    "manual_queries_run": 24,
+    "manual_items_seen": 144,
+    "manual_errors": 0
+  },
+  "decision": {
+    "public_manual_sources_good_for": [
+      "partner_review_queue",
+      "market_signals",
+      "evidence_gap_queue",
+      "zero_unsafe_promotions"
+    ],
+    "public_manual_sources_not_yet_good_for": [
+      "repeatable_8_to_15_strict_review_worthy_companies",
+      "reliable_founder_stage_funding_headcount",
+      "reliable_x_official_domain_resolution"
+    ],
+    "recommendation": "Improve Product Hunt/X official-domain and founder/company resolution first; use a small structured metadata trial if the strict Review-Worthy Company target must be hit repeatably."
+  }
+}

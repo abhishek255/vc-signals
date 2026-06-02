@@ -308,7 +308,9 @@ For deterministic weekly runs, prefer the orchestration helper before doing manu
 python3 <skill_dir>/scripts/radar_run.py weekly --sectors all --output-dir <output_dir>
 ```
 
-This saves raw evidence JSON, normalized signals, scored candidates, and a partner preview. The default weekly command is the full-quality safe path: it uses Product Hunt, YC, GitHub, X/social sources where configured, and direct Exa-first hard-evidence resolution when enabled. Broad `last30days` paid grounding is disabled by default even when Brave, Exa, Serper, or Parallel keys exist; enable it only for intentional deep validations with `VC_SIGNALS_ALLOW_LAST30DAYS_GROUNDING=1` or `--allow-last30days-grounding`.
+This saves raw evidence JSON, normalized signals, scored candidates, and a partner preview. The default weekly command is the full-quality safe path: it uses Product Hunt, YC, GitHub, X/social sources where configured, and direct Exa-first hard-evidence resolution when enabled. Broad `last30days` paid grounding is disabled by default even when Brave, Exa, Serper, or Parallel keys exist; enable it only for intentional deep validations with `VC_SIGNALS_ALLOW_LAST30DAYS_GROUNDING=1` or `--allow-last30days-grounding`. Signal investigation is runtime-capped by default (`--signal-investigation-max-runtime-seconds` overrides it) so weekly runs finish with explicit partial investigation instead of hanging quietly.
+
+Official-site crawling is targeted/opt-in because it is useful but slow. Enable it only for focused evidence-completion passes with `VC_SIGNALS_OFFICIAL_SITE_CRAWL_ENABLE=1`; normal weekly runs rely on hard-evidence search and targeted manual enrichment first.
 
 Paid-search guardrails are always expected for local weekly runs:
 - Shared provider cache: `~/.cache/vc-signals/provider-search-cache` (`VC_SIGNALS_PROVIDER_CACHE_DIR` overrides it)

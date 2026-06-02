@@ -3682,6 +3682,7 @@ def test_run_weekly_artifacts_applies_hard_evidence_to_product_hunt_rows(tmp_pat
 
     shared_cache = tmp_path / "shared-provider-cache"
     seen_cache_dirs = []
+    crawl_flags = []
     monkeypatch.setenv("VC_SIGNALS_PROVIDER_CACHE_DIR", str(shared_cache))
     monkeypatch.setenv("VC_SIGNALS_HARD_EVIDENCE_ENABLE_LIVE", "1")
     monkeypatch.setattr(
@@ -3732,6 +3733,7 @@ def test_run_weekly_artifacts_applies_hard_evidence_to_product_hunt_rows(tmp_pat
 
     def fake_hard_evidence(rows, **kwargs):
         seen_cache_dirs.append(kwargs["cache_dir"])
+        crawl_flags.append(kwargs.get("crawl_official_site"))
         enriched = []
         for row in rows:
             item = dict(row)
@@ -3771,6 +3773,65 @@ def test_run_weekly_artifacts_applies_hard_evidence_to_product_hunt_rows(tmp_pat
     report = json.loads((tmp_path / "hard-evidence-dossiers.json").read_text())
     assert report["summary"]["official_domains_resolved"] == 1
     assert seen_cache_dirs[0] == shared_cache / "hard-evidence" / "product_hunt"
+    assert crawl_flags == [False]
+
+
+def test_run_weekly_artifacts_enables_official_site_crawl_when_requested(tmp_path, monkeypatch):
+    import radar_run
+
+    crawl_flags = []
+    monkeypatch.setenv("VC_SIGNALS_HARD_EVIDENCE_ENABLE_LIVE", "1")
+    monkeypatch.setenv("VC_SIGNALS_OFFICIAL_SITE_CRAWL_ENABLE", "1")
+    monkeypatch.setattr(
+        radar_run,
+        "collect_live_evidence",
+        lambda **kwargs: {
+            "last30days": {},
+            "github": [],
+            "product_hunt": [{"name": "Clipto AI", "source_lane": "Product Hunt", "action": "research deeper"}],
+            "x_launches": [],
+            "warnings": [],
+            "source_health": [],
+        },
+    )
+    monkeypatch.setattr(radar_run, "load_candidate_history", lambda *args, **kwargs: {})
+    monkeypatch.setattr(radar_run, "save_candidate_history", lambda *args, **kwargs: None)
+    monkeypatch.setattr(radar_run, "apply_candidate_enrichment", lambda candidates: candidates)
+    monkeypatch.setattr(radar_run, "_grounded_search_available", lambda: False)
+    monkeypatch.setattr(radar_run, "_social_search_available", lambda: False)
+    monkeypatch.setattr(
+        radar_run,
+        "collect_company_discovery",
+        lambda *args, **kwargs: {
+            "queries": [],
+            "items": [],
+            "accepted_leads": [],
+            "rejected_leads": [],
+            "warnings": [],
+            "errors": [],
+            "query_diagnostics": [],
+            "summary": {"accepted": 0, "rejected": 0},
+            "discovery_yield_trial": {"enabled": False},
+        },
+    )
+
+    def fake_hard_evidence(rows, **kwargs):
+        crawl_flags.append(kwargs.get("crawl_official_site"))
+        return rows, {"summary": {"enabled": True, "rows_considered": len(rows)}, "items": []}
+
+    monkeypatch.setattr(radar_run, "enrich_source_rows_with_hard_evidence", fake_hard_evidence, raising=False)
+
+    radar_run.run_weekly_artifacts(
+        output_dir=tmp_path,
+        sectors=("devtools",),
+        github_limit=0,
+        product_hunt_limit=1,
+        candidate_limit=10,
+        signal_investigation_limit=0,
+        weak_source_identity_enrichment_limit=0,
+    )
+
+    assert crawl_flags == [True]
 
 
 def test_run_weekly_artifacts_does_not_promote_vibe_discovery_result(tmp_path, monkeypatch):
@@ -4126,6 +4187,34 @@ def test_cli_weekly_runs_collect_and_preview(tmp_path, monkeypatch, capsys):
     assert result["preview"] == str(tmp_path / "preview.md")
     assert seen["max_queries_per_sector"] == 3
     assert seen["query_timeout_seconds"] is None
+    assert seen["signal_investigation_max_runtime_seconds"] == 180
+
+
+def test_cli_weekly_respects_signal_investigation_runtime_cap(tmp_path, monkeypatch):
+    import radar_run
+
+    seen = {}
+
+    def fake_run_weekly_artifacts(**kwargs):
+        seen.update(kwargs)
+        return {"raw_evidence": str(tmp_path / "raw.json"), "preview": str(tmp_path / "preview.md"), "companies": 0}
+
+    monkeypatch.setattr(radar_run, "run_weekly_artifacts", fake_run_weekly_artifacts)
+    monkeypatch.setattr(
+        "sys.argv",
+        [
+            "radar_run.py",
+            "weekly",
+            "--output-dir",
+            str(tmp_path),
+            "--signal-investigation-max-runtime-seconds",
+            "45",
+        ],
+    )
+
+    radar_run._cli_main()
+
+    assert seen["signal_investigation_max_runtime_seconds"] == 45
 
 
 def test_cli_weekly_paid_search_dry_run_skips_live_collection(tmp_path, monkeypatch, capsys):

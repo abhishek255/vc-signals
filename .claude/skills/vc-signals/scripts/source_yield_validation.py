@@ -17,10 +17,11 @@ MARKET_SIGNAL_LIMIT = 5
 EVIDENCE_GAP_LIMIT = 12
 WATCHLIST_LIMIT = 12
 DEFAULT_PARTNER_REVIEW_TARGET = 8
+DEFAULT_REVIEW_WORTHY_TARGET = 8
 DEFAULT_SOURCE_YIELD_TARGETS = {
     "assign_owner": {"min": 1, "max": 3, "allow_above_max": False},
     "partner_review_companies": {"min": DEFAULT_PARTNER_REVIEW_TARGET, "max": 15, "allow_above_max": False},
-    "review_worthy_companies": {"min": 5, "max": 15, "allow_above_max": False},
+    "review_worthy_companies": {"min": DEFAULT_REVIEW_WORTHY_TARGET, "max": 15, "allow_above_max": False},
     "review_worthy_market_signals": {"min": 5, "max": 10, "allow_above_max": False},
     "evidence_gap_queue": {"min": 10, "max": 15, "allow_above_max": False},
     "unsafe_promotions": {"max": 0, "allow_above_max": False},
@@ -1011,7 +1012,7 @@ def _structured_provider_decision(
 def build_source_yield_validation_report(
     run_dir: Path | str,
     *,
-    target_review_worthy_count: int = 5,
+    target_review_worthy_count: int = DEFAULT_REVIEW_WORTHY_TARGET,
     target_partner_review_count: int = DEFAULT_PARTNER_REVIEW_TARGET,
     assign_owner_allowlist: tuple[str, ...] = DEFAULT_ASSIGN_OWNER_ALLOWLIST,
     generated_at: str | None = None,
@@ -1066,6 +1067,8 @@ def build_source_yield_validation_report(
     voker_present = "voker" in weekly_owner_set
     unexpected_weekly_owners = sorted(weekly_owner_set - allowlist)
     unexpected_candidate_owners = sorted(candidate_owner_set - allowlist)
+    unsafe_promotion_names = sorted(set(unexpected_weekly_owners + unexpected_candidate_owners))
+    unsafe_promotions = len(unsafe_promotion_names)
     assign_owner_bar_preserved = (
         voker_present
         and len(assign_owner_names) == 1
@@ -1117,7 +1120,6 @@ def build_source_yield_validation_report(
 
     net_new_count = len(review_worthy_rows)
     goal_reached = assign_owner_bar_preserved and net_new_count >= target_review_worthy_count
-    unsafe_promotions = 0 if assign_owner_bar_preserved else 1
     targets = _source_yield_targets(target_review_worthy_count, target_partner_review_count)
     target_status = _target_status(
         targets,
@@ -1151,6 +1153,8 @@ def build_source_yield_validation_report(
             "candidate_assign_owner_names": candidate_assign_owner_names,
             "voker_assign_owner_present": voker_present,
             "assign_owner_bar_preserved": assign_owner_bar_preserved,
+            "unsafe_promotions": unsafe_promotions,
+            "unsafe_promotion_names": unsafe_promotion_names,
             "unexpected_weekly_assign_owner_names": unexpected_weekly_owners,
             "unexpected_candidate_assign_owner_names": unexpected_candidate_owners,
             "target_net_new_review_worthy_count": target_review_worthy_count,
@@ -1204,7 +1208,7 @@ def build_source_yield_validation_report(
 def build_repeatability_validation_report(
     run_dirs: list[Path | str],
     *,
-    target_review_worthy_count: int = 5,
+    target_review_worthy_count: int = DEFAULT_REVIEW_WORTHY_TARGET,
     assign_owner_allowlist: tuple[str, ...] = DEFAULT_ASSIGN_OWNER_ALLOWLIST,
     generated_at: str | None = None,
 ) -> dict:
@@ -1218,7 +1222,7 @@ def build_repeatability_validation_report(
             assign_owner_allowlist=assign_owner_allowlist,
         )
         assessment = report["goal_assessment"]
-        unsafe = 0 if assessment["assign_owner_bar_preserved"] else 1
+        unsafe = int(assessment.get("unsafe_promotions") or 0)
         unsafe_total += unsafe
         diversity = report.get("source_diversity", {})
         raw_resolution = diversity.get("raw_domain_resolution") or {}
@@ -1250,6 +1254,40 @@ def build_repeatability_validation_report(
         and all(run["assign_owner_bar_preserved"] for run in runs)
         and all(run["review_worthy_companies"] >= target_review_worthy_count for run in runs)
     )
+    min_review_worthy = min((run["review_worthy_companies"] for run in runs), default=0)
+    min_partner_review = min((run["partner_review_companies"] for run in runs), default=0)
+    min_market_signals = min((run["review_worthy_market_signals"] for run in runs), default=0)
+    min_evidence_gaps = min((run["evidence_gap_queue"] for run in runs), default=0)
+    if compared < 2:
+        structured_data_recommendation = {
+            "status": "repeatability_not_tested",
+            "recommendation": "Run at least two safe weekly validations before deciding whether structured data is required.",
+            "reason": "One run cannot prove weekly repeatability.",
+        }
+    elif repeatability_proven:
+        structured_data_recommendation = {
+            "status": "public_sources_sufficient_for_now",
+            "recommendation": "Keep public/manual sources as the default and continue targeted manual checks on evidence gaps.",
+            "reason": "Multiple runs hit the Review-Worthy floor while preserving strict owner gates.",
+        }
+    elif min_review_worthy < target_review_worthy_count:
+        structured_data_recommendation = {
+            "status": "structured_metadata_or_stronger_resolver_required",
+            "recommendation": (
+                "Either improve Product Hunt/X official-domain and founder/company resolution materially, "
+                "or add Coresignal/Crunchbase-style structured company metadata for top gaps."
+            ),
+            "reason": (
+                f"Repeatability missed the {target_review_worthy_count}-row Review-Worthy Company floor; "
+                f"minimum observed was {min_review_worthy}."
+            ),
+        }
+    else:
+        structured_data_recommendation = {
+            "status": "repeatability_incomplete",
+            "recommendation": "Keep the current public/manual path, but fix the failed repeatability dimension before blessing.",
+            "reason": "Company count was sufficient, but another repeatability gate failed.",
+        }
     return {
         "generated_at": generated_at or datetime.now(timezone.utc).isoformat(),
         "summary": {
@@ -1257,10 +1295,11 @@ def build_repeatability_validation_report(
             "repeatability_proven": repeatability_proven,
             "unsafe_promotions_total": unsafe_total,
             "all_runs_preserved_assign_owner_bar": all(run["assign_owner_bar_preserved"] for run in runs),
-            "min_partner_review_companies": min((run["partner_review_companies"] for run in runs), default=0),
-            "min_review_worthy_companies": min((run["review_worthy_companies"] for run in runs), default=0),
-            "min_market_signals": min((run["review_worthy_market_signals"] for run in runs), default=0),
-            "min_evidence_gap_queue": min((run["evidence_gap_queue"] for run in runs), default=0),
+            "min_partner_review_companies": min_partner_review,
+            "min_review_worthy_companies": min_review_worthy,
+            "min_market_signals": min_market_signals,
+            "min_evidence_gap_queue": min_evidence_gaps,
+            "structured_data_recommendation": structured_data_recommendation,
             "interpretation": (
                 "Repeatability is proven when multiple validation runs preserve the strict Assign Owner gate, "
                 "keep unsafe promotions at zero, and hit the Review-Worthy Company floor."
@@ -1278,6 +1317,7 @@ def render_repeatability_markdown(report: dict) -> str:
         f"- Runs compared: {report['summary']['runs_compared']}",
         f"- Repeatability proven: {'yes' if report['summary']['repeatability_proven'] else 'no'}",
         f"- Unsafe promotions total: {report['summary']['unsafe_promotions_total']}",
+        f"- Structured data recommendation: {report['summary'].get('structured_data_recommendation', {}).get('status', 'unknown')}",
         "",
         "| Run | Assign Owner | Partner Review | Review-Worthy Companies | Market Signals | Evidence Gaps | Unsafe |",
         "| --- | --- | --- | --- | --- | --- | --- |",
@@ -1293,6 +1333,18 @@ def render_repeatability_markdown(report: dict) -> str:
                 gaps=run.get("evidence_gap_queue", 0),
                 unsafe=run.get("unsafe_promotions", 0),
             )
+        )
+    recommendation = report["summary"].get("structured_data_recommendation", {})
+    if recommendation:
+        lines.extend(
+            [
+                "",
+                "## Structured Data Recommendation",
+                "",
+                f"- Status: {recommendation.get('status', 'unknown')}",
+                f"- Recommendation: {recommendation.get('recommendation', '')}",
+                f"- Reason: {recommendation.get('reason', '')}",
+            ]
         )
     return "\n".join(lines) + "\n"
 
@@ -1332,7 +1384,8 @@ def build_source_yield_decision_packet(report: dict, weekly_focus: dict) -> dict
             "launch_and_oss_watch": len(launch_watch),
             "review_worthy_research": len(review_rows),
             "continue_research": len(partner_rows) or len(review_rows),
-            "unsafe_promotions": 0 if report["goal_assessment"]["assign_owner_bar_preserved"] else 1,
+            "unsafe_promotions": int(report["goal_assessment"].get("unsafe_promotions") or 0),
+            "unsafe_promotion_names": report["goal_assessment"].get("unsafe_promotion_names", []),
             "assign_owner_bar_preserved": report["goal_assessment"]["assign_owner_bar_preserved"],
             "source_yield_target_status": report.get("target_status", {}),
         },
@@ -1365,7 +1418,8 @@ def build_source_yield_ledger_action_report(report: dict) -> dict:
             "evidence_gap_entities": len(report.get("evidence_gap_queue", [])),
             "manual_evidence_queue_entities": len(report.get("manual_evidence_queue", [])),
             "review_worthy_research_entities": report["goal_assessment"]["net_new_review_worthy_count"],
-            "unsafe_promotions": 0 if report["goal_assessment"]["assign_owner_bar_preserved"] else 1,
+            "unsafe_promotions": int(report["goal_assessment"].get("unsafe_promotions") or 0),
+            "unsafe_promotion_names": report["goal_assessment"].get("unsafe_promotion_names", []),
         },
         "actions": [
             {
@@ -1621,7 +1675,7 @@ def render_source_yield_markdown(report: dict) -> str:
 def write_source_yield_outputs(
     run_dir: Path | str,
     *,
-    target_review_worthy_count: int = 5,
+    target_review_worthy_count: int = DEFAULT_REVIEW_WORTHY_TARGET,
     target_partner_review_count: int = DEFAULT_PARTNER_REVIEW_TARGET,
     assign_owner_allowlist: tuple[str, ...] = DEFAULT_ASSIGN_OWNER_ALLOWLIST,
     packet_dir: Path | str | None = None,
@@ -1674,7 +1728,7 @@ def write_source_yield_outputs(
 def _parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--run-dir", required=True)
-    parser.add_argument("--target-review-worthy-count", type=int, default=5)
+    parser.add_argument("--target-review-worthy-count", type=int, default=DEFAULT_REVIEW_WORTHY_TARGET)
     parser.add_argument("--target-partner-review-count", type=int, default=DEFAULT_PARTNER_REVIEW_TARGET)
     parser.add_argument("--assign-owner-allowlist", default=",".join(DEFAULT_ASSIGN_OWNER_ALLOWLIST))
     parser.add_argument("--packet-dir", default="")

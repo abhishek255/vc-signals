@@ -20,6 +20,8 @@ This folder is the small, current-state pointer for the radar. It does not delet
 - `targeted-manual-enrichment.json`
 - `structured-provider-trial.json`
 - `review-worthy-sanity-check.md`
+- `evidence-completion-repeatability-report.md`
+- `evidence-completion-repeatability-report.json`
 
 ## Sanity Check
 
@@ -32,3 +34,14 @@ The 8 Product Hunt-sourced Review-Worthy rows were manually click-checked after 
 - 0 / 8 should be promoted to Assign Owner without founder/team and stage/headcount/funding checks.
 
 Older `docs/radar-runs/current-*` folders are historical experiments unless this manifest points at them.
+
+## June 2 Repeatability Check
+
+The June 2 evidence-completion sprint compared two bounded safe weekly runs and one broader safe weekly run. It did **not** replace the blessed partner packet because repeatability against the strict Review-Worthy Company target is not proven yet.
+
+- Best broader run: 0 Assign Owner, 14 Partner Review companies, 1 strict Review-Worthy Company, 5 market signals, 12 evidence gaps, 0 unsafe promotions.
+- Product Hunt hard evidence in the broader run: 15 rows investigated, 8 official domains resolved.
+- X in the broader run: 2 launch rows, 0 official domains resolved.
+- Manual enrichment: 12 top gaps enriched, 24 focused public-search queries, 144 items, 0 errors.
+
+Decision: public/manual sources are useful for Partner Review, Market Signals, and Evidence Gap Queue rows, but not yet enough for repeatable 8-15 strict Review-Worthy Companies without stronger PH/X resolution or structured company metadata.

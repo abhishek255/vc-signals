@@ -420,3 +420,42 @@ def test_source_row_investigation_covers_ph_hn_and_oss_seed_urls():
     assert report["summary"]["url_roles_classified"] == 3
     assert sorted(item["source_lane"] for item in report["items"]) == ["Hacker News", "OSS", "Product Hunt"]
     assert queries == ["official website", "official website", "official website"]
+
+
+def test_investigation_runtime_cap_stops_source_rows_before_queries():
+    from signal_investigator import investigate_source_rows
+
+    def fail_query_runner(*_args, **_kwargs):
+        raise AssertionError("runtime cap should stop before query execution")
+
+    report = investigate_source_rows(
+        [{"source": "producthunt", "name": "AgentFence", "url": "https://www.producthunt.com/products/agentfence"}],
+        query_runner=fail_query_runner,
+        max_rows_per_lane=2,
+        max_queries_per_row=1,
+        max_runtime_seconds=0,
+    )
+
+    assert report["summary"]["stopped_early"] is True
+    assert report["summary"]["rows_investigated"] == 0
+    assert report["summary"]["search_queries_run"] == 0
+
+
+def test_candidate_investigation_runtime_cap_preserves_uninvestigated_candidates():
+    from signal_investigator import investigate_candidates
+
+    def fail_query_runner(*_args, **_kwargs):
+        raise AssertionError("runtime cap should stop before query execution")
+
+    candidates, report = investigate_candidates(
+        [_candidate()],
+        query_runner=fail_query_runner,
+        max_candidates=1,
+        max_queries_per_candidate=1,
+        max_runtime_seconds=0,
+    )
+
+    assert report["summary"]["stopped_early"] is True
+    assert report["summary"]["rows_investigated"] == 0
+    assert report["summary"]["search_queries_run"] == 0
+    assert candidates[0].name == "Envio"
