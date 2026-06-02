@@ -9,17 +9,17 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-from company_dossier import build_alex_review_row, build_company_dossier
+from company_dossier import build_partner_review_row, build_company_dossier
 
 REVIEW_WORTHY_ACTIONS = {"research deeper", "contact maintainer", "watch"}
 DEFAULT_ASSIGN_OWNER_ALLOWLIST = ("Voker",)
 MARKET_SIGNAL_LIMIT = 5
 EVIDENCE_GAP_LIMIT = 12
 WATCHLIST_LIMIT = 12
-DEFAULT_ALEX_REVIEW_TARGET = 8
+DEFAULT_PARTNER_REVIEW_TARGET = 8
 DEFAULT_SOURCE_YIELD_TARGETS = {
     "assign_owner": {"min": 1, "max": 3, "allow_above_max": False},
-    "alex_review_companies": {"min": DEFAULT_ALEX_REVIEW_TARGET, "max": 15, "allow_above_max": False},
+    "partner_review_companies": {"min": DEFAULT_PARTNER_REVIEW_TARGET, "max": 15, "allow_above_max": False},
     "review_worthy_companies": {"min": 5, "max": 15, "allow_above_max": False},
     "review_worthy_market_signals": {"min": 5, "max": 10, "allow_above_max": False},
     "evidence_gap_queue": {"min": 10, "max": 15, "allow_above_max": False},
@@ -468,13 +468,13 @@ def _manual_work_guidance(gaps: list[str]) -> dict:
         return {
             "promote_if": "Promote if stage, funding, headcount, hiring, or commercial proof confirms company maturity.",
             "discard_if": "Discard if it remains only a launch with no maturity or commercial evidence.",
-            "likely_payoff": "High: one metadata check could make this Alex-reviewable or strict review-worthy.",
+            "likely_payoff": "High: one metadata check could make this partner-reviewable or strict review-worthy.",
         }
     if "commercial_or_customer_signal_missing" in gap_set:
         return {
             "promote_if": "Promote if pricing, docs, customers, case studies, waitlist, deployment, or careers evidence appears.",
             "discard_if": "Discard if there is no product/commercial surface beyond the initial signal.",
-            "likely_payoff": "High: official-site proof is often enough to justify Alex review.",
+            "likely_payoff": "High: official-site proof is often enough to justify partner review.",
         }
     return {
         "promote_if": "Promote if one focused manual check resolves the remaining evidence gap.",
@@ -936,10 +936,10 @@ def _llm_signal_investigation_summary(run_path: Path) -> dict:
     }
 
 
-def _source_yield_targets(target_review_worthy_count: int, target_alex_review_count: int = DEFAULT_ALEX_REVIEW_TARGET) -> dict:
+def _source_yield_targets(target_review_worthy_count: int, target_partner_review_count: int = DEFAULT_PARTNER_REVIEW_TARGET) -> dict:
     targets = json.loads(json.dumps(DEFAULT_SOURCE_YIELD_TARGETS))
     targets["review_worthy_companies"]["min"] = target_review_worthy_count
-    targets["alex_review_companies"]["min"] = target_alex_review_count
+    targets["partner_review_companies"]["min"] = target_partner_review_count
     return targets
 
 
@@ -998,7 +998,7 @@ def build_source_yield_validation_report(
     run_dir: Path | str,
     *,
     target_review_worthy_count: int = 5,
-    target_alex_review_count: int = DEFAULT_ALEX_REVIEW_TARGET,
+    target_partner_review_count: int = DEFAULT_PARTNER_REVIEW_TARGET,
     assign_owner_allowlist: tuple[str, ...] = DEFAULT_ASSIGN_OWNER_ALLOWLIST,
     generated_at: str | None = None,
 ) -> dict:
@@ -1022,18 +1022,18 @@ def build_source_yield_validation_report(
     candidate_assign_owner_names = [_row_name(row) for row in candidate_rows if _normalized_action(row) == "assign owner"]
     review_worthy_rows = []
     review_seen = set()
-    alex_review_companies = []
-    alex_seen = set()
+    partner_review_companies = []
+    partner_seen = set()
     for row in source_yield_rows:
         dossier = build_company_dossier(row)
         row_key = (_row_domain(row) or _row_project_url(row) or _row_name(row)).lower()
         if row_key:
             dossier_by_key[row_key] = dossier
-        if dossier.get("alex_review_ready") and _normalized_action(row) in REVIEW_WORTHY_ACTIONS:
-            alex_key = (dossier.get("official_domain") or _row_name(row)).lower()
-            if alex_key and alex_key not in alex_seen:
-                alex_seen.add(alex_key)
-                alex_review_companies.append(build_alex_review_row(row, dossier))
+        if dossier.get("partner_review_ready") and _normalized_action(row) in REVIEW_WORTHY_ACTIONS:
+            partner_key = (dossier.get("official_domain") or _row_name(row)).lower()
+            if partner_key and partner_key not in partner_seen:
+                partner_seen.add(partner_key)
+                partner_review_companies.append(build_partner_review_row(row, dossier))
         if not is_net_new_review_worthy_candidate(row):
             continue
         key = (_row_domain(row) or _row_name(row)).lower()
@@ -1104,12 +1104,12 @@ def build_source_yield_validation_report(
     net_new_count = len(review_worthy_rows)
     goal_reached = assign_owner_bar_preserved and net_new_count >= target_review_worthy_count
     unsafe_promotions = 0 if assign_owner_bar_preserved else 1
-    targets = _source_yield_targets(target_review_worthy_count, target_alex_review_count)
+    targets = _source_yield_targets(target_review_worthy_count, target_partner_review_count)
     target_status = _target_status(
         targets,
         {
             "assign_owner": len(assign_owner_names),
-            "alex_review_companies": len(alex_review_companies),
+            "partner_review_companies": len(partner_review_companies),
             "review_worthy_companies": net_new_count,
             "review_worthy_market_signals": len(market_signals),
             "evidence_gap_queue": len(evidence_gap_queue),
@@ -1142,20 +1142,20 @@ def build_source_yield_validation_report(
             "target_net_new_review_worthy_count": target_review_worthy_count,
             "net_new_review_worthy_count": net_new_count,
             "review_worthy_target_met": net_new_count >= target_review_worthy_count,
-            "target_alex_review_count": target_alex_review_count,
-            "alex_review_count": len(alex_review_companies),
-            "alex_review_target_met": len(alex_review_companies) >= target_alex_review_count,
+            "target_partner_review_count": target_partner_review_count,
+            "partner_review_count": len(partner_review_companies),
+            "partner_review_target_met": len(partner_review_companies) >= target_partner_review_count,
         },
         "source_yield_targets": targets,
         "target_status": target_status,
-        "alex_review_companies": alex_review_companies,
+        "partner_review_companies": partner_review_companies,
         "review_worthy_rows": review_worthy_rows,
         "review_worthy_market_signals": market_signals,
         "evidence_gap_queue": evidence_gap_queue,
         "manual_evidence_queue": manual_evidence_queue,
         "launch_and_oss_watch": launch_watch,
         "two_track_summary": {
-            "alex_review_companies": len(alex_review_companies),
+            "partner_review_companies": len(partner_review_companies),
             "review_worthy_companies": len(review_worthy_rows),
             "review_worthy_market_signals": len(market_signals),
             "evidence_gap_queue": len(evidence_gap_queue),
@@ -1163,7 +1163,7 @@ def build_source_yield_validation_report(
             "launch_and_oss_watch": len(launch_watch),
             "raw_launch_rows_preserved": len(raw_source_rows),
             "interpretation": (
-                "Assign Owner stays strict. Alex Review accepts good/decent companies with official identity, "
+                "Assign Owner stays strict. Partner Review accepts good/decent companies with official identity, "
                 "operator evidence, and product proof while showing exactly what remains manual. Market signals "
                 "can be review-worthy when OSS/theme momentum is strong even before a company exists."
             ),
@@ -1219,7 +1219,7 @@ def build_repeatability_validation_report(
                 "goal_reached": assessment["goal_reached"],
                 "assign_owner": len(assessment["assign_owner_names"]),
                 "assign_owner_bar_preserved": assessment["assign_owner_bar_preserved"],
-                "alex_review_companies": assessment.get("alex_review_count", 0),
+                "partner_review_companies": assessment.get("partner_review_count", 0),
                 "review_worthy_companies": assessment["net_new_review_worthy_count"],
                 "review_worthy_market_signals": len(report.get("review_worthy_market_signals", [])),
                 "evidence_gap_queue": len(report.get("evidence_gap_queue", [])),
@@ -1243,7 +1243,7 @@ def build_repeatability_validation_report(
             "repeatability_proven": repeatability_proven,
             "unsafe_promotions_total": unsafe_total,
             "all_runs_preserved_assign_owner_bar": all(run["assign_owner_bar_preserved"] for run in runs),
-            "min_alex_review_companies": min((run["alex_review_companies"] for run in runs), default=0),
+            "min_partner_review_companies": min((run["partner_review_companies"] for run in runs), default=0),
             "min_review_worthy_companies": min((run["review_worthy_companies"] for run in runs), default=0),
             "min_market_signals": min((run["review_worthy_market_signals"] for run in runs), default=0),
             "min_evidence_gap_queue": min((run["evidence_gap_queue"] for run in runs), default=0),
@@ -1265,15 +1265,15 @@ def render_repeatability_markdown(report: dict) -> str:
         f"- Repeatability proven: {'yes' if report['summary']['repeatability_proven'] else 'no'}",
         f"- Unsafe promotions total: {report['summary']['unsafe_promotions_total']}",
         "",
-        "| Run | Assign Owner | Alex Review | Review-Worthy Companies | Market Signals | Evidence Gaps | Unsafe |",
+        "| Run | Assign Owner | Partner Review | Review-Worthy Companies | Market Signals | Evidence Gaps | Unsafe |",
         "| --- | --- | --- | --- | --- | --- | --- |",
     ]
     for run in report.get("runs", []):
         lines.append(
-            "| {run_dir} | {owner} | {alex} | {companies} | {signals} | {gaps} | {unsafe} |".format(
+            "| {run_dir} | {owner} | {partner} | {companies} | {signals} | {gaps} | {unsafe} |".format(
                 run_dir=str(run.get("run_dir", "")).replace("|", "/"),
                 owner=run.get("assign_owner", 0),
-                alex=run.get("alex_review_companies", 0),
+                partner=run.get("partner_review_companies", 0),
                 companies=run.get("review_worthy_companies", 0),
                 signals=run.get("review_worthy_market_signals", 0),
                 gaps=run.get("evidence_gap_queue", 0),
@@ -1298,7 +1298,7 @@ def build_source_yield_decision_packet(report: dict, weekly_focus: dict) -> dict
         for row in assign_owner_rows
     ]
     review_rows = report["review_worthy_rows"]
-    alex_rows = report.get("alex_review_companies", [])
+    partner_rows = report.get("partner_review_companies", [])
     market_signals = report.get("review_worthy_market_signals", [])
     evidence_gap_queue = report.get("evidence_gap_queue", [])
     manual_evidence_queue = report.get("manual_evidence_queue", evidence_gap_queue)
@@ -1310,27 +1310,27 @@ def build_source_yield_decision_packet(report: dict, weekly_focus: dict) -> dict
         "summary": {
             "goal_reached": report["goal_assessment"]["goal_reached"],
             "owner_follow_up": len(owner_follow_up),
-            "alex_review_companies": len(alex_rows),
+            "partner_review_companies": len(partner_rows),
             "review_worthy_companies": len(review_rows),
             "review_worthy_market_signals": len(market_signals),
             "evidence_gap_queue": len(evidence_gap_queue),
             "manual_evidence_queue": len(manual_evidence_queue),
             "launch_and_oss_watch": len(launch_watch),
             "review_worthy_research": len(review_rows),
-            "continue_research": len(alex_rows) or len(review_rows),
+            "continue_research": len(partner_rows) or len(review_rows),
             "unsafe_promotions": 0 if report["goal_assessment"]["assign_owner_bar_preserved"] else 1,
             "assign_owner_bar_preserved": report["goal_assessment"]["assign_owner_bar_preserved"],
             "source_yield_target_status": report.get("target_status", {}),
         },
         "sections": {
             "owner_follow_up": owner_follow_up,
-            "alex_review_companies": alex_rows,
+            "partner_review_companies": partner_rows,
             "review_worthy_companies": review_rows,
             "review_worthy_research": review_rows,
             "review_worthy_market_signals": market_signals,
             "evidence_gap_queue": evidence_gap_queue,
             "manual_evidence_queue": manual_evidence_queue,
-            "continue_research": alex_rows or review_rows,
+            "continue_research": partner_rows or review_rows,
             "launch_and_oss_watch": launch_watch,
             "source_caveats": report["caveats"],
         },
@@ -1345,7 +1345,7 @@ def build_source_yield_ledger_action_report(report: dict) -> dict:
         "summary": {
             "goal_reached": report["goal_assessment"]["goal_reached"],
             "assign_owner_entities": len(report["goal_assessment"]["assign_owner_names"]),
-            "alex_review_company_entities": len(report.get("alex_review_companies", [])),
+            "partner_review_company_entities": len(report.get("partner_review_companies", [])),
             "review_worthy_company_entities": report["goal_assessment"]["net_new_review_worthy_count"],
             "review_worthy_market_signal_entities": len(report.get("review_worthy_market_signals", [])),
             "evidence_gap_entities": len(report.get("evidence_gap_queue", [])),
@@ -1360,9 +1360,9 @@ def build_source_yield_ledger_action_report(report: dict) -> dict:
                 "names": report["goal_assessment"]["assign_owner_names"],
             },
             {
-                "action": "Alex review",
-                "count": len(report.get("alex_review_companies", [])),
-                "names": [row["name"] for row in report.get("alex_review_companies", [])],
+                "action": "Partner review",
+                "count": len(report.get("partner_review_companies", [])),
+                "names": [row["name"] for row in report.get("partner_review_companies", [])],
             },
             {
                 "action": "Review worthy - research deeper",
@@ -1398,7 +1398,7 @@ def render_source_yield_markdown(report: dict) -> str:
         f"- Goal reached: {status}",
         f"- Assign Owner rows: {', '.join(assessment['assign_owner_names']) or 'none'}",
         f"- Assign Owner bar preserved: {'yes' if assessment['assign_owner_bar_preserved'] else 'no'}",
-        f"- Alex Review Companies: {assessment.get('alex_review_count', 0)} / {assessment.get('target_alex_review_count', DEFAULT_ALEX_REVIEW_TARGET)}",
+        f"- Partner Review Companies: {assessment.get('partner_review_count', 0)} / {assessment.get('target_partner_review_count', DEFAULT_PARTNER_REVIEW_TARGET)}",
         f"- Net-new credible Review-Worthy rows: {assessment['net_new_review_worthy_count']} / {assessment['target_net_new_review_worthy_count']}",
         f"- Review-Worthy Market Signals: {len(report.get('review_worthy_market_signals', []))}",
         f"- Evidence Gap Queue rows: {len(report.get('evidence_gap_queue', []))}",
@@ -1425,13 +1425,13 @@ def render_source_yield_markdown(report: dict) -> str:
     lines.extend(
         [
             "",
-        "## Alex Review Companies",
+        "## Partner Review Companies",
         "",
         "| Company | Domain | Grade | Source | Missing Evidence | Recommended Manual Check | Why This May Be Noise |",
         "| --- | --- | --- | --- | --- | --- | --- |",
         ]
     )
-    for row in report.get("alex_review_companies", []):
+    for row in report.get("partner_review_companies", []):
         lines.append(
             "| {name} | {domain} | {grade} | {source} | {missing} | {check} | {noise} |".format(
                 name=str(row.get("name", "")).replace("|", "/"),
@@ -1599,7 +1599,7 @@ def write_source_yield_outputs(
     run_dir: Path | str,
     *,
     target_review_worthy_count: int = 5,
-    target_alex_review_count: int = DEFAULT_ALEX_REVIEW_TARGET,
+    target_partner_review_count: int = DEFAULT_PARTNER_REVIEW_TARGET,
     assign_owner_allowlist: tuple[str, ...] = DEFAULT_ASSIGN_OWNER_ALLOWLIST,
     packet_dir: Path | str | None = None,
     repeatability_run_dirs: list[Path | str] | None = None,
@@ -1608,7 +1608,7 @@ def write_source_yield_outputs(
     report = build_source_yield_validation_report(
         run_path,
         target_review_worthy_count=target_review_worthy_count,
-        target_alex_review_count=target_alex_review_count,
+        target_partner_review_count=target_partner_review_count,
         assign_owner_allowlist=assign_owner_allowlist,
     )
     weekly_focus = _read_json(run_path / "weekly-focus.json", {})
@@ -1652,7 +1652,7 @@ def _parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--run-dir", required=True)
     parser.add_argument("--target-review-worthy-count", type=int, default=5)
-    parser.add_argument("--target-alex-review-count", type=int, default=DEFAULT_ALEX_REVIEW_TARGET)
+    parser.add_argument("--target-partner-review-count", type=int, default=DEFAULT_PARTNER_REVIEW_TARGET)
     parser.add_argument("--assign-owner-allowlist", default=",".join(DEFAULT_ASSIGN_OWNER_ALLOWLIST))
     parser.add_argument("--packet-dir", default="")
     parser.add_argument("--repeatability-run-dir", action="append", default=[])
@@ -1665,7 +1665,7 @@ def main() -> None:
     result = write_source_yield_outputs(
         args.run_dir,
         target_review_worthy_count=args.target_review_worthy_count,
-        target_alex_review_count=args.target_alex_review_count,
+        target_partner_review_count=args.target_partner_review_count,
         assign_owner_allowlist=allowlist or DEFAULT_ASSIGN_OWNER_ALLOWLIST,
         packet_dir=args.packet_dir or None,
         repeatability_run_dirs=args.repeatability_run_dir,

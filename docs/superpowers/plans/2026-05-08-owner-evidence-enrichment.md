@@ -100,7 +100,7 @@ Verification:
   - customer/buyer evidence
   - missing owner evidence
   - next validation step
-- [x] Keep table concise enough for Alex to scan quickly.
+- [x] Keep table concise enough for partner review to scan quickly.
 
 Verification:
 - Markdown test confirms these headings render.

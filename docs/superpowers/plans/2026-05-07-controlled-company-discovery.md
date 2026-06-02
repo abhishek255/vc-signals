@@ -1442,7 +1442,7 @@ Phase 3 is done when all are true:
 - `weekly-preview.md` is unchanged in output path and rendering behavior.
 - Tests include guardrails against broad/vibe-based discovery.
 - Full test suite passes.
-- A real weekly artifact is inspected against the Alex five-minute test:
+- A real weekly artifact is inspected against the partner five-minute test:
   - top market movements are clear;
   - top companies/projects are source-backed;
   - New To Marathon is not polluted by GitHub-only rows;

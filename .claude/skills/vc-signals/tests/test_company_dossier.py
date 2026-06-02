@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 
-def test_company_dossier_grades_alex_review_ready_company_without_stage_metadata():
+def test_company_dossier_grades_partner_review_ready_company_without_stage_metadata():
     from company_dossier import build_company_dossier
 
     dossier = build_company_dossier(
@@ -24,7 +24,7 @@ def test_company_dossier_grades_alex_review_ready_company_without_stage_metadata
 
     assert dossier["official_domain"] == "agentfence.dev"
     assert dossier["confidence_grade"] == "C"
-    assert dossier["alex_review_ready"] is True
+    assert dossier["partner_review_ready"] is True
     assert dossier["strict_review_worthy_ready"] is False
     assert dossier["evidence_buckets"]["identity"]["status"] == "present"
     assert dossier["evidence_buckets"]["founder_team"]["status"] == "present"
@@ -58,7 +58,7 @@ def test_company_dossier_keeps_repo_only_rows_as_market_signals_not_companies():
 
     assert dossier["route"] == "market_signal"
     assert dossier["official_domain"] == ""
-    assert dossier["alex_review_ready"] is False
+    assert dossier["partner_review_ready"] is False
     assert dossier["strict_review_worthy_ready"] is False
     assert "official_domain_missing" in dossier["missing_evidence"]
     assert any("companies building around" in check.lower() for check in dossier["recommended_manual_checks"])

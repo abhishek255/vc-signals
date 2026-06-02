@@ -26,7 +26,7 @@
 - Maturity / consensus / too-late routing.
 - Founder/team and owner-readiness gates.
 - Attio context and action routing.
-- Weekly focus artifact and Alex/Marathon review workflow.
+- Weekly focus artifact and partner review workflow.
 
 This phase must not create a second retrieval engine inside `vc-signals`.
 

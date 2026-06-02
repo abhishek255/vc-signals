@@ -5,7 +5,7 @@
   "summary": {
     "goal_reached": true,
     "assign_owner_entities": 1,
-    "alex_review_company_entities": 13,
+    "partner_review_company_entities": 13,
     "review_worthy_company_entities": 8,
     "review_worthy_market_signal_entities": 5,
     "evidence_gap_entities": 12,
@@ -22,7 +22,7 @@
       ]
     },
     {
-      "action": "Alex review",
+      "action": "Partner review",
       "count": 13,
       "names": [
         "Goldbridge",

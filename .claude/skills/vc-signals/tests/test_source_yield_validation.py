@@ -142,11 +142,11 @@ def test_validation_rejects_rows_with_hard_evidence_identity_risk(tmp_path):
     report = build_source_yield_validation_report(run_dir, target_review_worthy_count=1)
 
     assert report["goal_assessment"]["net_new_review_worthy_count"] == 0
-    assert report["goal_assessment"]["alex_review_count"] == 0
+    assert report["goal_assessment"]["partner_review_count"] == 0
     assert report["evidence_gap_queue"][0]["name"] == "Sentinel"
 
 
-def test_alex_review_tier_accepts_credible_launches_before_strict_company_metadata(tmp_path):
+def test_partner_review_tier_accepts_credible_launches_before_strict_company_metadata(tmp_path):
     from source_yield_validation import (
         build_source_yield_decision_packet,
         build_source_yield_validation_report,
@@ -193,20 +193,20 @@ def test_alex_review_tier_accepts_credible_launches_before_strict_company_metada
     report = build_source_yield_validation_report(
         run_dir,
         target_review_worthy_count=1,
-        target_alex_review_count=2,
+        target_partner_review_count=2,
     )
     packet = build_source_yield_decision_packet(report, weekly_focus)
     markdown = render_source_yield_markdown(report)
 
     assert report["goal_assessment"]["net_new_review_worthy_count"] == 0
-    assert report["goal_assessment"]["alex_review_count"] == 2
-    assert report["target_status"]["alex_review_companies"]["met"] is True
-    assert [row["name"] for row in report["alex_review_companies"]] == ["AgentFence", "BuildGraph"]
-    assert report["alex_review_companies"][0]["confidence_grade"] == "C"
-    assert "commercial_or_customer_signal_missing" in report["alex_review_companies"][0]["missing_evidence"]
-    assert packet["summary"]["alex_review_companies"] == 2
-    assert packet["sections"]["alex_review_companies"][0]["recommended_manual_check"]
-    assert "## Alex Review Companies" in markdown
+    assert report["goal_assessment"]["partner_review_count"] == 2
+    assert report["target_status"]["partner_review_companies"]["met"] is True
+    assert [row["name"] for row in report["partner_review_companies"]] == ["AgentFence", "BuildGraph"]
+    assert report["partner_review_companies"][0]["confidence_grade"] == "C"
+    assert "commercial_or_customer_signal_missing" in report["partner_review_companies"][0]["missing_evidence"]
+    assert packet["summary"]["partner_review_companies"] == 2
+    assert packet["sections"]["partner_review_companies"][0]["recommended_manual_check"]
+    assert "## Partner Review Companies" in markdown
     assert "AgentFence" in markdown
 
 
@@ -605,10 +605,10 @@ def test_source_yield_targets_treat_above_max_as_not_met():
     from source_yield_validation import _source_yield_targets, _target_status
 
     status = _target_status(
-        _source_yield_targets(target_review_worthy_count=8, target_alex_review_count=8),
+        _source_yield_targets(target_review_worthy_count=8, target_partner_review_count=8),
         {
             "assign_owner": 1,
-            "alex_review_companies": 19,
+            "partner_review_companies": 19,
             "review_worthy_companies": 16,
             "review_worthy_market_signals": 5,
             "evidence_gap_queue": 12,
@@ -616,8 +616,8 @@ def test_source_yield_targets_treat_above_max_as_not_met():
         },
     )
 
-    assert status["alex_review_companies"]["met"] is False
-    assert status["alex_review_companies"]["status"] == "above_max"
+    assert status["partner_review_companies"]["met"] is False
+    assert status["partner_review_companies"]["status"] == "above_max"
     assert status["review_worthy_companies"]["met"] is False
     assert status["review_worthy_companies"]["status"] == "above_max"
 

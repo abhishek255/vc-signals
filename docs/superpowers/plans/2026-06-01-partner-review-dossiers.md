@@ -1,13 +1,13 @@
-# Alex Review Dossier Sprint
+# Partner Review Dossier Sprint
 
 ## Goal
 
-Make the packet useful for Alex before automation is perfect. The pipeline should separate strict owner-ready rows from good/decent companies worth review, explicit manual evidence gaps, and market signals that reveal where to search next.
+Make the packet useful for partner review before automation is perfect. The pipeline should separate strict owner-ready rows from good/decent companies worth review, explicit manual evidence gaps, and market signals that reveal where to search next.
 
 ## Product Shape
 
 - Keep `Assign Owner` strict. Do not relax the weekly owner gate.
-- Add `Alex Review Companies`: company rows with enough official identity, operator, product, or commercial evidence to deserve analyst review, even when stage/funding/headcount still needs manual confirmation.
+- Add `Partner Review Companies`: company rows with enough official identity, operator, product, or commercial evidence to deserve analyst review, even when stage/funding/headcount still needs manual confirmation.
 - Keep `Review-Worthy Companies` as the stricter evidence-cleared tier.
 - Keep `Manual Evidence Queue`: top blocked rows with the exact missing field, suggested source, promote-if/discard-if guidance, and likely payoff.
 - Keep `Review-Worthy Market Signals`: OSS and theme movement that should guide company discovery.
@@ -22,7 +22,7 @@ Make the packet useful for Alex before automation is perfect. The pipeline shoul
 
 ## Completion Bar
 
-- Tests prove Alex Review and Manual Evidence Queue exist in report and packet surfaces.
+- Tests prove Partner Review and Manual Evidence Queue exist in report and packet surfaces.
 - Tests prove the dossier layer does not invent facts and gives a confidence grade.
 - Tests prove official-site page classification feeds product/commercial/founder evidence.
 - Tests prove structured-provider direct access can be used through an injectable provider adapter while manual mode remains honest.

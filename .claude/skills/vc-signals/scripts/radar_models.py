@@ -719,7 +719,7 @@ class WeeklyFocusArtifact:
 
 
 @dataclass
-class AlexFeedback:
+class PartnerFeedback:
     run_id: str
     feedback: list[dict] = field(default_factory=list)
 
@@ -730,7 +730,7 @@ class AlexFeedback:
         }
 
     @classmethod
-    def from_dict(cls, payload: dict) -> "AlexFeedback":
+    def from_dict(cls, payload: dict) -> "PartnerFeedback":
         return cls(**_known_payload(cls, payload))
 
 

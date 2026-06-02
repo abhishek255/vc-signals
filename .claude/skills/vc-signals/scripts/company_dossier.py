@@ -289,7 +289,7 @@ def _likely_payoff(missing: list[str], grade: str) -> str:
         return "High: one focused manual check could make this partner-reviewable."
     if "official_domain_missing" in missing or "founder_team_missing" in missing:
         return "Medium: useful if identity resolves cleanly; otherwise keep as watch/noise."
-    return "Medium-high: likely useful for Alex if commercial or stage evidence appears."
+    return "Medium-high: likely useful for partner review if commercial or stage evidence appears."
 
 
 def build_company_dossier(row: dict) -> dict:
@@ -313,7 +313,7 @@ def build_company_dossier(row: dict) -> dict:
         grade = "Gap"
 
     strict_ready = bool(official_domain and founder_operator and (stage_metadata or commercial) and not risks)
-    alex_ready = bool(official_domain and founder_operator and product and source_bucket != "github" and not risks)
+    partner_ready = bool(official_domain and founder_operator and product and source_bucket != "github" and not risks)
     missing = _missing_evidence(
         official_domain=official_domain,
         founder_operator=founder_operator,
@@ -333,7 +333,7 @@ def build_company_dossier(row: dict) -> dict:
         "official_domain": official_domain,
         "official_url": f"https://{official_domain}" if official_domain else "",
         "confidence_grade": grade,
-        "alex_review_ready": alex_ready,
+        "partner_review_ready": partner_ready,
         "strict_review_worthy_ready": strict_ready,
         "manual_work_required": bool(missing),
         "evidence_buckets": {
@@ -382,7 +382,7 @@ def build_company_dossier(row: dict) -> dict:
     }
 
 
-def build_alex_review_row(row: dict, dossier: dict | None = None) -> dict:
+def build_partner_review_row(row: dict, dossier: dict | None = None) -> dict:
     dossier = dossier or build_company_dossier(row)
     return {
         "name": dossier["name"],

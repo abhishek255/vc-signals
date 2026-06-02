@@ -6,7 +6,7 @@ Source run: `docs/radar-runs/full-source-dossier-validation-2026-06-01-r1`
 
 ## Bottom Line
 
-The 8 Product Hunt-sourced Review-Worthy rows are credible enough to stay in **Alex Review / research deeper**. They should **not** be promoted to Assign Owner yet.
+The 8 Product Hunt-sourced Review-Worthy rows are credible enough to stay in **Partner Review / research deeper**. They should **not** be promoted to Assign Owner yet.
 
 - 8 / 8 official domains loaded during a live check.
 - 8 / 8 have at least a real product site or product surface.
@@ -18,16 +18,16 @@ The 8 Product Hunt-sourced Review-Worthy rows are credible enough to stay in **A
 
 | Row | Domain Check | Product / Commercial Proof | Main Manual Gap | Verdict |
 | --- | --- | --- | --- | --- |
-| SocialEcho 2.0 | `https://www.socialecho.net/`, `/pricing/`, and `/about/` loaded. | Site, pricing, about, API/help docs, GitHub, Product Hunt, and social links. | Founder/team, stage, headcount/funding. | Keep in Alex Review. Good product proof, still not owner-ready. |
+| SocialEcho 2.0 | `https://www.socialecho.net/`, `/pricing/`, and `/about/` loaded. | Site, pricing, about, API/help docs, GitHub, Product Hunt, and social links. | Founder/team, stage, headcount/funding. | Keep in Partner Review. Good product proof, still not owner-ready. |
 | Typeahead | `https://www.typeahead.ai/` and `/blog` loaded. | Official product site and blog. | Evidence set includes unrelated legacy `typeahead.js` links; needs identity cleanup plus founder/stage check. | Keep with caution. Good enough to inspect, but do not overstate. |
-| Tabstack Web Research | `https://tabstack.ai/`, `/pricing`, and `https://docs.tabstack.ai/` loaded. | Site, docs, pricing, blog, Product Hunt. | Founder/team, stage, headcount/funding. | Keep in Alex Review. Solid product proof. |
+| Tabstack Web Research | `https://tabstack.ai/`, `/pricing`, and `https://docs.tabstack.ai/` loaded. | Site, docs, pricing, blog, Product Hunt. | Founder/team, stage, headcount/funding. | Keep in Partner Review. Solid product proof. |
 | Stella | `https://stella.sh/` and `/pricing` loaded. | Official site and pricing. | Evidence set has unrelated Stella links and localhost artifacts; needs clean identity/founder check. | Keep with caution. Real product surface, but noisy evidence. |
-| R0Y OMNI 1.0 | `https://www.r0y.xyz/`, `/pricing`, and `/customers` loaded. | Site, pricing, customers, about, team, careers, docs, case studies, Product Hunt. | Stage/headcount/funding still blank. | Keep in Alex Review. Strongest product/commercial proof in the PH set. |
-| NetworkSpy | `https://networkspy.app/` and `/pricing` loaded. | Site, pricing, blog, changelog, download, roadmap, Product Hunt, GitHub release evidence. | Founder/stage/headcount; one checked GitHub URL 404ed, though the evidence set includes the active `muizidn/NetworkSpy-Tauri` repo. | Keep in Alex Review with minor evidence cleanup. |
-| Joanium | `https://www.joanium.com/`, `/docs`, and GitHub org loaded. | Site, docs, download, GitHub org/repo, Product Hunt. | Founder/team, stage, headcount/funding, commercial proof. | Keep in Alex Review. Good indie product signal. |
-| Emily by Co-Desk | `https://co-desk.eu/`, `/pricing`, and `https://docs.co-desk.eu/` loaded. | Site, pricing, docs/help center, about/blog, Product Hunt. | Founder/team and stage/headcount/funding; evidence includes some unrelated people/name-collision links. | Keep in Alex Review. Solid product proof, needs manual identity check. |
+| R0Y OMNI 1.0 | `https://www.r0y.xyz/`, `/pricing`, and `/customers` loaded. | Site, pricing, customers, about, team, careers, docs, case studies, Product Hunt. | Stage/headcount/funding still blank. | Keep in Partner Review. Strongest product/commercial proof in the PH set. |
+| NetworkSpy | `https://networkspy.app/` and `/pricing` loaded. | Site, pricing, blog, changelog, download, roadmap, Product Hunt, GitHub release evidence. | Founder/stage/headcount; one checked GitHub URL 404ed, though the evidence set includes the active `muizidn/NetworkSpy-Tauri` repo. | Keep in Partner Review with minor evidence cleanup. |
+| Joanium | `https://www.joanium.com/`, `/docs`, and GitHub org loaded. | Site, docs, download, GitHub org/repo, Product Hunt. | Founder/team, stage, headcount/funding, commercial proof. | Keep in Partner Review. Good indie product signal. |
+| Emily by Co-Desk | `https://co-desk.eu/`, `/pricing`, and `https://docs.co-desk.eu/` loaded. | Site, pricing, docs/help center, about/blog, Product Hunt. | Founder/team and stage/headcount/funding; evidence includes some unrelated people/name-collision links. | Keep in Partner Review. Solid product proof, needs manual identity check. |
 
-## What This Means For Alex
+## What This Means For Partner Review
 
 These are not "take a meeting tomorrow" rows. They are good/decent companies or products worth a focused inspection pass.
 

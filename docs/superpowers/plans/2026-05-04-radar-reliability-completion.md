@@ -1302,7 +1302,7 @@ def test_summarize_attributes_extracts_owner_last_interaction_and_round_fields()
     from attio import summarize_attributes
 
     attributes = {
-        "mmp_owner": [{"target_object": "people", "target_record_id": "person_1", "value": "Alex"}],
+        "mmp_owner": [{"target_object": "people", "target_record_id": "person_1", "value": "Partner"}],
         "last_interaction": [{"interacted_at": "2026-02-01"}],
         "last_round_type": [{"value": "Seed"}],
         "headcount": [{"value": "24"}],
@@ -1311,7 +1311,7 @@ def test_summarize_attributes_extracts_owner_last_interaction_and_round_fields()
 
     summary = summarize_attributes(attributes)
 
-    assert summary["owner"] == "Alex"
+    assert summary["owner"] == "Partner"
     assert summary["last_interaction"] == "2026-02-01"
     assert summary["last_round_type"] == "Seed"
     assert summary["headcount"] == "24"
@@ -1327,7 +1327,7 @@ def test_match_company_returns_record_url_and_enrichment_fields():
         if path.endswith("/attributes/domains/values"):
             return {"data": [{"domain": "beesafe.ai"}]}
         if path.endswith("/attributes/mmp_owner/values"):
-            return {"data": [{"value": "Alex"}]}
+            return {"data": [{"value": "Partner"}]}
         if path.endswith("/attributes/status_8/values"):
             return {"data": []}
         if path.endswith("/attributes/last_interaction/values"):
@@ -1350,7 +1350,7 @@ def test_match_company_returns_record_url_and_enrichment_fields():
     result = client.match_company({"name": "BeeSafe AI", "domain": "beesafe.ai"})
 
     assert result["attio_record_url"].endswith("/rec_123")
-    assert result["attio_owner"] == "Alex"
+    assert result["attio_owner"] == "Partner"
     assert result["stage"] == "Seed"
     assert result["headcount"] == "24"
     assert result["raised"] == "$5M"

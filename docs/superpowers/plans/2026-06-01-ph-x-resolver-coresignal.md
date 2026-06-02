@@ -14,7 +14,7 @@ Improve weak-source conversion without loosening promotion gates:
 - Product Hunt already has API/feed ingestion, direct outbound handling, and web fallback, but `enrich_launch_domains` does not first inspect all row-level text/link/source URL fields.
 - X already resolves URLs embedded in snippets, but ignores structured link fields before falling back to web resolver.
 - Structured-provider trial detects Coresignal access but only uses an injected fake runner; live use still skips.
-- The end goal is not more candidate rows. It is more strict Alex Review rows with official domains, founders/team evidence, commercial proof, and explicit gaps.
+- The end goal is not more candidate rows. It is more strict Partner Review rows with official domains, founders/team evidence, commercial proof, and explicit gaps.
 
 ## Implementation Steps
 
@@ -41,4 +41,4 @@ Improve weak-source conversion without loosening promotion gates:
 5. Verify.
    - Run focused PH/X/Coresignal tests.
    - Run full vc-signals test suite.
-   - Run a fresh PH/X-focused validation and compare PH/X resolved counts, Alex Review rows, strict Review-Worthy rows, Market Signals, Evidence Gap rows, and unsafe promotions.
+   - Run a fresh PH/X-focused validation and compare PH/X resolved counts, Partner Review rows, strict Review-Worthy rows, Market Signals, Evidence Gap rows, and unsafe promotions.

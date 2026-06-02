@@ -6,11 +6,11 @@ from collections import Counter, defaultdict
 from pathlib import Path
 
 from radar_models import (
-    AlexFeedback,
     Candidate,
     ExecutiveSnapshot,
     FocusItem,
     MarketMovement,
+    PartnerFeedback,
     SectorIntelligence,
     ThemeSignal,
     WeeklyFocusArtifact,
@@ -1026,7 +1026,7 @@ def _hn_assign_owner_focus_items(hn_launch_trial: dict | None) -> list[FocusItem
                 market_movement_id=_stable_id(str(row.get("market_movement") or "HN launch signal")),
                 market_movement=str(row.get("market_movement") or "HN launch signal"),
                 market_sector=str(row.get("market_sector") or "HN Launch"),
-                why_focus_this_week=f"HN launch-sourced {'Assign Owner' if allow_assign_owner else 'Alex Review'}: {source_title}",
+                why_focus_this_week=f"HN launch-sourced {'Assign Owner' if allow_assign_owner else 'Partner Review'}: {source_title}",
                 who_is_talking=["HN launch source", "founder/company evidence"],
                 talker_types=["founder", "practitioner"],
                 talker_type_confidence="Medium",
@@ -1565,7 +1565,7 @@ def render_weekly_focus_markdown(artifact: WeeklyFocusArtifact) -> str:
 
 
 def write_feedback_scaffold(run_id: str, focus_items: list[FocusItem], path: Path) -> Path:
-    payload = AlexFeedback(
+    payload = PartnerFeedback(
         run_id=run_id,
         feedback=[
             {

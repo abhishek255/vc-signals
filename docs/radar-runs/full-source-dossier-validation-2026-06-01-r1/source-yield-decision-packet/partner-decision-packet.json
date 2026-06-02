@@ -5,7 +5,7 @@
   "summary": {
     "goal_reached": true,
     "owner_follow_up": 1,
-    "alex_review_companies": 13,
+    "partner_review_companies": 13,
     "review_worthy_companies": 8,
     "review_worthy_market_signals": 5,
     "evidence_gap_queue": 12,
@@ -23,7 +23,7 @@
         "met": true,
         "status": "met"
       },
-      "alex_review_companies": {
+      "partner_review_companies": {
         "count": 13,
         "min": 8,
         "max": 15,
@@ -76,7 +76,7 @@
         "why_system_call": "Only row clearing the strict weekly Assign Owner gate."
       }
     ],
-    "alex_review_companies": [
+    "partner_review_companies": [
       {
         "name": "Goldbridge",
         "domain": "goldbridgebanking.com",
@@ -104,7 +104,7 @@
         "recommended_manual_check": "Check pricing, docs, customers, case studies, waitlist, or deployment proof.",
         "promote_if": "Promote if manual review confirms commercial/customer proof.",
         "discard_if": "Discard if evidence remains only launch chatter, social posts, or directories.",
-        "likely_payoff": "Medium-high: likely useful for Alex if commercial or stage evidence appears.",
+        "likely_payoff": "Medium-high: likely useful for partner review if commercial or stage evidence appears.",
         "why_this_may_be_noise": "YC public directory row; verify current activity, founders, funding, customers, and Marathon context before owner routing.",
         "evidence_urls": [
           "https://www.ycombinator.com/companies/goldbridge",
@@ -118,7 +118,7 @@
           "official_domain": "goldbridgebanking.com",
           "official_url": "https://goldbridgebanking.com",
           "confidence_grade": "C",
-          "alex_review_ready": true,
+          "partner_review_ready": true,
           "strict_review_worthy_ready": true,
           "manual_work_required": true,
           "evidence_buckets": {
@@ -167,7 +167,7 @@
           "recommended_manual_check": "Check pricing, docs, customers, case studies, waitlist, or deployment proof.",
           "promote_if": "Promote if manual review confirms commercial/customer proof.",
           "discard_if": "Discard if evidence remains only launch chatter, social posts, or directories.",
-          "likely_payoff": "Medium-high: likely useful for Alex if commercial or stage evidence appears.",
+          "likely_payoff": "Medium-high: likely useful for partner review if commercial or stage evidence appears.",
           "why_it_matters": "Goldbridge | Y Combinator: Goldbridge is building the financial operating system for the largest asset class in the world – real estate. More than $1T in rent flows through landlord bank accounts annually, with roughly a quarter locked in idle reserves and security deposits – and billions more leaking from unnecessary property expenses. And with $2.5T in real estate loans about to mature in 2027/28, property owners are desperate to boost their income ASAP. \r\n\r\nGoldbridge solves this problem by creating the first AI-powered banking platform for real estate owners. We are backed by Y Combinator and other world-class investors, and our founding team includes a 2x YC founder, former White House advisor, and 100-unit real estate owner/operator with deep industry expertise. Come help us redefine the future of real estate.",
           "why_this_may_be_noise": "YC public directory row; verify current activity, founders, funding, customers, and Marathon context before owner routing.",
           "risk_flags": [],
@@ -204,7 +204,7 @@
         "recommended_manual_check": "Check pricing, docs, customers, case studies, waitlist, or deployment proof.",
         "promote_if": "Promote if manual review confirms commercial/customer proof.",
         "discard_if": "Discard if evidence remains only launch chatter, social posts, or directories.",
-        "likely_payoff": "Medium-high: likely useful for Alex if commercial or stage evidence appears.",
+        "likely_payoff": "Medium-high: likely useful for partner review if commercial or stage evidence appears.",
         "why_this_may_be_noise": "YC public directory row; verify current activity, founders, funding, customers, and Marathon context before owner routing.",
         "evidence_urls": [
           "https://www.ycombinator.com/companies/simplex",
@@ -218,7 +218,7 @@
           "official_domain": "simplex.sh",
           "official_url": "https://simplex.sh",
           "confidence_grade": "C",
-          "alex_review_ready": true,
+          "partner_review_ready": true,
           "strict_review_worthy_ready": true,
           "manual_work_required": true,
           "evidence_buckets": {
@@ -267,7 +267,7 @@
           "recommended_manual_check": "Check pricing, docs, customers, case studies, waitlist, or deployment proof.",
           "promote_if": "Promote if manual review confirms commercial/customer proof.",
           "discard_if": "Discard if evidence remains only launch chatter, social posts, or directories.",
-          "likely_payoff": "Medium-high: likely useful for Alex if commercial or stage evidence appears.",
+          "likely_payoff": "Medium-high: likely useful for partner review if commercial or stage evidence appears.",
           "why_it_matters": "Simplex | Y Combinator: Simplex builds AI agents to handle provider enrollment end-to-end. We automate pulling provider data from CAQH, filling out enrollment forms + uploading licenses via payor portals/email/phone, updating applications when returned for corrections, and performing effective date follow-ups until a final determination is made, all autonomously.",
           "why_this_may_be_noise": "YC public directory row; verify current activity, founders, funding, customers, and Marathon context before owner routing.",
           "risk_flags": [],
@@ -305,7 +305,7 @@
         "recommended_manual_check": "Check pricing, docs, customers, case studies, waitlist, or deployment proof.",
         "promote_if": "Promote if manual review confirms commercial/customer proof.",
         "discard_if": "Discard if evidence remains only launch chatter, social posts, or directories.",
-        "likely_payoff": "Medium-high: likely useful for Alex if commercial or stage evidence appears.",
+        "likely_payoff": "Medium-high: likely useful for partner review if commercial or stage evidence appears.",
         "why_this_may_be_noise": "YC public directory row; verify current activity, founders, funding, customers, and Marathon context before owner routing.",
         "evidence_urls": [
           "https://www.ycombinator.com/companies/miru-ml",
@@ -319,7 +319,7 @@
           "official_domain": "mirurobotics.com",
           "official_url": "https://mirurobotics.com",
           "confidence_grade": "C",
-          "alex_review_ready": true,
+          "partner_review_ready": true,
           "strict_review_worthy_ready": true,
           "manual_work_required": true,
           "evidence_buckets": {
@@ -370,7 +370,7 @@
           "recommended_manual_check": "Check pricing, docs, customers, case studies, waitlist, or deployment proof.",
           "promote_if": "Promote if manual review confirms commercial/customer proof.",
           "discard_if": "Discard if evidence remains only launch chatter, social posts, or directories.",
-          "likely_payoff": "Medium-high: likely useful for Alex if commercial or stage evidence appears.",
+          "likely_payoff": "Medium-high: likely useful for partner review if commercial or stage evidence appears.",
           "why_it_matters": "Miru | Y Combinator: Miru makes it easy for robotics teams to manage, version, and deploy robot configurations. Developers use our well-documented APIs and UI components to automate configuration updates for both engineers and operators.\r\n\r\nIn the long term, we're building software infrastructure to accelerate the automation of the physical world.",
           "why_this_may_be_noise": "YC public directory row; verify current activity, founders, funding, customers, and Marathon context before owner routing.",
           "risk_flags": [],
@@ -430,7 +430,7 @@
           "official_domain": "socialecho.net",
           "official_url": "https://socialecho.net",
           "confidence_grade": "B",
-          "alex_review_ready": true,
+          "partner_review_ready": true,
           "strict_review_worthy_ready": true,
           "manual_work_required": true,
           "evidence_buckets": {
@@ -549,7 +549,7 @@
           "official_domain": "typeahead.ai",
           "official_url": "https://typeahead.ai",
           "confidence_grade": "B",
-          "alex_review_ready": true,
+          "partner_review_ready": true,
           "strict_review_worthy_ready": true,
           "manual_work_required": true,
           "evidence_buckets": {
@@ -652,7 +652,7 @@
         "recommended_manual_check": "Check stage, funding, headcount, jobs, careers, or Crunchbase-style public snippets.",
         "promote_if": "Promote if manual review confirms stage, funding, headcount, or hiring evidence, commercial/customer proof.",
         "discard_if": "Discard if evidence remains only launch chatter, social posts, or directories.",
-        "likely_payoff": "Medium-high: likely useful for Alex if commercial or stage evidence appears.",
+        "likely_payoff": "Medium-high: likely useful for partner review if commercial or stage evidence appears.",
         "why_this_may_be_noise": "Product Hunt API launch row; needs official domain, founder/team, stage, and customer evidence before owner routing.",
         "evidence_urls": [
           "https://trippple.club/",
@@ -669,7 +669,7 @@
           "official_domain": "trippple.club",
           "official_url": "https://trippple.club",
           "confidence_grade": "C",
-          "alex_review_ready": true,
+          "partner_review_ready": true,
           "strict_review_worthy_ready": true,
           "manual_work_required": true,
           "evidence_buckets": {
@@ -727,7 +727,7 @@
           "recommended_manual_check": "Check stage, funding, headcount, jobs, careers, or Crunchbase-style public snippets.",
           "promote_if": "Promote if manual review confirms stage, funding, headcount, or hiring evidence, commercial/customer proof.",
           "discard_if": "Discard if evidence remains only launch chatter, social posts, or directories.",
-          "likely_payoff": "Medium-high: likely useful for Alex if commercial or stage evidence appears.",
+          "likely_payoff": "Medium-high: likely useful for partner review if commercial or stage evidence appears.",
           "why_it_matters": "Advertise together on Meta Ads and pay 3x less",
           "why_this_may_be_noise": "Product Hunt API launch row; needs official domain, founder/team, stage, and customer evidence before owner routing.",
           "risk_flags": [],
@@ -792,7 +792,7 @@
           "official_domain": "tabstack.ai",
           "official_url": "https://tabstack.ai",
           "confidence_grade": "B",
-          "alex_review_ready": true,
+          "partner_review_ready": true,
           "strict_review_worthy_ready": true,
           "manual_work_required": true,
           "evidence_buckets": {
@@ -912,7 +912,7 @@
           "official_domain": "stella.sh",
           "official_url": "https://stella.sh",
           "confidence_grade": "A",
-          "alex_review_ready": true,
+          "partner_review_ready": true,
           "strict_review_worthy_ready": true,
           "manual_work_required": true,
           "evidence_buckets": {
@@ -1020,7 +1020,7 @@
         "recommended_manual_check": "Check stage, funding, headcount, jobs, careers, or Crunchbase-style public snippets.",
         "promote_if": "Promote if manual review confirms stage, funding, headcount, or hiring evidence, commercial/customer proof.",
         "discard_if": "Discard if evidence remains only launch chatter, social posts, or directories.",
-        "likely_payoff": "Medium-high: likely useful for Alex if commercial or stage evidence appears.",
+        "likely_payoff": "Medium-high: likely useful for partner review if commercial or stage evidence appears.",
         "why_this_may_be_noise": "Product Hunt API launch row; needs official domain, founder/team, stage, and customer evidence before owner routing.",
         "evidence_urls": [
           "https://sentinel.co/",
@@ -1037,7 +1037,7 @@
           "official_domain": "sentinel.co",
           "official_url": "https://sentinel.co",
           "confidence_grade": "C",
-          "alex_review_ready": true,
+          "partner_review_ready": true,
           "strict_review_worthy_ready": false,
           "manual_work_required": true,
           "evidence_buckets": {
@@ -1094,7 +1094,7 @@
           "recommended_manual_check": "Check stage, funding, headcount, jobs, careers, or Crunchbase-style public snippets.",
           "promote_if": "Promote if manual review confirms stage, funding, headcount, or hiring evidence, commercial/customer proof.",
           "discard_if": "Discard if evidence remains only launch chatter, social posts, or directories.",
-          "likely_payoff": "Medium-high: likely useful for Alex if commercial or stage evidence appears.",
+          "likely_payoff": "Medium-high: likely useful for partner review if commercial or stage evidence appears.",
           "why_it_matters": "Control your robots from anywhere in the world",
           "why_this_may_be_noise": "Product Hunt API launch row; needs official domain, founder/team, stage, and customer evidence before owner routing.",
           "risk_flags": [],
@@ -1164,7 +1164,7 @@
           "official_domain": "r0y.xyz",
           "official_url": "https://r0y.xyz",
           "confidence_grade": "B",
-          "alex_review_ready": true,
+          "partner_review_ready": true,
           "strict_review_worthy_ready": true,
           "manual_work_required": true,
           "evidence_buckets": {
@@ -1290,7 +1290,7 @@
           "official_domain": "networkspy.app",
           "official_url": "https://networkspy.app",
           "confidence_grade": "B",
-          "alex_review_ready": true,
+          "partner_review_ready": true,
           "strict_review_worthy_ready": true,
           "manual_work_required": true,
           "evidence_buckets": {
@@ -1406,7 +1406,7 @@
           "official_domain": "joanium.com",
           "official_url": "https://joanium.com",
           "confidence_grade": "B",
-          "alex_review_ready": true,
+          "partner_review_ready": true,
           "strict_review_worthy_ready": true,
           "manual_work_required": true,
           "evidence_buckets": {
@@ -1524,7 +1524,7 @@
           "official_domain": "co-desk.eu",
           "official_url": "https://co-desk.eu",
           "confidence_grade": "A",
-          "alex_review_ready": true,
+          "partner_review_ready": true,
           "strict_review_worthy_ready": true,
           "manual_work_required": true,
           "evidence_buckets": {
@@ -2477,7 +2477,7 @@
         "manual_work_required": true,
         "promote_if": "Promote if stage, funding, headcount, hiring, or commercial proof confirms company maturity.",
         "discard_if": "Discard if it remains only a launch with no maturity or commercial evidence.",
-        "likely_payoff": "High: one metadata check could make this Alex-reviewable or strict review-worthy.",
+        "likely_payoff": "High: one metadata check could make this partner-reviewable or strict review-worthy.",
         "promotion_target": "Review-Worthy Company or supporting Market Signal",
         "evidence_urls": [
           "https://github.com/Sudo-Ali-Dev/Rankistan",
@@ -2719,7 +2719,7 @@
         "manual_work_required": true,
         "promote_if": "Promote if stage, funding, headcount, hiring, or commercial proof confirms company maturity.",
         "discard_if": "Discard if it remains only a launch with no maturity or commercial evidence.",
-        "likely_payoff": "High: one metadata check could make this Alex-reviewable or strict review-worthy.",
+        "likely_payoff": "High: one metadata check could make this partner-reviewable or strict review-worthy.",
         "promotion_target": "Review-Worthy Company or supporting Market Signal",
         "evidence_urls": [
           "https://github.com/redwoodjs/agent-ci",
@@ -2909,7 +2909,7 @@
         "manual_work_required": true,
         "promote_if": "Promote if stage, funding, headcount, hiring, or commercial proof confirms company maturity.",
         "discard_if": "Discard if it remains only a launch with no maturity or commercial evidence.",
-        "likely_payoff": "High: one metadata check could make this Alex-reviewable or strict review-worthy.",
+        "likely_payoff": "High: one metadata check could make this partner-reviewable or strict review-worthy.",
         "promotion_target": "Review-Worthy Company or supporting Market Signal",
         "evidence_urls": [
           "https://github.com/BANANASJIM/rdc-cli",
@@ -3034,7 +3034,7 @@
         "manual_work_required": true,
         "promote_if": "Promote if stage, funding, headcount, hiring, or commercial proof confirms company maturity.",
         "discard_if": "Discard if it remains only a launch with no maturity or commercial evidence.",
-        "likely_payoff": "High: one metadata check could make this Alex-reviewable or strict review-worthy.",
+        "likely_payoff": "High: one metadata check could make this partner-reviewable or strict review-worthy.",
         "promotion_target": "Review-Worthy Company or supporting Market Signal",
         "evidence_urls": [
           "https://github.com/leiting-eric/DailyBrief",
@@ -3223,7 +3223,7 @@
         "manual_work_required": true,
         "promote_if": "Promote if stage, funding, headcount, hiring, or commercial proof confirms company maturity.",
         "discard_if": "Discard if it remains only a launch with no maturity or commercial evidence.",
-        "likely_payoff": "High: one metadata check could make this Alex-reviewable or strict review-worthy.",
+        "likely_payoff": "High: one metadata check could make this partner-reviewable or strict review-worthy.",
         "promotion_target": "Review-Worthy Company or supporting Market Signal",
         "evidence_urls": [
           "https://github.com/Sudo-Ali-Dev/Rankistan",
@@ -3465,7 +3465,7 @@
         "manual_work_required": true,
         "promote_if": "Promote if stage, funding, headcount, hiring, or commercial proof confirms company maturity.",
         "discard_if": "Discard if it remains only a launch with no maturity or commercial evidence.",
-        "likely_payoff": "High: one metadata check could make this Alex-reviewable or strict review-worthy.",
+        "likely_payoff": "High: one metadata check could make this partner-reviewable or strict review-worthy.",
         "promotion_target": "Review-Worthy Company or supporting Market Signal",
         "evidence_urls": [
           "https://github.com/redwoodjs/agent-ci",
@@ -3655,7 +3655,7 @@
         "manual_work_required": true,
         "promote_if": "Promote if stage, funding, headcount, hiring, or commercial proof confirms company maturity.",
         "discard_if": "Discard if it remains only a launch with no maturity or commercial evidence.",
-        "likely_payoff": "High: one metadata check could make this Alex-reviewable or strict review-worthy.",
+        "likely_payoff": "High: one metadata check could make this partner-reviewable or strict review-worthy.",
         "promotion_target": "Review-Worthy Company or supporting Market Signal",
         "evidence_urls": [
           "https://github.com/BANANASJIM/rdc-cli",
@@ -3780,7 +3780,7 @@
         "manual_work_required": true,
         "promote_if": "Promote if stage, funding, headcount, hiring, or commercial proof confirms company maturity.",
         "discard_if": "Discard if it remains only a launch with no maturity or commercial evidence.",
-        "likely_payoff": "High: one metadata check could make this Alex-reviewable or strict review-worthy.",
+        "likely_payoff": "High: one metadata check could make this partner-reviewable or strict review-worthy.",
         "promotion_target": "Review-Worthy Company or supporting Market Signal",
         "evidence_urls": [
           "https://github.com/leiting-eric/DailyBrief",
@@ -3880,7 +3880,7 @@
         "recommended_manual_check": "Check pricing, docs, customers, case studies, waitlist, or deployment proof.",
         "promote_if": "Promote if manual review confirms commercial/customer proof.",
         "discard_if": "Discard if evidence remains only launch chatter, social posts, or directories.",
-        "likely_payoff": "Medium-high: likely useful for Alex if commercial or stage evidence appears.",
+        "likely_payoff": "Medium-high: likely useful for partner review if commercial or stage evidence appears.",
         "why_this_may_be_noise": "YC public directory row; verify current activity, founders, funding, customers, and Marathon context before owner routing.",
         "evidence_urls": [
           "https://www.ycombinator.com/companies/goldbridge",
@@ -3894,7 +3894,7 @@
           "official_domain": "goldbridgebanking.com",
           "official_url": "https://goldbridgebanking.com",
           "confidence_grade": "C",
-          "alex_review_ready": true,
+          "partner_review_ready": true,
           "strict_review_worthy_ready": true,
           "manual_work_required": true,
           "evidence_buckets": {
@@ -3943,7 +3943,7 @@
           "recommended_manual_check": "Check pricing, docs, customers, case studies, waitlist, or deployment proof.",
           "promote_if": "Promote if manual review confirms commercial/customer proof.",
           "discard_if": "Discard if evidence remains only launch chatter, social posts, or directories.",
-          "likely_payoff": "Medium-high: likely useful for Alex if commercial or stage evidence appears.",
+          "likely_payoff": "Medium-high: likely useful for partner review if commercial or stage evidence appears.",
           "why_it_matters": "Goldbridge | Y Combinator: Goldbridge is building the financial operating system for the largest asset class in the world – real estate. More than $1T in rent flows through landlord bank accounts annually, with roughly a quarter locked in idle reserves and security deposits – and billions more leaking from unnecessary property expenses. And with $2.5T in real estate loans about to mature in 2027/28, property owners are desperate to boost their income ASAP. \r\n\r\nGoldbridge solves this problem by creating the first AI-powered banking platform for real estate owners. We are backed by Y Combinator and other world-class investors, and our founding team includes a 2x YC founder, former White House advisor, and 100-unit real estate owner/operator with deep industry expertise. Come help us redefine the future of real estate.",
           "why_this_may_be_noise": "YC public directory row; verify current activity, founders, funding, customers, and Marathon context before owner routing.",
           "risk_flags": [],
@@ -3980,7 +3980,7 @@
         "recommended_manual_check": "Check pricing, docs, customers, case studies, waitlist, or deployment proof.",
         "promote_if": "Promote if manual review confirms commercial/customer proof.",
         "discard_if": "Discard if evidence remains only launch chatter, social posts, or directories.",
-        "likely_payoff": "Medium-high: likely useful for Alex if commercial or stage evidence appears.",
+        "likely_payoff": "Medium-high: likely useful for partner review if commercial or stage evidence appears.",
         "why_this_may_be_noise": "YC public directory row; verify current activity, founders, funding, customers, and Marathon context before owner routing.",
         "evidence_urls": [
           "https://www.ycombinator.com/companies/simplex",
@@ -3994,7 +3994,7 @@
           "official_domain": "simplex.sh",
           "official_url": "https://simplex.sh",
           "confidence_grade": "C",
-          "alex_review_ready": true,
+          "partner_review_ready": true,
           "strict_review_worthy_ready": true,
           "manual_work_required": true,
           "evidence_buckets": {
@@ -4043,7 +4043,7 @@
           "recommended_manual_check": "Check pricing, docs, customers, case studies, waitlist, or deployment proof.",
           "promote_if": "Promote if manual review confirms commercial/customer proof.",
           "discard_if": "Discard if evidence remains only launch chatter, social posts, or directories.",
-          "likely_payoff": "Medium-high: likely useful for Alex if commercial or stage evidence appears.",
+          "likely_payoff": "Medium-high: likely useful for partner review if commercial or stage evidence appears.",
           "why_it_matters": "Simplex | Y Combinator: Simplex builds AI agents to handle provider enrollment end-to-end. We automate pulling provider data from CAQH, filling out enrollment forms + uploading licenses via payor portals/email/phone, updating applications when returned for corrections, and performing effective date follow-ups until a final determination is made, all autonomously.",
           "why_this_may_be_noise": "YC public directory row; verify current activity, founders, funding, customers, and Marathon context before owner routing.",
           "risk_flags": [],
@@ -4081,7 +4081,7 @@
         "recommended_manual_check": "Check pricing, docs, customers, case studies, waitlist, or deployment proof.",
         "promote_if": "Promote if manual review confirms commercial/customer proof.",
         "discard_if": "Discard if evidence remains only launch chatter, social posts, or directories.",
-        "likely_payoff": "Medium-high: likely useful for Alex if commercial or stage evidence appears.",
+        "likely_payoff": "Medium-high: likely useful for partner review if commercial or stage evidence appears.",
         "why_this_may_be_noise": "YC public directory row; verify current activity, founders, funding, customers, and Marathon context before owner routing.",
         "evidence_urls": [
           "https://www.ycombinator.com/companies/miru-ml",
@@ -4095,7 +4095,7 @@
           "official_domain": "mirurobotics.com",
           "official_url": "https://mirurobotics.com",
           "confidence_grade": "C",
-          "alex_review_ready": true,
+          "partner_review_ready": true,
           "strict_review_worthy_ready": true,
           "manual_work_required": true,
           "evidence_buckets": {
@@ -4146,7 +4146,7 @@
           "recommended_manual_check": "Check pricing, docs, customers, case studies, waitlist, or deployment proof.",
           "promote_if": "Promote if manual review confirms commercial/customer proof.",
           "discard_if": "Discard if evidence remains only launch chatter, social posts, or directories.",
-          "likely_payoff": "Medium-high: likely useful for Alex if commercial or stage evidence appears.",
+          "likely_payoff": "Medium-high: likely useful for partner review if commercial or stage evidence appears.",
           "why_it_matters": "Miru | Y Combinator: Miru makes it easy for robotics teams to manage, version, and deploy robot configurations. Developers use our well-documented APIs and UI components to automate configuration updates for both engineers and operators.\r\n\r\nIn the long term, we're building software infrastructure to accelerate the automation of the physical world.",
           "why_this_may_be_noise": "YC public directory row; verify current activity, founders, funding, customers, and Marathon context before owner routing.",
           "risk_flags": [],
@@ -4206,7 +4206,7 @@
           "official_domain": "socialecho.net",
           "official_url": "https://socialecho.net",
           "confidence_grade": "B",
-          "alex_review_ready": true,
+          "partner_review_ready": true,
           "strict_review_worthy_ready": true,
           "manual_work_required": true,
           "evidence_buckets": {
@@ -4325,7 +4325,7 @@
           "official_domain": "typeahead.ai",
           "official_url": "https://typeahead.ai",
           "confidence_grade": "B",
-          "alex_review_ready": true,
+          "partner_review_ready": true,
           "strict_review_worthy_ready": true,
           "manual_work_required": true,
           "evidence_buckets": {
@@ -4428,7 +4428,7 @@
         "recommended_manual_check": "Check stage, funding, headcount, jobs, careers, or Crunchbase-style public snippets.",
         "promote_if": "Promote if manual review confirms stage, funding, headcount, or hiring evidence, commercial/customer proof.",
         "discard_if": "Discard if evidence remains only launch chatter, social posts, or directories.",
-        "likely_payoff": "Medium-high: likely useful for Alex if commercial or stage evidence appears.",
+        "likely_payoff": "Medium-high: likely useful for partner review if commercial or stage evidence appears.",
         "why_this_may_be_noise": "Product Hunt API launch row; needs official domain, founder/team, stage, and customer evidence before owner routing.",
         "evidence_urls": [
           "https://trippple.club/",
@@ -4445,7 +4445,7 @@
           "official_domain": "trippple.club",
           "official_url": "https://trippple.club",
           "confidence_grade": "C",
-          "alex_review_ready": true,
+          "partner_review_ready": true,
           "strict_review_worthy_ready": true,
           "manual_work_required": true,
           "evidence_buckets": {
@@ -4503,7 +4503,7 @@
           "recommended_manual_check": "Check stage, funding, headcount, jobs, careers, or Crunchbase-style public snippets.",
           "promote_if": "Promote if manual review confirms stage, funding, headcount, or hiring evidence, commercial/customer proof.",
           "discard_if": "Discard if evidence remains only launch chatter, social posts, or directories.",
-          "likely_payoff": "Medium-high: likely useful for Alex if commercial or stage evidence appears.",
+          "likely_payoff": "Medium-high: likely useful for partner review if commercial or stage evidence appears.",
           "why_it_matters": "Advertise together on Meta Ads and pay 3x less",
           "why_this_may_be_noise": "Product Hunt API launch row; needs official domain, founder/team, stage, and customer evidence before owner routing.",
           "risk_flags": [],
@@ -4568,7 +4568,7 @@
           "official_domain": "tabstack.ai",
           "official_url": "https://tabstack.ai",
           "confidence_grade": "B",
-          "alex_review_ready": true,
+          "partner_review_ready": true,
           "strict_review_worthy_ready": true,
           "manual_work_required": true,
           "evidence_buckets": {
@@ -4688,7 +4688,7 @@
           "official_domain": "stella.sh",
           "official_url": "https://stella.sh",
           "confidence_grade": "A",
-          "alex_review_ready": true,
+          "partner_review_ready": true,
           "strict_review_worthy_ready": true,
           "manual_work_required": true,
           "evidence_buckets": {
@@ -4796,7 +4796,7 @@
         "recommended_manual_check": "Check stage, funding, headcount, jobs, careers, or Crunchbase-style public snippets.",
         "promote_if": "Promote if manual review confirms stage, funding, headcount, or hiring evidence, commercial/customer proof.",
         "discard_if": "Discard if evidence remains only launch chatter, social posts, or directories.",
-        "likely_payoff": "Medium-high: likely useful for Alex if commercial or stage evidence appears.",
+        "likely_payoff": "Medium-high: likely useful for partner review if commercial or stage evidence appears.",
         "why_this_may_be_noise": "Product Hunt API launch row; needs official domain, founder/team, stage, and customer evidence before owner routing.",
         "evidence_urls": [
           "https://sentinel.co/",
@@ -4813,7 +4813,7 @@
           "official_domain": "sentinel.co",
           "official_url": "https://sentinel.co",
           "confidence_grade": "C",
-          "alex_review_ready": true,
+          "partner_review_ready": true,
           "strict_review_worthy_ready": false,
           "manual_work_required": true,
           "evidence_buckets": {
@@ -4870,7 +4870,7 @@
           "recommended_manual_check": "Check stage, funding, headcount, jobs, careers, or Crunchbase-style public snippets.",
           "promote_if": "Promote if manual review confirms stage, funding, headcount, or hiring evidence, commercial/customer proof.",
           "discard_if": "Discard if evidence remains only launch chatter, social posts, or directories.",
-          "likely_payoff": "Medium-high: likely useful for Alex if commercial or stage evidence appears.",
+          "likely_payoff": "Medium-high: likely useful for partner review if commercial or stage evidence appears.",
           "why_it_matters": "Control your robots from anywhere in the world",
           "why_this_may_be_noise": "Product Hunt API launch row; needs official domain, founder/team, stage, and customer evidence before owner routing.",
           "risk_flags": [],
@@ -4940,7 +4940,7 @@
           "official_domain": "r0y.xyz",
           "official_url": "https://r0y.xyz",
           "confidence_grade": "B",
-          "alex_review_ready": true,
+          "partner_review_ready": true,
           "strict_review_worthy_ready": true,
           "manual_work_required": true,
           "evidence_buckets": {
@@ -5066,7 +5066,7 @@
           "official_domain": "networkspy.app",
           "official_url": "https://networkspy.app",
           "confidence_grade": "B",
-          "alex_review_ready": true,
+          "partner_review_ready": true,
           "strict_review_worthy_ready": true,
           "manual_work_required": true,
           "evidence_buckets": {
@@ -5182,7 +5182,7 @@
           "official_domain": "joanium.com",
           "official_url": "https://joanium.com",
           "confidence_grade": "B",
-          "alex_review_ready": true,
+          "partner_review_ready": true,
           "strict_review_worthy_ready": true,
           "manual_work_required": true,
           "evidence_buckets": {
@@ -5300,7 +5300,7 @@
           "official_domain": "co-desk.eu",
           "official_url": "https://co-desk.eu",
           "confidence_grade": "A",
-          "alex_review_ready": true,
+          "partner_review_ready": true,
           "strict_review_worthy_ready": true,
           "manual_work_required": true,
           "evidence_buckets": {

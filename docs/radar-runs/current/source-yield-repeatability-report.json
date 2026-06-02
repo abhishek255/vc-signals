@@ -5,7 +5,7 @@
     "repeatability_proven": false,
     "unsafe_promotions_total": 0,
     "all_runs_preserved_assign_owner_bar": true,
-    "min_alex_review_companies": 13,
+    "min_partner_review_companies": 13,
     "min_review_worthy_companies": 2,
     "min_market_signals": 5,
     "min_evidence_gap_queue": 12,
@@ -29,7 +29,7 @@
       "goal_reached": false,
       "assign_owner": 1,
       "assign_owner_bar_preserved": true,
-      "alex_review_companies": 13,
+      "partner_review_companies": 13,
       "review_worthy_companies": 2,
       "review_worthy_market_signals": 5,
       "evidence_gap_queue": 12,
@@ -47,7 +47,7 @@
           "met": true,
           "status": "met"
         },
-        "alex_review_companies": {
+        "partner_review_companies": {
           "count": 13,
           "min": 8,
           "max": 15,

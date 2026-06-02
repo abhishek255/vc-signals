@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Generate `weekly-focus.json`, render `weekly-focus.md`, and scaffold `feedback.json` from the existing weekly radar artifacts so Alex can quickly see the top companies/projects, market movements, Marathon/Attio context, and recommended actions.
+**Goal:** Generate `weekly-focus.json`, render `weekly-focus.md`, and scaffold `feedback.json` from the existing weekly radar artifacts so a partner can quickly see the top companies/projects, market movements, Marathon/Attio context, and recommended actions.
 
 **Architecture:** Add a focused weekly-focus layer beside the current radar pipeline. `weekly-preview.md` remains unchanged; the new layer converts existing `Candidate`, `Signal`, `ThemeSignal`, and `SectorIntelligence` objects into `FocusItem`, `MarketMovement`, and `WeeklyFocusArtifact`, writes JSON first, then renders Markdown from JSON. Scoring is deterministic and basis-backed; no live LLM calls or new sources are added.
 
@@ -50,7 +50,7 @@ Execution note:
 ### Modified Files
 
 - `.claude/skills/vc-signals/scripts/radar_models.py`
-  - Add `FocusItem`, `MarketMovement`, `ExecutiveSnapshot`, `WeeklyFocusArtifact`, and `AlexFeedback` dataclasses with `to_dict()` / `from_dict()`.
+  - Add `FocusItem`, `MarketMovement`, `ExecutiveSnapshot`, `WeeklyFocusArtifact`, and `PartnerFeedback` dataclasses with `to_dict()` / `from_dict()`.
 
 - `.claude/skills/vc-signals/tests/test_radar_models.py`
   - Add roundtrip tests for new focus dataclasses.
@@ -231,7 +231,7 @@ class WeeklyFocusArtifact:
 
 
 @dataclass
-class AlexFeedback:
+class PartnerFeedback:
     run_id: str
     feedback: list[dict] = field(default_factory=list)
 
@@ -239,7 +239,7 @@ class AlexFeedback:
         return asdict(self)
 
     @classmethod
-    def from_dict(cls, payload: dict) -> "AlexFeedback":
+    def from_dict(cls, payload: dict) -> "PartnerFeedback":
         return cls(**_known_payload(cls, payload))
 ```
 
@@ -385,7 +385,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from radar_models import (
-    AlexFeedback,
+    PartnerFeedback,
     Candidate,
     ExecutiveSnapshot,
     FocusItem,
@@ -1576,7 +1576,7 @@ def render_weekly_focus_markdown(artifact: WeeklyFocusArtifact) -> str:
 
 
 def write_feedback_scaffold(run_id: str, focus_items: list[FocusItem], path: Path) -> Path:
-    payload = AlexFeedback(
+    payload = PartnerFeedback(
         run_id=run_id,
         feedback=[
             {
@@ -1979,7 +1979,7 @@ Phase 1A/1B is done when:
 10. Score basis arrays exist in JSON for focus priority, company identity quality, actionability, freshness, market movement, Marathon fit, noise risk, and consensus risk.
 11. Markdown renders compact rationale and does not dump basis arrays inline.
 12. Row-level `missing_evidence` appears in JSON and compactly in Markdown.
-13. `feedback.json` scaffolds focus item IDs for Alex feedback.
+13. `feedback.json` scaffolds focus item IDs for partner feedback.
 14. Tests cover:
     - model roundtrips
     - score basis presence
@@ -1996,7 +1996,7 @@ Phase 1A/1B is done when:
     - max output limits
     - weekly run artifact integration
     - `weekly-preview.md` remains generated separately
-15. The real generated `weekly-focus.md` lets Alex answer in under five minutes:
+15. The real generated `weekly-focus.md` lets a partner answer in under five minutes:
     - top market movements
     - top companies/projects to inspect
     - which are new to Marathon
@@ -2007,5 +2007,5 @@ Phase 1A/1B is done when:
 
 - Spec coverage: Phase 1A/1B scope is covered; excluded phases are not implemented.
 - Placeholder scan: no `TBD`, `TODO`, or vague "add tests" steps.
-- Type consistency: `FocusItem`, `MarketMovement`, `WeeklyFocusArtifact`, and `AlexFeedback` signatures match task code snippets.
+- Type consistency: `FocusItem`, `MarketMovement`, `WeeklyFocusArtifact`, and `PartnerFeedback` signatures match task code snippets.
 - Product guardrail: no new sources, no live LLM dependency, no Slack, no Attio writeback, no `weekly-preview.md` renderer rewrite.

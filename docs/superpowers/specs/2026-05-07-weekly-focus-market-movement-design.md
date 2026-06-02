@@ -2,7 +2,7 @@
 
 **Status:** Phase 1 design under the broader product spec in `docs/superpowers/specs/2026-05-07-market-movement-intelligence-product-spec.md`.
 
-This document should not be treated as the full product destination. It is the first implementation slice: a partner-facing `weekly-focus.md` / `weekly-focus.json` artifact built from current weekly radar artifacts. The product destination is market movement intelligence with source role normalization, movement time-series, company discovery, Attio workflow context, and Alex feedback.
+This document should not be treated as the full product destination. It is the first implementation slice: a partner-facing `weekly-focus.md` / `weekly-focus.json` artifact built from current weekly radar artifacts. The product destination is market movement intelligence with source role normalization, movement time-series, company discovery, Attio workflow context, and partner feedback.
 
 ## Goal
 
@@ -27,7 +27,7 @@ VC Signals should become market movement intelligence for Marathon Management Pa
 
 Pain is one signal. New companies are another signal. Social chatter is another signal. Adoption is another signal. Attio/proprietary context is the edge layer.
 
-The product should not become only a pain tracker, because pain without company discovery is not directly actionable for Alex. It should also not become only a startup list generator, because a startup list without "why now" and Marathon context has little edge.
+The product should not become only a pain tracker, because pain without company discovery is not directly actionable for partner review. It should also not become only a startup list generator, because a startup list without "why now" and Marathon context has little edge.
 
 The durable workflow is:
 
@@ -43,13 +43,13 @@ Attio context
 Weekly Focus List
 ```
 
-The current `weekly-preview.md` remains the broader radar artifact for now. `weekly-focus.md` is a new artifact beside it so Alex can compare the new partner-facing shape before it becomes the default.
+The current `weekly-preview.md` remains the broader radar artifact for now. `weekly-focus.md` is a new artifact beside it so partners can compare the new partner-facing shape before it becomes the default.
 
 ## User And Job
 
 Primary user:
 
-- Alex / Marathon partners.
+- Marathon partners.
 
 Secondary users:
 
@@ -57,9 +57,9 @@ Secondary users:
 
 The job:
 
-> Show Alex the top 10-15 companies/projects worth attention this week, explain why each one matters now, show whether Marathon already knows it, and recommend the next action.
+> Show a partner the top 10-15 companies/projects worth attention this week, explain why each one matters now, show whether Marathon already knows it, and recommend the next action.
 
-The artifact should be readable in under ten minutes. It should not require Alex to inspect JSON files or reason through source mechanics.
+The artifact should be readable in under ten minutes. It should not require partners to inspect JSON files or reason through source mechanics.
 
 ## Output Structure
 
@@ -163,7 +163,7 @@ Good but not top-focus rows. The combined Partner Focus + Extended Watchlist sho
 
 ### 6. Appendix
 
-Keep lower-confidence material out of Alex's main flow but preserve it for audit and associate research:
+Keep lower-confidence material out of the main partner flow but preserve it for audit and associate research:
 
 - Needs More Evidence.
 - OSS/project watchlist.
@@ -180,7 +180,7 @@ The action vocabulary should be:
 - `Take meeting`: rare, high-confidence, actionable company.
 - `Monitor only`: relevant but too early, too late, or too noisy.
 
-`Take meeting` should be rare. If the radar recommends too many meetings, Alex will stop trusting it.
+`Take meeting` should be rare. If the radar recommends too many meetings, a partner will stop trusting it.
 
 The main success path should be `Assign owner` and `Refresh Attio`, because those convert messy signal into Marathon workflow without pretending the system can make an investment decision.
 
@@ -428,7 +428,7 @@ candidates.json / signals.json / theme-signals.json
   Source of truth for evidence and scoring.
 ```
 
-Once `weekly-focus.md` consistently feels better for Alex, it can become the default partner artifact and `weekly-preview.md` can become the appendix/audit artifact.
+Once `weekly-focus.md` consistently feels better for partner review, it can become the default partner artifact and `weekly-preview.md` can become the appendix/audit artifact.
 
 ## LLM Role
 
@@ -460,7 +460,7 @@ If `synthesis.json` is missing or disabled, `weekly-focus.md` should still rende
 
 Product acceptance:
 
-- Alex can open `weekly-focus.md` and see the 10-15 companies/projects worth attention first.
+- A partner can open `weekly-focus.md` and see the 10-15 companies/projects worth attention first.
 - Every focus row answers "why focus this week?"
 - Every focus row has an action.
 - Every focus row has at least one evidence snapshot or clearly says evidence is weak.
@@ -513,4 +513,4 @@ The first implementation should be conservative:
 - Generate market movements from candidate themes and theme signals.
 - Preserve weak/source-gap material in the appendix.
 
-This gives Alex a better artifact quickly while keeping the evidence model honest.
+This gives partners a better artifact quickly while keeping the evidence model honest.

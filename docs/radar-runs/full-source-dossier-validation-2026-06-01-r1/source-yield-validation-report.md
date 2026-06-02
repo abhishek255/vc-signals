@@ -3,7 +3,7 @@
 - Goal reached: yes
 - Assign Owner rows: Voker
 - Assign Owner bar preserved: yes
-- Alex Review Companies: 13 / 8
+- Partner Review Companies: 13 / 8
 - Net-new credible Review-Worthy rows: 8 / 8
 - Review-Worthy Market Signals: 5
 - Evidence Gap Queue rows: 12
@@ -13,13 +13,13 @@
 | Metric | Count | Target | Status |
 | --- | --- | --- | --- |
 | Assign Owner | 1 | min 1, max 3 | met |
-| Alex Review Companies | 13 | min 8, max 15 | met |
+| Partner Review Companies | 13 | min 8, max 15 | met |
 | Review Worthy Companies | 8 | min 8, max 15 | met |
 | Review Worthy Market Signals | 5 | min 5, max 10 | met |
 | Evidence Gap Queue | 12 | min 10, max 15 | met |
 | Unsafe Promotions | 0 | max 0 | met |
 
-## Alex Review Companies
+## Partner Review Companies
 
 | Company | Domain | Grade | Source | Missing Evidence | Recommended Manual Check | Why This May Be Noise |
 | --- | --- | --- | --- | --- | --- | --- |
@@ -82,16 +82,16 @@
 | Row | Source | Recommended Check | Promote If | Discard If | Likely Payoff |
 | --- | --- | --- | --- | --- | --- |
 | affaan-m/agentshield | OSS | Resolve official domain from launch text, project docs, founder profile, or web search. | Promote if manual review finds the official company domain and it matches the source signal. | Discard if the row stays only on Product Hunt, X, GitHub, LinkedIn, or another directory. | Medium: identity resolution decides whether this is a company or just chatter. |
-| Sudo-Ali-Dev/Rankistan | OSS | Find stage, funding, headcount, careers, or company profile evidence. | Promote if stage, funding, headcount, hiring, or commercial proof confirms company maturity. | Discard if it remains only a launch with no maturity or commercial evidence. | High: one metadata check could make this Alex-reviewable or strict review-worthy. |
+| Sudo-Ali-Dev/Rankistan | OSS | Find stage, funding, headcount, careers, or company profile evidence. | Promote if stage, funding, headcount, hiring, or commercial proof confirms company maturity. | Discard if it remains only a launch with no maturity or commercial evidence. | High: one metadata check could make this partner-reviewable or strict review-worthy. |
 | azat-io/actions-up | OSS | Resolve official domain from launch text, project docs, founder profile, or web search. | Promote if manual review finds the official company domain and it matches the source signal. | Discard if the row stays only on Product Hunt, X, GitHub, LinkedIn, or another directory. | Medium: identity resolution decides whether this is a company or just chatter. |
 | boostsecurityio/smokedmeat | OSS | Resolve official domain from launch text, project docs, founder profile, or web search. | Promote if manual review finds the official company domain and it matches the source signal. | Discard if the row stays only on Product Hunt, X, GitHub, LinkedIn, or another directory. | Medium: identity resolution decides whether this is a company or just chatter. |
 | pullfrog/pullfrog | OSS | Use this as a market signal and search for companies building around the theme. | Promote if one focused manual check resolves the remaining evidence gap. | Discard if evidence remains only launch chatter or directories. | Medium: useful if the next check resolves cleanly. |
-| redwoodjs/agent-ci | OSS | Find stage, funding, headcount, careers, or company profile evidence. | Promote if stage, funding, headcount, hiring, or commercial proof confirms company maturity. | Discard if it remains only a launch with no maturity or commercial evidence. | High: one metadata check could make this Alex-reviewable or strict review-worthy. |
+| redwoodjs/agent-ci | OSS | Find stage, funding, headcount, careers, or company profile evidence. | Promote if stage, funding, headcount, hiring, or commercial proof confirms company maturity. | Discard if it remains only a launch with no maturity or commercial evidence. | High: one metadata check could make this partner-reviewable or strict review-worthy. |
 | peakoss/anti-slop | OSS | Resolve official domain from launch text, project docs, founder profile, or web search. | Promote if manual review finds the official company domain and it matches the source signal. | Discard if the row stays only on Product Hunt, X, GitHub, LinkedIn, or another directory. | Medium: identity resolution decides whether this is a company or just chatter. |
 | slowql/slowql | OSS | Resolve official domain from launch text, project docs, founder profile, or web search. | Promote if manual review finds the official company domain and it matches the source signal. | Discard if the row stays only on Product Hunt, X, GitHub, LinkedIn, or another directory. | Medium: identity resolution decides whether this is a company or just chatter. |
-| BANANASJIM/rdc-cli | OSS | Find stage, funding, headcount, careers, or company profile evidence. | Promote if stage, funding, headcount, hiring, or commercial proof confirms company maturity. | Discard if it remains only a launch with no maturity or commercial evidence. | High: one metadata check could make this Alex-reviewable or strict review-worthy. |
+| BANANASJIM/rdc-cli | OSS | Find stage, funding, headcount, careers, or company profile evidence. | Promote if stage, funding, headcount, hiring, or commercial proof confirms company maturity. | Discard if it remains only a launch with no maturity or commercial evidence. | High: one metadata check could make this partner-reviewable or strict review-worthy. |
 | Databox MCP | Product Hunt | Find founder or maintainer identity from website, GitHub org, LinkedIn, HN, or X. | Promote if founder/team/operator evidence appears on the company site, LinkedIn, Product Hunt, GitHub, HN, or X. | Discard if no real operator can be found after focused search. | Medium-high: identity is mostly there; operator evidence is the blocker. |
-| leiting-eric/DailyBrief | OSS | Find stage, funding, headcount, careers, or company profile evidence. | Promote if stage, funding, headcount, hiring, or commercial proof confirms company maturity. | Discard if it remains only a launch with no maturity or commercial evidence. | High: one metadata check could make this Alex-reviewable or strict review-worthy. |
+| leiting-eric/DailyBrief | OSS | Find stage, funding, headcount, careers, or company profile evidence. | Promote if stage, funding, headcount, hiring, or commercial proof confirms company maturity. | Discard if it remains only a launch with no maturity or commercial evidence. | High: one metadata check could make this partner-reviewable or strict review-worthy. |
 | spaceraccoon/vulnerability-spoiler-alert-action | OSS | Resolve official domain from launch text, project docs, founder profile, or web search. | Promote if manual review finds the official company domain and it matches the source signal. | Discard if the row stays only on Product Hunt, X, GitHub, LinkedIn, or another directory. | Medium: identity resolution decides whether this is a company or just chatter. |
 
 ## Source Diversity

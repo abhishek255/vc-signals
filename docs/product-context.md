@@ -38,7 +38,7 @@ Locked product assumptions:
 A weekly trend scanner that outputs 8-12 themes per sector with company mapping as a secondary feature. Themes are the centerpiece, companies are accessories.
 
 ### What we learned
-1. **Alex's feedback (April 14, 2026):** Every piece of feedback was about companies, not themes — more companies (10-15 not 5-6), company enrichment (funding, headcount from Attio CRM), company filtering (founded since 2022, raised <$100M), deeper theme analysis, persistence over time, and Slack delivery.
+1. **Initial partner feedback (April 14, 2026):** Every piece of feedback was about companies, not themes — more companies (10-15 not 5-6), company enrichment (funding, headcount from Attio CRM), company filtering (founded since 2022, raised <$100M), deeper theme analysis, persistence over time, and Slack delivery.
 
 2. **Showrun competitive analysis (April 15, 2026):** Showrun is a competing Claude Code skill (`cdp_taskpacks` by dev/karacasoft) that takes a natural language VC thesis and finds matching companies. It uses PitchBook for funding data, LinkedIn Sales Navigator for founder/headcount verification, and GitHub for OSS validation. Its output is a pure company table — no themes at all. Takes ~20 minutes to run but produces deeply enriched company data.
 
@@ -47,7 +47,7 @@ A weekly trend scanner that outputs 8-12 themes per sector with company mapping 
 
 ---
 
-## Alex's Feedback (verbatim, April 14, 2026)
+## Initial Partner Feedback (verbatim, April 14, 2026)
 
 ### Data Sources
 - Why list Reddit/HN separately from web search if they're publicly available?
@@ -335,7 +335,7 @@ Themes (3 lines each, brief context)
 - `--emit=html` is useful for partner-review/Appshot surfaces, but not for pipeline ingestion.
 - `--store` is useful once we want deduped sightings and trend deltas across repeated radar runs.
 - `--competitors*` is useful for source-lane or provider bakeoffs, not for the daily default radar.
-- TikTok/Instagram/YouTube/Threads/Pinterest should remain explicit source experiments until they prove Alex Review-Worthy yield.
+- TikTok/Instagram/YouTube/Threads/Pinterest should remain explicit source experiments until they prove Partner Review-Worthy yield.
 - Watchlist and briefing scripts may become automation primitives, but should not replace the current radar run until the daily-smoke and partner-review modes are stable.
 
 ### Alignment note (2026-05-22)
@@ -377,4 +377,4 @@ Themes (3 lines each, brief context)
 Source-specific failures can still happen from credits, anti-bot walls, or provider outages. Goal Mode should treat empty/failed source lanes as diagnostics, not as a reason to cosmetically polish weak output.
 
 ### Note on security
-All API keys stored in `~/.config/last30days/.env` (chmod 600). GitHub PAT was previously in git remote URL — removed. Alex should rotate all keys as they were shared in conversation context.
+All API keys stored in `~/.config/last30days/.env` (chmod 600). GitHub PAT was previously in git remote URL — removed. The user should rotate all keys as they were shared in conversation context.

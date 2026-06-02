@@ -94,7 +94,7 @@ def test_load_targets_can_force_source_yield_gap_queue_when_manual_targets_exist
     assert targets[0]["name"] == "GapTarget"
 
 
-def test_load_targets_can_target_alex_review_companies(tmp_path):
+def test_load_targets_can_target_partner_review_companies(tmp_path):
     from targeted_manual_enrichment import _load_targets
 
     run_dir = tmp_path / "run"
@@ -102,7 +102,7 @@ def test_load_targets_can_target_alex_review_companies(tmp_path):
     (run_dir / "source-yield-validation-report.json").write_text(
         json.dumps(
             {
-                "alex_review_companies": [
+                "partner_review_companies": [
                     {
                         "name": "AgentFence",
                         "domain": "agentfence.dev",
@@ -115,7 +115,7 @@ def test_load_targets_can_target_alex_review_companies(tmp_path):
         )
     )
 
-    targets = _load_targets(run_dir, target_source="alex_review_companies")
+    targets = _load_targets(run_dir, target_source="partner_review_companies")
 
     assert targets[0]["name"] == "AgentFence"
     assert targets[0]["domain"] == "agentfence.dev"

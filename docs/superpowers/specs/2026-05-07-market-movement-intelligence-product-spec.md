@@ -24,7 +24,7 @@ The product should not stop at a nicer Markdown report. The destination is a sys
 
 Primary customer:
 
-- Marathon Management Partners partners, especially Alex.
+- Marathon Management Partners partners.
 
 Secondary users:
 
@@ -49,7 +49,7 @@ Expanded job:
 5. **Do not pad.** If only seven rows deserve partner attention, show seven rows and explain source gaps.
 6. **Do not hide late/consensus companies.** Label likely-too-late rows and route them to monitor unless there is a clear Marathon action.
 7. **LLM reasoning is allowed, invention is not.** Let the LLM connect evidence and write concise judgment, but never invent funding, headcount, founders, domains, customers, stage, or Attio status.
-8. **Feedback should teach Marathon taste.** Alex's decisions should improve future ranking.
+8. **Feedback should teach Marathon taste.** Partner decisions should improve future ranking.
 
 ## Product Shape
 
@@ -59,7 +59,7 @@ The partner-facing weekly artifact should become:
 # Marathon Signal Radar: Weekly Focus
 
 ## 1. Partner Focus, Top 10-15
-Rows Alex should actually inspect.
+Rows a partner should actually inspect.
 
 ## 2. Market Movements, Top 3-6
 Why those rows surfaced.
@@ -514,21 +514,21 @@ Each market movement should include `why_not_now`, such as:
 - Too much consensus already.
 - Evidence is founder-led, not buyer-led.
 
-## Alex Feedback Loop
+## Partner Feedback Loop
 
 Feedback should become a future scoring input.
 
 ```python
 @dataclass
-class AlexFeedback:
+class PartnerFeedback:
     run_id: str
     focus_item_id: str
-    alex_rating: str
+    partner_rating: str
     notes: str
     created_at: str
 ```
 
-`alex_rating` should include:
+`partner_rating` should include:
 
 - `good_lead`
 - `too_late`
@@ -579,7 +579,7 @@ Phase 1 does not need to build all adapters. It should define the contract and n
 
 ## Product Acceptance Test
 
-Given `weekly-focus.md`, Alex should be able to answer in under five minutes:
+Given `weekly-focus.md`, a partner should be able to answer in under five minutes:
 
 1. What are the top 3 market movements?
 2. Which 5 companies/projects should someone inspect first?
@@ -636,12 +636,12 @@ Does not include:
 
 - New external sources.
 - Full time-series movement model.
-- Alex feedback loop beyond model/file scaffolding.
+- partner feedback loop beyond model/file scaffolding.
 - Slack delivery.
 
 Why this phase matters:
 
-- It immediately gives Alex a clearer artifact.
+- It immediately gives partners a clearer artifact.
 - It prevents the current radar from staying a broad table.
 - It establishes the output contract that future intelligence layers must satisfy.
 
@@ -651,7 +651,7 @@ Status: implemented as a first deterministic overlay on branch `codex/weekly-foc
 
 Goal:
 
-- Make the first artifact meaningfully actionable for Alex by improving company identity and Attio-driven actions before broader source expansion.
+- Make the first artifact meaningfully actionable for partner review by improving company identity and Attio-driven actions before broader source expansion.
 
 Includes:
 
@@ -669,7 +669,7 @@ Includes:
 Why this phase matters:
 
 - Attio is the edge layer. It should affect the product early, even if writeback is much later.
-- Alex should be able to hand the artifact to an associate and know what to update or investigate.
+- A partner should be able to hand the artifact to an associate and know what to update or investigate.
 
 ### Phase 2: Company Identity Resolution And Launch Verification
 
@@ -706,7 +706,7 @@ Does not include:
 Why this phase matters:
 
 - This is the immediate bottleneck shown by the real Phase 1A/1B artifact.
-- Alex does not only need interesting projects; he needs to know which ones map to real companies, founders, and Marathon workflow actions.
+- A partner does not only need interesting projects; they need to know which ones map to real companies, founders, and Marathon workflow actions.
 - Better identity resolution should turn some rows from `Research deeper` into `Assign owner` or `Refresh Attio`.
 
 Current result:
@@ -860,7 +860,7 @@ Includes:
 
 Why this phase matters:
 
-- This is where the product moves beyond a better renderer and starts solving Alex's company discovery problem.
+- This is where the product moves beyond a better renderer and starts solving the partner company discovery problem.
 
 ### Phase 5: Movement Memory And Time Series
 
@@ -878,7 +878,7 @@ Includes:
 Why this phase matters:
 
 - Static reports become movement intelligence.
-- Alex sees what changed, not just what exists.
+- Partners see what changed, not just what exists.
 
 ### Phase 6: Source Expansion
 
@@ -899,9 +899,9 @@ Priority source order:
 
 Why this phase matters:
 
-- Alex needs chatter, launch, adoption, company formation, and buyer-pain signals in one product.
+- A partner needs chatter, launch, adoption, company formation, and buyer-pain signals in one product.
 
-### Phase 7: Alex Feedback And Ranking Calibration
+### Phase 7: Partner Feedback And Ranking Calibration
 
 Goal:
 
@@ -956,7 +956,7 @@ The branch should be evaluated with a fresh real weekly run before merging.
 
 Do not treat the current branch as the full product. Treat it as the new product shell plus identity reliability stack:
 
-- It makes the weekly output easier for Alex to read.
+- It makes the weekly output easier for partner review to read.
 - It shows the top market movements and focus rows.
 - It is honest when the run is a research queue.
 - It exposes source gaps and missing evidence.

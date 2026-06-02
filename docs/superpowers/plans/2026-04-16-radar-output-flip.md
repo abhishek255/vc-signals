@@ -1592,7 +1592,7 @@ To pick `primary_theme`:
 | `headcount` | null | Phase 2 fills this |
 | `founders` | null | Phase 2 fills this |
 
-**The `why_on_radar` field is critical.** It's what Alex reads in the radar table. Bad: "AI testing company". Good: "AI-native test gen, launched 3 weeks ago, ex-Datadog founders". One sentence, specific signal.
+**The `why_on_radar` field is critical.** It's what a partner reads in the radar table. Bad: "AI testing company". Good: "AI-native test gen, launched 3 weeks ago, ex-Datadog founders". One sentence, specific signal.
 
 **Compute company tags:**
 

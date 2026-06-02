@@ -246,9 +246,9 @@ def _load_gap_targets(run_dir: Path) -> list[dict]:
     return sorted(normalized, key=_source_priority)
 
 
-def _load_alex_review_targets(run_dir: Path) -> list[dict]:
+def _load_partner_review_targets(run_dir: Path) -> list[dict]:
     payload = _read_json(run_dir / "source-yield-validation-report.json", {})
-    rows = payload.get("alex_review_companies") or []
+    rows = payload.get("partner_review_companies") or []
     normalized = []
     for row in rows:
         if not isinstance(row, dict):
@@ -275,8 +275,8 @@ def _load_alex_review_targets(run_dir: Path) -> list[dict]:
 
 
 def _load_targets(run_dir: Path, *, target_source: str) -> list[dict]:
-    if target_source == "alex_review_companies":
-        return _load_alex_review_targets(run_dir)
+    if target_source == "partner_review_companies":
+        return _load_partner_review_targets(run_dir)
     return _load_gap_targets(run_dir)
 
 
@@ -587,7 +587,7 @@ def main() -> None:
     parser.add_argument("--timeout-seconds", type=int, default=45)
     parser.add_argument("--max-runtime-seconds", type=int, default=None)
     parser.add_argument("--output-name", default=DEFAULT_OUTPUT_NAME)
-    parser.add_argument("--target-source", choices=("evidence_gap_queue", "alex_review_companies"), default="evidence_gap_queue")
+    parser.add_argument("--target-source", choices=("evidence_gap_queue", "partner_review_companies"), default="evidence_gap_queue")
     args = parser.parse_args()
     result = write_structured_provider_trial(
         args.run_dir,

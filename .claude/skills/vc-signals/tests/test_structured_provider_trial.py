@@ -101,7 +101,7 @@ def test_structured_provider_trial_extracts_public_structured_hints(tmp_path):
     assert report["summary"]["targets_with_structured_hints"] == 1
 
 
-def test_structured_provider_trial_can_target_alex_review_companies(tmp_path):
+def test_structured_provider_trial_can_target_partner_review_companies(tmp_path):
     from structured_provider_trial import build_structured_provider_trial
 
     run_dir = tmp_path / "run"
@@ -116,7 +116,7 @@ def test_structured_provider_trial_can_target_alex_review_companies(tmp_path):
                     "missing_evidence": ["founder_team_missing"],
                 }
             ],
-            "alex_review_companies": [
+            "partner_review_companies": [
                 {
                     "name": "AgentFence",
                     "domain": "agentfence.dev",
@@ -133,10 +133,10 @@ def test_structured_provider_trial_can_target_alex_review_companies(tmp_path):
         env={},
         query_runner=lambda **_kwargs: {"items": []},
         limit=5,
-        target_source="alex_review_companies",
+        target_source="partner_review_companies",
     )
 
-    assert report["summary"]["target_source"] == "alex_review_companies"
+    assert report["summary"]["target_source"] == "partner_review_companies"
     assert report["summary"]["targets_considered"] == 1
     assert [item["name"] for item in report["items"]] == ["AgentFence"]
     assert report["items"][0]["recommended_next_step"] == "Check Coresignal or Crunchbase-style metadata."

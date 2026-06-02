@@ -2,7 +2,7 @@
 
 ## Goal
 
-Run a focused source-yield debugging sprint without Coresignal. The work is complete only when Product Hunt unresolved launches are audited, X access is proven or clearly marked unavailable, Evidence Gap Queue rows tell Alex exactly what to check next, and focused tests plus a small validation artifact prove the state.
+Run a focused source-yield debugging sprint without Coresignal. The work is complete only when Product Hunt unresolved launches are audited, X access is proven or clearly marked unavailable, Evidence Gap Queue rows tell a partner exactly what to check next, and focused tests plus a small validation artifact prove the state.
 
 ## Scope Guardrails
 

@@ -27,7 +27,7 @@ The 8 Product Hunt-sourced Review-Worthy rows were manually click-checked after 
 
 - 8 / 8 official domains loaded.
 - 8 / 8 have a real product surface.
-- 6 / 8 look reasonably strong for Alex Review.
+- 6 / 8 look reasonably strong for Partner Review.
 - 2 / 8 need extra identity caution because of noisy name-collision evidence.
 - 0 / 8 should be promoted to Assign Owner without founder/team and stage/headcount/funding checks.
 

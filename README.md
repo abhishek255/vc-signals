@@ -8,7 +8,7 @@ A skill/plugin for [Claude Code](https://docs.anthropic.com/en/docs/claude-code)
 
 ---
 
-> **Current state (June 2026 baseline):** VC Signals is now a tiered partner-review system, not just a ranked feed. The blessed current run separates **Assign Owner**, **Alex Review Companies**, **Review-Worthy Companies**, **Review-Worthy Market Signals**, and **Evidence Gap Queue** rows. It reached the current numeric target with 1 Assign Owner row, 13 Alex Review companies, 8 Review-Worthy companies, 5 market signals, 12 evidence gaps, and 0 unsafe promotions. The honest caveat: Product Hunt is carrying most of the non-YC company yield, and founder/stage/headcount evidence still needs focused manual checks before owner assignment.
+> **Current state (June 2026 baseline):** VC Signals is now a tiered partner-review system, not just a ranked feed. The blessed current run separates **Assign Owner**, **Partner Review Companies**, **Review-Worthy Companies**, **Review-Worthy Market Signals**, and **Evidence Gap Queue** rows. It reached the current numeric target with 1 Assign Owner row, 13 Partner Review companies, 8 Review-Worthy companies, 5 market signals, 12 evidence gaps, and 0 unsafe promotions. The honest caveat: Product Hunt is carrying most of the non-YC company yield, and founder/stage/headcount evidence still needs focused manual checks before owner assignment.
 
 ---
 
@@ -40,7 +40,7 @@ In a few minutes, you get a weekly all-sector radar like this:
 ## Source-Yield Targets
 
 Assign Owner: 1 / 1-3
-Alex Review Companies: 13 / 8-15
+Partner Review Companies: 13 / 8-15
 Review-Worthy Companies: 8 / 8-15
 Review-Worthy Market Signals: 5 / 5-10
 Evidence Gap Queue: 12 / 10-15
@@ -52,7 +52,7 @@ Unsafe Promotions: 0
 |---|---|---|---|---|
 | Voker | voker.ai | HN launch | assign owner | Strong enough company evidence and launch context to route for partner ownership. |
 
-## Alex Review Companies
+## Partner Review Companies
 
 | Company | Domain | Grade | Source | Missing Evidence | Recommended Manual Check | Why This May Be Noise |
 |---|---|---|---|---|---|---|
@@ -74,9 +74,9 @@ Each company or project gets a specific **Why On Radar**, separate **Investment 
 The output is deliberately tiered:
 
 - **Assign Owner** — strict gate; only rows strong enough for ownership.
-- **Alex Review Companies** — good/decent companies worth inspection, often with one or two clear gaps.
+- **Partner Review Companies** — good/decent companies worth inspection, often with one or two clear gaps.
 - **Review-Worthy Companies** — credible product/company rows, not owner-ready yet.
-- **Review-Worthy Market Signals** — OSS/theme movement that tells Alex where the market is going, even if there is no company yet.
+- **Review-Worthy Market Signals** — OSS/theme movement that tells partners where the market is going, even if there is no company yet.
 - **Evidence Gap Queue** — promising blocked rows with exact manual checks.
 
 **Market Sector vs Source Lane:** Market Sector is the investment category, such as Cybersecurity or AI Infra. Source Lane is where the evidence came from, such as OSS, Reddit, HN, Grounded Web, or TikTok. An OSS repo can therefore be `Market Sector = Cybersecurity` and `Source Lane = OSS`.
@@ -354,7 +354,7 @@ By default, this command uses the fuller query budget for each sector and does n
 The artifact contains:
 
 - Assign Owner: 1-3 strict rows that clear the owner gate.
-- Alex Review Companies: 8-15 good/decent companies worth Alex's inspection, with missing evidence made explicit.
+- Partner Review Companies: 8-15 good/decent companies worth partner inspection, with missing evidence made explicit.
 - Review-Worthy Companies: credible product/company rows that are real enough to inspect but not necessarily owner-ready.
 - Review-Worthy Market Signals: OSS/theme movement that indicates where the market is moving, even if no company has formed yet.
 - Evidence Gap Queue: promising blocked rows with exact missing fields and suggested manual checks.
@@ -471,7 +471,7 @@ You type: /vc-signals radar all
                        │
         ┌──────────────▼─────────────┐
         │ Tiered Review Gates        │
-        │ Assign Owner, Alex Review, │
+        │ Assign Owner, Partner Review, │
         │ Market Signals, Gap Queue  │
         └──────────────┬─────────────┘
                     │
@@ -550,7 +550,7 @@ The result: a weekly forcing function to explore categories you might not have f
 
 ## What's New
 
-**June 2026: Source-yield baseline and Alex Review packet.** The blessed current run now uses a tiered output model: Assign Owner, Alex Review Companies, Review-Worthy Companies, Review-Worthy Market Signals, Evidence Gap Queue, and Manual Evidence Queue. The current committed baseline hit 1 Assign Owner row, 13 Alex Review companies, 8 Review-Worthy companies, 5 market signals, 12 evidence gaps, and 0 unsafe promotions.
+**June 2026: Source-yield baseline and Partner Review packet.** The blessed current run now uses a tiered output model: Assign Owner, Partner Review Companies, Review-Worthy Companies, Review-Worthy Market Signals, Evidence Gap Queue, and Manual Evidence Queue. The current committed baseline hit 1 Assign Owner row, 13 Partner Review companies, 8 Review-Worthy companies, 5 market signals, 12 evidence gaps, and 0 unsafe promotions.
 
 **June 2026: Company dossier and LLM investigation layer.** Product Hunt, X, GitHub, HN, YC, Exa/Brave, and manual web evidence now feed a dossier-style workflow that resolves official domains, inspects official-site proof, blocks unsafe domain guesses, separates OSS market signals from company candidates, and records exact missing evidence.
 
@@ -566,7 +566,7 @@ The result: a weekly forcing function to explore categories you might not have f
 
 **What flipped:**
 - Themes are context; company/project rows are the review surface
-- The current packet starts with strict Assign Owner, then Alex Review, Review-Worthy Companies, Review-Worthy Market Signals, Evidence Gap Queue, Manual Evidence Queue, source health, and audit files
+- The current packet starts with strict Assign Owner, then Partner Review, Review-Worthy Companies, Review-Worthy Market Signals, Evidence Gap Queue, Manual Evidence Queue, source health, and audit files
 - Company/project rows became the primary object of review
 - Weak signal is preserved as a market signal or evidence gap instead of being turned into a fake company row
 - OSS is a source lane, not a default market sector; a security repo can be `Market Sector = Cybersecurity` and `Source Lane = OSS`
@@ -589,7 +589,7 @@ The previous `/vc-signals weekly` command still works as an alias for `/vc-signa
 9. ✅ **Theme-driven company discovery lane** — non-company pain/themes generate targeted company searches, write `company-discovery.json`, and can promote verified company evidence into the radar.
 10. ◐ **Grounded company discovery depth** — the lane is implemented, but broad web/company discovery still depends on configured web keys and better corroboration sources.
 11. ✅ **Agent-native research workbench** — creates a Codex/Claude evidence pack and prompt for weak-signal synthesis without writing unverified leads into `candidates.json`.
-12. ✅ **Alex Review and Evidence Gap tiers** — the packet separates strict owner rows, good/decent company review rows, market signals, and manual evidence checks.
+12. ✅ **Partner Review and Evidence Gap tiers** — the packet separates strict owner rows, good/decent company review rows, market signals, and manual evidence checks.
 13. ✅ **Company dossier layer** — candidates carry official-domain, product proof, commercial proof, founder/stage gaps, contradictions, and recommended manual checks.
 14. ✅ **LLM investigation as evidence processor** — LLMs plan searches and extract/critique evidence, but cannot promote unsupported claims.
 15. ◐ **Product Hunt/X conversion depth** — Product Hunt now contributes Review-Worthy rows, but founder/stage metadata is still thin; X works as launch radar but needs stronger official-domain and company-identity resolution.
