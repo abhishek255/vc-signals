@@ -1,0 +1,3632 @@
+{
+  "phase": "Phase 6B-HN",
+  "scope": "HN outbound candidate enrichment; HN runs in the bounded weekly lane; YC remains parked.",
+  "partial": true,
+  "budget_exceeded": true,
+  "budget_reasons": [
+    "max_candidates_exceeded"
+  ],
+  "summary": {
+    "hn_outbound_candidates_input": 16,
+    "candidates_enriched": 8,
+    "candidates_skipped": 8,
+    "candidates_partially_enriched": 0,
+    "completed_clean": 6,
+    "completed_with_stage_failure": 3,
+    "partial_budget": 8,
+    "skipped_low_priority": 0,
+    "live_queries": 3,
+    "attio_checks": 1,
+    "attio_checks_attempted": 1,
+    "attio_successes": 1,
+    "attio_timeouts": 0,
+    "attio_retry_attempts": 0,
+    "attio_cache_hits": 0,
+    "attio_cache_fresh_hits": 0,
+    "attio_cache_stale_hits": 0,
+    "attio_cache_expired_hits": 0,
+    "attio_blocked_owner_ready_rows": 0,
+    "page_fetches": 37,
+    "timeouts": 3,
+    "identity_promoted_rows": 7,
+    "identity_not_promoted_rows": 1,
+    "maturity_confirmed_early_stage_rows": 1,
+    "early_stage_context_rows": 0,
+    "research_deeper_rows": 7,
+    "category_context_rows": 0,
+    "assign_owner_rows": 1,
+    "action_blocked_by_attio_rows": 0,
+    "new_to_marathon_rows": 1,
+    "unsafe_promotions": 0,
+    "product_context_rows": 1,
+    "project_only_rows": 14,
+    "rejected_rows": 16
+  },
+  "enriched_outbound_candidates": [
+    {
+      "name": "Voker",
+      "canonical_name": "Voker",
+      "official_domain": "voker.ai",
+      "source_title": "Launch HN: Voker (YC S24) \u2013 Analytics for AI Agents",
+      "source_url": "https://news.ycombinator.com/item?id=48109962",
+      "official_url": "https://voker.ai",
+      "hn_author": "ttpost",
+      "hn_engagement": {
+        "points": 59,
+        "comments": 22
+      },
+      "identity_type": "verified_company",
+      "identity_promotion_status": "promoted",
+      "identity_basis": [
+        "verified_domain_present",
+        "launch_source_present",
+        "attio_match_key_present",
+        "hn_outbound_not_independent_company_proof",
+        "official_site_confirms_identity"
+      ],
+      "identity_confidence_score": 85,
+      "missing_identity_evidence": [],
+      "maturity_status": "seed_to_series_b",
+      "maturity_basis": [
+        "accelerator_batch_evidence: YC S24",
+        "yc_company_profile_stage_evidence"
+      ],
+      "maturity_evidence_urls": [
+        "https://news.ycombinator.com/item?id=48109962",
+        "https://voker.ai/blog",
+        "https://www.ycombinator.com/companies/voker"
+      ],
+      "lead_route": "sourcing_candidate",
+      "category_anchor": false,
+      "founder_team_evidence": [
+        "https://www.ycombinator.com/companies/voker"
+      ],
+      "founders": [
+        "Tyler Postle",
+        "Alex Rudolph"
+      ],
+      "founder_profiles": [
+        {
+          "name": "Tyler Postle",
+          "role": "founder",
+          "source": "https://www.ycombinator.com/companies/voker"
+        },
+        {
+          "name": "Alex Rudolph",
+          "role": "founder",
+          "source": "https://www.ycombinator.com/companies/voker"
+        }
+      ],
+      "founder_evidence_conflicts": [],
+      "stage_funding_evidence": [
+        "https://www.ycombinator.com/companies/voker",
+        "https://voker.ai/blog"
+      ],
+      "weak_stage_funding_hints": [
+        "https://news.ycombinator.com/item?id=48109962"
+      ],
+      "customer_buyer_evidence": [
+        "https://voker.ai"
+      ],
+      "customer_buyer_evidence_types": [
+        {
+          "url": "https://voker.ai",
+          "evidence_types": [
+            "waitlist_or_demo_evidence",
+            "commercial_intent_evidence"
+          ]
+        }
+      ],
+      "attio_status": "no_match",
+      "attio_safe_to_match": true,
+      "attio_confidence": "High",
+      "attio_confidence_basis": [
+        "attio_status:no_match"
+      ],
+      "owner_readiness_score": 100,
+      "owner_readiness_basis": [
+        "verified_company_identity",
+        "founder_team_evidence",
+        "stage_funding_evidence",
+        "customer_buyer_pull_evidence",
+        "commercial_or_funding_evidence",
+        "attio_new_or_no_match"
+      ],
+      "missing_owner_evidence": [],
+      "recommended_action": "Assign owner",
+      "recommended_lane": "HN Enriched Outbound Candidates",
+      "action_blocker": "",
+      "potential_action_if_attio_confirms": "",
+      "attio_blocked_owner_ready": false,
+      "next_validation_step": "Ready for owner assignment",
+      "assign_owner": true,
+      "new_to_marathon": true,
+      "unsafe_promotion": false,
+      "missing_evidence": [],
+      "official_site_pages_checked": [
+        "https://voker.ai"
+      ],
+      "official_identity_url": "https://voker.ai",
+      "movement": "AI agent security",
+      "market_sector": "Cybersecurity",
+      "assign_owner_evidence_provenance": {
+        "hn_source": {
+          "url": "https://news.ycombinator.com/item?id=48109962",
+          "title": "Launch HN: Voker (YC S24) \u2013 Analytics for AI Agents",
+          "author": "ttpost",
+          "engagement": {
+            "points": 59,
+            "comments": 22
+          }
+        },
+        "official_company_source": {
+          "url": "https://voker.ai",
+          "domain": "voker.ai",
+          "identity_url": "https://voker.ai"
+        },
+        "founder_evidence": {
+          "url": "https://www.ycombinator.com/companies/voker",
+          "founders": [
+            "Tyler Postle",
+            "Alex Rudolph"
+          ],
+          "profiles": [
+            {
+              "name": "Tyler Postle",
+              "role": "founder",
+              "source": "https://www.ycombinator.com/companies/voker"
+            },
+            {
+              "name": "Alex Rudolph",
+              "role": "founder",
+              "source": "https://www.ycombinator.com/companies/voker"
+            }
+          ]
+        },
+        "stage_funding_evidence": {
+          "url": "https://www.ycombinator.com/companies/voker",
+          "maturity_status": "seed_to_series_b",
+          "basis": [
+            "accelerator_batch_evidence: YC S24",
+            "yc_company_profile_stage_evidence"
+          ]
+        },
+        "commercial_customer_evidence": {
+          "url": "https://voker.ai",
+          "types": [
+            {
+              "url": "https://voker.ai",
+              "evidence_types": [
+                "waitlist_or_demo_evidence",
+                "commercial_intent_evidence"
+              ]
+            }
+          ]
+        },
+        "attio_status_evidence": {
+          "status": "no_match",
+          "source": "attio_read",
+          "action_safe": true
+        }
+      }
+    },
+    {
+      "name": "Hypercubic",
+      "canonical_name": "Hypercubic",
+      "official_domain": "hypercubic.ai",
+      "source_title": "Show HN: Agentic interface for mainframes and COBOL",
+      "source_url": "https://news.ycombinator.com/item?id=48111143",
+      "official_url": "https://www.hypercubic.ai/hopper",
+      "hn_author": "sai18",
+      "hn_engagement": {
+        "points": 97,
+        "comments": 51
+      },
+      "identity_type": "verified_company",
+      "identity_promotion_status": "promoted",
+      "identity_basis": [
+        "verified_domain_present",
+        "launch_source_present",
+        "attio_match_key_present",
+        "hn_outbound_not_independent_company_proof",
+        "official_site_confirms_identity"
+      ],
+      "identity_confidence_score": 85,
+      "missing_identity_evidence": [],
+      "maturity_status": "unknown",
+      "maturity_basis": [
+        "maturity_not_verified"
+      ],
+      "maturity_evidence_urls": [],
+      "lead_route": "research_deeper",
+      "category_anchor": false,
+      "founder_team_evidence": [],
+      "founders": [],
+      "founder_profiles": [],
+      "founder_evidence_conflicts": [],
+      "stage_funding_evidence": [],
+      "weak_stage_funding_hints": [],
+      "customer_buyer_evidence": [
+        "https://hypercubic.ai"
+      ],
+      "customer_buyer_evidence_types": [
+        {
+          "url": "https://hypercubic.ai",
+          "evidence_types": [
+            "waitlist_or_demo_evidence"
+          ]
+        }
+      ],
+      "attio_status": "unknown",
+      "attio_safe_to_match": true,
+      "attio_confidence": "Low",
+      "attio_confidence_basis": [
+        "attio_unknown"
+      ],
+      "owner_readiness_score": 30,
+      "owner_readiness_basis": [
+        "verified_company_identity",
+        "customer_buyer_pull_evidence"
+      ],
+      "missing_owner_evidence": [
+        "no founder/team evidence",
+        "no stage/funding evidence",
+        "no commercial/funding evidence",
+        "Attio status unknown",
+        "maturity_query_timeout"
+      ],
+      "recommended_action": "Research deeper",
+      "recommended_lane": "HN Enriched Outbound Candidates",
+      "action_blocker": "",
+      "potential_action_if_attio_confirms": "",
+      "attio_blocked_owner_ready": false,
+      "next_validation_step": "Find founder/team source",
+      "assign_owner": false,
+      "new_to_marathon": false,
+      "unsafe_promotion": false,
+      "missing_evidence": [
+        "no founder/team evidence",
+        "no stage/funding evidence",
+        "no commercial/funding evidence",
+        "Attio status unknown",
+        "maturity_query_timeout"
+      ],
+      "official_site_pages_checked": [
+        "https://www.hypercubic.ai/hopper"
+      ],
+      "official_identity_url": "https://www.hypercubic.ai/hopper",
+      "movement": "Agent reliability and evals",
+      "market_sector": "AI Infra",
+      "assign_owner_evidence_provenance": {},
+      "partial": false
+    },
+    {
+      "name": "Runtime (YC P26)",
+      "canonical_name": "Runtime (YC P26)",
+      "official_domain": "runtm.com",
+      "source_title": "Launch HN: Runtime (YC P26) \u2013 Sandboxed coding agents for everyone on a team",
+      "source_url": "https://news.ycombinator.com/item?id=48225040",
+      "official_url": "https://www.runtm.com/",
+      "hn_author": "gustrigos",
+      "hn_engagement": {
+        "points": 103,
+        "comments": 30
+      },
+      "identity_type": "verified_company",
+      "identity_promotion_status": "promoted",
+      "identity_basis": [
+        "verified_domain_present",
+        "launch_source_present",
+        "attio_match_key_present",
+        "hn_outbound_not_independent_company_proof",
+        "official_site_confirms_identity"
+      ],
+      "identity_confidence_score": 85,
+      "missing_identity_evidence": [],
+      "maturity_status": "unknown",
+      "maturity_basis": [
+        "maturity_not_verified"
+      ],
+      "maturity_evidence_urls": [],
+      "lead_route": "research_deeper",
+      "category_anchor": false,
+      "founder_team_evidence": [],
+      "founders": [],
+      "founder_profiles": [],
+      "founder_evidence_conflicts": [],
+      "stage_funding_evidence": [],
+      "weak_stage_funding_hints": [],
+      "customer_buyer_evidence": [
+        "https://runtm.com"
+      ],
+      "customer_buyer_evidence_types": [
+        {
+          "url": "https://runtm.com",
+          "evidence_types": [
+            "early_customer_segment_evidence",
+            "waitlist_or_demo_evidence"
+          ]
+        }
+      ],
+      "attio_status": "unknown",
+      "attio_safe_to_match": true,
+      "attio_confidence": "Low",
+      "attio_confidence_basis": [
+        "attio_unknown"
+      ],
+      "owner_readiness_score": 40,
+      "owner_readiness_basis": [
+        "verified_company_identity",
+        "customer_buyer_pull_evidence",
+        "commercial_or_funding_evidence"
+      ],
+      "missing_owner_evidence": [
+        "no founder/team evidence",
+        "no stage/funding evidence",
+        "Attio status unknown",
+        "maturity_query_timeout"
+      ],
+      "recommended_action": "Research deeper",
+      "recommended_lane": "HN Enriched Outbound Candidates",
+      "action_blocker": "",
+      "potential_action_if_attio_confirms": "",
+      "attio_blocked_owner_ready": false,
+      "next_validation_step": "Find founder/team source",
+      "assign_owner": false,
+      "new_to_marathon": false,
+      "unsafe_promotion": false,
+      "missing_evidence": [
+        "no founder/team evidence",
+        "no stage/funding evidence",
+        "Attio status unknown",
+        "maturity_query_timeout"
+      ],
+      "official_site_pages_checked": [
+        "https://www.runtm.com/"
+      ],
+      "official_identity_url": "https://www.runtm.com/",
+      "movement": "Agent runtime infrastructure",
+      "market_sector": "AI Infra",
+      "assign_owner_evidence_provenance": {},
+      "partial": false
+    },
+    {
+      "name": "3D-Agent",
+      "canonical_name": "3D-Agent",
+      "official_domain": "3d-agent.com",
+      "source_title": "Show HN: 3D-Agent \u2013 AI that edits Blender scenes through the Python API",
+      "source_url": "https://news.ycombinator.com/item?id=48136209",
+      "official_url": "https://3d-agent.com/blender-ai/plugin",
+      "hn_author": "gsunshinel",
+      "hn_engagement": {
+        "points": 4,
+        "comments": 7
+      },
+      "identity_type": "verified_company",
+      "identity_promotion_status": "promoted",
+      "identity_basis": [
+        "verified_domain_present",
+        "launch_source_present",
+        "attio_match_key_present",
+        "hn_outbound_not_independent_company_proof",
+        "official_site_confirms_identity"
+      ],
+      "identity_confidence_score": 85,
+      "missing_identity_evidence": [],
+      "maturity_status": "unknown",
+      "maturity_basis": [
+        "maturity_not_verified"
+      ],
+      "maturity_evidence_urls": [],
+      "lead_route": "research_deeper",
+      "category_anchor": false,
+      "founder_team_evidence": [],
+      "founders": [],
+      "founder_profiles": [],
+      "founder_evidence_conflicts": [],
+      "stage_funding_evidence": [],
+      "weak_stage_funding_hints": [],
+      "customer_buyer_evidence": [],
+      "customer_buyer_evidence_types": [],
+      "attio_status": "unknown",
+      "attio_safe_to_match": true,
+      "attio_confidence": "Low",
+      "attio_confidence_basis": [
+        "attio_unknown"
+      ],
+      "owner_readiness_score": 15,
+      "owner_readiness_basis": [
+        "verified_company_identity"
+      ],
+      "missing_owner_evidence": [
+        "no founder/team evidence",
+        "no stage/funding evidence",
+        "no commercial/funding evidence",
+        "Attio status unknown",
+        "no customer/buyer pull evidence",
+        "maturity_query_timeout"
+      ],
+      "recommended_action": "Research deeper",
+      "recommended_lane": "HN Enriched Outbound Candidates",
+      "action_blocker": "",
+      "potential_action_if_attio_confirms": "",
+      "attio_blocked_owner_ready": false,
+      "next_validation_step": "Find founder/team source",
+      "assign_owner": false,
+      "new_to_marathon": false,
+      "unsafe_promotion": false,
+      "missing_evidence": [
+        "no founder/team evidence",
+        "no stage/funding evidence",
+        "no commercial/funding evidence",
+        "Attio status unknown",
+        "no customer/buyer pull evidence",
+        "maturity_query_timeout"
+      ],
+      "official_site_pages_checked": [
+        "https://3d-agent.com/blender-ai/plugin"
+      ],
+      "official_identity_url": "https://3d-agent.com/blender-ai/plugin",
+      "movement": "AI agent security",
+      "market_sector": "Cybersecurity",
+      "assign_owner_evidence_provenance": {},
+      "partial": false
+    },
+    {
+      "name": "Triyambakam Apex Corp",
+      "canonical_name": "Triyambakam Apex Corp",
+      "official_domain": "triyambakam-apex-corp.hf.space",
+      "source_title": "Show HN: AI that audits your codebase in 60 seconds",
+      "source_url": "https://news.ycombinator.com/item?id=48156878",
+      "official_url": "https://triyambakam-apex-corp.hf.space",
+      "hn_author": "haapatel",
+      "hn_engagement": {
+        "points": 8,
+        "comments": 3
+      },
+      "identity_type": "hn_outbound_candidate",
+      "identity_promotion_status": "not_promoted",
+      "identity_basis": [
+        "verified_domain_present",
+        "launch_source_present",
+        "attio_match_key_present",
+        "hn_outbound_not_independent_company_proof"
+      ],
+      "identity_confidence_score": 65,
+      "missing_identity_evidence": [
+        "official_domain_identity_not_confirmed"
+      ],
+      "maturity_status": "unknown",
+      "maturity_basis": [
+        "maturity_not_verified"
+      ],
+      "maturity_evidence_urls": [],
+      "lead_route": "research_deeper",
+      "category_anchor": false,
+      "founder_team_evidence": [],
+      "founders": [],
+      "founder_profiles": [],
+      "founder_evidence_conflicts": [],
+      "stage_funding_evidence": [],
+      "weak_stage_funding_hints": [],
+      "customer_buyer_evidence": [],
+      "customer_buyer_evidence_types": [],
+      "attio_status": "unknown",
+      "attio_safe_to_match": false,
+      "attio_confidence": "",
+      "attio_confidence_basis": [],
+      "owner_readiness_score": 0,
+      "owner_readiness_basis": [],
+      "missing_owner_evidence": [
+        "no verified Attio-safe company identity",
+        "no founder/team evidence",
+        "no stage/funding evidence",
+        "no commercial/funding evidence",
+        "Attio status unknown",
+        "no customer/buyer pull evidence"
+      ],
+      "recommended_action": "Research deeper",
+      "recommended_lane": "HN Enriched Outbound Candidates",
+      "action_blocker": "",
+      "potential_action_if_attio_confirms": "",
+      "attio_blocked_owner_ready": false,
+      "next_validation_step": "Find founder/team source",
+      "assign_owner": false,
+      "new_to_marathon": false,
+      "unsafe_promotion": false,
+      "missing_evidence": [
+        "official_domain_identity_not_confirmed",
+        "no verified Attio-safe company identity",
+        "no founder/team evidence",
+        "no stage/funding evidence",
+        "no commercial/funding evidence",
+        "Attio status unknown",
+        "no customer/buyer pull evidence"
+      ],
+      "official_site_pages_checked": [
+        "https://triyambakam-apex-corp.hf.space"
+      ],
+      "official_identity_url": "",
+      "movement": "Vertical AI operations",
+      "market_sector": "Devtools",
+      "assign_owner_evidence_provenance": {}
+    },
+    {
+      "name": "Noada",
+      "canonical_name": "Noada",
+      "official_domain": "noada.app",
+      "source_title": "Show HN: AI that interviews participants instead of holding another meeting",
+      "source_url": "https://news.ycombinator.com/item?id=48221855",
+      "official_url": "https://www.noada.app/",
+      "hn_author": "elliot952",
+      "hn_engagement": {
+        "points": 9,
+        "comments": 2
+      },
+      "identity_type": "verified_company",
+      "identity_promotion_status": "promoted",
+      "identity_basis": [
+        "verified_domain_present",
+        "launch_source_present",
+        "attio_match_key_present",
+        "hn_outbound_not_independent_company_proof",
+        "official_site_confirms_identity"
+      ],
+      "identity_confidence_score": 85,
+      "missing_identity_evidence": [],
+      "maturity_status": "unknown",
+      "maturity_basis": [
+        "maturity_not_verified"
+      ],
+      "maturity_evidence_urls": [],
+      "lead_route": "research_deeper",
+      "category_anchor": false,
+      "founder_team_evidence": [],
+      "founders": [],
+      "founder_profiles": [],
+      "founder_evidence_conflicts": [],
+      "stage_funding_evidence": [],
+      "weak_stage_funding_hints": [],
+      "customer_buyer_evidence": [],
+      "customer_buyer_evidence_types": [],
+      "attio_status": "unknown",
+      "attio_safe_to_match": true,
+      "attio_confidence": "Low",
+      "attio_confidence_basis": [
+        "attio_unknown"
+      ],
+      "owner_readiness_score": 15,
+      "owner_readiness_basis": [
+        "verified_company_identity"
+      ],
+      "missing_owner_evidence": [
+        "no founder/team evidence",
+        "no stage/funding evidence",
+        "no commercial/funding evidence",
+        "Attio status unknown",
+        "no customer/buyer pull evidence"
+      ],
+      "recommended_action": "Research deeper",
+      "recommended_lane": "HN Enriched Outbound Candidates",
+      "action_blocker": "",
+      "potential_action_if_attio_confirms": "",
+      "attio_blocked_owner_ready": false,
+      "next_validation_step": "Find founder/team source",
+      "assign_owner": false,
+      "new_to_marathon": false,
+      "unsafe_promotion": false,
+      "missing_evidence": [
+        "no founder/team evidence",
+        "no stage/funding evidence",
+        "no commercial/funding evidence",
+        "Attio status unknown",
+        "no customer/buyer pull evidence"
+      ],
+      "official_site_pages_checked": [
+        "https://www.noada.app/"
+      ],
+      "official_identity_url": "https://www.noada.app/",
+      "movement": "Vertical AI operations",
+      "market_sector": "Devtools",
+      "assign_owner_evidence_provenance": {}
+    },
+    {
+      "name": "Datapoint AI",
+      "canonical_name": "Datapoint AI",
+      "official_domain": "trydatapoint.com",
+      "source_title": "Show HN: Datapoint AI \u2013 Make Something People Want, but Ask Them First",
+      "source_url": "https://news.ycombinator.com/item?id=48241139",
+      "official_url": "https://trydatapoint.com",
+      "hn_author": "yoloakki",
+      "hn_engagement": {
+        "points": 4,
+        "comments": 4
+      },
+      "identity_type": "verified_company",
+      "identity_promotion_status": "promoted",
+      "identity_basis": [
+        "verified_domain_present",
+        "launch_source_present",
+        "attio_match_key_present",
+        "hn_outbound_not_independent_company_proof",
+        "official_site_confirms_identity"
+      ],
+      "identity_confidence_score": 85,
+      "missing_identity_evidence": [],
+      "maturity_status": "unknown",
+      "maturity_basis": [
+        "maturity_not_verified"
+      ],
+      "maturity_evidence_urls": [],
+      "lead_route": "research_deeper",
+      "category_anchor": false,
+      "founder_team_evidence": [],
+      "founders": [],
+      "founder_profiles": [],
+      "founder_evidence_conflicts": [],
+      "stage_funding_evidence": [],
+      "weak_stage_funding_hints": [],
+      "customer_buyer_evidence": [],
+      "customer_buyer_evidence_types": [],
+      "attio_status": "unknown",
+      "attio_safe_to_match": true,
+      "attio_confidence": "Low",
+      "attio_confidence_basis": [
+        "attio_unknown"
+      ],
+      "owner_readiness_score": 15,
+      "owner_readiness_basis": [
+        "verified_company_identity"
+      ],
+      "missing_owner_evidence": [
+        "no founder/team evidence",
+        "no stage/funding evidence",
+        "no customer/buyer pull evidence",
+        "no commercial/funding evidence",
+        "Attio status unknown"
+      ],
+      "recommended_action": "Research deeper",
+      "recommended_lane": "HN Enriched Outbound Candidates",
+      "action_blocker": "",
+      "potential_action_if_attio_confirms": "",
+      "attio_blocked_owner_ready": false,
+      "next_validation_step": "Find founder/team source",
+      "assign_owner": false,
+      "new_to_marathon": false,
+      "unsafe_promotion": false,
+      "missing_evidence": [
+        "no founder/team evidence",
+        "no stage/funding evidence",
+        "no customer/buyer pull evidence",
+        "no commercial/funding evidence",
+        "Attio status unknown"
+      ],
+      "official_site_pages_checked": [
+        "https://trydatapoint.com"
+      ],
+      "official_identity_url": "https://trydatapoint.com",
+      "movement": "Vertical AI operations",
+      "market_sector": "Devtools",
+      "assign_owner_evidence_provenance": {}
+    },
+    {
+      "name": "AI Doctor Notes",
+      "canonical_name": "AI Doctor Notes",
+      "official_domain": "aidoctornotes.app",
+      "source_title": "Show HN: AI Doctor Notes \u2013 Private doctor visit notes app for patients",
+      "source_url": "https://news.ycombinator.com/item?id=48205825",
+      "official_url": "https://aidoctornotes.app/",
+      "hn_author": "Sharanxxxx",
+      "hn_engagement": {
+        "points": 3,
+        "comments": 3
+      },
+      "identity_type": "verified_company",
+      "identity_promotion_status": "promoted",
+      "identity_basis": [
+        "verified_domain_present",
+        "launch_source_present",
+        "attio_match_key_present",
+        "hn_outbound_not_independent_company_proof",
+        "official_site_confirms_identity"
+      ],
+      "identity_confidence_score": 85,
+      "missing_identity_evidence": [],
+      "maturity_status": "unknown",
+      "maturity_basis": [
+        "maturity_not_verified"
+      ],
+      "maturity_evidence_urls": [],
+      "lead_route": "research_deeper",
+      "category_anchor": false,
+      "founder_team_evidence": [],
+      "founders": [],
+      "founder_profiles": [],
+      "founder_evidence_conflicts": [],
+      "stage_funding_evidence": [],
+      "weak_stage_funding_hints": [],
+      "customer_buyer_evidence": [],
+      "customer_buyer_evidence_types": [],
+      "attio_status": "unknown",
+      "attio_safe_to_match": true,
+      "attio_confidence": "Low",
+      "attio_confidence_basis": [
+        "attio_unknown"
+      ],
+      "owner_readiness_score": 15,
+      "owner_readiness_basis": [
+        "verified_company_identity"
+      ],
+      "missing_owner_evidence": [
+        "no founder/team evidence",
+        "no stage/funding evidence",
+        "no commercial/funding evidence",
+        "Attio status unknown",
+        "no customer/buyer pull evidence"
+      ],
+      "recommended_action": "Research deeper",
+      "recommended_lane": "HN Enriched Outbound Candidates",
+      "action_blocker": "",
+      "potential_action_if_attio_confirms": "",
+      "attio_blocked_owner_ready": false,
+      "next_validation_step": "Find founder/team source",
+      "assign_owner": false,
+      "new_to_marathon": false,
+      "unsafe_promotion": false,
+      "missing_evidence": [
+        "no founder/team evidence",
+        "no stage/funding evidence",
+        "no commercial/funding evidence",
+        "Attio status unknown",
+        "no customer/buyer pull evidence"
+      ],
+      "official_site_pages_checked": [
+        "https://aidoctornotes.app/"
+      ],
+      "official_identity_url": "https://aidoctornotes.app/",
+      "movement": "AI data infrastructure",
+      "market_sector": "Unclassified",
+      "assign_owner_evidence_provenance": {}
+    }
+  ],
+  "skipped_candidates": [
+    {
+      "name": "AI Philosopher King",
+      "canonical_name": "AI Philosopher King",
+      "official_domain": "aiking.dwyer.co.za",
+      "source_title": "Show HN: AI Philosopher King \u2013 how would an AI run the world?",
+      "source_url": "https://news.ycombinator.com/item?id=48308446",
+      "official_url": "https://aiking.dwyer.co.za/",
+      "identity_type": "hn_outbound_candidate",
+      "identity_promotion_status": "skipped",
+      "maturity_status": "unknown",
+      "lead_route": "research_deeper",
+      "owner_readiness_score": 0,
+      "owner_readiness_basis": [],
+      "missing_owner_evidence": [
+        "max_candidates_exceeded"
+      ],
+      "recommended_action": "Research deeper",
+      "next_validation_step": "Rerun with larger HN enrichment budget",
+      "assign_owner": false,
+      "new_to_marathon": false,
+      "unsafe_promotion": false,
+      "partial": true,
+      "partial_reason": "max_candidates_exceeded",
+      "missing_evidence": [
+        "max_candidates_exceeded"
+      ],
+      "movement": "Vertical AI operations",
+      "market_sector": "Devtools"
+    },
+    {
+      "name": "AI Audiobook Narrator",
+      "canonical_name": "AI Audiobook Narrator",
+      "official_domain": "warblize.com",
+      "source_title": "Show HN: AI Audiobook Narrator",
+      "source_url": "https://news.ycombinator.com/item?id=48227955",
+      "official_url": "https://warblize.com/",
+      "identity_type": "hn_outbound_candidate",
+      "identity_promotion_status": "skipped",
+      "maturity_status": "unknown",
+      "lead_route": "research_deeper",
+      "owner_readiness_score": 0,
+      "owner_readiness_basis": [],
+      "missing_owner_evidence": [
+        "max_candidates_exceeded"
+      ],
+      "recommended_action": "Research deeper",
+      "next_validation_step": "Rerun with larger HN enrichment budget",
+      "assign_owner": false,
+      "new_to_marathon": false,
+      "unsafe_promotion": false,
+      "partial": true,
+      "partial_reason": "max_candidates_exceeded",
+      "missing_evidence": [
+        "max_candidates_exceeded"
+      ],
+      "movement": "Vertical AI operations",
+      "market_sector": "Devtools"
+    },
+    {
+      "name": "CoreMem",
+      "canonical_name": "CoreMem",
+      "official_domain": "coremem.app",
+      "source_title": "Show HN: CoreMem \u2013 Portable context for AI agents",
+      "source_url": "https://news.ycombinator.com/item?id=48239117",
+      "official_url": "https://coremem.app",
+      "identity_type": "hn_outbound_candidate",
+      "identity_promotion_status": "skipped",
+      "maturity_status": "unknown",
+      "lead_route": "research_deeper",
+      "owner_readiness_score": 0,
+      "owner_readiness_basis": [],
+      "missing_owner_evidence": [
+        "max_candidates_exceeded"
+      ],
+      "recommended_action": "Research deeper",
+      "next_validation_step": "Rerun with larger HN enrichment budget",
+      "assign_owner": false,
+      "new_to_marathon": false,
+      "unsafe_promotion": false,
+      "partial": true,
+      "partial_reason": "max_candidates_exceeded",
+      "missing_evidence": [
+        "max_candidates_exceeded"
+      ],
+      "movement": "AI agent security",
+      "market_sector": "Cybersecurity"
+    },
+    {
+      "name": "AI-org",
+      "canonical_name": "AI-org",
+      "official_domain": "ai-org.net",
+      "source_title": "Show HN: AI-org \u2013 org-mode powered by AI",
+      "source_url": "https://news.ycombinator.com/item?id=48334157",
+      "official_url": "https://ai-org.net/",
+      "identity_type": "hn_outbound_candidate",
+      "identity_promotion_status": "skipped",
+      "maturity_status": "unknown",
+      "lead_route": "research_deeper",
+      "owner_readiness_score": 0,
+      "owner_readiness_basis": [],
+      "missing_owner_evidence": [
+        "max_candidates_exceeded"
+      ],
+      "recommended_action": "Research deeper",
+      "next_validation_step": "Rerun with larger HN enrichment budget",
+      "assign_owner": false,
+      "new_to_marathon": false,
+      "unsafe_promotion": false,
+      "partial": true,
+      "partial_reason": "max_candidates_exceeded",
+      "missing_evidence": [
+        "max_candidates_exceeded"
+      ],
+      "movement": "Vertical AI operations",
+      "market_sector": "Devtools"
+    },
+    {
+      "name": "Agent-QA",
+      "canonical_name": "Agent-QA",
+      "official_domain": "vostride.com",
+      "source_title": "Show HN: Agent-QA: Open-source AI end-to-end testing for web and mobile apps",
+      "source_url": "https://news.ycombinator.com/item?id=48176493",
+      "official_url": "https://vostride.com",
+      "identity_type": "hn_outbound_candidate",
+      "identity_promotion_status": "skipped",
+      "maturity_status": "unknown",
+      "lead_route": "research_deeper",
+      "owner_readiness_score": 0,
+      "owner_readiness_basis": [],
+      "missing_owner_evidence": [
+        "max_candidates_exceeded"
+      ],
+      "recommended_action": "Research deeper",
+      "next_validation_step": "Rerun with larger HN enrichment budget",
+      "assign_owner": false,
+      "new_to_marathon": false,
+      "unsafe_promotion": false,
+      "partial": true,
+      "partial_reason": "max_candidates_exceeded",
+      "missing_evidence": [
+        "max_candidates_exceeded"
+      ],
+      "movement": "Agent reliability and evals",
+      "market_sector": "AI Infra"
+    },
+    {
+      "name": "AI agents that audit your Metabase instance and find what's broken",
+      "canonical_name": "AI agents that audit your Metabase instance and find what's broken",
+      "official_domain": "metalens.it",
+      "source_title": "Show HN: AI agents that audit your Metabase instance and find what's broken",
+      "source_url": "https://news.ycombinator.com/item?id=48278279",
+      "official_url": "https://metalens.it",
+      "identity_type": "hn_outbound_candidate",
+      "identity_promotion_status": "skipped",
+      "maturity_status": "unknown",
+      "lead_route": "research_deeper",
+      "owner_readiness_score": 0,
+      "owner_readiness_basis": [],
+      "missing_owner_evidence": [
+        "max_candidates_exceeded"
+      ],
+      "recommended_action": "Research deeper",
+      "next_validation_step": "Rerun with larger HN enrichment budget",
+      "assign_owner": false,
+      "new_to_marathon": false,
+      "unsafe_promotion": false,
+      "partial": true,
+      "partial_reason": "max_candidates_exceeded",
+      "missing_evidence": [
+        "max_candidates_exceeded"
+      ],
+      "movement": "AI agent security",
+      "market_sector": "Cybersecurity"
+    },
+    {
+      "name": "AI Simulaionen Based on FEP",
+      "canonical_name": "AI Simulaionen Based on FEP",
+      "official_domain": "aic-ai-lab.site",
+      "source_title": "Show HN: AI Simulaionen Based on FEP",
+      "source_url": "https://news.ycombinator.com/item?id=48339824",
+      "official_url": "https://aic-ai-lab.site/login",
+      "identity_type": "hn_outbound_candidate",
+      "identity_promotion_status": "skipped",
+      "maturity_status": "unknown",
+      "lead_route": "research_deeper",
+      "owner_readiness_score": 0,
+      "owner_readiness_basis": [],
+      "missing_owner_evidence": [
+        "max_candidates_exceeded"
+      ],
+      "recommended_action": "Research deeper",
+      "next_validation_step": "Rerun with larger HN enrichment budget",
+      "assign_owner": false,
+      "new_to_marathon": false,
+      "unsafe_promotion": false,
+      "partial": true,
+      "partial_reason": "max_candidates_exceeded",
+      "missing_evidence": [
+        "max_candidates_exceeded"
+      ],
+      "movement": "Vertical AI operations",
+      "market_sector": "Devtools"
+    },
+    {
+      "name": "Extend AI turns a voice note into posts that sound like you",
+      "canonical_name": "Extend AI turns a voice note into posts that sound like you",
+      "official_domain": "extend.redsystem.dev",
+      "source_title": "Show HN: Extend AI turns a voice note into posts that sound like you",
+      "source_url": "https://news.ycombinator.com/item?id=48336903",
+      "official_url": "https://extend.redsystem.dev",
+      "identity_type": "hn_outbound_candidate",
+      "identity_promotion_status": "skipped",
+      "maturity_status": "unknown",
+      "lead_route": "research_deeper",
+      "owner_readiness_score": 0,
+      "owner_readiness_basis": [],
+      "missing_owner_evidence": [
+        "max_candidates_exceeded"
+      ],
+      "recommended_action": "Research deeper",
+      "next_validation_step": "Rerun with larger HN enrichment budget",
+      "assign_owner": false,
+      "new_to_marathon": false,
+      "unsafe_promotion": false,
+      "partial": true,
+      "partial_reason": "max_candidates_exceeded",
+      "missing_evidence": [
+        "max_candidates_exceeded"
+      ],
+      "movement": "Vertical AI operations",
+      "market_sector": "Devtools"
+    }
+  ],
+  "product_context_rows": [
+    {
+      "name": "OpenHive",
+      "canonical_name": "OpenHive",
+      "official_domain": "openhivemind.vercel.app",
+      "source_title": "Show HN: OpenHive \u2013 AI agents share solutions so other agents dont re-solve them",
+      "source_url": "https://news.ycombinator.com/item?id=48323606",
+      "official_url": "https://openhivemind.vercel.app/",
+      "identity_type": "hn_context_candidate",
+      "identity_promotion_status": "not_promoted",
+      "maturity_status": "unknown",
+      "lead_route": "research_deeper",
+      "owner_readiness_score": 0,
+      "owner_readiness_basis": [],
+      "missing_owner_evidence": [
+        "hosted_demo_not_company_identity"
+      ],
+      "recommended_action": "Research deeper",
+      "recommended_lane": "HN Product / Project Context",
+      "next_validation_step": "Use as launch/context evidence only; find official company domain before enrichment",
+      "assign_owner": false,
+      "new_to_marathon": false,
+      "unsafe_promotion": false,
+      "partial": false,
+      "partial_reason": "hosted_demo_not_company_identity",
+      "missing_evidence": [
+        "hosted_demo_not_company_identity"
+      ],
+      "movement": "AI agent security",
+      "market_sector": "Cybersecurity",
+      "priority": "skip_or_context",
+      "priority_reasons": [
+        "hosted_demo_not_company_identity"
+      ]
+    }
+  ],
+  "project_only_rows": [
+    {
+      "name": "Adaptive Runtime",
+      "source_title": "Show HN: Adaptive Runtime \u2013 AI agent layer, no GPU, crash recovery",
+      "source_url": "https://news.ycombinator.com/item?id=48321786",
+      "project_url": "",
+      "hn_author": "StateflowsLabs",
+      "hn_engagement": {
+        "points": 3,
+        "comments": 1
+      },
+      "company_domain": "",
+      "identity_type": "oss_project_watch",
+      "lead_route": "project_watch",
+      "recommended_action": "Research deeper",
+      "assign_owner": false,
+      "new_to_marathon": false,
+      "missing_evidence": [
+        "hn_outbound_github_project_only"
+      ],
+      "why_useful": "HN technical launch signal; can support movement evidence but not company identity.",
+      "recommended_lane": "HN Project Watch / Technical Launch Signals",
+      "movement": "AI agent security",
+      "market_sector": "Cybersecurity",
+      "source_kind": "hn_project_only"
+    },
+    {
+      "name": "Autodidact",
+      "source_title": "Show HN: Autodidact \u2013 Self-evolving local-first AI agent",
+      "source_url": "https://news.ycombinator.com/item?id=48194739",
+      "project_url": "",
+      "hn_author": "waterbuffaloai",
+      "hn_engagement": {
+        "points": 8,
+        "comments": 4
+      },
+      "company_domain": "",
+      "identity_type": "oss_project_watch",
+      "lead_route": "project_watch",
+      "recommended_action": "Research deeper",
+      "assign_owner": false,
+      "new_to_marathon": false,
+      "missing_evidence": [
+        "hn_outbound_github_project_only"
+      ],
+      "why_useful": "HN technical launch signal; can support movement evidence but not company identity.",
+      "recommended_lane": "HN Project Watch / Technical Launch Signals",
+      "movement": "AI agent security",
+      "market_sector": "Cybersecurity",
+      "source_kind": "hn_project_only"
+    },
+    {
+      "name": "YouTube MCP, give any AI agent access to YouTube",
+      "source_title": "Show HN: YouTube MCP, give any AI agent access to YouTube",
+      "source_url": "https://news.ycombinator.com/item?id=48198790",
+      "project_url": "",
+      "hn_author": "umbertotancorre",
+      "hn_engagement": {
+        "points": 5,
+        "comments": 3
+      },
+      "company_domain": "",
+      "identity_type": "oss_project_watch",
+      "lead_route": "project_watch",
+      "recommended_action": "Research deeper",
+      "assign_owner": false,
+      "new_to_marathon": false,
+      "missing_evidence": [
+        "hn_outbound_github_project_only"
+      ],
+      "why_useful": "HN technical launch signal; can support movement evidence but not company identity.",
+      "recommended_lane": "HN Project Watch / Technical Launch Signals",
+      "movement": "AI agent security",
+      "market_sector": "Cybersecurity",
+      "source_kind": "hn_project_only"
+    },
+    {
+      "name": "SIMD Agent",
+      "source_title": "Show HN: SIMD Agent \u2013 AI that runs OpenFOAM simulations from natural language",
+      "source_url": "https://news.ycombinator.com/item?id=48228231",
+      "project_url": "",
+      "hn_author": "tito777",
+      "hn_engagement": {
+        "points": 3,
+        "comments": 0
+      },
+      "company_domain": "",
+      "identity_type": "oss_project_watch",
+      "lead_route": "project_watch",
+      "recommended_action": "Research deeper",
+      "assign_owner": false,
+      "new_to_marathon": false,
+      "missing_evidence": [
+        "hn_outbound_github_project_only"
+      ],
+      "why_useful": "HN technical launch signal; can support movement evidence but not company identity.",
+      "recommended_lane": "HN Project Watch / Technical Launch Signals",
+      "movement": "AI agent security",
+      "market_sector": "Cybersecurity",
+      "source_kind": "hn_project_only"
+    },
+    {
+      "name": "Agent Chat Bridge",
+      "source_title": "Show HN: Agent Chat Bridge \u2013 give AI IDE agents an async callback",
+      "source_url": "https://news.ycombinator.com/item?id=48217340",
+      "project_url": "",
+      "hn_author": "sathvikchinnu",
+      "hn_engagement": {
+        "points": 5,
+        "comments": 0
+      },
+      "company_domain": "",
+      "identity_type": "oss_project_watch",
+      "lead_route": "project_watch",
+      "recommended_action": "Research deeper",
+      "assign_owner": false,
+      "new_to_marathon": false,
+      "missing_evidence": [
+        "hn_outbound_github_project_only"
+      ],
+      "why_useful": "HN technical launch signal; can support movement evidence but not company identity.",
+      "recommended_lane": "HN Project Watch / Technical Launch Signals",
+      "movement": "AI agent security",
+      "market_sector": "Cybersecurity",
+      "source_kind": "hn_project_only"
+    },
+    {
+      "name": "Give your AI agent a brain that understands your codebase",
+      "source_title": "Show HN: Give your AI agent a brain that understands your codebase",
+      "source_url": "https://news.ycombinator.com/item?id=48166239",
+      "project_url": "",
+      "hn_author": "sergiopreira",
+      "hn_engagement": {
+        "points": 3,
+        "comments": 1
+      },
+      "company_domain": "",
+      "identity_type": "oss_project_watch",
+      "lead_route": "project_watch",
+      "recommended_action": "Research deeper",
+      "assign_owner": false,
+      "new_to_marathon": false,
+      "missing_evidence": [
+        "hn_outbound_github_project_only"
+      ],
+      "why_useful": "HN technical launch signal; can support movement evidence but not company identity.",
+      "recommended_lane": "HN Project Watch / Technical Launch Signals",
+      "movement": "AI agent security",
+      "market_sector": "Cybersecurity",
+      "source_kind": "hn_project_only"
+    },
+    {
+      "name": "Git for AI Agents",
+      "source_title": "Show HN: Git for AI Agents",
+      "source_url": "https://news.ycombinator.com/item?id=48063548",
+      "project_url": "",
+      "hn_author": "doshay",
+      "hn_engagement": {
+        "points": 129,
+        "comments": 67
+      },
+      "company_domain": "",
+      "identity_type": "oss_project_watch",
+      "lead_route": "project_watch",
+      "recommended_action": "Research deeper",
+      "assign_owner": false,
+      "new_to_marathon": false,
+      "missing_evidence": [
+        "hn_outbound_github_project_only"
+      ],
+      "why_useful": "HN technical launch signal; can support movement evidence but not company identity.",
+      "recommended_lane": "HN Project Watch / Technical Launch Signals",
+      "movement": "AI agent security",
+      "market_sector": "Cybersecurity",
+      "source_kind": "hn_project_only"
+    },
+    {
+      "name": "I open-sourced two AI agents with real memory (chat and voice, MIT)",
+      "source_title": "Show HN: I open-sourced two AI agents with real memory (chat and voice, MIT)",
+      "source_url": "https://news.ycombinator.com/item?id=48280546",
+      "project_url": "",
+      "hn_author": "SQLv2",
+      "hn_engagement": {
+        "points": 5,
+        "comments": 0
+      },
+      "company_domain": "",
+      "identity_type": "oss_project_watch",
+      "lead_route": "project_watch",
+      "recommended_action": "Research deeper",
+      "assign_owner": false,
+      "new_to_marathon": false,
+      "missing_evidence": [
+        "hn_outbound_github_project_only"
+      ],
+      "why_useful": "HN technical launch signal; can support movement evidence but not company identity.",
+      "recommended_lane": "HN Project Watch / Technical Launch Signals",
+      "movement": "AI agent security",
+      "market_sector": "Cybersecurity",
+      "source_kind": "hn_project_only"
+    },
+    {
+      "name": "Search Router",
+      "source_title": "Show HN: Search Router \u2013 retrieval-ready web search for AI agents",
+      "source_url": "https://news.ycombinator.com/item?id=48309501",
+      "project_url": "",
+      "hn_author": "KolibriFly",
+      "hn_engagement": {
+        "points": 3,
+        "comments": 0
+      },
+      "company_domain": "",
+      "identity_type": "oss_project_watch",
+      "lead_route": "project_watch",
+      "recommended_action": "Research deeper",
+      "assign_owner": false,
+      "new_to_marathon": false,
+      "missing_evidence": [
+        "hn_outbound_github_project_only"
+      ],
+      "why_useful": "HN technical launch signal; can support movement evidence but not company identity.",
+      "recommended_lane": "HN Project Watch / Technical Launch Signals",
+      "movement": "AI agent security",
+      "market_sector": "Cybersecurity",
+      "source_kind": "hn_project_only"
+    },
+    {
+      "name": "AI Skill to port PostgreSQL extensions to MySQL",
+      "source_title": "Show HN: AI Skill to port PostgreSQL extensions to MySQL",
+      "source_url": "https://news.ycombinator.com/item?id=48310211",
+      "project_url": "",
+      "hn_author": "deesix",
+      "hn_engagement": {
+        "points": 4,
+        "comments": 0
+      },
+      "company_domain": "",
+      "identity_type": "oss_project_watch",
+      "lead_route": "project_watch",
+      "recommended_action": "Research deeper",
+      "assign_owner": false,
+      "new_to_marathon": false,
+      "missing_evidence": [
+        "hn_outbound_github_project_only"
+      ],
+      "why_useful": "HN technical launch signal; can support movement evidence but not company identity.",
+      "recommended_lane": "HN Project Watch / Technical Launch Signals",
+      "movement": "Vertical AI operations",
+      "market_sector": "Devtools",
+      "source_kind": "hn_project_only"
+    },
+    {
+      "name": "Agent FM",
+      "source_title": "Show HN: Agent FM \u2013 local, open-source radio for Claude Code and Codex agents",
+      "source_url": "https://news.ycombinator.com/item?id=48104863",
+      "project_url": "",
+      "hn_author": "anideshp",
+      "hn_engagement": {
+        "points": 9,
+        "comments": 0
+      },
+      "company_domain": "",
+      "identity_type": "oss_project_watch",
+      "lead_route": "project_watch",
+      "recommended_action": "Research deeper",
+      "assign_owner": false,
+      "new_to_marathon": false,
+      "missing_evidence": [
+        "hn_outbound_github_project_only"
+      ],
+      "why_useful": "HN technical launch signal; can support movement evidence but not company identity.",
+      "recommended_lane": "HN Project Watch / Technical Launch Signals",
+      "movement": "Agent reliability and evals",
+      "market_sector": "AI Infra",
+      "source_kind": "hn_project_only"
+    },
+    {
+      "name": "Agent-evals",
+      "source_title": "Show HN: Agent-evals \u2013 Claude skill to build your own evals",
+      "source_url": "https://news.ycombinator.com/item?id=48013746",
+      "project_url": "",
+      "hn_author": "sauercrowd",
+      "hn_engagement": {
+        "points": 9,
+        "comments": 1
+      },
+      "company_domain": "",
+      "identity_type": "oss_project_watch",
+      "lead_route": "project_watch",
+      "recommended_action": "Research deeper",
+      "assign_owner": false,
+      "new_to_marathon": false,
+      "missing_evidence": [
+        "hn_outbound_github_project_only"
+      ],
+      "why_useful": "HN technical launch signal; can support movement evidence but not company identity.",
+      "recommended_lane": "HN Project Watch / Technical Launch Signals",
+      "movement": "Agent reliability and evals",
+      "market_sector": "AI Infra",
+      "source_kind": "hn_project_only"
+    },
+    {
+      "name": "2-command CLI to give AI agents structured data retrieval on PostgreSQL",
+      "source_title": "Show HN: 2-command CLI to give AI agents structured data retrieval on PostgreSQL",
+      "source_url": "https://news.ycombinator.com/item?id=48357212",
+      "project_url": "",
+      "hn_author": "0xJaksun",
+      "hn_engagement": {
+        "points": 4,
+        "comments": 0
+      },
+      "company_domain": "",
+      "identity_type": "oss_project_watch",
+      "lead_route": "project_watch",
+      "recommended_action": "Research deeper",
+      "assign_owner": false,
+      "new_to_marathon": false,
+      "missing_evidence": [
+        "hn_outbound_github_project_only"
+      ],
+      "why_useful": "HN technical launch signal; can support movement evidence but not company identity.",
+      "recommended_lane": "HN Project Watch / Technical Launch Signals",
+      "movement": "AI data infrastructure",
+      "market_sector": "Unclassified",
+      "source_kind": "hn_project_only"
+    },
+    {
+      "name": "GlycemicGPT",
+      "source_title": "Show HN: GlycemicGPT \u2013 Open-source AI-powered diabetes management",
+      "source_url": "https://news.ycombinator.com/item?id=48144670",
+      "project_url": "",
+      "hn_author": "jlengelbrecht",
+      "hn_engagement": {
+        "points": 64,
+        "comments": 61
+      },
+      "company_domain": "",
+      "identity_type": "oss_project_watch",
+      "lead_route": "project_watch",
+      "recommended_action": "Research deeper",
+      "assign_owner": false,
+      "new_to_marathon": false,
+      "missing_evidence": [
+        "hn_outbound_github_project_only"
+      ],
+      "why_useful": "HN technical launch signal; can support movement evidence but not company identity.",
+      "recommended_lane": "HN Project Watch / Technical Launch Signals",
+      "movement": "AI data infrastructure",
+      "market_sector": "Unclassified",
+      "source_kind": "hn_project_only"
+    }
+  ],
+  "rejected_rows": [
+    {
+      "name": "AI has a multiplying effect on existing technical skills",
+      "source_title": "AI has a multiplying effect on existing technical skills",
+      "source_url": "https://news.ycombinator.com/item?id=48235526",
+      "recommended_action": "Research deeper",
+      "missing_evidence": [
+        "not_launch_hn"
+      ],
+      "recommended_lane": "HN Rejected / Noisy",
+      "source_kind": "hn_rejected"
+    },
+    {
+      "name": "Former Google and Apple Researchers Launch a Startup to Build AI's Missing Feed",
+      "source_title": "Former Google and Apple Researchers Launch a Startup to Build AI's Missing Feed",
+      "source_url": "https://news.ycombinator.com/item?id=48305638",
+      "recommended_action": "Research deeper",
+      "missing_evidence": [
+        "not_launch_hn"
+      ],
+      "recommended_lane": "HN Rejected / Noisy",
+      "source_kind": "hn_rejected"
+    },
+    {
+      "name": "Brilliant launches AI tutor to get kids to think",
+      "source_title": "Brilliant launches AI tutor to get kids to think",
+      "source_url": "https://news.ycombinator.com/item?id=48324357",
+      "recommended_action": "Research deeper",
+      "missing_evidence": [
+        "not_launch_hn"
+      ],
+      "recommended_lane": "HN Rejected / Noisy",
+      "source_kind": "hn_rejected"
+    },
+    {
+      "name": "Mistral AI Launches Mistral Vibe",
+      "source_title": "Mistral AI Launches Mistral Vibe",
+      "source_url": "https://news.ycombinator.com/item?id=48306590",
+      "recommended_action": "Research deeper",
+      "missing_evidence": [
+        "not_launch_hn"
+      ],
+      "recommended_lane": "HN Rejected / Noisy",
+      "source_kind": "hn_rejected"
+    },
+    {
+      "name": "Meta launches Instagram, Facebook and WhatsApp subscriptions including AI plans",
+      "source_title": "Meta launches Instagram, Facebook and WhatsApp subscriptions including AI plans",
+      "source_url": "https://news.ycombinator.com/item?id=48298083",
+      "recommended_action": "Research deeper",
+      "missing_evidence": [
+        "not_launch_hn"
+      ],
+      "recommended_lane": "HN Rejected / Noisy",
+      "source_kind": "hn_rejected"
+    },
+    {
+      "name": "Anthropic, Gates Foundation launch $200M partnership for AI in health, education",
+      "source_title": "Anthropic, Gates Foundation launch $200M partnership for AI in health, education",
+      "source_url": "https://news.ycombinator.com/item?id=48208985",
+      "recommended_action": "Research deeper",
+      "missing_evidence": [
+        "not_launch_hn"
+      ],
+      "recommended_lane": "HN Rejected / Noisy",
+      "source_kind": "hn_rejected"
+    },
+    {
+      "name": "Amazon launches new AI Wearable \"Bee\"",
+      "source_title": "Amazon launches new AI Wearable \"Bee\"",
+      "source_url": "https://news.ycombinator.com/item?id=48266214",
+      "recommended_action": "Research deeper",
+      "missing_evidence": [
+        "not_launch_hn"
+      ],
+      "recommended_lane": "HN Rejected / Noisy",
+      "source_kind": "hn_rejected"
+    },
+    {
+      "name": "Arena AI Model ELO History",
+      "source_title": "Arena AI Model ELO History",
+      "source_url": "https://news.ycombinator.com/item?id=48130711",
+      "recommended_action": "Research deeper",
+      "missing_evidence": [
+        "not_launch_hn"
+      ],
+      "recommended_lane": "HN Rejected / Noisy",
+      "source_kind": "hn_rejected"
+    },
+    {
+      "name": "Pope Leo launches an AI commission days before he releases a papal letter",
+      "source_title": "Pope Leo launches an AI commission days before he releases a papal letter",
+      "source_url": "https://news.ycombinator.com/item?id=48227453",
+      "recommended_action": "Research deeper",
+      "missing_evidence": [
+        "not_launch_hn"
+      ],
+      "recommended_lane": "HN Rejected / Noisy",
+      "source_kind": "hn_rejected"
+    },
+    {
+      "name": "WhatsApp launches private 'incognito' conversations with its AI chatbot",
+      "source_title": "WhatsApp launches private 'incognito' conversations with its AI chatbot",
+      "source_url": "https://news.ycombinator.com/item?id=48138803",
+      "recommended_action": "Research deeper",
+      "missing_evidence": [
+        "not_launch_hn"
+      ],
+      "recommended_lane": "HN Rejected / Noisy",
+      "source_kind": "hn_rejected"
+    },
+    {
+      "name": "Unsiloed AI",
+      "source_title": "Show HN: Unsiloed AI \u2013 #1 on olmOCR-Bench",
+      "source_url": "https://news.ycombinator.com/item?id=48271937",
+      "recommended_action": "Research deeper",
+      "missing_evidence": [
+        "hn_outbound_url_missing"
+      ],
+      "recommended_lane": "HN Rejected / Noisy",
+      "source_kind": "hn_rejected"
+    },
+    {
+      "name": "Gigacatalyst",
+      "source_title": "Show HN: Gigacatalyst \u2013 Extend your SaaS with an embedded AI builder",
+      "source_url": "https://news.ycombinator.com/item?id=48110593",
+      "recommended_action": "Research deeper",
+      "missing_evidence": [
+        "hn_outbound_url_missing"
+      ],
+      "recommended_lane": "HN Rejected / Noisy",
+      "source_kind": "hn_rejected"
+    },
+    {
+      "name": "Meta launches Instagram, Facebook, and WhatsApp subscriptions",
+      "source_title": "Meta launches Instagram, Facebook, and WhatsApp subscriptions",
+      "source_url": "https://news.ycombinator.com/item?id=48347354",
+      "recommended_action": "Research deeper",
+      "missing_evidence": [
+        "not_launch_hn"
+      ],
+      "recommended_lane": "HN Rejected / Noisy",
+      "source_kind": "hn_rejected"
+    },
+    {
+      "name": "Agent.email",
+      "source_title": "Show HN: Agent.email \u2013 sign up via curl, claim with a human OTP",
+      "source_url": "https://news.ycombinator.com/item?id=48225596",
+      "recommended_action": "Research deeper",
+      "missing_evidence": [
+        "hn_outbound_url_missing"
+      ],
+      "recommended_lane": "HN Rejected / Noisy",
+      "source_kind": "hn_rejected"
+    },
+    {
+      "name": "Sony Launches Bravia 9 II and Bravia 7 II with 'True RGB'",
+      "source_title": "Sony Launches Bravia 9 II and Bravia 7 II with 'True RGB'",
+      "source_url": "https://news.ycombinator.com/item?id=48301135",
+      "recommended_action": "Research deeper",
+      "missing_evidence": [
+        "not_launch_hn"
+      ],
+      "recommended_lane": "HN Rejected / Noisy",
+      "source_kind": "hn_rejected"
+    },
+    {
+      "name": "Span to launch distributed AI data centers for edge compute",
+      "source_title": "Span to launch distributed AI data centers for edge compute",
+      "source_url": "https://news.ycombinator.com/item?id=48029052",
+      "recommended_action": "Research deeper",
+      "missing_evidence": [
+        "not_launch_hn"
+      ],
+      "recommended_lane": "HN Rejected / Noisy",
+      "source_kind": "hn_rejected"
+    }
+  ],
+  "review_rows": [
+    {
+      "index": 0,
+      "name": "Voker",
+      "domain": "voker.ai",
+      "priority": "high_priority",
+      "priority_reasons": [
+        "accelerator_hint",
+        "official_domain_url",
+        "company_looking_domain",
+        "hn_engagement"
+      ],
+      "completion_status": "completed_clean",
+      "stage_failure_reason": [],
+      "final_action": "Assign owner",
+      "recommended_lane": "HN Enriched Outbound Candidates",
+      "evidence_dimensions": [
+        "customer",
+        "founder",
+        "stage"
+      ],
+      "evidence_completeness": 3,
+      "attio_status": "no_match",
+      "attio_skipped": false,
+      "attio_skip_reason": "",
+      "missing_evidence": [],
+      "weak_stage_funding_hints": [
+        "https://news.ycombinator.com/item?id=48109962"
+      ],
+      "unsafe_promotion": false,
+      "assign_owner_evidence_provenance": {
+        "hn_source": {
+          "url": "https://news.ycombinator.com/item?id=48109962",
+          "title": "Launch HN: Voker (YC S24) \u2013 Analytics for AI Agents",
+          "author": "ttpost",
+          "engagement": {
+            "points": 59,
+            "comments": 22
+          }
+        },
+        "official_company_source": {
+          "url": "https://voker.ai",
+          "domain": "voker.ai",
+          "identity_url": "https://voker.ai"
+        },
+        "founder_evidence": {
+          "url": "https://www.ycombinator.com/companies/voker",
+          "founders": [
+            "Tyler Postle",
+            "Alex Rudolph"
+          ],
+          "profiles": [
+            {
+              "name": "Tyler Postle",
+              "role": "founder",
+              "source": "https://www.ycombinator.com/companies/voker"
+            },
+            {
+              "name": "Alex Rudolph",
+              "role": "founder",
+              "source": "https://www.ycombinator.com/companies/voker"
+            }
+          ]
+        },
+        "stage_funding_evidence": {
+          "url": "https://www.ycombinator.com/companies/voker",
+          "maturity_status": "seed_to_series_b",
+          "basis": [
+            "accelerator_batch_evidence: YC S24",
+            "yc_company_profile_stage_evidence"
+          ]
+        },
+        "commercial_customer_evidence": {
+          "url": "https://voker.ai",
+          "types": [
+            {
+              "url": "https://voker.ai",
+              "evidence_types": [
+                "waitlist_or_demo_evidence",
+                "commercial_intent_evidence"
+              ]
+            }
+          ]
+        },
+        "attio_status_evidence": {
+          "status": "no_match",
+          "source": "attio_read",
+          "action_safe": true
+        }
+      },
+      "review_rank_reason": "assign_owner"
+    },
+    {
+      "index": 2,
+      "name": "Runtime (YC P26)",
+      "domain": "runtm.com",
+      "priority": "high_priority",
+      "priority_reasons": [
+        "official_domain_url",
+        "company_looking_domain",
+        "hn_engagement"
+      ],
+      "completion_status": "completed_with_stage_failure",
+      "stage_failure_reason": [
+        "maturity_query_timeout"
+      ],
+      "final_action": "Research deeper",
+      "recommended_lane": "HN Enriched Outbound Candidates",
+      "evidence_dimensions": [
+        "customer"
+      ],
+      "evidence_completeness": 1,
+      "attio_status": "unknown",
+      "attio_skipped": true,
+      "attio_skip_reason": "owner_actionable_evidence_incomplete",
+      "missing_evidence": [
+        "no founder/team evidence",
+        "no stage/funding evidence",
+        "Attio status unknown",
+        "maturity_query_timeout"
+      ],
+      "weak_stage_funding_hints": [],
+      "unsafe_promotion": false,
+      "assign_owner_evidence_provenance": {},
+      "review_rank_reason": "research_deeper_with_evidence"
+    },
+    {
+      "index": 1,
+      "name": "Hypercubic",
+      "domain": "hypercubic.ai",
+      "priority": "high_priority",
+      "priority_reasons": [
+        "official_domain_url",
+        "company_looking_domain",
+        "hn_engagement"
+      ],
+      "completion_status": "completed_with_stage_failure",
+      "stage_failure_reason": [
+        "maturity_query_timeout"
+      ],
+      "final_action": "Research deeper",
+      "recommended_lane": "HN Enriched Outbound Candidates",
+      "evidence_dimensions": [
+        "customer"
+      ],
+      "evidence_completeness": 1,
+      "attio_status": "unknown",
+      "attio_skipped": true,
+      "attio_skip_reason": "owner_actionable_evidence_incomplete",
+      "missing_evidence": [
+        "no founder/team evidence",
+        "no stage/funding evidence",
+        "no commercial/funding evidence",
+        "Attio status unknown",
+        "maturity_query_timeout"
+      ],
+      "weak_stage_funding_hints": [],
+      "unsafe_promotion": false,
+      "assign_owner_evidence_provenance": {},
+      "review_rank_reason": "research_deeper_with_evidence"
+    },
+    {
+      "index": 5,
+      "name": "Noada",
+      "domain": "noada.app",
+      "priority": "normal_priority",
+      "priority_reasons": [
+        "official_domain_url",
+        "company_looking_domain"
+      ],
+      "completion_status": "completed_clean",
+      "stage_failure_reason": [],
+      "final_action": "Research deeper",
+      "recommended_lane": "HN Enriched Outbound Candidates",
+      "evidence_dimensions": [],
+      "evidence_completeness": 0,
+      "attio_status": "unknown",
+      "attio_skipped": true,
+      "attio_skip_reason": "owner_actionable_evidence_incomplete",
+      "missing_evidence": [
+        "no founder/team evidence",
+        "no stage/funding evidence",
+        "no commercial/funding evidence",
+        "Attio status unknown",
+        "no customer/buyer pull evidence"
+      ],
+      "weak_stage_funding_hints": [],
+      "unsafe_promotion": false,
+      "assign_owner_evidence_provenance": {},
+      "review_rank_reason": "research_deeper_missing_evidence"
+    },
+    {
+      "index": 6,
+      "name": "Datapoint AI",
+      "domain": "trydatapoint.com",
+      "priority": "normal_priority",
+      "priority_reasons": [
+        "official_domain_url",
+        "company_looking_domain"
+      ],
+      "completion_status": "completed_clean",
+      "stage_failure_reason": [],
+      "final_action": "Research deeper",
+      "recommended_lane": "HN Enriched Outbound Candidates",
+      "evidence_dimensions": [],
+      "evidence_completeness": 0,
+      "attio_status": "unknown",
+      "attio_skipped": true,
+      "attio_skip_reason": "owner_actionable_evidence_incomplete",
+      "missing_evidence": [
+        "no founder/team evidence",
+        "no stage/funding evidence",
+        "no customer/buyer pull evidence",
+        "no commercial/funding evidence",
+        "Attio status unknown"
+      ],
+      "weak_stage_funding_hints": [],
+      "unsafe_promotion": false,
+      "assign_owner_evidence_provenance": {},
+      "review_rank_reason": "research_deeper_missing_evidence"
+    },
+    {
+      "index": 7,
+      "name": "AI Doctor Notes",
+      "domain": "aidoctornotes.app",
+      "priority": "normal_priority",
+      "priority_reasons": [
+        "official_domain_url",
+        "company_looking_domain"
+      ],
+      "completion_status": "completed_clean",
+      "stage_failure_reason": [],
+      "final_action": "Research deeper",
+      "recommended_lane": "HN Enriched Outbound Candidates",
+      "evidence_dimensions": [],
+      "evidence_completeness": 0,
+      "attio_status": "unknown",
+      "attio_skipped": true,
+      "attio_skip_reason": "owner_actionable_evidence_incomplete",
+      "missing_evidence": [
+        "no founder/team evidence",
+        "no stage/funding evidence",
+        "no commercial/funding evidence",
+        "Attio status unknown",
+        "no customer/buyer pull evidence"
+      ],
+      "weak_stage_funding_hints": [],
+      "unsafe_promotion": false,
+      "assign_owner_evidence_provenance": {},
+      "review_rank_reason": "research_deeper_missing_evidence"
+    },
+    {
+      "index": 4,
+      "name": "Triyambakam Apex Corp",
+      "domain": "triyambakam-apex-corp.hf.space",
+      "priority": "normal_priority",
+      "priority_reasons": [
+        "official_domain_url",
+        "company_looking_domain"
+      ],
+      "completion_status": "completed_clean",
+      "stage_failure_reason": [],
+      "final_action": "Research deeper",
+      "recommended_lane": "HN Enriched Outbound Candidates",
+      "evidence_dimensions": [],
+      "evidence_completeness": 0,
+      "attio_status": "unknown",
+      "attio_skipped": false,
+      "attio_skip_reason": "",
+      "missing_evidence": [
+        "official_domain_identity_not_confirmed",
+        "no verified Attio-safe company identity",
+        "no founder/team evidence",
+        "no stage/funding evidence",
+        "no commercial/funding evidence",
+        "Attio status unknown",
+        "no customer/buyer pull evidence"
+      ],
+      "weak_stage_funding_hints": [],
+      "unsafe_promotion": false,
+      "assign_owner_evidence_provenance": {},
+      "review_rank_reason": "research_deeper_missing_evidence"
+    },
+    {
+      "index": 3,
+      "name": "3D-Agent",
+      "domain": "3d-agent.com",
+      "priority": "high_priority",
+      "priority_reasons": [
+        "official_domain_url",
+        "company_looking_domain",
+        "hn_engagement"
+      ],
+      "completion_status": "completed_with_stage_failure",
+      "stage_failure_reason": [
+        "maturity_query_timeout"
+      ],
+      "final_action": "Research deeper",
+      "recommended_lane": "HN Enriched Outbound Candidates",
+      "evidence_dimensions": [],
+      "evidence_completeness": 0,
+      "attio_status": "unknown",
+      "attio_skipped": true,
+      "attio_skip_reason": "owner_actionable_evidence_incomplete",
+      "missing_evidence": [
+        "no founder/team evidence",
+        "no stage/funding evidence",
+        "no commercial/funding evidence",
+        "Attio status unknown",
+        "no customer/buyer pull evidence",
+        "maturity_query_timeout"
+      ],
+      "weak_stage_funding_hints": [],
+      "unsafe_promotion": false,
+      "assign_owner_evidence_provenance": {},
+      "review_rank_reason": "research_deeper_missing_evidence"
+    }
+  ],
+  "runtime_ledger": {
+    "summary": {
+      "candidates_seen": 17,
+      "candidates_completed": 9,
+      "candidates_partially_enriched": 0,
+      "candidates_skipped": 8,
+      "completed_clean": 6,
+      "completed_with_stage_failure": 3,
+      "partial_budget": 8,
+      "skipped_low_priority": 0,
+      "live_queries": 3,
+      "attio_checks": 1,
+      "attio_checks_attempted": 1,
+      "attio_successes": 1,
+      "attio_timeouts": 0,
+      "attio_retry_attempts": 0,
+      "attio_cache_hits": 0,
+      "attio_cache_fresh_hits": 0,
+      "attio_cache_stale_hits": 0,
+      "attio_cache_expired_hits": 0,
+      "attio_skipped": 6,
+      "attio_skipped_owner_actionable_evidence_incomplete": 6,
+      "attio_skip_reasons": {
+        "owner_actionable_evidence_incomplete": 6
+      },
+      "attio_blocked_owner_ready_rows": 0,
+      "page_fetches": 37,
+      "timeouts": 3,
+      "stage_failures": 3,
+      "elapsed_seconds": 18.761,
+      "budget_exceeded": true,
+      "budget_reasons": [
+        "max_candidates_exceeded"
+      ],
+      "high_priority_candidates": 4,
+      "normal_priority_candidates": 12,
+      "low_priority_candidates": 0,
+      "skip_or_context_candidates": 1,
+      "official_page_cache_hits": 0,
+      "maturity_query_cache_hits": 0,
+      "founder_query_cache_hits": 0,
+      "customer_query_cache_hits": 0,
+      "owner_query_cache_hits": 0
+    },
+    "items": [
+      {
+        "index": 4,
+        "original_index": 4,
+        "processing_index": 0,
+        "name": "Voker (YC S24)",
+        "domain": "voker.ai",
+        "status": "completed",
+        "completion_status": "completed_clean",
+        "partial_reason": "",
+        "stage_failures": [],
+        "priority": "high_priority",
+        "triage_score": 174.0,
+        "priority_reasons": [
+          "accelerator_hint",
+          "official_domain_url",
+          "company_looking_domain",
+          "hn_engagement"
+        ],
+        "elapsed_seconds": 5.05,
+        "page_fetches": 6,
+        "page_cache_hits": 0,
+        "official_page_cache_hits": 0,
+        "live_queries": 0,
+        "query_cache_hits": 0,
+        "maturity_queries": 0,
+        "founder_queries": 0,
+        "owner_queries": 0,
+        "customer_queries": 0,
+        "maturity_query_cache_hits": 0,
+        "founder_query_cache_hits": 0,
+        "owner_query_cache_hits": 0,
+        "customer_query_cache_hits": 0,
+        "maturity_query_timeouts": 0,
+        "founder_query_timeouts": 0,
+        "customer_query_timeouts": 0,
+        "owner_query_timeouts": 0,
+        "queries_skipped": 0,
+        "attio_checks": 1,
+        "attio_successes": 1,
+        "attio_timeouts": 0,
+        "attio_retry_attempts": 0,
+        "attio_cache_hits": 0,
+        "attio_cache_fresh_hits": 0,
+        "attio_cache_stale_hits": 0,
+        "attio_cache_expired_hits": 0,
+        "attio_skipped": 0,
+        "attio_skip_reason": "",
+        "action_blocker": "",
+        "potential_action_if_attio_confirms": "",
+        "attio_blocked_owner_ready": false,
+        "timeouts": 0,
+        "identity_status": "promoted",
+        "maturity_status": "seed_to_series_b",
+        "founder_evidence_found": true,
+        "customer_evidence_found": true,
+        "evidence_dimensions": [
+          "customer",
+          "founder",
+          "stage"
+        ],
+        "customer_evidence_labels": [
+          "commercial_intent_evidence",
+          "waitlist_or_demo_evidence"
+        ],
+        "final_action": "Assign owner",
+        "unsafe_promotion": false,
+        "missing_evidence": []
+      },
+      {
+        "index": 14,
+        "original_index": 14,
+        "processing_index": 1,
+        "name": "Agentic interface for mainframes and COBOL",
+        "domain": "hypercubic.ai",
+        "status": "completed",
+        "completion_status": "completed_with_stage_failure",
+        "partial_reason": "",
+        "stage_failures": [
+          "maturity_query_timeout"
+        ],
+        "priority": "high_priority",
+        "triage_score": 130.0,
+        "priority_reasons": [
+          "official_domain_url",
+          "company_looking_domain",
+          "hn_engagement"
+        ],
+        "elapsed_seconds": 3.689,
+        "page_fetches": 5,
+        "page_cache_hits": 0,
+        "official_page_cache_hits": 0,
+        "live_queries": 1,
+        "query_cache_hits": 0,
+        "maturity_queries": 1,
+        "founder_queries": 0,
+        "owner_queries": 0,
+        "customer_queries": 0,
+        "maturity_query_cache_hits": 0,
+        "founder_query_cache_hits": 0,
+        "owner_query_cache_hits": 0,
+        "customer_query_cache_hits": 0,
+        "maturity_query_timeouts": 1,
+        "founder_query_timeouts": 0,
+        "customer_query_timeouts": 0,
+        "owner_query_timeouts": 0,
+        "queries_skipped": 0,
+        "attio_checks": 0,
+        "attio_successes": 0,
+        "attio_timeouts": 0,
+        "attio_retry_attempts": 0,
+        "attio_cache_hits": 0,
+        "attio_cache_fresh_hits": 0,
+        "attio_cache_stale_hits": 0,
+        "attio_cache_expired_hits": 0,
+        "attio_skipped": 1,
+        "attio_skip_reason": "owner_actionable_evidence_incomplete",
+        "action_blocker": "",
+        "potential_action_if_attio_confirms": "",
+        "attio_blocked_owner_ready": false,
+        "timeouts": 1,
+        "identity_status": "promoted",
+        "maturity_status": "unknown",
+        "founder_evidence_found": false,
+        "customer_evidence_found": true,
+        "evidence_dimensions": [
+          "customer"
+        ],
+        "customer_evidence_labels": [
+          "waitlist_or_demo_evidence"
+        ],
+        "final_action": "Research deeper",
+        "unsafe_promotion": false,
+        "missing_evidence": [
+          "no founder/team evidence",
+          "no stage/funding evidence",
+          "no commercial/funding evidence",
+          "Attio status unknown",
+          "maturity_query_timeout"
+        ]
+      },
+      {
+        "index": 15,
+        "original_index": 15,
+        "processing_index": 2,
+        "name": "Runtime (YC P26)",
+        "domain": "runtm.com",
+        "status": "completed",
+        "completion_status": "completed_with_stage_failure",
+        "partial_reason": "",
+        "stage_failures": [
+          "maturity_query_timeout"
+        ],
+        "priority": "high_priority",
+        "triage_score": 130.0,
+        "priority_reasons": [
+          "official_domain_url",
+          "company_looking_domain",
+          "hn_engagement"
+        ],
+        "elapsed_seconds": 3.271,
+        "page_fetches": 5,
+        "page_cache_hits": 0,
+        "official_page_cache_hits": 0,
+        "live_queries": 1,
+        "query_cache_hits": 0,
+        "maturity_queries": 1,
+        "founder_queries": 0,
+        "owner_queries": 0,
+        "customer_queries": 0,
+        "maturity_query_cache_hits": 0,
+        "founder_query_cache_hits": 0,
+        "owner_query_cache_hits": 0,
+        "customer_query_cache_hits": 0,
+        "maturity_query_timeouts": 1,
+        "founder_query_timeouts": 0,
+        "customer_query_timeouts": 0,
+        "owner_query_timeouts": 0,
+        "queries_skipped": 0,
+        "attio_checks": 0,
+        "attio_successes": 0,
+        "attio_timeouts": 0,
+        "attio_retry_attempts": 0,
+        "attio_cache_hits": 0,
+        "attio_cache_fresh_hits": 0,
+        "attio_cache_stale_hits": 0,
+        "attio_cache_expired_hits": 0,
+        "attio_skipped": 1,
+        "attio_skip_reason": "owner_actionable_evidence_incomplete",
+        "action_blocker": "",
+        "potential_action_if_attio_confirms": "",
+        "attio_blocked_owner_ready": false,
+        "timeouts": 1,
+        "identity_status": "promoted",
+        "maturity_status": "unknown",
+        "founder_evidence_found": false,
+        "customer_evidence_found": true,
+        "evidence_dimensions": [
+          "customer"
+        ],
+        "customer_evidence_labels": [
+          "early_customer_segment_evidence",
+          "waitlist_or_demo_evidence"
+        ],
+        "final_action": "Research deeper",
+        "unsafe_promotion": false,
+        "missing_evidence": [
+          "no founder/team evidence",
+          "no stage/funding evidence",
+          "Attio status unknown",
+          "maturity_query_timeout"
+        ]
+      },
+      {
+        "index": 2,
+        "original_index": 2,
+        "processing_index": 3,
+        "name": "3D-Agent",
+        "domain": "3d-agent.com",
+        "status": "completed",
+        "completion_status": "completed_with_stage_failure",
+        "partial_reason": "",
+        "stage_failures": [
+          "maturity_query_timeout"
+        ],
+        "priority": "high_priority",
+        "triage_score": 48.0,
+        "priority_reasons": [
+          "official_domain_url",
+          "company_looking_domain",
+          "hn_engagement"
+        ],
+        "elapsed_seconds": 2.975,
+        "page_fetches": 5,
+        "page_cache_hits": 0,
+        "official_page_cache_hits": 0,
+        "live_queries": 1,
+        "query_cache_hits": 0,
+        "maturity_queries": 1,
+        "founder_queries": 0,
+        "owner_queries": 0,
+        "customer_queries": 0,
+        "maturity_query_cache_hits": 0,
+        "founder_query_cache_hits": 0,
+        "owner_query_cache_hits": 0,
+        "customer_query_cache_hits": 0,
+        "maturity_query_timeouts": 1,
+        "founder_query_timeouts": 0,
+        "customer_query_timeouts": 0,
+        "owner_query_timeouts": 0,
+        "queries_skipped": 0,
+        "attio_checks": 0,
+        "attio_successes": 0,
+        "attio_timeouts": 0,
+        "attio_retry_attempts": 0,
+        "attio_cache_hits": 0,
+        "attio_cache_fresh_hits": 0,
+        "attio_cache_stale_hits": 0,
+        "attio_cache_expired_hits": 0,
+        "attio_skipped": 1,
+        "attio_skip_reason": "owner_actionable_evidence_incomplete",
+        "action_blocker": "",
+        "potential_action_if_attio_confirms": "",
+        "attio_blocked_owner_ready": false,
+        "timeouts": 1,
+        "identity_status": "promoted",
+        "maturity_status": "unknown",
+        "founder_evidence_found": false,
+        "customer_evidence_found": false,
+        "evidence_dimensions": [],
+        "customer_evidence_labels": [],
+        "final_action": "Research deeper",
+        "unsafe_promotion": false,
+        "missing_evidence": [
+          "no founder/team evidence",
+          "no stage/funding evidence",
+          "no commercial/funding evidence",
+          "Attio status unknown",
+          "no customer/buyer pull evidence",
+          "maturity_query_timeout"
+        ]
+      },
+      {
+        "index": 10,
+        "original_index": 10,
+        "processing_index": 4,
+        "name": "AI that audits your codebase in 60 seconds",
+        "domain": "triyambakam-apex-corp.hf.space",
+        "status": "completed",
+        "completion_status": "completed_clean",
+        "partial_reason": "",
+        "stage_failures": [],
+        "priority": "normal_priority",
+        "triage_score": 44.0,
+        "priority_reasons": [
+          "official_domain_url",
+          "company_looking_domain"
+        ],
+        "elapsed_seconds": 0.278,
+        "page_fetches": 1,
+        "page_cache_hits": 0,
+        "official_page_cache_hits": 0,
+        "live_queries": 0,
+        "query_cache_hits": 0,
+        "maturity_queries": 0,
+        "founder_queries": 0,
+        "owner_queries": 0,
+        "customer_queries": 0,
+        "maturity_query_cache_hits": 0,
+        "founder_query_cache_hits": 0,
+        "owner_query_cache_hits": 0,
+        "customer_query_cache_hits": 0,
+        "maturity_query_timeouts": 0,
+        "founder_query_timeouts": 0,
+        "customer_query_timeouts": 0,
+        "owner_query_timeouts": 0,
+        "queries_skipped": 0,
+        "attio_checks": 0,
+        "attio_successes": 0,
+        "attio_timeouts": 0,
+        "attio_retry_attempts": 0,
+        "attio_cache_hits": 0,
+        "attio_cache_fresh_hits": 0,
+        "attio_cache_stale_hits": 0,
+        "attio_cache_expired_hits": 0,
+        "attio_skipped": 0,
+        "attio_skip_reason": "",
+        "action_blocker": "",
+        "potential_action_if_attio_confirms": "",
+        "attio_blocked_owner_ready": false,
+        "timeouts": 0,
+        "identity_status": "not_promoted",
+        "maturity_status": "unknown",
+        "founder_evidence_found": false,
+        "customer_evidence_found": false,
+        "evidence_dimensions": [],
+        "customer_evidence_labels": [],
+        "final_action": "Research deeper",
+        "unsafe_promotion": false,
+        "missing_evidence": [
+          "official_domain_identity_not_confirmed",
+          "no verified Attio-safe company identity",
+          "no founder/team evidence",
+          "no stage/funding evidence",
+          "no commercial/funding evidence",
+          "Attio status unknown",
+          "no customer/buyer pull evidence"
+        ]
+      },
+      {
+        "index": 6,
+        "original_index": 6,
+        "processing_index": 5,
+        "name": "AI that interviews participants instead of holding another meeting",
+        "domain": "noada.app",
+        "status": "completed",
+        "completion_status": "completed_clean",
+        "partial_reason": "",
+        "stage_failures": [],
+        "priority": "normal_priority",
+        "triage_score": 43.0,
+        "priority_reasons": [
+          "official_domain_url",
+          "company_looking_domain"
+        ],
+        "elapsed_seconds": 1.663,
+        "page_fetches": 5,
+        "page_cache_hits": 0,
+        "official_page_cache_hits": 0,
+        "live_queries": 0,
+        "query_cache_hits": 0,
+        "maturity_queries": 0,
+        "founder_queries": 0,
+        "owner_queries": 0,
+        "customer_queries": 0,
+        "maturity_query_cache_hits": 0,
+        "founder_query_cache_hits": 0,
+        "owner_query_cache_hits": 0,
+        "customer_query_cache_hits": 0,
+        "maturity_query_timeouts": 0,
+        "founder_query_timeouts": 0,
+        "customer_query_timeouts": 0,
+        "owner_query_timeouts": 0,
+        "queries_skipped": 0,
+        "attio_checks": 0,
+        "attio_successes": 0,
+        "attio_timeouts": 0,
+        "attio_retry_attempts": 0,
+        "attio_cache_hits": 0,
+        "attio_cache_fresh_hits": 0,
+        "attio_cache_stale_hits": 0,
+        "attio_cache_expired_hits": 0,
+        "attio_skipped": 1,
+        "attio_skip_reason": "owner_actionable_evidence_incomplete",
+        "action_blocker": "",
+        "potential_action_if_attio_confirms": "",
+        "attio_blocked_owner_ready": false,
+        "timeouts": 0,
+        "identity_status": "promoted",
+        "maturity_status": "unknown",
+        "founder_evidence_found": false,
+        "customer_evidence_found": false,
+        "evidence_dimensions": [],
+        "customer_evidence_labels": [],
+        "final_action": "Research deeper",
+        "unsafe_promotion": false,
+        "missing_evidence": [
+          "no founder/team evidence",
+          "no stage/funding evidence",
+          "no commercial/funding evidence",
+          "Attio status unknown",
+          "no customer/buyer pull evidence"
+        ]
+      },
+      {
+        "index": 9,
+        "original_index": 9,
+        "processing_index": 6,
+        "name": "Datapoint AI",
+        "domain": "trydatapoint.com",
+        "status": "completed",
+        "completion_status": "completed_clean",
+        "partial_reason": "",
+        "stage_failures": [],
+        "priority": "normal_priority",
+        "triage_score": 42.0,
+        "priority_reasons": [
+          "official_domain_url",
+          "company_looking_domain"
+        ],
+        "elapsed_seconds": 1.148,
+        "page_fetches": 5,
+        "page_cache_hits": 0,
+        "official_page_cache_hits": 0,
+        "live_queries": 0,
+        "query_cache_hits": 0,
+        "maturity_queries": 0,
+        "founder_queries": 0,
+        "owner_queries": 0,
+        "customer_queries": 0,
+        "maturity_query_cache_hits": 0,
+        "founder_query_cache_hits": 0,
+        "owner_query_cache_hits": 0,
+        "customer_query_cache_hits": 0,
+        "maturity_query_timeouts": 0,
+        "founder_query_timeouts": 0,
+        "customer_query_timeouts": 0,
+        "owner_query_timeouts": 0,
+        "queries_skipped": 0,
+        "attio_checks": 0,
+        "attio_successes": 0,
+        "attio_timeouts": 0,
+        "attio_retry_attempts": 0,
+        "attio_cache_hits": 0,
+        "attio_cache_fresh_hits": 0,
+        "attio_cache_stale_hits": 0,
+        "attio_cache_expired_hits": 0,
+        "attio_skipped": 1,
+        "attio_skip_reason": "owner_actionable_evidence_incomplete",
+        "action_blocker": "",
+        "potential_action_if_attio_confirms": "",
+        "attio_blocked_owner_ready": false,
+        "timeouts": 0,
+        "identity_status": "promoted",
+        "maturity_status": "unknown",
+        "founder_evidence_found": false,
+        "customer_evidence_found": false,
+        "evidence_dimensions": [],
+        "customer_evidence_labels": [],
+        "final_action": "Research deeper",
+        "unsafe_promotion": false,
+        "missing_evidence": [
+          "no founder/team evidence",
+          "no stage/funding evidence",
+          "no customer/buyer pull evidence",
+          "no commercial/funding evidence",
+          "Attio status unknown"
+        ]
+      },
+      {
+        "index": 16,
+        "original_index": 16,
+        "processing_index": 7,
+        "name": "AI Doctor Notes",
+        "domain": "aidoctornotes.app",
+        "status": "completed",
+        "completion_status": "completed_clean",
+        "partial_reason": "",
+        "stage_failures": [],
+        "priority": "normal_priority",
+        "triage_score": 39.0,
+        "priority_reasons": [
+          "official_domain_url",
+          "company_looking_domain"
+        ],
+        "elapsed_seconds": 0.685,
+        "page_fetches": 5,
+        "page_cache_hits": 0,
+        "official_page_cache_hits": 0,
+        "live_queries": 0,
+        "query_cache_hits": 0,
+        "maturity_queries": 0,
+        "founder_queries": 0,
+        "owner_queries": 0,
+        "customer_queries": 0,
+        "maturity_query_cache_hits": 0,
+        "founder_query_cache_hits": 0,
+        "owner_query_cache_hits": 0,
+        "customer_query_cache_hits": 0,
+        "maturity_query_timeouts": 0,
+        "founder_query_timeouts": 0,
+        "customer_query_timeouts": 0,
+        "owner_query_timeouts": 0,
+        "queries_skipped": 0,
+        "attio_checks": 0,
+        "attio_successes": 0,
+        "attio_timeouts": 0,
+        "attio_retry_attempts": 0,
+        "attio_cache_hits": 0,
+        "attio_cache_fresh_hits": 0,
+        "attio_cache_stale_hits": 0,
+        "attio_cache_expired_hits": 0,
+        "attio_skipped": 1,
+        "attio_skip_reason": "owner_actionable_evidence_incomplete",
+        "action_blocker": "",
+        "potential_action_if_attio_confirms": "",
+        "attio_blocked_owner_ready": false,
+        "timeouts": 0,
+        "identity_status": "promoted",
+        "maturity_status": "unknown",
+        "founder_evidence_found": false,
+        "customer_evidence_found": false,
+        "evidence_dimensions": [],
+        "customer_evidence_labels": [],
+        "final_action": "Research deeper",
+        "unsafe_promotion": false,
+        "missing_evidence": [
+          "no founder/team evidence",
+          "no stage/funding evidence",
+          "no commercial/funding evidence",
+          "Attio status unknown",
+          "no customer/buyer pull evidence"
+        ]
+      },
+      {
+        "index": 7,
+        "original_index": 7,
+        "processing_index": 8,
+        "name": "AI Philosopher King",
+        "domain": "aiking.dwyer.co.za",
+        "status": "skipped",
+        "completion_status": "partial_budget",
+        "partial_reason": "max_candidates_exceeded",
+        "stage_failures": [],
+        "priority": "normal_priority",
+        "triage_score": 37.0,
+        "priority_reasons": [
+          "official_domain_url",
+          "company_looking_domain"
+        ],
+        "elapsed_seconds": 0.0,
+        "page_fetches": 0,
+        "page_cache_hits": 0,
+        "official_page_cache_hits": 0,
+        "live_queries": 0,
+        "query_cache_hits": 0,
+        "maturity_queries": 0,
+        "founder_queries": 0,
+        "owner_queries": 0,
+        "customer_queries": 0,
+        "maturity_query_cache_hits": 0,
+        "founder_query_cache_hits": 0,
+        "owner_query_cache_hits": 0,
+        "customer_query_cache_hits": 0,
+        "maturity_query_timeouts": 0,
+        "founder_query_timeouts": 0,
+        "customer_query_timeouts": 0,
+        "owner_query_timeouts": 0,
+        "queries_skipped": 0,
+        "attio_checks": 0,
+        "attio_successes": 0,
+        "attio_timeouts": 0,
+        "attio_retry_attempts": 0,
+        "attio_cache_hits": 0,
+        "attio_cache_fresh_hits": 0,
+        "attio_cache_stale_hits": 0,
+        "attio_cache_expired_hits": 0,
+        "attio_skipped": 0,
+        "attio_skip_reason": "",
+        "action_blocker": "",
+        "potential_action_if_attio_confirms": "",
+        "attio_blocked_owner_ready": false,
+        "timeouts": 0,
+        "identity_status": "skipped",
+        "maturity_status": "unknown",
+        "founder_evidence_found": false,
+        "customer_evidence_found": false,
+        "evidence_dimensions": [],
+        "customer_evidence_labels": [],
+        "final_action": "Research deeper",
+        "unsafe_promotion": false,
+        "missing_evidence": [
+          "max_candidates_exceeded"
+        ]
+      },
+      {
+        "index": 12,
+        "original_index": 12,
+        "processing_index": 9,
+        "name": "AI Audiobook Narrator",
+        "domain": "warblize.com",
+        "status": "skipped",
+        "completion_status": "partial_budget",
+        "partial_reason": "max_candidates_exceeded",
+        "stage_failures": [],
+        "priority": "normal_priority",
+        "triage_score": 36.0,
+        "priority_reasons": [
+          "official_domain_url",
+          "company_looking_domain"
+        ],
+        "elapsed_seconds": 0.0,
+        "page_fetches": 0,
+        "page_cache_hits": 0,
+        "official_page_cache_hits": 0,
+        "live_queries": 0,
+        "query_cache_hits": 0,
+        "maturity_queries": 0,
+        "founder_queries": 0,
+        "owner_queries": 0,
+        "customer_queries": 0,
+        "maturity_query_cache_hits": 0,
+        "founder_query_cache_hits": 0,
+        "owner_query_cache_hits": 0,
+        "customer_query_cache_hits": 0,
+        "maturity_query_timeouts": 0,
+        "founder_query_timeouts": 0,
+        "customer_query_timeouts": 0,
+        "owner_query_timeouts": 0,
+        "queries_skipped": 0,
+        "attio_checks": 0,
+        "attio_successes": 0,
+        "attio_timeouts": 0,
+        "attio_retry_attempts": 0,
+        "attio_cache_hits": 0,
+        "attio_cache_fresh_hits": 0,
+        "attio_cache_stale_hits": 0,
+        "attio_cache_expired_hits": 0,
+        "attio_skipped": 0,
+        "attio_skip_reason": "",
+        "action_blocker": "",
+        "potential_action_if_attio_confirms": "",
+        "attio_blocked_owner_ready": false,
+        "timeouts": 0,
+        "identity_status": "skipped",
+        "maturity_status": "unknown",
+        "founder_evidence_found": false,
+        "customer_evidence_found": false,
+        "evidence_dimensions": [],
+        "customer_evidence_labels": [],
+        "final_action": "Research deeper",
+        "unsafe_promotion": false,
+        "missing_evidence": [
+          "max_candidates_exceeded"
+        ]
+      },
+      {
+        "index": 3,
+        "original_index": 3,
+        "processing_index": 10,
+        "name": "CoreMem",
+        "domain": "coremem.app",
+        "status": "skipped",
+        "completion_status": "partial_budget",
+        "partial_reason": "max_candidates_exceeded",
+        "stage_failures": [],
+        "priority": "normal_priority",
+        "triage_score": 35.0,
+        "priority_reasons": [
+          "official_domain_url",
+          "company_looking_domain"
+        ],
+        "elapsed_seconds": 0.0,
+        "page_fetches": 0,
+        "page_cache_hits": 0,
+        "official_page_cache_hits": 0,
+        "live_queries": 0,
+        "query_cache_hits": 0,
+        "maturity_queries": 0,
+        "founder_queries": 0,
+        "owner_queries": 0,
+        "customer_queries": 0,
+        "maturity_query_cache_hits": 0,
+        "founder_query_cache_hits": 0,
+        "owner_query_cache_hits": 0,
+        "customer_query_cache_hits": 0,
+        "maturity_query_timeouts": 0,
+        "founder_query_timeouts": 0,
+        "customer_query_timeouts": 0,
+        "owner_query_timeouts": 0,
+        "queries_skipped": 0,
+        "attio_checks": 0,
+        "attio_successes": 0,
+        "attio_timeouts": 0,
+        "attio_retry_attempts": 0,
+        "attio_cache_hits": 0,
+        "attio_cache_fresh_hits": 0,
+        "attio_cache_stale_hits": 0,
+        "attio_cache_expired_hits": 0,
+        "attio_skipped": 0,
+        "attio_skip_reason": "",
+        "action_blocker": "",
+        "potential_action_if_attio_confirms": "",
+        "attio_blocked_owner_ready": false,
+        "timeouts": 0,
+        "identity_status": "skipped",
+        "maturity_status": "unknown",
+        "founder_evidence_found": false,
+        "customer_evidence_found": false,
+        "evidence_dimensions": [],
+        "customer_evidence_labels": [],
+        "final_action": "Research deeper",
+        "unsafe_promotion": false,
+        "missing_evidence": [
+          "max_candidates_exceeded"
+        ]
+      },
+      {
+        "index": 5,
+        "original_index": 5,
+        "processing_index": 11,
+        "name": "AI-org",
+        "domain": "ai-org.net",
+        "status": "skipped",
+        "completion_status": "partial_budget",
+        "partial_reason": "max_candidates_exceeded",
+        "stage_failures": [],
+        "priority": "normal_priority",
+        "triage_score": 35.0,
+        "priority_reasons": [
+          "official_domain_url",
+          "company_looking_domain"
+        ],
+        "elapsed_seconds": 0.0,
+        "page_fetches": 0,
+        "page_cache_hits": 0,
+        "official_page_cache_hits": 0,
+        "live_queries": 0,
+        "query_cache_hits": 0,
+        "maturity_queries": 0,
+        "founder_queries": 0,
+        "owner_queries": 0,
+        "customer_queries": 0,
+        "maturity_query_cache_hits": 0,
+        "founder_query_cache_hits": 0,
+        "owner_query_cache_hits": 0,
+        "customer_query_cache_hits": 0,
+        "maturity_query_timeouts": 0,
+        "founder_query_timeouts": 0,
+        "customer_query_timeouts": 0,
+        "owner_query_timeouts": 0,
+        "queries_skipped": 0,
+        "attio_checks": 0,
+        "attio_successes": 0,
+        "attio_timeouts": 0,
+        "attio_retry_attempts": 0,
+        "attio_cache_hits": 0,
+        "attio_cache_fresh_hits": 0,
+        "attio_cache_stale_hits": 0,
+        "attio_cache_expired_hits": 0,
+        "attio_skipped": 0,
+        "attio_skip_reason": "",
+        "action_blocker": "",
+        "potential_action_if_attio_confirms": "",
+        "attio_blocked_owner_ready": false,
+        "timeouts": 0,
+        "identity_status": "skipped",
+        "maturity_status": "unknown",
+        "founder_evidence_found": false,
+        "customer_evidence_found": false,
+        "evidence_dimensions": [],
+        "customer_evidence_labels": [],
+        "final_action": "Research deeper",
+        "unsafe_promotion": false,
+        "missing_evidence": [
+          "max_candidates_exceeded"
+        ]
+      },
+      {
+        "index": 13,
+        "original_index": 13,
+        "processing_index": 12,
+        "name": "Agent-QA",
+        "domain": "vostride.com",
+        "status": "skipped",
+        "completion_status": "partial_budget",
+        "partial_reason": "max_candidates_exceeded",
+        "stage_failures": [],
+        "priority": "normal_priority",
+        "triage_score": 35.0,
+        "priority_reasons": [
+          "official_domain_url",
+          "company_looking_domain"
+        ],
+        "elapsed_seconds": 0.0,
+        "page_fetches": 0,
+        "page_cache_hits": 0,
+        "official_page_cache_hits": 0,
+        "live_queries": 0,
+        "query_cache_hits": 0,
+        "maturity_queries": 0,
+        "founder_queries": 0,
+        "owner_queries": 0,
+        "customer_queries": 0,
+        "maturity_query_cache_hits": 0,
+        "founder_query_cache_hits": 0,
+        "owner_query_cache_hits": 0,
+        "customer_query_cache_hits": 0,
+        "maturity_query_timeouts": 0,
+        "founder_query_timeouts": 0,
+        "customer_query_timeouts": 0,
+        "owner_query_timeouts": 0,
+        "queries_skipped": 0,
+        "attio_checks": 0,
+        "attio_successes": 0,
+        "attio_timeouts": 0,
+        "attio_retry_attempts": 0,
+        "attio_cache_hits": 0,
+        "attio_cache_fresh_hits": 0,
+        "attio_cache_stale_hits": 0,
+        "attio_cache_expired_hits": 0,
+        "attio_skipped": 0,
+        "attio_skip_reason": "",
+        "action_blocker": "",
+        "potential_action_if_attio_confirms": "",
+        "attio_blocked_owner_ready": false,
+        "timeouts": 0,
+        "identity_status": "skipped",
+        "maturity_status": "unknown",
+        "founder_evidence_found": false,
+        "customer_evidence_found": false,
+        "evidence_dimensions": [],
+        "customer_evidence_labels": [],
+        "final_action": "Research deeper",
+        "unsafe_promotion": false,
+        "missing_evidence": [
+          "max_candidates_exceeded"
+        ]
+      },
+      {
+        "index": 0,
+        "original_index": 0,
+        "processing_index": 13,
+        "name": "AI agents that audit your Metabase instance and find what's broken",
+        "domain": "metalens.it",
+        "status": "skipped",
+        "completion_status": "partial_budget",
+        "partial_reason": "max_candidates_exceeded",
+        "stage_failures": [],
+        "priority": "normal_priority",
+        "triage_score": 34.0,
+        "priority_reasons": [
+          "official_domain_url",
+          "company_looking_domain"
+        ],
+        "elapsed_seconds": 0.0,
+        "page_fetches": 0,
+        "page_cache_hits": 0,
+        "official_page_cache_hits": 0,
+        "live_queries": 0,
+        "query_cache_hits": 0,
+        "maturity_queries": 0,
+        "founder_queries": 0,
+        "owner_queries": 0,
+        "customer_queries": 0,
+        "maturity_query_cache_hits": 0,
+        "founder_query_cache_hits": 0,
+        "owner_query_cache_hits": 0,
+        "customer_query_cache_hits": 0,
+        "maturity_query_timeouts": 0,
+        "founder_query_timeouts": 0,
+        "customer_query_timeouts": 0,
+        "owner_query_timeouts": 0,
+        "queries_skipped": 0,
+        "attio_checks": 0,
+        "attio_successes": 0,
+        "attio_timeouts": 0,
+        "attio_retry_attempts": 0,
+        "attio_cache_hits": 0,
+        "attio_cache_fresh_hits": 0,
+        "attio_cache_stale_hits": 0,
+        "attio_cache_expired_hits": 0,
+        "attio_skipped": 0,
+        "attio_skip_reason": "",
+        "action_blocker": "",
+        "potential_action_if_attio_confirms": "",
+        "attio_blocked_owner_ready": false,
+        "timeouts": 0,
+        "identity_status": "skipped",
+        "maturity_status": "unknown",
+        "founder_evidence_found": false,
+        "customer_evidence_found": false,
+        "evidence_dimensions": [],
+        "customer_evidence_labels": [],
+        "final_action": "Research deeper",
+        "unsafe_promotion": false,
+        "missing_evidence": [
+          "max_candidates_exceeded"
+        ]
+      },
+      {
+        "index": 8,
+        "original_index": 8,
+        "processing_index": 14,
+        "name": "AI Simulaionen Based on FEP",
+        "domain": "aic-ai-lab.site",
+        "status": "skipped",
+        "completion_status": "partial_budget",
+        "partial_reason": "max_candidates_exceeded",
+        "stage_failures": [],
+        "priority": "normal_priority",
+        "triage_score": 34.0,
+        "priority_reasons": [
+          "official_domain_url",
+          "company_looking_domain"
+        ],
+        "elapsed_seconds": 0.0,
+        "page_fetches": 0,
+        "page_cache_hits": 0,
+        "official_page_cache_hits": 0,
+        "live_queries": 0,
+        "query_cache_hits": 0,
+        "maturity_queries": 0,
+        "founder_queries": 0,
+        "owner_queries": 0,
+        "customer_queries": 0,
+        "maturity_query_cache_hits": 0,
+        "founder_query_cache_hits": 0,
+        "owner_query_cache_hits": 0,
+        "customer_query_cache_hits": 0,
+        "maturity_query_timeouts": 0,
+        "founder_query_timeouts": 0,
+        "customer_query_timeouts": 0,
+        "owner_query_timeouts": 0,
+        "queries_skipped": 0,
+        "attio_checks": 0,
+        "attio_successes": 0,
+        "attio_timeouts": 0,
+        "attio_retry_attempts": 0,
+        "attio_cache_hits": 0,
+        "attio_cache_fresh_hits": 0,
+        "attio_cache_stale_hits": 0,
+        "attio_cache_expired_hits": 0,
+        "attio_skipped": 0,
+        "attio_skip_reason": "",
+        "action_blocker": "",
+        "potential_action_if_attio_confirms": "",
+        "attio_blocked_owner_ready": false,
+        "timeouts": 0,
+        "identity_status": "skipped",
+        "maturity_status": "unknown",
+        "founder_evidence_found": false,
+        "customer_evidence_found": false,
+        "evidence_dimensions": [],
+        "customer_evidence_labels": [],
+        "final_action": "Research deeper",
+        "unsafe_promotion": false,
+        "missing_evidence": [
+          "max_candidates_exceeded"
+        ]
+      },
+      {
+        "index": 11,
+        "original_index": 11,
+        "processing_index": 15,
+        "name": "Extend AI turns a voice note into posts that sound like you",
+        "domain": "extend.redsystem.dev",
+        "status": "skipped",
+        "completion_status": "partial_budget",
+        "partial_reason": "max_candidates_exceeded",
+        "stage_failures": [],
+        "priority": "normal_priority",
+        "triage_score": 34.0,
+        "priority_reasons": [
+          "official_domain_url",
+          "company_looking_domain"
+        ],
+        "elapsed_seconds": 0.0,
+        "page_fetches": 0,
+        "page_cache_hits": 0,
+        "official_page_cache_hits": 0,
+        "live_queries": 0,
+        "query_cache_hits": 0,
+        "maturity_queries": 0,
+        "founder_queries": 0,
+        "owner_queries": 0,
+        "customer_queries": 0,
+        "maturity_query_cache_hits": 0,
+        "founder_query_cache_hits": 0,
+        "owner_query_cache_hits": 0,
+        "customer_query_cache_hits": 0,
+        "maturity_query_timeouts": 0,
+        "founder_query_timeouts": 0,
+        "customer_query_timeouts": 0,
+        "owner_query_timeouts": 0,
+        "queries_skipped": 0,
+        "attio_checks": 0,
+        "attio_successes": 0,
+        "attio_timeouts": 0,
+        "attio_retry_attempts": 0,
+        "attio_cache_hits": 0,
+        "attio_cache_fresh_hits": 0,
+        "attio_cache_stale_hits": 0,
+        "attio_cache_expired_hits": 0,
+        "attio_skipped": 0,
+        "attio_skip_reason": "",
+        "action_blocker": "",
+        "potential_action_if_attio_confirms": "",
+        "attio_blocked_owner_ready": false,
+        "timeouts": 0,
+        "identity_status": "skipped",
+        "maturity_status": "unknown",
+        "founder_evidence_found": false,
+        "customer_evidence_found": false,
+        "evidence_dimensions": [],
+        "customer_evidence_labels": [],
+        "final_action": "Research deeper",
+        "unsafe_promotion": false,
+        "missing_evidence": [
+          "max_candidates_exceeded"
+        ]
+      },
+      {
+        "index": 1,
+        "original_index": 1,
+        "processing_index": 16,
+        "name": "OpenHive",
+        "domain": "openhivemind.vercel.app",
+        "status": "completed",
+        "completion_status": "completed_clean",
+        "partial_reason": "hosted_demo_not_company_identity",
+        "stage_failures": [],
+        "priority": "skip_or_context",
+        "triage_score": 0,
+        "priority_reasons": [
+          "hosted_demo_not_company_identity"
+        ],
+        "elapsed_seconds": 0.0,
+        "page_fetches": 0,
+        "page_cache_hits": 0,
+        "official_page_cache_hits": 0,
+        "live_queries": 0,
+        "query_cache_hits": 0,
+        "maturity_queries": 0,
+        "founder_queries": 0,
+        "owner_queries": 0,
+        "customer_queries": 0,
+        "maturity_query_cache_hits": 0,
+        "founder_query_cache_hits": 0,
+        "owner_query_cache_hits": 0,
+        "customer_query_cache_hits": 0,
+        "maturity_query_timeouts": 0,
+        "founder_query_timeouts": 0,
+        "customer_query_timeouts": 0,
+        "owner_query_timeouts": 0,
+        "queries_skipped": 0,
+        "attio_checks": 0,
+        "attio_successes": 0,
+        "attio_timeouts": 0,
+        "attio_retry_attempts": 0,
+        "attio_cache_hits": 0,
+        "attio_cache_fresh_hits": 0,
+        "attio_cache_stale_hits": 0,
+        "attio_cache_expired_hits": 0,
+        "attio_skipped": 0,
+        "attio_skip_reason": "",
+        "action_blocker": "",
+        "potential_action_if_attio_confirms": "",
+        "attio_blocked_owner_ready": false,
+        "timeouts": 0,
+        "identity_status": "not_promoted",
+        "maturity_status": "unknown",
+        "founder_evidence_found": false,
+        "customer_evidence_found": false,
+        "evidence_dimensions": [],
+        "customer_evidence_labels": [],
+        "final_action": "Research deeper",
+        "unsafe_promotion": false,
+        "missing_evidence": [
+          "hosted_demo_not_company_identity"
+        ]
+      }
+    ]
+  },
+  "reports": {
+    "identity": [
+      {
+        "candidate_key": "hn-outbound:https://news.ycombinator.com/item?id=48109962",
+        "name": "Voker",
+        "domain": "voker.ai",
+        "identity_promotion_status": "promoted",
+        "official_identity_url": "https://voker.ai",
+        "official_site_pages_checked": [
+          "https://voker.ai"
+        ],
+        "official_site_pages_failed": [],
+        "missing_identity_evidence": []
+      },
+      {
+        "candidate_key": "hn-outbound:https://news.ycombinator.com/item?id=48111143",
+        "name": "Hypercubic",
+        "domain": "hypercubic.ai",
+        "identity_promotion_status": "promoted",
+        "official_identity_url": "https://www.hypercubic.ai/hopper",
+        "official_site_pages_checked": [
+          "https://www.hypercubic.ai/hopper"
+        ],
+        "official_site_pages_failed": [],
+        "missing_identity_evidence": []
+      },
+      {
+        "candidate_key": "hn-outbound:https://news.ycombinator.com/item?id=48225040",
+        "name": "Runtime (YC P26)",
+        "domain": "runtm.com",
+        "identity_promotion_status": "promoted",
+        "official_identity_url": "https://www.runtm.com/",
+        "official_site_pages_checked": [
+          "https://www.runtm.com/"
+        ],
+        "official_site_pages_failed": [],
+        "missing_identity_evidence": []
+      },
+      {
+        "candidate_key": "hn-outbound:https://news.ycombinator.com/item?id=48136209",
+        "name": "3D-Agent",
+        "domain": "3d-agent.com",
+        "identity_promotion_status": "promoted",
+        "official_identity_url": "https://3d-agent.com/blender-ai/plugin",
+        "official_site_pages_checked": [
+          "https://3d-agent.com/blender-ai/plugin"
+        ],
+        "official_site_pages_failed": [],
+        "missing_identity_evidence": []
+      },
+      {
+        "candidate_key": "hn-outbound:https://news.ycombinator.com/item?id=48156878",
+        "name": "Triyambakam Apex Corp",
+        "domain": "triyambakam-apex-corp.hf.space",
+        "identity_promotion_status": "not_promoted",
+        "official_identity_url": "",
+        "official_site_pages_checked": [
+          "https://triyambakam-apex-corp.hf.space"
+        ],
+        "official_site_pages_failed": [],
+        "missing_identity_evidence": [
+          "official_domain_identity_not_confirmed"
+        ]
+      },
+      {
+        "candidate_key": "hn-outbound:https://news.ycombinator.com/item?id=48221855",
+        "name": "Noada",
+        "domain": "noada.app",
+        "identity_promotion_status": "promoted",
+        "official_identity_url": "https://www.noada.app/",
+        "official_site_pages_checked": [
+          "https://www.noada.app/"
+        ],
+        "official_site_pages_failed": [],
+        "missing_identity_evidence": []
+      },
+      {
+        "candidate_key": "hn-outbound:https://news.ycombinator.com/item?id=48241139",
+        "name": "Datapoint AI",
+        "domain": "trydatapoint.com",
+        "identity_promotion_status": "promoted",
+        "official_identity_url": "https://trydatapoint.com",
+        "official_site_pages_checked": [
+          "https://trydatapoint.com"
+        ],
+        "official_site_pages_failed": [],
+        "missing_identity_evidence": []
+      },
+      {
+        "candidate_key": "hn-outbound:https://news.ycombinator.com/item?id=48205825",
+        "name": "AI Doctor Notes",
+        "domain": "aidoctornotes.app",
+        "identity_promotion_status": "promoted",
+        "official_identity_url": "https://aidoctornotes.app/",
+        "official_site_pages_checked": [
+          "https://aidoctornotes.app/"
+        ],
+        "official_site_pages_failed": [],
+        "missing_identity_evidence": []
+      }
+    ],
+    "maturity": [
+      {
+        "candidate_key": "hn-outbound:https://news.ycombinator.com/item?id=48109962",
+        "query": "",
+        "query_status": "not_eligible",
+        "skip_reason": "stage_already_available",
+        "items_seen": 0,
+        "maturity_status": "seed_to_series_b",
+        "maturity_basis": [
+          "accelerator_batch_evidence: YC S24",
+          "yc_company_profile_stage_evidence"
+        ],
+        "maturity_evidence_urls": [
+          "https://news.ycombinator.com/item?id=48109962",
+          "https://voker.ai/blog",
+          "https://www.ycombinator.com/companies/voker"
+        ]
+      },
+      {
+        "candidate_key": "hn-outbound:https://news.ycombinator.com/item?id=48111143",
+        "query": "\"Hypercubic\" \"hypercubic.ai\" funding valuation acquisition Series C seed",
+        "query_status": "timeout",
+        "items_seen": 0,
+        "maturity_status": "unknown",
+        "maturity_basis": [
+          "maturity_not_verified"
+        ],
+        "maturity_evidence_urls": []
+      },
+      {
+        "candidate_key": "hn-outbound:https://news.ycombinator.com/item?id=48225040",
+        "query": "\"Runtime (YC P26)\" \"runtm.com\" funding valuation acquisition Series C seed",
+        "query_status": "timeout",
+        "items_seen": 0,
+        "maturity_status": "unknown",
+        "maturity_basis": [
+          "maturity_not_verified"
+        ],
+        "maturity_evidence_urls": []
+      },
+      {
+        "candidate_key": "hn-outbound:https://news.ycombinator.com/item?id=48136209",
+        "query": "\"3D-Agent\" \"3d-agent.com\" funding valuation acquisition Series C seed",
+        "query_status": "timeout",
+        "items_seen": 0,
+        "maturity_status": "unknown",
+        "maturity_basis": [
+          "maturity_not_verified"
+        ],
+        "maturity_evidence_urls": []
+      },
+      {
+        "candidate_key": "hn-outbound:https://news.ycombinator.com/item?id=48156878",
+        "query": "",
+        "query_status": "not_eligible",
+        "skip_reason": "identity_not_promoted",
+        "items_seen": 0,
+        "maturity_status": "unknown",
+        "maturity_basis": [
+          "maturity_not_verified"
+        ],
+        "maturity_evidence_urls": []
+      },
+      {
+        "candidate_key": "hn-outbound:https://news.ycombinator.com/item?id=48221855",
+        "query": "",
+        "query_status": "not_eligible",
+        "skip_reason": "maturity_query_skipped_weak_hn_signal",
+        "items_seen": 0,
+        "maturity_status": "unknown",
+        "maturity_basis": [
+          "maturity_not_verified"
+        ],
+        "maturity_evidence_urls": []
+      },
+      {
+        "candidate_key": "hn-outbound:https://news.ycombinator.com/item?id=48241139",
+        "query": "",
+        "query_status": "not_eligible",
+        "skip_reason": "maturity_query_skipped_weak_hn_signal",
+        "items_seen": 0,
+        "maturity_status": "unknown",
+        "maturity_basis": [
+          "maturity_not_verified"
+        ],
+        "maturity_evidence_urls": []
+      },
+      {
+        "candidate_key": "hn-outbound:https://news.ycombinator.com/item?id=48205825",
+        "query": "",
+        "query_status": "not_eligible",
+        "skip_reason": "maturity_query_skipped_weak_hn_signal",
+        "items_seen": 0,
+        "maturity_status": "unknown",
+        "maturity_basis": [
+          "maturity_not_verified"
+        ],
+        "maturity_evidence_urls": []
+      }
+    ],
+    "founder_team": {
+      "items": [],
+      "summary": {}
+    },
+    "owner_evidence": {
+      "summary": {
+        "eligible": 7,
+        "skipped": 0,
+        "page_fetches": 28,
+        "page_cache_hits": 0,
+        "queries_run": 0,
+        "query_cache_hits": 0,
+        "attio_blocked": 7
+      },
+      "items": [
+        {
+          "candidate_key": "hn-outbound:https://news.ycombinator.com/item?id=48109962",
+          "name": "Voker",
+          "domain": "voker.ai",
+          "eligible": true,
+          "skip_reason": "",
+          "founder_team_evidence": [],
+          "founder_profiles": [],
+          "stage_funding_evidence": [
+            "https://voker.ai/blog"
+          ],
+          "weak_stage_funding_hints": [
+            "https://news.ycombinator.com/item?id=48109962"
+          ],
+          "customer_buyer_evidence": [
+            "https://voker.ai"
+          ],
+          "customer_buyer_evidence_types": [
+            {
+              "url": "https://voker.ai",
+              "evidence_types": [
+                "waitlist_or_demo_evidence",
+                "commercial_intent_evidence"
+              ]
+            }
+          ],
+          "official_site_pages_checked": [
+            "https://voker.ai",
+            "https://voker.ai/blog"
+          ],
+          "official_site_pages_failed": [
+            "https://voker.ai/about",
+            "https://voker.ai/team"
+          ],
+          "funding_query": "\"Voker\" \"voker.ai\" funding seed series A series B",
+          "funding_query_status": "not_queried",
+          "customer_query": "\"Voker\" \"voker.ai\" customers users case study enterprise",
+          "customer_query_status": "not_queried",
+          "attio_confidence": "Low",
+          "attio_confidence_basis": [
+            "attio_unknown"
+          ],
+          "owner_readiness_score": 40,
+          "owner_readiness_basis": [
+            "verified_company_identity",
+            "customer_buyer_pull_evidence",
+            "commercial_or_funding_evidence"
+          ],
+          "missing_owner_evidence": [
+            "no founder/team evidence",
+            "no stage/funding evidence",
+            "Attio status unknown"
+          ],
+          "recommended_owner_action": "Research deeper",
+          "recommended_next_validation_step": "Find founder/team source",
+          "evidence_urls": [
+            "https://voker.ai/blog",
+            "https://voker.ai",
+            "https://news.ycombinator.com/item?id=48109962"
+          ]
+        },
+        {
+          "candidate_key": "hn-outbound:https://news.ycombinator.com/item?id=48111143",
+          "name": "Hypercubic",
+          "domain": "hypercubic.ai",
+          "eligible": true,
+          "skip_reason": "",
+          "founder_team_evidence": [],
+          "founder_profiles": [],
+          "stage_funding_evidence": [],
+          "weak_stage_funding_hints": [],
+          "customer_buyer_evidence": [
+            "https://hypercubic.ai"
+          ],
+          "customer_buyer_evidence_types": [
+            {
+              "url": "https://hypercubic.ai",
+              "evidence_types": [
+                "waitlist_or_demo_evidence"
+              ]
+            }
+          ],
+          "official_site_pages_checked": [
+            "https://hypercubic.ai"
+          ],
+          "official_site_pages_failed": [
+            "https://hypercubic.ai/about",
+            "https://hypercubic.ai/team",
+            "https://hypercubic.ai/blog"
+          ],
+          "funding_query": "\"Hypercubic\" \"hypercubic.ai\" funding seed series A series B",
+          "funding_query_status": "not_queried",
+          "customer_query": "\"Hypercubic\" \"hypercubic.ai\" customers users case study enterprise",
+          "customer_query_status": "not_queried",
+          "attio_confidence": "Low",
+          "attio_confidence_basis": [
+            "attio_unknown"
+          ],
+          "owner_readiness_score": 30,
+          "owner_readiness_basis": [
+            "verified_company_identity",
+            "customer_buyer_pull_evidence"
+          ],
+          "missing_owner_evidence": [
+            "no founder/team evidence",
+            "no stage/funding evidence",
+            "no commercial/funding evidence",
+            "Attio status unknown"
+          ],
+          "recommended_owner_action": "Research deeper",
+          "recommended_next_validation_step": "Find founder/team source",
+          "evidence_urls": [
+            "https://hypercubic.ai",
+            "https://news.ycombinator.com/item?id=48111143",
+            "https://www.hypercubic.ai/hopper"
+          ]
+        },
+        {
+          "candidate_key": "hn-outbound:https://news.ycombinator.com/item?id=48225040",
+          "name": "Runtime (YC P26)",
+          "domain": "runtm.com",
+          "eligible": true,
+          "skip_reason": "",
+          "founder_team_evidence": [],
+          "founder_profiles": [],
+          "stage_funding_evidence": [],
+          "weak_stage_funding_hints": [],
+          "customer_buyer_evidence": [
+            "https://runtm.com"
+          ],
+          "customer_buyer_evidence_types": [
+            {
+              "url": "https://runtm.com",
+              "evidence_types": [
+                "early_customer_segment_evidence",
+                "waitlist_or_demo_evidence"
+              ]
+            }
+          ],
+          "official_site_pages_checked": [
+            "https://runtm.com"
+          ],
+          "official_site_pages_failed": [
+            "https://runtm.com/about",
+            "https://runtm.com/team",
+            "https://runtm.com/blog"
+          ],
+          "funding_query": "\"Runtime (YC P26)\" \"runtm.com\" funding seed series A series B",
+          "funding_query_status": "not_queried",
+          "customer_query": "\"Runtime (YC P26)\" \"runtm.com\" customers users case study enterprise",
+          "customer_query_status": "not_queried",
+          "attio_confidence": "Low",
+          "attio_confidence_basis": [
+            "attio_unknown"
+          ],
+          "owner_readiness_score": 40,
+          "owner_readiness_basis": [
+            "verified_company_identity",
+            "customer_buyer_pull_evidence",
+            "commercial_or_funding_evidence"
+          ],
+          "missing_owner_evidence": [
+            "no founder/team evidence",
+            "no stage/funding evidence",
+            "Attio status unknown"
+          ],
+          "recommended_owner_action": "Research deeper",
+          "recommended_next_validation_step": "Find founder/team source",
+          "evidence_urls": [
+            "https://runtm.com",
+            "https://news.ycombinator.com/item?id=48225040",
+            "https://www.runtm.com/"
+          ]
+        },
+        {
+          "candidate_key": "hn-outbound:https://news.ycombinator.com/item?id=48136209",
+          "name": "3D-Agent",
+          "domain": "3d-agent.com",
+          "eligible": true,
+          "skip_reason": "",
+          "founder_team_evidence": [],
+          "founder_profiles": [],
+          "stage_funding_evidence": [],
+          "weak_stage_funding_hints": [],
+          "customer_buyer_evidence": [],
+          "customer_buyer_evidence_types": [],
+          "official_site_pages_checked": [
+            "https://3d-agent.com"
+          ],
+          "official_site_pages_failed": [
+            "https://3d-agent.com/about",
+            "https://3d-agent.com/team",
+            "https://3d-agent.com/blog"
+          ],
+          "funding_query": "\"3D-Agent\" \"3d-agent.com\" funding seed series A series B",
+          "funding_query_status": "not_queried",
+          "customer_query": "\"3D-Agent\" \"3d-agent.com\" customers users case study enterprise",
+          "customer_query_status": "not_queried",
+          "attio_confidence": "Low",
+          "attio_confidence_basis": [
+            "attio_unknown"
+          ],
+          "owner_readiness_score": 30,
+          "owner_readiness_basis": [
+            "verified_company_identity",
+            "customer_buyer_pull_evidence"
+          ],
+          "missing_owner_evidence": [
+            "no founder/team evidence",
+            "no stage/funding evidence",
+            "no commercial/funding evidence",
+            "Attio status unknown"
+          ],
+          "recommended_owner_action": "Research deeper",
+          "recommended_next_validation_step": "Find founder/team source",
+          "evidence_urls": [
+            "https://news.ycombinator.com/item?id=48136209",
+            "https://3d-agent.com/blender-ai/plugin"
+          ]
+        },
+        {
+          "candidate_key": "hn-outbound:https://news.ycombinator.com/item?id=48221855",
+          "name": "Noada",
+          "domain": "noada.app",
+          "eligible": true,
+          "skip_reason": "",
+          "founder_team_evidence": [],
+          "founder_profiles": [],
+          "stage_funding_evidence": [],
+          "weak_stage_funding_hints": [],
+          "customer_buyer_evidence": [],
+          "customer_buyer_evidence_types": [],
+          "official_site_pages_checked": [
+            "https://noada.app"
+          ],
+          "official_site_pages_failed": [
+            "https://noada.app/about",
+            "https://noada.app/team",
+            "https://noada.app/blog"
+          ],
+          "funding_query": "\"Noada\" \"noada.app\" funding seed series A series B",
+          "funding_query_status": "not_queried",
+          "customer_query": "\"Noada\" \"noada.app\" customers users case study enterprise",
+          "customer_query_status": "not_queried",
+          "attio_confidence": "Low",
+          "attio_confidence_basis": [
+            "attio_unknown"
+          ],
+          "owner_readiness_score": 30,
+          "owner_readiness_basis": [
+            "verified_company_identity",
+            "customer_buyer_pull_evidence"
+          ],
+          "missing_owner_evidence": [
+            "no founder/team evidence",
+            "no stage/funding evidence",
+            "no commercial/funding evidence",
+            "Attio status unknown"
+          ],
+          "recommended_owner_action": "Research deeper",
+          "recommended_next_validation_step": "Find founder/team source",
+          "evidence_urls": [
+            "https://news.ycombinator.com/item?id=48221855",
+            "https://www.noada.app/"
+          ]
+        },
+        {
+          "candidate_key": "hn-outbound:https://news.ycombinator.com/item?id=48241139",
+          "name": "Datapoint AI",
+          "domain": "trydatapoint.com",
+          "eligible": true,
+          "skip_reason": "",
+          "founder_team_evidence": [],
+          "founder_profiles": [],
+          "stage_funding_evidence": [],
+          "weak_stage_funding_hints": [],
+          "customer_buyer_evidence": [],
+          "customer_buyer_evidence_types": [
+            {
+              "url": "https://trydatapoint.com",
+              "evidence_types": [
+                "generic_positioning"
+              ]
+            }
+          ],
+          "official_site_pages_checked": [
+            "https://trydatapoint.com",
+            "https://trydatapoint.com/blog"
+          ],
+          "official_site_pages_failed": [
+            "https://trydatapoint.com/about",
+            "https://trydatapoint.com/team"
+          ],
+          "funding_query": "\"Datapoint AI\" \"trydatapoint.com\" funding seed series A series B",
+          "funding_query_status": "not_queried",
+          "customer_query": "\"Datapoint AI\" \"trydatapoint.com\" customers users case study enterprise",
+          "customer_query_status": "not_queried",
+          "attio_confidence": "Low",
+          "attio_confidence_basis": [
+            "attio_unknown"
+          ],
+          "owner_readiness_score": 15,
+          "owner_readiness_basis": [
+            "verified_company_identity"
+          ],
+          "missing_owner_evidence": [
+            "no founder/team evidence",
+            "no stage/funding evidence",
+            "no customer/buyer pull evidence",
+            "no commercial/funding evidence",
+            "Attio status unknown"
+          ],
+          "recommended_owner_action": "Research deeper",
+          "recommended_next_validation_step": "Find founder/team source",
+          "evidence_urls": [
+            "https://news.ycombinator.com/item?id=48241139",
+            "https://trydatapoint.com"
+          ]
+        },
+        {
+          "candidate_key": "hn-outbound:https://news.ycombinator.com/item?id=48205825",
+          "name": "AI Doctor Notes",
+          "domain": "aidoctornotes.app",
+          "eligible": true,
+          "skip_reason": "",
+          "founder_team_evidence": [],
+          "founder_profiles": [],
+          "stage_funding_evidence": [],
+          "weak_stage_funding_hints": [],
+          "customer_buyer_evidence": [],
+          "customer_buyer_evidence_types": [],
+          "official_site_pages_checked": [
+            "https://aidoctornotes.app"
+          ],
+          "official_site_pages_failed": [
+            "https://aidoctornotes.app/about",
+            "https://aidoctornotes.app/team",
+            "https://aidoctornotes.app/blog"
+          ],
+          "funding_query": "\"AI Doctor Notes\" \"aidoctornotes.app\" funding seed series A series B",
+          "funding_query_status": "not_queried",
+          "customer_query": "\"AI Doctor Notes\" \"aidoctornotes.app\" customers users case study enterprise",
+          "customer_query_status": "not_queried",
+          "attio_confidence": "Low",
+          "attio_confidence_basis": [
+            "attio_unknown"
+          ],
+          "owner_readiness_score": 30,
+          "owner_readiness_basis": [
+            "verified_company_identity",
+            "customer_buyer_pull_evidence"
+          ],
+          "missing_owner_evidence": [
+            "no founder/team evidence",
+            "no stage/funding evidence",
+            "no commercial/funding evidence",
+            "Attio status unknown"
+          ],
+          "recommended_owner_action": "Research deeper",
+          "recommended_next_validation_step": "Find founder/team source",
+          "evidence_urls": [
+            "https://news.ycombinator.com/item?id=48205825",
+            "https://aidoctornotes.app/"
+          ]
+        }
+      ]
+    }
+  }
+}

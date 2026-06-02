@@ -1,0 +1,86 @@
+{
+  "provider": "exa",
+  "query": "\"Mina Meeting Assistant\" \"[REDACTED], [REDACTED]\" founder maker official",
+  "items": [
+    {
+      "provider": "exa",
+      "title": "miniti - AI meeting assistant",
+      "url": "https://miniti.app/",
+      "snippet": "miniti - AI meeting assistant\n[...]\n\u2b22 miniti\n[...]\nnotes and AI summaries are table stakes. miniti will coach you to speak with clarity and confidence. you own your transcripts and insights forever.\n[...]\nstop taking notes and start paying attention. let miniti handle the rest\n[...]\nsync to Attio CRM",
+      "description": "miniti - AI meeting assistant\n[...]\n\u2b22 miniti\n[...]\nnotes and AI summaries are table stakes. miniti will coach you to speak with clarity and confidence. you own your transcripts and insights forever.\n[...]\nstop taking notes and start paying attention. let miniti handle the rest\n[...]\nsync to Attio CRM",
+      "source": "exa"
+    },
+    {
+      "provider": "exa",
+      "title": "mina meetings",
+      "url": "https://www.minameetings.com/about",
+      "snippet": "And this is what I teach at mina meetings!\n[...]\nI hope you come to a meeting as a guest and see if you vibe with us and would like to have mina meetings to be the support to help you become the woman you have always wanted to be.",
+      "description": "And this is what I teach at mina meetings!\n[...]\nI hope you come to a meeting as a guest and see if you vibe with us and would like to have mina meetings to be the support to help you become the woman you have always wanted to be.",
+      "source": "exa"
+    },
+    {
+      "provider": "exa",
+      "title": "mina meetings",
+      "url": "https://www.minameetings.com/home-1",
+      "snippet": "For the last 13 years Mina Shah has been helping audiences navigate the unknown to create a clear path forward and come out on top. The ability to change is impacted by the fear and uncertainty one experiences when embarking on something new and worthwhile. The ability to tap into ones courage and confidence during those crucial moments makes all the difference.\n[...]\n2014 Mina started mina meetings, a year long program teaching women confidence, communication skills and how to negotiate for themselves. She has produced and led over 235 events for women and consulted over 180 business owners.\n[...]\nPrior to starting her own organization she worked as the only female speaker at the time for Tony Robbins where she won the Presidents Award and Platinum Award selected by her peers for her performance and representing the mission",
+      "description": "For the last 13 years Mina Shah has been helping audiences navigate the unknown to create a clear path forward and come out on top. The ability to change is impacted by the fear and uncertainty one experiences when embarking on something new and worthwhile. The ability to tap into ones courage and confidence during those crucial moments makes all the difference.\n[...]\n2014 Mina started mina meetings, a year long program teaching women confidence, communication skills and how to negotiate for themselves. She has produced and led over 235 events for women and consulted over 180 business owners.\n[...]\nPrior to starting her own organization she worked as the only female speaker at the time for Tony Robbins where she won the Presidents Award and Platinum Award selected by her peers for her performance and representing the mission",
+      "source": "exa"
+    },
+    {
+      "provider": "exa",
+      "title": "Features \u2014 Myna Private Call Recorder",
+      "url": "https://www.meetmyna.com/features",
+      "snippet": "Features \u2014 Myna Private Call Recorder\n[...]\nMyna records your system audio (what you hear) and your microphone (what you say) as separate tracks using WASAPI loopback capture. This enables accurate speaker identification during transcription.\n[...]\nwhisper.cpp running entirely on your machine. Pro users\n[...]\nthe large-v3-turbo\n[...]\nto cloud services,\n[...]\nof the privacy\n[...]\nGenerate meeting summaries and action items using Ollama, running locally on your machine. Because Myna records dual-channel audio with speaker labels, the AI knows who said what \u2014 and who committed to what.\n[...]\nwithout a network",
+      "description": "Features \u2014 Myna Private Call Recorder\n[...]\nMyna records your system audio (what you hear) and your microphone (what you say) as separate tracks using WASAPI loopback capture. This enables accurate speaker identification during transcription.\n[...]\nwhisper.cpp running entirely on your machine. Pro users\n[...]\nthe large-v3-turbo\n[...]\nto cloud services,\n[...]\nof the privacy\n[...]\nGenerate meeting summaries and action items using Ollama, running locally on your machine. Because Myna records dual-channel audio with speaker labels, the AI knows who said what \u2014 and who committed to what.\n[...]\nwithout a network",
+      "source": "exa"
+    },
+    {
+      "provider": "exa",
+      "title": "About - Mina AI",
+      "url": "https://mina.ai.vn/about/",
+      "snippet": "About - Mina AI\n[...]\nMinh Nguy\u1ec5n\n[...]\nFounder, CEO\n[...]\nAI Tutor, Assistant Agent",
+      "description": "About - Mina AI\n[...]\nMinh Nguy\u1ec5n\n[...]\nFounder, CEO\n[...]\nAI Tutor, Assistant Agent",
+      "source": "exa"
+    },
+    {
+      "provider": "exa",
+      "title": "What If AI Fact-Checked Your Meetings in Real Time? Inside Meeting-Time AI Skills - DEV Community",
+      "url": "https://dev.to/mininglamp/what-if-ai-fact-checked-your-meetings-in-real-time-inside-meeting-time-ai-skills-25ho",
+      "snippet": "Current AI meeting tools handle the aftermath beautifully: transcription, summaries, action items. But they can't do anything about uncertain information spoken during the meeting. Mininglamp Technology built Octic around a specific question: what if AI could intervene during the meeting, not just after it?\n[...]\nThis is why Mininglamp chose meeting-time assistance as the product focus rather than competing in the crowded post-meeting space. The two aren't on the same axis \u2014 one is about memory, the other is about judgment.\n[...]\n1. Fact Verification \u2014 Cross-references claims (numbers, dates, attributions) against the user's own documents and meeting history. Not a web search \u2014 a check against information the user has already seen.\n[...]\nOctic's approach is continuous context accumulation from the user's own data: meeting recordings, documents, conversations in Octo (Mininglamp's AI collaboration platform). Over time, the AI learns:\n[...]\nMininglamp's Octic, with its 3-persona \u00d7 7-skill design, offers one coherent answer to how this can work. Personas solve the \"when to speak\" problem. Skills solve the \"what to say\" problem. Private AI memory solves the \"how to be relevant\" problem. Together, they define what it means for AI to move from post-meeting recorder to meeting-time advisor.",
+      "description": "Current AI meeting tools handle the aftermath beautifully: transcription, summaries, action items. But they can't do anything about uncertain information spoken during the meeting. Mininglamp Technology built Octic around a specific question: what if AI could intervene during the meeting, not just after it?\n[...]\nThis is why Mininglamp chose meeting-time assistance as the product focus rather than competing in the crowded post-meeting space. The two aren't on the same axis \u2014 one is about memory, the other is about judgment.\n[...]\n1. Fact Verification \u2014 Cross-references claims (numbers, dates, attributions) against the user's own documents and meeting history. Not a web search \u2014 a check against information the user has already seen.\n[...]\nOctic's approach is continuous context accumulation from the user's own data: meeting recordings, documents, conversations in Octo (Mininglamp's AI collaboration platform). Over time, the AI learns:\n[...]\nMininglamp's Octic, with its 3-persona \u00d7 7-skill design, offers one coherent answer to how this can work. Personas solve the \"when to speak\" problem. Skills solve the \"what to say\" problem. Private AI memory solves the \"how to be relevant\" problem. Together, they define what it means for AI to move from post-meeting recorder to meeting-time advisor.",
+      "source": "exa"
+    },
+    {
+      "provider": "exa",
+      "title": "mina shah | Peak Performance Strategist Speaker",
+      "url": "https://linkedin.com/in/minashah1",
+      "snippet": "Keynote Speaker, Strategic Coach and Founder of the mina meetings Showing you How to Access your Courage and Confidence During Uncertainty to Create a Clear Path Forward!\n[...]\nFounder at mina meetings\n[...]\nMina Shah, Inspirational Keynote Speaker, Strategic Coach and Founder of the mina meetings. She has spoken to over 1400 audiences and strategically consulted over 180 business owners In 2011, while working as the only female Peak Performance Strategist for Tony Robbins, Mina Shah won the Presidents Award for creating transformation and measurable growth in businesses across America. Proud to receive the award, Mina is most proud that the same year she won the Platinum Award; an award selected by her peers for representing the mission and being a team player. At the end of 2012 Mina left her dream job at Robbins to pursue her dream. She saw a real need for programs that would teach women tools to create emotional, physical and financially freedom for themselves. In 2014 she launched mina meetings, to Empower Women to Know Their Value &amp; Claim Their Worth. Since then she has produced and led over 235 events for women and witnessed not only the transformation in the lives of the women who have attended but also in the lives of their daughters who have attended in the following years. She shares the story of the women and mina meetings in her TEDx talk, What Happens When Women Stop Believing the Lies. In 2019 she was featured in SUCCESS magazine\u2019s Women\u2019s Empowerment Issue for her work making a difference in women\u2019s lives. Her personal achievements include taking a 7 month trip around the world, climbing the highest mountain in SE Asia as well as completing a 12 day trek in the Himalayas. She believes that no matter where you came from you have the power to create the life you truly desire and it\u2019s best to give yourself permission before you are ready.\n[...]\n### Founder at mina meetings (Current)\n[...]\nJan 2013 - Present (13 years and 2 months) in Fort Lauderdale\n[...]\nEmpowering Women to Know Their Value and Claim Their Worth!",
+      "description": "Keynote Speaker, Strategic Coach and Founder of the mina meetings Showing you How to Access your Courage and Confidence During Uncertainty to Create a Clear Path Forward!\n[...]\nFounder at mina meetings\n[...]\nMina Shah, Inspirational Keynote Speaker, Strategic Coach and Founder of the mina meetings. She has spoken to over 1400 audiences and strategically consulted over 180 business owners In 2011, while working as the only female Peak Performance Strategist for Tony Robbins, Mina Shah won the Presidents Award for creating transformation and measurable growth in businesses across America. Proud to receive the award, Mina is most proud that the same year she won the Platinum Award; an award selected by her peers for representing the mission and being a team player. At the end of 2012 Mina left her dream job at Robbins to pursue her dream. She saw a real need for programs that would teach women tools to create emotional, physical and financially freedom for themselves. In 2014 she launched mina meetings, to Empower Women to Know Their Value &amp; Claim Their Worth. Since then she has produced and led over 235 events for women and witnessed not only the transformation in the lives of the women who have attended but also in the lives of their daughters who have attended in the following years. She shares the story of the women and mina meetings in her TEDx talk, What Happens When Women Stop Believing the Lies. In 2019 she was featured in SUCCESS magazine\u2019s Women\u2019s Empowerment Issue for her work making a difference in women\u2019s lives. Her personal achievements include taking a 7 month trip around the world, climbing the highest mountain in SE Asia as well as completing a 12 day trek in the Himalayas. She believes that no matter where you came from you have the power to create the life you truly desire and it\u2019s best to give yourself permission before you are ready.\n[...]\n### Founder at mina meetings (Current)\n[...]\nJan 2013 - Present (13 years and 2 months) in Fort Lauderdale\n[...]\nEmpowering Women to Know Their Value and Claim Their Worth!",
+      "source": "exa"
+    },
+    {
+      "provider": "exa",
+      "title": "Mina Mankarious \u2014 Deal Partner PM at Boardy | Founder of Olunix, Toronto",
+      "url": "https://minamankarious.com/",
+      "snippet": "Mina Mankarious \u2014 Deal Partner PM at Boardy | Founder of Olunix, Toronto\n[...]\nMina Mankarious \u2014 Deal Partner PM at Boardy | Founder of Olunix, Toronto\n[...]\nDeal Partner PM, Boardy \u00b7 Founder, Olunix\n[...]\nRunning the Deal Partner program at Boardy. Founder of Olunix, helping technical founders find commercial traction.\n[...]\nMina Mankarious\n[...]\nEngineering-trained operator running partner programs at Boardy. Founder of Olunix, working with technical founders on positioning and growth.\n[...]\nI'm the Deal Partner Program Manager at Boardy, running onboarding, relationships, and activation across the partner network. I'm also the Founder of Olunix, working with AI startups on strategic clarity and execution.\n[...]\nMy operating style blends technical systems thinking with narrative design, shaped by real-world execution at Toyota, founder work at Olunix, and ecosystem building through Boardy\n[...]\nMarketing and consulting for AI startups with an execution-first operating model.\n[...]\n## Olunix Vantage\n[...]\n## Structured strategy for technical founders who need commercial traction.\n[...]\nIf you're building a technical product and need stronger market movement, I work directly at the strategy and execution layer.\n[...]\nyour AI startup?",
+      "description": "Mina Mankarious \u2014 Deal Partner PM at Boardy | Founder of Olunix, Toronto\n[...]\nMina Mankarious \u2014 Deal Partner PM at Boardy | Founder of Olunix, Toronto\n[...]\nDeal Partner PM, Boardy \u00b7 Founder, Olunix\n[...]\nRunning the Deal Partner program at Boardy. Founder of Olunix, helping technical founders find commercial traction.\n[...]\nMina Mankarious\n[...]\nEngineering-trained operator running partner programs at Boardy. Founder of Olunix, working with technical founders on positioning and growth.\n[...]\nI'm the Deal Partner Program Manager at Boardy, running onboarding, relationships, and activation across the partner network. I'm also the Founder of Olunix, working with AI startups on strategic clarity and execution.\n[...]\nMy operating style blends technical systems thinking with narrative design, shaped by real-world execution at Toyota, founder work at Olunix, and ecosystem building through Boardy\n[...]\nMarketing and consulting for AI startups with an execution-first operating model.\n[...]\n## Olunix Vantage\n[...]\n## Structured strategy for technical founders who need commercial traction.\n[...]\nIf you're building a technical product and need stronger market movement, I work directly at the strategy and execution layer.\n[...]\nyour AI startup?",
+      "source": "exa"
+    }
+  ],
+  "skipped": false,
+  "skip_reason": "",
+  "cache_status": "miss",
+  "latency_ms": 982,
+  "cost_usd": 0.007,
+  "capabilities": {
+    "provider": "exa",
+    "snippet_only": false,
+    "page_content_returned": true,
+    "livecrawl_available": true,
+    "cost_estimated": true
+  },
+  "query_id": "",
+  "query_family": "hard_evidence_resolver",
+  "movement": "",
+  "market_sector": ""
+}

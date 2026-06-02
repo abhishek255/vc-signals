@@ -3507,6 +3507,7 @@ def test_run_weekly_artifacts_applies_optional_weak_source_identity_enrichment(t
         github_limit=0,
         product_hunt_limit=1,
         candidate_limit=10,
+        signal_investigation_limit=0,
         weak_source_identity_enrichment_limit=3,
     )
 
@@ -3515,6 +3516,181 @@ def test_run_weekly_artifacts_applies_optional_weak_source_identity_enrichment(t
     assert result["weak_source_identity_enrichment_json"].endswith("weak-source-identity-enrichment.json")
     report = json.loads((tmp_path / "weak-source-identity-enrichment.json").read_text())
     assert report["summary"]["domains_resolved"] == 1
+
+
+def test_run_weekly_artifacts_writes_signal_investigation_artifact(tmp_path, monkeypatch):
+    import json
+    import radar_run
+
+    monkeypatch.setattr(
+        radar_run,
+        "collect_live_evidence",
+        lambda **kwargs: {
+            "last30days": {},
+            "github": [],
+            "product_hunt": [
+                {
+                    "source": "producthunt",
+                    "source_lane": "Product Hunt",
+                    "name": "AgentFence",
+                    "title": "AgentFence",
+                    "description": "Permission firewall for AI agents",
+                    "product_hunt_url": "https://www.producthunt.com/products/agentfence",
+                    "url": "https://www.producthunt.com/products/agentfence",
+                    "domain": "",
+                    "action": "research deeper",
+                    "lead_route": "research_deeper",
+                    "missing_evidence": ["official_domain_identity_not_confirmed"],
+                }
+            ],
+            "warnings": [],
+            "source_health": [{"source": "product_hunt", "status": "complete", "fresh_items": 1}],
+        },
+    )
+    monkeypatch.setattr(radar_run, "load_candidate_history", lambda *args, **kwargs: {})
+    monkeypatch.setattr(radar_run, "save_candidate_history", lambda *args, **kwargs: None)
+    monkeypatch.setattr(radar_run, "apply_candidate_enrichment", lambda candidates: candidates)
+    monkeypatch.setattr(radar_run, "_grounded_search_available", lambda: True)
+    monkeypatch.setattr(radar_run, "_social_search_available", lambda: False)
+    monkeypatch.setattr(
+        radar_run,
+        "collect_company_discovery",
+        lambda *args, **kwargs: {
+            "queries": [],
+            "items": [],
+            "accepted_leads": [],
+            "rejected_leads": [],
+            "warnings": [],
+            "errors": [],
+            "query_diagnostics": [],
+            "summary": {"accepted": 0, "rejected": 0},
+            "discovery_yield_trial": {"enabled": False},
+        },
+    )
+
+    def fake_run_query(topic, **kwargs):
+        return {
+            "items": [
+                {
+                    "source": "grounding",
+                    "title": "AgentFence - AI agent permissions",
+                    "url": "https://agentfence.dev",
+                    "snippet": "AgentFence is a startup building a permission firewall for AI agents.",
+                }
+            ],
+            "warnings": [],
+        }
+
+    monkeypatch.setattr(radar_run, "run_query", fake_run_query)
+
+    result = radar_run.run_weekly_artifacts(
+        output_dir=tmp_path,
+        sectors=("devtools",),
+        github_limit=0,
+        product_hunt_limit=1,
+        candidate_limit=10,
+        signal_investigation_limit=3,
+        weak_source_identity_enrichment_limit=0,
+    )
+
+    assert result["signal_investigation_json"].endswith("signal-investigation.json")
+    report = json.loads((tmp_path / "signal-investigation.json").read_text())
+    assert report["summary"]["rows_investigated"] >= 2
+    assert report["summary"]["search_queries_run"] >= 1
+    assert report["summary"]["official_domains_resolved"] >= 1
+    assert report["source_items"][0]["source_lane"] == "Product Hunt"
+
+
+def test_run_weekly_artifacts_applies_hard_evidence_to_product_hunt_rows(tmp_path, monkeypatch):
+    import json
+    import radar_run
+
+    monkeypatch.setenv("VC_SIGNALS_HARD_EVIDENCE_ENABLE_LIVE", "1")
+    monkeypatch.setattr(
+        radar_run,
+        "collect_live_evidence",
+        lambda **kwargs: {
+            "last30days": {},
+            "github": [],
+            "product_hunt": [
+                {
+                    "source": "producthunt",
+                    "source_lane": "Product Hunt",
+                    "name": "Clipto AI",
+                    "title": "Clipto AI",
+                    "tagline": "Fully local natural language search for your media",
+                    "product_hunt_url": "https://www.producthunt.com/products/clipto-ai",
+                    "url": "https://www.producthunt.com/products/clipto-ai",
+                    "domain": "",
+                    "action": "research deeper",
+                    "missing_evidence": ["official_domain_identity_not_confirmed"],
+                }
+            ],
+            "x_launches": [],
+            "warnings": [],
+            "source_health": [{"source": "product_hunt", "status": "complete", "fresh_items": 1}],
+        },
+    )
+    monkeypatch.setattr(radar_run, "load_candidate_history", lambda *args, **kwargs: {})
+    monkeypatch.setattr(radar_run, "save_candidate_history", lambda *args, **kwargs: None)
+    monkeypatch.setattr(radar_run, "apply_candidate_enrichment", lambda candidates: candidates)
+    monkeypatch.setattr(radar_run, "_grounded_search_available", lambda: False)
+    monkeypatch.setattr(radar_run, "_social_search_available", lambda: False)
+    monkeypatch.setattr(
+        radar_run,
+        "collect_company_discovery",
+        lambda *args, **kwargs: {
+            "queries": [],
+            "items": [],
+            "accepted_leads": [],
+            "rejected_leads": [],
+            "warnings": [],
+            "errors": [],
+            "query_diagnostics": [],
+            "summary": {"accepted": 0, "rejected": 0},
+            "discovery_yield_trial": {"enabled": False},
+        },
+    )
+
+    def fake_hard_evidence(rows, **kwargs):
+        enriched = []
+        for row in rows:
+            item = dict(row)
+            item["domain"] = "clipto.ai"
+            item["website"] = "https://clipto.ai"
+            item["domain_resolution_source"] = "hard_evidence"
+            item["pricing_evidence"] = ["https://clipto.ai/pricing"]
+            item["docs_evidence"] = ["https://clipto.ai/docs"]
+            item["hard_evidence_dossier"] = {"official_domain": "clipto.ai"}
+            enriched.append(item)
+        return enriched, {
+            "summary": {
+                "enabled": True,
+                "rows_considered": len(rows),
+                "rows_investigated": len(rows),
+                "official_domains_resolved": len(rows),
+            },
+            "items": [{"name": "Clipto AI", "resolved_domain": "clipto.ai"}],
+        }
+
+    monkeypatch.setattr(radar_run, "enrich_source_rows_with_hard_evidence", fake_hard_evidence, raising=False)
+
+    result = radar_run.run_weekly_artifacts(
+        output_dir=tmp_path,
+        sectors=("devtools",),
+        github_limit=0,
+        product_hunt_limit=1,
+        candidate_limit=10,
+        signal_investigation_limit=0,
+        weak_source_identity_enrichment_limit=0,
+    )
+
+    assert result["hard_evidence_dossiers_json"].endswith("hard-evidence-dossiers.json")
+    raw_files = sorted(tmp_path.glob("*-raw-evidence.json"))
+    raw_evidence = json.loads(raw_files[0].read_text())
+    assert raw_evidence["product_hunt"][0]["domain"] == "clipto.ai"
+    report = json.loads((tmp_path / "hard-evidence-dossiers.json").read_text())
+    assert report["summary"]["official_domains_resolved"] == 1
 
 
 def test_run_weekly_artifacts_does_not_promote_vibe_discovery_result(tmp_path, monkeypatch):

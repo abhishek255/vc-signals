@@ -1,0 +1,55 @@
+{
+  "topic": "\"smokedmeat\" seed funding headcount founders LinkedIn",
+  "items": [
+    {
+      "source": "grounding",
+      "title": "$27 Off Mahogany Smoked Meats Coupons & Promo Codes \u2013 April 2026",
+      "url": "https://www.goodshop.com/coupons/smokedmeats.com",
+      "snippet": "Goodshop works with Mahogany Smoked Meats to offer users the best coupon discounts AND makes a donation to your favorite cause when you shop at participating stores.",
+      "published_at": "2026-05-06",
+      "engagement": {},
+      "container": "www.goodshop.com",
+      "author": "",
+      "_raw_fields_present": [
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": []
+    }
+  ],
+  "clusters": [
+    {
+      "candidate_ids": [
+        "https://goodshop.com/coupons/smokedmeats.com"
+      ],
+      "cluster_id": "cluster-1",
+      "representative_ids": [
+        "https://goodshop.com/coupons/smokedmeats.com"
+      ],
+      "score": 0.0,
+      "sources": [
+        "grounding"
+      ],
+      "title": "$27 Off Mahogany Smoked Meats Coupons & Promo Codes \u2013 April 2026"
+    }
+  ],
+  "warnings": [
+    "Evidence is thin for this topic."
+  ],
+  "errors_by_source": {}
+}

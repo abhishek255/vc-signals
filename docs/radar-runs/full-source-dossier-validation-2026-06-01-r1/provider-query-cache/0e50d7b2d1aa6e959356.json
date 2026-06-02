@@ -1,0 +1,585 @@
+{
+  "topic": "Devtools OSS workflow tooling startup company platform official",
+  "items": [
+    {
+      "source": "grounding",
+      "title": "12 Best Open Source Code Review Tools in 2026 | Augment Code",
+      "url": "https://www.augmentcode.com/tools/best-open-source-code-review-tools",
+      "snippet": "What stood out during deployment: The change-based workflow required a complete mindset shift for the team. Iteration tracking shows differences between force-pushed commits without restarting reviews: a capability no other tool matches. The learning investment is substantial but pays dividends for teams committed to trunk-based development. Setup experience: The initial deployment required 4 hours, plus a full day of workflow training for the team.",
+      "published_at": "2026-05-27",
+      "engagement": {},
+      "container": "www.augmentcode.com",
+      "author": "",
+      "_raw_fields_present": [
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": []
+    },
+    {
+      "source": "grounding",
+      "title": "73 Most Useful DevOps Tools to Use in 2026",
+      "url": "https://spacelift.io/blog/devops-tools",
+      "snippet": "Spacelift is a DevOps tool focused on flexibility and user experience. It works with multiple infrastructure tools (Terraform, OpenTofu, CloudFormation, Pulumi, Ansible, etc.) and supports self-hosted on-prem workers, workflow customization, drift detection, policies, and more.",
+      "published_at": "2026-06-01",
+      "engagement": {},
+      "container": "spacelift.io",
+      "author": "",
+      "_raw_fields_present": [
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": []
+    },
+    {
+      "source": "grounding",
+      "title": "Streamline your AI coding workflow with Chrome DevTools for agents 1.0 | Blog | Chrome for Developers",
+      "url": "https://developer.chrome.com/blog/devtools-for-agents-v1",
+      "snippet": "<strong>Used as a quality gate, it turns your coding agent into an expert that catches critical blockers before they reach production</strong>. Your agent can use DevTools for agents to test how a site looks and performs on various devices or in different locations ...",
+      "published_at": "2026-05-19",
+      "engagement": {},
+      "container": "developer.chrome.com",
+      "author": "",
+      "_raw_fields_present": [
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": []
+    },
+    {
+      "source": "grounding",
+      "title": "AI Workflow Automation Software & Tools | Make",
+      "url": "https://www.make.com/en",
+      "snippet": "<strong>Connect tools, integrate AI, reduce manual work, and free your team to focus on innovation</strong>. ... Quickly adapt to new market demands by connecting your entire tech stack. Use our massive library of pre-built apps for instant workflows, and our ...",
+      "published_at": "2026-05-28",
+      "engagement": {},
+      "container": "www.make.com",
+      "author": "",
+      "_raw_fields_present": [
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": []
+    },
+    {
+      "source": "grounding",
+      "title": "Discover top Azure DevOps tools to enhance your software development, streamline CI/CD pipelines, and boost team productivity",
+      "url": "https://lucidity.cloud/blog/azure-devops-tools",
+      "snippet": "Azure DevOps offers a comprehensive ... Tools like <strong>Azure Pipelines, Azure Boards, Azure Artifacts, Azure Repos, and Azure Test Plans streamline workflows, automate tasks, and maintain high standards</strong>....",
+      "published_at": "2026-05-22",
+      "engagement": {},
+      "container": "lucidity.cloud",
+      "author": "",
+      "_raw_fields_present": [
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": []
+    },
+    {
+      "source": "grounding",
+      "title": "Best Developer Productivity Tools 2026: 14 AI Developer Tools Compared | Greptile",
+      "url": "https://www.greptile.com/content-library/14-best-developer-productivity-tools",
+      "snippet": "Augment Code describes itself as &quot;The Software Agent Company.&quot; It is broader than an editor or autocomplete tool. It combines IDE workflows, CLI, agents, code review, MCP/native tools, and a context engine designed to understand an entire codebase.",
+      "published_at": "2026-05-29",
+      "engagement": {},
+      "container": "www.greptile.com",
+      "author": "",
+      "_raw_fields_present": [
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": []
+    },
+    {
+      "source": "grounding",
+      "title": "How to Validate a Developer Tools Startup - SegmentOS | Fast, Affordable Market Validation",
+      "url": "https://segmentos.io/blog/validate-developer-tools-startup",
+      "snippet": "Before investing in development, ... a workflow: <strong>writing code, reviewing code, deploying, monitoring, testing, managing infrastructure, handling authentication, building APIs, collaborating across teams</strong>....",
+      "published_at": "2026-05-18",
+      "engagement": {},
+      "container": "segmentos.io",
+      "author": "",
+      "_raw_fields_present": [
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": []
+    },
+    {
+      "source": "grounding",
+      "title": "What are Developer Tools? - Developer Tools Explained - AWS",
+      "url": "https://aws.amazon.com/what-is/developer-tools/",
+      "snippet": "From building simple web applications to complex, microservice-based solutions, you can use AWS developer tools to: Continuously merge and release software by following DevOps practices \u00b7 Manage AWS services directly from a code editor or command line interface (CLI) Write and debug code for AWS workloads in your preferred IDE or browser \u00b7 Automate software-development workflows and remove error-prone manual processes",
+      "published_at": "2026-05-27",
+      "engagement": {},
+      "container": "aws.amazon.com",
+      "author": "",
+      "_raw_fields_present": [
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": []
+    },
+    {
+      "source": "grounding",
+      "title": "DevOps - Amazon Web Services (AWS)",
+      "url": "https://aws.amazon.com/devops/",
+      "snippet": "The AWS Developer Tools <strong>help you securely store and version your application&#x27;s source code and automatically build, test, and deploy your application to AWS or your on-premises environment</strong>.Start with AWS CodePipeline to build a continuous integration or continuous delivery workflow that uses ...",
+      "published_at": "2026-05-27",
+      "engagement": {},
+      "container": "aws.amazon.com",
+      "author": "",
+      "_raw_fields_present": [
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": []
+    },
+    {
+      "source": "grounding",
+      "title": "DevOps - Amazon Web Services (AWS)",
+      "url": "https://aws.amazon.com/devops/",
+      "snippet": "<strong>AWS provides services that help you practice DevOps at your company and that are built first for use with AWS</strong>. These tools automate manual tasks, help teams manage complex environments at scale, and keep engineers in control of the high velocity that is enabled by DevOps.",
+      "published_at": "2026-05-27",
+      "engagement": {},
+      "container": "aws.amazon.com",
+      "author": "",
+      "_raw_fields_present": [
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": []
+    },
+    {
+      "source": "grounding",
+      "title": "Top DevOps Tools for Infrastructure Automation in 2026 | env zero",
+      "url": "https://www.env0.com/blog/top-devops-tools-for-infrastructure-automation",
+      "snippet": "CircleCI\u2019s integration with tools such as GitHub and Bitbucket makes it easy to incorporate CI/CD workflows into existing version control processes. Its flexibility and scalability cater to teams of all sizes, from small startups to large enterprises.",
+      "published_at": "2026-05-28",
+      "engagement": {},
+      "container": "www.env0.com",
+      "author": "",
+      "_raw_fields_present": [
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": []
+    },
+    {
+      "source": "grounding",
+      "title": "What are Developer Tools? - Developer Tools Explained - AWS",
+      "url": "https://aws.amazon.com/what-is/developer-tools/",
+      "snippet": "What is Developer Tools how and why businesses use Developer Tools, and how to use Developer Tools with AWS.",
+      "published_at": "2026-05-27",
+      "engagement": {},
+      "container": "aws.amazon.com",
+      "author": "",
+      "_raw_fields_present": [
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": []
+    },
+    {
+      "source": "grounding",
+      "title": "DevOps Tools: A Comprehensive Overview | Qentelli",
+      "url": "https://qentelli.com/insights/blogs/devops-tools/",
+      "snippet": "The tools themselves are not the transformation; they are <strong>powerful enablers that make it possible to embody Agile and DevOps principles, enhance velocity and precision, and facilitate seamless cross-team collaboration</strong>.",
+      "published_at": "2026-05-27",
+      "engagement": {},
+      "container": "qentelli.com",
+      "author": "",
+      "_raw_fields_present": [
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": []
+    },
+    {
+      "source": "grounding",
+      "title": "What are Developer Tools? - Developer Tools Explained - AWS",
+      "url": "https://aws.amazon.com/what-is/developer-tools/",
+      "snippet": "Software teams use developer tools to overcome challenges when writing code, testing programs, deploying applications, and monitoring production releases. With the right development tools, you can reduce time to market, resolve bugs, optimize development workflows, and more.",
+      "published_at": "2026-05-27",
+      "engagement": {},
+      "container": "aws.amazon.com",
+      "author": "",
+      "_raw_fields_present": [
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": []
+    }
+  ],
+  "clusters": [
+    {
+      "candidate_ids": [
+        "https://augmentcode.com/tools/best-open-source-code-review-tools"
+      ],
+      "cluster_id": "cluster-1",
+      "representative_ids": [
+        "https://augmentcode.com/tools/best-open-source-code-review-tools"
+      ],
+      "score": 0.0,
+      "sources": [
+        "grounding"
+      ],
+      "title": "12 Best Open Source Code Review Tools in 2026 | Augment Code"
+    },
+    {
+      "candidate_ids": [
+        "https://make.com/en"
+      ],
+      "cluster_id": "cluster-2",
+      "representative_ids": [
+        "https://make.com/en"
+      ],
+      "score": 0.0,
+      "sources": [
+        "grounding"
+      ],
+      "title": "AI Workflow Automation Software & Tools | Make"
+    },
+    {
+      "candidate_ids": [
+        "https://greptile.com/content-library/14-best-developer-productivity-tools"
+      ],
+      "cluster_id": "cluster-3",
+      "representative_ids": [
+        "https://greptile.com/content-library/14-best-developer-productivity-tools"
+      ],
+      "score": 0.0,
+      "sources": [
+        "grounding"
+      ],
+      "title": "Best Developer Productivity Tools 2026: 14 AI Developer Tools Compared | Greptile"
+    },
+    {
+      "candidate_ids": [
+        "https://developer.chrome.com/blog/devtools-for-agents-v1"
+      ],
+      "cluster_id": "cluster-4",
+      "representative_ids": [
+        "https://developer.chrome.com/blog/devtools-for-agents-v1"
+      ],
+      "score": 0.0,
+      "sources": [
+        "grounding"
+      ],
+      "title": "Streamline your AI coding workflow with Chrome DevTools for agents 1.0 | Blog | Chrome for Developers"
+    },
+    {
+      "candidate_ids": [
+        "https://spacelift.io/blog/devops-tools"
+      ],
+      "cluster_id": "cluster-5",
+      "representative_ids": [
+        "https://spacelift.io/blog/devops-tools"
+      ],
+      "score": 0.0,
+      "sources": [
+        "grounding"
+      ],
+      "title": "73 Most Useful DevOps Tools to Use in 2026"
+    },
+    {
+      "candidate_ids": [
+        "https://aws.amazon.com/devops"
+      ],
+      "cluster_id": "cluster-6",
+      "representative_ids": [
+        "https://aws.amazon.com/devops"
+      ],
+      "score": 0.0,
+      "sources": [
+        "grounding"
+      ],
+      "title": "DevOps - Amazon Web Services (AWS)"
+    },
+    {
+      "candidate_ids": [
+        "https://lucidity.cloud/blog/azure-devops-tools"
+      ],
+      "cluster_id": "cluster-7",
+      "representative_ids": [
+        "https://lucidity.cloud/blog/azure-devops-tools"
+      ],
+      "score": 0.0,
+      "sources": [
+        "grounding"
+      ],
+      "title": "Discover top Azure DevOps tools to enhance your software development, streamline CI/CD pipelines, and boost team productivity"
+    },
+    {
+      "candidate_ids": [
+        "https://segmentos.io/blog/validate-developer-tools-startup"
+      ],
+      "cluster_id": "cluster-8",
+      "representative_ids": [
+        "https://segmentos.io/blog/validate-developer-tools-startup"
+      ],
+      "score": 0.0,
+      "sources": [
+        "grounding"
+      ],
+      "title": "How to Validate a Developer Tools Startup - SegmentOS | Fast, Affordable Market Validation"
+    },
+    {
+      "candidate_ids": [
+        "https://env0.com/blog/top-devops-tools-for-infrastructure-automation"
+      ],
+      "cluster_id": "cluster-9",
+      "representative_ids": [
+        "https://env0.com/blog/top-devops-tools-for-infrastructure-automation"
+      ],
+      "score": 0.0,
+      "sources": [
+        "grounding"
+      ],
+      "title": "Top DevOps Tools for Infrastructure Automation in 2026 | env zero"
+    },
+    {
+      "candidate_ids": [
+        "https://aws.amazon.com/what-is/developer-tools"
+      ],
+      "cluster_id": "cluster-10",
+      "representative_ids": [
+        "https://aws.amazon.com/what-is/developer-tools"
+      ],
+      "score": 0.0,
+      "sources": [
+        "grounding"
+      ],
+      "title": "What are Developer Tools? - Developer Tools Explained - AWS"
+    },
+    {
+      "candidate_ids": [
+        "https://qentelli.com/insights/blogs/devops-tools"
+      ],
+      "cluster_id": "cluster-11",
+      "representative_ids": [
+        "https://qentelli.com/insights/blogs/devops-tools"
+      ],
+      "score": 0.0,
+      "sources": [
+        "grounding"
+      ],
+      "title": "DevOps Tools: A Comprehensive Overview | Qentelli"
+    }
+  ],
+  "warnings": [
+    "Top evidence is highly concentrated in one source."
+  ],
+  "errors_by_source": {}
+}

@@ -1,0 +1,1545 @@
+{
+  "phase": "Phase 6B-HN",
+  "scope": "HN-only gated source trial; YC remains parked until last30days returns YC source items.",
+  "summary": {
+    "input_items_seen": 85,
+    "hn_outbound_candidate_rows": 17,
+    "company_candidate_rows": 17,
+    "product_context_rows": 0,
+    "project_only_rows": 14,
+    "rejected_rows": 16,
+    "research_deeper_rows": 17,
+    "category_context_rows": 0,
+    "monitor_only_rows": 0,
+    "sourcing_candidate_rows": 0,
+    "assign_owner_rows": 0,
+    "new_to_marathon_rows": 0,
+    "unsafe_promotions": 0,
+    "product_subdomain_guardrails": 0,
+    "maturity_unknown_rows": 16,
+    "early_stage_context_rows": 1,
+    "maturity_confirmed_early_stage_rows": 0,
+    "category_or_monitor_rows": 0
+  },
+  "company_rows": [
+    {
+      "name": "AI agents that audit your Metabase instance and find what's broken",
+      "source_title": "Show HN: AI agents that audit your Metabase instance and find what's broken",
+      "source_url": "https://news.ycombinator.com/item?id=48278279",
+      "official_url": "https://metalens.it",
+      "outbound_domain": "metalens.it",
+      "company_domain": "metalens.it",
+      "hn_author": "valiottidata",
+      "hn_engagement": {
+        "points": 4,
+        "comments": 0
+      },
+      "hn_points": 4,
+      "hn_comments": 0,
+      "identity_type": "hn_outbound_candidate",
+      "identity_confidence_score": 65,
+      "identity_basis": [
+        "verified_domain_present",
+        "launch_source_present",
+        "attio_match_key_present",
+        "hn_outbound_not_independent_company_proof"
+      ],
+      "identity_risk": "hn_outbound_domain_needs_independent_company_verification",
+      "verified_domain_basis": [
+        "hn_outbound_url_metadata"
+      ],
+      "maturity_status": "unknown",
+      "maturity_basis": [
+        "maturity_not_verified"
+      ],
+      "maturity_evidence_urls": [],
+      "category_anchor": false,
+      "lead_route": "research_deeper",
+      "recommended_action": "Research deeper",
+      "assign_owner": false,
+      "new_to_marathon": false,
+      "owner_readiness_score": 0,
+      "owner_readiness_basis": [],
+      "missing_owner_evidence": [
+        "no verified Attio-safe company identity",
+        "no founder/team evidence",
+        "no stage/funding evidence",
+        "no customer/buyer pull evidence",
+        "Attio status unknown",
+        "no commercial/funding evidence"
+      ],
+      "missing_evidence": [],
+      "next_validation_step": "Find founder/team source",
+      "attio_status": "unknown",
+      "attio_safe_to_match": false,
+      "product_subdomain_guardrail": false,
+      "unsafe_promotion": false,
+      "recommended_lane": "HN Outbound Candidates",
+      "movement": "AI agent security",
+      "market_sector": "Cybersecurity",
+      "raw_source_kind": "hn_outbound_candidate",
+      "source_kind": "hn_outbound_candidate"
+    },
+    {
+      "name": "OpenHive",
+      "source_title": "Show HN: OpenHive \u2013 AI agents share solutions so other agents dont re-solve them",
+      "source_url": "https://news.ycombinator.com/item?id=48323606",
+      "official_url": "https://openhivemind.vercel.app/",
+      "outbound_domain": "openhivemind.vercel.app",
+      "company_domain": "openhivemind.vercel.app",
+      "hn_author": "ananandreas",
+      "hn_engagement": {
+        "points": 5,
+        "comments": 0
+      },
+      "hn_points": 5,
+      "hn_comments": 0,
+      "identity_type": "hn_outbound_candidate",
+      "identity_confidence_score": 65,
+      "identity_basis": [
+        "verified_domain_present",
+        "launch_source_present",
+        "attio_match_key_present",
+        "hn_outbound_not_independent_company_proof"
+      ],
+      "identity_risk": "hn_outbound_domain_needs_independent_company_verification",
+      "verified_domain_basis": [
+        "hn_outbound_url_metadata"
+      ],
+      "maturity_status": "unknown",
+      "maturity_basis": [
+        "maturity_not_verified"
+      ],
+      "maturity_evidence_urls": [],
+      "category_anchor": false,
+      "lead_route": "research_deeper",
+      "recommended_action": "Research deeper",
+      "assign_owner": false,
+      "new_to_marathon": false,
+      "owner_readiness_score": 0,
+      "owner_readiness_basis": [],
+      "missing_owner_evidence": [
+        "no verified Attio-safe company identity",
+        "no founder/team evidence",
+        "no stage/funding evidence",
+        "no customer/buyer pull evidence",
+        "Attio status unknown",
+        "no commercial/funding evidence"
+      ],
+      "missing_evidence": [],
+      "next_validation_step": "Find founder/team source",
+      "attio_status": "unknown",
+      "attio_safe_to_match": false,
+      "product_subdomain_guardrail": false,
+      "unsafe_promotion": false,
+      "recommended_lane": "HN Outbound Candidates",
+      "movement": "AI agent security",
+      "market_sector": "Cybersecurity",
+      "raw_source_kind": "hn_outbound_candidate",
+      "source_kind": "hn_outbound_candidate"
+    },
+    {
+      "name": "3D-Agent",
+      "source_title": "Show HN: 3D-Agent \u2013 AI that edits Blender scenes through the Python API",
+      "source_url": "https://news.ycombinator.com/item?id=48136209",
+      "official_url": "https://3d-agent.com/blender-ai/plugin",
+      "outbound_domain": "3d-agent.com",
+      "company_domain": "3d-agent.com",
+      "hn_author": "gsunshinel",
+      "hn_engagement": {
+        "points": 4,
+        "comments": 7
+      },
+      "hn_points": 4,
+      "hn_comments": 7,
+      "identity_type": "hn_outbound_candidate",
+      "identity_confidence_score": 65,
+      "identity_basis": [
+        "verified_domain_present",
+        "launch_source_present",
+        "attio_match_key_present",
+        "hn_outbound_not_independent_company_proof"
+      ],
+      "identity_risk": "hn_outbound_domain_needs_independent_company_verification",
+      "verified_domain_basis": [
+        "hn_outbound_url_metadata"
+      ],
+      "maturity_status": "unknown",
+      "maturity_basis": [
+        "maturity_not_verified"
+      ],
+      "maturity_evidence_urls": [],
+      "category_anchor": false,
+      "lead_route": "research_deeper",
+      "recommended_action": "Research deeper",
+      "assign_owner": false,
+      "new_to_marathon": false,
+      "owner_readiness_score": 0,
+      "owner_readiness_basis": [],
+      "missing_owner_evidence": [
+        "no verified Attio-safe company identity",
+        "no founder/team evidence",
+        "no stage/funding evidence",
+        "no customer/buyer pull evidence",
+        "Attio status unknown",
+        "no commercial/funding evidence"
+      ],
+      "missing_evidence": [],
+      "next_validation_step": "Find founder/team source",
+      "attio_status": "unknown",
+      "attio_safe_to_match": false,
+      "product_subdomain_guardrail": false,
+      "unsafe_promotion": false,
+      "recommended_lane": "HN Outbound Candidates",
+      "movement": "AI agent security",
+      "market_sector": "Cybersecurity",
+      "raw_source_kind": "hn_outbound_candidate",
+      "source_kind": "hn_outbound_candidate"
+    },
+    {
+      "name": "CoreMem",
+      "source_title": "Show HN: CoreMem \u2013 Portable context for AI agents",
+      "source_url": "https://news.ycombinator.com/item?id=48239117",
+      "official_url": "https://coremem.app",
+      "outbound_domain": "coremem.app",
+      "company_domain": "coremem.app",
+      "hn_author": "20wenty",
+      "hn_engagement": {
+        "points": 5,
+        "comments": 0
+      },
+      "hn_points": 5,
+      "hn_comments": 0,
+      "identity_type": "hn_outbound_candidate",
+      "identity_confidence_score": 65,
+      "identity_basis": [
+        "verified_domain_present",
+        "launch_source_present",
+        "attio_match_key_present",
+        "hn_outbound_not_independent_company_proof"
+      ],
+      "identity_risk": "hn_outbound_domain_needs_independent_company_verification",
+      "verified_domain_basis": [
+        "hn_outbound_url_metadata"
+      ],
+      "maturity_status": "unknown",
+      "maturity_basis": [
+        "maturity_not_verified"
+      ],
+      "maturity_evidence_urls": [],
+      "category_anchor": false,
+      "lead_route": "research_deeper",
+      "recommended_action": "Research deeper",
+      "assign_owner": false,
+      "new_to_marathon": false,
+      "owner_readiness_score": 0,
+      "owner_readiness_basis": [],
+      "missing_owner_evidence": [
+        "no verified Attio-safe company identity",
+        "no founder/team evidence",
+        "no stage/funding evidence",
+        "no customer/buyer pull evidence",
+        "Attio status unknown",
+        "no commercial/funding evidence"
+      ],
+      "missing_evidence": [],
+      "next_validation_step": "Find founder/team source",
+      "attio_status": "unknown",
+      "attio_safe_to_match": false,
+      "product_subdomain_guardrail": false,
+      "unsafe_promotion": false,
+      "recommended_lane": "HN Outbound Candidates",
+      "movement": "AI agent security",
+      "market_sector": "Cybersecurity",
+      "raw_source_kind": "hn_outbound_candidate",
+      "source_kind": "hn_outbound_candidate"
+    },
+    {
+      "name": "Voker (YC S24)",
+      "source_title": "Launch HN: Voker (YC S24) \u2013 Analytics for AI Agents",
+      "source_url": "https://news.ycombinator.com/item?id=48109962",
+      "official_url": "https://voker.ai",
+      "outbound_domain": "voker.ai",
+      "company_domain": "voker.ai",
+      "hn_author": "ttpost",
+      "hn_engagement": {
+        "points": 59,
+        "comments": 22
+      },
+      "hn_points": 59,
+      "hn_comments": 22,
+      "identity_type": "hn_outbound_candidate",
+      "identity_confidence_score": 65,
+      "identity_basis": [
+        "verified_domain_present",
+        "launch_source_present",
+        "attio_match_key_present",
+        "hn_outbound_not_independent_company_proof"
+      ],
+      "identity_risk": "hn_outbound_domain_needs_independent_company_verification",
+      "verified_domain_basis": [
+        "hn_outbound_url_metadata"
+      ],
+      "maturity_status": "early_stage_context",
+      "maturity_basis": [
+        "accelerator_batch_evidence: YC S24"
+      ],
+      "maturity_evidence_urls": [
+        "https://news.ycombinator.com/item?id=48109962"
+      ],
+      "category_anchor": false,
+      "lead_route": "research_deeper",
+      "recommended_action": "Research deeper",
+      "assign_owner": false,
+      "new_to_marathon": false,
+      "owner_readiness_score": 0,
+      "owner_readiness_basis": [],
+      "missing_owner_evidence": [
+        "no verified Attio-safe company identity",
+        "no founder/team evidence",
+        "no stage/funding evidence",
+        "no customer/buyer pull evidence",
+        "Attio status unknown",
+        "no commercial/funding evidence"
+      ],
+      "missing_evidence": [],
+      "next_validation_step": "Find founder/team source",
+      "attio_status": "unknown",
+      "attio_safe_to_match": false,
+      "product_subdomain_guardrail": false,
+      "unsafe_promotion": false,
+      "recommended_lane": "HN Outbound Candidates",
+      "movement": "AI agent security",
+      "market_sector": "Cybersecurity",
+      "raw_source_kind": "hn_outbound_candidate",
+      "source_kind": "hn_outbound_candidate"
+    },
+    {
+      "name": "AI-org",
+      "source_title": "Show HN: AI-org \u2013 org-mode powered by AI",
+      "source_url": "https://news.ycombinator.com/item?id=48334157",
+      "official_url": "https://ai-org.net/",
+      "outbound_domain": "ai-org.net",
+      "company_domain": "ai-org.net",
+      "hn_author": "mannders",
+      "hn_engagement": {
+        "points": 3,
+        "comments": 1
+      },
+      "hn_points": 3,
+      "hn_comments": 1,
+      "identity_type": "hn_outbound_candidate",
+      "identity_confidence_score": 65,
+      "identity_basis": [
+        "verified_domain_present",
+        "launch_source_present",
+        "attio_match_key_present",
+        "hn_outbound_not_independent_company_proof"
+      ],
+      "identity_risk": "hn_outbound_domain_needs_independent_company_verification",
+      "verified_domain_basis": [
+        "hn_outbound_url_metadata"
+      ],
+      "maturity_status": "unknown",
+      "maturity_basis": [
+        "maturity_not_verified"
+      ],
+      "maturity_evidence_urls": [],
+      "category_anchor": false,
+      "lead_route": "research_deeper",
+      "recommended_action": "Research deeper",
+      "assign_owner": false,
+      "new_to_marathon": false,
+      "owner_readiness_score": 0,
+      "owner_readiness_basis": [],
+      "missing_owner_evidence": [
+        "no verified Attio-safe company identity",
+        "no founder/team evidence",
+        "no stage/funding evidence",
+        "no customer/buyer pull evidence",
+        "Attio status unknown",
+        "no commercial/funding evidence"
+      ],
+      "missing_evidence": [],
+      "next_validation_step": "Find founder/team source",
+      "attio_status": "unknown",
+      "attio_safe_to_match": false,
+      "product_subdomain_guardrail": false,
+      "unsafe_promotion": false,
+      "recommended_lane": "HN Outbound Candidates",
+      "movement": "Vertical AI operations",
+      "market_sector": "Devtools",
+      "raw_source_kind": "hn_outbound_candidate",
+      "source_kind": "hn_outbound_candidate"
+    },
+    {
+      "name": "AI that interviews participants instead of holding another meeting",
+      "source_title": "Show HN: AI that interviews participants instead of holding another meeting",
+      "source_url": "https://news.ycombinator.com/item?id=48221855",
+      "official_url": "https://www.noada.app/",
+      "outbound_domain": "noada.app",
+      "company_domain": "noada.app",
+      "hn_author": "elliot952",
+      "hn_engagement": {
+        "points": 9,
+        "comments": 2
+      },
+      "hn_points": 9,
+      "hn_comments": 2,
+      "identity_type": "hn_outbound_candidate",
+      "identity_confidence_score": 65,
+      "identity_basis": [
+        "verified_domain_present",
+        "launch_source_present",
+        "attio_match_key_present",
+        "hn_outbound_not_independent_company_proof"
+      ],
+      "identity_risk": "hn_outbound_domain_needs_independent_company_verification",
+      "verified_domain_basis": [
+        "hn_outbound_url_metadata"
+      ],
+      "maturity_status": "unknown",
+      "maturity_basis": [
+        "maturity_not_verified"
+      ],
+      "maturity_evidence_urls": [],
+      "category_anchor": false,
+      "lead_route": "research_deeper",
+      "recommended_action": "Research deeper",
+      "assign_owner": false,
+      "new_to_marathon": false,
+      "owner_readiness_score": 0,
+      "owner_readiness_basis": [],
+      "missing_owner_evidence": [
+        "no verified Attio-safe company identity",
+        "no founder/team evidence",
+        "no stage/funding evidence",
+        "no customer/buyer pull evidence",
+        "Attio status unknown",
+        "no commercial/funding evidence"
+      ],
+      "missing_evidence": [],
+      "next_validation_step": "Find founder/team source",
+      "attio_status": "unknown",
+      "attio_safe_to_match": false,
+      "product_subdomain_guardrail": false,
+      "unsafe_promotion": false,
+      "recommended_lane": "HN Outbound Candidates",
+      "movement": "Vertical AI operations",
+      "market_sector": "Devtools",
+      "raw_source_kind": "hn_outbound_candidate",
+      "source_kind": "hn_outbound_candidate"
+    },
+    {
+      "name": "AI Philosopher King",
+      "source_title": "Show HN: AI Philosopher King \u2013 how would an AI run the world?",
+      "source_url": "https://news.ycombinator.com/item?id=48308446",
+      "official_url": "https://aiking.dwyer.co.za/",
+      "outbound_domain": "aiking.dwyer.co.za",
+      "company_domain": "aiking.dwyer.co.za",
+      "hn_author": "sixhobbits",
+      "hn_engagement": {
+        "points": 3,
+        "comments": 2
+      },
+      "hn_points": 3,
+      "hn_comments": 2,
+      "identity_type": "hn_outbound_candidate",
+      "identity_confidence_score": 65,
+      "identity_basis": [
+        "verified_domain_present",
+        "launch_source_present",
+        "attio_match_key_present",
+        "hn_outbound_not_independent_company_proof"
+      ],
+      "identity_risk": "hn_outbound_domain_needs_independent_company_verification",
+      "verified_domain_basis": [
+        "hn_outbound_url_metadata"
+      ],
+      "maturity_status": "unknown",
+      "maturity_basis": [
+        "maturity_not_verified"
+      ],
+      "maturity_evidence_urls": [],
+      "category_anchor": false,
+      "lead_route": "research_deeper",
+      "recommended_action": "Research deeper",
+      "assign_owner": false,
+      "new_to_marathon": false,
+      "owner_readiness_score": 0,
+      "owner_readiness_basis": [],
+      "missing_owner_evidence": [
+        "no verified Attio-safe company identity",
+        "no founder/team evidence",
+        "no stage/funding evidence",
+        "no customer/buyer pull evidence",
+        "Attio status unknown",
+        "no commercial/funding evidence"
+      ],
+      "missing_evidence": [],
+      "next_validation_step": "Find founder/team source",
+      "attio_status": "unknown",
+      "attio_safe_to_match": false,
+      "product_subdomain_guardrail": false,
+      "unsafe_promotion": false,
+      "recommended_lane": "HN Outbound Candidates",
+      "movement": "Vertical AI operations",
+      "market_sector": "Devtools",
+      "raw_source_kind": "hn_outbound_candidate",
+      "source_kind": "hn_outbound_candidate"
+    },
+    {
+      "name": "AI Simulaionen Based on FEP",
+      "source_title": "Show HN: AI Simulaionen Based on FEP",
+      "source_url": "https://news.ycombinator.com/item?id=48339824",
+      "official_url": "https://aic-ai-lab.site/login",
+      "outbound_domain": "aic-ai-lab.site",
+      "company_domain": "aic-ai-lab.site",
+      "hn_author": "luzifer333",
+      "hn_engagement": {
+        "points": 4,
+        "comments": 0
+      },
+      "hn_points": 4,
+      "hn_comments": 0,
+      "identity_type": "hn_outbound_candidate",
+      "identity_confidence_score": 65,
+      "identity_basis": [
+        "verified_domain_present",
+        "launch_source_present",
+        "attio_match_key_present",
+        "hn_outbound_not_independent_company_proof"
+      ],
+      "identity_risk": "hn_outbound_domain_needs_independent_company_verification",
+      "verified_domain_basis": [
+        "hn_outbound_url_metadata"
+      ],
+      "maturity_status": "unknown",
+      "maturity_basis": [
+        "maturity_not_verified"
+      ],
+      "maturity_evidence_urls": [],
+      "category_anchor": false,
+      "lead_route": "research_deeper",
+      "recommended_action": "Research deeper",
+      "assign_owner": false,
+      "new_to_marathon": false,
+      "owner_readiness_score": 0,
+      "owner_readiness_basis": [],
+      "missing_owner_evidence": [
+        "no verified Attio-safe company identity",
+        "no founder/team evidence",
+        "no stage/funding evidence",
+        "no customer/buyer pull evidence",
+        "Attio status unknown",
+        "no commercial/funding evidence"
+      ],
+      "missing_evidence": [],
+      "next_validation_step": "Find founder/team source",
+      "attio_status": "unknown",
+      "attio_safe_to_match": false,
+      "product_subdomain_guardrail": false,
+      "unsafe_promotion": false,
+      "recommended_lane": "HN Outbound Candidates",
+      "movement": "Vertical AI operations",
+      "market_sector": "Devtools",
+      "raw_source_kind": "hn_outbound_candidate",
+      "source_kind": "hn_outbound_candidate"
+    },
+    {
+      "name": "Datapoint AI",
+      "source_title": "Show HN: Datapoint AI \u2013 Make Something People Want, but Ask Them First",
+      "source_url": "https://news.ycombinator.com/item?id=48241139",
+      "official_url": "https://trydatapoint.com",
+      "outbound_domain": "trydatapoint.com",
+      "company_domain": "trydatapoint.com",
+      "hn_author": "yoloakki",
+      "hn_engagement": {
+        "points": 4,
+        "comments": 4
+      },
+      "hn_points": 4,
+      "hn_comments": 4,
+      "identity_type": "hn_outbound_candidate",
+      "identity_confidence_score": 65,
+      "identity_basis": [
+        "verified_domain_present",
+        "launch_source_present",
+        "attio_match_key_present",
+        "hn_outbound_not_independent_company_proof"
+      ],
+      "identity_risk": "hn_outbound_domain_needs_independent_company_verification",
+      "verified_domain_basis": [
+        "hn_outbound_url_metadata"
+      ],
+      "maturity_status": "unknown",
+      "maturity_basis": [
+        "maturity_not_verified"
+      ],
+      "maturity_evidence_urls": [],
+      "category_anchor": false,
+      "lead_route": "research_deeper",
+      "recommended_action": "Research deeper",
+      "assign_owner": false,
+      "new_to_marathon": false,
+      "owner_readiness_score": 0,
+      "owner_readiness_basis": [],
+      "missing_owner_evidence": [
+        "no verified Attio-safe company identity",
+        "no founder/team evidence",
+        "no stage/funding evidence",
+        "no customer/buyer pull evidence",
+        "Attio status unknown",
+        "no commercial/funding evidence"
+      ],
+      "missing_evidence": [],
+      "next_validation_step": "Find founder/team source",
+      "attio_status": "unknown",
+      "attio_safe_to_match": false,
+      "product_subdomain_guardrail": false,
+      "unsafe_promotion": false,
+      "recommended_lane": "HN Outbound Candidates",
+      "movement": "Vertical AI operations",
+      "market_sector": "Devtools",
+      "raw_source_kind": "hn_outbound_candidate",
+      "source_kind": "hn_outbound_candidate"
+    },
+    {
+      "name": "AI that audits your codebase in 60 seconds",
+      "source_title": "Show HN: AI that audits your codebase in 60 seconds",
+      "source_url": "https://news.ycombinator.com/item?id=48156878",
+      "official_url": "https://triyambakam-apex-corp.hf.space",
+      "outbound_domain": "triyambakam-apex-corp.hf.space",
+      "company_domain": "triyambakam-apex-corp.hf.space",
+      "hn_author": "haapatel",
+      "hn_engagement": {
+        "points": 8,
+        "comments": 3
+      },
+      "hn_points": 8,
+      "hn_comments": 3,
+      "identity_type": "hn_outbound_candidate",
+      "identity_confidence_score": 65,
+      "identity_basis": [
+        "verified_domain_present",
+        "launch_source_present",
+        "attio_match_key_present",
+        "hn_outbound_not_independent_company_proof"
+      ],
+      "identity_risk": "hn_outbound_domain_needs_independent_company_verification",
+      "verified_domain_basis": [
+        "hn_outbound_url_metadata"
+      ],
+      "maturity_status": "unknown",
+      "maturity_basis": [
+        "maturity_not_verified"
+      ],
+      "maturity_evidence_urls": [],
+      "category_anchor": false,
+      "lead_route": "research_deeper",
+      "recommended_action": "Research deeper",
+      "assign_owner": false,
+      "new_to_marathon": false,
+      "owner_readiness_score": 0,
+      "owner_readiness_basis": [],
+      "missing_owner_evidence": [
+        "no verified Attio-safe company identity",
+        "no founder/team evidence",
+        "no stage/funding evidence",
+        "no customer/buyer pull evidence",
+        "Attio status unknown",
+        "no commercial/funding evidence"
+      ],
+      "missing_evidence": [],
+      "next_validation_step": "Find founder/team source",
+      "attio_status": "unknown",
+      "attio_safe_to_match": false,
+      "product_subdomain_guardrail": false,
+      "unsafe_promotion": false,
+      "recommended_lane": "HN Outbound Candidates",
+      "movement": "Vertical AI operations",
+      "market_sector": "Devtools",
+      "raw_source_kind": "hn_outbound_candidate",
+      "source_kind": "hn_outbound_candidate"
+    },
+    {
+      "name": "Extend AI turns a voice note into posts that sound like you",
+      "source_title": "Show HN: Extend AI turns a voice note into posts that sound like you",
+      "source_url": "https://news.ycombinator.com/item?id=48336903",
+      "official_url": "https://extend.redsystem.dev",
+      "outbound_domain": "extend.redsystem.dev",
+      "company_domain": "extend.redsystem.dev",
+      "hn_author": "crlapples",
+      "hn_engagement": {
+        "points": 4,
+        "comments": 0
+      },
+      "hn_points": 4,
+      "hn_comments": 0,
+      "identity_type": "hn_outbound_candidate",
+      "identity_confidence_score": 65,
+      "identity_basis": [
+        "verified_domain_present",
+        "launch_source_present",
+        "attio_match_key_present",
+        "hn_outbound_not_independent_company_proof"
+      ],
+      "identity_risk": "hn_outbound_domain_needs_independent_company_verification",
+      "verified_domain_basis": [
+        "hn_outbound_url_metadata"
+      ],
+      "maturity_status": "unknown",
+      "maturity_basis": [
+        "maturity_not_verified"
+      ],
+      "maturity_evidence_urls": [],
+      "category_anchor": false,
+      "lead_route": "research_deeper",
+      "recommended_action": "Research deeper",
+      "assign_owner": false,
+      "new_to_marathon": false,
+      "owner_readiness_score": 0,
+      "owner_readiness_basis": [],
+      "missing_owner_evidence": [
+        "no verified Attio-safe company identity",
+        "no founder/team evidence",
+        "no stage/funding evidence",
+        "no customer/buyer pull evidence",
+        "Attio status unknown",
+        "no commercial/funding evidence"
+      ],
+      "missing_evidence": [],
+      "next_validation_step": "Find founder/team source",
+      "attio_status": "unknown",
+      "attio_safe_to_match": false,
+      "product_subdomain_guardrail": false,
+      "unsafe_promotion": false,
+      "recommended_lane": "HN Outbound Candidates",
+      "movement": "Vertical AI operations",
+      "market_sector": "Devtools",
+      "raw_source_kind": "hn_outbound_candidate",
+      "source_kind": "hn_outbound_candidate"
+    },
+    {
+      "name": "AI Audiobook Narrator",
+      "source_title": "Show HN: AI Audiobook Narrator",
+      "source_url": "https://news.ycombinator.com/item?id=48227955",
+      "official_url": "https://warblize.com/",
+      "outbound_domain": "warblize.com",
+      "company_domain": "warblize.com",
+      "hn_author": "onhacker",
+      "hn_engagement": {
+        "points": 6,
+        "comments": 0
+      },
+      "hn_points": 6,
+      "hn_comments": 0,
+      "identity_type": "hn_outbound_candidate",
+      "identity_confidence_score": 65,
+      "identity_basis": [
+        "verified_domain_present",
+        "launch_source_present",
+        "attio_match_key_present",
+        "hn_outbound_not_independent_company_proof"
+      ],
+      "identity_risk": "hn_outbound_domain_needs_independent_company_verification",
+      "verified_domain_basis": [
+        "hn_outbound_url_metadata"
+      ],
+      "maturity_status": "unknown",
+      "maturity_basis": [
+        "maturity_not_verified"
+      ],
+      "maturity_evidence_urls": [],
+      "category_anchor": false,
+      "lead_route": "research_deeper",
+      "recommended_action": "Research deeper",
+      "assign_owner": false,
+      "new_to_marathon": false,
+      "owner_readiness_score": 0,
+      "owner_readiness_basis": [],
+      "missing_owner_evidence": [
+        "no verified Attio-safe company identity",
+        "no founder/team evidence",
+        "no stage/funding evidence",
+        "no customer/buyer pull evidence",
+        "Attio status unknown",
+        "no commercial/funding evidence"
+      ],
+      "missing_evidence": [],
+      "next_validation_step": "Find founder/team source",
+      "attio_status": "unknown",
+      "attio_safe_to_match": false,
+      "product_subdomain_guardrail": false,
+      "unsafe_promotion": false,
+      "recommended_lane": "HN Outbound Candidates",
+      "movement": "Vertical AI operations",
+      "market_sector": "Devtools",
+      "raw_source_kind": "hn_outbound_candidate",
+      "source_kind": "hn_outbound_candidate"
+    },
+    {
+      "name": "Agent-QA",
+      "source_title": "Show HN: Agent-QA: Open-source AI end-to-end testing for web and mobile apps",
+      "source_url": "https://news.ycombinator.com/item?id=48176493",
+      "official_url": "https://vostride.com",
+      "outbound_domain": "vostride.com",
+      "company_domain": "vostride.com",
+      "hn_author": "pranshuchittora",
+      "hn_engagement": {
+        "points": 3,
+        "comments": 1
+      },
+      "hn_points": 3,
+      "hn_comments": 1,
+      "identity_type": "hn_outbound_candidate",
+      "identity_confidence_score": 65,
+      "identity_basis": [
+        "verified_domain_present",
+        "launch_source_present",
+        "attio_match_key_present",
+        "hn_outbound_not_independent_company_proof"
+      ],
+      "identity_risk": "hn_outbound_domain_needs_independent_company_verification",
+      "verified_domain_basis": [
+        "hn_outbound_url_metadata"
+      ],
+      "maturity_status": "unknown",
+      "maturity_basis": [
+        "maturity_not_verified"
+      ],
+      "maturity_evidence_urls": [],
+      "category_anchor": false,
+      "lead_route": "research_deeper",
+      "recommended_action": "Research deeper",
+      "assign_owner": false,
+      "new_to_marathon": false,
+      "owner_readiness_score": 0,
+      "owner_readiness_basis": [],
+      "missing_owner_evidence": [
+        "no verified Attio-safe company identity",
+        "no founder/team evidence",
+        "no stage/funding evidence",
+        "no customer/buyer pull evidence",
+        "Attio status unknown",
+        "no commercial/funding evidence"
+      ],
+      "missing_evidence": [],
+      "next_validation_step": "Find founder/team source",
+      "attio_status": "unknown",
+      "attio_safe_to_match": false,
+      "product_subdomain_guardrail": false,
+      "unsafe_promotion": false,
+      "recommended_lane": "HN Outbound Candidates",
+      "movement": "Agent reliability and evals",
+      "market_sector": "AI Infra",
+      "raw_source_kind": "hn_outbound_candidate",
+      "source_kind": "hn_outbound_candidate"
+    },
+    {
+      "name": "Agentic interface for mainframes and COBOL",
+      "source_title": "Show HN: Agentic interface for mainframes and COBOL",
+      "source_url": "https://news.ycombinator.com/item?id=48111143",
+      "official_url": "https://www.hypercubic.ai/hopper",
+      "outbound_domain": "hypercubic.ai",
+      "company_domain": "hypercubic.ai",
+      "hn_author": "sai18",
+      "hn_engagement": {
+        "points": 97,
+        "comments": 51
+      },
+      "hn_points": 97,
+      "hn_comments": 51,
+      "identity_type": "hn_outbound_candidate",
+      "identity_confidence_score": 65,
+      "identity_basis": [
+        "verified_domain_present",
+        "launch_source_present",
+        "attio_match_key_present",
+        "hn_outbound_not_independent_company_proof"
+      ],
+      "identity_risk": "hn_outbound_domain_needs_independent_company_verification",
+      "verified_domain_basis": [
+        "hn_outbound_url_metadata"
+      ],
+      "maturity_status": "unknown",
+      "maturity_basis": [
+        "maturity_not_verified"
+      ],
+      "maturity_evidence_urls": [],
+      "category_anchor": false,
+      "lead_route": "research_deeper",
+      "recommended_action": "Research deeper",
+      "assign_owner": false,
+      "new_to_marathon": false,
+      "owner_readiness_score": 0,
+      "owner_readiness_basis": [],
+      "missing_owner_evidence": [
+        "no verified Attio-safe company identity",
+        "no founder/team evidence",
+        "no stage/funding evidence",
+        "no customer/buyer pull evidence",
+        "Attio status unknown",
+        "no commercial/funding evidence"
+      ],
+      "missing_evidence": [],
+      "next_validation_step": "Find founder/team source",
+      "attio_status": "unknown",
+      "attio_safe_to_match": false,
+      "product_subdomain_guardrail": false,
+      "unsafe_promotion": false,
+      "recommended_lane": "HN Outbound Candidates",
+      "movement": "Agent reliability and evals",
+      "market_sector": "AI Infra",
+      "raw_source_kind": "hn_outbound_candidate",
+      "source_kind": "hn_outbound_candidate"
+    },
+    {
+      "name": "Runtime (YC P26)",
+      "source_title": "Launch HN: Runtime (YC P26) \u2013 Sandboxed coding agents for everyone on a team",
+      "source_url": "https://news.ycombinator.com/item?id=48225040",
+      "official_url": "https://www.runtm.com/",
+      "outbound_domain": "runtm.com",
+      "company_domain": "runtm.com",
+      "hn_author": "gustrigos",
+      "hn_engagement": {
+        "points": 103,
+        "comments": 30
+      },
+      "hn_points": 103,
+      "hn_comments": 30,
+      "identity_type": "hn_outbound_candidate",
+      "identity_confidence_score": 65,
+      "identity_basis": [
+        "verified_domain_present",
+        "launch_source_present",
+        "attio_match_key_present",
+        "hn_outbound_not_independent_company_proof"
+      ],
+      "identity_risk": "hn_outbound_domain_needs_independent_company_verification",
+      "verified_domain_basis": [
+        "hn_outbound_url_metadata"
+      ],
+      "maturity_status": "unknown",
+      "maturity_basis": [
+        "maturity_not_verified"
+      ],
+      "maturity_evidence_urls": [],
+      "category_anchor": false,
+      "lead_route": "research_deeper",
+      "recommended_action": "Research deeper",
+      "assign_owner": false,
+      "new_to_marathon": false,
+      "owner_readiness_score": 0,
+      "owner_readiness_basis": [],
+      "missing_owner_evidence": [
+        "no verified Attio-safe company identity",
+        "no founder/team evidence",
+        "no stage/funding evidence",
+        "no customer/buyer pull evidence",
+        "Attio status unknown",
+        "no commercial/funding evidence"
+      ],
+      "missing_evidence": [],
+      "next_validation_step": "Find founder/team source",
+      "attio_status": "unknown",
+      "attio_safe_to_match": false,
+      "product_subdomain_guardrail": false,
+      "unsafe_promotion": false,
+      "recommended_lane": "HN Outbound Candidates",
+      "movement": "Agent runtime infrastructure",
+      "market_sector": "AI Infra",
+      "raw_source_kind": "hn_outbound_candidate",
+      "source_kind": "hn_outbound_candidate"
+    },
+    {
+      "name": "AI Doctor Notes",
+      "source_title": "Show HN: AI Doctor Notes \u2013 Private doctor visit notes app for patients",
+      "source_url": "https://news.ycombinator.com/item?id=48205825",
+      "official_url": "https://aidoctornotes.app/",
+      "outbound_domain": "aidoctornotes.app",
+      "company_domain": "aidoctornotes.app",
+      "hn_author": "Sharanxxxx",
+      "hn_engagement": {
+        "points": 3,
+        "comments": 3
+      },
+      "hn_points": 3,
+      "hn_comments": 3,
+      "identity_type": "hn_outbound_candidate",
+      "identity_confidence_score": 65,
+      "identity_basis": [
+        "verified_domain_present",
+        "launch_source_present",
+        "attio_match_key_present",
+        "hn_outbound_not_independent_company_proof"
+      ],
+      "identity_risk": "hn_outbound_domain_needs_independent_company_verification",
+      "verified_domain_basis": [
+        "hn_outbound_url_metadata"
+      ],
+      "maturity_status": "unknown",
+      "maturity_basis": [
+        "maturity_not_verified"
+      ],
+      "maturity_evidence_urls": [],
+      "category_anchor": false,
+      "lead_route": "research_deeper",
+      "recommended_action": "Research deeper",
+      "assign_owner": false,
+      "new_to_marathon": false,
+      "owner_readiness_score": 0,
+      "owner_readiness_basis": [],
+      "missing_owner_evidence": [
+        "no verified Attio-safe company identity",
+        "no founder/team evidence",
+        "no stage/funding evidence",
+        "no customer/buyer pull evidence",
+        "Attio status unknown",
+        "no commercial/funding evidence"
+      ],
+      "missing_evidence": [],
+      "next_validation_step": "Find founder/team source",
+      "attio_status": "unknown",
+      "attio_safe_to_match": false,
+      "product_subdomain_guardrail": false,
+      "unsafe_promotion": false,
+      "recommended_lane": "HN Outbound Candidates",
+      "movement": "AI data infrastructure",
+      "market_sector": "Unclassified",
+      "raw_source_kind": "hn_outbound_candidate",
+      "source_kind": "hn_outbound_candidate"
+    }
+  ],
+  "product_context_rows": [],
+  "project_only_rows": [
+    {
+      "name": "Adaptive Runtime",
+      "source_title": "Show HN: Adaptive Runtime \u2013 AI agent layer, no GPU, crash recovery",
+      "source_url": "https://news.ycombinator.com/item?id=48321786",
+      "project_url": "",
+      "hn_author": "StateflowsLabs",
+      "hn_engagement": {
+        "points": 3,
+        "comments": 1
+      },
+      "company_domain": "",
+      "identity_type": "oss_project_watch",
+      "lead_route": "project_watch",
+      "recommended_action": "Research deeper",
+      "assign_owner": false,
+      "new_to_marathon": false,
+      "missing_evidence": [
+        "hn_outbound_github_project_only"
+      ],
+      "why_useful": "HN technical launch signal; can support movement evidence but not company identity.",
+      "recommended_lane": "HN Project Watch / Technical Launch Signals",
+      "movement": "AI agent security",
+      "market_sector": "Cybersecurity",
+      "source_kind": "hn_project_only"
+    },
+    {
+      "name": "Autodidact",
+      "source_title": "Show HN: Autodidact \u2013 Self-evolving local-first AI agent",
+      "source_url": "https://news.ycombinator.com/item?id=48194739",
+      "project_url": "",
+      "hn_author": "waterbuffaloai",
+      "hn_engagement": {
+        "points": 8,
+        "comments": 4
+      },
+      "company_domain": "",
+      "identity_type": "oss_project_watch",
+      "lead_route": "project_watch",
+      "recommended_action": "Research deeper",
+      "assign_owner": false,
+      "new_to_marathon": false,
+      "missing_evidence": [
+        "hn_outbound_github_project_only"
+      ],
+      "why_useful": "HN technical launch signal; can support movement evidence but not company identity.",
+      "recommended_lane": "HN Project Watch / Technical Launch Signals",
+      "movement": "AI agent security",
+      "market_sector": "Cybersecurity",
+      "source_kind": "hn_project_only"
+    },
+    {
+      "name": "YouTube MCP, give any AI agent access to YouTube",
+      "source_title": "Show HN: YouTube MCP, give any AI agent access to YouTube",
+      "source_url": "https://news.ycombinator.com/item?id=48198790",
+      "project_url": "",
+      "hn_author": "umbertotancorre",
+      "hn_engagement": {
+        "points": 5,
+        "comments": 3
+      },
+      "company_domain": "",
+      "identity_type": "oss_project_watch",
+      "lead_route": "project_watch",
+      "recommended_action": "Research deeper",
+      "assign_owner": false,
+      "new_to_marathon": false,
+      "missing_evidence": [
+        "hn_outbound_github_project_only"
+      ],
+      "why_useful": "HN technical launch signal; can support movement evidence but not company identity.",
+      "recommended_lane": "HN Project Watch / Technical Launch Signals",
+      "movement": "AI agent security",
+      "market_sector": "Cybersecurity",
+      "source_kind": "hn_project_only"
+    },
+    {
+      "name": "SIMD Agent",
+      "source_title": "Show HN: SIMD Agent \u2013 AI that runs OpenFOAM simulations from natural language",
+      "source_url": "https://news.ycombinator.com/item?id=48228231",
+      "project_url": "",
+      "hn_author": "tito777",
+      "hn_engagement": {
+        "points": 3,
+        "comments": 0
+      },
+      "company_domain": "",
+      "identity_type": "oss_project_watch",
+      "lead_route": "project_watch",
+      "recommended_action": "Research deeper",
+      "assign_owner": false,
+      "new_to_marathon": false,
+      "missing_evidence": [
+        "hn_outbound_github_project_only"
+      ],
+      "why_useful": "HN technical launch signal; can support movement evidence but not company identity.",
+      "recommended_lane": "HN Project Watch / Technical Launch Signals",
+      "movement": "AI agent security",
+      "market_sector": "Cybersecurity",
+      "source_kind": "hn_project_only"
+    },
+    {
+      "name": "Agent Chat Bridge",
+      "source_title": "Show HN: Agent Chat Bridge \u2013 give AI IDE agents an async callback",
+      "source_url": "https://news.ycombinator.com/item?id=48217340",
+      "project_url": "",
+      "hn_author": "sathvikchinnu",
+      "hn_engagement": {
+        "points": 5,
+        "comments": 0
+      },
+      "company_domain": "",
+      "identity_type": "oss_project_watch",
+      "lead_route": "project_watch",
+      "recommended_action": "Research deeper",
+      "assign_owner": false,
+      "new_to_marathon": false,
+      "missing_evidence": [
+        "hn_outbound_github_project_only"
+      ],
+      "why_useful": "HN technical launch signal; can support movement evidence but not company identity.",
+      "recommended_lane": "HN Project Watch / Technical Launch Signals",
+      "movement": "AI agent security",
+      "market_sector": "Cybersecurity",
+      "source_kind": "hn_project_only"
+    },
+    {
+      "name": "Give your AI agent a brain that understands your codebase",
+      "source_title": "Show HN: Give your AI agent a brain that understands your codebase",
+      "source_url": "https://news.ycombinator.com/item?id=48166239",
+      "project_url": "",
+      "hn_author": "sergiopreira",
+      "hn_engagement": {
+        "points": 3,
+        "comments": 1
+      },
+      "company_domain": "",
+      "identity_type": "oss_project_watch",
+      "lead_route": "project_watch",
+      "recommended_action": "Research deeper",
+      "assign_owner": false,
+      "new_to_marathon": false,
+      "missing_evidence": [
+        "hn_outbound_github_project_only"
+      ],
+      "why_useful": "HN technical launch signal; can support movement evidence but not company identity.",
+      "recommended_lane": "HN Project Watch / Technical Launch Signals",
+      "movement": "AI agent security",
+      "market_sector": "Cybersecurity",
+      "source_kind": "hn_project_only"
+    },
+    {
+      "name": "Git for AI Agents",
+      "source_title": "Show HN: Git for AI Agents",
+      "source_url": "https://news.ycombinator.com/item?id=48063548",
+      "project_url": "",
+      "hn_author": "doshay",
+      "hn_engagement": {
+        "points": 129,
+        "comments": 67
+      },
+      "company_domain": "",
+      "identity_type": "oss_project_watch",
+      "lead_route": "project_watch",
+      "recommended_action": "Research deeper",
+      "assign_owner": false,
+      "new_to_marathon": false,
+      "missing_evidence": [
+        "hn_outbound_github_project_only"
+      ],
+      "why_useful": "HN technical launch signal; can support movement evidence but not company identity.",
+      "recommended_lane": "HN Project Watch / Technical Launch Signals",
+      "movement": "AI agent security",
+      "market_sector": "Cybersecurity",
+      "source_kind": "hn_project_only"
+    },
+    {
+      "name": "I open-sourced two AI agents with real memory (chat and voice, MIT)",
+      "source_title": "Show HN: I open-sourced two AI agents with real memory (chat and voice, MIT)",
+      "source_url": "https://news.ycombinator.com/item?id=48280546",
+      "project_url": "",
+      "hn_author": "SQLv2",
+      "hn_engagement": {
+        "points": 5,
+        "comments": 0
+      },
+      "company_domain": "",
+      "identity_type": "oss_project_watch",
+      "lead_route": "project_watch",
+      "recommended_action": "Research deeper",
+      "assign_owner": false,
+      "new_to_marathon": false,
+      "missing_evidence": [
+        "hn_outbound_github_project_only"
+      ],
+      "why_useful": "HN technical launch signal; can support movement evidence but not company identity.",
+      "recommended_lane": "HN Project Watch / Technical Launch Signals",
+      "movement": "AI agent security",
+      "market_sector": "Cybersecurity",
+      "source_kind": "hn_project_only"
+    },
+    {
+      "name": "Search Router",
+      "source_title": "Show HN: Search Router \u2013 retrieval-ready web search for AI agents",
+      "source_url": "https://news.ycombinator.com/item?id=48309501",
+      "project_url": "",
+      "hn_author": "KolibriFly",
+      "hn_engagement": {
+        "points": 3,
+        "comments": 0
+      },
+      "company_domain": "",
+      "identity_type": "oss_project_watch",
+      "lead_route": "project_watch",
+      "recommended_action": "Research deeper",
+      "assign_owner": false,
+      "new_to_marathon": false,
+      "missing_evidence": [
+        "hn_outbound_github_project_only"
+      ],
+      "why_useful": "HN technical launch signal; can support movement evidence but not company identity.",
+      "recommended_lane": "HN Project Watch / Technical Launch Signals",
+      "movement": "AI agent security",
+      "market_sector": "Cybersecurity",
+      "source_kind": "hn_project_only"
+    },
+    {
+      "name": "AI Skill to port PostgreSQL extensions to MySQL",
+      "source_title": "Show HN: AI Skill to port PostgreSQL extensions to MySQL",
+      "source_url": "https://news.ycombinator.com/item?id=48310211",
+      "project_url": "",
+      "hn_author": "deesix",
+      "hn_engagement": {
+        "points": 4,
+        "comments": 0
+      },
+      "company_domain": "",
+      "identity_type": "oss_project_watch",
+      "lead_route": "project_watch",
+      "recommended_action": "Research deeper",
+      "assign_owner": false,
+      "new_to_marathon": false,
+      "missing_evidence": [
+        "hn_outbound_github_project_only"
+      ],
+      "why_useful": "HN technical launch signal; can support movement evidence but not company identity.",
+      "recommended_lane": "HN Project Watch / Technical Launch Signals",
+      "movement": "Vertical AI operations",
+      "market_sector": "Devtools",
+      "source_kind": "hn_project_only"
+    },
+    {
+      "name": "Agent FM",
+      "source_title": "Show HN: Agent FM \u2013 local, open-source radio for Claude Code and Codex agents",
+      "source_url": "https://news.ycombinator.com/item?id=48104863",
+      "project_url": "",
+      "hn_author": "anideshp",
+      "hn_engagement": {
+        "points": 9,
+        "comments": 0
+      },
+      "company_domain": "",
+      "identity_type": "oss_project_watch",
+      "lead_route": "project_watch",
+      "recommended_action": "Research deeper",
+      "assign_owner": false,
+      "new_to_marathon": false,
+      "missing_evidence": [
+        "hn_outbound_github_project_only"
+      ],
+      "why_useful": "HN technical launch signal; can support movement evidence but not company identity.",
+      "recommended_lane": "HN Project Watch / Technical Launch Signals",
+      "movement": "Agent reliability and evals",
+      "market_sector": "AI Infra",
+      "source_kind": "hn_project_only"
+    },
+    {
+      "name": "Agent-evals",
+      "source_title": "Show HN: Agent-evals \u2013 Claude skill to build your own evals",
+      "source_url": "https://news.ycombinator.com/item?id=48013746",
+      "project_url": "",
+      "hn_author": "sauercrowd",
+      "hn_engagement": {
+        "points": 9,
+        "comments": 1
+      },
+      "company_domain": "",
+      "identity_type": "oss_project_watch",
+      "lead_route": "project_watch",
+      "recommended_action": "Research deeper",
+      "assign_owner": false,
+      "new_to_marathon": false,
+      "missing_evidence": [
+        "hn_outbound_github_project_only"
+      ],
+      "why_useful": "HN technical launch signal; can support movement evidence but not company identity.",
+      "recommended_lane": "HN Project Watch / Technical Launch Signals",
+      "movement": "Agent reliability and evals",
+      "market_sector": "AI Infra",
+      "source_kind": "hn_project_only"
+    },
+    {
+      "name": "2-command CLI to give AI agents structured data retrieval on PostgreSQL",
+      "source_title": "Show HN: 2-command CLI to give AI agents structured data retrieval on PostgreSQL",
+      "source_url": "https://news.ycombinator.com/item?id=48357212",
+      "project_url": "",
+      "hn_author": "0xJaksun",
+      "hn_engagement": {
+        "points": 4,
+        "comments": 0
+      },
+      "company_domain": "",
+      "identity_type": "oss_project_watch",
+      "lead_route": "project_watch",
+      "recommended_action": "Research deeper",
+      "assign_owner": false,
+      "new_to_marathon": false,
+      "missing_evidence": [
+        "hn_outbound_github_project_only"
+      ],
+      "why_useful": "HN technical launch signal; can support movement evidence but not company identity.",
+      "recommended_lane": "HN Project Watch / Technical Launch Signals",
+      "movement": "AI data infrastructure",
+      "market_sector": "Unclassified",
+      "source_kind": "hn_project_only"
+    },
+    {
+      "name": "GlycemicGPT",
+      "source_title": "Show HN: GlycemicGPT \u2013 Open-source AI-powered diabetes management",
+      "source_url": "https://news.ycombinator.com/item?id=48144670",
+      "project_url": "",
+      "hn_author": "jlengelbrecht",
+      "hn_engagement": {
+        "points": 64,
+        "comments": 61
+      },
+      "company_domain": "",
+      "identity_type": "oss_project_watch",
+      "lead_route": "project_watch",
+      "recommended_action": "Research deeper",
+      "assign_owner": false,
+      "new_to_marathon": false,
+      "missing_evidence": [
+        "hn_outbound_github_project_only"
+      ],
+      "why_useful": "HN technical launch signal; can support movement evidence but not company identity.",
+      "recommended_lane": "HN Project Watch / Technical Launch Signals",
+      "movement": "AI data infrastructure",
+      "market_sector": "Unclassified",
+      "source_kind": "hn_project_only"
+    }
+  ],
+  "rejected_rows": [
+    {
+      "name": "AI has a multiplying effect on existing technical skills",
+      "source_title": "AI has a multiplying effect on existing technical skills",
+      "source_url": "https://news.ycombinator.com/item?id=48235526",
+      "recommended_action": "Research deeper",
+      "missing_evidence": [
+        "not_launch_hn"
+      ],
+      "recommended_lane": "HN Rejected / Noisy",
+      "source_kind": "hn_rejected"
+    },
+    {
+      "name": "Former Google and Apple Researchers Launch a Startup to Build AI's Missing Feed",
+      "source_title": "Former Google and Apple Researchers Launch a Startup to Build AI's Missing Feed",
+      "source_url": "https://news.ycombinator.com/item?id=48305638",
+      "recommended_action": "Research deeper",
+      "missing_evidence": [
+        "not_launch_hn"
+      ],
+      "recommended_lane": "HN Rejected / Noisy",
+      "source_kind": "hn_rejected"
+    },
+    {
+      "name": "Brilliant launches AI tutor to get kids to think",
+      "source_title": "Brilliant launches AI tutor to get kids to think",
+      "source_url": "https://news.ycombinator.com/item?id=48324357",
+      "recommended_action": "Research deeper",
+      "missing_evidence": [
+        "not_launch_hn"
+      ],
+      "recommended_lane": "HN Rejected / Noisy",
+      "source_kind": "hn_rejected"
+    },
+    {
+      "name": "Mistral AI Launches Mistral Vibe",
+      "source_title": "Mistral AI Launches Mistral Vibe",
+      "source_url": "https://news.ycombinator.com/item?id=48306590",
+      "recommended_action": "Research deeper",
+      "missing_evidence": [
+        "not_launch_hn"
+      ],
+      "recommended_lane": "HN Rejected / Noisy",
+      "source_kind": "hn_rejected"
+    },
+    {
+      "name": "Meta launches Instagram, Facebook and WhatsApp subscriptions including AI plans",
+      "source_title": "Meta launches Instagram, Facebook and WhatsApp subscriptions including AI plans",
+      "source_url": "https://news.ycombinator.com/item?id=48298083",
+      "recommended_action": "Research deeper",
+      "missing_evidence": [
+        "not_launch_hn"
+      ],
+      "recommended_lane": "HN Rejected / Noisy",
+      "source_kind": "hn_rejected"
+    },
+    {
+      "name": "Anthropic, Gates Foundation launch $200M partnership for AI in health, education",
+      "source_title": "Anthropic, Gates Foundation launch $200M partnership for AI in health, education",
+      "source_url": "https://news.ycombinator.com/item?id=48208985",
+      "recommended_action": "Research deeper",
+      "missing_evidence": [
+        "not_launch_hn"
+      ],
+      "recommended_lane": "HN Rejected / Noisy",
+      "source_kind": "hn_rejected"
+    },
+    {
+      "name": "Amazon launches new AI Wearable \"Bee\"",
+      "source_title": "Amazon launches new AI Wearable \"Bee\"",
+      "source_url": "https://news.ycombinator.com/item?id=48266214",
+      "recommended_action": "Research deeper",
+      "missing_evidence": [
+        "not_launch_hn"
+      ],
+      "recommended_lane": "HN Rejected / Noisy",
+      "source_kind": "hn_rejected"
+    },
+    {
+      "name": "Arena AI Model ELO History",
+      "source_title": "Arena AI Model ELO History",
+      "source_url": "https://news.ycombinator.com/item?id=48130711",
+      "recommended_action": "Research deeper",
+      "missing_evidence": [
+        "not_launch_hn"
+      ],
+      "recommended_lane": "HN Rejected / Noisy",
+      "source_kind": "hn_rejected"
+    },
+    {
+      "name": "Pope Leo launches an AI commission days before he releases a papal letter",
+      "source_title": "Pope Leo launches an AI commission days before he releases a papal letter",
+      "source_url": "https://news.ycombinator.com/item?id=48227453",
+      "recommended_action": "Research deeper",
+      "missing_evidence": [
+        "not_launch_hn"
+      ],
+      "recommended_lane": "HN Rejected / Noisy",
+      "source_kind": "hn_rejected"
+    },
+    {
+      "name": "WhatsApp launches private 'incognito' conversations with its AI chatbot",
+      "source_title": "WhatsApp launches private 'incognito' conversations with its AI chatbot",
+      "source_url": "https://news.ycombinator.com/item?id=48138803",
+      "recommended_action": "Research deeper",
+      "missing_evidence": [
+        "not_launch_hn"
+      ],
+      "recommended_lane": "HN Rejected / Noisy",
+      "source_kind": "hn_rejected"
+    },
+    {
+      "name": "Unsiloed AI",
+      "source_title": "Show HN: Unsiloed AI \u2013 #1 on olmOCR-Bench",
+      "source_url": "https://news.ycombinator.com/item?id=48271937",
+      "recommended_action": "Research deeper",
+      "missing_evidence": [
+        "hn_outbound_url_missing"
+      ],
+      "recommended_lane": "HN Rejected / Noisy",
+      "source_kind": "hn_rejected"
+    },
+    {
+      "name": "Gigacatalyst",
+      "source_title": "Show HN: Gigacatalyst \u2013 Extend your SaaS with an embedded AI builder",
+      "source_url": "https://news.ycombinator.com/item?id=48110593",
+      "recommended_action": "Research deeper",
+      "missing_evidence": [
+        "hn_outbound_url_missing"
+      ],
+      "recommended_lane": "HN Rejected / Noisy",
+      "source_kind": "hn_rejected"
+    },
+    {
+      "name": "Meta launches Instagram, Facebook, and WhatsApp subscriptions",
+      "source_title": "Meta launches Instagram, Facebook, and WhatsApp subscriptions",
+      "source_url": "https://news.ycombinator.com/item?id=48347354",
+      "recommended_action": "Research deeper",
+      "missing_evidence": [
+        "not_launch_hn"
+      ],
+      "recommended_lane": "HN Rejected / Noisy",
+      "source_kind": "hn_rejected"
+    },
+    {
+      "name": "Agent.email",
+      "source_title": "Show HN: Agent.email \u2013 sign up via curl, claim with a human OTP",
+      "source_url": "https://news.ycombinator.com/item?id=48225596",
+      "recommended_action": "Research deeper",
+      "missing_evidence": [
+        "hn_outbound_url_missing"
+      ],
+      "recommended_lane": "HN Rejected / Noisy",
+      "source_kind": "hn_rejected"
+    },
+    {
+      "name": "Sony Launches Bravia 9 II and Bravia 7 II with 'True RGB'",
+      "source_title": "Sony Launches Bravia 9 II and Bravia 7 II with 'True RGB'",
+      "source_url": "https://news.ycombinator.com/item?id=48301135",
+      "recommended_action": "Research deeper",
+      "missing_evidence": [
+        "not_launch_hn"
+      ],
+      "recommended_lane": "HN Rejected / Noisy",
+      "source_kind": "hn_rejected"
+    },
+    {
+      "name": "Span to launch distributed AI data centers for edge compute",
+      "source_title": "Span to launch distributed AI data centers for edge compute",
+      "source_url": "https://news.ycombinator.com/item?id=48029052",
+      "recommended_action": "Research deeper",
+      "missing_evidence": [
+        "not_launch_hn"
+      ],
+      "recommended_lane": "HN Rejected / Noisy",
+      "source_kind": "hn_rejected"
+    }
+  ]
+}

@@ -1,0 +1,231 @@
+{
+  "topic": "AI agent security startup raises seed Series A launches funding company",
+  "items": [
+    {
+      "source": "grounding",
+      "title": "NanoCo Raises $12M Seed for Sandboxed AI Agent Platform After Viral Open Source Launch",
+      "url": "https://theaiinsider.tech/2026/05/26/nanoco-raises-12m-seed-for-sandboxed-ai-agent-platform-after-viral-open-source-launch/",
+      "snippet": "<strong>NanoCo, the company behind security-focused AI agent platform NanoClaw, has closed an oversubscribed $12 million seed round led by Valley Capital</strong>",
+      "published_at": "2026-05-26",
+      "engagement": {},
+      "container": "theaiinsider.tech",
+      "author": "",
+      "_raw_fields_present": [
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": []
+    },
+    {
+      "source": "grounding",
+      "title": "CodeIntegrity Raises $5M Seed Round",
+      "url": "https://www.thesaasnews.com/news/codeintegrity-raises-5m-seed-round/",
+      "snippet": "Its mission is to secure a future where autonomous AI agents operate nondeterministically across tools, data, and enterprise systems. Company: <strong>CodeIntegrity, Inc.</strong> Raised: $5M Round: Seed Funding Date: May 27, 2026 Lead Investor: Syn Ventures ...",
+      "published_at": "2026-05-28",
+      "engagement": {},
+      "container": "www.thesaasnews.com",
+      "author": "",
+      "_raw_fields_present": [
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": []
+    },
+    {
+      "source": "grounding",
+      "title": "CodeIntegrity raises $5M for agentic AI security guardrails",
+      "url": "https://www.geekwire.com/2026/codeintegrity-raises-4-8m-to-put-permanent-guardrails-on-unpredictable-ai-agents/",
+      "snippet": "The computer security startup CodeIntegrity on Wednesday announced a <strong>$5 million</strong> seed round to support its efforts to build meaningful protections for agentic AI applications.",
+      "published_at": "2026-05-27",
+      "engagement": {},
+      "container": "www.geekwire.com",
+      "author": "",
+      "_raw_fields_present": [
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": []
+    },
+    {
+      "source": "grounding",
+      "title": "Lyrie completes $2 million preseed round to build the security layer for the AI agent era | TechCrunch",
+      "url": "https://techcrunch.com/press-release/lyrie-completes-2-million-preseed-round-to-build-the-security-layer-for-the-ai-agent-era/",
+      "snippet": "Lyrie.ai, the autonomous cybersecurity platform developed by OTT Cybersecurity LLC, today announced the completion of a <strong>$2 million pre-seed funding round</strong> and the company\u2019s official exit from stealth.",
+      "published_at": "2026-05-11",
+      "engagement": {},
+      "container": "techcrunch.com",
+      "author": "",
+      "_raw_fields_present": [
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": []
+    },
+    {
+      "source": "grounding",
+      "title": "AI Agents: Building Enterprise Guardians | StartupHub.ai",
+      "url": "https://www.startuphub.ai/ai-news/cybersecurity/2026/ai-agents-building-enterprise-guardians",
+      "snippet": "Operant AI (Seed, <strong>$5M raised</strong>) \u2014 Runtime security for AI and agents inside inference infrastructure, with a Kubernetes-native focus.",
+      "published_at": "2026-05-28",
+      "engagement": {},
+      "container": "www.startuphub.ai",
+      "author": "",
+      "_raw_fields_present": [
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": []
+    }
+  ],
+  "clusters": [
+    {
+      "candidate_ids": [
+        "https://theaiinsider.tech/2026/05/26/nanoco-raises-12m-seed-for-sandboxed-ai-agent-platform-after-viral-open-source-launch"
+      ],
+      "cluster_id": "cluster-1",
+      "representative_ids": [
+        "https://theaiinsider.tech/2026/05/26/nanoco-raises-12m-seed-for-sandboxed-ai-agent-platform-after-viral-open-source-launch"
+      ],
+      "score": 8.258360655737704,
+      "sources": [
+        "grounding"
+      ],
+      "title": "NanoCo Raises $12M Seed for Sandboxed AI Agent Platform After Viral Open Source Launch"
+    },
+    {
+      "candidate_ids": [
+        "https://thesaasnews.com/news/codeintegrity-raises-5m-seed-round"
+      ],
+      "cluster_id": "cluster-2",
+      "representative_ids": [
+        "https://thesaasnews.com/news/codeintegrity-raises-5m-seed-round"
+      ],
+      "score": 0.0,
+      "sources": [
+        "grounding"
+      ],
+      "title": "CodeIntegrity Raises $5M Seed Round"
+    },
+    {
+      "candidate_ids": [
+        "https://geekwire.com/2026/codeintegrity-raises-4-8m-to-put-permanent-guardrails-on-unpredictable-ai-agents"
+      ],
+      "cluster_id": "cluster-3",
+      "representative_ids": [
+        "https://geekwire.com/2026/codeintegrity-raises-4-8m-to-put-permanent-guardrails-on-unpredictable-ai-agents"
+      ],
+      "score": 0.0,
+      "sources": [
+        "grounding"
+      ],
+      "title": "CodeIntegrity raises $5M for agentic AI security guardrails"
+    },
+    {
+      "candidate_ids": [
+        "https://techcrunch.com/press-release/lyrie-completes-2-million-preseed-round-to-build-the-security-layer-for-the-ai-agent-era"
+      ],
+      "cluster_id": "cluster-4",
+      "representative_ids": [
+        "https://techcrunch.com/press-release/lyrie-completes-2-million-preseed-round-to-build-the-security-layer-for-the-ai-agent-era"
+      ],
+      "score": 0.0,
+      "sources": [
+        "grounding"
+      ],
+      "title": "Lyrie completes $2 million preseed round to build the security layer for the AI agent era | TechCrunch"
+    },
+    {
+      "candidate_ids": [
+        "https://startuphub.ai/ai-news/cybersecurity/2026/ai-agents-building-enterprise-guardians"
+      ],
+      "cluster_id": "cluster-5",
+      "representative_ids": [
+        "https://startuphub.ai/ai-news/cybersecurity/2026/ai-agents-building-enterprise-guardians"
+      ],
+      "score": 0.0,
+      "sources": [
+        "grounding"
+      ],
+      "title": "AI Agents: Building Enterprise Guardians | StartupHub.ai"
+    }
+  ],
+  "warnings": [
+    "Top evidence is highly concentrated in one source."
+  ],
+  "errors_by_source": {}
+}

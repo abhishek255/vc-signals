@@ -14,24 +14,37 @@ try:
 except ImportError:  # pragma: no cover - damaged local installs
     DEFAULT_CONFIG_PATH = Path.home() / ".config" / "last30days" / ".env"
 
+try:
+    from signal_investigator import classify_url_role
+except ImportError:  # pragma: no cover - damaged local installs
+    classify_url_role = None
+
 
 PLACEHOLDER_VALUES = {"", "...", "TODO", "YOUR_KEY", "YOUR_API_KEY", "<YOUR_API_KEY>"}
 DEFAULT_LOOKBACK_DAYS = 14
 DEFAULT_TIMEOUT_SECONDS = 45
+DEFAULT_WEB_RESOLVER_TIMEOUT_SECONDS = 8
+MAX_X_LAUNCH_QUERIES = 4
+MAX_X_DOMAIN_RESOLUTIONS = 3
 DOMAIN_BLOCKLIST = {
     "apps.apple.com",
+    "bit.ly",
     "crunchbase.com",
     "facebook.com",
     "github.com",
     "instagram.com",
+    "lnkd.in",
+    "linktr.ee",
     "linkedin.com",
     "medium.com",
     "news.ycombinator.com",
     "producthunt.com",
     "reddit.com",
     "substack.com",
+    "t.co",
     "techcrunch.com",
     "tiktok.com",
+    "tinyurl.com",
     "twitter.com",
     "x.com",
     "youtube.com",
@@ -84,21 +97,28 @@ def build_x_launch_queries(
         movement = str(row.get("movement") or row.get("theme") or row.get("market_sector") or "").strip()
         if not movement:
             continue
-        topic = f'("{movement}") (launching OR launched OR announcing OR shipped OR "we built") startup founder product'
-        key = topic.lower()
-        if key in seen:
-            continue
-        seen.add(key)
-        queries.append(
-            {
-                "id": f"x_launch:{len(queries) + 1}",
-                "movement": movement,
-                "market_sector": row.get("market_sector", ""),
-                "topic": topic,
-                "sources": "x",
-                "lookback_days": lookback_days,
-            }
-        )
+        variants = [
+            f'("{movement}") (launching OR launched OR announcing OR shipped OR "we built") startup founder product',
+            f'("{movement}") ("we launched" OR "just launched" OR "launching today" OR shipped) (founder OR cofounder OR startup OR product)',
+            f'("{movement}") ("public beta" OR "private beta" OR "early access" OR waitlist) (founder OR startup OR product)',
+            f'("{movement}") ("now live" OR "product launch" OR "I built" OR "we built") (try OR demo OR http OR website)',
+            f'("{movement}") (announcing OR launched OR launching OR shipped) ("new product" OR SaaS OR tool)',
+        ]
+        for topic in variants:
+            key = topic.lower()
+            if key in seen:
+                continue
+            seen.add(key)
+            queries.append(
+                {
+                    "id": f"x_launch:{len(queries) + 1}",
+                    "movement": movement,
+                    "market_sector": row.get("market_sector", ""),
+                    "topic": topic,
+                    "sources": "x",
+                    "lookback_days": lookback_days,
+                }
+            )
     return queries
 
 
@@ -121,6 +141,15 @@ def _name_slug(value: str) -> str:
     return re.sub(r"[^a-z0-9]+", "", (value or "").lower())
 
 
+def _domain_identity_slug(domain: str) -> str:
+    labels = [label for label in (domain or "").lower().split(".") if label]
+    if len(labels) >= 3:
+        labels = labels[:-1]
+    elif len(labels) >= 2:
+        labels = labels[:-1]
+    return _name_slug(" ".join(labels))
+
+
 def _text_tokens(value: str) -> set[str]:
     stop = {"and", "app", "for", "from", "launch", "launched", "startup", "the", "this", "with", "your"}
     return {token for token in re.findall(r"[a-z0-9]{3,}", (value or "").lower()) if token not in stop}
@@ -139,6 +168,11 @@ def _candidate_urls_from_item(item: dict) -> list[str]:
             value = str(link or "").strip()
         if value:
             urls.append(value)
+    for key in ("source_outbound_urls", "source_urls", "evidence_urls"):
+        for raw_url in item.get(key) or []:
+            value = str(raw_url or "").strip()
+            if value:
+                urls.append(value)
     urls.extend(_text_extracted_urls_from_item(item))
     return list(dict.fromkeys(urls))
 
@@ -147,6 +181,15 @@ def _urls_from_text(value: str) -> list[str]:
     urls = []
     for match in re.findall(r"https?://[^\s<>)\\\"']+", value or ""):
         urls.append(match.rstrip(".,;:!?]})"))
+    bare_domain_pattern = re.compile(
+        r"(?<![@/\w.-])((?:www\.)?[a-z0-9][a-z0-9-]{1,63}(?:\.[a-z0-9][a-z0-9-]{1,63})+(?:/[^\s<>)\\\"']*)?)",
+        flags=re.IGNORECASE,
+    )
+    for match in bare_domain_pattern.findall(value or ""):
+        candidate = match.rstrip(".,;:!?]})")
+        domain = _domain_from_url(candidate if "://" in candidate else f"https://{candidate}")
+        if _domain_allowed(domain):
+            urls.append(candidate if "://" in candidate else f"https://{candidate}")
     return urls
 
 
@@ -170,10 +213,56 @@ def _company_name_from_title(title: str) -> str:
         r"\blaunch(?:ing|ed)?\s+(?P<name>[A-Z][A-Za-z0-9]+(?:\s+[A-Z][A-Za-z0-9]+){0,2})\b",
         r"\bannouncing\s+(?P<name>[A-Z][A-Za-z0-9]+(?:\s+[A-Z][A-Za-z0-9]+){0,2})\b",
         r"\bshipped\s+(?P<name>[A-Z][A-Za-z0-9]+(?:\s+[A-Z][A-Za-z0-9]+){0,2})\b",
+        r"\bintroducing\s+(?P<name>[A-Z][A-Za-z0-9]+(?:\s+[A-Z][A-Za-z0-9]+){0,2})\b",
+        r"\bmeet\s+(?P<name>[A-Z][A-Za-z0-9]+(?:\s+[A-Z][A-Za-z0-9]+){0,2})\b",
+        r"\bcalled\s+(?P<name>[A-Z][A-Za-z0-9]+(?:\s+[A-Z][A-Za-z0-9]+){0,2})\b",
     ):
         match = re.search(pattern, title)
         if match:
             return match.group("name").strip()
+    return ""
+
+
+def _clear_launch_language(item: dict) -> bool:
+    text = _candidate_text(item).lower()
+    return any(
+        term in text
+        for term in (
+            "we launched",
+            "i launched",
+            "just launched",
+            "launching today",
+            "public beta",
+            "private beta",
+            "early access",
+            "now live",
+            "product launch",
+        )
+    )
+
+
+def _company_name_from_domain(domain: str) -> str:
+    label = (domain or "").split(".", 1)[0]
+    parts = [part for part in re.split(r"[-_]+", label) if part]
+    return " ".join(part.capitalize() for part in parts)
+
+
+def _embedded_official_url_without_name(item: dict) -> str:
+    if not _clear_launch_language(item):
+        return ""
+    for candidate_url in _structured_link_urls_from_item(item) + _text_extracted_urls_from_item(item):
+        domain = _domain_from_url(candidate_url)
+        if not _domain_allowed(domain):
+            continue
+        if classify_url_role:
+            role = classify_url_role(
+                candidate_url if "://" in candidate_url else f"https://{domain}",
+                title=str(item.get("title") or ""),
+                snippet=str(item.get("snippet") or item.get("description") or ""),
+            )
+            if not role.get("official_eligible"):
+                continue
+        return candidate_url if "://" in candidate_url else f"https://{domain}"
     return ""
 
 
@@ -217,11 +306,15 @@ def _verify_domain_candidate(launch: dict, item: dict, candidate_url: str) -> tu
     domain = _domain_from_url(candidate_url) or str(item.get("domain") or "").strip().lower().removeprefix("www.")
     if not _domain_allowed(domain):
         return False, []
+    if classify_url_role:
+        role = classify_url_role(candidate_url if "://" in candidate_url else f"https://{domain}", title=str(item.get("title") or ""), snippet=str(item.get("snippet") or item.get("description") or ""))
+        if not role.get("official_eligible"):
+            return False, []
     name = str(launch.get("company_name") or launch.get("name") or "").strip()
     if not _resolvable_company_name(name):
         return False, []
     name_slug = _name_slug(name)
-    domain_slug = _name_slug(domain.split(".", 1)[0])
+    domain_slug = _domain_identity_slug(domain)
     text = _candidate_text(item)
     text_blob = text.lower()
     name_tokens = _text_tokens(name)
@@ -240,6 +333,44 @@ def _verify_domain_candidate(launch: dict, item: dict, candidate_url: str) -> tu
     if len(description_tokens & _text_tokens(text)) >= 2:
         reasons.append("search_result_matches_launch_text")
     return domain_name_match and text_match, reasons
+
+
+def _structured_link_urls_from_item(item: dict) -> list[str]:
+    urls = []
+    for link in item.get("links") or item.get("outbound_links") or []:
+        if isinstance(link, dict):
+            value = str(link.get("url") or link.get("href") or "").strip()
+        else:
+            value = str(link or "").strip()
+        if value:
+            urls.append(value)
+    for key in ("source_outbound_urls", "source_urls", "evidence_urls"):
+        for raw_url in item.get(key) or []:
+            value = str(raw_url or "").strip()
+            if value:
+                urls.append(value)
+    return list(dict.fromkeys(urls))
+
+
+def resolve_embedded_launch_link_domain(item: dict, launch: dict) -> dict:
+    for candidate_url in _structured_link_urls_from_item(item):
+        verified, reasons = _verify_domain_candidate(launch, item, candidate_url)
+        if not verified:
+            continue
+        domain = _domain_from_url(candidate_url) or str(item.get("domain") or "").strip().lower().removeprefix("www.")
+        return {
+            "url": candidate_url if "://" in candidate_url else f"https://{domain}",
+            "warning": "",
+            "evidence": {
+                "source": "embedded_launch_link_url",
+                "domain": domain,
+                "url": candidate_url,
+                "title": item.get("title", ""),
+                "snippet": item.get("snippet", ""),
+                "verification": reasons + ["url_extracted_from_structured_link"],
+            },
+        }
+    return {"url": "", "warning": "no verified embedded launch link URL"}
 
 
 def resolve_embedded_launch_text_domain(item: dict, launch: dict) -> dict:
@@ -282,6 +413,7 @@ def resolve_x_launch_domain_via_web(
     if not _resolvable_company_name(str(launch.get("company_name") or launch.get("name") or "")):
         return {"url": "", "warning": "X domain resolver skipped: company name too generic"}
     query = _web_domain_query(launch)
+    query_timeout = min(timeout_seconds or DEFAULT_TIMEOUT_SECONDS, DEFAULT_WEB_RESOLVER_TIMEOUT_SECONDS)
     try:
         payload = query_runner(
             topic=query,
@@ -289,7 +421,7 @@ def resolve_x_launch_domain_via_web(
             lookback_days=30,
             auto_resolve=True,
             store=False,
-            timeout_seconds=timeout_seconds,
+            timeout_seconds=query_timeout,
         )
     except Exception as exc:
         return {"url": "", "warning": f"X domain resolver failed: {exc}"}
@@ -320,10 +452,39 @@ def normalize_x_launch_item(item: dict, query: dict) -> dict:
     website = item.get("website") or item.get("homepage") or item.get("outbound_url") or ""
     website_domain = _domain_from_url(website)
     raw_domain = website_domain or str(item.get("domain") or "").strip().lower().removeprefix("www.")
+    url_role = {}
+    article_evidence_urls = []
+    directory_evidence_urls = []
+    repo_evidence_urls = []
+    if classify_url_role and (website or raw_domain):
+        role_url = website if website else f"https://{raw_domain}"
+        url_role = classify_url_role(
+            role_url,
+            title=str(item.get("title") or ""),
+            snippet=str(item.get("snippet") or item.get("description") or item.get("text") or ""),
+        )
     domain = raw_domain if _domain_allowed(raw_domain) else ""
+    if url_role and not url_role.get("official_eligible"):
+        if url_role.get("role") == "article" and website:
+            article_evidence_urls.append(website)
+        elif url_role.get("role") == "directory" and website:
+            directory_evidence_urls.append(website)
+        elif url_role.get("role") == "repo" and website:
+            repo_evidence_urls.append(website)
+        website = ""
+        domain = ""
     if website and website_domain and not _domain_allowed(website_domain):
         website = ""
+        domain = ""
     company_name = item.get("company_name") or item.get("name") or _company_name_from_title(item.get("title", ""))
+    inferred_embedded_url = ""
+    if not company_name:
+        inferred_embedded_url = _embedded_official_url_without_name(item)
+        inferred_domain = _domain_from_url(inferred_embedded_url)
+        if inferred_domain:
+            company_name = _company_name_from_domain(inferred_domain)
+            website = website or inferred_embedded_url
+            domain = domain or inferred_domain
     missing = []
     if not company_name:
         missing.append("company_name_missing")
@@ -332,12 +493,15 @@ def normalize_x_launch_item(item: dict, query: dict) -> dict:
     domain_resolution_source = ""
     domain_resolution_evidence = {}
     if not domain and company_name:
-        embedded = resolve_embedded_launch_text_domain(item, {"company_name": company_name, "description": item.get("snippet") or item.get("description") or item.get("text") or ""})
+        launch_identity = {"company_name": company_name, "description": item.get("snippet") or item.get("description") or item.get("text") or ""}
+        embedded = resolve_embedded_launch_link_domain(item, launch_identity)
+        if not str(embedded.get("url") or "").strip():
+            embedded = resolve_embedded_launch_text_domain(item, launch_identity)
         resolved_url = str(embedded.get("url") or "").strip()
         if resolved_url:
             website = resolved_url
             domain = _domain_from_url(resolved_url)
-            domain_resolution_source = "embedded_launch_text_url"
+            domain_resolution_source = str((embedded.get("evidence") or {}).get("source") or "embedded_launch_text_url")
             domain_resolution_evidence = embedded.get("evidence") or {}
             missing = [gap for gap in missing if gap != "official_domain_identity_not_confirmed"]
     launch_score, launch_basis = _launch_intent_score({**item, "company_name": company_name, "website": website, "domain": domain})
@@ -372,6 +536,10 @@ def normalize_x_launch_item(item: dict, query: dict) -> dict:
                 "title": item.get("title") or company_name,
             }
         ],
+        "article_evidence_urls": article_evidence_urls,
+        "directory_evidence_urls": directory_evidence_urls,
+        "repo_evidence_urls": repo_evidence_urls,
+        "url_role": url_role,
         "action": action,
         "lead_route": "research_deeper" if action == "research deeper" else "watch",
         "missing_evidence": missing,
@@ -382,8 +550,17 @@ def normalize_x_launch_item(item: dict, query: dict) -> dict:
     }
     if domain_resolution_source:
         row["domain_resolution_source"] = domain_resolution_source
+    elif inferred_embedded_url:
+        row["domain_resolution_source"] = "embedded_launch_text_url"
     if domain_resolution_evidence:
         row["domain_resolution_evidence"] = domain_resolution_evidence
+    elif inferred_embedded_url:
+        row["domain_resolution_evidence"] = {
+            "source": "embedded_launch_text_url",
+            "domain": domain,
+            "url": inferred_embedded_url,
+            "verification": ["company_name_inferred_from_embedded_domain", "clear_launch_language"],
+        }
     return row
 
 
@@ -396,6 +573,8 @@ def run_x_launches(
     limit: int = 25,
     lookback_days: int = DEFAULT_LOOKBACK_DAYS,
     timeout_seconds: int | None = DEFAULT_TIMEOUT_SECONDS,
+    max_queries: int = MAX_X_LAUNCH_QUERIES,
+    max_domain_resolutions: int = MAX_X_DOMAIN_RESOLUTIONS,
 ) -> dict:
     runtime_env = merged_x_env(env) if env is None else env
     if not x_credentials_available(runtime_env):
@@ -413,7 +592,10 @@ def run_x_launches(
 
     warnings = []
     launches = []
-    queries = build_x_launch_queries(movements, lookback_days=lookback_days)
+    queries = build_x_launch_queries(movements, lookback_days=lookback_days)[:max_queries]
+    domain_resolution_attempts = 0
+    domain_resolution_cap_warned = False
+    seen_launch_keys = set()
     for query in queries:
         if len(launches) >= limit:
             break
@@ -434,11 +616,15 @@ def run_x_launches(
             warnings.append(f"{source}: {error}")
         for item in payload.get("items", []) or []:
             launch = normalize_x_launch_item(item, query)
+            launch_key = launch.get("url") or launch.get("company_x") or launch.get("domain") or launch.get("company_name")
+            if launch_key and launch_key in seen_launch_keys:
+                continue
             if not launch["domain"] and not _resolvable_company_name(launch["company_name"]):
                 if launch["company_name"]:
                     warnings.append(f"{launch['company_name']}: X launch skipped because company name is too generic")
                 continue
-            if not launch["domain"] and launch["company_name"] and domain_resolver:
+            if not launch["domain"] and launch["company_name"] and domain_resolver and domain_resolution_attempts < max_domain_resolutions:
+                domain_resolution_attempts += 1
                 resolved = domain_resolver(launch, query_runner=query_runner, timeout_seconds=timeout_seconds)
                 resolved_url = str(resolved.get("url") or "").strip() if isinstance(resolved, dict) else ""
                 if resolved_url:
@@ -454,8 +640,14 @@ def run_x_launches(
                     warning = str(resolved.get("warning") or "").strip() if isinstance(resolved, dict) else ""
                     if warning:
                         warnings.append(f"{launch['company_name']}: {warning}")
+            elif not launch["domain"] and launch["company_name"] and domain_resolver and domain_resolution_attempts >= max_domain_resolutions:
+                if not domain_resolution_cap_warned:
+                    warnings.append(f"X domain resolver capped after {max_domain_resolutions} attempts")
+                    domain_resolution_cap_warned = True
             if launch["company_name"] or launch["domain"]:
                 launches.append(launch)
+                if launch_key:
+                    seen_launch_keys.add(launch_key)
             if len(launches) >= limit:
                 break
 

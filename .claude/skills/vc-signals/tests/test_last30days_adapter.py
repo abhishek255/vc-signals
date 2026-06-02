@@ -309,7 +309,7 @@ def test_run_query_emits_normalized_items(tmp_path, monkeypatch):
         "warnings": [],
     }
     completed = MagicMock(returncode=0, stdout=json.dumps(fake_payload), stderr="")
-    monkeypatch.setattr("last30days_adapter.subprocess.run", lambda *a, **kw: completed)
+    monkeypatch.setattr("last30days_adapter._run_last30days_command", lambda *a, **kw: completed)
 
     result = run_query("AI code review", vendor_path=vendor)
     assert result["topic"] == "AI code review"
@@ -330,7 +330,7 @@ def test_run_query_preserves_source_errors(tmp_path, monkeypatch):
         "errors_by_source": {"grounding": "HTTP 402: Payment Required"},
     }
     completed = MagicMock(returncode=0, stdout=json.dumps(fake_payload), stderr="")
-    monkeypatch.setattr("last30days_adapter.subprocess.run", lambda *a, **kw: completed)
+    monkeypatch.setattr("last30days_adapter._run_last30days_command", lambda *a, **kw: completed)
 
     result = run_query("AI agent security", vendor_path=vendor)
 
@@ -351,7 +351,7 @@ def test_run_query_uses_nested_script_path_and_skill_root_cwd(tmp_path, monkeypa
         calls.append((cmd, kwargs))
         return MagicMock(returncode=0, stdout=json.dumps(fake_payload), stderr="")
 
-    monkeypatch.setattr("last30days_adapter.subprocess.run", fake_run)
+    monkeypatch.setattr("last30days_adapter._run_last30days_command", fake_run)
 
     result = run_query("AI memory", vendor_path=vendor)
     assert result["topic"] == "AI memory"
@@ -373,7 +373,7 @@ def test_run_query_accepts_custom_timeout_seconds(tmp_path, monkeypatch):
         calls.append((cmd, kwargs))
         return completed
 
-    monkeypatch.setattr("last30days_adapter.subprocess.run", fake_run)
+    monkeypatch.setattr("last30days_adapter._run_last30days_command", fake_run)
 
     run_query("AI memory", vendor_path=vendor, timeout_seconds=45)
 
@@ -392,7 +392,7 @@ def test_run_query_passes_new_last30days_flags(tmp_path, monkeypatch):
         calls.append(cmd)
         return completed
 
-    monkeypatch.setattr("last30days_adapter.subprocess.run", fake_run)
+    monkeypatch.setattr("last30days_adapter._run_last30days_command", fake_run)
 
     run_query(
         "agent infra",
@@ -430,7 +430,7 @@ def test_run_query_passes_v33_alignment_flags(tmp_path, monkeypatch):
         calls.append(cmd)
         return completed
 
-    monkeypatch.setattr("last30days_adapter.subprocess.run", fake_run)
+    monkeypatch.setattr("last30days_adapter._run_last30days_command", fake_run)
 
     run_query(
         "agent infra",
@@ -460,7 +460,7 @@ def test_run_query_sets_source_environment_overrides(tmp_path, monkeypatch):
         calls.append((cmd, kwargs))
         return completed
 
-    monkeypatch.setattr("last30days_adapter.subprocess.run", fake_run)
+    monkeypatch.setattr("last30days_adapter._run_last30days_command", fake_run)
 
     run_query(
         "agent infra",
@@ -488,7 +488,7 @@ def test_run_query_disables_browser_cookie_lookup_by_default(tmp_path, monkeypat
         calls.append((cmd, kwargs))
         return completed
 
-    monkeypatch.setattr("last30days_adapter.subprocess.run", fake_run)
+    monkeypatch.setattr("last30days_adapter._run_last30days_command", fake_run)
 
     run_query("agent infra", vendor_path=vendor, extra_env={"XAI_API_KEY": "xai-test", "FROM_BROWSER": "safari"})
 
@@ -510,7 +510,7 @@ def test_run_query_allows_explicit_browser_cookie_override(tmp_path, monkeypatch
         calls.append((cmd, kwargs))
         return completed
 
-    monkeypatch.setattr("last30days_adapter.subprocess.run", fake_run)
+    monkeypatch.setattr("last30days_adapter._run_last30days_command", fake_run)
 
     run_query(
         "agent infra",
@@ -529,7 +529,7 @@ def test_run_query_handles_nonzero_exit(tmp_path, monkeypatch):
     vendor = _make_vendor(tmp_path)
     monkeypatch.setattr("last30days_adapter._find_python", lambda: "python3")
     completed = MagicMock(returncode=2, stdout="", stderr="boom")
-    monkeypatch.setattr("last30days_adapter.subprocess.run", lambda *a, **kw: completed)
+    monkeypatch.setattr("last30days_adapter._run_last30days_command", lambda *a, **kw: completed)
 
     result = run_query("topic", vendor_path=vendor)
     assert "exited with code 2" in result["error"]
@@ -546,7 +546,7 @@ def test_run_query_handles_timeout(tmp_path, monkeypatch):
 
     def raise_timeout(*a, **kw):
         raise subprocess.TimeoutExpired(cmd=a[0] if a else "", timeout=1)
-    monkeypatch.setattr("last30days_adapter.subprocess.run", raise_timeout)
+    monkeypatch.setattr("last30days_adapter._run_last30days_command", raise_timeout)
 
     result = run_query("topic", vendor_path=vendor)
     assert "timed out" in result["error"]
@@ -568,7 +568,7 @@ def test_run_query_preserves_timeout_stderr_and_stdout(tmp_path, monkeypatch):
             stderr="[RedditPublic] HTTP 429 rate limited\n[ScrapeCreators] HTTP 402 Payment Required",
         )
 
-    monkeypatch.setattr("last30days_adapter.subprocess.run", raise_timeout)
+    monkeypatch.setattr("last30days_adapter._run_last30days_command", raise_timeout)
 
     result = run_query("topic", vendor_path=vendor, timeout_seconds=90)
 
@@ -579,13 +579,51 @@ def test_run_query_preserves_timeout_stderr_and_stdout(tmp_path, monkeypatch):
     assert result["items"] == []
 
 
+def test_run_last30days_command_kills_process_group_on_timeout(monkeypatch):
+    import subprocess
+    import last30days_adapter
+
+    calls = {"communicate": 0, "killpg": []}
+
+    class FakeProcess:
+        pid = 12345
+        returncode = None
+
+        def communicate(self, timeout=None):
+            calls["communicate"] += 1
+            if calls["communicate"] == 1:
+                raise subprocess.TimeoutExpired(cmd=["python3"], timeout=timeout, output="partial", stderr="slow")
+            return "partial", "slow"
+
+    def fake_popen(*_args, **kwargs):
+        assert kwargs["start_new_session"] is True
+        return FakeProcess()
+
+    monkeypatch.setattr(last30days_adapter.subprocess, "Popen", fake_popen)
+    monkeypatch.setattr(last30days_adapter.os, "killpg", lambda pid, sig: calls["killpg"].append((pid, sig)))
+
+    with pytest.raises(subprocess.TimeoutExpired) as exc_info:
+        last30days_adapter._run_last30days_command(
+            ["python3", "last30days.py"],
+            capture_output=True,
+            text=True,
+            timeout=1,
+            cwd="/tmp",
+            env={},
+        )
+
+    assert calls["killpg"]
+    assert exc_info.value.output == "partial"
+    assert exc_info.value.stderr == "slow"
+
+
 def test_run_query_handles_malformed_json(tmp_path, monkeypatch):
     from last30days_adapter import run_query
 
     vendor = _make_vendor(tmp_path)
     monkeypatch.setattr("last30days_adapter._find_python", lambda: "python3")
     completed = MagicMock(returncode=0, stdout="not json{", stderr="")
-    monkeypatch.setattr("last30days_adapter.subprocess.run", lambda *a, **kw: completed)
+    monkeypatch.setattr("last30days_adapter._run_last30days_command", lambda *a, **kw: completed)
 
     result = run_query("topic", vendor_path=vendor)
     assert "Failed to parse" in result["error"]
@@ -598,7 +636,7 @@ def test_run_query_emit_text_returns_raw_output(tmp_path, monkeypatch):
     vendor = _make_vendor(tmp_path)
     monkeypatch.setattr("last30days_adapter._find_python", lambda: "python3")
     completed = MagicMock(returncode=0, stdout="raw markdown report", stderr="")
-    monkeypatch.setattr("last30days_adapter.subprocess.run", lambda *a, **kw: completed)
+    monkeypatch.setattr("last30days_adapter._run_last30days_command", lambda *a, **kw: completed)
 
     result = run_query("topic", vendor_path=vendor, emit="text")
     assert result["raw_output"] == "raw markdown report"

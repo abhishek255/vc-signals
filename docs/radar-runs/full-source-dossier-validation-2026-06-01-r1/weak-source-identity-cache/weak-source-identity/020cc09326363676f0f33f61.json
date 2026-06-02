@@ -1,0 +1,99 @@
+{
+  "topic": "\"DailyBrief\" seed funding headcount founders LinkedIn",
+  "items": [
+    {
+      "source": "grounding",
+      "title": "The Daily Brief - Podcast - Apple Podcasts",
+      "url": "https://podcasts.apple.com/us/podcast/the-daily-brief/id1611565299",
+      "snippet": "With unbiased, no-agenda, clear, and timely information that is needed to extract knowledge and maintain essential awareness of important events and information from around the world. Visit https://dailybrief.net for more information. ... U.S., ISRAEL, IRAN WAR | UKRAINE | U.S. ECONOMY | U.S. COMPENSATION FUND | EPSTEIN INVESTIGATIONS | U.S.",
+      "published_at": "2026-05-26",
+      "engagement": {},
+      "container": "podcasts.apple.com",
+      "author": "",
+      "_raw_fields_present": [
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": []
+    },
+    {
+      "source": "grounding",
+      "title": "Newslaundry - 2026 Company Profile, Team, Funding, Competitors & Financials - Tracxn",
+      "url": "https://tracxn.com/d/companies/newslaundry/__Fm68BUdgATM04bwqLdKXW7pB1TWMZmkCl0AVE3YXBKc",
+      "snippet": "Newslaundry is a seed company based in Delhi (India), founded in 2012 by <strong>Roopak Kapoor, Prashant Sareen and Abhinandan Sekhri</strong>. It operates as a Provider of subscription-based independent news and analysis.",
+      "published_at": "2026-05-07",
+      "engagement": {},
+      "container": "tracxn.com",
+      "author": "",
+      "_raw_fields_present": [
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": []
+    }
+  ],
+  "clusters": [
+    {
+      "candidate_ids": [
+        "https://tracxn.com/d/companies/newslaundry/__fm68budgatm04bwqldkxw7pb1twmzmkcl0ave3yxbkc"
+      ],
+      "cluster_id": "cluster-1",
+      "representative_ids": [
+        "https://tracxn.com/d/companies/newslaundry/__fm68budgatm04bwqldkxw7pb1twmzmkcl0ave3yxbkc"
+      ],
+      "score": 0.0,
+      "sources": [
+        "grounding"
+      ],
+      "title": "Newslaundry - 2026 Company Profile, Team, Funding, Competitors & Financials - Tracxn"
+    },
+    {
+      "candidate_ids": [
+        "https://podcasts.apple.com/us/podcast/the-daily-brief/id1611565299"
+      ],
+      "cluster_id": "cluster-2",
+      "representative_ids": [
+        "https://podcasts.apple.com/us/podcast/the-daily-brief/id1611565299"
+      ],
+      "score": 0.0,
+      "sources": [
+        "grounding"
+      ],
+      "title": "The Daily Brief - Podcast - Apple Podcasts"
+    }
+  ],
+  "warnings": [
+    "Evidence is thin for this topic."
+  ],
+  "errors_by_source": {}
+}

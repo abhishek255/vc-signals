@@ -1,0 +1,231 @@
+{
+  "topic": "\"Databox MCP\" \"Agent runtime infrastructure\" official company founder",
+  "items": [
+    {
+      "source": "grounding",
+      "title": "How to Connect Business Data to Claude (and Actually Get Accurate Answers) | Databox",
+      "url": "https://databox.com/how-to-connect-business-data-to-claude",
+      "snippet": "... What MCP actually is: MCP stands for <strong>Model Context Protocol</strong>, an open standard created by Anthropic in late 2024 and donated to the Linux Foundation\u2019s Agentic AI Foundation in December 2025.",
+      "published_at": "2026-05-22",
+      "engagement": {},
+      "container": "databox.com",
+      "author": "",
+      "_raw_fields_present": [
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": []
+    },
+    {
+      "source": "grounding",
+      "title": "AI-Powered Analytics That Answer Back | Databox | Databox",
+      "url": "https://databox.com/ai",
+      "snippet": "\u201cWe used Databox for client reporting for years and recently tested alternatives, but nothing came close. When we came back, Genie blew us away \u2014 AI-powered insights that actually make sense for marketers.\u201d ... \u201cHaving an AI analyst that can just tell you why a metric has dropped and what\u2019s likely driving it \u2014 that\u2019s a game-changer. Genie feels like having a smart teammate who\u2019s always watching the data.\u201d ... \u201cThe MCP integration is genuinely useful for teams building AI-assisted workflows.",
+      "published_at": "2026-05-22",
+      "engagement": {},
+      "container": "databox.com",
+      "author": "",
+      "_raw_fields_present": [
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": []
+    },
+    {
+      "source": "grounding",
+      "title": "Windsor.ai MCP vs. Databox MCP: Data Connector vs. Analytics Platform | Databox",
+      "url": "https://databox.com/windsor-ai-mcp-vs-databox-mcp-data-connector-vs-analytics-platform",
+      "snippet": "<strong>An agent can pull information from any source, push it into Databox, and immediately analyze it alongside your existing metrics</strong>. The same agent who spots a problem can log the incident for future reference.",
+      "published_at": "2026-05-08",
+      "engagement": {},
+      "container": "databox.com",
+      "author": "",
+      "_raw_fields_present": [
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": []
+    },
+    {
+      "source": "grounding",
+      "title": "Databox MCP: Use Databox Directly from Your AI Tool",
+      "url": "https://databox.com/mcp",
+      "snippet": "Use Databox\u2019s Model Context Protocol (MCP) to securely connect AI to your business data and ask performance questions in plain language with real-time answers.",
+      "published_at": "2026-05-19",
+      "engagement": {},
+      "container": "databox.com",
+      "author": "",
+      "_raw_fields_present": [
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": []
+    },
+    {
+      "source": "grounding",
+      "title": "AI Analytics with Databox | Databox",
+      "url": "https://databox.com/ai-analytics-with-databox-a-complete-guide",
+      "snippet": "Databox MCP <strong>exposes your connected data, 100+ integrations worth, through the Model Context Protocol</strong>. This means Claude, ChatGPT, or any MCP-compatible AI can query your business metrics directly.",
+      "published_at": "2026-05-15",
+      "engagement": {},
+      "container": "databox.com",
+      "author": "",
+      "_raw_fields_present": [
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": []
+    }
+  ],
+  "clusters": [
+    {
+      "candidate_ids": [
+        "https://databox.com/how-to-connect-business-data-to-claude"
+      ],
+      "cluster_id": "cluster-1",
+      "representative_ids": [
+        "https://databox.com/how-to-connect-business-data-to-claude"
+      ],
+      "score": 0.0,
+      "sources": [
+        "grounding"
+      ],
+      "title": "How to Connect Business Data to Claude (and Actually Get Accurate Answers) | Databox"
+    },
+    {
+      "candidate_ids": [
+        "https://databox.com/ai"
+      ],
+      "cluster_id": "cluster-2",
+      "representative_ids": [
+        "https://databox.com/ai"
+      ],
+      "score": 0.0,
+      "sources": [
+        "grounding"
+      ],
+      "title": "AI-Powered Analytics That Answer Back | Databox | Databox"
+    },
+    {
+      "candidate_ids": [
+        "https://databox.com/windsor-ai-mcp-vs-databox-mcp-data-connector-vs-analytics-platform"
+      ],
+      "cluster_id": "cluster-3",
+      "representative_ids": [
+        "https://databox.com/windsor-ai-mcp-vs-databox-mcp-data-connector-vs-analytics-platform"
+      ],
+      "score": 0.0,
+      "sources": [
+        "grounding"
+      ],
+      "title": "Windsor.ai MCP vs. Databox MCP: Data Connector vs. Analytics Platform | Databox"
+    },
+    {
+      "candidate_ids": [
+        "https://databox.com/mcp"
+      ],
+      "cluster_id": "cluster-4",
+      "representative_ids": [
+        "https://databox.com/mcp"
+      ],
+      "score": 0.0,
+      "sources": [
+        "grounding"
+      ],
+      "title": "Databox MCP: Use Databox Directly from Your AI Tool"
+    },
+    {
+      "candidate_ids": [
+        "https://databox.com/ai-analytics-with-databox-a-complete-guide"
+      ],
+      "cluster_id": "cluster-5",
+      "representative_ids": [
+        "https://databox.com/ai-analytics-with-databox-a-complete-guide"
+      ],
+      "score": 0.0,
+      "sources": [
+        "grounding"
+      ],
+      "title": "AI Analytics with Databox | Databox"
+    }
+  ],
+  "warnings": [
+    "Top evidence is highly concentrated in one source."
+  ],
+  "errors_by_source": {}
+}

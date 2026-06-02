@@ -1,0 +1,55 @@
+{
+  "topic": "\"smokedmeat\" pricing docs customers careers",
+  "items": [
+    {
+      "source": "grounding",
+      "title": "GitHub - boostsecurityio/smokedmeat: A CI/CD Red Team Framework for demonstrating Build Pipeline security risks. \u00b7 GitHub",
+      "url": "https://github.com/boostsecurityio/smokedmeat",
+      "snippet": "make dev-quickstart builds the local smokedmeat-cloud-shell image, starts cloudflared, nats, and the C2 teamserver (Kitchen), then launches the operator TUI from source. If you want the infrastructure first and the operator TUI later: make dev-quickstart-up make dev-quickstart-counter ... More deployment modes and local development details are in docs/deployment.md.",
+      "published_at": "2026-05-12",
+      "engagement": {},
+      "container": "github.com",
+      "author": "",
+      "_raw_fields_present": [
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": []
+    }
+  ],
+  "clusters": [
+    {
+      "candidate_ids": [
+        "https://github.com/boostsecurityio/smokedmeat"
+      ],
+      "cluster_id": "cluster-1",
+      "representative_ids": [
+        "https://github.com/boostsecurityio/smokedmeat"
+      ],
+      "score": 0.0,
+      "sources": [
+        "grounding"
+      ],
+      "title": "GitHub - boostsecurityio/smokedmeat: A CI/CD Red Team Framework for demonstrating Build Pipeline security risks. \u00b7 GitHub"
+    }
+  ],
+  "warnings": [
+    "Evidence is thin for this topic."
+  ],
+  "errors_by_source": {}
+}

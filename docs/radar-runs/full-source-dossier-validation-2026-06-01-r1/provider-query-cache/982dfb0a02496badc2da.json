@@ -1,0 +1,144 @@
+{
+  "topic": "\"Simplex\" \"AI data infrastructure\" official company founder",
+  "items": [
+    {
+      "source": "grounding",
+      "title": "AWS Supercharges Simplex AI to Overcome Concurrency, O&M, and Scaling Challenges",
+      "url": "https://aws.amazon.com/solutions/case-studies/simplex-ai/",
+      "snippet": "Given the demanding concurrency and speed requirements of Simplex AI&#x27;s Agentic AI database searches, the Amazon OpenSearch Service-based solution has significantly reduced latency and saved operational time.",
+      "published_at": "2026-05-27",
+      "engagement": {},
+      "container": "aws.amazon.com",
+      "author": "",
+      "_raw_fields_present": [
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": []
+    },
+    {
+      "source": "grounding",
+      "title": "Simplex Reviews | Read Customer Service Reviews of simplex.com",
+      "url": "https://www.trustpilot.com/review/simplex.com",
+      "snippet": "Many Thanks Simplex ... I was pleased for someone doing for the 1st time! ... Easy to operate, worked perfectly! ... Fast easy helpful. ... At Trustpilot, it&#x27;s all about human content. This business can also access our AI-assisted response tool which helps them draft replies.",
+      "published_at": "2026-05-26",
+      "engagement": {},
+      "container": "www.trustpilot.com",
+      "author": "",
+      "_raw_fields_present": [
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": []
+    },
+    {
+      "source": "grounding",
+      "title": "Simplex rethinks software development with Codex | OpenAI",
+      "url": "https://openai.com/index/simplex/",
+      "snippet": "Simplex is <strong>developing and testing new approaches to AI-driven software delivery with Codex and ChatGPT, focusing on CRUD-based web applications as an initial use case</strong>. Through that work, the company has measured meaningful time savings across ...",
+      "published_at": "2026-05-07",
+      "engagement": {},
+      "container": "openai.com",
+      "author": "",
+      "_raw_fields_present": [
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": []
+    }
+  ],
+  "clusters": [
+    {
+      "candidate_ids": [
+        "https://aws.amazon.com/solutions/case-studies/simplex-ai"
+      ],
+      "cluster_id": "cluster-1",
+      "representative_ids": [
+        "https://aws.amazon.com/solutions/case-studies/simplex-ai"
+      ],
+      "score": 0.0,
+      "sources": [
+        "grounding"
+      ],
+      "title": "AWS Supercharges Simplex AI to Overcome Concurrency, O&M, and Scaling Challenges"
+    },
+    {
+      "candidate_ids": [
+        "https://trustpilot.com/review/simplex.com"
+      ],
+      "cluster_id": "cluster-2",
+      "representative_ids": [
+        "https://trustpilot.com/review/simplex.com"
+      ],
+      "score": 0.0,
+      "sources": [
+        "grounding"
+      ],
+      "title": "Simplex Reviews | Read Customer Service Reviews of simplex.com"
+    },
+    {
+      "candidate_ids": [
+        "https://openai.com/index/simplex"
+      ],
+      "cluster_id": "cluster-3",
+      "representative_ids": [
+        "https://openai.com/index/simplex"
+      ],
+      "score": 0.0,
+      "sources": [
+        "grounding"
+      ],
+      "title": "Simplex rethinks software development with Codex | OpenAI"
+    }
+  ],
+  "warnings": [
+    "Evidence is thin for this topic.",
+    "Top evidence is highly concentrated in one source."
+  ],
+  "errors_by_source": {}
+}

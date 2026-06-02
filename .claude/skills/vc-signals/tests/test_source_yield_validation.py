@@ -36,6 +36,219 @@ def test_review_worthy_requires_company_identity_founder_and_stage():
     assert is_net_new_review_worthy_candidate(_candidate(action="Assign owner")) is False
 
 
+def test_review_worthy_accepts_hard_commercial_proof_for_launch_rows():
+    from source_yield_validation import is_net_new_review_worthy_candidate
+
+    row = _candidate(
+        source_lane="Product Hunt",
+        founders=[],
+        founder_profiles=["https://www.producthunt.com/@alex"],
+        stage="",
+        raised="",
+        headcount="",
+        pricing_evidence=["https://clipto.ai/pricing"],
+        docs_evidence=["https://clipto.ai/docs"],
+        customer_buyer_evidence=["https://clipto.ai/customers"],
+    )
+
+    assert is_net_new_review_worthy_candidate(row) is True
+
+
+def test_review_worthy_still_rejects_launch_rows_without_hard_commercial_proof():
+    from source_yield_validation import is_net_new_review_worthy_candidate
+
+    row = _candidate(
+        source_lane="Product Hunt",
+        founders=[],
+        founder_profiles=["https://www.producthunt.com/@alex"],
+        stage="",
+        raised="",
+        headcount="",
+    )
+
+    assert is_net_new_review_worthy_candidate(row) is False
+
+
+def test_validation_counts_hard_evidence_product_hunt_rows_as_review_worthy(tmp_path):
+    from source_yield_validation import build_source_yield_validation_report
+
+    run_dir = tmp_path / "run"
+    _write_json(run_dir / "candidates.json", [])
+    _write_json(
+        run_dir / "weekly-focus.json",
+        {"workflow_view": {"Assign owner": [{"name": "Voker", "recommended_action": "Assign owner"}]}},
+    )
+    _write_json(run_dir / "runtime-ledger.json", {"source_health": []})
+    _write_json(
+        run_dir / "2026-06-01-raw-evidence.json",
+        {
+            "product_hunt": [
+                {
+                    "name": "Copycat Cafe",
+                    "domain": "copycatcafe.com",
+                    "website": "https://copycatcafe.com",
+                    "product_hunt_url": "https://www.producthunt.com/products/copycat-cafe",
+                    "maker_profiles": ["https://www.producthunt.com/@maker"],
+                    "pricing_evidence": ["https://copycatcafe.com/pricing"],
+                    "customer_buyer_evidence": ["https://copycatcafe.com/customers"],
+                    "action": "research deeper",
+                }
+            ],
+            "x_launches": [],
+        },
+    )
+
+    report = build_source_yield_validation_report(run_dir, target_review_worthy_count=1)
+
+    assert report["goal_assessment"]["net_new_review_worthy_count"] == 1
+    assert report["review_worthy_rows"][0]["name"] == "Copycat Cafe"
+
+
+def test_validation_rejects_rows_with_hard_evidence_identity_risk(tmp_path):
+    from source_yield_validation import build_source_yield_validation_report
+
+    run_dir = tmp_path / "run"
+    _write_json(run_dir / "candidates.json", [])
+    _write_json(
+        run_dir / "weekly-focus.json",
+        {"workflow_view": {"Assign owner": [{"name": "Voker", "recommended_action": "Assign owner"}]}},
+    )
+    _write_json(run_dir / "runtime-ledger.json", {"source_health": []})
+    _write_json(
+        run_dir / "2026-06-01-raw-evidence.json",
+        {
+            "product_hunt": [
+                {
+                    "name": "Sentinel",
+                    "domain": "sentinelmarine.net",
+                    "website": "https://www.sentinelmarine.net/api",
+                    "product_hunt_url": "https://www.producthunt.com/products/sentinel-10",
+                    "maker_profiles": ["https://www.producthunt.com/@maker"],
+                    "pricing_evidence": ["https://www.sentinelmarine.net/pricing"],
+                    "action": "research deeper",
+                    "hard_evidence_dossier": {
+                        "identity_risk_flags": ["ambiguous_official_domain_candidates"],
+                        "official_domain_candidates": [
+                            {"domain": "sentinel.co", "score": 130},
+                            {"domain": "sentinelmarine.net", "score": 120},
+                        ],
+                    },
+                }
+            ],
+            "x_launches": [],
+        },
+    )
+
+    report = build_source_yield_validation_report(run_dir, target_review_worthy_count=1)
+
+    assert report["goal_assessment"]["net_new_review_worthy_count"] == 0
+    assert report["goal_assessment"]["alex_review_count"] == 0
+    assert report["evidence_gap_queue"][0]["name"] == "Sentinel"
+
+
+def test_alex_review_tier_accepts_credible_launches_before_strict_company_metadata(tmp_path):
+    from source_yield_validation import (
+        build_source_yield_decision_packet,
+        build_source_yield_validation_report,
+        render_source_yield_markdown,
+    )
+
+    run_dir = tmp_path / "run"
+    _write_json(run_dir / "candidates.json", [])
+    weekly_focus = {
+        "workflow_view": {"Assign owner": [{"name": "Voker", "company_domain": "voker.ai"}]},
+    }
+    _write_json(run_dir / "weekly-focus.json", weekly_focus)
+    _write_json(run_dir / "runtime-ledger.json", {"source_health": []})
+    _write_json(
+        run_dir / "2026-06-01-raw-evidence.json",
+        {
+            "product_hunt": [
+                {
+                    "name": "AgentFence",
+                    "domain": "agentfence.dev",
+                    "website": "https://agentfence.dev",
+                    "product_hunt_url": "https://www.producthunt.com/products/agentfence",
+                    "tagline": "Permission firewall for AI agents",
+                    "maker_profiles": ["https://www.producthunt.com/@ada"],
+                    "source_outbound_urls": ["https://agentfence.dev", "https://agentfence.dev/about"],
+                    "action": "research deeper",
+                }
+            ],
+            "x_launches": [
+                {
+                    "company_name": "BuildGraph",
+                    "domain": "buildgraph.dev",
+                    "website": "https://buildgraph.dev",
+                    "url": "https://x.com/founder/status/1",
+                    "snippet": "Launching a workflow graph for developer teams.",
+                    "founder_profiles": ["https://x.com/founder"],
+                    "source_outbound_urls": ["https://buildgraph.dev"],
+                    "action": "watch",
+                }
+            ],
+        },
+    )
+
+    report = build_source_yield_validation_report(
+        run_dir,
+        target_review_worthy_count=1,
+        target_alex_review_count=2,
+    )
+    packet = build_source_yield_decision_packet(report, weekly_focus)
+    markdown = render_source_yield_markdown(report)
+
+    assert report["goal_assessment"]["net_new_review_worthy_count"] == 0
+    assert report["goal_assessment"]["alex_review_count"] == 2
+    assert report["target_status"]["alex_review_companies"]["met"] is True
+    assert [row["name"] for row in report["alex_review_companies"]] == ["AgentFence", "BuildGraph"]
+    assert report["alex_review_companies"][0]["confidence_grade"] == "C"
+    assert "commercial_or_customer_signal_missing" in report["alex_review_companies"][0]["missing_evidence"]
+    assert packet["summary"]["alex_review_companies"] == 2
+    assert packet["sections"]["alex_review_companies"][0]["recommended_manual_check"]
+    assert "## Alex Review Companies" in markdown
+    assert "AgentFence" in markdown
+
+
+def test_manual_evidence_queue_has_promote_and_discard_guidance(tmp_path):
+    from source_yield_validation import build_source_yield_decision_packet, build_source_yield_validation_report
+
+    run_dir = tmp_path / "run"
+    _write_json(
+        run_dir / "candidates.json",
+        [
+            _candidate(),
+            _candidate(
+                name="SignalForge",
+                domain="signalforge.ai",
+                source_lane="Manual Web",
+                weekly_tag="NEW",
+                action="research deeper",
+                founders=[],
+                stage="",
+                raised="",
+                headcount="",
+                source_outbound_urls=["https://signalforge.ai"],
+            ),
+        ],
+    )
+    weekly_focus = {"workflow_view": {"Assign owner": [{"name": "Voker", "company_domain": "voker.ai"}]}}
+    _write_json(run_dir / "weekly-focus.json", weekly_focus)
+    _write_json(run_dir / "runtime-ledger.json", {"source_health": []})
+    _write_json(run_dir / "2026-06-01-raw-evidence.json", {})
+
+    report = build_source_yield_validation_report(run_dir, target_review_worthy_count=1)
+    packet = build_source_yield_decision_packet(report, weekly_focus)
+
+    manual_row = next(row for row in report["manual_evidence_queue"] if row["name"] == "SignalForge")
+    assert manual_row["promote_if"]
+    assert manual_row["discard_if"]
+    assert manual_row["recommended_manual_check"]
+    assert manual_row["likely_payoff"]
+    assert "manual_evidence_queue" in packet["sections"]
+    assert packet["sections"]["manual_evidence_queue"][0]["promote_if"]
+
+
 def test_validation_report_preserves_assign_owner_bar_and_flags_ledger_packet(tmp_path):
     from source_yield_validation import build_source_yield_validation_report
 
@@ -97,6 +310,73 @@ def test_validation_report_preserves_assign_owner_bar_and_flags_ledger_packet(tm
     assert report["source_diversity"]["source_diversity_proven"] is True
     assert report["ledger_partner_packet_warning"]["unsafe_for_blessed_decision"] is True
     assert "last30days sector queries were degraded" in report["caveats"][0]
+
+
+def test_validation_report_includes_llm_signal_investigation_summary(tmp_path):
+    from source_yield_validation import build_source_yield_validation_report, render_source_yield_markdown
+
+    run_dir = tmp_path / "run"
+    _write_json(run_dir / "candidates.json", [_candidate()])
+    _write_json(
+        run_dir / "weekly-focus.json",
+        {
+            "workflow_view": {
+                "Assign owner": [
+                    {
+                        "name": "Voker",
+                        "company_domain": "voker.ai",
+                        "recommended_action": "Assign owner",
+                    }
+                ]
+            }
+        },
+    )
+    _write_json(run_dir / "runtime-ledger.json", {"source_health": []})
+    _write_json(
+        run_dir / "2026-06-01-raw-evidence.json",
+        {
+            "github": [{"full_name": "pullfrog/pullfrog"}],
+            "product_hunt": [{"name": "AgentFence"}],
+            "x_launches": [{"name": "Envio"}],
+            "yc_directory": [],
+        },
+    )
+    _write_json(
+        run_dir / "signal-investigation.json",
+        {
+            "summary": {
+                "enabled": True,
+                "provider_mode": "llm",
+                "rows_considered": 12,
+                "rows_investigated": 8,
+                "search_queries_planned": 18,
+                "search_queries_run": 10,
+                "official_domains_resolved": 3,
+                "url_roles_classified": 21,
+                "unsafe_domain_attempts_blocked": 4,
+            },
+            "items": [
+                {"source_lane": "Product Hunt"},
+                {"source_lane": "X"},
+                {"source_lane": "OSS"},
+                {"source_lane": "Hacker News"},
+            ],
+        },
+    )
+
+    report = build_source_yield_validation_report(run_dir, target_review_worthy_count=1)
+    markdown = render_source_yield_markdown(report)
+
+    summary = report["llm_signal_investigation_summary"]
+    assert summary["enabled"] is True
+    assert summary["provider_mode"] == "llm"
+    assert summary["rows_investigated"] == 8
+    assert summary["official_domains_resolved"] == 3
+    assert summary["unsafe_domain_attempts_blocked"] == 4
+    assert summary["source_lanes_investigated"] == ["Hacker News", "OSS", "Product Hunt", "X"]
+    assert summary["completion_ready"] is True
+    assert "## LLM Signal Investigation" in markdown
+    assert "provider_mode=llm" in markdown
 
 
 def test_decision_packet_uses_only_weekly_assign_owner(tmp_path):
@@ -311,8 +591,35 @@ def test_validation_report_includes_targets_and_operational_gap_buckets(tmp_path
     assert gap["gap_buckets"]["commercial_customer_signal"]["status"] == "missing"
     assert gap["gap_buckets"]["pricing_docs_careers"]["status"] == "missing"
     assert "LinkedIn" in gap["manual_check_sources"]
+    assert gap["recommended_manual_check"]
+    assert gap["recommended_next_step"]
+    assert gap["manual_work_required"] is True
+    assert gap["promote_if"]
+    assert gap["discard_if"]
+    assert gap["likely_payoff"]
     assert "## Source-Yield Targets" in markdown
     assert "Review-Worthy Companies" in markdown
+
+
+def test_source_yield_targets_treat_above_max_as_not_met():
+    from source_yield_validation import _source_yield_targets, _target_status
+
+    status = _target_status(
+        _source_yield_targets(target_review_worthy_count=8, target_alex_review_count=8),
+        {
+            "assign_owner": 1,
+            "alex_review_companies": 19,
+            "review_worthy_companies": 16,
+            "review_worthy_market_signals": 5,
+            "evidence_gap_queue": 12,
+            "unsafe_promotions": 0,
+        },
+    )
+
+    assert status["alex_review_companies"]["met"] is False
+    assert status["alex_review_companies"]["status"] == "above_max"
+    assert status["review_worthy_companies"]["met"] is False
+    assert status["review_worthy_companies"]["status"] == "above_max"
 
 
 def test_structured_provider_decision_recommends_trial_when_public_sources_miss_company_target(tmp_path):
@@ -403,5 +710,9 @@ def test_raw_product_hunt_and_x_launches_feed_gap_queue_when_not_candidates(tmp_
 
     gap_names = {row["name"] for row in report["evidence_gap_queue"]}
     assert {"AgentFence", "BuildGraph"} <= gap_names
+    for row in report["evidence_gap_queue"]:
+        assert row["recommended_manual_check"]
+        assert row["recommended_next_step"]
+        assert row["manual_work_required"] is True
     assert report["source_diversity"]["candidate_rows_by_source_lane"]["product_hunt"] == 1
     assert report["source_diversity"]["candidate_rows_by_source_lane"]["x"] == 1

@@ -1,0 +1,679 @@
+{
+  "topic": "Launch HN Vertical AI operations",
+  "items": [
+    {
+      "source": "hackernews",
+      "title": "AI has a multiplying effect on existing technical skills",
+      "url": "https://www.joshwcomeau.com/email/wham-launch-005-elephant-2-p/",
+      "snippet": "AI has a multiplying effect on existing technical skills",
+      "published_at": "2026-05-22",
+      "engagement": {
+        "comments": 318,
+        "points": 344
+      },
+      "container": "Hacker News",
+      "author": "moebrowne",
+      "_raw_fields_present": [
+        "author",
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "engagement_score",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": [
+        "outbound_url",
+        "domain",
+        "hn_url"
+      ],
+      "outbound_url": "https://www.joshwcomeau.com/email/wham-launch-005-elephant-2-p/",
+      "domain": "joshwcomeau.com",
+      "hn_url": "https://news.ycombinator.com/item?id=48235526"
+    },
+    {
+      "source": "hackernews",
+      "title": "Former Google and Apple Researchers Launch a Startup to Build AI's Missing Feed",
+      "url": "https://www.wired.com/story/ex-google-apple-ai-researchers-want-to-make-ai-that-gets-smarter-as-you-use-it/",
+      "snippet": "Former Google and Apple Researchers Launch a Startup to Build AI's Missing Feed",
+      "published_at": "2026-05-28",
+      "engagement": {
+        "comments": 0,
+        "points": 3
+      },
+      "container": "Hacker News",
+      "author": "joozio",
+      "_raw_fields_present": [
+        "author",
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "engagement_score",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": [
+        "outbound_url",
+        "domain",
+        "hn_url"
+      ],
+      "outbound_url": "https://www.wired.com/story/ex-google-apple-ai-researchers-want-to-make-ai-that-gets-smarter-as-you-use-it/",
+      "domain": "wired.com",
+      "hn_url": "https://news.ycombinator.com/item?id=48305638"
+    },
+    {
+      "source": "hackernews",
+      "title": "Brilliant launches AI tutor to get kids to think",
+      "url": "https://twitter.com/suekhim/status/2060378988606878147",
+      "snippet": "Brilliant launches AI tutor to get kids to think",
+      "published_at": "2026-05-29",
+      "engagement": {
+        "comments": 1,
+        "points": 25
+      },
+      "container": "Hacker News",
+      "author": "stochastician",
+      "_raw_fields_present": [
+        "author",
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "engagement_score",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": [
+        "outbound_url",
+        "domain",
+        "hn_url"
+      ],
+      "outbound_url": "https://twitter.com/suekhim/status/2060378988606878147",
+      "domain": "twitter.com",
+      "hn_url": "https://news.ycombinator.com/item?id=48324357"
+    },
+    {
+      "source": "hackernews",
+      "title": "Mistral AI Launches Mistral Vibe",
+      "url": "https://mistral.ai/fr/products/vibe",
+      "snippet": "Mistral AI Launches Mistral Vibe",
+      "published_at": "2026-05-28",
+      "engagement": {
+        "comments": 0,
+        "points": 5
+      },
+      "container": "Hacker News",
+      "author": "greengirl_8",
+      "_raw_fields_present": [
+        "author",
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "engagement_score",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": [
+        "outbound_url",
+        "domain",
+        "hn_url"
+      ],
+      "outbound_url": "https://mistral.ai/fr/products/vibe",
+      "domain": "mistral.ai",
+      "hn_url": "https://news.ycombinator.com/item?id=48306590"
+    },
+    {
+      "source": "hackernews",
+      "title": "Meta launches Instagram, Facebook and WhatsApp subscriptions including AI plans",
+      "url": "https://techcrunch.com/2026/05/27/meta-officially-launches-instagram-facebook-and-whatsapp-subscriptions-with-more-to-come-including-ai-plans/",
+      "snippet": "Meta launches Instagram, Facebook and WhatsApp subscriptions including AI plans",
+      "published_at": "2026-05-27",
+      "engagement": {
+        "comments": 1,
+        "points": 10
+      },
+      "container": "Hacker News",
+      "author": "mfiguiere",
+      "_raw_fields_present": [
+        "author",
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "engagement_score",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": [
+        "outbound_url",
+        "domain",
+        "hn_url"
+      ],
+      "outbound_url": "https://techcrunch.com/2026/05/27/meta-officially-launches-instagram-facebook-and-whatsapp-subscriptions-with-more-to-come-including-ai-plans/",
+      "domain": "techcrunch.com",
+      "hn_url": "https://news.ycombinator.com/item?id=48298083"
+    },
+    {
+      "source": "hackernews",
+      "title": "Launch HN: Voker (YC S24) \u2013 Analytics for AI Agents",
+      "url": "https://voker.ai",
+      "snippet": "Launch HN: Voker (YC S24) \u2013 Analytics for AI Agents",
+      "published_at": "2026-05-12",
+      "engagement": {
+        "comments": 22,
+        "points": 59
+      },
+      "container": "Hacker News",
+      "author": "ttpost",
+      "_raw_fields_present": [
+        "author",
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "engagement_score",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": [
+        "outbound_url",
+        "domain",
+        "hn_url"
+      ],
+      "outbound_url": "https://voker.ai",
+      "domain": "voker.ai",
+      "hn_url": "https://news.ycombinator.com/item?id=48109962"
+    },
+    {
+      "source": "hackernews",
+      "title": "Anthropic, Gates Foundation launch $200M partnership for AI in health, education",
+      "url": "https://finance.yahoo.com/sectors/healthcare/articles/anthropic-gates-foundation-launch-200-150123648.html",
+      "snippet": "Anthropic, Gates Foundation launch $200M partnership for AI in health, education",
+      "published_at": "2026-05-20",
+      "engagement": {
+        "comments": 1,
+        "points": 3
+      },
+      "container": "Hacker News",
+      "author": "gmays",
+      "_raw_fields_present": [
+        "author",
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "engagement_score",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": [
+        "outbound_url",
+        "domain",
+        "hn_url"
+      ],
+      "outbound_url": "https://finance.yahoo.com/sectors/healthcare/articles/anthropic-gates-foundation-launch-200-150123648.html",
+      "domain": "finance.yahoo.com",
+      "hn_url": "https://news.ycombinator.com/item?id=48208985"
+    },
+    {
+      "source": "hackernews",
+      "title": "Amazon launches new AI Wearable \"Bee\"",
+      "url": "https://bee.computer/",
+      "snippet": "Amazon launches new AI Wearable \"Bee\"",
+      "published_at": "2026-05-25",
+      "engagement": {
+        "comments": 1,
+        "points": 3
+      },
+      "container": "Hacker News",
+      "author": "mdrzn",
+      "_raw_fields_present": [
+        "author",
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "engagement_score",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": [
+        "outbound_url",
+        "domain",
+        "hn_url"
+      ],
+      "outbound_url": "https://bee.computer/",
+      "domain": "bee.computer",
+      "hn_url": "https://news.ycombinator.com/item?id=48266214"
+    },
+    {
+      "source": "hackernews",
+      "title": "Arena AI Model ELO History",
+      "url": "https://mayerwin.github.io/AI-Arena-History/",
+      "snippet": "Arena AI Model ELO History",
+      "published_at": "2026-05-14",
+      "engagement": {
+        "comments": 59,
+        "points": 70
+      },
+      "container": "Hacker News",
+      "author": "mayerwin",
+      "_raw_fields_present": [
+        "author",
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "engagement_score",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": [
+        "outbound_url",
+        "domain",
+        "hn_url"
+      ],
+      "outbound_url": "https://mayerwin.github.io/AI-Arena-History/",
+      "domain": "mayerwin.github.io",
+      "hn_url": "https://news.ycombinator.com/item?id=48130711"
+    },
+    {
+      "source": "hackernews",
+      "title": "Pope Leo launches an AI commission days before he releases a papal letter",
+      "url": "https://fortune.com/2026/05/18/pope-leo-ai-commission-papal-letter-anthropic-co-founder-christopher-olah/",
+      "snippet": "Pope Leo launches an AI commission days before he releases a papal letter",
+      "published_at": "2026-05-21",
+      "engagement": {
+        "comments": 1,
+        "points": 5
+      },
+      "container": "Hacker News",
+      "author": "1vuio0pswjnm7",
+      "_raw_fields_present": [
+        "author",
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "engagement_score",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": [
+        "outbound_url",
+        "domain",
+        "hn_url"
+      ],
+      "outbound_url": "https://fortune.com/2026/05/18/pope-leo-ai-commission-papal-letter-anthropic-co-founder-christopher-olah/",
+      "domain": "fortune.com",
+      "hn_url": "https://news.ycombinator.com/item?id=48227453"
+    },
+    {
+      "source": "hackernews",
+      "title": "Show HN: Gigacatalyst \u2013 Extend your SaaS with an embedded AI builder",
+      "url": "https://news.ycombinator.com/item?id=48110593",
+      "snippet": "Show HN: Gigacatalyst \u2013 Extend your SaaS with an embedded AI builder",
+      "published_at": "2026-05-12",
+      "engagement": {
+        "comments": 27,
+        "points": 61
+      },
+      "container": "Hacker News",
+      "author": "namanyayg",
+      "_raw_fields_present": [
+        "author",
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "engagement_score",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": [
+        "hn_url"
+      ],
+      "hn_url": "https://news.ycombinator.com/item?id=48110593"
+    },
+    {
+      "source": "hackernews",
+      "title": "WhatsApp launches private 'incognito' conversations with its AI chatbot",
+      "url": "https://www.bbc.com/news/articles/c99lmyr1dnxo",
+      "snippet": "WhatsApp launches private 'incognito' conversations with its AI chatbot",
+      "published_at": "2026-05-14",
+      "engagement": {
+        "comments": 1,
+        "points": 4
+      },
+      "container": "Hacker News",
+      "author": "Brajeshwar",
+      "_raw_fields_present": [
+        "author",
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "engagement_score",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": [
+        "outbound_url",
+        "domain",
+        "hn_url"
+      ],
+      "outbound_url": "https://www.bbc.com/news/articles/c99lmyr1dnxo",
+      "domain": "bbc.com",
+      "hn_url": "https://news.ycombinator.com/item?id=48138803"
+    }
+  ],
+  "clusters": [
+    {
+      "candidate_ids": [
+        "https://joshwcomeau.com/email/wham-launch-005-elephant-2-p"
+      ],
+      "cluster_id": "cluster-1",
+      "representative_ids": [
+        "https://joshwcomeau.com/email/wham-launch-005-elephant-2-p"
+      ],
+      "score": 0.0,
+      "sources": [
+        "hackernews"
+      ],
+      "title": "AI has a multiplying effect on existing technical skills"
+    },
+    {
+      "candidate_ids": [
+        "https://mayerwin.github.io/ai-arena-history"
+      ],
+      "cluster_id": "cluster-2",
+      "representative_ids": [
+        "https://mayerwin.github.io/ai-arena-history"
+      ],
+      "score": 0.0,
+      "sources": [
+        "hackernews"
+      ],
+      "title": "Arena AI Model ELO History"
+    },
+    {
+      "candidate_ids": [
+        "https://news.ycombinator.com/item?id=48110593"
+      ],
+      "cluster_id": "cluster-3",
+      "representative_ids": [
+        "https://news.ycombinator.com/item?id=48110593"
+      ],
+      "score": 0.0,
+      "sources": [
+        "hackernews"
+      ],
+      "title": "Show HN: Gigacatalyst \u2013 Extend your SaaS with an embedded AI builder"
+    },
+    {
+      "candidate_ids": [
+        "https://voker.ai"
+      ],
+      "cluster_id": "cluster-4",
+      "representative_ids": [
+        "https://voker.ai"
+      ],
+      "score": 0.0,
+      "sources": [
+        "hackernews"
+      ],
+      "title": "Launch HN: Voker (YC S24) \u2013 Analytics for AI Agents"
+    },
+    {
+      "candidate_ids": [
+        "https://twitter.com/suekhim/status/2060378988606878147"
+      ],
+      "cluster_id": "cluster-5",
+      "representative_ids": [
+        "https://twitter.com/suekhim/status/2060378988606878147"
+      ],
+      "score": 0.0,
+      "sources": [
+        "hackernews"
+      ],
+      "title": "Brilliant launches AI tutor to get kids to think"
+    },
+    {
+      "candidate_ids": [
+        "https://techcrunch.com/2026/05/27/meta-officially-launches-instagram-facebook-and-whatsapp-subscriptions-with-more-to-come-including-ai-plans"
+      ],
+      "cluster_id": "cluster-6",
+      "representative_ids": [
+        "https://techcrunch.com/2026/05/27/meta-officially-launches-instagram-facebook-and-whatsapp-subscriptions-with-more-to-come-including-ai-plans"
+      ],
+      "score": 0.0,
+      "sources": [
+        "hackernews"
+      ],
+      "title": "Meta launches Instagram, Facebook and WhatsApp subscriptions including AI plans"
+    },
+    {
+      "candidate_ids": [
+        "https://fortune.com/2026/05/18/pope-leo-ai-commission-papal-letter-anthropic-co-founder-christopher-olah"
+      ],
+      "cluster_id": "cluster-7",
+      "representative_ids": [
+        "https://fortune.com/2026/05/18/pope-leo-ai-commission-papal-letter-anthropic-co-founder-christopher-olah"
+      ],
+      "score": 0.0,
+      "sources": [
+        "hackernews"
+      ],
+      "title": "Pope Leo launches an AI commission days before he releases a papal letter"
+    },
+    {
+      "candidate_ids": [
+        "https://bbc.com/news/articles/c99lmyr1dnxo"
+      ],
+      "cluster_id": "cluster-8",
+      "representative_ids": [
+        "https://bbc.com/news/articles/c99lmyr1dnxo"
+      ],
+      "score": 0.0,
+      "sources": [
+        "hackernews"
+      ],
+      "title": "WhatsApp launches private 'incognito' conversations with its AI chatbot"
+    },
+    {
+      "candidate_ids": [
+        "https://finance.yahoo.com/sectors/healthcare/articles/anthropic-gates-foundation-launch-200-150123648.html"
+      ],
+      "cluster_id": "cluster-9",
+      "representative_ids": [
+        "https://finance.yahoo.com/sectors/healthcare/articles/anthropic-gates-foundation-launch-200-150123648.html"
+      ],
+      "score": 0.0,
+      "sources": [
+        "hackernews"
+      ],
+      "title": "Anthropic, Gates Foundation launch $200M partnership for AI in health, education"
+    },
+    {
+      "candidate_ids": [
+        "https://bee.computer"
+      ],
+      "cluster_id": "cluster-10",
+      "representative_ids": [
+        "https://bee.computer"
+      ],
+      "score": 0.0,
+      "sources": [
+        "hackernews"
+      ],
+      "title": "Amazon launches new AI Wearable \"Bee\""
+    },
+    {
+      "candidate_ids": [
+        "https://mistral.ai/fr/products/vibe"
+      ],
+      "cluster_id": "cluster-11",
+      "representative_ids": [
+        "https://mistral.ai/fr/products/vibe"
+      ],
+      "score": 0.0,
+      "sources": [
+        "hackernews"
+      ],
+      "title": "Mistral AI Launches Mistral Vibe"
+    },
+    {
+      "candidate_ids": [
+        "https://wired.com/story/ex-google-apple-ai-researchers-want-to-make-ai-that-gets-smarter-as-you-use-it"
+      ],
+      "cluster_id": "cluster-12",
+      "representative_ids": [
+        "https://wired.com/story/ex-google-apple-ai-researchers-want-to-make-ai-that-gets-smarter-as-you-use-it"
+      ],
+      "score": 0.0,
+      "sources": [
+        "hackernews"
+      ],
+      "title": "Former Google and Apple Researchers Launch a Startup to Build AI's Missing Feed"
+    }
+  ],
+  "warnings": [
+    "Top evidence is highly concentrated in one source."
+  ],
+  "errors_by_source": {}
+}

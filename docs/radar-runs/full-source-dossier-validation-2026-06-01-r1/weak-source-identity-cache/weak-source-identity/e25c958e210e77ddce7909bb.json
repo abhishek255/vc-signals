@@ -1,0 +1,55 @@
+{
+  "topic": "\"anti-slop\" seed funding headcount founders LinkedIn",
+  "items": [
+    {
+      "source": "grounding",
+      "title": "GitHub - coderjatin/anti-slop-writing: Improve AI text to sound natural, clear, and human-like by reducing stiffness and enhancing specificity for multiple AI writing tools. \u00b7 GitHub",
+      "url": "https://github.com/coderjatin/anti-slop-writing",
+      "snippet": "anti-slop-writing is a system prompt designed to stop your AI from writing in a predictable, robotic way. It detects and removes typical AI writing patterns, making the output feel more human. This tool works with many large language models (LLMs) and AI assistants.",
+      "published_at": "2026-05-09",
+      "engagement": {},
+      "container": "github.com",
+      "author": "",
+      "_raw_fields_present": [
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": []
+    }
+  ],
+  "clusters": [
+    {
+      "candidate_ids": [
+        "https://github.com/coderjatin/anti-slop-writing"
+      ],
+      "cluster_id": "cluster-1",
+      "representative_ids": [
+        "https://github.com/coderjatin/anti-slop-writing"
+      ],
+      "score": 0.0,
+      "sources": [
+        "grounding"
+      ],
+      "title": "GitHub - coderjatin/anti-slop-writing: Improve AI text to sound natural, clear, and human-like by reducing stiffness and enhancing specificity for multiple AI writing tools. \u00b7 GitHub"
+    }
+  ],
+  "warnings": [
+    "Evidence is thin for this topic."
+  ],
+  "errors_by_source": {}
+}

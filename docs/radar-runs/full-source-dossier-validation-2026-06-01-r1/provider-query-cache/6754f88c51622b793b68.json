@@ -1,0 +1,231 @@
+{
+  "topic": "Vertical AI operations startup company platform official",
+  "items": [
+    {
+      "source": "grounding",
+      "title": "The Vertical AI Startup Playbook \u2014 Why Narrow Focus Wins in 2026",
+      "url": "https://www.twinstrata.com/the-vertical-ai-startup-playbook/",
+      "snippet": "Domain expertise plus AI tools is the winning combination. \ud83d\udc26 Twitter/X signal: The most-shared startup success stories on X in 2026 are from founders who describe intentionally saying no to broader market opportunities to stay focused on one vertical. The counter-intuitive nature of this \u2014 being celebrated for doing less \u2014 is part of why these posts generate so much engagement. The broad platform play is not dead.",
+      "published_at": "2026-05-28",
+      "engagement": {},
+      "container": "www.twinstrata.com",
+      "author": "",
+      "_raw_fields_present": [
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": []
+    },
+    {
+      "source": "grounding",
+      "title": "What is vertical AI? Definition and examples | SymphonyAI",
+      "url": "https://www.symphonyai.com/glossary/ai/vertical-ai-industry-specific-ai/",
+      "snippet": "The <strong>SymphonyAI Eureka</strong> platform delivers vertical AI across retail, financial services, industrial operations, and enterprise IT: pre-trained on industry-specific data, built with domain ontologies and knowledge graphs, and designed to connect ...",
+      "published_at": "2026-05-21",
+      "engagement": {},
+      "container": "www.symphonyai.com",
+      "author": "",
+      "_raw_fields_present": [
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": []
+    },
+    {
+      "source": "grounding",
+      "title": "Solustiq Emerges as Turkey's First Vertical AI Company Built for the Global Travel Industry",
+      "url": "https://natlawreview.com/press-releases/solustiq-emerges-turkeys-first-vertical-ai-company-built-global-travel",
+      "snippet": "While generic AI copilots and horizontal foundation models continue to dominate headlines, Solustiq is part of a growing movement of &quot;vertical AI&quot; companies \u2014 startups building AI products tailored to the deep workflows, data structures, and regulatory realities of a single industry. &quot;The travel industry doesn&#x27;t need another general-purpose chatbot. It needs AI that understands GDS systems, hotel inventory APIs, regulatory frameworks like TURSAB, and the operational rhythm of",
+      "published_at": "2026-05-21",
+      "engagement": {},
+      "container": "natlawreview.com",
+      "author": "",
+      "_raw_fields_present": [
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": []
+    },
+    {
+      "source": "grounding",
+      "title": "Revolutionary Turkey Travel AI: Solustiq Emerges as First Vertical AI Company for Global Travel Tech in 2026 - Travel And Tour World",
+      "url": "https://www.travelandtourworld.com/news/article/fb0qktl5ubca/",
+      "snippet": "The company claims to address a gap in the travel technology stack by delivering AI solutions tailored specifically to travel and tourism workflows rather than generic AI tools. ... This approach differs from broad\u2011scale AI platforms that offer generic chatbot functions. Solustiq builds systems that understand how travel industry workflows, reservation systems, and operational frameworks actually work. In travel and tourism, vertical AI refers to artificial intelligence designed for the specific",
+      "published_at": "2026-05-20",
+      "engagement": {},
+      "container": "www.travelandtourworld.com",
+      "author": "",
+      "_raw_fields_present": [
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": []
+    },
+    {
+      "source": "grounding",
+      "title": "What Are Vertical AI Agents? | IBM",
+      "url": "https://www.ibm.com/think/topics/vertical-ai-agents",
+      "snippet": "Recent advancements in large language models (LLMs), open source frameworks and cloud technologies have accelerated the evolution of vertical AI agents. These developments have created a system of providers (including larger AI companies and emerging AI startups) that are making vertical AI agents more accessible and scalable.",
+      "published_at": "2026-05-08",
+      "engagement": {},
+      "container": "www.ibm.com",
+      "author": "",
+      "_raw_fields_present": [
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": []
+    }
+  ],
+  "clusters": [
+    {
+      "candidate_ids": [
+        "https://twinstrata.com/the-vertical-ai-startup-playbook"
+      ],
+      "cluster_id": "cluster-1",
+      "representative_ids": [
+        "https://twinstrata.com/the-vertical-ai-startup-playbook"
+      ],
+      "score": 9.558360655737701,
+      "sources": [
+        "grounding"
+      ],
+      "title": "The Vertical AI Startup Playbook \u2014 Why Narrow Focus Wins in 2026"
+    },
+    {
+      "candidate_ids": [
+        "https://symphonyai.com/glossary/ai/vertical-ai-industry-specific-ai"
+      ],
+      "cluster_id": "cluster-2",
+      "representative_ids": [
+        "https://symphonyai.com/glossary/ai/vertical-ai-industry-specific-ai"
+      ],
+      "score": 0.0,
+      "sources": [
+        "grounding"
+      ],
+      "title": "What is vertical AI? Definition and examples | SymphonyAI"
+    },
+    {
+      "candidate_ids": [
+        "https://natlawreview.com/press-releases/solustiq-emerges-turkeys-first-vertical-ai-company-built-global-travel"
+      ],
+      "cluster_id": "cluster-3",
+      "representative_ids": [
+        "https://natlawreview.com/press-releases/solustiq-emerges-turkeys-first-vertical-ai-company-built-global-travel"
+      ],
+      "score": 0.0,
+      "sources": [
+        "grounding"
+      ],
+      "title": "Solustiq Emerges as Turkey's First Vertical AI Company Built for the Global Travel Industry"
+    },
+    {
+      "candidate_ids": [
+        "https://travelandtourworld.com/news/article/fb0qktl5ubca"
+      ],
+      "cluster_id": "cluster-4",
+      "representative_ids": [
+        "https://travelandtourworld.com/news/article/fb0qktl5ubca"
+      ],
+      "score": 0.0,
+      "sources": [
+        "grounding"
+      ],
+      "title": "Revolutionary Turkey Travel AI: Solustiq Emerges as First Vertical AI Company for Global Travel Tech in 2026 - Travel And Tour World"
+    },
+    {
+      "candidate_ids": [
+        "https://ibm.com/think/topics/vertical-ai-agents"
+      ],
+      "cluster_id": "cluster-5",
+      "representative_ids": [
+        "https://ibm.com/think/topics/vertical-ai-agents"
+      ],
+      "score": 0.0,
+      "sources": [
+        "grounding"
+      ],
+      "title": "What Are Vertical AI Agents? | IBM"
+    }
+  ],
+  "warnings": [
+    "Top evidence is highly concentrated in one source."
+  ],
+  "errors_by_source": {}
+}

@@ -1,0 +1,188 @@
+{
+  "topic": "AI data infrastructure startup company platform official",
+  "items": [
+    {
+      "source": "grounding",
+      "title": "AI startup program | Google Cloud",
+      "url": "https://cloud.google.com/startup/ai",
+      "snippet": "Get financial, business, and technical support to take your startup to the next level. ... Explore solutions for web hosting, app development, AI, and analytics. ... Build better SaaS products, scale efficiently, and grow your business. ... Virtual machines running in Google\u2019s data center. ... Object storage that\u2019s secure, durable, and scalable. ... Autonomous data to AI platform for analytics and data science.",
+      "published_at": "2026-06-01",
+      "engagement": {},
+      "container": "cloud.google.com",
+      "author": "",
+      "_raw_fields_present": [
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": []
+    },
+    {
+      "source": "grounding",
+      "title": "Crusoe | The AI factory company | Renewable-powered AI infrastructure",
+      "url": "https://www.crusoe.ai/",
+      "snippet": "<strong>Crusoe Cloud</strong> provides exceptional reliability for AI workloads with 99.98% uptime and resilient infrastructure, all backed by 24/7 enterprise-grade support that maintains a 100% customer satisfaction score.",
+      "published_at": "2026-05-26",
+      "engagement": {},
+      "container": "www.crusoe.ai",
+      "author": "",
+      "_raw_fields_present": [
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": []
+    },
+    {
+      "source": "grounding",
+      "title": "Infrastructure Startups funded by Y Combinator (YC) 2026 | Y Combinator",
+      "url": "https://www.ycombinator.com/companies/industry/infrastructure",
+      "snippet": "Developers can keep their existing code while instantly upgrading to a unified platform that handles routing, semantic caching, continuous shadow evaluation, simulated data, and one-click fine-tuning. Behind the platform is Ion, our proprietary inference engine running on a custom NVIDIA Grace GPU fleet. Ion uses in-house custom GPU kernels to deliver 30 to 50 percent more throughput than standard vLLM or SGLang, giving our customers SOTA inference economics. ... Enabling physical AI at scale. .",
+      "published_at": "2026-05-10",
+      "engagement": {},
+      "container": "www.ycombinator.com",
+      "author": "",
+      "_raw_fields_present": [
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": []
+    },
+    {
+      "source": "grounding",
+      "title": "AI Startups You Should Know",
+      "url": "https://medium.com/jonathans-musings/ai-startups-you-should-know-48d69d1ddf61",
+      "snippet": "These companies are building the ... platforms, and data centers powering the AI boom. Raised $1.5 billion+ in a Series E (November 2025), bringing total funding to roughly $2.3 billion. Currently raising $350 million in pre-IPO convertible notes with an H2 2026 IPO target. Lambda is one of the better-known AI cloud providers and a CoreWeave alternative for companies that need access to GPU infrastructure...",
+      "published_at": "2026-05-05",
+      "engagement": {},
+      "container": "medium.com",
+      "author": "",
+      "_raw_fields_present": [
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": []
+    }
+  ],
+  "clusters": [
+    {
+      "candidate_ids": [
+        "https://cloud.google.com/startup/ai"
+      ],
+      "cluster_id": "cluster-1",
+      "representative_ids": [
+        "https://cloud.google.com/startup/ai"
+      ],
+      "score": 8.79836065573771,
+      "sources": [
+        "grounding"
+      ],
+      "title": "AI startup program | Google Cloud"
+    },
+    {
+      "candidate_ids": [
+        "https://crusoe.ai"
+      ],
+      "cluster_id": "cluster-2",
+      "representative_ids": [
+        "https://crusoe.ai"
+      ],
+      "score": 0.0,
+      "sources": [
+        "grounding"
+      ],
+      "title": "Crusoe | The AI factory company | Renewable-powered AI infrastructure"
+    },
+    {
+      "candidate_ids": [
+        "https://ycombinator.com/companies/industry/infrastructure"
+      ],
+      "cluster_id": "cluster-3",
+      "representative_ids": [
+        "https://ycombinator.com/companies/industry/infrastructure"
+      ],
+      "score": 0.0,
+      "sources": [
+        "grounding"
+      ],
+      "title": "Infrastructure Startups funded by Y Combinator (YC) 2026 | Y Combinator"
+    },
+    {
+      "candidate_ids": [
+        "https://medium.com/jonathans-musings/ai-startups-you-should-know-48d69d1ddf61"
+      ],
+      "cluster_id": "cluster-4",
+      "representative_ids": [
+        "https://medium.com/jonathans-musings/ai-startups-you-should-know-48d69d1ddf61"
+      ],
+      "score": 0.0,
+      "sources": [
+        "grounding"
+      ],
+      "title": "AI Startups You Should Know"
+    }
+  ],
+  "warnings": [
+    "Evidence is thin for this topic.",
+    "Top evidence is highly concentrated in one source."
+  ],
+  "errors_by_source": {}
+}

@@ -1,0 +1,86 @@
+{
+  "provider": "exa",
+  "query": "\"Typeahead\" \"[REDACTED], [REDACTED]\" founder maker official",
+  "items": [
+    {
+      "provider": "exa",
+      "title": "twitter/typeahead.js",
+      "url": "https://github.com/twitter/typeahead.js/",
+      "snippet": "# Repository: twitter/typeahead.js\n[...]\n- Stars: 16480\n- Forks: 3141\n- Watchers: 16480\n- Open issues: 506\n- Primary language: JavaScript\n- Languages: JavaScript (97.4%), HTML (2.5%), Shell\n- License: MIT License (MIT)\n- Default branch: master\n- Homepage: http://twitter.github.io/typeahead.js/\n- Created: 2013-02-19T19:45:01Z\n- Last push: 2023-04-14T07:24:33Z\n- Contributors: 70 (top: jharding, timtrueman, caniszczyk, akre54, lookfirst, ragulka, Morgon, simonexmachina, stevenwilkin, twhitbeck)\n[...]\ntypeahead.js\n[...]\n- **Jake Harding**\n\n* @JakeHarding \n * GitHub\n[...]\n- **Jake Harding**\n\n* @JakeHarding \n * GitHub\n[...]\n- **Veljko Skarich**\n[...]\n* @vskarich \n * GitHub\n\n- **Tim Trueman**\n\n* @timtrueman \n * GitHub",
+      "description": "# Repository: twitter/typeahead.js\n[...]\n- Stars: 16480\n- Forks: 3141\n- Watchers: 16480\n- Open issues: 506\n- Primary language: JavaScript\n- Languages: JavaScript (97.4%), HTML (2.5%), Shell\n- License: MIT License (MIT)\n- Default branch: master\n- Homepage: http://twitter.github.io/typeahead.js/\n- Created: 2013-02-19T19:45:01Z\n- Last push: 2023-04-14T07:24:33Z\n- Contributors: 70 (top: jharding, timtrueman, caniszczyk, akre54, lookfirst, ragulka, Morgon, simonexmachina, stevenwilkin, twhitbeck)\n[...]\ntypeahead.js\n[...]\n- **Jake Harding**\n\n* @JakeHarding \n * GitHub\n[...]\n- **Jake Harding**\n\n* @JakeHarding \n * GitHub\n[...]\n- **Veljko Skarich**\n[...]\n* @vskarich \n * GitHub\n\n- **Tim Trueman**\n\n* @timtrueman \n * GitHub",
+      "source": "exa"
+    },
+    {
+      "provider": "exa",
+      "title": "Which apps work with Typeahead \u2014 Typeahead Help",
+      "url": "https://www.typeahead.ai/help/features/which-apps-work-with-typeahead",
+      "snippet": "Which apps work with Typeahead \u2014 Typeahead Help\n[...]\nTypeahead uses the macOS Accessibility API to work system-wide. The short answer: if you can type in it on a Mac, Typeahead almost certainly works.",
+      "description": "Which apps work with Typeahead \u2014 Typeahead Help\n[...]\nTypeahead uses the macOS Accessibility API to work system-wide. The short answer: if you can type in it on a Mac, Typeahead almost certainly works.",
+      "source": "exa"
+    },
+    {
+      "provider": "exa",
+      "title": "Using Typeahead in different apps \u2014 Typeahead Help",
+      "url": "https://www.typeahead.ai/help/getting-started/using-typeahead-in-different-apps",
+      "snippet": "Using Typeahead in different apps \u2014 Typeahead Help\n[...]\nTypeahead works through the macOS Accessibility API. That means it works in any app with a standard text field: native macOS apps, Electron apps and web text fields in browsers.",
+      "description": "Using Typeahead in different apps \u2014 Typeahead Help\n[...]\nTypeahead works through the macOS Accessibility API. That means it works in any app with a standard text field: native macOS apps, Electron apps and web text fields in browsers.",
+      "source": "exa"
+    },
+    {
+      "provider": "exa",
+      "title": "README.md at master \u00b7 twitter/typeahead.js",
+      "url": "https://github.com/twitter/typeahead.js/blob/master/README.md",
+      "snippet": "- Repository: twitter/typeahead.js | typeahead.js is a fast and fully-featured autocomplete library | 16K stars | JavaScript\n- Branch: master\n[...]\nMaintainers\n-----------\n\n* **Jake Harding** \n  * @JakeHarding \n  * GitHub\n[...]\nAuthors\n-------\n\n* **Jake Harding** \n  * @JakeHarding \n  * GitHub\n[...]\n* **Veljko Skarich**\n  * @vskarich \n  * GitHub\n[...]\n* **Tim Trueman**\n  * @timtrueman \n  * GitHub",
+      "description": "- Repository: twitter/typeahead.js | typeahead.js is a fast and fully-featured autocomplete library | 16K stars | JavaScript\n- Branch: master\n[...]\nMaintainers\n-----------\n\n* **Jake Harding** \n  * @JakeHarding \n  * GitHub\n[...]\nAuthors\n-------\n\n* **Jake Harding** \n  * @JakeHarding \n  * GitHub\n[...]\n* **Veljko Skarich**\n  * @vskarich \n  * GitHub\n[...]\n* **Tim Trueman**\n  * @timtrueman \n  * GitHub",
+      "source": "exa"
+    },
+    {
+      "provider": "exa",
+      "title": "doc/jquery_typeahead.md at master \u00b7 twitter/typeahead.js",
+      "url": "https://github.com/twitter/typeahead.js/blob/master/doc/jquery_typeahead.md",
+      "snippet": "# File: twitter/typeahead.js/doc/jquery_typeahead.md\n[...]\n- Repository: twitter/typeahead.js | typeahead.js is a fast and fully-featured autocomplete library | 16K stars | JavaScript\n- Branch: master\n[...]\n```md\njQuery#typeahead\n----------------\n\nThe UI component of typeahead.js is available as a jQuery plugin. It's \nresponsible for rendering suggestions and handling DOM interactions.\n[...]\njQuery#typeahead(options, [*datasets])`\n[...]\njQuery#typeahead\n[...]\njQuery#typeahead\n[...]\ndestroy')`\n[...]\njQuery.fn\n[...]\n#### jQuery#typeahead(options, [\\*datasets])\n[...]\nFor a given `input[type=\"text\"]`, enables typeahead functionality. `options` \nis an options hash that's used for configuration. Refer to Options \nfor more info regarding the available configs. Subsequent arguments \n(`*datasets`), are individual option hashes for datasets. For more details \nregarding datasets, refer to Datasets.",
+      "description": "# File: twitter/typeahead.js/doc/jquery_typeahead.md\n[...]\n- Repository: twitter/typeahead.js | typeahead.js is a fast and fully-featured autocomplete library | 16K stars | JavaScript\n- Branch: master\n[...]\n```md\njQuery#typeahead\n----------------\n\nThe UI component of typeahead.js is available as a jQuery plugin. It's \nresponsible for rendering suggestions and handling DOM interactions.\n[...]\njQuery#typeahead(options, [*datasets])`\n[...]\njQuery#typeahead\n[...]\njQuery#typeahead\n[...]\ndestroy')`\n[...]\njQuery.fn\n[...]\n#### jQuery#typeahead(options, [\\*datasets])\n[...]\nFor a given `input[type=\"text\"]`, enables typeahead functionality. `options` \nis an options hash that's used for configuration. Refer to Options \nfor more info regarding the available configs. Subsequent arguments \n(`*datasets`), are individual option hashes for datasets. For more details \nregarding datasets, refer to Datasets.",
+      "source": "exa"
+    },
+    {
+      "provider": "exa",
+      "title": "corejavascript/typeahead.js",
+      "url": "https://github.com/corejavascript/typeahead.js/",
+      "snippet": "# Repository: corejavascript/typeahead.js\n[...]\n- Stars: 975\n- Forks: 234\n- Watchers: 975\n- Open issues: 106\n- Primary language: JavaScript\n- Languages: JavaScript (95.7%), HTML (4.1%), Shell (0.2%)\n- License: MIT License (MIT)\n- Default branch: master\n- Homepage: https://typeahead.js.org/\n- Created: 2015-09-11T10:34:04Z\n- Last push: 2024-07-12T15:29:07Z\n- Contributors: 100 (top: jharding, jlbooker, Apfeluser, jesperronn, lenovouser, timtrueman, wakingrufus, jcrben, caniszczyk, easternbloc)\n- Releases: 7\n- Latest release: v1.3.4 (2024-01-15T23:03:13Z)\n[...]\nThis is a maintained fork of twitter.com's autocomplete search library, typeahead.js.\n[...]\n- **Jake Harding**\n\n* @JakeHarding\n * GitHub\n[...]\n- **Veljko Skarich**\n[...]\n* @vskarich\n * GitHub\n[...]\n- **Tim Trueman**\n[...]\n* @timtrueman\n * GitHub",
+      "description": "# Repository: corejavascript/typeahead.js\n[...]\n- Stars: 975\n- Forks: 234\n- Watchers: 975\n- Open issues: 106\n- Primary language: JavaScript\n- Languages: JavaScript (95.7%), HTML (4.1%), Shell (0.2%)\n- License: MIT License (MIT)\n- Default branch: master\n- Homepage: https://typeahead.js.org/\n- Created: 2015-09-11T10:34:04Z\n- Last push: 2024-07-12T15:29:07Z\n- Contributors: 100 (top: jharding, jlbooker, Apfeluser, jesperronn, lenovouser, timtrueman, wakingrufus, jcrben, caniszczyk, easternbloc)\n- Releases: 7\n- Latest release: v1.3.4 (2024-01-15T23:03:13Z)\n[...]\nThis is a maintained fork of twitter.com's autocomplete search library, typeahead.js.\n[...]\n- **Jake Harding**\n\n* @JakeHarding\n * GitHub\n[...]\n- **Veljko Skarich**\n[...]\n* @vskarich\n * GitHub\n[...]\n- **Tim Trueman**\n[...]\n* @timtrueman\n * GitHub",
+      "source": "exa"
+    },
+    {
+      "provider": "exa",
+      "title": "corejs-typeahead - npmx",
+      "url": "https://npmx.dev/package/corejs-typeahead",
+      "snippet": "This is a maintained fork of twitter.com's autocomplete search library, typeahead.js.\n[...]\nThe typeahead.js library consists of 2 components: the suggestion engine, Bloodhound, and the UI view, Typeahead.\n[...]\nsuggestions for a given query. The\n[...]\nfor rendering suggestions and\n[...]\nDOM interactions.\n[...]\na rich typeahead experience.\n[...]\nVeljko Skarich\n[...]\nTim Trueman",
+      "description": "This is a maintained fork of twitter.com's autocomplete search library, typeahead.js.\n[...]\nThe typeahead.js library consists of 2 components: the suggestion engine, Bloodhound, and the UI view, Typeahead.\n[...]\nsuggestions for a given query. The\n[...]\nfor rendering suggestions and\n[...]\nDOM interactions.\n[...]\na rich typeahead experience.\n[...]\nVeljko Skarich\n[...]\nTim Trueman",
+      "source": "exa"
+    },
+    {
+      "provider": "exa",
+      "title": "CHANGELOG.md at master \u00b7 twitter/typeahead.js",
+      "url": "https://github.com/twitter/typeahead.js/blob/master/CHANGELOG.md",
+      "snippet": "- Repository: twitter/typeahead.js | typeahead.js is a fast and fully-featured autocomplete library | 16K stars | JavaScript\n- Branch: master\n[...]\nThis release was almost a complete rewrite of typeahead.js and will hopefully\nlay the foundation for the 1.0.0 release. It's impossible to enumerate all of \nthe issues that were fixed. If you want to get an idea of what issues 0.10.0 \nresolved, take a look at the closed issues in the [0.10.0 milestone].\n[...]\nThe most important change in 0.10.0 is that typeahead.js was broken up into 2 \nindividual components: Bloodhound and jQuery#typeahead. Bloodhound is an \nfeature-rich suggestion engine. jQuery#typeahead is a jQuery plugin that turns\ninput controls into typeaheads.\n[...]\nIt's impossible to write a typeahead library that supports every use-case out \nof the box \u2013\u00a0that was the main motivation behind decomposing typeahead.js. \nPreviously, some prospective typeahead.js users were unable to use the library \nbecause either the suggestion engine or the typeahead UI did not meet their\nrequirements. In those cases, they were either forced to fork typeahead.js and\nmake the necessary modifications or they had to give up on using typeahead.js\nentirely. Now they have the option of swapping out the component that doesn't \nwork for them with a custom implementation.",
+      "description": "- Repository: twitter/typeahead.js | typeahead.js is a fast and fully-featured autocomplete library | 16K stars | JavaScript\n- Branch: master\n[...]\nThis release was almost a complete rewrite of typeahead.js and will hopefully\nlay the foundation for the 1.0.0 release. It's impossible to enumerate all of \nthe issues that were fixed. If you want to get an idea of what issues 0.10.0 \nresolved, take a look at the closed issues in the [0.10.0 milestone].\n[...]\nThe most important change in 0.10.0 is that typeahead.js was broken up into 2 \nindividual components: Bloodhound and jQuery#typeahead. Bloodhound is an \nfeature-rich suggestion engine. jQuery#typeahead is a jQuery plugin that turns\ninput controls into typeaheads.\n[...]\nIt's impossible to write a typeahead library that supports every use-case out \nof the box \u2013\u00a0that was the main motivation behind decomposing typeahead.js. \nPreviously, some prospective typeahead.js users were unable to use the library \nbecause either the suggestion engine or the typeahead UI did not meet their\nrequirements. In those cases, they were either forced to fork typeahead.js and\nmake the necessary modifications or they had to give up on using typeahead.js\nentirely. Now they have the option of swapping out the component that doesn't \nwork for them with a custom implementation.",
+      "source": "exa"
+    }
+  ],
+  "skipped": false,
+  "skip_reason": "",
+  "cache_status": "miss",
+  "latency_ms": 1416,
+  "cost_usd": 0.007,
+  "capabilities": {
+    "provider": "exa",
+    "snippet_only": false,
+    "page_content_returned": true,
+    "livecrawl_available": true,
+    "cost_estimated": true
+  },
+  "query_id": "",
+  "query_family": "hard_evidence_resolver",
+  "movement": "",
+  "market_sector": ""
+}

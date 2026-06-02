@@ -1,0 +1,231 @@
+{
+  "topic": "\"eac\" pricing docs customers careers",
+  "items": [
+    {
+      "source": "grounding",
+      "title": "OpenAI API Pricing | OpenAI",
+      "url": "https://openai.com/api/pricing/",
+      "snippet": "Explore OpenAI API pricing for GPT-5.5, multimodal models, and tools. Compare token costs, realtime, image, and video pricing, plus service tiers.",
+      "published_at": "2026-06-01",
+      "engagement": {},
+      "container": "openai.com",
+      "author": "",
+      "_raw_fields_present": [
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": []
+    },
+    {
+      "source": "grounding",
+      "title": "Account Executive, Enterprise @ DocuSign | Omega Venture Partners Job Board",
+      "url": "https://jobs.omegavp.com/companies/docusign/jobs/80516967-account-executive-enterprise",
+      "snippet": "Identify, qualify, and close new business opportunities within enterprise accounts, with a focus on long-term customer success and retention \u00b7 Articulate the unique value of Docusign\u2019s Agreement Cloud and IAM solutions in ways that resonate with each customer\u2019s strategic goals and business drivers",
+      "published_at": "2026-05-26",
+      "engagement": {},
+      "container": "jobs.omegavp.com",
+      "author": "",
+      "_raw_fields_present": [
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": []
+    },
+    {
+      "source": "grounding",
+      "title": "Civil Engineering Intern - EAC Consulting Inc. | BeBee",
+      "url": "https://bebee.com/us/jobs/civil-engineering-intern-eac-consulting-inc-fort-lauderdale-fl--theirstack-686393528",
+      "snippet": "Curious about different fields of engineering? EAC offers the opportunity to gain hands-on experience in various engineering disciplines during your first two years of employment. If you are looking for a career that offers opportunities for professional development.",
+      "published_at": "2026-05-18",
+      "engagement": {},
+      "container": "bebee.com",
+      "author": "",
+      "_raw_fields_present": [
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": []
+    },
+    {
+      "source": "grounding",
+      "title": "Calculate Estimate At Completion (EAC) | Adobe Workfront",
+      "url": "https://experienceleague.adobe.com/en/docs/workfront/using/manage-work/projects/project-finances/calculate-eac",
+      "snippet": "<strong>EAC for the parent task and project are determined by entering the actual hours/actual labor cost into the EAC Formulas</strong>.",
+      "published_at": "2026-05-11",
+      "engagement": {},
+      "container": "experienceleague.adobe.com",
+      "author": "",
+      "_raw_fields_present": [
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": []
+    },
+    {
+      "source": "grounding",
+      "title": "Jobs",
+      "url": "https://www.eac.int/?view=category&id=169",
+      "snippet": "Customs Union \u00b7 Common Market \u00b7 Monetary Union \u00b7 Political Federaton \u00b7 NEWS AND MEDIA \u00b7 Press Releases \u00b7 Communiqu\u00e9 \u00b7 Statements \u00b7 Photo Gallery \u00b7 Calendar of Events \u00b7 Visiting the EAC \u00b7 Media Contacts \u00b7 ABOUT EAC \u00b7 Overview of EAC \u00b7 EAC Quick Facts \u00b7 EAC Partner States \u00b7 EAC Organs \u00b7 The Secretariat \u00b7 EAC Institutions \u00b7 EAC Leadership \u00b7 EAC History \u00b7 Key Documents \u00b7",
+      "published_at": "2026-05-08",
+      "engagement": {},
+      "container": "www.eac.int",
+      "author": "",
+      "_raw_fields_present": [
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": []
+    }
+  ],
+  "clusters": [
+    {
+      "candidate_ids": [
+        "https://openai.com/api/pricing"
+      ],
+      "cluster_id": "cluster-1",
+      "representative_ids": [
+        "https://openai.com/api/pricing"
+      ],
+      "score": 0.0,
+      "sources": [
+        "grounding"
+      ],
+      "title": "OpenAI API Pricing | OpenAI"
+    },
+    {
+      "candidate_ids": [
+        "https://jobs.omegavp.com/companies/docusign/jobs/80516967-account-executive-enterprise"
+      ],
+      "cluster_id": "cluster-2",
+      "representative_ids": [
+        "https://jobs.omegavp.com/companies/docusign/jobs/80516967-account-executive-enterprise"
+      ],
+      "score": 0.0,
+      "sources": [
+        "grounding"
+      ],
+      "title": "Account Executive, Enterprise @ DocuSign | Omega Venture Partners Job Board"
+    },
+    {
+      "candidate_ids": [
+        "https://bebee.com/us/jobs/civil-engineering-intern-eac-consulting-inc-fort-lauderdale-fl--theirstack-686393528"
+      ],
+      "cluster_id": "cluster-3",
+      "representative_ids": [
+        "https://bebee.com/us/jobs/civil-engineering-intern-eac-consulting-inc-fort-lauderdale-fl--theirstack-686393528"
+      ],
+      "score": 0.0,
+      "sources": [
+        "grounding"
+      ],
+      "title": "Civil Engineering Intern - EAC Consulting Inc. | BeBee"
+    },
+    {
+      "candidate_ids": [
+        "https://experienceleague.adobe.com/en/docs/workfront/using/manage-work/projects/project-finances/calculate-eac"
+      ],
+      "cluster_id": "cluster-4",
+      "representative_ids": [
+        "https://experienceleague.adobe.com/en/docs/workfront/using/manage-work/projects/project-finances/calculate-eac"
+      ],
+      "score": 0.0,
+      "sources": [
+        "grounding"
+      ],
+      "title": "Calculate Estimate At Completion (EAC) | Adobe Workfront"
+    },
+    {
+      "candidate_ids": [
+        "https://eac.int?view=category&id=169"
+      ],
+      "cluster_id": "cluster-5",
+      "representative_ids": [
+        "https://eac.int?view=category&id=169"
+      ],
+      "score": 0.0,
+      "sources": [
+        "grounding"
+      ],
+      "title": "Jobs"
+    }
+  ],
+  "warnings": [
+    "Top evidence is highly concentrated in one source."
+  ],
+  "errors_by_source": {}
+}

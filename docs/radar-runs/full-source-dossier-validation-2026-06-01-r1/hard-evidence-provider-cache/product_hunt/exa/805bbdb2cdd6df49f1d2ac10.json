@@ -1,0 +1,86 @@
+{
+  "provider": "exa",
+  "query": "\"Presentify\" \"[REDACTED]\" founder maker official",
+  "items": [
+    {
+      "provider": "exa",
+      "title": "Presentify company profile",
+      "url": "https://tracxn.com/d/companies/presentify/__8gzrhmr-wqnhlFbkPQvT0ceEfNZBV4yoPiL9lSMDfRs",
+      "snippet": "Presentify is an acquired company based in Cardiff (United Kingdom), founded in 2016byNathan Jackson.It operates as a Provider of content development, advertising and animated videos services.The company has 91608 active competitors, including 691 funded and 2964 that have exited. Its top competitorsinclude companies likeMedallia,BoxandExperian.\n###\n[...]\n## Presentify's founders and board of directors\n[...]\nThe founders ofPresentifyisNathan Jackson.\n[...]\nPresentify's Founder",
+      "description": "Presentify is an acquired company based in Cardiff (United Kingdom), founded in 2016byNathan Jackson.It operates as a Provider of content development, advertising and animated videos services.The company has 91608 active competitors, including 691 funded and 2964 that have exited. Its top competitorsinclude companies likeMedallia,BoxandExperian.\n###\n[...]\n## Presentify's founders and board of directors\n[...]\nThe founders ofPresentifyisNathan Jackson.\n[...]\nPresentify's Founder",
+      "source": "exa"
+    },
+    {
+      "provider": "exa",
+      "title": "Presentify - AI-Powered Presentations",
+      "url": "https://presentify.ai/",
+      "snippet": "Presentify - AI-Powered Presentations\n[...]\nPresentify - AI-Powered Presentations",
+      "description": "Presentify - AI-Powered Presentations\n[...]\nPresentify - AI-Powered Presentations",
+      "source": "exa"
+    },
+    {
+      "provider": "exa",
+      "title": "Mediafly Acquires Presentify to Transform Marketing and Sales Content",
+      "url": "https://www.businesswire.com/news/home/20201028005202/en/Mediafly-Acquires-Presentify-to-Transform-Marketing-and-Sales-Content",
+      "snippet": "CHICAGO--(BUSINESS WIRE)-- Mediafly, a provider of sales enablement technology, content management and advisory services that create interactive, value-based selling experiences, announced today it has acquired Presentify, a global visual communication solution based in the UK. Expanding its global presence and adding customers like Barclaycard, Pitney Bowes and Avalara, the acquisition further enforces Mediafly\u2019s commitment to placing content at the center of everything it does, helping customers create an optimal buyer engagement experience that accelerates the path to purchase and drives revenue.\n[...]\n\u201cMore companies are recognizing the need for digital sales transformation, and the importance of using a modern sales enablement platform. But all too often they don't want to take their antiquated, boring sales content and put it into a sophisticated sales app for fear of garbage in, garbage out,\u201d said Carson Conant, CEO and founder of Mediafly. \u201cWith Presentify, Mediafly now tears down the barrier of entry for these companies, allowing them to quickly refresh their sales stories with interactive, animated content -- and learn the \u2018Presentification\u2019 techniques to create and maintain sales collateral that is a league above their competition.\u201d\n[...]\n\u201cTo truly enable marketing and sales teams, companies must have interactive, visually immersive content that makes their message capture buyer attention among the clutter,\u201d said Nathan Jackson, founder and managing director of Presentify, incoming Mediafly EVP - Presentify. \u201cAfter partnering with Mediafly on a range of projects, it became clear to me that adding Presentify to Mediafly\u2019s suite of solutions provides both companies an opportunity to have a greater impact on customers around the world, helping them get even more out of their sales enablement technology investment to close deals faster and drive revenue.\u201d",
+      "description": "CHICAGO--(BUSINESS WIRE)-- Mediafly, a provider of sales enablement technology, content management and advisory services that create interactive, value-based selling experiences, announced today it has acquired Presentify, a global visual communication solution based in the UK. Expanding its global presence and adding customers like Barclaycard, Pitney Bowes and Avalara, the acquisition further enforces Mediafly\u2019s commitment to placing content at the center of everything it does, helping customers create an optimal buyer engagement experience that accelerates the path to purchase and drives revenue.\n[...]\n\u201cMore companies are recognizing the need for digital sales transformation, and the importance of using a modern sales enablement platform. But all too often they don't want to take their antiquated, boring sales content and put it into a sophisticated sales app for fear of garbage in, garbage out,\u201d said Carson Conant, CEO and founder of Mediafly. \u201cWith Presentify, Mediafly now tears down the barrier of entry for these companies, allowing them to quickly refresh their sales stories with interactive, animated content -- and learn the \u2018Presentification\u2019 techniques to create and maintain sales collateral that is a league above their competition.\u201d\n[...]\n\u201cTo truly enable marketing and sales teams, companies must have interactive, visually immersive content that makes their message capture buyer attention among the clutter,\u201d said Nathan Jackson, founder and managing director of Presentify, incoming Mediafly EVP - Presentify. \u201cAfter partnering with Mediafly on a range of projects, it became clear to me that adding Presentify to Mediafly\u2019s suite of solutions provides both companies an opportunity to have a greater impact on customers around the world, helping them get even more out of their sales enablement technology investment to close deals faster and drive revenue.\u201d",
+      "source": "exa"
+    },
+    {
+      "provider": "exa",
+      "title": "Presentify | Devpost",
+      "url": "https://devpost.com/software/presentify",
+      "snippet": "Presentify | Devpost\n[...]\nPresentations are often a grueling task, requiring significant time and effort to convey information effectively. Our inspiration for Presentify came from the desire to simplify this process, making presentations more accessible, engaging, and inclusive. We aim to enhance communication by integrating speech-to-text technology, which allows for real-time subtitle generation, thereby supporting individuals with diverse needs.\n[...]\nWe built Presentify using a combination of the following technologies:\n[...]\n- React for building a responsive user interface, allowing for real-time updates and smooth user interactions.\n- Web Speech API for converting speech to text, enabling automatic subtitle generation.\n- GPT-4o mini to summarize speech content into bullet points and identify keywords for image pairing.\n- PexelsAPI for stock image fetching, allowing us to pull relevant imagery.",
+      "description": "Presentify | Devpost\n[...]\nPresentations are often a grueling task, requiring significant time and effort to convey information effectively. Our inspiration for Presentify came from the desire to simplify this process, making presentations more accessible, engaging, and inclusive. We aim to enhance communication by integrating speech-to-text technology, which allows for real-time subtitle generation, thereby supporting individuals with diverse needs.\n[...]\nWe built Presentify using a combination of the following technologies:\n[...]\n- React for building a responsive user interface, allowing for real-time updates and smooth user interactions.\n- Web Speech API for converting speech to text, enabling automatic subtitle generation.\n- GPT-4o mini to summarize speech content into bullet points and identify keywords for image pairing.\n- PexelsAPI for stock image fetching, allowing us to pull relevant imagery.",
+      "source": "exa"
+    },
+    {
+      "provider": "exa",
+      "title": "jkuo630/presentify",
+      "url": "https://github.com/jkuo630/presentify",
+      "snippet": "# Repository: jkuo630/presentify\n[...]\ngenerate bullet points, images and captions as you speak | StormHacks 2024\n[...]\n- Stars: 0\n- Forks: 0\n- Watchers: 1\n- Open issues: 1\n- Primary language: JavaScript\n- Languages: JavaScript (69.7%), CSS (27.3%), HTML (3.0%)\n- Default branch: main\n- Created: 2024-10-05T19:24:35Z\n- Last push: 2024-10-07T05:44:33Z\n- Contributors: 4 (top: jkuo630, m20arcusk, mwchelle, lucasging)",
+      "description": "# Repository: jkuo630/presentify\n[...]\ngenerate bullet points, images and captions as you speak | StormHacks 2024\n[...]\n- Stars: 0\n- Forks: 0\n- Watchers: 1\n- Open issues: 1\n- Primary language: JavaScript\n- Languages: JavaScript (69.7%), CSS (27.3%), HTML (3.0%)\n- Default branch: main\n- Created: 2024-10-05T19:24:35Z\n- Last push: 2024-10-07T05:44:33Z\n- Contributors: 4 (top: jkuo630, m20arcusk, mwchelle, lucasging)",
+      "source": "exa"
+    },
+    {
+      "provider": "exa",
+      "title": "Presentify AI: End-to-End AI-Powered Presentation Generation Platform | Built with Blink",
+      "url": "https://blink.new/p/presentify-ai-kolxu0sg",
+      "snippet": "Presentify AI: End-to-End AI-Powered Presentation Generation Platform | Built with Blink\n[...]\n# Presentify AI: End-to-End AI-Powered Presentation Generation Platform\n[...]\nSKby saigurucharan K\n[...]\nPresentify AI is an advanced AI platform that transforms text prompts or research documents into validated, visually compelling video presentations with synchronized slides, narration, and professional PDF export\u2014empowering users to automate the most time-consuming tasks of presentation creation in minutes.\n[...]\n| Field | Description |\n|-------|-------------|\n[...]\n| **Product Name** | Presentify AI |\n[...]\n| **Document Version** | 1.0 (Initial PRD) |\n| **Owner** | [Your Name/Team] |\n| **Target Audience** | Researchers, Academics, Consultants, Students, Business Professionals |\n[...]\n| Role | Description | Responsible Person |\n|------|-------------|--------------------|\n| **Product Owner** | Defines product requirements and priorities | [Sai guru] |\n| **Technical Lead** | Oversees technical implementation and architecture | [Sai guru] |\n| **Software Engineers** | Develop and test the application | [Sai guru] |\n| **QA Engineers** | Conduct testing and quality assurance | [Lokesh] |\n| **Designers** | Create UI/UX designs for the application | [Junaid] |\n[...]\nThis app was built with\n[...]\nin minutes \u2014\n[...]\n-->Presentify AI: End-to-End AI-Powered Presentation Generation Platform<!-- --> and customize it however you\n[...]\nor describe something entirely new.",
+      "description": "Presentify AI: End-to-End AI-Powered Presentation Generation Platform | Built with Blink\n[...]\n# Presentify AI: End-to-End AI-Powered Presentation Generation Platform\n[...]\nSKby saigurucharan K\n[...]\nPresentify AI is an advanced AI platform that transforms text prompts or research documents into validated, visually compelling video presentations with synchronized slides, narration, and professional PDF export\u2014empowering users to automate the most time-consuming tasks of presentation creation in minutes.\n[...]\n| Field | Description |\n|-------|-------------|\n[...]\n| **Product Name** | Presentify AI |\n[...]\n| **Document Version** | 1.0 (Initial PRD) |\n| **Owner** | [Your Name/Team] |\n| **Target Audience** | Researchers, Academics, Consultants, Students, Business Professionals |\n[...]\n| Role | Description | Responsible Person |\n|------|-------------|--------------------|\n| **Product Owner** | Defines product requirements and priorities | [Sai guru] |\n| **Technical Lead** | Oversees technical implementation and architecture | [Sai guru] |\n| **Software Engineers** | Develop and test the application | [Sai guru] |\n| **QA Engineers** | Conduct testing and quality assurance | [Lokesh] |\n| **Designers** | Create UI/UX designs for the application | [Junaid] |\n[...]\nThis app was built with\n[...]\nin minutes \u2014\n[...]\n-->Presentify AI: End-to-End AI-Powered Presentation Generation Platform<!-- --> and customize it however you\n[...]\nor describe something entirely new.",
+      "source": "exa"
+    },
+    {
+      "provider": "exa",
+      "title": "ErnestTeluk/presentify",
+      "url": "https://github.com/ErnestTeluk/presentify",
+      "snippet": "# Repository: ErnestTeluk/presentify\n[...]\n- Stars: 7\n- Forks: 1\n- Watchers: 7\n- Open issues: 1\n- Primary language: TypeScript\n- Languages: TypeScript (88.9%), JavaScript (7.9%), CSS (1.6%), HTML (1.4%), Shell (0.1%)\n- License: MIT License (MIT)\n- Topics: deck, hacktoberfest, markdown, presentation-deck, react, slides, vite\n- Default branch: main\n- Homepage: https://ernestteluk.github.io/presentify/\n- Created: 2023-03-10T17:58:52Z\n- Last push: 2023-06-21T18:37:25Z\n- Contributors: 1 (top: ErnestTeluk)",
+      "description": "# Repository: ErnestTeluk/presentify\n[...]\n- Stars: 7\n- Forks: 1\n- Watchers: 7\n- Open issues: 1\n- Primary language: TypeScript\n- Languages: TypeScript (88.9%), JavaScript (7.9%), CSS (1.6%), HTML (1.4%), Shell (0.1%)\n- License: MIT License (MIT)\n- Topics: deck, hacktoberfest, markdown, presentation-deck, react, slides, vite\n- Default branch: main\n- Homepage: https://ernestteluk.github.io/presentify/\n- Created: 2023-03-10T17:58:52Z\n- Last push: 2023-06-21T18:37:25Z\n- Contributors: 1 (top: ErnestTeluk)",
+      "source": "exa"
+    },
+    {
+      "provider": "exa",
+      "title": "Presentify | Custom-made Presentations",
+      "url": "https://presentify-web.github.io/presentify/",
+      "snippet": "Presentify | Custom-made Presentations\n\n## Presentations that actually impress\n\nWe design custom, visually clean presentations tailored to your topic, deadline, and academic needs.\n\nRequest a custom presentation\n\n\ud83c\udf93 Student-focused \u26a1 Fast delivery \ud83d\udd12 100% confidential\n\n\u2193 Scroll\n\n## What We Offer\n\nCustom-designed slides for every subject\n\nClear layouts that are easy to present\n\nFast delivery for urgent deadlines\n\n## How It Works\n\n### 1. Share your topic\n\nTell us your subject, number of slides, and deadline.\n\n### 2. We design\n\nWe create a clean, original, and structured presentation.\n\n### 3. You present\n\nDownload your slides and present confidently.\n\n## Pricing & Payment\n\nEvery presentation is priced individually to ensure you get the best value for your needs\n\n### How pricing is decided\n\n- Type of presentation\n- Urgency / deadline\n- Design complexity\n- Number of slides\n\n### Accepted currencies\n\n- GEL (\u20be)\n- USD ($)\n\n### Secure Payment\n\nPayments are accepted via direct card transfer.\n\n## Our Work\n\nA few examples of presentations created for students.\n\n### Lung Cancer Seminar\n\n### Trichinella Presentation\n\n### Clinical Case Study\n\n## Contact Us\n\nQuestions? Custom requests? Feel free to reach out and we\u2019ll respond as soon as we can.\n\nSend\n\nYou can also contact us directly on WhatsApp:\n\n\ud83d\udcac Contact on WhatsApp",
+      "description": "Presentify | Custom-made Presentations\n\n## Presentations that actually impress\n\nWe design custom, visually clean presentations tailored to your topic, deadline, and academic needs.\n\nRequest a custom presentation\n\n\ud83c\udf93 Student-focused \u26a1 Fast delivery \ud83d\udd12 100% confidential\n\n\u2193 Scroll\n\n## What We Offer\n\nCustom-designed slides for every subject\n\nClear layouts that are easy to present\n\nFast delivery for urgent deadlines\n\n## How It Works\n\n### 1. Share your topic\n\nTell us your subject, number of slides, and deadline.\n\n### 2. We design\n\nWe create a clean, original, and structured presentation.\n\n### 3. You present\n\nDownload your slides and present confidently.\n\n## Pricing & Payment\n\nEvery presentation is priced individually to ensure you get the best value for your needs\n\n### How pricing is decided\n\n- Type of presentation\n- Urgency / deadline\n- Design complexity\n- Number of slides\n\n### Accepted currencies\n\n- GEL (\u20be)\n- USD ($)\n\n### Secure Payment\n\nPayments are accepted via direct card transfer.\n\n## Our Work\n\nA few examples of presentations created for students.\n\n### Lung Cancer Seminar\n\n### Trichinella Presentation\n\n### Clinical Case Study\n\n## Contact Us\n\nQuestions? Custom requests? Feel free to reach out and we\u2019ll respond as soon as we can.\n\nSend\n\nYou can also contact us directly on WhatsApp:\n\n\ud83d\udcac Contact on WhatsApp",
+      "source": "exa"
+    }
+  ],
+  "skipped": false,
+  "skip_reason": "",
+  "cache_status": "miss",
+  "latency_ms": 946,
+  "cost_usd": 0.007,
+  "capabilities": {
+    "provider": "exa",
+    "snippet_only": false,
+    "page_content_returned": true,
+    "livecrawl_available": true,
+    "cost_estimated": true
+  },
+  "query_id": "",
+  "query_family": "hard_evidence_resolver",
+  "movement": "",
+  "market_sector": ""
+}

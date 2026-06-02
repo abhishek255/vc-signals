@@ -1,0 +1,55 @@
+{
+  "topic": "\"agent-ci\" pricing docs customers careers",
+  "items": [
+    {
+      "source": "grounding",
+      "title": "GitHub - redwoodjs/agent-ci: Agent-CI is local GitHub Actions for your agents. \u00b7 GitHub",
+      "url": "https://github.com/redwoodjs/agent-ci",
+      "snippet": "Agent-CI is local GitHub Actions for your agents. Contribute to redwoodjs/agent-ci development by creating an account on GitHub.",
+      "published_at": "2026-05-08",
+      "engagement": {},
+      "container": "github.com",
+      "author": "",
+      "_raw_fields_present": [
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": []
+    }
+  ],
+  "clusters": [
+    {
+      "candidate_ids": [
+        "https://github.com/redwoodjs/agent-ci"
+      ],
+      "cluster_id": "cluster-1",
+      "representative_ids": [
+        "https://github.com/redwoodjs/agent-ci"
+      ],
+      "score": 0.0,
+      "sources": [
+        "grounding"
+      ],
+      "title": "GitHub - redwoodjs/agent-ci: Agent-CI is local GitHub Actions for your agents. \u00b7 GitHub"
+    }
+  ],
+  "warnings": [
+    "Evidence is thin for this topic."
+  ],
+  "errors_by_source": {}
+}

@@ -1,0 +1,180 @@
+{
+  "topic": "Show HN Agent runtime infrastructure",
+  "items": [
+    {
+      "source": "hackernews",
+      "title": "Show HN: Adaptive Runtime \u2013 AI agent layer, no GPU, crash recovery",
+      "url": "https://github.com/stateflow-dev/adaptive-runtime",
+      "snippet": "Show HN: Adaptive Runtime \u2013 AI agent layer, no GPU, crash recovery",
+      "published_at": "2026-05-29",
+      "engagement": {
+        "comments": 1,
+        "points": 3
+      },
+      "container": "Hacker News",
+      "author": "StateflowsLabs",
+      "_raw_fields_present": [
+        "author",
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "engagement_score",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": [
+        "outbound_url",
+        "domain",
+        "hn_url"
+      ],
+      "outbound_url": "https://github.com/stateflow-dev/adaptive-runtime",
+      "domain": "github.com",
+      "hn_url": "https://news.ycombinator.com/item?id=48321786"
+    },
+    {
+      "source": "hackernews",
+      "title": "Show HN: Agent-QA: Open-source AI end-to-end testing for web and mobile apps",
+      "url": "https://vostride.com",
+      "snippet": "Show HN: Agent-QA: Open-source AI end-to-end testing for web and mobile apps",
+      "published_at": "2026-05-18",
+      "engagement": {
+        "comments": 1,
+        "points": 3
+      },
+      "container": "Hacker News",
+      "author": "pranshuchittora",
+      "_raw_fields_present": [
+        "author",
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "engagement_score",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": [
+        "outbound_url",
+        "domain",
+        "hn_url"
+      ],
+      "outbound_url": "https://vostride.com",
+      "domain": "vostride.com",
+      "hn_url": "https://news.ycombinator.com/item?id=48176493"
+    },
+    {
+      "source": "hackernews",
+      "title": "Show HN: Agent FM \u2013 local, open-source radio for Claude Code and Codex agents",
+      "url": "https://github.com/agentfm-ai/agent-fm",
+      "snippet": "Show HN: Agent FM \u2013 local, open-source radio for Claude Code and Codex agents",
+      "published_at": "2026-05-12",
+      "engagement": {
+        "comments": 0,
+        "points": 9
+      },
+      "container": "Hacker News",
+      "author": "anideshp",
+      "_raw_fields_present": [
+        "author",
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "engagement_score",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": [
+        "outbound_url",
+        "domain",
+        "hn_url"
+      ],
+      "outbound_url": "https://github.com/agentfm-ai/agent-fm",
+      "domain": "github.com",
+      "hn_url": "https://news.ycombinator.com/item?id=48104863"
+    }
+  ],
+  "clusters": [
+    {
+      "candidate_ids": [
+        "https://github.com/agentfm-ai/agent-fm"
+      ],
+      "cluster_id": "cluster-1",
+      "representative_ids": [
+        "https://github.com/agentfm-ai/agent-fm"
+      ],
+      "score": 0.0,
+      "sources": [
+        "hackernews"
+      ],
+      "title": "Show HN: Agent FM \u2013 local, open-source radio for Claude Code and Codex agents"
+    },
+    {
+      "candidate_ids": [
+        "https://github.com/stateflow-dev/adaptive-runtime"
+      ],
+      "cluster_id": "cluster-2",
+      "representative_ids": [
+        "https://github.com/stateflow-dev/adaptive-runtime"
+      ],
+      "score": 0.0,
+      "sources": [
+        "hackernews"
+      ],
+      "title": "Show HN: Adaptive Runtime \u2013 AI agent layer, no GPU, crash recovery"
+    },
+    {
+      "candidate_ids": [
+        "https://vostride.com"
+      ],
+      "cluster_id": "cluster-3",
+      "representative_ids": [
+        "https://vostride.com"
+      ],
+      "score": 0.0,
+      "sources": [
+        "hackernews"
+      ],
+      "title": "Show HN: Agent-QA: Open-source AI end-to-end testing for web and mobile apps"
+    }
+  ],
+  "warnings": [
+    "Evidence is thin for this topic.",
+    "Top evidence is highly concentrated in one source."
+  ],
+  "errors_by_source": {}
+}

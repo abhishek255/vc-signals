@@ -1,0 +1,99 @@
+{
+  "topic": "\"Entro Security\" funding valuation acquisition Series C",
+  "items": [
+    {
+      "source": "grounding",
+      "title": "Entro Security Startup Profile | Updated May 16, 2026",
+      "url": "https://clawandtalon.capital/startup-entro-security",
+      "snippet": "The links below are visible public references used for source discipline around company identity, status, funding, customer, acquisition, public-company, or other material claims where available. Official website Primary public reference for company identity, positioning, and current web presence. Profile update timestamp Last updated in the Claw &amp; Talon database on May 16, 2026. ... Entro Security may matter as a Cybersecurity entry with direct private-company diligence for Israeli technolo",
+      "published_at": "2026-05-16",
+      "engagement": {},
+      "container": "clawandtalon.capital",
+      "author": "",
+      "_raw_fields_present": [
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": []
+    },
+    {
+      "source": "grounding",
+      "title": "Agentic AI & Non-Human Identity Security Platform | Entro Security",
+      "url": "https://entro.security/",
+      "snippet": "Entro is the first platform to unify security for AI agents, NHIs, and secrets - delivering full visibility, ownership attribution, and real-time detection of anomalies.",
+      "published_at": "2026-05-21",
+      "engagement": {},
+      "container": "entro.security",
+      "author": "",
+      "_raw_fields_present": [
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": []
+    }
+  ],
+  "clusters": [
+    {
+      "candidate_ids": [
+        "https://clawandtalon.capital/startup-entro-security"
+      ],
+      "cluster_id": "cluster-1",
+      "representative_ids": [
+        "https://clawandtalon.capital/startup-entro-security"
+      ],
+      "score": 0.0,
+      "sources": [
+        "grounding"
+      ],
+      "title": "Entro Security Startup Profile | Updated May 16, 2026"
+    },
+    {
+      "candidate_ids": [
+        "https://entro.security"
+      ],
+      "cluster_id": "cluster-2",
+      "representative_ids": [
+        "https://entro.security"
+      ],
+      "score": 0.0,
+      "sources": [
+        "grounding"
+      ],
+      "title": "Agentic AI & Non-Human Identity Security Platform | Entro Security"
+    }
+  ],
+  "warnings": [
+    "Evidence is thin for this topic."
+  ],
+  "errors_by_source": {}
+}

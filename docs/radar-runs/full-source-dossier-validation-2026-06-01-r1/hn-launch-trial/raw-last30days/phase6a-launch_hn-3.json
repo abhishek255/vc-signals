@@ -1,0 +1,679 @@
+{
+  "topic": "Show HN Vertical AI operations",
+  "items": [
+    {
+      "source": "hackernews",
+      "title": "Show HN: Unsiloed AI \u2013 #1 on olmOCR-Bench",
+      "url": "https://news.ycombinator.com/item?id=48271937",
+      "snippet": "Show HN: Unsiloed AI \u2013 #1 on olmOCR-Bench",
+      "published_at": "2026-05-25",
+      "engagement": {
+        "comments": 4,
+        "points": 9
+      },
+      "container": "Hacker News",
+      "author": "adnan9999",
+      "_raw_fields_present": [
+        "author",
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "engagement_score",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": [
+        "hn_url"
+      ],
+      "hn_url": "https://news.ycombinator.com/item?id=48271937"
+    },
+    {
+      "source": "hackernews",
+      "title": "Show HN: AI-org \u2013 org-mode powered by AI",
+      "url": "https://ai-org.net/",
+      "snippet": "Show HN: AI-org \u2013 org-mode powered by AI",
+      "published_at": "2026-05-30",
+      "engagement": {
+        "comments": 1,
+        "points": 3
+      },
+      "container": "Hacker News",
+      "author": "mannders",
+      "_raw_fields_present": [
+        "author",
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "engagement_score",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": [
+        "outbound_url",
+        "domain",
+        "hn_url"
+      ],
+      "outbound_url": "https://ai-org.net/",
+      "domain": "ai-org.net",
+      "hn_url": "https://news.ycombinator.com/item?id=48334157"
+    },
+    {
+      "source": "hackernews",
+      "title": "Show HN: AI agents that audit your Metabase instance and find what's broken",
+      "url": "https://metalens.it",
+      "snippet": "Show HN: AI agents that audit your Metabase instance and find what's broken",
+      "published_at": "2026-05-26",
+      "engagement": {
+        "comments": 0,
+        "points": 4
+      },
+      "container": "Hacker News",
+      "author": "valiottidata",
+      "_raw_fields_present": [
+        "author",
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "engagement_score",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": [
+        "outbound_url",
+        "domain",
+        "hn_url"
+      ],
+      "outbound_url": "https://metalens.it",
+      "domain": "metalens.it",
+      "hn_url": "https://news.ycombinator.com/item?id=48278279"
+    },
+    {
+      "source": "hackernews",
+      "title": "Show HN: AI that interviews participants instead of holding another meeting",
+      "url": "https://www.noada.app/",
+      "snippet": "Show HN: AI that interviews participants instead of holding another meeting",
+      "published_at": "2026-05-21",
+      "engagement": {
+        "comments": 2,
+        "points": 9
+      },
+      "container": "Hacker News",
+      "author": "elliot952",
+      "_raw_fields_present": [
+        "author",
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "engagement_score",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": [
+        "outbound_url",
+        "domain",
+        "hn_url"
+      ],
+      "outbound_url": "https://www.noada.app/",
+      "domain": "noada.app",
+      "hn_url": "https://news.ycombinator.com/item?id=48221855"
+    },
+    {
+      "source": "hackernews",
+      "title": "Show HN: AI Philosopher King \u2013 how would an AI run the world?",
+      "url": "https://aiking.dwyer.co.za/",
+      "snippet": "Show HN: AI Philosopher King \u2013 how would an AI run the world?",
+      "published_at": "2026-05-28",
+      "engagement": {
+        "comments": 2,
+        "points": 3
+      },
+      "container": "Hacker News",
+      "author": "sixhobbits",
+      "_raw_fields_present": [
+        "author",
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "engagement_score",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": [
+        "outbound_url",
+        "domain",
+        "hn_url"
+      ],
+      "outbound_url": "https://aiking.dwyer.co.za/",
+      "domain": "aiking.dwyer.co.za",
+      "hn_url": "https://news.ycombinator.com/item?id=48308446"
+    },
+    {
+      "source": "hackernews",
+      "title": "Show HN: AI Simulaionen Based on FEP",
+      "url": "https://aic-ai-lab.site/login",
+      "snippet": "Show HN: AI Simulaionen Based on FEP",
+      "published_at": "2026-05-30",
+      "engagement": {
+        "comments": 0,
+        "points": 4
+      },
+      "container": "Hacker News",
+      "author": "luzifer333",
+      "_raw_fields_present": [
+        "author",
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "engagement_score",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": [
+        "outbound_url",
+        "domain",
+        "hn_url"
+      ],
+      "outbound_url": "https://aic-ai-lab.site/login",
+      "domain": "aic-ai-lab.site",
+      "hn_url": "https://news.ycombinator.com/item?id=48339824"
+    },
+    {
+      "source": "hackernews",
+      "title": "Show HN: Datapoint AI \u2013 Make Something People Want, but Ask Them First",
+      "url": "https://trydatapoint.com",
+      "snippet": "Show HN: Datapoint AI \u2013 Make Something People Want, but Ask Them First",
+      "published_at": "2026-05-22",
+      "engagement": {
+        "comments": 4,
+        "points": 4
+      },
+      "container": "Hacker News",
+      "author": "yoloakki",
+      "_raw_fields_present": [
+        "author",
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "engagement_score",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": [
+        "outbound_url",
+        "domain",
+        "hn_url"
+      ],
+      "outbound_url": "https://trydatapoint.com",
+      "domain": "trydatapoint.com",
+      "hn_url": "https://news.ycombinator.com/item?id=48241139"
+    },
+    {
+      "source": "hackernews",
+      "title": "Show HN: AI that audits your codebase in 60 seconds",
+      "url": "https://triyambakam-apex-corp.hf.space",
+      "snippet": "Show HN: AI that audits your codebase in 60 seconds",
+      "published_at": "2026-05-16",
+      "engagement": {
+        "comments": 3,
+        "points": 8
+      },
+      "container": "Hacker News",
+      "author": "haapatel",
+      "_raw_fields_present": [
+        "author",
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "engagement_score",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": [
+        "outbound_url",
+        "domain",
+        "hn_url"
+      ],
+      "outbound_url": "https://triyambakam-apex-corp.hf.space",
+      "domain": "triyambakam-apex-corp.hf.space",
+      "hn_url": "https://news.ycombinator.com/item?id=48156878"
+    },
+    {
+      "source": "hackernews",
+      "title": "Show HN: Extend AI turns a voice note into posts that sound like you",
+      "url": "https://extend.redsystem.dev",
+      "snippet": "Show HN: Extend AI turns a voice note into posts that sound like you",
+      "published_at": "2026-05-30",
+      "engagement": {
+        "comments": 0,
+        "points": 4
+      },
+      "container": "Hacker News",
+      "author": "crlapples",
+      "_raw_fields_present": [
+        "author",
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "engagement_score",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": [
+        "outbound_url",
+        "domain",
+        "hn_url"
+      ],
+      "outbound_url": "https://extend.redsystem.dev",
+      "domain": "extend.redsystem.dev",
+      "hn_url": "https://news.ycombinator.com/item?id=48336903"
+    },
+    {
+      "source": "hackernews",
+      "title": "Show HN: OpenHive \u2013 AI agents share solutions so other agents dont re-solve them",
+      "url": "https://openhivemind.vercel.app/",
+      "snippet": "Show HN: OpenHive \u2013 AI agents share solutions so other agents dont re-solve them",
+      "published_at": "2026-05-29",
+      "engagement": {
+        "comments": 0,
+        "points": 5
+      },
+      "container": "Hacker News",
+      "author": "ananandreas",
+      "_raw_fields_present": [
+        "author",
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "engagement_score",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": [
+        "outbound_url",
+        "domain",
+        "hn_url"
+      ],
+      "outbound_url": "https://openhivemind.vercel.app/",
+      "domain": "openhivemind.vercel.app",
+      "hn_url": "https://news.ycombinator.com/item?id=48323606"
+    },
+    {
+      "source": "hackernews",
+      "title": "Show HN: AI Skill to port PostgreSQL extensions to MySQL",
+      "url": "https://github.com/villagesql/villagesql-skills",
+      "snippet": "Show HN: AI Skill to port PostgreSQL extensions to MySQL",
+      "published_at": "2026-05-28",
+      "engagement": {
+        "comments": 0,
+        "points": 4
+      },
+      "container": "Hacker News",
+      "author": "deesix",
+      "_raw_fields_present": [
+        "author",
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "engagement_score",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": [
+        "outbound_url",
+        "domain",
+        "hn_url"
+      ],
+      "outbound_url": "https://github.com/villagesql/villagesql-skills",
+      "domain": "github.com",
+      "hn_url": "https://news.ycombinator.com/item?id=48310211"
+    },
+    {
+      "source": "hackernews",
+      "title": "Show HN: AI Audiobook Narrator",
+      "url": "https://warblize.com/",
+      "snippet": "Show HN: AI Audiobook Narrator",
+      "published_at": "2026-05-21",
+      "engagement": {
+        "comments": 0,
+        "points": 6
+      },
+      "container": "Hacker News",
+      "author": "onhacker",
+      "_raw_fields_present": [
+        "author",
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "engagement_score",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": [
+        "outbound_url",
+        "domain",
+        "hn_url"
+      ],
+      "outbound_url": "https://warblize.com/",
+      "domain": "warblize.com",
+      "hn_url": "https://news.ycombinator.com/item?id=48227955"
+    }
+  ],
+  "clusters": [
+    {
+      "candidate_ids": [
+        "https://news.ycombinator.com/item?id=48271937"
+      ],
+      "cluster_id": "cluster-1",
+      "representative_ids": [
+        "https://news.ycombinator.com/item?id=48271937"
+      ],
+      "score": 0.0,
+      "sources": [
+        "hackernews"
+      ],
+      "title": "Show HN: Unsiloed AI \u2013 #1 on olmOCR-Bench"
+    },
+    {
+      "candidate_ids": [
+        "https://triyambakam-apex-corp.hf.space"
+      ],
+      "cluster_id": "cluster-2",
+      "representative_ids": [
+        "https://triyambakam-apex-corp.hf.space"
+      ],
+      "score": 0.0,
+      "sources": [
+        "hackernews"
+      ],
+      "title": "Show HN: AI that audits your codebase in 60 seconds"
+    },
+    {
+      "candidate_ids": [
+        "https://noada.app"
+      ],
+      "cluster_id": "cluster-3",
+      "representative_ids": [
+        "https://noada.app"
+      ],
+      "score": 0.0,
+      "sources": [
+        "hackernews"
+      ],
+      "title": "Show HN: AI that interviews participants instead of holding another meeting"
+    },
+    {
+      "candidate_ids": [
+        "https://trydatapoint.com"
+      ],
+      "cluster_id": "cluster-4",
+      "representative_ids": [
+        "https://trydatapoint.com"
+      ],
+      "score": 0.0,
+      "sources": [
+        "hackernews"
+      ],
+      "title": "Show HN: Datapoint AI \u2013 Make Something People Want, but Ask Them First"
+    },
+    {
+      "candidate_ids": [
+        "https://aiking.dwyer.co.za"
+      ],
+      "cluster_id": "cluster-5",
+      "representative_ids": [
+        "https://aiking.dwyer.co.za"
+      ],
+      "score": 0.0,
+      "sources": [
+        "hackernews"
+      ],
+      "title": "Show HN: AI Philosopher King \u2013 how would an AI run the world?"
+    },
+    {
+      "candidate_ids": [
+        "https://ai-org.net"
+      ],
+      "cluster_id": "cluster-6",
+      "representative_ids": [
+        "https://ai-org.net"
+      ],
+      "score": 0.0,
+      "sources": [
+        "hackernews"
+      ],
+      "title": "Show HN: AI-org \u2013 org-mode powered by AI"
+    },
+    {
+      "candidate_ids": [
+        "https://warblize.com"
+      ],
+      "cluster_id": "cluster-7",
+      "representative_ids": [
+        "https://warblize.com"
+      ],
+      "score": 0.0,
+      "sources": [
+        "hackernews"
+      ],
+      "title": "Show HN: AI Audiobook Narrator"
+    },
+    {
+      "candidate_ids": [
+        "https://openhivemind.vercel.app"
+      ],
+      "cluster_id": "cluster-8",
+      "representative_ids": [
+        "https://openhivemind.vercel.app"
+      ],
+      "score": 0.0,
+      "sources": [
+        "hackernews"
+      ],
+      "title": "Show HN: OpenHive \u2013 AI agents share solutions so other agents dont re-solve them"
+    },
+    {
+      "candidate_ids": [
+        "https://metalens.it"
+      ],
+      "cluster_id": "cluster-9",
+      "representative_ids": [
+        "https://metalens.it"
+      ],
+      "score": 0.0,
+      "sources": [
+        "hackernews"
+      ],
+      "title": "Show HN: AI agents that audit your Metabase instance and find what's broken"
+    },
+    {
+      "candidate_ids": [
+        "https://aic-ai-lab.site/login"
+      ],
+      "cluster_id": "cluster-10",
+      "representative_ids": [
+        "https://aic-ai-lab.site/login"
+      ],
+      "score": 0.0,
+      "sources": [
+        "hackernews"
+      ],
+      "title": "Show HN: AI Simulaionen Based on FEP"
+    },
+    {
+      "candidate_ids": [
+        "https://extend.redsystem.dev"
+      ],
+      "cluster_id": "cluster-11",
+      "representative_ids": [
+        "https://extend.redsystem.dev"
+      ],
+      "score": 0.0,
+      "sources": [
+        "hackernews"
+      ],
+      "title": "Show HN: Extend AI turns a voice note into posts that sound like you"
+    },
+    {
+      "candidate_ids": [
+        "https://github.com/villagesql/villagesql-skills"
+      ],
+      "cluster_id": "cluster-12",
+      "representative_ids": [
+        "https://github.com/villagesql/villagesql-skills"
+      ],
+      "score": 0.0,
+      "sources": [
+        "hackernews"
+      ],
+      "title": "Show HN: AI Skill to port PostgreSQL extensions to MySQL"
+    }
+  ],
+  "warnings": [
+    "Top evidence is highly concentrated in one source."
+  ],
+  "errors_by_source": {}
+}

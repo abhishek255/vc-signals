@@ -1,0 +1,616 @@
+{
+  "seed_provenance": "fresh_weekly_run",
+  "validation_counted": true,
+  "no_seed_reason": "",
+  "summary": {
+    "queries": 12,
+    "raw_items_returned": 12,
+    "accepted_items": 12,
+    "filtered_items": 0,
+    "signals": 81,
+    "candidate_eligible_signals": 69,
+    "theme_signals": 1,
+    "candidates": 30,
+    "hn_movement_seeds": 5
+  },
+  "signal_counts": {
+    "source:reddit": 12,
+    "role:pain": 12,
+    "source:github": 25,
+    "role:oss_project": 25,
+    "source:producthunt": 20,
+    "role:producthunt_launch": 20,
+    "source:yc_directory": 18,
+    "role:yc_company": 18,
+    "source:x": 2,
+    "role:social_launch": 2,
+    "source:grounding": 4,
+    "role:company_web": 4
+  },
+  "candidate_eligible_by_sector": {
+    "oss": 25,
+    "company-formation": 40,
+    "cybersecurity": 1,
+    "devtools": 1,
+    "ai-infra": 2
+  },
+  "rejected_reason_counts": {
+    "source_not_candidate_eligible": 12
+  },
+  "queries": [
+    {
+      "sector": "devtools",
+      "kind": "reddit_pain",
+      "topic": "developer productivity pain OR CI/CD frustration OR platform engineering bottleneck",
+      "sources": "reddit",
+      "exclude_sources": "",
+      "candidate_eligible": false,
+      "raw_items_returned": 0,
+      "accepted_items": 0,
+      "filtered_items": 0,
+      "filtered_reddit_outside_subreddits": 0,
+      "error": "",
+      "warnings": [],
+      "source_health_classification": ""
+    },
+    {
+      "sector": "devtools",
+      "kind": "yc_company",
+      "topic": "site:ycombinator.com/companies developer tools AI coding agents CI testing startup",
+      "sources": "grounding,hackernews,youtube",
+      "exclude_sources": "",
+      "candidate_eligible": true,
+      "raw_items_returned": 0,
+      "accepted_items": 0,
+      "filtered_items": 0,
+      "filtered_reddit_outside_subreddits": 0,
+      "error": "",
+      "warnings": [],
+      "source_health_classification": ""
+    },
+    {
+      "sector": "cybersecurity",
+      "kind": "reddit_pain",
+      "topic": "security operations pain OR application security backlog OR cloud security false positives",
+      "sources": "reddit",
+      "exclude_sources": "",
+      "candidate_eligible": false,
+      "raw_items_returned": 12,
+      "accepted_items": 12,
+      "filtered_items": 0,
+      "filtered_reddit_outside_subreddits": 0,
+      "error": "",
+      "warnings": [
+        "Top evidence is highly concentrated in one source."
+      ],
+      "source_health_classification": ""
+    },
+    {
+      "sector": "cybersecurity",
+      "kind": "yc_company",
+      "topic": "site:ycombinator.com/companies AI security MCP agent permissions SOC AppSec startup",
+      "sources": "grounding,hackernews,youtube",
+      "exclude_sources": "",
+      "candidate_eligible": true,
+      "raw_items_returned": 0,
+      "accepted_items": 0,
+      "filtered_items": 0,
+      "filtered_reddit_outside_subreddits": 0,
+      "error": "",
+      "warnings": [],
+      "source_health_classification": ""
+    },
+    {
+      "sector": "ai-infra",
+      "kind": "reddit_pain",
+      "topic": "LLMOps pain OR LLM inference cost OR agent evaluation failure",
+      "sources": "reddit",
+      "exclude_sources": "",
+      "candidate_eligible": false,
+      "raw_items_returned": 0,
+      "accepted_items": 0,
+      "filtered_items": 0,
+      "filtered_reddit_outside_subreddits": 0,
+      "error": "last30days query timed out (60s)",
+      "warnings": [],
+      "source_health_classification": "degraded_source_health",
+      "stderr_excerpt": "/last30days \u00b7 researching: LLMOps pain OR LLM inference cost OR agent evaluation failure\n\u23f3 \u001b[95mProcessing\u001b[0m Organizing findings...\n[Resolve] Resolved 1 subreddits, x_handle='', github_user='amitshekhariitbhu', github_repos=['langfuse/langfuse', 'amitshekhariitbhu/ai-engineering-interview-questions', 'amitshekhariitbhu/llm-internals', 'langwatch/langwatch', 'promptfoo/promptfoo'], context_len=300, category=None\n[AutoResolve] GitHub user: @amitshekhariitbhu\n[AutoResolve] GitHub repos: langfuse/langfuse,amitshekhariitbhu/ai-engineering-interview-questions,amitshekhariitbhu/llm-internals,langwatch/langwatch,promptfoo/promptfoo\n[AutoResolve] Context: Our LLM Research News section covers the latest LLM research updates from academ...\n[Planner] LLM planning failed, using deterministic fallback",
+      "degraded_signals": [
+        "reddit_429"
+      ]
+    },
+    {
+      "sector": "ai-infra",
+      "kind": "yc_company",
+      "topic": "site:ycombinator.com/companies AI infrastructure agent runtime evals observability inference startup",
+      "sources": "grounding,hackernews,youtube",
+      "exclude_sources": "",
+      "candidate_eligible": true,
+      "raw_items_returned": 0,
+      "accepted_items": 0,
+      "filtered_items": 0,
+      "filtered_reddit_outside_subreddits": 0,
+      "error": "",
+      "warnings": [],
+      "source_health_classification": ""
+    },
+    {
+      "sector": "vertical-ai",
+      "kind": "reddit_pain",
+      "topic": "manual workflow pain OR AI agent for operations OR AI SDR frustration",
+      "sources": "reddit",
+      "exclude_sources": "",
+      "candidate_eligible": false,
+      "raw_items_returned": 0,
+      "accepted_items": 0,
+      "filtered_items": 0,
+      "filtered_reddit_outside_subreddits": 0,
+      "error": "last30days query timed out (60s)",
+      "warnings": [],
+      "source_health_classification": "degraded_source_health",
+      "stderr_excerpt": "/last30days \u00b7 researching: manual workflow pain OR AI agent for operations OR AI SDR frustration\n\u23f3 \u001b[95mProcessing\u001b[0m Scoring and ranking...\n[Web] Reddit rate-limited, halting enrichment: Reddit rate limited (429) fetching https://www.reddit.com/r/automation/comments/1tpc4cb/best_ai_workflow_automation_platforms_in_2026/\n[Resolve] Resolved 3 subreddits, x_handle='', github_user='msitarzewski', github_repos=['msitarzewski/agency-agents', 'franklioxygen/agent-workflows', 'iPythoning/b2b-sdr-agent', 'agent-sh/agentsys'], context_len=300, category=None\n[AutoResolve] GitHub user: @msitarzewski\n[AutoResolve] GitHub repos: msitarzewski/agency-agents,franklioxygen/agent-workflows,iPythoning/b2b-sdr-agent,agent-sh/agentsys\n[AutoResolve] Context: <strong>Manus automates end-to-end workflows across ",
+      "degraded_signals": [
+        "reddit_429"
+      ]
+    },
+    {
+      "sector": "vertical-ai",
+      "kind": "yc_company",
+      "topic": "site:ycombinator.com/companies vertical AI workflow automation SMB operator startup",
+      "sources": "grounding,hackernews,youtube",
+      "exclude_sources": "",
+      "candidate_eligible": true,
+      "raw_items_returned": 0,
+      "accepted_items": 0,
+      "filtered_items": 0,
+      "filtered_reddit_outside_subreddits": 0,
+      "error": "",
+      "warnings": [],
+      "source_health_classification": ""
+    },
+    {
+      "sector": "data-infra",
+      "kind": "reddit_pain",
+      "topic": "data pipeline testing pain OR data lineage pain OR data quality incident",
+      "sources": "reddit",
+      "exclude_sources": "",
+      "candidate_eligible": false,
+      "raw_items_returned": 0,
+      "accepted_items": 0,
+      "filtered_items": 0,
+      "filtered_reddit_outside_subreddits": 0,
+      "error": "last30days query timed out (60s)",
+      "warnings": [],
+      "source_health_classification": "degraded_source_health",
+      "stderr_excerpt": "/last30days \u00b7 researching: data pipeline testing pain OR data lineage pain OR data quality incident\n\u23f3 \u001b[95mProcessing\u001b[0m Crunching the data...\n[Resolve] Resolved 1 subreddits, x_handle='articles', github_user='open-metadata', github_repos=['open-metadata/OpenMetadata', 'datahub-project/datahub', 'AltimateAI/altimate-code', 'databricks-solutions/ai-dev-kit'], context_len=300, category=None\n[AutoResolve] X handle: @articles\n[AutoResolve] GitHub user: @open-metadata\n[AutoResolve] GitHub repos: open-metadata/OpenMetadata,datahub-project/datahub,AltimateAI/altimate-code,databricks-solutions/ai-dev-kit\n[AutoResolve] Context: That last sentence is the whole problem. <strong>Data Lineage fails in a shape w...\n[Planner] LLM planning failed, using deterministic fallback: HTTPError: HTTP 429: Too Ma",
+      "degraded_signals": [
+        "reddit_429"
+      ]
+    },
+    {
+      "sector": "data-infra",
+      "kind": "yc_company",
+      "topic": "site:ycombinator.com/companies data infrastructure AI data pipelines lineage observability startup",
+      "sources": "grounding,hackernews,youtube",
+      "exclude_sources": "",
+      "candidate_eligible": true,
+      "raw_items_returned": 0,
+      "accepted_items": 0,
+      "filtered_items": 0,
+      "filtered_reddit_outside_subreddits": 0,
+      "error": "",
+      "warnings": [],
+      "source_health_classification": ""
+    },
+    {
+      "sector": "oss",
+      "kind": "reddit_pain",
+      "topic": "open source tool adoption OR GitHub repo production use OR maintainer burnout",
+      "sources": "reddit",
+      "exclude_sources": "",
+      "candidate_eligible": false,
+      "raw_items_returned": 0,
+      "accepted_items": 0,
+      "filtered_items": 0,
+      "filtered_reddit_outside_subreddits": 0,
+      "error": "last30days query timed out (60s)",
+      "warnings": [],
+      "source_health_classification": "degraded_source_health",
+      "stderr_excerpt": "/last30days \u00b7 researching: open source tool adoption OR GitHub repo production use OR maintainer burnout\n\u23f3 \u001b[95mProcessing\u001b[0m Crunching the data...\n[Resolve] Resolved 1 subreddits, x_handle='', github_user='schedule', github_repos=['schedule/2026-05-07-the-state-of-open-source-in-2026-issue-419'], context_len=300, category=None\n[AutoResolve] GitHub user: @schedule\n[AutoResolve] GitHub repos: schedule/2026-05-07-the-state-of-open-source-in-2026-issue-419\n[AutoResolve] Context: The pattern is consistent: <strong>maintainers spend a disproportionate share of...\n[Planner] LLM planning failed, using deterministic fallback: HTTPError: HTTP 429: Too Many Requests\n[Planner] Plan: intent=concept, freshness=evergreen_ok, cluster_mode=none, subqueries=4, source=deterministic\n[Planner]   sq1 label=pr",
+      "degraded_signals": [
+        "reddit_429"
+      ]
+    },
+    {
+      "sector": "oss",
+      "kind": "yc_company",
+      "topic": "site:ycombinator.com/companies Open Source Radar AI startups Seed Series A Series B",
+      "sources": "grounding,hackernews,youtube",
+      "exclude_sources": "",
+      "candidate_eligible": true,
+      "raw_items_returned": 0,
+      "accepted_items": 0,
+      "filtered_items": 0,
+      "filtered_reddit_outside_subreddits": 0,
+      "error": "",
+      "warnings": [],
+      "source_health_classification": ""
+    }
+  ],
+  "theme_signal_review": [
+    {
+      "theme": "AI agent security",
+      "market_sector": "Cybersecurity",
+      "confidence": "Medium",
+      "evidence_count": 4,
+      "accepted_as_hn_seed": true
+    }
+  ],
+  "candidate_seed_review": [
+    {
+      "name": "affaan-m/agentshield",
+      "sector": "Cybersecurity",
+      "market_sector": "Cybersecurity",
+      "theme": "AI agent security",
+      "action": "track company formation",
+      "tier": "Partner Review",
+      "source": "https://github.com/affaan-m/agentshield",
+      "accepted_as_hn_seed": true,
+      "seed_reason": "candidate_seed"
+    },
+    {
+      "name": "boostsecurityio/smokedmeat",
+      "sector": "Cybersecurity",
+      "market_sector": "Cybersecurity",
+      "theme": "AI agent security",
+      "action": "watch",
+      "tier": "Watchlist",
+      "source": "https://github.com/boostsecurityio/smokedmeat",
+      "accepted_as_hn_seed": true,
+      "seed_reason": "candidate_seed"
+    },
+    {
+      "name": "Sudo-Ali-Dev/Rankistan",
+      "sector": "Devtools",
+      "market_sector": "Devtools",
+      "theme": "Emerging technical signal",
+      "action": "watch",
+      "tier": "Watchlist",
+      "source": "https://github.com/Sudo-Ali-Dev/Rankistan",
+      "accepted_as_hn_seed": false,
+      "seed_reason": "candidate_generic_theme"
+    },
+    {
+      "name": "redwoodjs/agent-ci",
+      "sector": "Devtools",
+      "market_sector": "Devtools",
+      "theme": "Emerging technical signal",
+      "action": "watch",
+      "tier": "Watchlist",
+      "source": "https://github.com/redwoodjs/agent-ci",
+      "accepted_as_hn_seed": false,
+      "seed_reason": "candidate_generic_theme"
+    },
+    {
+      "name": "pullfrog/pullfrog",
+      "sector": "Devtools",
+      "market_sector": "Devtools",
+      "theme": "Emerging technical signal",
+      "action": "watch",
+      "tier": "Watchlist",
+      "source": "https://github.com/pullfrog/pullfrog",
+      "accepted_as_hn_seed": false,
+      "seed_reason": "candidate_generic_theme"
+    },
+    {
+      "name": "leiting-eric/DailyBrief",
+      "sector": "Devtools",
+      "market_sector": "Devtools",
+      "theme": "Emerging technical signal",
+      "action": "watch",
+      "tier": "Watchlist",
+      "source": "https://github.com/leiting-eric/DailyBrief",
+      "accepted_as_hn_seed": false,
+      "seed_reason": "candidate_generic_theme"
+    },
+    {
+      "name": "azat-io/actions-up",
+      "sector": "Devtools",
+      "market_sector": "Devtools",
+      "theme": "Emerging technical signal",
+      "action": "contact maintainer",
+      "tier": "Watchlist",
+      "source": "https://github.com/azat-io/actions-up",
+      "accepted_as_hn_seed": false,
+      "seed_reason": "candidate_generic_theme"
+    },
+    {
+      "name": "peakoss/anti-slop",
+      "sector": "Devtools",
+      "market_sector": "Devtools",
+      "theme": "Emerging technical signal",
+      "action": "watch",
+      "tier": "Watchlist",
+      "source": "https://github.com/peakoss/anti-slop",
+      "accepted_as_hn_seed": false,
+      "seed_reason": "candidate_generic_theme"
+    },
+    {
+      "name": "slowql/slowql",
+      "sector": "Devtools",
+      "market_sector": "Devtools",
+      "theme": "AI agent security",
+      "action": "map ecosystem",
+      "tier": "Watchlist",
+      "source": "https://github.com/slowql/slowql",
+      "accepted_as_hn_seed": true,
+      "seed_reason": "candidate_seed"
+    },
+    {
+      "name": "BANANASJIM/rdc-cli",
+      "sector": "Devtools",
+      "market_sector": "Devtools",
+      "theme": "Vertical AI operations",
+      "action": "map ecosystem",
+      "tier": "Watchlist",
+      "source": "https://github.com/BANANASJIM/rdc-cli",
+      "accepted_as_hn_seed": true,
+      "seed_reason": "candidate_seed"
+    },
+    {
+      "name": "spaceraccoon/vulnerability-spoiler-alert-action",
+      "sector": "Cybersecurity",
+      "market_sector": "Cybersecurity",
+      "theme": "AI agent security",
+      "action": "map ecosystem",
+      "tier": "Watchlist",
+      "source": "https://github.com/spaceraccoon/vulnerability-spoiler-alert-action",
+      "accepted_as_hn_seed": true,
+      "seed_reason": "candidate_seed"
+    },
+    {
+      "name": "Goldbridge",
+      "sector": "Vertical AI",
+      "market_sector": "Vertical AI",
+      "theme": "AI agent security",
+      "action": "research deeper",
+      "tier": "Watchlist",
+      "source": "https://www.ycombinator.com/companies/goldbridge",
+      "accepted_as_hn_seed": true,
+      "seed_reason": "candidate_seed"
+    },
+    {
+      "name": "SKYLENAGE-AI/SWE-CI",
+      "sector": "AI Infra",
+      "market_sector": "AI Infra",
+      "theme": "Agent reliability and evals",
+      "action": "map ecosystem",
+      "tier": "Watchlist",
+      "source": "https://github.com/SKYLENAGE-AI/SWE-CI",
+      "accepted_as_hn_seed": true,
+      "seed_reason": "candidate_seed"
+    },
+    {
+      "name": "gensecaihq/Shai-Hulud-2.0-Detector",
+      "sector": "Cybersecurity",
+      "market_sector": "Cybersecurity",
+      "theme": "Emerging technical signal",
+      "action": "map ecosystem",
+      "tier": "Watchlist",
+      "source": "https://github.com/gensecaihq/Shai-Hulud-2.0-Detector",
+      "accepted_as_hn_seed": false,
+      "seed_reason": "candidate_generic_theme"
+    },
+    {
+      "name": "inview-club/devops-cases",
+      "sector": "Devtools",
+      "market_sector": "Devtools",
+      "theme": "Emerging technical signal",
+      "action": "map ecosystem",
+      "tier": "Watchlist",
+      "source": "https://github.com/inview-club/devops-cases",
+      "accepted_as_hn_seed": false,
+      "seed_reason": "candidate_generic_theme"
+    },
+    {
+      "name": "Databox MCP",
+      "sector": "AI Infra",
+      "market_sector": "AI Infra",
+      "theme": "Agent runtime infrastructure",
+      "action": "research deeper",
+      "tier": "Needs More Evidence",
+      "source": "https://www.producthunt.com/products/databox?utm_campaign=producthunt-api&utm_medium=api-v2&utm_source=Application%3A+VC+Signals+%28ID%3A+286430%29",
+      "accepted_as_hn_seed": true,
+      "seed_reason": "candidate_seed"
+    },
+    {
+      "name": "Simplex",
+      "sector": "company-formation",
+      "market_sector": "Unclassified",
+      "theme": "AI data infrastructure",
+      "action": "research deeper",
+      "tier": "Needs More Evidence",
+      "source": "https://www.ycombinator.com/companies/simplex",
+      "accepted_as_hn_seed": true,
+      "seed_reason": "candidate_seed"
+    },
+    {
+      "name": "Miru",
+      "sector": "Devtools",
+      "market_sector": "Devtools",
+      "theme": "Emerging technical signal",
+      "action": "research deeper",
+      "tier": "Needs More Evidence",
+      "source": "https://www.ycombinator.com/companies/miru-ml",
+      "accepted_as_hn_seed": false,
+      "seed_reason": "candidate_generic_theme"
+    },
+    {
+      "name": "LLM Observability & Evaluation Platform",
+      "sector": "AI Infra",
+      "market_sector": "AI Infra",
+      "theme": "AI data infrastructure",
+      "action": "monitor only",
+      "tier": "Needs More Evidence",
+      "source": "https://arize.com/",
+      "accepted_as_hn_seed": true,
+      "seed_reason": "candidate_seed"
+    },
+    {
+      "name": "dlvhdr/gh-enhance",
+      "sector": "Devtools",
+      "market_sector": "Devtools",
+      "theme": "Emerging technical signal",
+      "action": "map ecosystem",
+      "tier": "Needs More Evidence",
+      "source": "https://github.com/dlvhdr/gh-enhance",
+      "accepted_as_hn_seed": false,
+      "seed_reason": "candidate_generic_theme"
+    },
+    {
+      "name": "mizchi/actrun",
+      "sector": "Devtools",
+      "market_sector": "Devtools",
+      "theme": "Emerging technical signal",
+      "action": "map ecosystem",
+      "tier": "Needs More Evidence",
+      "source": "https://github.com/mizchi/actrun",
+      "accepted_as_hn_seed": false,
+      "seed_reason": "candidate_generic_theme"
+    },
+    {
+      "name": "dsherret/gagen",
+      "sector": "Devtools",
+      "market_sector": "Devtools",
+      "theme": "Emerging technical signal",
+      "action": "map ecosystem",
+      "tier": "Needs More Evidence",
+      "source": "https://github.com/dsherret/gagen",
+      "accepted_as_hn_seed": false,
+      "seed_reason": "candidate_generic_theme"
+    },
+    {
+      "name": "kuberik/kuberik",
+      "sector": "OSS",
+      "market_sector": "Unclassified",
+      "theme": "Emerging technical signal",
+      "action": "map ecosystem",
+      "tier": "Needs More Evidence",
+      "source": "https://github.com/kuberik/kuberik",
+      "accepted_as_hn_seed": false,
+      "seed_reason": "candidate_generic_theme"
+    },
+    {
+      "name": "ritwiktiwari/copier-astral",
+      "sector": "Devtools",
+      "market_sector": "Devtools",
+      "theme": "Emerging technical signal",
+      "action": "map ecosystem",
+      "tier": "Needs More Evidence",
+      "source": "https://github.com/ritwiktiwari/copier-astral",
+      "accepted_as_hn_seed": false,
+      "seed_reason": "candidate_generic_theme"
+    },
+    {
+      "name": "Ronchy2000/epic-freebies-helper",
+      "sector": "Devtools",
+      "market_sector": "Devtools",
+      "theme": "Emerging technical signal",
+      "action": "map ecosystem",
+      "tier": "Needs More Evidence",
+      "source": "https://github.com/Ronchy2000/epic-freebies-helper",
+      "accepted_as_hn_seed": false,
+      "seed_reason": "candidate_generic_theme"
+    },
+    {
+      "name": "actions/scaleset",
+      "sector": "Devtools",
+      "market_sector": "Devtools",
+      "theme": "Emerging technical signal",
+      "action": "map ecosystem",
+      "tier": "Needs More Evidence",
+      "source": "https://github.com/actions/scaleset",
+      "accepted_as_hn_seed": false,
+      "seed_reason": "candidate_generic_theme"
+    },
+    {
+      "name": "ready-to-release/eac",
+      "sector": "Devtools",
+      "market_sector": "Devtools",
+      "theme": "Emerging technical signal",
+      "action": "map ecosystem",
+      "tier": "Needs More Evidence",
+      "source": "https://github.com/ready-to-release/eac",
+      "accepted_as_hn_seed": false,
+      "seed_reason": "candidate_generic_theme"
+    },
+    {
+      "name": "SawyerHood/gitclaw",
+      "sector": "Devtools",
+      "market_sector": "Devtools",
+      "theme": "Emerging technical signal",
+      "action": "watch",
+      "tier": "Needs More Evidence",
+      "source": "https://github.com/SawyerHood/gitclaw",
+      "accepted_as_hn_seed": false,
+      "seed_reason": "candidate_generic_theme"
+    },
+    {
+      "name": "tuist/magnolia",
+      "sector": "Devtools",
+      "market_sector": "Devtools",
+      "theme": "Emerging technical signal",
+      "action": "ignore",
+      "tier": "Needs More Evidence",
+      "source": "https://github.com/tuist/magnolia",
+      "accepted_as_hn_seed": false,
+      "seed_reason": "candidate_action_ignore"
+    },
+    {
+      "name": "hashgraph-online/skill-publish",
+      "sector": "Devtools",
+      "market_sector": "Devtools",
+      "theme": "Emerging technical signal",
+      "action": "ignore",
+      "tier": "Needs More Evidence",
+      "source": "https://github.com/hashgraph-online/skill-publish",
+      "accepted_as_hn_seed": false,
+      "seed_reason": "candidate_action_ignore"
+    }
+  ],
+  "hn_movement_seeds": [
+    {
+      "movement": "AI agent security",
+      "market_sector": "Cybersecurity",
+      "origin_row_ids": []
+    },
+    {
+      "movement": "Vertical AI operations",
+      "market_sector": "Devtools",
+      "origin_row_ids": [
+        "repo:github.com/bananasjim/rdc-cli"
+      ]
+    },
+    {
+      "movement": "Agent reliability and evals",
+      "market_sector": "AI Infra",
+      "origin_row_ids": [
+        "repo:github.com/skylenage-ai/swe-ci"
+      ]
+    },
+    {
+      "movement": "Agent runtime infrastructure",
+      "market_sector": "AI Infra",
+      "origin_row_ids": [
+        "company:databox.com"
+      ]
+    },
+    {
+      "movement": "AI data infrastructure",
+      "market_sector": "Unclassified",
+      "origin_row_ids": [
+        "company:simplex.sh"
+      ]
+    }
+  ]
+}

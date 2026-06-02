@@ -1,0 +1,585 @@
+{
+  "topic": "Devtools OSS workflow tooling startup raises seed Series A launches funding company",
+  "items": [
+    {
+      "source": "grounding",
+      "title": "Streamline your AI coding workflow with Chrome DevTools for agents 1.0 | Blog | Chrome for Developers",
+      "url": "https://developer.chrome.com/blog/devtools-for-agents-v1",
+      "snippet": "<strong>Used as a quality gate, it turns your coding agent into an expert that catches critical blockers before they reach production</strong>. Your agent can use DevTools for agents to test how a site looks and performs on various devices or in different locations ...",
+      "published_at": "2026-05-19",
+      "engagement": {},
+      "container": "developer.chrome.com",
+      "author": "",
+      "_raw_fields_present": [
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": []
+    },
+    {
+      "source": "grounding",
+      "title": "Best Developer Productivity Tools 2026: 14 AI Developer Tools Compared | Greptile",
+      "url": "https://www.greptile.com/content-library/14-best-developer-productivity-tools",
+      "snippet": "No team needs every tool on this list. The right developer productivity stack depends on company size, codebase complexity, cloud provider, and where time is lost. ... Individual developers should prioritize speed, low setup, and a workflow they will actually use. A strong startup stack should help the team move quickly without letting quality collapse:",
+      "published_at": "2026-05-29",
+      "engagement": {},
+      "container": "www.greptile.com",
+      "author": "",
+      "_raw_fields_present": [
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": []
+    },
+    {
+      "source": "grounding",
+      "title": "What are Developer Tools? - Developer Tools Explained - AWS",
+      "url": "https://aws.amazon.com/what-is/developer-tools/",
+      "snippet": "An IDE hosts all relevant tools in a single environment so that you can manage their workflow without switching platforms. Similarly, with code versioning systems, multiple developers can modify an application without causing code conflicts. ... With DevOps tools, software developers can work closely with operation engineers to respond to technical issues or implement feature updates. For example: Software teams use DevOps tools to enable continuous pipelines that enable the coding, testing, and",
+      "published_at": "2026-05-27",
+      "engagement": {},
+      "container": "aws.amazon.com",
+      "author": "",
+      "_raw_fields_present": [
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": []
+    },
+    {
+      "source": "grounding",
+      "title": "DevOps Tools: A Comprehensive Overview | Qentelli",
+      "url": "https://qentelli.com/insights/blogs/devops-tools/",
+      "snippet": "With supply chain attacks escalating, modern pipelines integrate: Snyk and Aqua Trivy for container and dependency vulnerability scanning. Sigstore for signing and verifying software artifacts, rapidly becoming the open standard for chain-of-trust verification in builds. Prisma Cloud providing unified posture management across containers, serverless, and VMs. By embedding these into CI/CD workflows, teams shift security left\u2014detecting risks before they ever reach production.",
+      "published_at": "2026-05-27",
+      "engagement": {},
+      "container": "qentelli.com",
+      "author": "",
+      "_raw_fields_present": [
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": []
+    },
+    {
+      "source": "grounding",
+      "title": "Discover top Azure DevOps tools to enhance your software development, streamline CI/CD pipelines, and boost team productivity",
+      "url": "https://lucidity.cloud/blog/azure-devops-tools",
+      "snippet": "Azure DevOps offers a comprehensive ... Tools like <strong>Azure Pipelines, Azure Boards, Azure Artifacts, Azure Repos, and Azure Test Plans streamline workflows, automate tasks, and maintain high standards</strong>....",
+      "published_at": "2026-05-22",
+      "engagement": {},
+      "container": "lucidity.cloud",
+      "author": "",
+      "_raw_fields_present": [
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": []
+    },
+    {
+      "source": "grounding",
+      "title": "The 8 best AI orchestration tools for developers | The Jotform Blog",
+      "url": "https://www.jotform.com/ai/agents/best-ai-orchestration-tools/",
+      "snippet": "<strong>the Professional plan at $25 per month raises the cap to 100 workflow runs per month</strong>, with an additional seat and community forum access ... RAG looks simple on paper until you\u2019re building a Q&amp;A system with lots of highly similar, sometimes ...",
+      "published_at": "2026-05-18",
+      "engagement": {},
+      "container": "www.jotform.com",
+      "author": "",
+      "_raw_fields_present": [
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": []
+    },
+    {
+      "source": "grounding",
+      "title": "Top DevOps Tools for Modern Engineering Teams in 2026 | Harness Glossary | Harness",
+      "url": "https://www.harness.io/harness-devops-academy/top-devops-tools",
+      "snippet": "Discover the best DevOps Tools for 2026. Boost speed, cut costs, and secure your pipelines with AI-powered CI. Explore top solutions for modern teams now.",
+      "published_at": "2026-05-29",
+      "engagement": {},
+      "container": "www.harness.io",
+      "author": "",
+      "_raw_fields_present": [
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": []
+    },
+    {
+      "source": "grounding",
+      "title": "Why Developers Want Simpler Workflows Despite Using More Tools",
+      "url": "https://www.toolveraai.com/simpler-workflows-for-developers/",
+      "snippet": "<strong>It encourages teams to evaluate tools not only by features, but by integration quality, usability, maintenance cost, and the long-term effect on focus</strong>. For smaller teams especially, this can make a huge difference. A startup or lean engineering group does not always benefit from the same tooling ...",
+      "published_at": "2026-05-16",
+      "engagement": {},
+      "container": "www.toolveraai.com",
+      "author": "",
+      "_raw_fields_present": [
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": []
+    },
+    {
+      "source": "grounding",
+      "title": "Top DevOps Tools for Infrastructure Automation in 2026 | env zero",
+      "url": "https://www.env0.com/blog/top-devops-tools-for-infrastructure-automation",
+      "snippet": "CircleCI\u2019s integration with tools such as GitHub and Bitbucket makes it easy to incorporate CI/CD workflows into existing version control processes. Its flexibility and scalability cater to teams of all sizes, from small startups to large enterprises.",
+      "published_at": "2026-05-28",
+      "engagement": {},
+      "container": "www.env0.com",
+      "author": "",
+      "_raw_fields_present": [
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": []
+    },
+    {
+      "source": "grounding",
+      "title": "What are Developer Tools? - Developer Tools Explained - AWS",
+      "url": "https://aws.amazon.com/what-is/developer-tools/",
+      "snippet": "Software teams use developer tools to overcome challenges when writing code, testing programs, deploying applications, and monitoring production releases. With the right development tools, you can reduce time to market, resolve bugs, optimize development workflows, and more.",
+      "published_at": "2026-05-27",
+      "engagement": {},
+      "container": "aws.amazon.com",
+      "author": "",
+      "_raw_fields_present": [
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": []
+    },
+    {
+      "source": "grounding",
+      "title": "The 12 Best Developer Productivity Tools in 2026 | Catio",
+      "url": "https://www.catio.tech/blog/developer-productivity-tools",
+      "snippet": "Cursor has won a particular share among teams that want a tighter feedback loop with the model and care about developer experience inside the editor. Initial setup is light: install the editor, point it at your repo, and start working. Because Cursor is a VS Code fork, the muscle memory transfers cleanly for most developers, and a Hobby free tier is available for individual developers before any paid commitment. Claude Code is Anthropic&#x27;s coding agent that lives in the terminal rather than ",
+      "published_at": "2026-05-12",
+      "engagement": {},
+      "container": "www.catio.tech",
+      "author": "",
+      "_raw_fields_present": [
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": []
+    },
+    {
+      "source": "grounding",
+      "title": "Top 30+ DevOps Automation Tools for Efficient Workflows",
+      "url": "https://aimultiple.com/devops-automation-tools",
+      "snippet": "While these are general DevOps tools that facilitate human-centric processes like strategizing and versioning, they also serve as foundational enablers, <strong>often triggering automated CI/CD pipelines upon code commits</strong>.",
+      "published_at": "2026-05-06",
+      "engagement": {},
+      "container": "aimultiple.com",
+      "author": "",
+      "_raw_fields_present": [
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": []
+    },
+    {
+      "source": "grounding",
+      "title": "The 12 Best Developer Productivity Tools in 2026 | Catio",
+      "url": "https://www.catio.tech/blog/developer-productivity-tools",
+      "snippet": "This guide covers the 12 developer productivity tools we&#x27;d actually evaluate if we were building a stack from scratch in 2026, organized by where they fit in the workflow. We&#x27;ve also added a separate, clearly labeled bonus section on the architecture decision layer that&#x27;s quietly emerging above the coding stack.",
+      "published_at": "2026-05-12",
+      "engagement": {},
+      "container": "www.catio.tech",
+      "author": "",
+      "_raw_fields_present": [
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": []
+    },
+    {
+      "source": "grounding",
+      "title": "Top 30+ DevOps Automation Tools for Efficient Workflows",
+      "url": "https://aimultiple.com/devops-automation-tools",
+      "snippet": "Explore what DevOps automation is inside out and compare top DevOps automation tools to start automating your DevOps practices",
+      "published_at": "2026-05-06",
+      "engagement": {},
+      "container": "aimultiple.com",
+      "author": "",
+      "_raw_fields_present": [
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": []
+    }
+  ],
+  "clusters": [
+    {
+      "candidate_ids": [
+        "https://greptile.com/content-library/14-best-developer-productivity-tools"
+      ],
+      "cluster_id": "cluster-1",
+      "representative_ids": [
+        "https://greptile.com/content-library/14-best-developer-productivity-tools"
+      ],
+      "score": 0.0,
+      "sources": [
+        "grounding"
+      ],
+      "title": "Best Developer Productivity Tools 2026: 14 AI Developer Tools Compared | Greptile"
+    },
+    {
+      "candidate_ids": [
+        "https://developer.chrome.com/blog/devtools-for-agents-v1"
+      ],
+      "cluster_id": "cluster-2",
+      "representative_ids": [
+        "https://developer.chrome.com/blog/devtools-for-agents-v1"
+      ],
+      "score": 0.0,
+      "sources": [
+        "grounding"
+      ],
+      "title": "Streamline your AI coding workflow with Chrome DevTools for agents 1.0 | Blog | Chrome for Developers"
+    },
+    {
+      "candidate_ids": [
+        "https://aws.amazon.com/what-is/developer-tools"
+      ],
+      "cluster_id": "cluster-3",
+      "representative_ids": [
+        "https://aws.amazon.com/what-is/developer-tools"
+      ],
+      "score": 0.0,
+      "sources": [
+        "grounding"
+      ],
+      "title": "What are Developer Tools? - Developer Tools Explained - AWS"
+    },
+    {
+      "candidate_ids": [
+        "https://qentelli.com/insights/blogs/devops-tools"
+      ],
+      "cluster_id": "cluster-4",
+      "representative_ids": [
+        "https://qentelli.com/insights/blogs/devops-tools"
+      ],
+      "score": 0.0,
+      "sources": [
+        "grounding"
+      ],
+      "title": "DevOps Tools: A Comprehensive Overview | Qentelli"
+    },
+    {
+      "candidate_ids": [
+        "https://harness.io/harness-devops-academy/top-devops-tools"
+      ],
+      "cluster_id": "cluster-5",
+      "representative_ids": [
+        "https://harness.io/harness-devops-academy/top-devops-tools"
+      ],
+      "score": 0.0,
+      "sources": [
+        "grounding"
+      ],
+      "title": "Top DevOps Tools for Modern Engineering Teams in 2026 | Harness Glossary | Harness"
+    },
+    {
+      "candidate_ids": [
+        "https://toolveraai.com/simpler-workflows-for-developers"
+      ],
+      "cluster_id": "cluster-6",
+      "representative_ids": [
+        "https://toolveraai.com/simpler-workflows-for-developers"
+      ],
+      "score": 0.0,
+      "sources": [
+        "grounding"
+      ],
+      "title": "Why Developers Want Simpler Workflows Despite Using More Tools"
+    },
+    {
+      "candidate_ids": [
+        "https://lucidity.cloud/blog/azure-devops-tools"
+      ],
+      "cluster_id": "cluster-7",
+      "representative_ids": [
+        "https://lucidity.cloud/blog/azure-devops-tools"
+      ],
+      "score": 0.0,
+      "sources": [
+        "grounding"
+      ],
+      "title": "Discover top Azure DevOps tools to enhance your software development, streamline CI/CD pipelines, and boost team productivity"
+    },
+    {
+      "candidate_ids": [
+        "https://env0.com/blog/top-devops-tools-for-infrastructure-automation"
+      ],
+      "cluster_id": "cluster-8",
+      "representative_ids": [
+        "https://env0.com/blog/top-devops-tools-for-infrastructure-automation"
+      ],
+      "score": 0.0,
+      "sources": [
+        "grounding"
+      ],
+      "title": "Top DevOps Tools for Infrastructure Automation in 2026 | env zero"
+    },
+    {
+      "candidate_ids": [
+        "https://catio.tech/blog/developer-productivity-tools"
+      ],
+      "cluster_id": "cluster-9",
+      "representative_ids": [
+        "https://catio.tech/blog/developer-productivity-tools"
+      ],
+      "score": 0.0,
+      "sources": [
+        "grounding"
+      ],
+      "title": "The 12 Best Developer Productivity Tools in 2026 | Catio"
+    },
+    {
+      "candidate_ids": [
+        "https://jotform.com/ai/agents/best-ai-orchestration-tools"
+      ],
+      "cluster_id": "cluster-10",
+      "representative_ids": [
+        "https://jotform.com/ai/agents/best-ai-orchestration-tools"
+      ],
+      "score": 0.0,
+      "sources": [
+        "grounding"
+      ],
+      "title": "The 8 best AI orchestration tools for developers | The Jotform Blog"
+    },
+    {
+      "candidate_ids": [
+        "https://aimultiple.com/devops-automation-tools"
+      ],
+      "cluster_id": "cluster-11",
+      "representative_ids": [
+        "https://aimultiple.com/devops-automation-tools"
+      ],
+      "score": 0.0,
+      "sources": [
+        "grounding"
+      ],
+      "title": "Top 30+ DevOps Automation Tools for Efficient Workflows"
+    }
+  ],
+  "warnings": [
+    "Top evidence is highly concentrated in one source."
+  ],
+  "errors_by_source": {}
+}

@@ -94,6 +94,34 @@ def test_load_targets_can_force_source_yield_gap_queue_when_manual_targets_exist
     assert targets[0]["name"] == "GapTarget"
 
 
+def test_load_targets_can_target_alex_review_companies(tmp_path):
+    from targeted_manual_enrichment import _load_targets
+
+    run_dir = tmp_path / "run"
+    run_dir.mkdir()
+    (run_dir / "source-yield-validation-report.json").write_text(
+        json.dumps(
+            {
+                "alex_review_companies": [
+                    {
+                        "name": "AgentFence",
+                        "domain": "agentfence.dev",
+                        "source_lane": "Product Hunt",
+                        "missing_evidence": ["stage_funding_or_headcount_missing"],
+                        "recommended_manual_check": "Check stage and headcount.",
+                    }
+                ]
+            }
+        )
+    )
+
+    targets = _load_targets(run_dir, target_source="alex_review_companies")
+
+    assert targets[0]["name"] == "AgentFence"
+    assert targets[0]["domain"] == "agentfence.dev"
+    assert targets[0]["recommended_next_step"] == "Check stage and headcount."
+
+
 def test_enrich_targets_reports_public_search_hints_without_scraping():
     from targeted_manual_enrichment import enrich_targets
 

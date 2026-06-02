@@ -97,29 +97,31 @@
 </head>
 <body>
 <div class="hero">
-  <div class="eyebrow">Marathon-style weekly deal radar</div>
-  <h1>Find companies before the market already agrees.</h1>
-  <p>VC Signals turns public market chatter, OSS momentum, launch activity, and read-only Attio context into one weekly partner brief: what to review, why it matters, why it may be noise, and what to do next.</p>
+  <div class="eyebrow">Alex Review source-yield radar</div>
+  <h1>Turn launch chatter into reviewable company evidence.</h1>
+  <p>VC Signals turns Product Hunt launches, X chatter, HN posts, GitHub momentum, YC rows, and web evidence into one weekly partner packet: what is owner-ready, what Alex should inspect, what is only a market signal, and exactly what evidence is missing.</p>
   <div class="badges">
-    <span class="badge">Seed to Series B</span>
-    <span class="badge">Up to 50 qualified rows</span>
-    <span class="badge">No filler companies</span>
-    <span class="badge">Read-only Attio awareness</span>
+    <span class="badge">Strict Assign Owner gate</span>
+    <span class="badge">8-15 Alex Review companies</span>
+    <span class="badge">5-10 Market Signals</span>
+    <span class="badge">10-15 Evidence Gaps</span>
+    <span class="badge">0 unsafe promotions</span>
   </div>
 </div>
 
 <main class="wrap">
   <section>
     <h2>What a partner sees first</h2>
-    <p class="desc">The output is not a trend newsletter. The first screen is a ranked review list with separate investment interest and evidence confidence, plus a skeptical note for each row.</p>
+    <p class="desc">The output is not a trend newsletter and it is not a blind score list. It is a tiered review packet that keeps owner-ready rows separate from good/decent companies, market signals, and manual evidence gaps.</p>
     <div class="card">
-      <p><strong>Run Summary:</strong> 50 qualified rows across 4 market sectors. Source mix: 18 Grounded web, 16 OSS, 9 Hacker News, 7 Attio-aware.</p>
+      <p><strong>June 2026 blessed baseline:</strong> 1 Assign Owner row, 13 Alex Review companies, 8 Review-Worthy companies, 5 Review-Worthy market signals, 12 Evidence Gap rows, and 0 unsafe promotions.</p>
       <div style="overflow-x:auto; margin-top:12px;">
         <table>
-          <tr><th>Company / Project</th><th>Market Sector</th><th>Source Lane</th><th>Interest</th><th>Evidence</th><th>Attio</th><th>Action</th><th>Why On Radar</th><th>Why This May Be Noise</th></tr>
-          <tr><td>AgentFence</td><td>Cybersecurity</td><td>Grounded web</td><td>High</td><td>Medium</td><td>no_match</td><td>take meeting / assign owner</td><td>Company evidence tied to repeated MCP permission pain.</td><td>Could be a narrow feature unless buyer urgency checks out.</td></tr>
-          <tr><td>agentshield</td><td>Cybersecurity</td><td>OSS</td><td>High</td><td>Medium</td><td>no_match</td><td>track company formation</td><td>Fast-growing OSS scanner for agent configs and MCP servers.</td><td>Repo traction may not become a company.</td></tr>
-          <tr><td>RuntimeOps AI</td><td>Devtools</td><td>Hacker News</td><td>Medium</td><td>Medium</td><td>stale/no owner</td><td>refresh owner</td><td>Launch and developer chatter around production agent runtime reliability.</td><td>Launch interest may fade.</td></tr>
+          <tr><th>Tier</th><th>Example</th><th>Source</th><th>What It Means</th><th>Next Action</th></tr>
+          <tr><td>Assign Owner</td><td>Voker</td><td>HN launch</td><td>Strong enough company evidence to route for ownership.</td><td>Assign owner / partner follow-up.</td></tr>
+          <tr><td>Alex Review</td><td>SocialEcho 2.0</td><td>Product Hunt</td><td>Real product/company surface, but missing maturity metadata.</td><td>Inspect founders, stage, headcount, and customer proof.</td></tr>
+          <tr><td>Market Signal</td><td>affaan-m/agentshield</td><td>GitHub</td><td>OSS momentum reveals market direction even if no company is formed yet.</td><td>Use theme to search for companies and track formation.</td></tr>
+          <tr><td>Evidence Gap</td><td>Databox MCP</td><td>Product Hunt</td><td>Promising but blocked by a specific missing field.</td><td>Find founder/operator identity before promotion.</td></tr>
         </table>
       </div>
     </div>
@@ -127,22 +129,22 @@
 
   <section>
     <h2>How the weekly radar works</h2>
-    <p class="desc">The important idea: pain and chatter are useful, but they do not automatically become company rows. They first become themes. Then the system searches for companies that credibly map to those themes.</p>
+    <p class="desc">The important idea: launch chatter is a starting signal, not the answer. The system has to resolve the official domain, inspect the company surface, separate companies from market signals, and explain every gap.</p>
     <div class="flow">
-      <div class="node"><strong>1. Source collection</strong><span>Pull recent signal from Reddit, Hacker News, GitHub, social/video sources, and grounded web search when configured.</span></div>
+      <div class="node"><strong>1. Source collection</strong><span>Pull signal from Product Hunt, X, Hacker News, GitHub, YC, Exa/Brave web search, and manual-mode company metadata checks.</span></div>
       <div class="arrow">↓</div>
       <div class="split">
-        <div class="node" style="border-left-color:var(--orange)"><strong>2A. Pain and theme evidence</strong><span>Reddit complaints, HN discussions, developer pain, market chatter. This can create a theme, not a company row.</span></div>
-        <div class="node" style="border-left-color:var(--green)"><strong>2B. Candidate evidence</strong><span>Company pages, HN launches, GitHub repos, funding pages, founder/product pages. This can become a radar row.</span></div>
+        <div class="node" style="border-left-color:var(--green)"><strong>2A. Company candidates</strong><span>Launches, websites, pricing, docs, customers, careers, founder pages, YC/company rows, and official domains.</span></div>
+        <div class="node" style="border-left-color:var(--orange)"><strong>2B. Market signals</strong><span>OSS velocity, repeated X/HN chatter, developer pain, and themes that show demand before company formation is clear.</span></div>
       </div>
       <div class="arrow">↓</div>
-      <div class="node" style="border-left-color:var(--purple)"><strong>3. Company Discovery From Themes</strong><span>If the system sees repeated pain like "AI agent permissions," it runs targeted searches such as "AI agent security startups Seed Series A founder launch."</span></div>
+      <div class="node" style="border-left-color:var(--purple)"><strong>3. Company dossier layer</strong><span>Build a dossier with official-domain candidates, verified domain, founder/team evidence, product proof, commercial proof, contradictions, and missing fields.</span></div>
       <div class="arrow">↓</div>
-      <div class="node"><strong>4. Rank and explain</strong><span>Each qualified company/project gets Investment Interest, Evidence Confidence, Why On Radar, Why This May Be Noise, and a suggested next action.</span></div>
+      <div class="node"><strong>4. LLM investigation</strong><span>The LLM plans searches, extracts facts, critiques evidence quality, blocks unsafe domain guesses, and writes a simple explanation. It does not invent facts.</span></div>
       <div class="arrow">↓</div>
-      <div class="node" style="border-left-color:var(--green)"><strong>5. Read-only Attio awareness</strong><span>The brief checks whether Marathon already knows the company, whether it is stale/no owner, or whether it was previously passed. It does not write to Attio.</span></div>
+      <div class="node" style="border-left-color:var(--green)"><strong>5. Tiered gates</strong><span>Promote into Assign Owner, Alex Review, Review-Worthy Company, Market Signal, Evidence Gap, Launch Watch, or reject. Assign Owner stays the highest bar.</span></div>
       <div class="arrow">↓</div>
-      <div class="node"><strong>6. Weekly partner artifact</strong><span>Partner Review, Full Radar, Sector Intelligence, Themes With No Company Yet, Company Discovery From Themes, weak evidence summary, and audit JSON files.</span></div>
+      <div class="node"><strong>6. Weekly partner packet</strong><span>Decision packet, source-yield report, repeatability report, manual evidence queue, sanity check, and audit JSON files.</span></div>
     </div>
   </section>
 
@@ -150,28 +152,28 @@
     <h2>What each section means</h2>
     <div class="grid2">
       <div class="card">
-        <h3 class="green">Partner Review</h3>
-        <p>The 10-15 rows a partner should look at first. These are ranked for interest, not just evidence volume.</p>
+        <h3 class="green">Assign Owner</h3>
+        <p>The strictest tier. These rows have enough evidence to route to a human owner without over-promoting weak launch chatter.</p>
       </div>
       <div class="card">
-        <h3 class="blue">Full Radar</h3>
-        <p>Up to 50 qualified rows. No filler. Includes stage, raised, headcount, founders, LinkedIn, X, Attio URL, OSS score, and best source when trusted evidence exists.</p>
+        <h3 class="blue">Alex Review Companies</h3>
+        <p>Good/decent companies Alex should inspect. These may still need founder, stage, funding, headcount, customer, or LinkedIn-style checks.</p>
       </div>
       <div class="card">
-        <h3 class="purple">Themes With No Company Yet</h3>
-        <p>Useful market pain where the system does not yet have enough company evidence. These are research prompts, not fake company rows.</p>
+        <h3 class="purple">Review-Worthy Market Signals</h3>
+        <p>OSS and theme movement that tells us where the market is going. These are valuable even when no company exists yet.</p>
       </div>
       <div class="card">
-        <h3 class="orange">Company Discovery From Themes</h3>
-        <p>The second-pass searches created from those themes. This is the bridge from pain signal to investable company discovery.</p>
+        <h3 class="orange">Evidence Gap Queue</h3>
+        <p>Promising rows blocked by exact missing evidence: official domain, founder/team, stage, funding, headcount, pricing, docs, customers, or careers.</p>
       </div>
       <div class="card">
-        <h3 class="blue">Sector Intelligence</h3>
-        <p>For every requested sector, the brief says whether it found companies, OSS projects, pain without companies, source failures, or no meaningful signal.</p>
+        <h3 class="blue">Manual Evidence Queue</h3>
+        <p>A focused 30-45 minute analyst workflow: what to check, what would promote the row, and what would discard it.</p>
       </div>
       <div class="card">
-        <h3 class="red">Weak Evidence / Rejected Summary</h3>
-        <p>Shows what was filtered out and why, so quiet sectors are explainable instead of mysterious.</p>
+        <h3 class="red">Source Health and Caveats</h3>
+        <p>Shows which providers worked, degraded, timed out, or returned thin evidence, so a weak run is explainable.</p>
       </div>
     </div>
   </section>
@@ -191,25 +193,25 @@
     <h2>How sources are used</h2>
     <div class="grid3">
       <div class="card ok">
-        <h3>Candidate-eligible by default</h3>
-        <p>Grounded company pages, HN Show/Launch posts, GitHub repos, funding/company pages, and clear founder/company pages can become radar rows.</p>
+        <h3>Company evidence</h3>
+        <p>YC rows, HN launches, Product Hunt launches, official websites, pricing, docs, customers, careers, founder pages, and company metadata can become review rows.</p>
       </div>
       <div class="card callout">
-        <h3>Mostly supporting evidence</h3>
-        <p>Reddit is mainly used for curated pain discovery. TikTok, Instagram, Threads, and YouTube help only when the company/product identity is clear and corroborated.</p>
+        <h3>Launch and social radar</h3>
+        <p>Product Hunt and X are strong early signal sources. They should point us to official domains and operators; they should not decide company identity alone.</p>
       </div>
       <div class="card">
-        <h3>Read-only CRM context</h3>
-        <p>Attio is used to match by domain/name and add status, owner, last touch, stale/no-owner, passed-company flags, and CRM URL. It does not write records.</p>
+        <h3>Market radar</h3>
+        <p>GitHub is not only company discovery. Fast-growing repos can reveal themes, wedges, and user demand before a company has formed.</p>
       </div>
     </div>
   </section>
 
   <section>
-    <h2>Why output can be OSS-heavy</h2>
+    <h2>Honest caveat</h2>
     <div class="card warn">
-      <h3>Honest caveat</h3>
-      <p>If a grounded web search key is missing, the system has a harder time finding company websites, funding pages, founder pages, and LinkedIn-style company evidence. GitHub and HN remain easier to verify, so the weekly radar may skew toward OSS projects. The brief labels this instead of inventing weak company rows.</p>
+      <h3>Evidence yield is still the hard part</h3>
+      <p>The current baseline proves the packet shape and strict gates work. It does not prove repeatability across many weeks yet. Product Hunt carried most of the latest non-YC company yield, X is still thin, and founder/stage/headcount evidence often needs manual review or structured metadata access.</p>
     </div>
   </section>
 
@@ -227,26 +229,25 @@
       </div>
     </div>
     <p style="margin-top:12px;">
-      <span class="pill">Partner Review</span>
-      <span class="pill">Watchlist</span>
-      <span class="pill">Needs More Evidence</span>
-      <span class="pill">Filtered</span>
+      <span class="pill">Assign Owner</span>
+      <span class="pill">Alex Review</span>
+      <span class="pill">Review-Worthy Company</span>
+      <span class="pill">Market Signal</span>
+      <span class="pill">Evidence Gap</span>
     </p>
   </section>
 
   <section>
-    <h2>Files created each week</h2>
+    <h2>Current blessed files</h2>
     <table>
       <tr><th>File</th><th>Purpose</th></tr>
-      <tr><td>weekly-preview.md</td><td>The partner-readable brief.</td></tr>
-      <tr><td>candidates.json</td><td>The scored company/project rows.</td></tr>
-      <tr><td>signals.json</td><td>Normalized evidence from all sources.</td></tr>
-      <tr><td>theme-signals.json</td><td>Pain/theme evidence that should guide research but should not become fake company rows.</td></tr>
-      <tr><td>company-discovery.json</td><td>Second-pass company-search evidence created from themes.</td></tr>
-      <tr><td>sector-intelligence.json</td><td>Per-sector status, source gaps, rejected counts, and next hunts.</td></tr>
-      <tr><td>raw-evidence.json</td><td>Auditable raw source evidence.</td></tr>
-      <tr><td>synthesis.json</td><td>Optional LLM synthesis notes when enabled. Advisory only.</td></tr>
-      <tr><td>research-workbench.md</td><td>Optional Codex/Claude summary for weak-signal reasoning. Created by one workbench command and kept separate from verified candidates.</td></tr>
+      <tr><td>source-yield-validation-report.md</td><td>The human-readable current packet: tiers, rows, gaps, source health, and caveats.</td></tr>
+      <tr><td>partner-decision-packet.json</td><td>Strict owner/action packet for high-confidence routing.</td></tr>
+      <tr><td>ledger-action-report.json</td><td>Promotion audit; unsafe owner promotions must remain zero.</td></tr>
+      <tr><td>targeted-manual-enrichment.json</td><td>Focused checks for the top evidence gaps.</td></tr>
+      <tr><td>structured-provider-trial.json</td><td>Manual-mode Coresignal/Crunchbase/LinkedIn-style metadata hints when direct keys are absent.</td></tr>
+      <tr><td>review-worthy-sanity-check.md</td><td>Human click-check of the 8 Review-Worthy companies before Alex sees them.</td></tr>
+      <tr><td>run-manifest.json</td><td>The pointer to the one blessed source run.</td></tr>
     </table>
   </section>
 

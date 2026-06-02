@@ -43,7 +43,33 @@ def _targets_from_source_yield_gap_queue(run_dir: Path) -> list[dict]:
     return normalized
 
 
+def _targets_from_source_yield_alex_review(run_dir: Path) -> list[dict]:
+    source_yield_path = run_dir / "source-yield-validation-report.json"
+    if not source_yield_path.exists():
+        return []
+    payload = json.loads(source_yield_path.read_text())
+    items = payload.get("alex_review_companies") or []
+    normalized = []
+    for item in items:
+        if not isinstance(item, dict):
+            continue
+        row = dict(item)
+        row["recommended_next_step"] = (
+            row.get("recommended_next_step")
+            or row.get("recommended_manual_check")
+            or row.get("next_step")
+            or ""
+        )
+        normalized.append(row)
+    return normalized
+
+
 def _load_targets(run_dir: Path, *, target_source: str = "manual_or_gap_queue") -> list[dict]:
+    if target_source == "alex_review_companies":
+        items = _targets_from_source_yield_alex_review(run_dir)
+        if items:
+            return items
+        raise FileNotFoundError(f"source-yield Alex Review rows missing: {run_dir / 'source-yield-validation-report.json'}")
     if target_source == "evidence_gap_queue":
         items = _targets_from_source_yield_gap_queue(run_dir)
         if items:
@@ -278,7 +304,11 @@ def main() -> None:
     parser.add_argument("--timeout-seconds", type=int, default=45)
     parser.add_argument("--max-runtime-seconds", type=int, default=None)
     parser.add_argument("--output-name", default=DEFAULT_OUTPUT_NAME)
-    parser.add_argument("--target-source", choices=("manual_or_gap_queue", "evidence_gap_queue"), default="manual_or_gap_queue")
+    parser.add_argument(
+        "--target-source",
+        choices=("manual_or_gap_queue", "evidence_gap_queue", "alex_review_companies"),
+        default="manual_or_gap_queue",
+    )
     args = parser.parse_args()
 
     run_dir = Path(args.run_dir)

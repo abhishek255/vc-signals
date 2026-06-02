@@ -1,0 +1,433 @@
+{
+  "enabled": true,
+  "label": "Phase 6C HN Launch Trial",
+  "queries_planned": 10,
+  "queries_run": 10,
+  "movement_seeds": [
+    {
+      "movement": "AI agent security",
+      "market_sector": "Cybersecurity",
+      "origin_row_ids": []
+    },
+    {
+      "movement": "Vertical AI operations",
+      "market_sector": "Devtools",
+      "origin_row_ids": [
+        "repo:github.com/bananasjim/rdc-cli"
+      ]
+    },
+    {
+      "movement": "Agent reliability and evals",
+      "market_sector": "AI Infra",
+      "origin_row_ids": [
+        "repo:github.com/skylenage-ai/swe-ci"
+      ]
+    },
+    {
+      "movement": "Agent runtime infrastructure",
+      "market_sector": "AI Infra",
+      "origin_row_ids": [
+        "company:databox.com"
+      ]
+    },
+    {
+      "movement": "AI data infrastructure",
+      "market_sector": "Unclassified",
+      "origin_row_ids": [
+        "company:simplex.sh"
+      ]
+    }
+  ],
+  "skipped_no_seed": false,
+  "completion_status": "partial_budget",
+  "items_seen": 85,
+  "outbound_candidates": 16,
+  "project_only_rows": 14,
+  "product_context_rows": 1,
+  "research_deeper_rows": 7,
+  "assign_owner_rows": 1,
+  "action_blocked_by_attio_rows": 0,
+  "attio_blocked_owner_ready_rows": 0,
+  "new_to_marathon_rows": 1,
+  "unsafe_promotions": 0,
+  "partial": true,
+  "budget_exceeded": true,
+  "budget_reasons": [
+    "max_candidates_exceeded"
+  ],
+  "runtime": {
+    "candidates_seen": 17,
+    "candidates_completed": 9,
+    "candidates_partially_enriched": 0,
+    "candidates_skipped": 8,
+    "completed_clean": 6,
+    "completed_with_stage_failure": 3,
+    "partial_budget": 8,
+    "skipped_low_priority": 0,
+    "live_queries": 3,
+    "attio_checks": 1,
+    "attio_checks_attempted": 1,
+    "attio_successes": 1,
+    "attio_timeouts": 0,
+    "attio_retry_attempts": 0,
+    "attio_cache_hits": 0,
+    "attio_cache_fresh_hits": 0,
+    "attio_cache_stale_hits": 0,
+    "attio_cache_expired_hits": 0,
+    "attio_skipped": 6,
+    "attio_skipped_owner_actionable_evidence_incomplete": 6,
+    "attio_skip_reasons": {
+      "owner_actionable_evidence_incomplete": 6
+    },
+    "attio_blocked_owner_ready_rows": 0,
+    "page_fetches": 37,
+    "timeouts": 3,
+    "stage_failures": 3,
+    "elapsed_seconds": 18.761,
+    "budget_exceeded": true,
+    "budget_reasons": [
+      "max_candidates_exceeded"
+    ],
+    "high_priority_candidates": 4,
+    "normal_priority_candidates": 12,
+    "low_priority_candidates": 0,
+    "skip_or_context_candidates": 1,
+    "official_page_cache_hits": 0,
+    "maturity_query_cache_hits": 0,
+    "founder_query_cache_hits": 0,
+    "customer_query_cache_hits": 0,
+    "owner_query_cache_hits": 0
+  },
+  "review_rows": [
+    {
+      "index": 0,
+      "name": "Voker",
+      "domain": "voker.ai",
+      "priority": "high_priority",
+      "priority_reasons": [
+        "accelerator_hint",
+        "official_domain_url",
+        "company_looking_domain",
+        "hn_engagement"
+      ],
+      "completion_status": "completed_clean",
+      "stage_failure_reason": [],
+      "final_action": "Assign owner",
+      "recommended_lane": "HN Enriched Outbound Candidates",
+      "evidence_dimensions": [
+        "customer",
+        "founder",
+        "stage"
+      ],
+      "evidence_completeness": 3,
+      "attio_status": "no_match",
+      "attio_skipped": false,
+      "attio_skip_reason": "",
+      "missing_evidence": [],
+      "weak_stage_funding_hints": [
+        "https://news.ycombinator.com/item?id=48109962"
+      ],
+      "unsafe_promotion": false,
+      "assign_owner_evidence_provenance": {
+        "hn_source": {
+          "url": "https://news.ycombinator.com/item?id=48109962",
+          "title": "Launch HN: Voker (YC S24) \u2013 Analytics for AI Agents",
+          "author": "ttpost",
+          "engagement": {
+            "points": 59,
+            "comments": 22
+          }
+        },
+        "official_company_source": {
+          "url": "https://voker.ai",
+          "domain": "voker.ai",
+          "identity_url": "https://voker.ai"
+        },
+        "founder_evidence": {
+          "url": "https://www.ycombinator.com/companies/voker",
+          "founders": [
+            "Tyler Postle",
+            "Alex Rudolph"
+          ],
+          "profiles": [
+            {
+              "name": "Tyler Postle",
+              "role": "founder",
+              "source": "https://www.ycombinator.com/companies/voker"
+            },
+            {
+              "name": "Alex Rudolph",
+              "role": "founder",
+              "source": "https://www.ycombinator.com/companies/voker"
+            }
+          ]
+        },
+        "stage_funding_evidence": {
+          "url": "https://www.ycombinator.com/companies/voker",
+          "maturity_status": "seed_to_series_b",
+          "basis": [
+            "accelerator_batch_evidence: YC S24",
+            "yc_company_profile_stage_evidence"
+          ]
+        },
+        "commercial_customer_evidence": {
+          "url": "https://voker.ai",
+          "types": [
+            {
+              "url": "https://voker.ai",
+              "evidence_types": [
+                "waitlist_or_demo_evidence",
+                "commercial_intent_evidence"
+              ]
+            }
+          ]
+        },
+        "attio_status_evidence": {
+          "status": "no_match",
+          "source": "attio_read",
+          "action_safe": true
+        }
+      },
+      "review_rank_reason": "assign_owner"
+    },
+    {
+      "index": 2,
+      "name": "Runtime (YC P26)",
+      "domain": "runtm.com",
+      "priority": "high_priority",
+      "priority_reasons": [
+        "official_domain_url",
+        "company_looking_domain",
+        "hn_engagement"
+      ],
+      "completion_status": "completed_with_stage_failure",
+      "stage_failure_reason": [
+        "maturity_query_timeout"
+      ],
+      "final_action": "Research deeper",
+      "recommended_lane": "HN Enriched Outbound Candidates",
+      "evidence_dimensions": [
+        "customer"
+      ],
+      "evidence_completeness": 1,
+      "attio_status": "unknown",
+      "attio_skipped": true,
+      "attio_skip_reason": "owner_actionable_evidence_incomplete",
+      "missing_evidence": [
+        "no founder/team evidence",
+        "no stage/funding evidence",
+        "Attio status unknown",
+        "maturity_query_timeout"
+      ],
+      "weak_stage_funding_hints": [],
+      "unsafe_promotion": false,
+      "assign_owner_evidence_provenance": {},
+      "review_rank_reason": "research_deeper_with_evidence"
+    },
+    {
+      "index": 1,
+      "name": "Hypercubic",
+      "domain": "hypercubic.ai",
+      "priority": "high_priority",
+      "priority_reasons": [
+        "official_domain_url",
+        "company_looking_domain",
+        "hn_engagement"
+      ],
+      "completion_status": "completed_with_stage_failure",
+      "stage_failure_reason": [
+        "maturity_query_timeout"
+      ],
+      "final_action": "Research deeper",
+      "recommended_lane": "HN Enriched Outbound Candidates",
+      "evidence_dimensions": [
+        "customer"
+      ],
+      "evidence_completeness": 1,
+      "attio_status": "unknown",
+      "attio_skipped": true,
+      "attio_skip_reason": "owner_actionable_evidence_incomplete",
+      "missing_evidence": [
+        "no founder/team evidence",
+        "no stage/funding evidence",
+        "no commercial/funding evidence",
+        "Attio status unknown",
+        "maturity_query_timeout"
+      ],
+      "weak_stage_funding_hints": [],
+      "unsafe_promotion": false,
+      "assign_owner_evidence_provenance": {},
+      "review_rank_reason": "research_deeper_with_evidence"
+    },
+    {
+      "index": 5,
+      "name": "Noada",
+      "domain": "noada.app",
+      "priority": "normal_priority",
+      "priority_reasons": [
+        "official_domain_url",
+        "company_looking_domain"
+      ],
+      "completion_status": "completed_clean",
+      "stage_failure_reason": [],
+      "final_action": "Research deeper",
+      "recommended_lane": "HN Enriched Outbound Candidates",
+      "evidence_dimensions": [],
+      "evidence_completeness": 0,
+      "attio_status": "unknown",
+      "attio_skipped": true,
+      "attio_skip_reason": "owner_actionable_evidence_incomplete",
+      "missing_evidence": [
+        "no founder/team evidence",
+        "no stage/funding evidence",
+        "no commercial/funding evidence",
+        "Attio status unknown",
+        "no customer/buyer pull evidence"
+      ],
+      "weak_stage_funding_hints": [],
+      "unsafe_promotion": false,
+      "assign_owner_evidence_provenance": {},
+      "review_rank_reason": "research_deeper_missing_evidence"
+    },
+    {
+      "index": 6,
+      "name": "Datapoint AI",
+      "domain": "trydatapoint.com",
+      "priority": "normal_priority",
+      "priority_reasons": [
+        "official_domain_url",
+        "company_looking_domain"
+      ],
+      "completion_status": "completed_clean",
+      "stage_failure_reason": [],
+      "final_action": "Research deeper",
+      "recommended_lane": "HN Enriched Outbound Candidates",
+      "evidence_dimensions": [],
+      "evidence_completeness": 0,
+      "attio_status": "unknown",
+      "attio_skipped": true,
+      "attio_skip_reason": "owner_actionable_evidence_incomplete",
+      "missing_evidence": [
+        "no founder/team evidence",
+        "no stage/funding evidence",
+        "no customer/buyer pull evidence",
+        "no commercial/funding evidence",
+        "Attio status unknown"
+      ],
+      "weak_stage_funding_hints": [],
+      "unsafe_promotion": false,
+      "assign_owner_evidence_provenance": {},
+      "review_rank_reason": "research_deeper_missing_evidence"
+    },
+    {
+      "index": 7,
+      "name": "AI Doctor Notes",
+      "domain": "aidoctornotes.app",
+      "priority": "normal_priority",
+      "priority_reasons": [
+        "official_domain_url",
+        "company_looking_domain"
+      ],
+      "completion_status": "completed_clean",
+      "stage_failure_reason": [],
+      "final_action": "Research deeper",
+      "recommended_lane": "HN Enriched Outbound Candidates",
+      "evidence_dimensions": [],
+      "evidence_completeness": 0,
+      "attio_status": "unknown",
+      "attio_skipped": true,
+      "attio_skip_reason": "owner_actionable_evidence_incomplete",
+      "missing_evidence": [
+        "no founder/team evidence",
+        "no stage/funding evidence",
+        "no commercial/funding evidence",
+        "Attio status unknown",
+        "no customer/buyer pull evidence"
+      ],
+      "weak_stage_funding_hints": [],
+      "unsafe_promotion": false,
+      "assign_owner_evidence_provenance": {},
+      "review_rank_reason": "research_deeper_missing_evidence"
+    },
+    {
+      "index": 4,
+      "name": "Triyambakam Apex Corp",
+      "domain": "triyambakam-apex-corp.hf.space",
+      "priority": "normal_priority",
+      "priority_reasons": [
+        "official_domain_url",
+        "company_looking_domain"
+      ],
+      "completion_status": "completed_clean",
+      "stage_failure_reason": [],
+      "final_action": "Research deeper",
+      "recommended_lane": "HN Enriched Outbound Candidates",
+      "evidence_dimensions": [],
+      "evidence_completeness": 0,
+      "attio_status": "unknown",
+      "attio_skipped": false,
+      "attio_skip_reason": "",
+      "missing_evidence": [
+        "official_domain_identity_not_confirmed",
+        "no verified Attio-safe company identity",
+        "no founder/team evidence",
+        "no stage/funding evidence",
+        "no commercial/funding evidence",
+        "Attio status unknown",
+        "no customer/buyer pull evidence"
+      ],
+      "weak_stage_funding_hints": [],
+      "unsafe_promotion": false,
+      "assign_owner_evidence_provenance": {},
+      "review_rank_reason": "research_deeper_missing_evidence"
+    },
+    {
+      "index": 3,
+      "name": "3D-Agent",
+      "domain": "3d-agent.com",
+      "priority": "high_priority",
+      "priority_reasons": [
+        "official_domain_url",
+        "company_looking_domain",
+        "hn_engagement"
+      ],
+      "completion_status": "completed_with_stage_failure",
+      "stage_failure_reason": [
+        "maturity_query_timeout"
+      ],
+      "final_action": "Research deeper",
+      "recommended_lane": "HN Enriched Outbound Candidates",
+      "evidence_dimensions": [],
+      "evidence_completeness": 0,
+      "attio_status": "unknown",
+      "attio_skipped": true,
+      "attio_skip_reason": "owner_actionable_evidence_incomplete",
+      "missing_evidence": [
+        "no founder/team evidence",
+        "no stage/funding evidence",
+        "no commercial/funding evidence",
+        "Attio status unknown",
+        "no customer/buyer pull evidence",
+        "maturity_query_timeout"
+      ],
+      "weak_stage_funding_hints": [],
+      "unsafe_promotion": false,
+      "assign_owner_evidence_provenance": {},
+      "review_rank_reason": "research_deeper_missing_evidence"
+    }
+  ],
+  "artifacts": [
+    "docs/radar-runs/full-source-dossier-validation-2026-06-01-r1/hn-launch-trial/company-native-source-audit.json",
+    "docs/radar-runs/full-source-dossier-validation-2026-06-01-r1/hn-launch-trial/company-native-normalized-leads.json",
+    "docs/radar-runs/full-source-dossier-validation-2026-06-01-r1/hn-launch-trial/company-native-source-audit.md",
+    "docs/radar-runs/full-source-dossier-validation-2026-06-01-r1/hn-launch-trial/hn-gated-source-trial.json",
+    "docs/radar-runs/full-source-dossier-validation-2026-06-01-r1/hn-launch-trial/hn-gated-source-trial.md",
+    "docs/radar-runs/full-source-dossier-validation-2026-06-01-r1/hn-launch-trial/hn-outbound-enrichment.json",
+    "docs/radar-runs/full-source-dossier-validation-2026-06-01-r1/hn-launch-trial/hn-outbound-enrichment.md",
+    "docs/radar-runs/full-source-dossier-validation-2026-06-01-r1/hn-launch-trial/hn-enrichment-runtime-ledger.json",
+    "docs/radar-runs/full-source-dossier-validation-2026-06-01-r1/hn-launch-trial/hn-weekly-trial.json",
+    "docs/radar-runs/full-source-dossier-validation-2026-06-01-r1/hn-launch-trial/hn-weekly-trial.md",
+    "docs/radar-runs/full-source-dossier-validation-2026-06-01-r1/hn-launch-trial/hn-trial-row-review.json",
+    "docs/radar-runs/full-source-dossier-validation-2026-06-01-r1/hn-launch-trial/hn-trial-row-review.md"
+  ]
+}

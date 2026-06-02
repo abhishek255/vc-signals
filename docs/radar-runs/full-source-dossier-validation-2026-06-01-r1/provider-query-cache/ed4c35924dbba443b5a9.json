@@ -1,0 +1,777 @@
+{
+  "topic": "Vertical AI workflow automation startup raises seed Series A launches funding company",
+  "items": [
+    {
+      "source": "grounding",
+      "title": "n8n.io - AI workflow automation platform",
+      "url": "https://n8n.io/",
+      "snippet": "Push workflows to production with the DevOps experience teams trust. n8n\u2019s security and governance features let you build, monitor, and scale agents without losing control. ... Fully on-prem option, SSO SAML, and LDAP, encrypted secret stores, version control, RBAC permissions. Audit logs and log streaming to your SIEM, workflow history, real-time alerts, usage dashboards",
+      "published_at": "2026-06-01",
+      "engagement": {},
+      "container": "n8n.io",
+      "author": "",
+      "_raw_fields_present": [
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": []
+    },
+    {
+      "source": "grounding",
+      "title": "The Vertical AI Startup Playbook \u2014 Why Narrow Focus Wins in 2026",
+      "url": "https://www.twinstrata.com/the-vertical-ai-startup-playbook/",
+      "snippet": "Accounts receivable automation is not glamorous. It is not building a foundation model or creating a new computing paradigm. But it solves a real, painful, expensive problem for a specific buyer who understands the ROI immediately. That clarity is what drives both fundraising success and customer acquisition. Start with a customer category, not a technology. Who are you building for? What is the most painful thing about their workflow that they would pay to fix?",
+      "published_at": "2026-05-28",
+      "engagement": {},
+      "container": "www.twinstrata.com",
+      "author": "",
+      "_raw_fields_present": [
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": []
+    },
+    {
+      "source": "grounding",
+      "title": "The Rise of Vertical AI SaaS, Industry Specific AI Products Explained",
+      "url": "https://blog.american-technology.net/rise-of-vertical-ai-saas-industry/",
+      "snippet": "If you want a close cousin to this idea, ATC\u2019s posts on AI agents and automation and production deployment strategiesshow how the conversation moves from theory to implementation. That matters because vertical AI products are only valuable if they survive real-world deployment.",
+      "published_at": "2026-05-19",
+      "engagement": {},
+      "container": "blog.american-technology.net",
+      "author": "",
+      "_raw_fields_present": [
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": []
+    },
+    {
+      "source": "grounding",
+      "title": "AI Workflow Automation Software & Tools | Make",
+      "url": "https://www.make.com/en",
+      "snippet": "Cut complexity and move faster by automating everything from monitoring to incident response. Connect tools, integrate AI, reduce manual work, and free your team to focus on innovation. ... Quickly adapt to new market demands by connecting your entire tech stack. Use our massive library of pre-built apps for instant workflows, and our flexible platform to integrate any custom system.",
+      "published_at": "2026-05-28",
+      "engagement": {},
+      "container": "www.make.com",
+      "author": "",
+      "_raw_fields_present": [
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": []
+    },
+    {
+      "source": "grounding",
+      "title": "n8n.io - AI workflow automation platform",
+      "url": "https://n8n.io/",
+      "snippet": "Combine human-in-the-loop approvals with rule-based automation to contain AI actions. ... On Wednesday, Joe updated the status to &quot;won&quot; in Salesforce after a Zoom call. On Thursday, Sue provided on-site setup and closed the ServiceNow ticket. Create a task in Asana... Other tools limit you to either a visual building experience, or code. With n8n, you get the best of both worlds. Write JavaScript or Python anywhere in your workflow.",
+      "published_at": "2026-06-01",
+      "engagement": {},
+      "container": "n8n.io",
+      "author": "",
+      "_raw_fields_present": [
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": []
+    },
+    {
+      "source": "grounding",
+      "title": "Saris Raises $28.8 Million to Scale Agentic Workflow Automation for Financial Institutions",
+      "url": "https://www.businesswire.com/news/home/20260528291475/en/Saris-Raises-$28.8-Million-to-Scale-Agentic-Workflow-Automation-for-Financial-Institutions",
+      "snippet": "Saris raises <strong>$28.8 million</strong> in Series A funding to Scale agentic workflow automation across more financial institutions, deepen integrations with partners, and grow the team that trains and deploys the platform&#x27;s AI agents.Share",
+      "published_at": "2026-05-28",
+      "engagement": {},
+      "container": "www.businesswire.com",
+      "author": "",
+      "_raw_fields_present": [
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": []
+    },
+    {
+      "source": "grounding",
+      "title": "From Idea to Impact: Launching Domain-Specific AI Agents and Automation Pipelines in 6 Weeks | Jetruby",
+      "url": "https://jetruby.com/blog/vertical-ai-agents-automation-pipelines-6-weeks/",
+      "snippet": "For AI automation pipelines, tools like n8n or Make connect SaaS systems, while LLMs are embedded inside the flow to handle classification, enrichment, matching, and message drafting. This enables intelligent decisions to be made directly within operational workflows. In healthcare, doctors were spending up to two hours per day on documentation. After implementing a vertical AI agent, transcription and structured SOAP note generation became automated, freeing up to 10 hours per week per doctor a",
+      "published_at": "2026-05-06",
+      "engagement": {},
+      "container": "jetruby.com",
+      "author": "",
+      "_raw_fields_present": [
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": []
+    },
+    {
+      "source": "grounding",
+      "title": "Vertical AI startups navigate survival amid dominance of general-purpose models | KuCoin",
+      "url": "https://www.kucoin.com/news/flash/vertical-ai-startups-navigate-survival-amid-general-model-dominance",
+      "snippet": "This is also the prototype of FlashLabs&#x27; latest product, <strong>Super Agent</strong>, pushing a single model\u2019s intelligence to its limit and equipping it with the most advanced tools. <strong>Super Agent</strong> leverages intelligent automation to unify users\u2019 revenue systems, ...",
+      "published_at": "2026-05-25",
+      "engagement": {},
+      "container": "www.kucoin.com",
+      "author": "",
+      "_raw_fields_present": [
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": []
+    },
+    {
+      "source": "grounding",
+      "title": "The Vertical AI Startup Playbook \u2014 Why Narrow Focus Wins in 2026",
+      "url": "https://www.twinstrata.com/the-vertical-ai-startup-playbook/",
+      "snippet": "The specificity is not a limitation of the product \u2014 it is the product. Doctors trust it precisely because it is designed for them. Fazeshift, which uses AI agents to automate accounts receivable, raised <strong>$17 million</strong> Series A.",
+      "published_at": "2026-05-28",
+      "engagement": {},
+      "container": "www.twinstrata.com",
+      "author": "",
+      "_raw_fields_present": [
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": []
+    },
+    {
+      "source": "grounding",
+      "title": "What is vertical AI? Definition and examples | SymphonyAI",
+      "url": "https://www.symphonyai.com/glossary/ai/vertical-ai-industry-specific-ai/",
+      "snippet": "Because the domain knowledge is ... their industry. The result is <strong>faster deployment, lower implementation risk, and AI that performs in production environments rather than controlled pilots</strong>....",
+      "published_at": "2026-05-21",
+      "engagement": {},
+      "container": "www.symphonyai.com",
+      "author": "",
+      "_raw_fields_present": [
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": []
+    },
+    {
+      "source": "grounding",
+      "title": "AI product team startup Pit raises $16M from a16z and others to automate enterprise workflows - SiliconANGLE",
+      "url": "https://siliconangle.com/2026/05/07/ai-product-team-startup-pit-raises-16m-a16z-others-automate-enterprise-workflows/",
+      "snippet": "AI product team startup Pit raises <strong>$16M from a16z and others to automate enterprise workflows</strong> - SiliconANGLE",
+      "published_at": "2026-05-07",
+      "engagement": {},
+      "container": "siliconangle.com",
+      "author": "",
+      "_raw_fields_present": [
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": []
+    },
+    {
+      "source": "grounding",
+      "title": "GitHub - manaflow-ai/cmux: Ghostty-based macOS terminal with vertical tabs and notifications for AI coding agents \u00b7 GitHub",
+      "url": "https://github.com/manaflow-ai/cmux",
+      "snippet": "Scriptable \u2014 CLI and socket API to create workspaces, split panes, send keystrokes, and automate the browser \u00b7 Native macOS app \u2014 Built with Swift and AppKit, not Electron. Fast startup, low memory.",
+      "published_at": "2026-05-17",
+      "engagement": {},
+      "container": "github.com",
+      "author": "",
+      "_raw_fields_present": [
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": []
+    },
+    {
+      "source": "grounding",
+      "title": "AI Foundation Models Go Vertical: $75M Funding Round | Enterprise Software Automation",
+      "url": "https://angelinvestorsnetwork.com/market-analysis/ai-foundation-models-go-vertical-75m-funding-round",
+      "snippet": "The startup isn&#x27;t promising to automate all knowledge work\u2014it&#x27;s promising to automate specific, high-value software workflows with measurable reliability. That&#x27;s a thesis institutional LPs can underwrite with actual ROI projections rather than science fiction scenarios. This funding also signals where subsequent capital will flow. Once one vertical-focused AI automation company proves the model works\u2014raises ...",
+      "published_at": "2026-05-07",
+      "engagement": {},
+      "container": "angelinvestorsnetwork.com",
+      "author": "",
+      "_raw_fields_present": [
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": []
+    },
+    {
+      "source": "grounding",
+      "title": "Revolutionary Turkey Travel AI: Solustiq Emerges as First Vertical AI Company for Global Travel Tech in 2026 - Travel And Tour World",
+      "url": "https://www.travelandtourworld.com/news/article/fb0qktl5ubca/",
+      "snippet": "Modern companies seek technology that can automate tasks, improve data accuracy, and enhance customer experience. Many travel companies today still operate with fragmented systems and manual processes. AI solutions built specifically for travel workflows can help streamline these inefficiencies.",
+      "published_at": "2026-05-20",
+      "engagement": {},
+      "container": "www.travelandtourworld.com",
+      "author": "",
+      "_raw_fields_present": [
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": []
+    },
+    {
+      "source": "grounding",
+      "title": "AI Foundation Models Go Vertical: $75M Funding Round | Enterprise Software Automation",
+      "url": "https://angelinvestorsnetwork.com/market-analysis/ai-foundation-models-go-vertical-75m-funding-round",
+      "snippet": "&quot;We automate Epic EMR workflows for hospital billing departments&quot; is a fundable thesis. The narrower the software target, the faster the model can achieve production-grade reliability. Second: implementation economics matter more than model architecture. The winning companies will be those that can deploy their vertical models in weeks rather than months, with minimal custom integration work. If the startup&#x27;s pitch requires six-month implementation timelines, they haven&#x27;t sol",
+      "published_at": "2026-05-07",
+      "engagement": {},
+      "container": "angelinvestorsnetwork.com",
+      "author": "",
+      "_raw_fields_present": [
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": []
+    },
+    {
+      "source": "grounding",
+      "title": "Former Meta and Salesforce leaders raise $20M from Accel and a16z for AI workflow startup \u2014 TFN",
+      "url": "https://techfundingnews.com/former-meta-and-salesforce-leaders-raise-20m-from-accel-and-a16z-for-ai-workflow-startup/",
+      "snippet": "The founders started Ciridae to help mid-market businesses replace manual workflows and fragmented systems with integrated operational software. \u201cWe built Ciridae to solve one of the quieter failures of the AI boom: the companies that stand to benefit most from AI have no way of actually adopting it,\u201d says Soslow.",
+      "published_at": "2026-05-13",
+      "engagement": {},
+      "container": "techfundingnews.com",
+      "author": "",
+      "_raw_fields_present": [
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": []
+    },
+    {
+      "source": "grounding",
+      "title": "What Are Vertical AI Agents? | IBM",
+      "url": "https://www.ibm.com/think/topics/vertical-ai-agents",
+      "snippet": "These agents handle administrative ... up workers to focus on higher-value activities. <strong>Automation powered by vertical AI agents helps streamline workflows and improve efficiency</strong>....",
+      "published_at": "2026-05-08",
+      "engagement": {},
+      "container": "www.ibm.com",
+      "author": "",
+      "_raw_fields_present": [
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": []
+    },
+    {
+      "source": "grounding",
+      "title": "AI product team startup Pit raises $16M from a16z and others to automate enterprise workflows - SiliconANGLE",
+      "url": "https://siliconangle.com/2026/05/07/ai-product-team-startup-pit-raises-16m-a16z-others-automate-enterprise-workflows/",
+      "snippet": "For instance, it claims, the average deployment has resulted in 10,000 hours saved annually that would otherwise be spent on doing manual work, 99% automated invoice acceptance rates and an 85% reduction in marketing campaign execution. Those numbers also reveal the versatility of Pit\u2019s platform, which the company claims can build almost any kind of enterprise software. That includes things such as contract processing systems, campaign management tools, cross-system data reconciliation and appro",
+      "published_at": "2026-05-07",
+      "engagement": {},
+      "container": "siliconangle.com",
+      "author": "",
+      "_raw_fields_present": [
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": []
+    },
+    {
+      "source": "grounding",
+      "title": "What Are Vertical AI Agents? | IBM",
+      "url": "https://www.ibm.com/think/topics/vertical-ai-agents",
+      "snippet": "By automating repetitive tasks ... Beyond efficiency, <strong>vertical AI agents are well suited to developing personalized experiences and can speed innovation and development in complex, data-driven fields</strong>....",
+      "published_at": "2026-05-08",
+      "engagement": {},
+      "container": "www.ibm.com",
+      "author": "",
+      "_raw_fields_present": [
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": []
+    }
+  ],
+  "clusters": [
+    {
+      "candidate_ids": [
+        "https://n8n.io"
+      ],
+      "cluster_id": "cluster-1",
+      "representative_ids": [
+        "https://n8n.io"
+      ],
+      "score": 10.24356724504355,
+      "sources": [
+        "grounding"
+      ],
+      "title": "n8n.io - AI workflow automation platform"
+    },
+    {
+      "candidate_ids": [
+        "https://twinstrata.com/the-vertical-ai-startup-playbook"
+      ],
+      "cluster_id": "cluster-2",
+      "representative_ids": [
+        "https://twinstrata.com/the-vertical-ai-startup-playbook"
+      ],
+      "score": 9.01488241222075,
+      "sources": [
+        "grounding"
+      ],
+      "title": "The Vertical AI Startup Playbook \u2014 Why Narrow Focus Wins in 2026"
+    },
+    {
+      "candidate_ids": [
+        "https://make.com/en"
+      ],
+      "cluster_id": "cluster-3",
+      "representative_ids": [
+        "https://make.com/en"
+      ],
+      "score": 6.8079307145066466,
+      "sources": [
+        "grounding"
+      ],
+      "title": "AI Workflow Automation Software & Tools | Make"
+    },
+    {
+      "candidate_ids": [
+        "https://blog.american-technology.net/rise-of-vertical-ai-saas-industry"
+      ],
+      "cluster_id": "cluster-4",
+      "representative_ids": [
+        "https://blog.american-technology.net/rise-of-vertical-ai-saas-industry"
+      ],
+      "score": 6.1168837492391965,
+      "sources": [
+        "grounding"
+      ],
+      "title": "The Rise of Vertical AI SaaS, Industry Specific AI Products Explained"
+    },
+    {
+      "candidate_ids": [
+        "https://businesswire.com/news/home/20260528291475/en/saris-raises-$28.8-million-to-scale-agentic-workflow-automation-for-financial-institutions"
+      ],
+      "cluster_id": "cluster-5",
+      "representative_ids": [
+        "https://businesswire.com/news/home/20260528291475/en/saris-raises-$28.8-million-to-scale-agentic-workflow-automation-for-financial-institutions"
+      ],
+      "score": 5.746551190844414,
+      "sources": [
+        "grounding"
+      ],
+      "title": "Saris Raises $28.8 Million to Scale Agentic Workflow Automation for Financial Institutions"
+    },
+    {
+      "candidate_ids": [
+        "https://kucoin.com/news/flash/vertical-ai-startups-navigate-survival-amid-general-model-dominance"
+      ],
+      "cluster_id": "cluster-6",
+      "representative_ids": [
+        "https://kucoin.com/news/flash/vertical-ai-startups-navigate-survival-amid-general-model-dominance"
+      ],
+      "score": 0.0,
+      "sources": [
+        "grounding"
+      ],
+      "title": "Vertical AI startups navigate survival amid dominance of general-purpose models | KuCoin"
+    },
+    {
+      "candidate_ids": [
+        "https://angelinvestorsnetwork.com/market-analysis/ai-foundation-models-go-vertical-75m-funding-round"
+      ],
+      "cluster_id": "cluster-7",
+      "representative_ids": [
+        "https://angelinvestorsnetwork.com/market-analysis/ai-foundation-models-go-vertical-75m-funding-round"
+      ],
+      "score": 0.0,
+      "sources": [
+        "grounding"
+      ],
+      "title": "AI Foundation Models Go Vertical: $75M Funding Round | Enterprise Software Automation"
+    },
+    {
+      "candidate_ids": [
+        "https://jetruby.com/blog/vertical-ai-agents-automation-pipelines-6-weeks"
+      ],
+      "cluster_id": "cluster-8",
+      "representative_ids": [
+        "https://jetruby.com/blog/vertical-ai-agents-automation-pipelines-6-weeks"
+      ],
+      "score": 0.0,
+      "sources": [
+        "grounding"
+      ],
+      "title": "From Idea to Impact: Launching Domain-Specific AI Agents and Automation Pipelines in 6 Weeks | Jetruby"
+    },
+    {
+      "candidate_ids": [
+        "https://travelandtourworld.com/news/article/fb0qktl5ubca"
+      ],
+      "cluster_id": "cluster-9",
+      "representative_ids": [
+        "https://travelandtourworld.com/news/article/fb0qktl5ubca"
+      ],
+      "score": 0.0,
+      "sources": [
+        "grounding"
+      ],
+      "title": "Revolutionary Turkey Travel AI: Solustiq Emerges as First Vertical AI Company for Global Travel Tech in 2026 - Travel And Tour World"
+    },
+    {
+      "candidate_ids": [
+        "https://symphonyai.com/glossary/ai/vertical-ai-industry-specific-ai"
+      ],
+      "cluster_id": "cluster-10",
+      "representative_ids": [
+        "https://symphonyai.com/glossary/ai/vertical-ai-industry-specific-ai"
+      ],
+      "score": 0.0,
+      "sources": [
+        "grounding"
+      ],
+      "title": "What is vertical AI? Definition and examples | SymphonyAI"
+    },
+    {
+      "candidate_ids": [
+        "https://siliconangle.com/2026/05/07/ai-product-team-startup-pit-raises-16m-a16z-others-automate-enterprise-workflows"
+      ],
+      "cluster_id": "cluster-11",
+      "representative_ids": [
+        "https://siliconangle.com/2026/05/07/ai-product-team-startup-pit-raises-16m-a16z-others-automate-enterprise-workflows"
+      ],
+      "score": 0.0,
+      "sources": [
+        "grounding"
+      ],
+      "title": "AI product team startup Pit raises $16M from a16z and others to automate enterprise workflows - SiliconANGLE"
+    },
+    {
+      "candidate_ids": [
+        "https://techfundingnews.com/former-meta-and-salesforce-leaders-raise-20m-from-accel-and-a16z-for-ai-workflow-startup"
+      ],
+      "cluster_id": "cluster-12",
+      "representative_ids": [
+        "https://techfundingnews.com/former-meta-and-salesforce-leaders-raise-20m-from-accel-and-a16z-for-ai-workflow-startup"
+      ],
+      "score": 0.0,
+      "sources": [
+        "grounding"
+      ],
+      "title": "Former Meta and Salesforce leaders raise $20M from Accel and a16z for AI workflow startup \u2014 TFN"
+    },
+    {
+      "candidate_ids": [
+        "https://ibm.com/think/topics/vertical-ai-agents"
+      ],
+      "cluster_id": "cluster-13",
+      "representative_ids": [
+        "https://ibm.com/think/topics/vertical-ai-agents"
+      ],
+      "score": 0.0,
+      "sources": [
+        "grounding"
+      ],
+      "title": "What Are Vertical AI Agents? | IBM"
+    },
+    {
+      "candidate_ids": [
+        "https://github.com/manaflow-ai/cmux"
+      ],
+      "cluster_id": "cluster-14",
+      "representative_ids": [
+        "https://github.com/manaflow-ai/cmux"
+      ],
+      "score": 0.0,
+      "sources": [
+        "grounding"
+      ],
+      "title": "GitHub - manaflow-ai/cmux: Ghostty-based macOS terminal with vertical tabs and notifications for AI coding agents \u00b7 GitHub"
+    }
+  ],
+  "warnings": [
+    "Top evidence is highly concentrated in one source."
+  ],
+  "errors_by_source": {}
+}

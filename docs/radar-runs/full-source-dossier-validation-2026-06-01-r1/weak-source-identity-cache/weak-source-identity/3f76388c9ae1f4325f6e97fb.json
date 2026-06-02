@@ -1,0 +1,55 @@
+{
+  "topic": "\"agent-ci\" seed funding headcount founders LinkedIn",
+  "items": [
+    {
+      "source": "grounding",
+      "title": "GitHub - redwoodjs/agent-ci: Agent-CI is local GitHub Actions for your agents. \u00b7 GitHub",
+      "url": "https://github.com/redwoodjs/agent-ci",
+      "snippet": "Remote CI is the final gatekeeper \u2014 it runs on every push and decides what ships. That&#x27;s its job. The problem is what happens when it fails: you push, you wait, you read logs, you push again. Every retry pays the full cost of a fresh run, and the gatekeeper ends up being used as a debugger. Agent CI is a pre-flight check that runs on your own machine before you commit.",
+      "published_at": "2026-05-08",
+      "engagement": {},
+      "container": "github.com",
+      "author": "",
+      "_raw_fields_present": [
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": []
+    }
+  ],
+  "clusters": [
+    {
+      "candidate_ids": [
+        "https://github.com/redwoodjs/agent-ci"
+      ],
+      "cluster_id": "cluster-1",
+      "representative_ids": [
+        "https://github.com/redwoodjs/agent-ci"
+      ],
+      "score": 0.0,
+      "sources": [
+        "grounding"
+      ],
+      "title": "GitHub - redwoodjs/agent-ci: Agent-CI is local GitHub Actions for your agents. \u00b7 GitHub"
+    }
+  ],
+  "warnings": [
+    "Evidence is thin for this topic."
+  ],
+  "errors_by_source": {}
+}

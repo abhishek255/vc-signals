@@ -1,0 +1,274 @@
+{
+  "topic": "Launch HN Agent reliability and evals",
+  "items": [
+    {
+      "source": "hackernews",
+      "title": "Meta launches Instagram, Facebook, and WhatsApp subscriptions",
+      "url": "https://techcrunch.com/2026/05/27/meta-officially-launches-instagram-facebook-and-whatsapp-subscriptions-with-more-to-come-including-ai-plans/",
+      "snippet": "Meta launches Instagram, Facebook, and WhatsApp subscriptions",
+      "published_at": "2026-05-31",
+      "engagement": {
+        "comments": 496,
+        "points": 281
+      },
+      "container": "Hacker News",
+      "author": "tambourine_man",
+      "_raw_fields_present": [
+        "author",
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "engagement_score",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": [
+        "outbound_url",
+        "domain",
+        "hn_url"
+      ],
+      "outbound_url": "https://techcrunch.com/2026/05/27/meta-officially-launches-instagram-facebook-and-whatsapp-subscriptions-with-more-to-come-including-ai-plans/",
+      "domain": "techcrunch.com",
+      "hn_url": "https://news.ycombinator.com/item?id=48347354"
+    },
+    {
+      "source": "hackernews",
+      "title": "Show HN: Agent.email \u2013 sign up via curl, claim with a human OTP",
+      "url": "https://news.ycombinator.com/item?id=48225596",
+      "snippet": "Show HN: Agent.email \u2013 sign up via curl, claim with a human OTP",
+      "published_at": "2026-05-21",
+      "engagement": {
+        "comments": 108,
+        "points": 99
+      },
+      "container": "Hacker News",
+      "author": "adisingh13",
+      "_raw_fields_present": [
+        "author",
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "engagement_score",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": [
+        "hn_url"
+      ],
+      "hn_url": "https://news.ycombinator.com/item?id=48225596"
+    },
+    {
+      "source": "hackernews",
+      "title": "Sony Launches Bravia 9 II and Bravia 7 II with 'True RGB'",
+      "url": "https://www.flatpanelshd.com/news.php?subaction=showfull&id=1779897602",
+      "snippet": "Sony Launches Bravia 9 II and Bravia 7 II with 'True RGB'",
+      "published_at": "2026-05-27",
+      "engagement": {
+        "comments": 52,
+        "points": 45
+      },
+      "container": "Hacker News",
+      "author": "ksec",
+      "_raw_fields_present": [
+        "author",
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "engagement_score",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": [
+        "outbound_url",
+        "domain",
+        "hn_url"
+      ],
+      "outbound_url": "https://www.flatpanelshd.com/news.php?subaction=showfull&id=1779897602",
+      "domain": "flatpanelshd.com",
+      "hn_url": "https://news.ycombinator.com/item?id=48301135"
+    },
+    {
+      "source": "hackernews",
+      "title": "Meta launches Instagram, Facebook and WhatsApp subscriptions including AI plans",
+      "url": "https://techcrunch.com/2026/05/27/meta-officially-launches-instagram-facebook-and-whatsapp-subscriptions-with-more-to-come-including-ai-plans/",
+      "snippet": "Meta launches Instagram, Facebook and WhatsApp subscriptions including AI plans",
+      "published_at": "2026-05-27",
+      "engagement": {
+        "comments": 1,
+        "points": 10
+      },
+      "container": "Hacker News",
+      "author": "mfiguiere",
+      "_raw_fields_present": [
+        "author",
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "engagement_score",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": [
+        "outbound_url",
+        "domain",
+        "hn_url"
+      ],
+      "outbound_url": "https://techcrunch.com/2026/05/27/meta-officially-launches-instagram-facebook-and-whatsapp-subscriptions-with-more-to-come-including-ai-plans/",
+      "domain": "techcrunch.com",
+      "hn_url": "https://news.ycombinator.com/item?id=48298083"
+    },
+    {
+      "source": "hackernews",
+      "title": "Show HN: Agentic interface for mainframes and COBOL",
+      "url": "https://www.hypercubic.ai/hopper",
+      "snippet": "Show HN: Agentic interface for mainframes and COBOL",
+      "published_at": "2026-05-12",
+      "engagement": {
+        "comments": 51,
+        "points": 97
+      },
+      "container": "Hacker News",
+      "author": "sai18",
+      "_raw_fields_present": [
+        "author",
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "engagement_score",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": [
+        "outbound_url",
+        "domain",
+        "hn_url"
+      ],
+      "outbound_url": "https://www.hypercubic.ai/hopper",
+      "domain": "hypercubic.ai",
+      "hn_url": "https://news.ycombinator.com/item?id=48111143"
+    }
+  ],
+  "clusters": [
+    {
+      "candidate_ids": [
+        "https://techcrunch.com/2026/05/27/meta-officially-launches-instagram-facebook-and-whatsapp-subscriptions-with-more-to-come-including-ai-plans"
+      ],
+      "cluster_id": "cluster-1",
+      "representative_ids": [
+        "https://techcrunch.com/2026/05/27/meta-officially-launches-instagram-facebook-and-whatsapp-subscriptions-with-more-to-come-including-ai-plans"
+      ],
+      "score": 0.0,
+      "sources": [
+        "hackernews"
+      ],
+      "title": "Meta launches Instagram, Facebook, and WhatsApp subscriptions"
+    },
+    {
+      "candidate_ids": [
+        "https://news.ycombinator.com/item?id=48225596"
+      ],
+      "cluster_id": "cluster-2",
+      "representative_ids": [
+        "https://news.ycombinator.com/item?id=48225596"
+      ],
+      "score": 0.0,
+      "sources": [
+        "hackernews"
+      ],
+      "title": "Show HN: Agent.email \u2013 sign up via curl, claim with a human OTP"
+    },
+    {
+      "candidate_ids": [
+        "https://hypercubic.ai/hopper"
+      ],
+      "cluster_id": "cluster-3",
+      "representative_ids": [
+        "https://hypercubic.ai/hopper"
+      ],
+      "score": 0.0,
+      "sources": [
+        "hackernews"
+      ],
+      "title": "Show HN: Agentic interface for mainframes and COBOL"
+    },
+    {
+      "candidate_ids": [
+        "https://flatpanelshd.com/news.php?subaction=showfull&id=1779897602"
+      ],
+      "cluster_id": "cluster-4",
+      "representative_ids": [
+        "https://flatpanelshd.com/news.php?subaction=showfull&id=1779897602"
+      ],
+      "score": 0.0,
+      "sources": [
+        "hackernews"
+      ],
+      "title": "Sony Launches Bravia 9 II and Bravia 7 II with 'True RGB'"
+    }
+  ],
+  "warnings": [
+    "Evidence is thin for this topic.",
+    "Top evidence is highly concentrated in one source."
+  ],
+  "errors_by_source": {}
+}

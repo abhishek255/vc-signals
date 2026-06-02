@@ -1,0 +1,231 @@
+{
+  "topic": "Vertical AI operations startup raises seed Series A launches funding company",
+  "items": [
+    {
+      "source": "grounding",
+      "title": "Out of Set Raises Seed Funding to Build On-Device AI Infrastructure and Expand Model Training Capabilities - WOWTALE",
+      "url": "https://en.wowtale.net/2026/05/21/234111/",
+      "snippet": "<strong>Out of Set, a South Korean startup specializing in on-device AI, has closed a seed funding round led by The Ventures</strong>. The company develops ultra-lightweight vertical AI models designed to run entirely on-device \u2014 without any internet connection.",
+      "published_at": "2026-05-21",
+      "engagement": {},
+      "container": "en.wowtale.net",
+      "author": "",
+      "_raw_fields_present": [
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": []
+    },
+    {
+      "source": "grounding",
+      "title": "The Vertical AI Startup Playbook \u2014 Why Narrow Focus Wins in 2026",
+      "url": "https://www.twinstrata.com/the-vertical-ai-startup-playbook/",
+      "snippet": "The startups raising money fastest, growing retention most consistently, and building the most durable competitive moats are the ones who went narrow on purpose. Enterprise generative AI spend reached $37 billion in 2025, up from $11.5 billion the year before, as companies across industries moved from piloting AI tools to embedding them in core operations.",
+      "published_at": "2026-05-28",
+      "engagement": {},
+      "container": "www.twinstrata.com",
+      "author": "",
+      "_raw_fields_present": [
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": []
+    },
+    {
+      "source": "grounding",
+      "title": "Mongoose AI Raises Seed Extension Funding Led by Vertical Venture Partners",
+      "url": "https://startuprise.io/mongoose-ai-raises-seed-extension-funding-led-by-vertical-venture-partners/",
+      "snippet": "<strong>Mongoose AI</strong>, a NYC-based developer of governed AI agents for health insurance plans, has raised a seed extension funding round of an undisclosed amount, led by Vertical Venture Partners, with participation from Overstory Partners, Connecticut ...",
+      "published_at": "2026-05-15",
+      "engagement": {},
+      "container": "startuprise.io",
+      "author": "",
+      "_raw_fields_present": [
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": []
+    },
+    {
+      "source": "grounding",
+      "title": "A startup making AI movies scored $12 million from Khosla Ventures, Jeffrey Katzenberg, and others",
+      "url": "https://www.businessinsider.com/khosla-ventures-jeffrey-katzenberg-backing-trueshort-ai-vertical-film-app-2026-5",
+      "snippet": "TrueShort, which makes AI &quot;verticals&quot; \u2014 movies chopped up into one- to three-minute episodes \u2014 has gathered a who&#x27;s who of backers. The startup has raised <strong>$12 million</strong> in seed funding led by Keith Rabois at Khosla Ventures, Business Insider ...",
+      "published_at": "2026-05-13",
+      "engagement": {},
+      "container": "www.businessinsider.com",
+      "author": "",
+      "_raw_fields_present": [
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": []
+    },
+    {
+      "source": "grounding",
+      "title": "AI Foundation Models Go Vertical: $75M Funding Round | Enterprise Software Automation",
+      "url": "https://angelinvestorsnetwork.com/market-analysis/ai-foundation-models-go-vertical-75m-funding-round",
+      "snippet": "<strong>Standard Intelligence</strong>&#x27;s funding validates a specific thesis: vertical depth beats horizontal breadth in enterprise AI deployment. The startup isn&#x27;t promising to automate all knowledge work\u2014it&#x27;s promising to automate specific, high-value software ...",
+      "published_at": "2026-05-07",
+      "engagement": {},
+      "container": "angelinvestorsnetwork.com",
+      "author": "",
+      "_raw_fields_present": [
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": []
+    }
+  ],
+  "clusters": [
+    {
+      "candidate_ids": [
+        "https://en.wowtale.net/2026/05/21/234111"
+      ],
+      "cluster_id": "cluster-1",
+      "representative_ids": [
+        "https://en.wowtale.net/2026/05/21/234111"
+      ],
+      "score": 7.958360655737707,
+      "sources": [
+        "grounding"
+      ],
+      "title": "Out of Set Raises Seed Funding to Build On-Device AI Infrastructure and Expand Model Training Capabilities - WOWTALE"
+    },
+    {
+      "candidate_ids": [
+        "https://twinstrata.com/the-vertical-ai-startup-playbook"
+      ],
+      "cluster_id": "cluster-2",
+      "representative_ids": [
+        "https://twinstrata.com/the-vertical-ai-startup-playbook"
+      ],
+      "score": 0.0,
+      "sources": [
+        "grounding"
+      ],
+      "title": "The Vertical AI Startup Playbook \u2014 Why Narrow Focus Wins in 2026"
+    },
+    {
+      "candidate_ids": [
+        "https://startuprise.io/mongoose-ai-raises-seed-extension-funding-led-by-vertical-venture-partners"
+      ],
+      "cluster_id": "cluster-3",
+      "representative_ids": [
+        "https://startuprise.io/mongoose-ai-raises-seed-extension-funding-led-by-vertical-venture-partners"
+      ],
+      "score": 0.0,
+      "sources": [
+        "grounding"
+      ],
+      "title": "Mongoose AI Raises Seed Extension Funding Led by Vertical Venture Partners"
+    },
+    {
+      "candidate_ids": [
+        "https://businessinsider.com/khosla-ventures-jeffrey-katzenberg-backing-trueshort-ai-vertical-film-app-2026-5"
+      ],
+      "cluster_id": "cluster-4",
+      "representative_ids": [
+        "https://businessinsider.com/khosla-ventures-jeffrey-katzenberg-backing-trueshort-ai-vertical-film-app-2026-5"
+      ],
+      "score": 0.0,
+      "sources": [
+        "grounding"
+      ],
+      "title": "A startup making AI movies scored $12 million from Khosla Ventures, Jeffrey Katzenberg, and others"
+    },
+    {
+      "candidate_ids": [
+        "https://angelinvestorsnetwork.com/market-analysis/ai-foundation-models-go-vertical-75m-funding-round"
+      ],
+      "cluster_id": "cluster-5",
+      "representative_ids": [
+        "https://angelinvestorsnetwork.com/market-analysis/ai-foundation-models-go-vertical-75m-funding-round"
+      ],
+      "score": 0.0,
+      "sources": [
+        "grounding"
+      ],
+      "title": "AI Foundation Models Go Vertical: $75M Funding Round | Enterprise Software Automation"
+    }
+  ],
+  "warnings": [
+    "Top evidence is highly concentrated in one source."
+  ],
+  "errors_by_source": {}
+}

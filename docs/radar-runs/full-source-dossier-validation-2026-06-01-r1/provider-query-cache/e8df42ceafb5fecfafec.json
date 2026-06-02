@@ -1,0 +1,188 @@
+{
+  "topic": "\"Menza\" \"AI data infrastructure\" official company founder",
+  "items": [
+    {
+      "source": "grounding",
+      "title": "AI Data Team for Fast-Growing Brands | Menza",
+      "url": "https://menza.ai/",
+      "snippet": "Menza <strong>gives you reports, answers and insights from your scattered data in seconds instead of hours and automatically catches problems like inventory and revenue leaks</strong>.",
+      "published_at": "2026-05-31",
+      "engagement": {},
+      "container": "menza.ai",
+      "author": "",
+      "_raw_fields_present": [
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": []
+    },
+    {
+      "source": "grounding",
+      "title": "Analytics Startups funded by Y Combinator (YC) 2026 | Y Combinator",
+      "url": "https://www.ycombinator.com/companies/industry/analytics",
+      "snippet": "... Keystroke is the best way to build AI agents &amp; automations with coding agents. It&#x27;s code-based, open source, and built for coding agents like Cursor, Claude Code, etc. ... Menza is the <strong>AI data analyst for consumer brands</strong>.",
+      "published_at": "2026-05-24",
+      "engagement": {},
+      "container": "www.ycombinator.com",
+      "author": "",
+      "_raw_fields_present": [
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": []
+    },
+    {
+      "source": "grounding",
+      "title": "SERPENT FROM EDEN Feat. MEGADETH Alumni NICK MENZA And CHRIS POLAND Release \"The Atomic Disintegrator\" Music Video",
+      "url": "https://bravewords.com/news/serpent-from-eden-feat-megadeth-alumni-nick-menza-and-chris-poland-release-the-atomic-disintegrator-music-video/",
+      "snippet": "\u201cNow, with AI and digital video tools, I believe I have created a totally original hybrid format of video story telling, using multiple digital platforms, apps, and creative tools as well as real time video of real humans. For me, the live video, the automatic page turning and the lyrics in the talk bubbles were clearly stand out innovations that will be my trademark! \u201cI am calling this a Multimedia Graphic Novel! Nick Menza\u2019s life story is simply a perfect subject to present in this style and h",
+      "published_at": "2026-05-13",
+      "engagement": {},
+      "container": "bravewords.com",
+      "author": "",
+      "_raw_fields_present": [
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": []
+    },
+    {
+      "source": "grounding",
+      "title": "Adam Ghobarah's email & phone number - Founder & Managing Partner at Top Harvest Capital | SignalHire",
+      "url": "https://www.signalhire.com/profiles/h-adam-ghobarah's-email/92809235",
+      "snippet": "They have held roles including Board Director, Board Observer, and Investor at companies such as Hedera Dx, Kinetix, and Menza. Their education includes Post-Doctoral Fellow from Harvard University. Is Adam Ghobarah&#x27;s contact information up to date?Yes. Adam Ghobarah&#x27;s SignalHire profile was last updated on 11 May 2026, reflecting their current position as Founder &amp; Managing Partner at Top Harvest Capital. ... SignalHire complies with the General Data Protection Regulation (GDPR).",
+      "published_at": "2026-05-11",
+      "engagement": {},
+      "container": "www.signalhire.com",
+      "author": "",
+      "_raw_fields_present": [
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": []
+    }
+  ],
+  "clusters": [
+    {
+      "candidate_ids": [
+        "https://menza.ai"
+      ],
+      "cluster_id": "cluster-1",
+      "representative_ids": [
+        "https://menza.ai"
+      ],
+      "score": 12.138360655737706,
+      "sources": [
+        "grounding"
+      ],
+      "title": "AI Data Team for Fast-Growing Brands | Menza"
+    },
+    {
+      "candidate_ids": [
+        "https://ycombinator.com/companies/industry/analytics"
+      ],
+      "cluster_id": "cluster-2",
+      "representative_ids": [
+        "https://ycombinator.com/companies/industry/analytics"
+      ],
+      "score": 9.212258064516128,
+      "sources": [
+        "grounding"
+      ],
+      "title": "Analytics Startups funded by Y Combinator (YC) 2026 | Y Combinator"
+    },
+    {
+      "candidate_ids": [
+        "https://bravewords.com/news/serpent-from-eden-feat-megadeth-alumni-nick-menza-and-chris-poland-release-the-atomic-disintegrator-music-video"
+      ],
+      "cluster_id": "cluster-3",
+      "representative_ids": [
+        "https://bravewords.com/news/serpent-from-eden-feat-megadeth-alumni-nick-menza-and-chris-poland-release-the-atomic-disintegrator-music-video"
+      ],
+      "score": 0.0,
+      "sources": [
+        "grounding"
+      ],
+      "title": "SERPENT FROM EDEN Feat. MEGADETH Alumni NICK MENZA And CHRIS POLAND Release \"The Atomic Disintegrator\" Music Video"
+    },
+    {
+      "candidate_ids": [
+        "https://signalhire.com/profiles/h-adam-ghobarah's-email/92809235"
+      ],
+      "cluster_id": "cluster-4",
+      "representative_ids": [
+        "https://signalhire.com/profiles/h-adam-ghobarah's-email/92809235"
+      ],
+      "score": 0.0,
+      "sources": [
+        "grounding"
+      ],
+      "title": "Adam Ghobarah's email & phone number - Founder & Managing Partner at Top Harvest Capital | SignalHire"
+    }
+  ],
+  "warnings": [
+    "Evidence is thin for this topic.",
+    "Top evidence is highly concentrated in one source."
+  ],
+  "errors_by_source": {}
+}

@@ -1,0 +1,2259 @@
+[
+  {
+    "attio_match_keys": [
+      "affaan-m/agentshield"
+    ],
+    "attio_safe_to_match": false,
+    "candidate_domain": "",
+    "candidate_key": "affaan-m/agentshield",
+    "commercial_intent_basis": [
+      "commercial_language_present",
+      "founder_or_company_profile_present",
+      "oss_maintainer_identity_present",
+      "github_only_no_domain"
+    ],
+    "commercial_intent_score": 50,
+    "company_linkedin": "",
+    "company_x": "",
+    "domain_confidence": "Low",
+    "error": "",
+    "evidence_urls": [
+      "https://github.com/affaan-m/agentshield"
+    ],
+    "fetch_warnings": [],
+    "founder_profiles": [
+      {
+        "github": "https://github.com/affaan-m",
+        "name": "affaan-m"
+      }
+    ],
+    "founders": [
+      "affaan-m"
+    ],
+    "identity_confidence": "Low",
+    "identity_confidence_basis": [
+      "github_project_identity",
+      "github_owner_metadata",
+      "github_homepage_present",
+      "github_homepage_domain_mismatch",
+      "github_homepage_unverified",
+      "founder_or_maintainer_identity_present",
+      "attio_match_key_present"
+    ],
+    "identity_confidence_score": 50,
+    "identity_type": "oss_project_watch",
+    "maintainer_profiles": [
+      {
+        "github": "https://github.com/affaan-m",
+        "name": "affaan-m"
+      },
+      {
+        "name": "affaan-m",
+        "type": "User",
+        "url": "https://github.com/affaan-m/agentshield"
+      }
+    ],
+    "maintainers": [
+      "affaan-m"
+    ],
+    "missing_identity_evidence": [
+      "no verified domain"
+    ],
+    "original_name": "affaan-m/agentshield",
+    "project_url": "https://github.com/affaan-m/agentshield",
+    "recommended_identity_action": "Monitor only",
+    "resolved_from": [
+      "candidate_fields",
+      "metadata",
+      "github_url"
+    ],
+    "resolved_name": "affaan-m/agentshield",
+    "source_outbound_urls": [
+      "https://cerebralvalley.ai/e/claude-code-hackathon"
+    ],
+    "source_titles": [
+      "affaan-m/agentshield",
+      "Signal investigation for affaan-m/agentshield"
+    ],
+    "verified_domain": "",
+    "verified_domain_basis": []
+  },
+  {
+    "attio_match_keys": [
+      "boostsecurityio/smokedmeat"
+    ],
+    "attio_safe_to_match": false,
+    "candidate_domain": "",
+    "candidate_key": "boostsecurityio/smokedmeat",
+    "commercial_intent_basis": [
+      "commercial_language_present",
+      "founder_or_company_profile_present",
+      "oss_maintainer_identity_present",
+      "github_only_no_domain"
+    ],
+    "commercial_intent_score": 50,
+    "company_linkedin": "",
+    "company_x": "",
+    "domain_confidence": "Low",
+    "error": "",
+    "evidence_urls": [
+      "https://github.com/boostsecurityio/smokedmeat"
+    ],
+    "fetch_warnings": [],
+    "founder_profiles": [
+      {
+        "github": "https://github.com/boostsecurityio",
+        "name": "boostsecurityio"
+      }
+    ],
+    "founders": [
+      "boostsecurityio"
+    ],
+    "identity_confidence": "Low",
+    "identity_confidence_basis": [
+      "github_project_identity",
+      "github_owner_metadata",
+      "founder_or_maintainer_identity_present",
+      "attio_match_key_present"
+    ],
+    "identity_confidence_score": 50,
+    "identity_type": "oss_project_watch",
+    "maintainer_profiles": [
+      {
+        "github": "https://github.com/boostsecurityio",
+        "name": "boostsecurityio"
+      },
+      {
+        "name": "boostsecurityio",
+        "type": "Organization",
+        "url": "https://github.com/boostsecurityio/smokedmeat"
+      }
+    ],
+    "maintainers": [
+      "boostsecurityio"
+    ],
+    "missing_identity_evidence": [
+      "no verified domain"
+    ],
+    "original_name": "boostsecurityio/smokedmeat",
+    "project_url": "https://github.com/boostsecurityio/smokedmeat",
+    "recommended_identity_action": "Monitor only",
+    "resolved_from": [
+      "candidate_fields",
+      "metadata",
+      "github_url"
+    ],
+    "resolved_name": "boostsecurityio/smokedmeat",
+    "source_outbound_urls": [],
+    "source_titles": [
+      "boostsecurityio/smokedmeat",
+      "Signal investigation for boostsecurityio/smokedmeat"
+    ],
+    "verified_domain": "",
+    "verified_domain_basis": []
+  },
+  {
+    "attio_match_keys": [
+      "rankistan.dev",
+      "Sudo-Ali-Dev/Rankistan"
+    ],
+    "attio_safe_to_match": true,
+    "candidate_domain": "",
+    "candidate_key": "Sudo-Ali-Dev/Rankistan",
+    "commercial_intent_basis": [
+      "commercial_language_present",
+      "non_github_domain_present",
+      "founder_or_company_profile_present",
+      "oss_maintainer_identity_present",
+      "github_only_no_domain"
+    ],
+    "commercial_intent_score": 70,
+    "company_linkedin": "",
+    "company_x": "",
+    "domain_confidence": "Medium",
+    "error": "",
+    "evidence_urls": [
+      "https://github.com/Sudo-Ali-Dev/Rankistan"
+    ],
+    "fetch_warnings": [],
+    "founder_profiles": [
+      {
+        "github": "https://github.com/Sudo-Ali-Dev",
+        "name": "Sudo-Ali-Dev"
+      }
+    ],
+    "founders": [
+      "Sudo-Ali-Dev"
+    ],
+    "identity_confidence": "High",
+    "identity_confidence_basis": [
+      "github_project_identity",
+      "github_owner_metadata",
+      "github_homepage_present",
+      "github_homepage_verified_project_site",
+      "verified_domain_present",
+      "founder_or_maintainer_identity_present",
+      "attio_match_key_present",
+      "commercial_intent_medium_or_better"
+    ],
+    "identity_confidence_score": 95,
+    "identity_type": "oss_with_commercial_intent",
+    "maintainer_profiles": [
+      {
+        "github": "https://github.com/Sudo-Ali-Dev",
+        "name": "Sudo-Ali-Dev"
+      },
+      {
+        "name": "Sudo-Ali-Dev",
+        "type": "User",
+        "url": "https://github.com/Sudo-Ali-Dev/Rankistan"
+      }
+    ],
+    "maintainers": [
+      "Sudo-Ali-Dev"
+    ],
+    "missing_identity_evidence": [],
+    "original_name": "Sudo-Ali-Dev/Rankistan",
+    "project_url": "https://github.com/Sudo-Ali-Dev/Rankistan",
+    "recommended_identity_action": "Research deeper",
+    "resolved_from": [
+      "candidate_fields",
+      "metadata",
+      "github_url"
+    ],
+    "resolved_name": "Sudo-Ali-Dev/Rankistan",
+    "source_outbound_urls": [
+      "https://rankistan.dev/"
+    ],
+    "source_titles": [
+      "Sudo-Ali-Dev/Rankistan",
+      "Signal investigation for Sudo-Ali-Dev/Rankistan"
+    ],
+    "verified_domain": "rankistan.dev",
+    "verified_domain_basis": [
+      "github_homepage_verified_project_site"
+    ]
+  },
+  {
+    "attio_match_keys": [
+      "agent-ci.dev",
+      "redwoodjs/agent-ci"
+    ],
+    "attio_safe_to_match": true,
+    "candidate_domain": "",
+    "candidate_key": "redwoodjs/agent-ci",
+    "commercial_intent_basis": [
+      "commercial_language_present",
+      "non_github_domain_present",
+      "founder_or_company_profile_present",
+      "oss_maintainer_identity_present",
+      "github_only_no_domain"
+    ],
+    "commercial_intent_score": 70,
+    "company_linkedin": "",
+    "company_x": "",
+    "domain_confidence": "Medium",
+    "error": "",
+    "evidence_urls": [
+      "https://github.com/redwoodjs/agent-ci"
+    ],
+    "fetch_warnings": [],
+    "founder_profiles": [
+      {
+        "github": "https://github.com/redwoodjs",
+        "name": "redwoodjs"
+      }
+    ],
+    "founders": [
+      "redwoodjs"
+    ],
+    "identity_confidence": "High",
+    "identity_confidence_basis": [
+      "github_project_identity",
+      "github_owner_metadata",
+      "github_homepage_present",
+      "github_homepage_verified_project_site",
+      "verified_domain_present",
+      "founder_or_maintainer_identity_present",
+      "attio_match_key_present",
+      "commercial_intent_medium_or_better"
+    ],
+    "identity_confidence_score": 95,
+    "identity_type": "oss_with_commercial_intent",
+    "maintainer_profiles": [
+      {
+        "github": "https://github.com/redwoodjs",
+        "name": "redwoodjs"
+      },
+      {
+        "name": "redwoodjs",
+        "type": "Organization",
+        "url": "https://github.com/redwoodjs/agent-ci"
+      }
+    ],
+    "maintainers": [
+      "redwoodjs"
+    ],
+    "missing_identity_evidence": [],
+    "original_name": "redwoodjs/agent-ci",
+    "project_url": "https://github.com/redwoodjs/agent-ci",
+    "recommended_identity_action": "Research deeper",
+    "resolved_from": [
+      "candidate_fields",
+      "metadata",
+      "github_url"
+    ],
+    "resolved_name": "redwoodjs/agent-ci",
+    "source_outbound_urls": [
+      "https://agent-ci.dev"
+    ],
+    "source_titles": [
+      "redwoodjs/agent-ci",
+      "Signal investigation for redwoodjs/agent-ci"
+    ],
+    "verified_domain": "agent-ci.dev",
+    "verified_domain_basis": [
+      "github_homepage_verified_project_site"
+    ]
+  },
+  {
+    "attio_match_keys": [
+      "pullfrog.com",
+      "pullfrog/pullfrog"
+    ],
+    "attio_safe_to_match": true,
+    "candidate_domain": "",
+    "candidate_key": "pullfrog/pullfrog",
+    "commercial_intent_basis": [
+      "commercial_language_present",
+      "non_github_domain_present",
+      "founder_or_company_profile_present",
+      "oss_maintainer_identity_present",
+      "github_only_no_domain"
+    ],
+    "commercial_intent_score": 70,
+    "company_linkedin": "",
+    "company_x": "",
+    "domain_confidence": "Medium",
+    "error": "",
+    "evidence_urls": [
+      "https://github.com/pullfrog/pullfrog"
+    ],
+    "fetch_warnings": [],
+    "founder_profiles": [
+      {
+        "github": "https://github.com/pullfrog",
+        "name": "pullfrog"
+      }
+    ],
+    "founders": [
+      "pullfrog"
+    ],
+    "identity_confidence": "High",
+    "identity_confidence_basis": [
+      "github_project_identity",
+      "github_owner_metadata",
+      "github_homepage_present",
+      "github_homepage_verified_project_site",
+      "verified_domain_present",
+      "founder_or_maintainer_identity_present",
+      "attio_match_key_present",
+      "commercial_intent_medium_or_better"
+    ],
+    "identity_confidence_score": 95,
+    "identity_type": "oss_with_commercial_intent",
+    "maintainer_profiles": [
+      {
+        "github": "https://github.com/pullfrog",
+        "name": "pullfrog"
+      },
+      {
+        "name": "pullfrog",
+        "type": "Organization",
+        "url": "https://github.com/pullfrog/pullfrog"
+      }
+    ],
+    "maintainers": [
+      "pullfrog"
+    ],
+    "missing_identity_evidence": [],
+    "original_name": "pullfrog/pullfrog",
+    "project_url": "https://github.com/pullfrog/pullfrog",
+    "recommended_identity_action": "Research deeper",
+    "resolved_from": [
+      "candidate_fields",
+      "metadata",
+      "github_url"
+    ],
+    "resolved_name": "pullfrog/pullfrog",
+    "source_outbound_urls": [
+      "https://pullfrog.com"
+    ],
+    "source_titles": [
+      "pullfrog/pullfrog",
+      "Signal investigation for pullfrog/pullfrog"
+    ],
+    "verified_domain": "pullfrog.com",
+    "verified_domain_basis": [
+      "github_homepage_verified_project_site"
+    ]
+  },
+  {
+    "attio_match_keys": [
+      "leiting-eric/DailyBrief"
+    ],
+    "attio_safe_to_match": false,
+    "candidate_domain": "",
+    "candidate_key": "leiting-eric/DailyBrief",
+    "commercial_intent_basis": [
+      "commercial_language_present",
+      "founder_or_company_profile_present",
+      "oss_maintainer_identity_present",
+      "github_only_no_domain"
+    ],
+    "commercial_intent_score": 50,
+    "company_linkedin": "",
+    "company_x": "",
+    "domain_confidence": "Low",
+    "error": "",
+    "evidence_urls": [
+      "https://github.com/leiting-eric/DailyBrief"
+    ],
+    "fetch_warnings": [],
+    "founder_profiles": [
+      {
+        "github": "https://github.com/leiting-eric",
+        "name": "leiting-eric"
+      }
+    ],
+    "founders": [
+      "leiting-eric"
+    ],
+    "identity_confidence": "Low",
+    "identity_confidence_basis": [
+      "github_project_identity",
+      "github_owner_metadata",
+      "github_homepage_present",
+      "github_homepage_domain_mismatch",
+      "github_homepage_unverified",
+      "founder_or_maintainer_identity_present",
+      "attio_match_key_present"
+    ],
+    "identity_confidence_score": 50,
+    "identity_type": "oss_project_watch",
+    "maintainer_profiles": [
+      {
+        "github": "https://github.com/leiting-eric",
+        "name": "leiting-eric"
+      },
+      {
+        "name": "leiting-eric",
+        "type": "User",
+        "url": "https://github.com/leiting-eric/DailyBrief"
+      }
+    ],
+    "maintainers": [
+      "leiting-eric"
+    ],
+    "missing_identity_evidence": [
+      "no verified domain"
+    ],
+    "original_name": "leiting-eric/DailyBrief",
+    "project_url": "https://github.com/leiting-eric/DailyBrief",
+    "recommended_identity_action": "Monitor only",
+    "resolved_from": [
+      "candidate_fields",
+      "metadata",
+      "github_url"
+    ],
+    "resolved_name": "leiting-eric/DailyBrief",
+    "source_outbound_urls": [
+      "https://leiting-eric.github.io/DailyBrief/"
+    ],
+    "source_titles": [
+      "leiting-eric/DailyBrief",
+      "Signal investigation for leiting-eric/DailyBrief"
+    ],
+    "verified_domain": "",
+    "verified_domain_basis": []
+  },
+  {
+    "attio_match_keys": [
+      "azat-io/actions-up"
+    ],
+    "attio_safe_to_match": false,
+    "candidate_domain": "",
+    "candidate_key": "azat-io/actions-up",
+    "commercial_intent_basis": [
+      "commercial_language_present",
+      "founder_or_company_profile_present",
+      "oss_maintainer_identity_present",
+      "github_only_no_domain"
+    ],
+    "commercial_intent_score": 50,
+    "company_linkedin": "",
+    "company_x": "",
+    "domain_confidence": "Low",
+    "error": "",
+    "evidence_urls": [
+      "https://github.com/azat-io/actions-up"
+    ],
+    "fetch_warnings": [],
+    "founder_profiles": [
+      {
+        "github": "https://github.com/azat-io",
+        "name": "azat-io"
+      }
+    ],
+    "founders": [
+      "azat-io"
+    ],
+    "identity_confidence": "Low",
+    "identity_confidence_basis": [
+      "github_project_identity",
+      "github_owner_metadata",
+      "founder_or_maintainer_identity_present",
+      "attio_match_key_present"
+    ],
+    "identity_confidence_score": 50,
+    "identity_type": "oss_project_watch",
+    "maintainer_profiles": [
+      {
+        "github": "https://github.com/azat-io",
+        "name": "azat-io"
+      },
+      {
+        "name": "azat-io",
+        "type": "User",
+        "url": "https://github.com/azat-io/actions-up"
+      }
+    ],
+    "maintainers": [
+      "azat-io"
+    ],
+    "missing_identity_evidence": [
+      "no verified domain"
+    ],
+    "original_name": "azat-io/actions-up",
+    "project_url": "https://github.com/azat-io/actions-up",
+    "recommended_identity_action": "Monitor only",
+    "resolved_from": [
+      "candidate_fields",
+      "metadata",
+      "github_url"
+    ],
+    "resolved_name": "azat-io/actions-up",
+    "source_outbound_urls": [],
+    "source_titles": [
+      "azat-io/actions-up",
+      "Signal investigation for azat-io/actions-up"
+    ],
+    "verified_domain": "",
+    "verified_domain_basis": []
+  },
+  {
+    "attio_match_keys": [
+      "peakoss/anti-slop"
+    ],
+    "attio_safe_to_match": false,
+    "candidate_domain": "",
+    "candidate_key": "peakoss/anti-slop",
+    "commercial_intent_basis": [
+      "commercial_language_present",
+      "founder_or_company_profile_present",
+      "oss_maintainer_identity_present",
+      "github_only_no_domain"
+    ],
+    "commercial_intent_score": 50,
+    "company_linkedin": "",
+    "company_x": "",
+    "domain_confidence": "Low",
+    "error": "",
+    "evidence_urls": [
+      "https://github.com/peakoss/anti-slop"
+    ],
+    "fetch_warnings": [],
+    "founder_profiles": [
+      {
+        "github": "https://github.com/peakoss",
+        "name": "peakoss"
+      }
+    ],
+    "founders": [
+      "peakoss"
+    ],
+    "identity_confidence": "Low",
+    "identity_confidence_basis": [
+      "github_project_identity",
+      "github_owner_metadata",
+      "founder_or_maintainer_identity_present",
+      "attio_match_key_present"
+    ],
+    "identity_confidence_score": 50,
+    "identity_type": "oss_project_watch",
+    "maintainer_profiles": [
+      {
+        "github": "https://github.com/peakoss",
+        "name": "peakoss"
+      },
+      {
+        "name": "peakoss",
+        "type": "Organization",
+        "url": "https://github.com/peakoss/anti-slop"
+      }
+    ],
+    "maintainers": [
+      "peakoss"
+    ],
+    "missing_identity_evidence": [
+      "no verified domain"
+    ],
+    "original_name": "peakoss/anti-slop",
+    "project_url": "https://github.com/peakoss/anti-slop",
+    "recommended_identity_action": "Monitor only",
+    "resolved_from": [
+      "candidate_fields",
+      "metadata",
+      "github_url"
+    ],
+    "resolved_name": "peakoss/anti-slop",
+    "source_outbound_urls": [],
+    "source_titles": [
+      "peakoss/anti-slop",
+      "Signal investigation for peakoss/anti-slop"
+    ],
+    "verified_domain": "",
+    "verified_domain_basis": []
+  },
+  {
+    "attio_match_keys": [
+      "slowql/slowql"
+    ],
+    "attio_safe_to_match": false,
+    "candidate_domain": "",
+    "candidate_key": "slowql/slowql",
+    "commercial_intent_basis": [
+      "commercial_language_present",
+      "founder_or_company_profile_present",
+      "oss_maintainer_identity_present",
+      "github_only_no_domain"
+    ],
+    "commercial_intent_score": 50,
+    "company_linkedin": "",
+    "company_x": "",
+    "domain_confidence": "Low",
+    "error": "",
+    "evidence_urls": [
+      "https://github.com/slowql/slowql"
+    ],
+    "fetch_warnings": [],
+    "founder_profiles": [
+      {
+        "github": "https://github.com/slowql",
+        "name": "slowql"
+      }
+    ],
+    "founders": [
+      "slowql"
+    ],
+    "identity_confidence": "Low",
+    "identity_confidence_basis": [
+      "github_project_identity",
+      "github_owner_metadata",
+      "founder_or_maintainer_identity_present",
+      "attio_match_key_present"
+    ],
+    "identity_confidence_score": 50,
+    "identity_type": "oss_project_watch",
+    "maintainer_profiles": [
+      {
+        "github": "https://github.com/slowql",
+        "name": "slowql"
+      },
+      {
+        "name": "slowql",
+        "type": "Organization",
+        "url": "https://github.com/slowql/slowql"
+      }
+    ],
+    "maintainers": [
+      "slowql"
+    ],
+    "missing_identity_evidence": [
+      "no verified domain"
+    ],
+    "original_name": "slowql/slowql",
+    "project_url": "https://github.com/slowql/slowql",
+    "recommended_identity_action": "Monitor only",
+    "resolved_from": [
+      "candidate_fields",
+      "metadata",
+      "github_url"
+    ],
+    "resolved_name": "slowql/slowql",
+    "source_outbound_urls": [],
+    "source_titles": [
+      "slowql/slowql",
+      "Signal investigation for slowql/slowql"
+    ],
+    "verified_domain": "",
+    "verified_domain_basis": []
+  },
+  {
+    "attio_match_keys": [
+      "BANANASJIM/rdc-cli"
+    ],
+    "attio_safe_to_match": false,
+    "candidate_domain": "",
+    "candidate_key": "BANANASJIM/rdc-cli",
+    "commercial_intent_basis": [
+      "commercial_language_present",
+      "founder_or_company_profile_present",
+      "oss_maintainer_identity_present",
+      "github_only_no_domain"
+    ],
+    "commercial_intent_score": 50,
+    "company_linkedin": "",
+    "company_x": "",
+    "domain_confidence": "Low",
+    "error": "",
+    "evidence_urls": [
+      "https://github.com/BANANASJIM/rdc-cli"
+    ],
+    "fetch_warnings": [],
+    "founder_profiles": [
+      {
+        "github": "https://github.com/BANANASJIM",
+        "name": "BANANASJIM"
+      }
+    ],
+    "founders": [
+      "BANANASJIM"
+    ],
+    "identity_confidence": "Low",
+    "identity_confidence_basis": [
+      "github_project_identity",
+      "github_owner_metadata",
+      "github_homepage_present",
+      "github_homepage_domain_mismatch",
+      "github_homepage_unverified",
+      "founder_or_maintainer_identity_present",
+      "attio_match_key_present"
+    ],
+    "identity_confidence_score": 50,
+    "identity_type": "oss_project_watch",
+    "maintainer_profiles": [
+      {
+        "github": "https://github.com/BANANASJIM",
+        "name": "BANANASJIM"
+      },
+      {
+        "name": "BANANASJIM",
+        "type": "User",
+        "url": "https://github.com/BANANASJIM/rdc-cli"
+      }
+    ],
+    "maintainers": [
+      "BANANASJIM"
+    ],
+    "missing_identity_evidence": [
+      "no verified domain"
+    ],
+    "original_name": "BANANASJIM/rdc-cli",
+    "project_url": "https://github.com/BANANASJIM/rdc-cli",
+    "recommended_identity_action": "Monitor only",
+    "resolved_from": [
+      "candidate_fields",
+      "metadata",
+      "github_url"
+    ],
+    "resolved_name": "BANANASJIM/rdc-cli",
+    "source_outbound_urls": [
+      "https://bananasjim.github.io/rdc-cli/"
+    ],
+    "source_titles": [
+      "BANANASJIM/rdc-cli",
+      "Signal investigation for BANANASJIM/rdc-cli"
+    ],
+    "verified_domain": "",
+    "verified_domain_basis": []
+  },
+  {
+    "attio_match_keys": [
+      "spaceraccoon/vulnerability-spoiler-alert-action"
+    ],
+    "attio_safe_to_match": false,
+    "candidate_domain": "",
+    "candidate_key": "spaceraccoon/vulnerability-spoiler-alert-action",
+    "commercial_intent_basis": [
+      "commercial_language_present",
+      "founder_or_company_profile_present",
+      "oss_maintainer_identity_present",
+      "github_only_no_domain"
+    ],
+    "commercial_intent_score": 50,
+    "company_linkedin": "",
+    "company_x": "",
+    "domain_confidence": "Low",
+    "error": "",
+    "evidence_urls": [
+      "https://github.com/spaceraccoon/vulnerability-spoiler-alert-action"
+    ],
+    "fetch_warnings": [],
+    "founder_profiles": [
+      {
+        "github": "https://github.com/spaceraccoon",
+        "name": "spaceraccoon"
+      }
+    ],
+    "founders": [
+      "spaceraccoon"
+    ],
+    "identity_confidence": "Low",
+    "identity_confidence_basis": [
+      "github_project_identity",
+      "github_owner_metadata",
+      "founder_or_maintainer_identity_present",
+      "attio_match_key_present"
+    ],
+    "identity_confidence_score": 50,
+    "identity_type": "oss_project_watch",
+    "maintainer_profiles": [
+      {
+        "github": "https://github.com/spaceraccoon",
+        "name": "spaceraccoon"
+      },
+      {
+        "name": "spaceraccoon",
+        "type": "User",
+        "url": "https://github.com/spaceraccoon/vulnerability-spoiler-alert-action"
+      }
+    ],
+    "maintainers": [
+      "spaceraccoon"
+    ],
+    "missing_identity_evidence": [
+      "no verified domain"
+    ],
+    "original_name": "spaceraccoon/vulnerability-spoiler-alert-action",
+    "project_url": "https://github.com/spaceraccoon/vulnerability-spoiler-alert-action",
+    "recommended_identity_action": "Monitor only",
+    "resolved_from": [
+      "candidate_fields",
+      "metadata",
+      "github_url"
+    ],
+    "resolved_name": "spaceraccoon/vulnerability-spoiler-alert-action",
+    "source_outbound_urls": [],
+    "source_titles": [
+      "spaceraccoon/vulnerability-spoiler-alert-action",
+      "Signal investigation for spaceraccoon/vulnerability-spoiler-alert-action"
+    ],
+    "verified_domain": "",
+    "verified_domain_basis": []
+  },
+  {
+    "attio_match_keys": [
+      "goldbridgebanking.com",
+      "Goldbridge"
+    ],
+    "attio_safe_to_match": true,
+    "candidate_domain": "goldbridgebanking.com",
+    "candidate_key": "Goldbridge",
+    "commercial_intent_basis": [
+      "commercial_language_present",
+      "non_github_domain_present",
+      "founder_or_company_profile_present",
+      "launch_source_present"
+    ],
+    "commercial_intent_score": 95,
+    "company_linkedin": "https://www.linkedin.com/company/goldbridgebanking",
+    "company_x": "https://x.com/trygoldbridge",
+    "domain_confidence": "Medium",
+    "error": "",
+    "evidence_urls": [
+      "https://www.ycombinator.com/companies/goldbridge"
+    ],
+    "fetch_warnings": [],
+    "founder_profiles": [
+      {
+        "linkedin": "https://linkedin.com/in/alvandsalehi",
+        "name": "Alvin Salehi",
+        "x": "https://x.com/alvinsalehi_"
+      },
+      {
+        "linkedin": "https://linkedin.com/in/gregrami",
+        "name": "Greg Rami",
+        "x": ""
+      }
+    ],
+    "founders": [
+      "Alvin Salehi",
+      "Greg Rami"
+    ],
+    "identity_confidence": "High",
+    "identity_confidence_basis": [
+      "github_homepage_present",
+      "verified_domain_present",
+      "founder_or_maintainer_identity_present",
+      "launch_source_present",
+      "company_social_profile_present",
+      "attio_match_key_present",
+      "commercial_intent_medium_or_better"
+    ],
+    "identity_confidence_score": 100,
+    "identity_type": "verified_company",
+    "maintainer_profiles": [],
+    "maintainers": [],
+    "missing_identity_evidence": [],
+    "original_name": "Goldbridge",
+    "project_url": "",
+    "recommended_identity_action": "Research deeper",
+    "resolved_from": [
+      "candidate_fields",
+      "metadata"
+    ],
+    "resolved_name": "Goldbridge",
+    "source_outbound_urls": [
+      "https://www.goldbridgebanking.com/"
+    ],
+    "source_titles": [
+      "Goldbridge | Y Combinator"
+    ],
+    "verified_domain": "goldbridgebanking.com",
+    "verified_domain_basis": [
+      "source_domain_metadata"
+    ]
+  },
+  {
+    "attio_match_keys": [
+      "SKYLENAGE-AI/SWE-CI"
+    ],
+    "attio_safe_to_match": false,
+    "candidate_domain": "",
+    "candidate_key": "SKYLENAGE-AI/SWE-CI",
+    "commercial_intent_basis": [
+      "commercial_language_present",
+      "founder_or_company_profile_present",
+      "oss_maintainer_identity_present",
+      "github_only_no_domain"
+    ],
+    "commercial_intent_score": 50,
+    "company_linkedin": "",
+    "company_x": "",
+    "domain_confidence": "Low",
+    "error": "",
+    "evidence_urls": [
+      "https://github.com/SKYLENAGE-AI/SWE-CI"
+    ],
+    "fetch_warnings": [],
+    "founder_profiles": [
+      {
+        "github": "https://github.com/SKYLENAGE-AI",
+        "name": "SKYLENAGE-AI"
+      }
+    ],
+    "founders": [
+      "SKYLENAGE-AI"
+    ],
+    "identity_confidence": "Low",
+    "identity_confidence_basis": [
+      "github_project_identity",
+      "github_owner_metadata",
+      "founder_or_maintainer_identity_present",
+      "attio_match_key_present"
+    ],
+    "identity_confidence_score": 50,
+    "identity_type": "oss_project_watch",
+    "maintainer_profiles": [
+      {
+        "github": "https://github.com/SKYLENAGE-AI",
+        "name": "SKYLENAGE-AI"
+      },
+      {
+        "name": "SKYLENAGE-AI",
+        "type": "Organization",
+        "url": "https://github.com/SKYLENAGE-AI/SWE-CI"
+      }
+    ],
+    "maintainers": [
+      "SKYLENAGE-AI"
+    ],
+    "missing_identity_evidence": [
+      "no verified domain"
+    ],
+    "original_name": "SKYLENAGE-AI/SWE-CI",
+    "project_url": "https://github.com/SKYLENAGE-AI/SWE-CI",
+    "recommended_identity_action": "Monitor only",
+    "resolved_from": [
+      "candidate_fields",
+      "metadata",
+      "github_url"
+    ],
+    "resolved_name": "SKYLENAGE-AI/SWE-CI",
+    "source_outbound_urls": [],
+    "source_titles": [
+      "SKYLENAGE-AI/SWE-CI",
+      "Signal investigation for SKYLENAGE-AI/SWE-CI"
+    ],
+    "verified_domain": "",
+    "verified_domain_basis": []
+  },
+  {
+    "attio_match_keys": [
+      "gensecaihq/Shai-Hulud-2.0-Detector"
+    ],
+    "attio_safe_to_match": false,
+    "candidate_domain": "",
+    "candidate_key": "gensecaihq/Shai-Hulud-2.0-Detector",
+    "commercial_intent_basis": [
+      "commercial_language_present",
+      "founder_or_company_profile_present",
+      "oss_maintainer_identity_present",
+      "github_only_no_domain"
+    ],
+    "commercial_intent_score": 50,
+    "company_linkedin": "",
+    "company_x": "",
+    "domain_confidence": "Low",
+    "error": "",
+    "evidence_urls": [
+      "https://github.com/gensecaihq/Shai-Hulud-2.0-Detector"
+    ],
+    "fetch_warnings": [],
+    "founder_profiles": [
+      {
+        "github": "https://github.com/gensecaihq",
+        "name": "gensecaihq"
+      }
+    ],
+    "founders": [
+      "gensecaihq"
+    ],
+    "identity_confidence": "Low",
+    "identity_confidence_basis": [
+      "github_project_identity",
+      "github_owner_metadata",
+      "github_homepage_present",
+      "github_homepage_domain_mismatch",
+      "github_homepage_unverified",
+      "founder_or_maintainer_identity_present",
+      "attio_match_key_present"
+    ],
+    "identity_confidence_score": 50,
+    "identity_type": "oss_project_watch",
+    "maintainer_profiles": [
+      {
+        "github": "https://github.com/gensecaihq",
+        "name": "gensecaihq"
+      },
+      {
+        "name": "gensecaihq",
+        "type": "Organization",
+        "url": "https://github.com/gensecaihq/Shai-Hulud-2.0-Detector"
+      }
+    ],
+    "maintainers": [
+      "gensecaihq"
+    ],
+    "missing_identity_evidence": [
+      "no verified domain"
+    ],
+    "original_name": "gensecaihq/Shai-Hulud-2.0-Detector",
+    "project_url": "https://github.com/gensecaihq/Shai-Hulud-2.0-Detector",
+    "recommended_identity_action": "Monitor only",
+    "resolved_from": [
+      "candidate_fields",
+      "metadata",
+      "github_url"
+    ],
+    "resolved_name": "gensecaihq/Shai-Hulud-2.0-Detector",
+    "source_outbound_urls": [
+      "https://shaihuluddetector.netlify.app/"
+    ],
+    "source_titles": [
+      "gensecaihq/Shai-Hulud-2.0-Detector",
+      "Signal investigation for gensecaihq/Shai-Hulud-2.0-Detector"
+    ],
+    "verified_domain": "",
+    "verified_domain_basis": []
+  },
+  {
+    "attio_match_keys": [
+      "inview-club/devops-cases"
+    ],
+    "attio_safe_to_match": false,
+    "candidate_domain": "",
+    "candidate_key": "inview-club/devops-cases",
+    "commercial_intent_basis": [
+      "commercial_language_present",
+      "founder_or_company_profile_present",
+      "oss_maintainer_identity_present",
+      "github_only_no_domain"
+    ],
+    "commercial_intent_score": 50,
+    "company_linkedin": "",
+    "company_x": "",
+    "domain_confidence": "Low",
+    "error": "",
+    "evidence_urls": [
+      "https://github.com/inview-club/devops-cases"
+    ],
+    "fetch_warnings": [],
+    "founder_profiles": [
+      {
+        "github": "https://github.com/inview-club",
+        "name": "inview-club"
+      }
+    ],
+    "founders": [
+      "inview-club"
+    ],
+    "identity_confidence": "Low",
+    "identity_confidence_basis": [
+      "github_project_identity",
+      "github_owner_metadata",
+      "founder_or_maintainer_identity_present",
+      "attio_match_key_present"
+    ],
+    "identity_confidence_score": 50,
+    "identity_type": "oss_project_watch",
+    "maintainer_profiles": [
+      {
+        "github": "https://github.com/inview-club",
+        "name": "inview-club"
+      },
+      {
+        "name": "inview-club",
+        "type": "Organization",
+        "url": "https://github.com/inview-club/devops-cases"
+      }
+    ],
+    "maintainers": [
+      "inview-club"
+    ],
+    "missing_identity_evidence": [
+      "no verified domain"
+    ],
+    "original_name": "inview-club/devops-cases",
+    "project_url": "https://github.com/inview-club/devops-cases",
+    "recommended_identity_action": "Monitor only",
+    "resolved_from": [
+      "candidate_fields",
+      "metadata",
+      "github_url"
+    ],
+    "resolved_name": "inview-club/devops-cases",
+    "source_outbound_urls": [],
+    "source_titles": [
+      "inview-club/devops-cases",
+      "Signal investigation for inview-club/devops-cases"
+    ],
+    "verified_domain": "",
+    "verified_domain_basis": []
+  },
+  {
+    "attio_match_keys": [
+      "databox.com",
+      "Databox MCP"
+    ],
+    "attio_safe_to_match": true,
+    "candidate_domain": "databox.com",
+    "candidate_key": "Databox MCP",
+    "commercial_intent_basis": [
+      "non_github_domain_present"
+    ],
+    "commercial_intent_score": 40,
+    "company_linkedin": "",
+    "company_x": "",
+    "domain_confidence": "Medium",
+    "error": "",
+    "evidence_urls": [
+      "https://www.producthunt.com/products/databox?utm_campaign=producthunt-api&utm_medium=api-v2&utm_source=Application%3A+VC+Signals+%28ID%3A+286430%29",
+      "https://databox.com/ai"
+    ],
+    "fetch_warnings": [],
+    "founder_profiles": [],
+    "founders": [],
+    "identity_confidence": "Medium",
+    "identity_confidence_basis": [
+      "verified_domain_present",
+      "attio_match_key_present"
+    ],
+    "identity_confidence_score": 65,
+    "identity_type": "insufficient_identity",
+    "maintainer_profiles": [],
+    "maintainers": [],
+    "missing_identity_evidence": [
+      "no founder or maintainer identity"
+    ],
+    "original_name": "Databox MCP",
+    "project_url": "",
+    "recommended_identity_action": "Monitor only",
+    "resolved_from": [
+      "candidate_fields",
+      "metadata",
+      "source_url"
+    ],
+    "resolved_name": "Databox MCP",
+    "source_outbound_urls": [
+      "https://www.producthunt.com/r/QOQ2YENIDC56TM?utm_campaign=producthunt-api&utm_medium=api-v2&utm_source=Application%3A+VC+Signals+%28ID%3A+286430%29"
+    ],
+    "source_titles": [
+      "Databox MCP",
+      "Signal investigation for Databox MCP"
+    ],
+    "verified_domain": "databox.com",
+    "verified_domain_basis": [
+      "source_domain_metadata",
+      "company_url_already_present"
+    ]
+  },
+  {
+    "attio_match_keys": [
+      "simplex.sh",
+      "Simplex"
+    ],
+    "attio_safe_to_match": true,
+    "candidate_domain": "simplex.sh",
+    "candidate_key": "Simplex",
+    "commercial_intent_basis": [
+      "commercial_language_present",
+      "non_github_domain_present",
+      "founder_or_company_profile_present",
+      "launch_source_present"
+    ],
+    "commercial_intent_score": 95,
+    "company_linkedin": "https://www.linkedin.com/company/usesimplex",
+    "company_x": "https://x.com/usesimplex",
+    "domain_confidence": "Medium",
+    "error": "",
+    "evidence_urls": [
+      "https://www.ycombinator.com/companies/simplex"
+    ],
+    "fetch_warnings": [],
+    "founder_profiles": [
+      {
+        "linkedin": "https://linkedin.com/in/shreya-karpoor",
+        "name": "Shreya Karpoor",
+        "x": ""
+      },
+      {
+        "linkedin": "https://linkedin.com/in/marco-nocito/",
+        "name": "Marco Nocito",
+        "x": ""
+      }
+    ],
+    "founders": [
+      "Shreya Karpoor",
+      "Marco Nocito"
+    ],
+    "identity_confidence": "High",
+    "identity_confidence_basis": [
+      "github_homepage_present",
+      "verified_domain_present",
+      "founder_or_maintainer_identity_present",
+      "launch_source_present",
+      "company_social_profile_present",
+      "attio_match_key_present",
+      "commercial_intent_medium_or_better"
+    ],
+    "identity_confidence_score": 100,
+    "identity_type": "verified_company",
+    "maintainer_profiles": [],
+    "maintainers": [],
+    "missing_identity_evidence": [],
+    "original_name": "Simplex",
+    "project_url": "",
+    "recommended_identity_action": "Research deeper",
+    "resolved_from": [
+      "candidate_fields",
+      "metadata"
+    ],
+    "resolved_name": "Simplex",
+    "source_outbound_urls": [
+      "https://simplex.sh"
+    ],
+    "source_titles": [
+      "Simplex | Y Combinator"
+    ],
+    "verified_domain": "simplex.sh",
+    "verified_domain_basis": [
+      "source_domain_metadata"
+    ]
+  },
+  {
+    "attio_match_keys": [
+      "mirurobotics.com",
+      "Miru"
+    ],
+    "attio_safe_to_match": true,
+    "candidate_domain": "mirurobotics.com",
+    "candidate_key": "Miru",
+    "commercial_intent_basis": [
+      "commercial_language_present",
+      "non_github_domain_present",
+      "founder_or_company_profile_present",
+      "launch_source_present"
+    ],
+    "commercial_intent_score": 95,
+    "company_linkedin": "https://www.linkedin.com/company/miruml",
+    "company_x": "https://x.com/mirurobotics",
+    "domain_confidence": "Medium",
+    "error": "",
+    "evidence_urls": [
+      "https://www.ycombinator.com/companies/miru-ml"
+    ],
+    "fetch_warnings": [],
+    "founder_profiles": [
+      {
+        "linkedin": "https://linkedin.com/in/armeltalla",
+        "name": "Armel Talla",
+        "x": "https://twitter.com/armelwtalla"
+      },
+      {
+        "linkedin": "https://linkedin.com/in/vedantnair",
+        "name": "Vedant Nair",
+        "x": "https://x.com/vedantnair__"
+      },
+      {
+        "linkedin": "https://linkedin.com/in/benjamin-smidt",
+        "name": "Benjamin Smidt",
+        "x": ""
+      }
+    ],
+    "founders": [
+      "Armel Talla",
+      "Vedant Nair",
+      "Benjamin Smidt"
+    ],
+    "identity_confidence": "High",
+    "identity_confidence_basis": [
+      "github_homepage_present",
+      "verified_domain_present",
+      "founder_or_maintainer_identity_present",
+      "launch_source_present",
+      "company_social_profile_present",
+      "attio_match_key_present",
+      "commercial_intent_medium_or_better"
+    ],
+    "identity_confidence_score": 100,
+    "identity_type": "verified_company",
+    "maintainer_profiles": [],
+    "maintainers": [],
+    "missing_identity_evidence": [],
+    "original_name": "Miru",
+    "project_url": "",
+    "recommended_identity_action": "Research deeper",
+    "resolved_from": [
+      "candidate_fields",
+      "metadata"
+    ],
+    "resolved_name": "Miru",
+    "source_outbound_urls": [
+      "https://www.mirurobotics.com"
+    ],
+    "source_titles": [
+      "Miru | Y Combinator"
+    ],
+    "verified_domain": "mirurobotics.com",
+    "verified_domain_basis": [
+      "source_domain_metadata"
+    ]
+  },
+  {
+    "attio_match_keys": [
+      "arize.com",
+      "LLM Observability & Evaluation Platform"
+    ],
+    "attio_safe_to_match": true,
+    "candidate_domain": "arize.com",
+    "candidate_key": "LLM Observability & Evaluation Platform",
+    "commercial_intent_basis": [
+      "commercial_language_present",
+      "non_github_domain_present"
+    ],
+    "commercial_intent_score": 65,
+    "company_linkedin": "",
+    "company_x": "",
+    "domain_confidence": "Medium",
+    "error": "",
+    "evidence_urls": [
+      "https://arize.com/"
+    ],
+    "fetch_warnings": [],
+    "founder_profiles": [],
+    "founders": [],
+    "identity_confidence": "Medium",
+    "identity_confidence_basis": [
+      "verified_domain_present",
+      "attio_match_key_present",
+      "commercial_intent_medium_or_better"
+    ],
+    "identity_confidence_score": 75,
+    "identity_type": "verified_company",
+    "maintainer_profiles": [],
+    "maintainers": [],
+    "missing_identity_evidence": [
+      "no founder or maintainer identity"
+    ],
+    "original_name": "LLM Observability & Evaluation Platform",
+    "project_url": "",
+    "recommended_identity_action": "Research deeper",
+    "resolved_from": [
+      "candidate_fields",
+      "metadata",
+      "source_url"
+    ],
+    "resolved_name": "LLM Observability & Evaluation Platform",
+    "source_outbound_urls": [],
+    "source_titles": [
+      "LLM Observability & Evaluation Platform"
+    ],
+    "verified_domain": "arize.com",
+    "verified_domain_basis": [
+      "source_domain_metadata",
+      "company_url_already_present"
+    ]
+  },
+  {
+    "attio_match_keys": [
+      "dlvhdr/gh-enhance"
+    ],
+    "attio_safe_to_match": false,
+    "candidate_domain": "",
+    "candidate_key": "dlvhdr/gh-enhance",
+    "commercial_intent_basis": [
+      "commercial_language_present",
+      "founder_or_company_profile_present",
+      "oss_maintainer_identity_present",
+      "github_only_no_domain"
+    ],
+    "commercial_intent_score": 50,
+    "company_linkedin": "",
+    "company_x": "",
+    "domain_confidence": "Low",
+    "error": "",
+    "evidence_urls": [
+      "https://github.com/dlvhdr/gh-enhance"
+    ],
+    "fetch_warnings": [],
+    "founder_profiles": [
+      {
+        "github": "https://github.com/dlvhdr",
+        "name": "dlvhdr"
+      }
+    ],
+    "founders": [
+      "dlvhdr"
+    ],
+    "identity_confidence": "Low",
+    "identity_confidence_basis": [
+      "github_project_identity",
+      "github_owner_metadata",
+      "founder_or_maintainer_identity_present",
+      "attio_match_key_present"
+    ],
+    "identity_confidence_score": 50,
+    "identity_type": "oss_project_watch",
+    "maintainer_profiles": [
+      {
+        "github": "https://github.com/dlvhdr",
+        "name": "dlvhdr"
+      },
+      {
+        "name": "dlvhdr",
+        "type": "User",
+        "url": "https://github.com/dlvhdr/gh-enhance"
+      }
+    ],
+    "maintainers": [
+      "dlvhdr"
+    ],
+    "missing_identity_evidence": [
+      "no verified domain"
+    ],
+    "original_name": "dlvhdr/gh-enhance",
+    "project_url": "https://github.com/dlvhdr/gh-enhance",
+    "recommended_identity_action": "Monitor only",
+    "resolved_from": [
+      "candidate_fields",
+      "metadata",
+      "github_url"
+    ],
+    "resolved_name": "dlvhdr/gh-enhance",
+    "source_outbound_urls": [],
+    "source_titles": [
+      "dlvhdr/gh-enhance",
+      "Signal investigation for dlvhdr/gh-enhance"
+    ],
+    "verified_domain": "",
+    "verified_domain_basis": []
+  },
+  {
+    "attio_match_keys": [
+      "mizchi/actrun"
+    ],
+    "attio_safe_to_match": false,
+    "candidate_domain": "",
+    "candidate_key": "mizchi/actrun",
+    "commercial_intent_basis": [
+      "commercial_language_present",
+      "founder_or_company_profile_present",
+      "oss_maintainer_identity_present",
+      "github_only_no_domain"
+    ],
+    "commercial_intent_score": 50,
+    "company_linkedin": "",
+    "company_x": "",
+    "domain_confidence": "Low",
+    "error": "",
+    "evidence_urls": [
+      "https://github.com/mizchi/actrun"
+    ],
+    "fetch_warnings": [],
+    "founder_profiles": [
+      {
+        "github": "https://github.com/mizchi",
+        "name": "mizchi"
+      }
+    ],
+    "founders": [
+      "mizchi"
+    ],
+    "identity_confidence": "Low",
+    "identity_confidence_basis": [
+      "github_project_identity",
+      "github_owner_metadata",
+      "founder_or_maintainer_identity_present",
+      "attio_match_key_present"
+    ],
+    "identity_confidence_score": 50,
+    "identity_type": "oss_project_watch",
+    "maintainer_profiles": [
+      {
+        "github": "https://github.com/mizchi",
+        "name": "mizchi"
+      },
+      {
+        "name": "mizchi",
+        "type": "User",
+        "url": "https://github.com/mizchi/actrun"
+      }
+    ],
+    "maintainers": [
+      "mizchi"
+    ],
+    "missing_identity_evidence": [
+      "no verified domain"
+    ],
+    "original_name": "mizchi/actrun",
+    "project_url": "https://github.com/mizchi/actrun",
+    "recommended_identity_action": "Monitor only",
+    "resolved_from": [
+      "candidate_fields",
+      "metadata",
+      "github_url"
+    ],
+    "resolved_name": "mizchi/actrun",
+    "source_outbound_urls": [],
+    "source_titles": [
+      "mizchi/actrun",
+      "Signal investigation for mizchi/actrun"
+    ],
+    "verified_domain": "",
+    "verified_domain_basis": []
+  },
+  {
+    "attio_match_keys": [
+      "dsherret/gagen"
+    ],
+    "attio_safe_to_match": false,
+    "candidate_domain": "",
+    "candidate_key": "dsherret/gagen",
+    "commercial_intent_basis": [
+      "commercial_language_present",
+      "founder_or_company_profile_present",
+      "oss_maintainer_identity_present",
+      "github_only_no_domain"
+    ],
+    "commercial_intent_score": 50,
+    "company_linkedin": "",
+    "company_x": "",
+    "domain_confidence": "Low",
+    "error": "",
+    "evidence_urls": [
+      "https://github.com/dsherret/gagen"
+    ],
+    "fetch_warnings": [],
+    "founder_profiles": [
+      {
+        "github": "https://github.com/dsherret",
+        "name": "dsherret"
+      }
+    ],
+    "founders": [
+      "dsherret"
+    ],
+    "identity_confidence": "Low",
+    "identity_confidence_basis": [
+      "github_project_identity",
+      "github_owner_metadata",
+      "founder_or_maintainer_identity_present",
+      "attio_match_key_present"
+    ],
+    "identity_confidence_score": 50,
+    "identity_type": "oss_project_watch",
+    "maintainer_profiles": [
+      {
+        "github": "https://github.com/dsherret",
+        "name": "dsherret"
+      },
+      {
+        "name": "dsherret",
+        "type": "User",
+        "url": "https://github.com/dsherret/gagen"
+      }
+    ],
+    "maintainers": [
+      "dsherret"
+    ],
+    "missing_identity_evidence": [
+      "no verified domain"
+    ],
+    "original_name": "dsherret/gagen",
+    "project_url": "https://github.com/dsherret/gagen",
+    "recommended_identity_action": "Monitor only",
+    "resolved_from": [
+      "candidate_fields",
+      "metadata",
+      "github_url"
+    ],
+    "resolved_name": "dsherret/gagen",
+    "source_outbound_urls": [],
+    "source_titles": [
+      "dsherret/gagen",
+      "Signal investigation for dsherret/gagen"
+    ],
+    "verified_domain": "",
+    "verified_domain_basis": []
+  },
+  {
+    "attio_match_keys": [
+      "kuberik.com",
+      "kuberik/kuberik"
+    ],
+    "attio_safe_to_match": true,
+    "candidate_domain": "",
+    "candidate_key": "kuberik/kuberik",
+    "commercial_intent_basis": [
+      "commercial_language_present",
+      "non_github_domain_present",
+      "founder_or_company_profile_present",
+      "oss_maintainer_identity_present",
+      "github_only_no_domain"
+    ],
+    "commercial_intent_score": 70,
+    "company_linkedin": "",
+    "company_x": "",
+    "domain_confidence": "Medium",
+    "error": "",
+    "evidence_urls": [
+      "https://github.com/kuberik/kuberik"
+    ],
+    "fetch_warnings": [],
+    "founder_profiles": [
+      {
+        "github": "https://github.com/kuberik",
+        "name": "kuberik"
+      }
+    ],
+    "founders": [
+      "kuberik"
+    ],
+    "identity_confidence": "High",
+    "identity_confidence_basis": [
+      "github_project_identity",
+      "github_owner_metadata",
+      "github_homepage_present",
+      "github_homepage_verified_project_site",
+      "verified_domain_present",
+      "founder_or_maintainer_identity_present",
+      "attio_match_key_present",
+      "commercial_intent_medium_or_better"
+    ],
+    "identity_confidence_score": 95,
+    "identity_type": "oss_with_commercial_intent",
+    "maintainer_profiles": [
+      {
+        "github": "https://github.com/kuberik",
+        "name": "kuberik"
+      },
+      {
+        "name": "kuberik",
+        "type": "Organization",
+        "url": "https://github.com/kuberik/kuberik"
+      }
+    ],
+    "maintainers": [
+      "kuberik"
+    ],
+    "missing_identity_evidence": [],
+    "original_name": "kuberik/kuberik",
+    "project_url": "https://github.com/kuberik/kuberik",
+    "recommended_identity_action": "Research deeper",
+    "resolved_from": [
+      "candidate_fields",
+      "metadata",
+      "github_url"
+    ],
+    "resolved_name": "kuberik/kuberik",
+    "source_outbound_urls": [
+      "https://kuberik.com"
+    ],
+    "source_titles": [
+      "kuberik/kuberik",
+      "Signal investigation for kuberik/kuberik"
+    ],
+    "verified_domain": "kuberik.com",
+    "verified_domain_basis": [
+      "github_homepage_verified_project_site"
+    ]
+  },
+  {
+    "attio_match_keys": [
+      "ritwiktiwari/copier-astral"
+    ],
+    "attio_safe_to_match": false,
+    "candidate_domain": "",
+    "candidate_key": "ritwiktiwari/copier-astral",
+    "commercial_intent_basis": [
+      "commercial_language_present",
+      "founder_or_company_profile_present",
+      "oss_maintainer_identity_present",
+      "github_only_no_domain"
+    ],
+    "commercial_intent_score": 50,
+    "company_linkedin": "",
+    "company_x": "",
+    "domain_confidence": "Low",
+    "error": "",
+    "evidence_urls": [
+      "https://github.com/ritwiktiwari/copier-astral"
+    ],
+    "fetch_warnings": [],
+    "founder_profiles": [
+      {
+        "github": "https://github.com/ritwiktiwari",
+        "name": "ritwiktiwari"
+      }
+    ],
+    "founders": [
+      "ritwiktiwari"
+    ],
+    "identity_confidence": "Low",
+    "identity_confidence_basis": [
+      "github_project_identity",
+      "github_owner_metadata",
+      "github_homepage_present",
+      "github_homepage_domain_mismatch",
+      "github_homepage_unverified",
+      "founder_or_maintainer_identity_present",
+      "attio_match_key_present"
+    ],
+    "identity_confidence_score": 50,
+    "identity_type": "oss_project_watch",
+    "maintainer_profiles": [
+      {
+        "github": "https://github.com/ritwiktiwari",
+        "name": "ritwiktiwari"
+      },
+      {
+        "name": "ritwiktiwari",
+        "type": "User",
+        "url": "https://github.com/ritwiktiwari/copier-astral"
+      }
+    ],
+    "maintainers": [
+      "ritwiktiwari"
+    ],
+    "missing_identity_evidence": [
+      "no verified domain"
+    ],
+    "original_name": "ritwiktiwari/copier-astral",
+    "project_url": "https://github.com/ritwiktiwari/copier-astral",
+    "recommended_identity_action": "Monitor only",
+    "resolved_from": [
+      "candidate_fields",
+      "metadata",
+      "github_url"
+    ],
+    "resolved_name": "ritwiktiwari/copier-astral",
+    "source_outbound_urls": [
+      "https://ritwiktiwari.github.io/copier-astral/"
+    ],
+    "source_titles": [
+      "ritwiktiwari/copier-astral",
+      "Signal investigation for ritwiktiwari/copier-astral"
+    ],
+    "verified_domain": "",
+    "verified_domain_basis": []
+  },
+  {
+    "attio_match_keys": [
+      "Ronchy2000/epic-freebies-helper"
+    ],
+    "attio_safe_to_match": false,
+    "candidate_domain": "",
+    "candidate_key": "Ronchy2000/epic-freebies-helper",
+    "commercial_intent_basis": [
+      "commercial_language_present",
+      "founder_or_company_profile_present",
+      "oss_maintainer_identity_present",
+      "github_only_no_domain",
+      "consumer_or_off_thesis_language"
+    ],
+    "commercial_intent_score": 35,
+    "company_linkedin": "",
+    "company_x": "",
+    "domain_confidence": "Low",
+    "error": "",
+    "evidence_urls": [
+      "https://github.com/Ronchy2000/epic-freebies-helper"
+    ],
+    "fetch_warnings": [],
+    "founder_profiles": [
+      {
+        "github": "https://github.com/Ronchy2000",
+        "name": "Ronchy2000"
+      }
+    ],
+    "founders": [
+      "Ronchy2000"
+    ],
+    "identity_confidence": "Low",
+    "identity_confidence_basis": [
+      "github_project_identity",
+      "github_owner_metadata",
+      "founder_or_maintainer_identity_present",
+      "attio_match_key_present",
+      "off_thesis_language"
+    ],
+    "identity_confidence_score": 35,
+    "identity_type": "oss_project_watch",
+    "maintainer_profiles": [
+      {
+        "github": "https://github.com/Ronchy2000",
+        "name": "Ronchy2000"
+      },
+      {
+        "name": "Ronchy2000",
+        "type": "User",
+        "url": "https://github.com/Ronchy2000/epic-freebies-helper"
+      }
+    ],
+    "maintainers": [
+      "Ronchy2000"
+    ],
+    "missing_identity_evidence": [
+      "no verified domain"
+    ],
+    "original_name": "Ronchy2000/epic-freebies-helper",
+    "project_url": "https://github.com/Ronchy2000/epic-freebies-helper",
+    "recommended_identity_action": "Monitor only",
+    "resolved_from": [
+      "candidate_fields",
+      "metadata",
+      "github_url"
+    ],
+    "resolved_name": "Ronchy2000/epic-freebies-helper",
+    "source_outbound_urls": [],
+    "source_titles": [
+      "Ronchy2000/epic-freebies-helper"
+    ],
+    "verified_domain": "",
+    "verified_domain_basis": []
+  },
+  {
+    "attio_match_keys": [
+      "actions/scaleset"
+    ],
+    "attio_safe_to_match": false,
+    "candidate_domain": "",
+    "candidate_key": "actions/scaleset",
+    "commercial_intent_basis": [
+      "commercial_language_present",
+      "founder_or_company_profile_present",
+      "oss_maintainer_identity_present",
+      "github_only_no_domain"
+    ],
+    "commercial_intent_score": 50,
+    "company_linkedin": "",
+    "company_x": "",
+    "domain_confidence": "Low",
+    "error": "",
+    "evidence_urls": [
+      "https://github.com/actions/scaleset"
+    ],
+    "fetch_warnings": [],
+    "founder_profiles": [
+      {
+        "github": "https://github.com/actions",
+        "name": "actions"
+      }
+    ],
+    "founders": [
+      "actions"
+    ],
+    "identity_confidence": "Low",
+    "identity_confidence_basis": [
+      "github_project_identity",
+      "github_owner_metadata",
+      "founder_or_maintainer_identity_present",
+      "attio_match_key_present"
+    ],
+    "identity_confidence_score": 50,
+    "identity_type": "oss_project_watch",
+    "maintainer_profiles": [
+      {
+        "github": "https://github.com/actions",
+        "name": "actions"
+      },
+      {
+        "name": "actions",
+        "type": "Organization",
+        "url": "https://github.com/actions/scaleset"
+      }
+    ],
+    "maintainers": [
+      "actions"
+    ],
+    "missing_identity_evidence": [
+      "no verified domain"
+    ],
+    "original_name": "actions/scaleset",
+    "project_url": "https://github.com/actions/scaleset",
+    "recommended_identity_action": "Monitor only",
+    "resolved_from": [
+      "candidate_fields",
+      "metadata",
+      "github_url"
+    ],
+    "resolved_name": "actions/scaleset",
+    "source_outbound_urls": [],
+    "source_titles": [
+      "actions/scaleset"
+    ],
+    "verified_domain": "",
+    "verified_domain_basis": []
+  },
+  {
+    "attio_match_keys": [
+      "eac.int",
+      "ready-to-release/eac"
+    ],
+    "attio_safe_to_match": true,
+    "candidate_domain": "eac.int",
+    "candidate_key": "ready-to-release/eac",
+    "commercial_intent_basis": [
+      "commercial_language_present",
+      "non_github_domain_present",
+      "founder_or_company_profile_present",
+      "oss_maintainer_identity_present"
+    ],
+    "commercial_intent_score": 90,
+    "company_linkedin": "",
+    "company_x": "",
+    "domain_confidence": "Medium",
+    "error": "",
+    "evidence_urls": [
+      "https://github.com/ready-to-release/eac",
+      "https://www.eac.int/?view=category&id=169"
+    ],
+    "fetch_warnings": [],
+    "founder_profiles": [
+      {
+        "github": "https://github.com/ready-to-release",
+        "name": "ready-to-release"
+      }
+    ],
+    "founders": [
+      "ready-to-release"
+    ],
+    "identity_confidence": "High",
+    "identity_confidence_basis": [
+      "github_project_identity",
+      "github_owner_metadata",
+      "github_homepage_present",
+      "github_homepage_domain_mismatch",
+      "github_homepage_unverified",
+      "verified_domain_present",
+      "founder_or_maintainer_identity_present",
+      "attio_match_key_present",
+      "commercial_intent_medium_or_better"
+    ],
+    "identity_confidence_score": 95,
+    "identity_type": "oss_with_commercial_intent",
+    "maintainer_profiles": [
+      {
+        "github": "https://github.com/ready-to-release",
+        "name": "ready-to-release"
+      },
+      {
+        "name": "ready-to-release",
+        "type": "Organization",
+        "url": "https://github.com/ready-to-release/eac"
+      }
+    ],
+    "maintainers": [
+      "ready-to-release"
+    ],
+    "missing_identity_evidence": [],
+    "original_name": "ready-to-release/eac",
+    "project_url": "https://github.com/ready-to-release/eac",
+    "recommended_identity_action": "Research deeper",
+    "resolved_from": [
+      "candidate_fields",
+      "metadata",
+      "github_url",
+      "source_url"
+    ],
+    "resolved_name": "ready-to-release/eac",
+    "source_outbound_urls": [
+      "https://ready-to-release.github.io/eac/"
+    ],
+    "source_titles": [
+      "ready-to-release/eac",
+      "Jobs"
+    ],
+    "verified_domain": "eac.int",
+    "verified_domain_basis": [
+      "source_domain_metadata",
+      "company_url_already_present"
+    ]
+  },
+  {
+    "attio_match_keys": [
+      "SawyerHood/gitclaw"
+    ],
+    "attio_safe_to_match": false,
+    "candidate_domain": "",
+    "candidate_key": "SawyerHood/gitclaw",
+    "commercial_intent_basis": [
+      "commercial_language_present",
+      "founder_or_company_profile_present",
+      "oss_maintainer_identity_present",
+      "github_only_no_domain"
+    ],
+    "commercial_intent_score": 50,
+    "company_linkedin": "",
+    "company_x": "",
+    "domain_confidence": "Low",
+    "error": "",
+    "evidence_urls": [
+      "https://github.com/SawyerHood/gitclaw"
+    ],
+    "fetch_warnings": [],
+    "founder_profiles": [
+      {
+        "github": "https://github.com/SawyerHood",
+        "name": "SawyerHood"
+      }
+    ],
+    "founders": [
+      "SawyerHood"
+    ],
+    "identity_confidence": "Low",
+    "identity_confidence_basis": [
+      "github_project_identity",
+      "github_owner_metadata",
+      "founder_or_maintainer_identity_present",
+      "attio_match_key_present"
+    ],
+    "identity_confidence_score": 50,
+    "identity_type": "oss_project_watch",
+    "maintainer_profiles": [
+      {
+        "github": "https://github.com/SawyerHood",
+        "name": "SawyerHood"
+      },
+      {
+        "name": "SawyerHood",
+        "type": "User",
+        "url": "https://github.com/SawyerHood/gitclaw"
+      }
+    ],
+    "maintainers": [
+      "SawyerHood"
+    ],
+    "missing_identity_evidence": [
+      "no verified domain"
+    ],
+    "original_name": "SawyerHood/gitclaw",
+    "project_url": "https://github.com/SawyerHood/gitclaw",
+    "recommended_identity_action": "Monitor only",
+    "resolved_from": [
+      "candidate_fields",
+      "metadata",
+      "github_url"
+    ],
+    "resolved_name": "SawyerHood/gitclaw",
+    "source_outbound_urls": [],
+    "source_titles": [
+      "SawyerHood/gitclaw"
+    ],
+    "verified_domain": "",
+    "verified_domain_basis": []
+  },
+  {
+    "attio_match_keys": [
+      "tuist/magnolia"
+    ],
+    "attio_safe_to_match": false,
+    "candidate_domain": "",
+    "candidate_key": "tuist/magnolia",
+    "commercial_intent_basis": [
+      "commercial_language_present",
+      "founder_or_company_profile_present",
+      "oss_maintainer_identity_present",
+      "github_only_no_domain"
+    ],
+    "commercial_intent_score": 50,
+    "company_linkedin": "",
+    "company_x": "",
+    "domain_confidence": "Low",
+    "error": "",
+    "evidence_urls": [
+      "https://github.com/tuist/magnolia"
+    ],
+    "fetch_warnings": [],
+    "founder_profiles": [
+      {
+        "github": "https://github.com/tuist",
+        "name": "tuist"
+      }
+    ],
+    "founders": [
+      "tuist"
+    ],
+    "identity_confidence": "Low",
+    "identity_confidence_basis": [
+      "github_project_identity",
+      "github_owner_metadata",
+      "founder_or_maintainer_identity_present",
+      "attio_match_key_present"
+    ],
+    "identity_confidence_score": 50,
+    "identity_type": "oss_project_watch",
+    "maintainer_profiles": [
+      {
+        "github": "https://github.com/tuist",
+        "name": "tuist"
+      },
+      {
+        "name": "tuist",
+        "type": "Organization",
+        "url": "https://github.com/tuist/magnolia"
+      }
+    ],
+    "maintainers": [
+      "tuist"
+    ],
+    "missing_identity_evidence": [
+      "no verified domain"
+    ],
+    "original_name": "tuist/magnolia",
+    "project_url": "https://github.com/tuist/magnolia",
+    "recommended_identity_action": "Monitor only",
+    "resolved_from": [
+      "candidate_fields",
+      "metadata",
+      "github_url"
+    ],
+    "resolved_name": "tuist/magnolia",
+    "source_outbound_urls": [],
+    "source_titles": [
+      "tuist/magnolia"
+    ],
+    "verified_domain": "",
+    "verified_domain_basis": []
+  },
+  {
+    "attio_match_keys": [
+      "hashgraph-online/skill-publish"
+    ],
+    "attio_safe_to_match": false,
+    "candidate_domain": "",
+    "candidate_key": "hashgraph-online/skill-publish",
+    "commercial_intent_basis": [
+      "commercial_language_present",
+      "founder_or_company_profile_present",
+      "oss_maintainer_identity_present",
+      "github_only_no_domain"
+    ],
+    "commercial_intent_score": 50,
+    "company_linkedin": "",
+    "company_x": "",
+    "domain_confidence": "Low",
+    "error": "",
+    "evidence_urls": [
+      "https://github.com/hashgraph-online/skill-publish"
+    ],
+    "fetch_warnings": [],
+    "founder_profiles": [
+      {
+        "github": "https://github.com/hashgraph-online",
+        "name": "hashgraph-online"
+      }
+    ],
+    "founders": [
+      "hashgraph-online"
+    ],
+    "identity_confidence": "Low",
+    "identity_confidence_basis": [
+      "github_project_identity",
+      "github_owner_metadata",
+      "github_homepage_present",
+      "github_homepage_domain_mismatch",
+      "github_homepage_unverified",
+      "founder_or_maintainer_identity_present",
+      "attio_match_key_present"
+    ],
+    "identity_confidence_score": 50,
+    "identity_type": "oss_project_watch",
+    "maintainer_profiles": [
+      {
+        "github": "https://github.com/hashgraph-online",
+        "name": "hashgraph-online"
+      },
+      {
+        "name": "hashgraph-online",
+        "type": "Organization",
+        "url": "https://github.com/hashgraph-online/skill-publish"
+      }
+    ],
+    "maintainers": [
+      "hashgraph-online"
+    ],
+    "missing_identity_evidence": [
+      "no verified domain"
+    ],
+    "original_name": "hashgraph-online/skill-publish",
+    "project_url": "https://github.com/hashgraph-online/skill-publish",
+    "recommended_identity_action": "Monitor only",
+    "resolved_from": [
+      "candidate_fields",
+      "metadata",
+      "github_url"
+    ],
+    "resolved_name": "hashgraph-online/skill-publish",
+    "source_outbound_urls": [
+      "https://hol.org/registry/skills"
+    ],
+    "source_titles": [
+      "hashgraph-online/skill-publish"
+    ],
+    "verified_domain": "",
+    "verified_domain_basis": []
+  }
+]

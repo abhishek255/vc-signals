@@ -1,0 +1,154 @@
+{
+  "summary": {
+    "targets": 4,
+    "with_missing_linkedin": 4,
+    "with_missing_founder_team": 1,
+    "with_missing_stage_or_funding": 4,
+    "excluded_complete_or_low_value": 26,
+    "selection_policy": "Domain required; concrete missing evidence required; category/context rows excluded; ranked by action, tier, owner readiness, partner priority, and evidence scores."
+  },
+  "items": [
+    {
+      "name": "Databox MCP",
+      "domain": "databox.com",
+      "tier": "Needs More Evidence",
+      "action": "research deeper",
+      "lead_route": "research_deeper",
+      "investment_interest_score": 45,
+      "evidence_confidence_score": 30,
+      "company_linkedin": "",
+      "company_x": "",
+      "founder_profiles": [],
+      "founders": [],
+      "headcount": "",
+      "stage": "",
+      "raised": "",
+      "owner_readiness_score": 35,
+      "partner_priority_score": 0,
+      "manual_priority_score": 129,
+      "manual_sources": [
+        "LinkedIn",
+        "Crunchbase/Coresignal/PDL/Dealroom/Apollo-Clay"
+      ],
+      "missing_evidence": [
+        "company_linkedin_missing",
+        "founder_team_missing",
+        "headcount_missing",
+        "stage_or_funding_missing"
+      ],
+      "target_reason": "High-value row with official domain and concrete missing evidence.",
+      "recommended_next_step": "Find founder/team source"
+    },
+    {
+      "name": "Sudo-Ali-Dev/Rankistan",
+      "domain": "rankistan.dev",
+      "tier": "Watchlist",
+      "action": "watch",
+      "lead_route": "research_deeper",
+      "investment_interest_score": 60,
+      "evidence_confidence_score": 40,
+      "company_linkedin": "",
+      "company_x": "",
+      "founder_profiles": [
+        {
+          "name": "Sudo-Ali-Dev",
+          "github": "https://github.com/Sudo-Ali-Dev"
+        }
+      ],
+      "founders": [
+        "Sudo-Ali-Dev"
+      ],
+      "headcount": "",
+      "stage": "",
+      "raised": "",
+      "owner_readiness_score": 25,
+      "partner_priority_score": 0,
+      "manual_priority_score": 139,
+      "manual_sources": [
+        "LinkedIn",
+        "Crunchbase/Coresignal/PDL/Dealroom/Apollo-Clay"
+      ],
+      "missing_evidence": [
+        "company_linkedin_missing",
+        "headcount_missing",
+        "stage_or_funding_missing"
+      ],
+      "target_reason": "High-value row with official domain and concrete missing evidence.",
+      "recommended_next_step": "Track OSS/project formation"
+    },
+    {
+      "name": "redwoodjs/agent-ci",
+      "domain": "agent-ci.dev",
+      "tier": "Watchlist",
+      "action": "watch",
+      "lead_route": "research_deeper",
+      "investment_interest_score": 55,
+      "evidence_confidence_score": 40,
+      "company_linkedin": "",
+      "company_x": "",
+      "founder_profiles": [
+        {
+          "name": "redwoodjs",
+          "github": "https://github.com/redwoodjs"
+        }
+      ],
+      "founders": [
+        "redwoodjs"
+      ],
+      "headcount": "",
+      "stage": "",
+      "raised": "",
+      "owner_readiness_score": 25,
+      "partner_priority_score": 0,
+      "manual_priority_score": 134,
+      "manual_sources": [
+        "LinkedIn",
+        "Crunchbase/Coresignal/PDL/Dealroom/Apollo-Clay"
+      ],
+      "missing_evidence": [
+        "company_linkedin_missing",
+        "headcount_missing",
+        "stage_or_funding_missing"
+      ],
+      "target_reason": "High-value row with official domain and concrete missing evidence.",
+      "recommended_next_step": "Track OSS/project formation"
+    },
+    {
+      "name": "pullfrog/pullfrog",
+      "domain": "pullfrog.com",
+      "tier": "Watchlist",
+      "action": "watch",
+      "lead_route": "research_deeper",
+      "investment_interest_score": 50,
+      "evidence_confidence_score": 40,
+      "company_linkedin": "",
+      "company_x": "",
+      "founder_profiles": [
+        {
+          "name": "pullfrog",
+          "github": "https://github.com/pullfrog"
+        }
+      ],
+      "founders": [
+        "pullfrog"
+      ],
+      "headcount": "",
+      "stage": "",
+      "raised": "",
+      "owner_readiness_score": 25,
+      "partner_priority_score": 0,
+      "manual_priority_score": 129,
+      "manual_sources": [
+        "LinkedIn",
+        "Crunchbase/Coresignal/PDL/Dealroom/Apollo-Clay"
+      ],
+      "missing_evidence": [
+        "company_linkedin_missing",
+        "headcount_missing",
+        "stage_or_funding_missing"
+      ],
+      "target_reason": "High-value row with official domain and concrete missing evidence.",
+      "recommended_next_step": "Track OSS/project formation"
+    }
+  ]
+}

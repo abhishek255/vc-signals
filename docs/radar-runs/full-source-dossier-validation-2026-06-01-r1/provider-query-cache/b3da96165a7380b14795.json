@@ -1,0 +1,349 @@
+{
+  "topic": "Devtools workflow automation startup raises seed Series A launches funding company",
+  "items": [
+    {
+      "source": "grounding",
+      "title": "n8n.io - AI workflow automation platform",
+      "url": "https://n8n.io/",
+      "snippet": "Deploy on your infra or ours. Push workflows to production with the DevOps experience teams trust.",
+      "published_at": "2026-06-01",
+      "engagement": {},
+      "container": "n8n.io",
+      "author": "",
+      "_raw_fields_present": [
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": []
+    },
+    {
+      "source": "grounding",
+      "title": "10 Best Workflow Automation Tools in 2026 - Riseup Labs",
+      "url": "https://riseuplabs.com/workflow-automation-tools/",
+      "snippet": "Treat pipelines as code; version, test, and CI/CD them. Handles complex dependencies, retries, SLAs, and backfills. Huge ecosystem of providers for clouds and warehouses. ... Not a business iPaaS; it\u2019s for batch/data engineering. Operability burden (scheduler/webserver/executor, metadata DB, queues). Best fit:Data engineering/analytics teams orchestrating ETL/ELT and ML jobs. When it\u2019s not ideal: Real-time, event-driven business automations or non-technical builders.",
+      "published_at": "2026-05-19",
+      "engagement": {},
+      "container": "riseuplabs.com",
+      "author": "",
+      "_raw_fields_present": [
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": []
+    },
+    {
+      "source": "grounding",
+      "title": "Top 10 Low\u2011Code AI Workflow Automation Tools (2026) - Vellum",
+      "url": "https://www.vellum.ai/blog/top-low-code-ai-workflow-automation-tools",
+      "snippet": "<strong>Native coding experience with NPM support and quick deploys</strong>. Excellent for webhooks, streaming events, and API mashups. Strong logging, secret management, and step-by-step introspection.",
+      "published_at": "2026-05-22",
+      "engagement": {},
+      "container": "www.vellum.ai",
+      "author": "",
+      "_raw_fields_present": [
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": []
+    },
+    {
+      "source": "grounding",
+      "title": "Latest AI Startup Funding News and VC Investment Deals - 2026 | News",
+      "url": "https://www.crescendo.ai/news/latest-vc-investment-deals-in-ai-startups",
+      "snippet": "The platform integrates LLMs to ... ... Details: Samaya, a generative AI startup in the financial services space, raised <strong>$43.5 million</strong> in seed and Series A rounds....",
+      "published_at": "2026-05-21",
+      "engagement": {},
+      "container": "www.crescendo.ai",
+      "author": "",
+      "_raw_fields_present": [
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": []
+    },
+    {
+      "source": "grounding",
+      "title": "CodeWords Raises $9M to Power AI Agent Automation",
+      "url": "https://theaiworld.org/news/codewords-raises-9m-to-power-ai-agent-automation",
+      "snippet": "London-based startup <strong>CodeWords \u2014 formerly operating under the name Agemo \u2014 has successfully closed a $9 million seed funding round</strong>, and the names backing this round say a lot about where the industry is heading.",
+      "published_at": "2026-05-08",
+      "engagement": {},
+      "container": "theaiworld.org",
+      "author": "",
+      "_raw_fields_present": [
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": []
+    },
+    {
+      "source": "grounding",
+      "title": "Can\u2019t code? This startup just raised $9m to make you a workflow automation genius | Sifted",
+      "url": "https://sifted.eu/articles/startup-raised-9m-workflow-automation-genius",
+      "snippet": "London-based AI agent startup <strong>CodeWords, which has built a platform for automating workflows, has raised a $9m seed round led by Visionaries, with participation from Firstminute Capital, Sequel and Illusian</strong>.",
+      "published_at": "2026-05-07",
+      "engagement": {},
+      "container": "sifted.eu",
+      "author": "",
+      "_raw_fields_present": [
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": []
+    },
+    {
+      "source": "grounding",
+      "title": "Top 30+ DevOps Automation Tools for Efficient Workflows",
+      "url": "https://aimultiple.com/devops-automation-tools",
+      "snippet": "Strongest in standardized, template-driven workflow automation and centralized job control. Explore more on ActiveBatch capabilities and its alternatives. Subway (QSR) struggled with slow pipeline changes across environments, and ActiveBatch streamlined DevOps data workflows through centralized orchestration and reusable workflows.",
+      "published_at": "2026-05-06",
+      "engagement": {},
+      "container": "aimultiple.com",
+      "author": "",
+      "_raw_fields_present": [
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": []
+    },
+    {
+      "source": "grounding",
+      "title": "CodeWords Raises $9M to Power AI Agent Automation",
+      "url": "https://theaiworld.org/news/codewords-raises-9m-to-power-ai-agent-automation",
+      "snippet": "<strong>Half a million workflows processed monthly at the seed stage is a meaningful proof point</strong>, and it&#x27;s the kind of traction that justifies confidence from both investors and enterprise customers.",
+      "published_at": "2026-05-08",
+      "engagement": {},
+      "container": "theaiworld.org",
+      "author": "",
+      "_raw_fields_present": [
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": []
+    }
+  ],
+  "clusters": [
+    {
+      "candidate_ids": [
+        "https://riseuplabs.com/workflow-automation-tools"
+      ],
+      "cluster_id": "cluster-1",
+      "representative_ids": [
+        "https://riseuplabs.com/workflow-automation-tools"
+      ],
+      "score": 0.0,
+      "sources": [
+        "grounding"
+      ],
+      "title": "10 Best Workflow Automation Tools in 2026 - Riseup Labs"
+    },
+    {
+      "candidate_ids": [
+        "https://theaiworld.org/news/codewords-raises-9m-to-power-ai-agent-automation"
+      ],
+      "cluster_id": "cluster-2",
+      "representative_ids": [
+        "https://theaiworld.org/news/codewords-raises-9m-to-power-ai-agent-automation"
+      ],
+      "score": 0.0,
+      "sources": [
+        "grounding"
+      ],
+      "title": "CodeWords Raises $9M to Power AI Agent Automation"
+    },
+    {
+      "candidate_ids": [
+        "https://crescendo.ai/news/latest-vc-investment-deals-in-ai-startups"
+      ],
+      "cluster_id": "cluster-3",
+      "representative_ids": [
+        "https://crescendo.ai/news/latest-vc-investment-deals-in-ai-startups"
+      ],
+      "score": 0.0,
+      "sources": [
+        "grounding"
+      ],
+      "title": "Latest AI Startup Funding News and VC Investment Deals - 2026 | News"
+    },
+    {
+      "candidate_ids": [
+        "https://n8n.io"
+      ],
+      "cluster_id": "cluster-4",
+      "representative_ids": [
+        "https://n8n.io"
+      ],
+      "score": 0.0,
+      "sources": [
+        "grounding"
+      ],
+      "title": "n8n.io - AI workflow automation platform"
+    },
+    {
+      "candidate_ids": [
+        "https://vellum.ai/blog/top-low-code-ai-workflow-automation-tools"
+      ],
+      "cluster_id": "cluster-5",
+      "representative_ids": [
+        "https://vellum.ai/blog/top-low-code-ai-workflow-automation-tools"
+      ],
+      "score": 0.0,
+      "sources": [
+        "grounding"
+      ],
+      "title": "Top 10 Low\u2011Code AI Workflow Automation Tools (2026) - Vellum"
+    },
+    {
+      "candidate_ids": [
+        "https://sifted.eu/articles/startup-raised-9m-workflow-automation-genius"
+      ],
+      "cluster_id": "cluster-6",
+      "representative_ids": [
+        "https://sifted.eu/articles/startup-raised-9m-workflow-automation-genius"
+      ],
+      "score": 0.0,
+      "sources": [
+        "grounding"
+      ],
+      "title": "Can\u2019t code? This startup just raised $9m to make you a workflow automation genius | Sifted"
+    },
+    {
+      "candidate_ids": [
+        "https://aimultiple.com/devops-automation-tools"
+      ],
+      "cluster_id": "cluster-7",
+      "representative_ids": [
+        "https://aimultiple.com/devops-automation-tools"
+      ],
+      "score": 0.0,
+      "sources": [
+        "grounding"
+      ],
+      "title": "Top 30+ DevOps Automation Tools for Efficient Workflows"
+    }
+  ],
+  "warnings": [
+    "Top evidence is highly concentrated in one source."
+  ],
+  "errors_by_source": {}
+}

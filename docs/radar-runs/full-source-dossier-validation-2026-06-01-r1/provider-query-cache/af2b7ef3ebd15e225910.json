@@ -1,0 +1,99 @@
+{
+  "topic": "\"Goldbridge\" \"Vertical AI workflow automation\" official company founder",
+  "items": [
+    {
+      "source": "grounding",
+      "title": "Mark Goldbridge Reacts To Arsenal Transfer Targets - YouTube",
+      "url": "https://www.youtube.com/shorts/E6eEhMg2rn4",
+      "snippet": "Mark Goldbridge reacts to Arsenal F.C. being heavily linked with more stars even after winning the Premier League! \u26bd\ud83d\ude33\ud83d\udd25Arsenal are linked with:Sandro Tonali...",
+      "published_at": "2026-05-27",
+      "engagement": {},
+      "container": "www.youtube.com",
+      "author": "",
+      "_raw_fields_present": [
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": []
+    },
+    {
+      "source": "grounding",
+      "title": "VAR audio drops\u2026 and Goldbridge is fuming... It\u2019s a foul, but the way VAR handled it is shocking \ud83e\udd21 - YouTube",
+      "url": "https://www.youtube.com/shorts/5LxQMF4fBJU",
+      "snippet": "#VAR #Goldbridge #ArsenalJoin this channel to get access to perks:https://www.youtube.com/channel/UCFxG3MxHC1ogUglvJeMHmVQ/joinFrom the US to Saudi, from Ind...",
+      "published_at": "2026-05-13",
+      "engagement": {},
+      "container": "www.youtube.com",
+      "author": "",
+      "_raw_fields_present": [
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": []
+    }
+  ],
+  "clusters": [
+    {
+      "candidate_ids": [
+        "https://youtube.com/shorts/e6eehmg2rn4"
+      ],
+      "cluster_id": "cluster-1",
+      "representative_ids": [
+        "https://youtube.com/shorts/e6eehmg2rn4"
+      ],
+      "score": 0.0,
+      "sources": [
+        "grounding"
+      ],
+      "title": "Mark Goldbridge Reacts To Arsenal Transfer Targets - YouTube"
+    },
+    {
+      "candidate_ids": [
+        "https://youtube.com/shorts/5lxqmf4fbju"
+      ],
+      "cluster_id": "cluster-2",
+      "representative_ids": [
+        "https://youtube.com/shorts/5lxqmf4fbju"
+      ],
+      "score": 0.0,
+      "sources": [
+        "grounding"
+      ],
+      "title": "VAR audio drops\u2026 and Goldbridge is fuming... It\u2019s a foul, but the way VAR handled it is shocking \ud83e\udd21 - YouTube"
+    }
+  ],
+  "warnings": [
+    "Evidence is thin for this topic."
+  ],
+  "errors_by_source": {}
+}

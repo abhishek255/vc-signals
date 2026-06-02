@@ -1,0 +1,144 @@
+{
+  "topic": "\"pullfrog\" pricing docs customers careers",
+  "items": [
+    {
+      "source": "grounding",
+      "title": "GitHub - pullfrog/pullfrog: Open-source model-agnostic BYOK GitHub bot that runs in GitHub Actions \u00b7 GitHub",
+      "url": "https://github.com/pullfrog/pullfrog",
+      "snippet": "\ud83e\udd19 Issue management \u2014 Via the &quot;issue created&quot; trigger, Pullfrog can automatically respond to common questions, create implementation plans, and link to related issues/PRs. Or (if you&#x27;re feeling lucky) you can prompt it to immediately attempt a PR addressing new issues. Literally whatever \u2014 Want to have the agent automatically add docs to all new PRs?",
+      "published_at": "2026-05-27",
+      "engagement": {},
+      "container": "github.com",
+      "author": "",
+      "_raw_fields_present": [
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": []
+    },
+    {
+      "source": "grounding",
+      "title": "Episode #414: 28 May 2026 - Daily Vibe Casting",
+      "url": "https://www.dailyvibecasting.com/p/episode-414-28-may-2026",
+      "snippet": "colinhacks said he\u2019s building PullFrog, an OSS alternative to CodeRabbit, and then posted a screenshot showing a <strong>$999/month sponsorship</strong> disappearing the same day.",
+      "published_at": "2026-05-28",
+      "engagement": {},
+      "container": "www.dailyvibecasting.com",
+      "author": "",
+      "_raw_fields_present": [
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": []
+    },
+    {
+      "source": "grounding",
+      "title": "Pullfrog AI: Open-Source CodeRabbit Alternative Powered by GitHub Actions - InfoQ",
+      "url": "https://www.infoq.com/news/2026/05/pullfrog-ai-github/",
+      "snippet": "Pullfrog is an open-source AI-powered GitHub bot by Colin McDonnell, designed for automation in GitHub Actions. It supports a model-agnostic approach, allowing integration with various LLM providers. Key features include orchestration for pull request reviews, issue triage, and CI remediation, ...",
+      "published_at": "2026-05-27",
+      "engagement": {},
+      "container": "www.infoq.com",
+      "author": "",
+      "_raw_fields_present": [
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": []
+    }
+  ],
+  "clusters": [
+    {
+      "candidate_ids": [
+        "https://github.com/pullfrog/pullfrog"
+      ],
+      "cluster_id": "cluster-1",
+      "representative_ids": [
+        "https://github.com/pullfrog/pullfrog"
+      ],
+      "score": 0.0,
+      "sources": [
+        "grounding"
+      ],
+      "title": "GitHub - pullfrog/pullfrog: Open-source model-agnostic BYOK GitHub bot that runs in GitHub Actions \u00b7 GitHub"
+    },
+    {
+      "candidate_ids": [
+        "https://dailyvibecasting.com/p/episode-414-28-may-2026"
+      ],
+      "cluster_id": "cluster-2",
+      "representative_ids": [
+        "https://dailyvibecasting.com/p/episode-414-28-may-2026"
+      ],
+      "score": 0.0,
+      "sources": [
+        "grounding"
+      ],
+      "title": "Episode #414: 28 May 2026 - Daily Vibe Casting"
+    },
+    {
+      "candidate_ids": [
+        "https://infoq.com/news/2026/05/pullfrog-ai-github"
+      ],
+      "cluster_id": "cluster-3",
+      "representative_ids": [
+        "https://infoq.com/news/2026/05/pullfrog-ai-github"
+      ],
+      "score": 0.0,
+      "sources": [
+        "grounding"
+      ],
+      "title": "Pullfrog AI: Open-Source CodeRabbit Alternative Powered by GitHub Actions - InfoQ"
+    }
+  ],
+  "warnings": [
+    "Evidence is thin for this topic.",
+    "Top evidence is highly concentrated in one source."
+  ],
+  "errors_by_source": {}
+}

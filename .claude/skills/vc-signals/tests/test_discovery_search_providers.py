@@ -48,6 +48,14 @@ def test_provider_available_accepts_you_api_key_or_ydc_api_key(monkeypatch):
     assert provider_available("you") is True
 
 
+def test_provider_available_accepts_exa_api_key(monkeypatch):
+    monkeypatch.delenv("EXA_API_KEY", raising=False)
+    assert provider_available("exa") is False
+
+    monkeypatch.setenv("EXA_API_KEY", "exa-key")
+    assert provider_available("exa") is True
+
+
 def test_run_provider_query_records_unavailable_skip(monkeypatch, tmp_path):
     monkeypatch.delenv("BRAVE_API_KEY", raising=False)
 
@@ -157,6 +165,47 @@ def test_you_uses_x_api_key_header(monkeypatch, tmp_path):
     assert seen["params"]["query"] == "AI agent security startup"
     assert seen["params"]["count"] == 3
     assert result["items"][0]["url"] == "https://agentco.ai"
+
+
+def test_exa_uses_search_api_with_highlights(monkeypatch, tmp_path):
+    monkeypatch.setenv("EXA_API_KEY", "exa-key")
+    seen = {}
+
+    def fake_http_post(url, *, headers, payload, timeout_seconds):
+        seen["url"] = url
+        seen["headers"] = headers
+        seen["payload"] = payload
+        return {
+            "results": [
+                {
+                    "title": "AgentCo",
+                    "url": "https://agentco.ai",
+                    "highlights": ["AgentCo builds AI agent security."],
+                }
+            ],
+            "costDollars": {"total": 0.006},
+        }
+
+    result = run_provider_query(
+        "exa",
+        {"query_id": "q1", "topic": "AI agent security startup"},
+        cache_dir=tmp_path,
+        max_results=3,
+        http_post=fake_http_post,
+    )
+
+    assert seen["url"] == "https://api.exa.ai/search"
+    assert seen["headers"]["x-api-key"] == "exa-key"
+    assert seen["payload"] == {
+        "query": "AI agent security startup",
+        "type": "auto",
+        "numResults": 3,
+        "contents": {"highlights": True},
+    }
+    assert result["items"][0]["snippet"] == "AgentCo builds AI agent security."
+    assert result["cost_usd"] == 0.006
+    assert result["capabilities"]["snippet_only"] is False
+    assert result["capabilities"]["page_content_returned"] is True
 
 
 def test_perplexity_search_uses_raw_results_only(monkeypatch, tmp_path):

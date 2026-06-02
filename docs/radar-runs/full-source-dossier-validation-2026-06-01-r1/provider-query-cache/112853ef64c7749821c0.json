@@ -1,0 +1,231 @@
+{
+  "topic": "AI agent security startup company platform official Cybersecurity",
+  "items": [
+    {
+      "source": "grounding",
+      "title": "Best AI Security Companies in 2026 (27 Compared) - Mindgard",
+      "url": "https://mindgard.ai/blog/best-ai-security-companies",
+      "snippet": "Headquartered in Austin, Texas, CrowdStrike is a cybersecurity company founded in 2011 that delivers AI-native, cloud-delivered platforms and services to provide enterprises with unified security across every environment. The Falcon platform utilizes a single, lightweight agent to deliver on-demand visibility and protection through endpoint detection and response (EDR), next-generation antivirus, threat intelligence, and managed threat hunting.",
+      "published_at": "2026-05-15",
+      "engagement": {},
+      "container": "mindgard.ai",
+      "author": "",
+      "_raw_fields_present": [
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": []
+    },
+    {
+      "source": "grounding",
+      "title": "AI Agents: Building Enterprise Guardians | StartupHub.ai",
+      "url": "https://www.startuphub.ai/ai-news/cybersecurity/2026/ai-agents-building-enterprise-guardians",
+      "snippet": "<strong>Apex Security</strong> (Seed, $7M raised) \u2014 Enterprise security platform for safe AI adoption. apexhq.ai \u00b7 Lasso Security (Seed, $6M raised) \u2014 LLM cybersecurity across enterprise touchpoints where models meet business data. lasso.security \u00b7 Operant ...",
+      "published_at": "2026-05-28",
+      "engagement": {},
+      "container": "www.startuphub.ai",
+      "author": "",
+      "_raw_fields_present": [
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": []
+    },
+    {
+      "source": "grounding",
+      "title": "17 More AI Security Vendors - by Richard Stiennon",
+      "url": "https://stiennon.substack.com/p/17-more-ai-security-vendors",
+      "snippet": "... <strong>Oxidize Labs</strong> develops security solutions for AI agents and agentic workflows. The company focuses on securing autonomous AI systems through monitoring, governance, and runtime security controls.",
+      "published_at": "2026-05-25",
+      "engagement": {},
+      "container": "stiennon.substack.com",
+      "author": "",
+      "_raw_fields_present": [
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": []
+    },
+    {
+      "source": "grounding",
+      "title": "Security Startups funded by Y Combinator (YC) 2026 | Y Combinator",
+      "url": "https://www.ycombinator.com/companies/industry/security",
+      "snippet": "It replaces traditional SIEM databases like Splunk or Elastic with a cybersecurity platform built on top of a cost-effective Security Data Lake. ... Overwatch Data offers real-time AI agents to scale fraud, cyber, and security teams. Our agents automate the threat intelligence and brand protection workflow, while also conducting risk reviews at scale to detect fraud and financial crime. ... Oneleet helps companies become secure and compliant through an all-in-one solution that combines automated",
+      "published_at": "2026-05-15",
+      "engagement": {},
+      "container": "www.ycombinator.com",
+      "author": "",
+      "_raw_fields_present": [
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": []
+    },
+    {
+      "source": "grounding",
+      "title": "Agentic AI & Non-Human Identity Security Platform | Entro Security",
+      "url": "https://entro.security/",
+      "snippet": "<strong>Entro</strong> is the first platform to unify security for AI agents, NHIs, and secrets - delivering full visibility, ownership attribution, and real-time detection of anomalies.",
+      "published_at": "2026-05-21",
+      "engagement": {},
+      "container": "entro.security",
+      "author": "",
+      "_raw_fields_present": [
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": []
+    }
+  ],
+  "clusters": [
+    {
+      "candidate_ids": [
+        "https://mindgard.ai/blog/best-ai-security-companies"
+      ],
+      "cluster_id": "cluster-1",
+      "representative_ids": [
+        "https://mindgard.ai/blog/best-ai-security-companies"
+      ],
+      "score": 0.0,
+      "sources": [
+        "grounding"
+      ],
+      "title": "Best AI Security Companies in 2026 (27 Compared) - Mindgard"
+    },
+    {
+      "candidate_ids": [
+        "https://startuphub.ai/ai-news/cybersecurity/2026/ai-agents-building-enterprise-guardians"
+      ],
+      "cluster_id": "cluster-2",
+      "representative_ids": [
+        "https://startuphub.ai/ai-news/cybersecurity/2026/ai-agents-building-enterprise-guardians"
+      ],
+      "score": 0.0,
+      "sources": [
+        "grounding"
+      ],
+      "title": "AI Agents: Building Enterprise Guardians | StartupHub.ai"
+    },
+    {
+      "candidate_ids": [
+        "https://stiennon.substack.com/p/17-more-ai-security-vendors"
+      ],
+      "cluster_id": "cluster-3",
+      "representative_ids": [
+        "https://stiennon.substack.com/p/17-more-ai-security-vendors"
+      ],
+      "score": 0.0,
+      "sources": [
+        "grounding"
+      ],
+      "title": "17 More AI Security Vendors - by Richard Stiennon"
+    },
+    {
+      "candidate_ids": [
+        "https://ycombinator.com/companies/industry/security"
+      ],
+      "cluster_id": "cluster-4",
+      "representative_ids": [
+        "https://ycombinator.com/companies/industry/security"
+      ],
+      "score": 0.0,
+      "sources": [
+        "grounding"
+      ],
+      "title": "Security Startups funded by Y Combinator (YC) 2026 | Y Combinator"
+    },
+    {
+      "candidate_ids": [
+        "https://entro.security"
+      ],
+      "cluster_id": "cluster-5",
+      "representative_ids": [
+        "https://entro.security"
+      ],
+      "score": 0.0,
+      "sources": [
+        "grounding"
+      ],
+      "title": "Agentic AI & Non-Human Identity Security Platform | Entro Security"
+    }
+  ],
+  "warnings": [
+    "Top evidence is highly concentrated in one source."
+  ],
+  "errors_by_source": {}
+}

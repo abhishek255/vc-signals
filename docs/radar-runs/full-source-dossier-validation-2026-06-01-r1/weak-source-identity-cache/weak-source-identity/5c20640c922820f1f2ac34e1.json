@@ -1,0 +1,99 @@
+{
+  "topic": "\"DailyBrief\" pricing docs customers careers",
+  "items": [
+    {
+      "source": "grounding",
+      "title": "Download DailyBrief \u2014 Staff Daily Digest for Perfex CRM",
+      "url": "https://www.themeskorner.com/dailybrief-staff-daily-digest-for-perfex-crm-gpl1/",
+      "snippet": "Existing marketplace options send a single generic report to everyone, ignore Perfex\u2019s permission system, or require monthly fees for a relay service that should be local. DailyBrief delivers all of it \u2014 per-staff personalization, executive KPI brief, native Perfex stack, single one-time price.",
+      "published_at": "2026-05-28",
+      "engagement": {},
+      "container": "www.themeskorner.com",
+      "author": "",
+      "_raw_fields_present": [
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": []
+    },
+    {
+      "source": "grounding",
+      "title": "The Daily Brief - Podcast - Apple Podcasts",
+      "url": "https://podcasts.apple.com/us/podcast/the-daily-brief/id1611565299",
+      "snippet": "U.S., ISRAEL, IRAN WAR | UKRAINE | U.S. GUN VIOLENCE | NEW YORK | WHITE HOUSE BALLROOM | U.S. RELIGION | U.S. DRUG PRICES | U.S. AND CHINA | U.S., TAIWAN, AND CHINA | U.S. AND CUBA | EBOLA | GLOBAL OIL SUPPLIES | U.K.",
+      "published_at": "2026-05-26",
+      "engagement": {},
+      "container": "podcasts.apple.com",
+      "author": "",
+      "_raw_fields_present": [
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": []
+    }
+  ],
+  "clusters": [
+    {
+      "candidate_ids": [
+        "https://themeskorner.com/dailybrief-staff-daily-digest-for-perfex-crm-gpl1"
+      ],
+      "cluster_id": "cluster-1",
+      "representative_ids": [
+        "https://themeskorner.com/dailybrief-staff-daily-digest-for-perfex-crm-gpl1"
+      ],
+      "score": 0.0,
+      "sources": [
+        "grounding"
+      ],
+      "title": "Download DailyBrief \u2014 Staff Daily Digest for Perfex CRM"
+    },
+    {
+      "candidate_ids": [
+        "https://podcasts.apple.com/us/podcast/the-daily-brief/id1611565299"
+      ],
+      "cluster_id": "cluster-2",
+      "representative_ids": [
+        "https://podcasts.apple.com/us/podcast/the-daily-brief/id1611565299"
+      ],
+      "score": 0.0,
+      "sources": [
+        "grounding"
+      ],
+      "title": "The Daily Brief - Podcast - Apple Podcasts"
+    }
+  ],
+  "warnings": [
+    "Evidence is thin for this topic."
+  ],
+  "errors_by_source": {}
+}

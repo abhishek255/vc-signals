@@ -1,0 +1,144 @@
+{
+  "topic": "Agent runtime infrastructure startup raises seed Series A launches funding company",
+  "items": [
+    {
+      "source": "grounding",
+      "title": "Modiqo Secures $3M to Launch Rote AI Infrastructure Platform",
+      "url": "https://techedgeai.com/modiqo-raises-3-m-seed-to-launch-rote-an-ai-infrastructure-platform-for-reliable-agent-workflows/",
+      "snippet": "Modiqo Raises <strong>$3 M Seed to Launch Rote</strong>, an AI infrastructure Platform for Reliable Agent Workflows, positioning the San Francisco\u2011based startup to tackle a growing pain point for enterprises: turning experimental AI agents into production\u2011grade, ...",
+      "published_at": "2026-05-29",
+      "engagement": {},
+      "container": "techedgeai.com",
+      "author": "",
+      "_raw_fields_present": [
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": []
+    },
+    {
+      "source": "grounding",
+      "title": "Latest AI Startup Funding News and VC Investment Deals - 2026 | News",
+      "url": "https://www.crescendo.ai/news/latest-vc-investment-deals-in-ai-startups",
+      "snippet": "By mimicking the human brain&#x27;s 20-watt efficiency, the startup aims to solve the escalating power demands of AI infrastructure. This round is part of a larger planned <strong>$1 billion mega-seed raise</strong>.",
+      "published_at": "2026-05-21",
+      "engagement": {},
+      "container": "www.crescendo.ai",
+      "author": "",
+      "_raw_fields_present": [
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": []
+    },
+    {
+      "source": "grounding",
+      "title": "AI Agent Infrastructure Startup CopilotKit Raises $27 ...",
+      "url": "https://www.tipranks.com/news/private-companies/ai-agent-infrastructure-startup-copilotkit-raises-27-million-backed-by-techstars",
+      "snippet": "Stock Market News and updates - Looking for recent stock market news and updates? Find out what&#x27;s interesting in the stock market at tipranks.com",
+      "published_at": "2026-05-07",
+      "engagement": {},
+      "container": "www.tipranks.com",
+      "author": "",
+      "_raw_fields_present": [
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": []
+    }
+  ],
+  "clusters": [
+    {
+      "candidate_ids": [
+        "https://techedgeai.com/modiqo-raises-3-m-seed-to-launch-rote-an-ai-infrastructure-platform-for-reliable-agent-workflows"
+      ],
+      "cluster_id": "cluster-1",
+      "representative_ids": [
+        "https://techedgeai.com/modiqo-raises-3-m-seed-to-launch-rote-an-ai-infrastructure-platform-for-reliable-agent-workflows"
+      ],
+      "score": 0.0,
+      "sources": [
+        "grounding"
+      ],
+      "title": "Modiqo Secures $3M to Launch Rote AI Infrastructure Platform"
+    },
+    {
+      "candidate_ids": [
+        "https://crescendo.ai/news/latest-vc-investment-deals-in-ai-startups"
+      ],
+      "cluster_id": "cluster-2",
+      "representative_ids": [
+        "https://crescendo.ai/news/latest-vc-investment-deals-in-ai-startups"
+      ],
+      "score": 0.0,
+      "sources": [
+        "grounding"
+      ],
+      "title": "Latest AI Startup Funding News and VC Investment Deals - 2026 | News"
+    },
+    {
+      "candidate_ids": [
+        "https://tipranks.com/news/private-companies/ai-agent-infrastructure-startup-copilotkit-raises-27-million-backed-by-techstars"
+      ],
+      "cluster_id": "cluster-3",
+      "representative_ids": [
+        "https://tipranks.com/news/private-companies/ai-agent-infrastructure-startup-copilotkit-raises-27-million-backed-by-techstars"
+      ],
+      "score": 0.0,
+      "sources": [
+        "grounding"
+      ],
+      "title": "AI Agent Infrastructure Startup CopilotKit Raises $27 ..."
+    }
+  ],
+  "warnings": [
+    "Evidence is thin for this topic.",
+    "Top evidence is highly concentrated in one source."
+  ],
+  "errors_by_source": {}
+}

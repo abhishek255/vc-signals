@@ -1,0 +1,99 @@
+{
+  "topic": "\"agentshield\" pricing docs customers careers",
+  "items": [
+    {
+      "source": "grounding",
+      "title": "AgentShield \u2014 Guardian Agent Security Platform",
+      "url": "https://lablab.ai/ai-hackathons/techex-intelligent-enterprise-solutions-hackathon/agentshield/agentshield-guardian-agent-security-platform",
+      "snippet": "PriceGhost exposes corporate dynamic pricing discrimination by coordinating 10 global residential proxies, scraping prices simultaneously, running Gini/Mann-Whitney statistical tests, generating cryptographically signed courtroom-ready evidence dossiers.",
+      "published_at": "2026-05-18",
+      "engagement": {},
+      "container": "lablab.ai",
+      "author": "",
+      "_raw_fields_present": [
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": []
+    },
+    {
+      "source": "grounding",
+      "title": "GitHub - affaan-m/agentshield: AI agent security scanner. Detect vulnerabilities in agent configurations, MCP servers, and tool permissions. Available as CLI, GitHub Action, ECC plugin, and GitHub App integration. \ud83d\udee1\ufe0f",
+      "url": "https://github.com/affaan-m/agentshield",
+      "snippet": "Score weighting discounts non-secret template-example and docs-example findings to 0.25x, non-secret project-local-optional findings to 0.75x, and non-secret plugin-cache / plugin-manifest findings to 0.5x; committed secrets still count at full weight. Non-secret template-example findings are also capped at 10 deduction points per file and score category. See false-positive-audit.md. AgentShield currently has three distinct automation surfaces:",
+      "published_at": "2026-05-16",
+      "engagement": {},
+      "container": "github.com",
+      "author": "",
+      "_raw_fields_present": [
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": []
+    }
+  ],
+  "clusters": [
+    {
+      "candidate_ids": [
+        "https://lablab.ai/ai-hackathons/techex-intelligent-enterprise-solutions-hackathon/agentshield/agentshield-guardian-agent-security-platform"
+      ],
+      "cluster_id": "cluster-1",
+      "representative_ids": [
+        "https://lablab.ai/ai-hackathons/techex-intelligent-enterprise-solutions-hackathon/agentshield/agentshield-guardian-agent-security-platform"
+      ],
+      "score": 0.0,
+      "sources": [
+        "grounding"
+      ],
+      "title": "AgentShield \u2014 Guardian Agent Security Platform"
+    },
+    {
+      "candidate_ids": [
+        "https://github.com/affaan-m/agentshield"
+      ],
+      "cluster_id": "cluster-2",
+      "representative_ids": [
+        "https://github.com/affaan-m/agentshield"
+      ],
+      "score": 0.0,
+      "sources": [
+        "grounding"
+      ],
+      "title": "GitHub - affaan-m/agentshield: AI agent security scanner. Detect vulnerabilities in agent configurations, MCP servers, and tool permissions. Available as CLI, GitHub Action, ECC plugin, and GitHub App integration. \ud83d\udee1\ufe0f"
+    }
+  ],
+  "warnings": [
+    "Evidence is thin for this topic."
+  ],
+  "errors_by_source": {}
+}

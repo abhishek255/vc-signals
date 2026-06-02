@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import json
 import os
+import signal
 import subprocess
 import sys
 from pathlib import Path
@@ -100,6 +101,49 @@ def _decode_subprocess_stream(value) -> str:
     if isinstance(value, bytes):
         return value.decode("utf-8", errors="replace")
     return str(value)
+
+
+def _run_last30days_command(cmd: list[str], *, capture_output: bool, text: bool, timeout: int | None, cwd: str, env: dict[str, str]):
+    """Run last30days with process-group timeout protection.
+
+    last30days can spawn helper processes that inherit stdout/stderr pipes. The
+    stdlib subprocess.run timeout kills only the direct child, which can leave
+    the parent process stuck in communicate() waiting for inherited pipes to
+    close. Running the child in a new session lets us kill the whole group.
+    """
+    if os.name == "nt":  # pragma: no cover - this repo runs on Unix/macOS
+        return subprocess.run(
+            cmd,
+            capture_output=capture_output,
+            text=text,
+            timeout=timeout,
+            cwd=cwd,
+            env=env,
+        )
+
+    process = subprocess.Popen(
+        cmd,
+        stdout=subprocess.PIPE if capture_output else None,
+        stderr=subprocess.PIPE if capture_output else None,
+        text=text,
+        cwd=cwd,
+        env=env,
+        start_new_session=True,
+    )
+    try:
+        stdout, stderr = process.communicate(timeout=timeout)
+    except subprocess.TimeoutExpired as exc:
+        try:
+            os.killpg(process.pid, signal.SIGKILL)
+        except ProcessLookupError:  # pragma: no cover - race with process exit
+            pass
+        try:
+            stdout, stderr = process.communicate(timeout=2)
+        except subprocess.TimeoutExpired:
+            stdout = _decode_subprocess_stream(getattr(exc, "stdout", None) or getattr(exc, "output", None))
+            stderr = _decode_subprocess_stream(getattr(exc, "stderr", None))
+        raise subprocess.TimeoutExpired(cmd=cmd, timeout=timeout, output=stdout, stderr=stderr)
+    return subprocess.CompletedProcess(cmd, process.returncode, stdout, stderr)
 
 
 def check_availability(
@@ -334,7 +378,7 @@ def run_query(
         env["LAST30DAYS_YOUTUBE_SSH_HOST"] = youtube_ssh_host
 
     try:
-        result = subprocess.run(
+        result = _run_last30days_command(
             cmd,
             capture_output=True,
             text=True,

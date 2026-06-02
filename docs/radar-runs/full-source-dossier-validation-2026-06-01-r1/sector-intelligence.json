@@ -1,0 +1,68 @@
+[
+  {
+    "market_sector": "Devtools",
+    "status": "Company candidates found",
+    "raw_signals": 1,
+    "candidate_eligible_signals": 20,
+    "promoted_candidates": 20,
+    "rejected_signals": 0,
+    "best_evidence": "20 promoted rows from OSS, YC Directory.",
+    "why_no_more_companies": "",
+    "next_hunt": "Devtools startups Seed Series A founder launch",
+    "source_errors": []
+  },
+  {
+    "market_sector": "Cybersecurity",
+    "status": "OSS/project candidates found",
+    "raw_signals": 13,
+    "candidate_eligible_signals": 4,
+    "promoted_candidates": 4,
+    "rejected_signals": 12,
+    "best_evidence": "4 promoted rows from OSS.",
+    "why_no_more_companies": "Promoted rows are OSS/project evidence; no verified company pages or funding/company discovery rows qualified.",
+    "next_hunt": "AI agent security startups Seed Series A founder launch",
+    "source_errors": []
+  },
+  {
+    "market_sector": "AI Infra",
+    "status": "Company candidates found",
+    "raw_signals": 2,
+    "candidate_eligible_signals": 3,
+    "promoted_candidates": 3,
+    "rejected_signals": 0,
+    "best_evidence": "3 promoted rows from Grounded web, OSS, Product Hunt.",
+    "why_no_more_companies": "",
+    "next_hunt": "AI Infra startups Seed Series A founder launch",
+    "source_errors": [
+      "last30days query timed out (60s): /last30days \u00b7 researching: LLMOps pain OR LLM inference cost OR agent evaluation failure\n\u23f3 \u001b[95mProcessing\u001b[0m Organizing findings...\n[Resolve] Resolved 1 subreddits, x_handle='', github_user='amitshekhariitbhu', github_repos=['langfuse/langfuse', 'amitshekhariitbhu/ai-engineering-interview-question"
+    ]
+  },
+  {
+    "market_sector": "Vertical AI",
+    "status": "Company candidates found",
+    "raw_signals": 0,
+    "candidate_eligible_signals": 1,
+    "promoted_candidates": 1,
+    "rejected_signals": 0,
+    "best_evidence": "1 promoted rows from YC Directory.",
+    "why_no_more_companies": "",
+    "next_hunt": "Vertical AI startups Seed Series A founder launch",
+    "source_errors": [
+      "last30days query timed out (60s): /last30days \u00b7 researching: manual workflow pain OR AI agent for operations OR AI SDR frustration\n\u23f3 \u001b[95mProcessing\u001b[0m Scoring and ranking...\n[Web] Reddit rate-limited, halting enrichment: Reddit rate limited (429) fetching https://www.reddit.com/r/automation/comments/1tpc4cb/best_ai_workflow_automa"
+    ]
+  },
+  {
+    "market_sector": "Data Infra",
+    "status": "Source failure / incomplete coverage",
+    "raw_signals": 0,
+    "candidate_eligible_signals": 0,
+    "promoted_candidates": 0,
+    "rejected_signals": 0,
+    "best_evidence": "Source collection returned errors before enough evidence could be promoted.",
+    "why_no_more_companies": "No verified company/domain/founder evidence appeared in this run.",
+    "next_hunt": "Data Infra startups Seed Series A founder launch",
+    "source_errors": [
+      "last30days query timed out (60s): /last30days \u00b7 researching: data pipeline testing pain OR data lineage pain OR data quality incident\n\u23f3 \u001b[95mProcessing\u001b[0m Crunching the data...\n[Resolve] Resolved 1 subreddits, x_handle='articles', github_user='open-metadata', github_repos=['open-metadata/OpenMetadata', 'datahub-project/datahub', 'A"
+    ]
+  }
+]

@@ -1,0 +1,231 @@
+{
+  "topic": "Agent runtime infrastructure startup company platform official",
+  "items": [
+    {
+      "source": "grounding",
+      "title": "Agent Runtime | Gemini Enterprise Agent Platform | Google Cloud Documentation",
+      "url": "https://docs.cloud.google.com/gemini-enterprise-agent-platform/build/runtime",
+      "snippet": "Open in Colab | Open in Colab Enterprise | Open in Agent Platform Workbench | View on GitHub \u00b7 Agent Runtime is <strong>a set of services that enables developers to deploy, manage, and scale AI agents in production</strong>.",
+      "published_at": "2026-05-28",
+      "engagement": {},
+      "container": "docs.cloud.google.com",
+      "author": "",
+      "_raw_fields_present": [
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": []
+    },
+    {
+      "source": "grounding",
+      "title": "Amazon Bedrock AgentCore - AWS",
+      "url": "https://aws.amazon.com/bedrock/agentcore/",
+      "snippet": "The platform for production AI agents. Any framework.",
+      "published_at": "2026-05-27",
+      "engagement": {},
+      "container": "aws.amazon.com",
+      "author": "",
+      "_raw_fields_present": [
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": []
+    },
+    {
+      "source": "grounding",
+      "title": "Infrastructure Startups funded by Y Combinator (YC) 2026 | Y Combinator",
+      "url": "https://www.ycombinator.com/companies/industry/infrastructure",
+      "snippet": "Behind the platform is Ion, our proprietary inference engine running on a custom NVIDIA Grace GPU fleet. Ion uses in-house custom GPU kernels to deliver 30 to 50 percent more throughput than standard vLLM or SGLang, giving our customers SOTA inference economics. ... Enabling physical AI at scale. ... Chamber puts your AI infrastructure on autopilot, and saves your machine learning engineers hours of manual effort. Our agents continually monitor, detects failures, provide root-cause analysis, res",
+      "published_at": "2026-05-10",
+      "engagement": {},
+      "container": "www.ycombinator.com",
+      "author": "",
+      "_raw_fields_present": [
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": []
+    },
+    {
+      "source": "grounding",
+      "title": "How to Build an Agent Platform",
+      "url": "https://www.ashpreetbedi.com/agent-platform",
+      "snippet": "<strong>A unified agent platform you can run locally or on Railway for $20/mo</strong>. Runtime, evals, scheduler, interfaces, and a Claude Code loop that recursively improves your agents.",
+      "published_at": "2026-05-07",
+      "engagement": {},
+      "container": "www.ashpreetbedi.com",
+      "author": "",
+      "_raw_fields_present": [
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": []
+    },
+    {
+      "source": "grounding",
+      "title": "Five guides to building and scaling production-ready AI agents | Google Cloud Blog",
+      "url": "https://cloud.google.com/blog/topics/developers-practitioners/five-guides-to-building-and-scaling-production-ready-ai-agents",
+      "snippet": "Building AI agents that work well in a demo is one thing, but running them in production requires serious infrastructure. At Google Cloud Next &#x27;26, we introduced <strong>Gemini Enterprise Agent Platform</strong> to help developers build, deploy, scale, govern, ...",
+      "published_at": "2026-05-05",
+      "engagement": {},
+      "container": "cloud.google.com",
+      "author": "",
+      "_raw_fields_present": [
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": []
+    }
+  ],
+  "clusters": [
+    {
+      "candidate_ids": [
+        "https://docs.cloud.google.com/gemini-enterprise-agent-platform/build/runtime"
+      ],
+      "cluster_id": "cluster-1",
+      "representative_ids": [
+        "https://docs.cloud.google.com/gemini-enterprise-agent-platform/build/runtime"
+      ],
+      "score": 0.0,
+      "sources": [
+        "grounding"
+      ],
+      "title": "Agent Runtime | Gemini Enterprise Agent Platform | Google Cloud Documentation"
+    },
+    {
+      "candidate_ids": [
+        "https://aws.amazon.com/bedrock/agentcore"
+      ],
+      "cluster_id": "cluster-2",
+      "representative_ids": [
+        "https://aws.amazon.com/bedrock/agentcore"
+      ],
+      "score": 0.0,
+      "sources": [
+        "grounding"
+      ],
+      "title": "Amazon Bedrock AgentCore - AWS"
+    },
+    {
+      "candidate_ids": [
+        "https://ycombinator.com/companies/industry/infrastructure"
+      ],
+      "cluster_id": "cluster-3",
+      "representative_ids": [
+        "https://ycombinator.com/companies/industry/infrastructure"
+      ],
+      "score": 0.0,
+      "sources": [
+        "grounding"
+      ],
+      "title": "Infrastructure Startups funded by Y Combinator (YC) 2026 | Y Combinator"
+    },
+    {
+      "candidate_ids": [
+        "https://ashpreetbedi.com/agent-platform"
+      ],
+      "cluster_id": "cluster-4",
+      "representative_ids": [
+        "https://ashpreetbedi.com/agent-platform"
+      ],
+      "score": 0.0,
+      "sources": [
+        "grounding"
+      ],
+      "title": "How to Build an Agent Platform"
+    },
+    {
+      "candidate_ids": [
+        "https://cloud.google.com/blog/topics/developers-practitioners/five-guides-to-building-and-scaling-production-ready-ai-agents"
+      ],
+      "cluster_id": "cluster-5",
+      "representative_ids": [
+        "https://cloud.google.com/blog/topics/developers-practitioners/five-guides-to-building-and-scaling-production-ready-ai-agents"
+      ],
+      "score": 0.0,
+      "sources": [
+        "grounding"
+      ],
+      "title": "Five guides to building and scaling production-ready AI agents | Google Cloud Blog"
+    }
+  ],
+  "warnings": [
+    "Top evidence is highly concentrated in one source."
+  ],
+  "errors_by_source": {}
+}

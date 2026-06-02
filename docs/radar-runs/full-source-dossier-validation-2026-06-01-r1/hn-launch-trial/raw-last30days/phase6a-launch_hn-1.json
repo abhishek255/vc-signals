@@ -1,0 +1,683 @@
+{
+  "topic": "Show HN AI agent security",
+  "items": [
+    {
+      "source": "hackernews",
+      "title": "Show HN: Adaptive Runtime \u2013 AI agent layer, no GPU, crash recovery",
+      "url": "https://github.com/stateflow-dev/adaptive-runtime",
+      "snippet": "Show HN: Adaptive Runtime \u2013 AI agent layer, no GPU, crash recovery",
+      "published_at": "2026-05-29",
+      "engagement": {
+        "comments": 1,
+        "points": 3
+      },
+      "container": "Hacker News",
+      "author": "StateflowsLabs",
+      "_raw_fields_present": [
+        "author",
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "engagement_score",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": [
+        "outbound_url",
+        "domain",
+        "hn_url"
+      ],
+      "outbound_url": "https://github.com/stateflow-dev/adaptive-runtime",
+      "domain": "github.com",
+      "hn_url": "https://news.ycombinator.com/item?id=48321786"
+    },
+    {
+      "source": "hackernews",
+      "title": "Show HN: AI agents that audit your Metabase instance and find what's broken",
+      "url": "https://metalens.it",
+      "snippet": "Show HN: AI agents that audit your Metabase instance and find what's broken",
+      "published_at": "2026-05-26",
+      "engagement": {
+        "comments": 0,
+        "points": 4
+      },
+      "container": "Hacker News",
+      "author": "valiottidata",
+      "_raw_fields_present": [
+        "author",
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "engagement_score",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": [
+        "outbound_url",
+        "domain",
+        "hn_url"
+      ],
+      "outbound_url": "https://metalens.it",
+      "domain": "metalens.it",
+      "hn_url": "https://news.ycombinator.com/item?id=48278279"
+    },
+    {
+      "source": "hackernews",
+      "title": "Show HN: Autodidact \u2013 Self-evolving local-first AI agent",
+      "url": "https://github.com/BuffaloTechRider/Autodidact",
+      "snippet": "Show HN: Autodidact \u2013 Self-evolving local-first AI agent",
+      "published_at": "2026-05-19",
+      "engagement": {
+        "comments": 4,
+        "points": 8
+      },
+      "container": "Hacker News",
+      "author": "waterbuffaloai",
+      "_raw_fields_present": [
+        "author",
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "engagement_score",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": [
+        "outbound_url",
+        "domain",
+        "hn_url"
+      ],
+      "outbound_url": "https://github.com/BuffaloTechRider/Autodidact",
+      "domain": "github.com",
+      "hn_url": "https://news.ycombinator.com/item?id=48194739"
+    },
+    {
+      "source": "hackernews",
+      "title": "Show HN: YouTube MCP, give any AI agent access to YouTube",
+      "url": "https://github.com/umbertotancorre/youtube-mcp",
+      "snippet": "Show HN: YouTube MCP, give any AI agent access to YouTube",
+      "published_at": "2026-05-19",
+      "engagement": {
+        "comments": 3,
+        "points": 5
+      },
+      "container": "Hacker News",
+      "author": "umbertotancorre",
+      "_raw_fields_present": [
+        "author",
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "engagement_score",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": [
+        "outbound_url",
+        "domain",
+        "hn_url"
+      ],
+      "outbound_url": "https://github.com/umbertotancorre/youtube-mcp",
+      "domain": "github.com",
+      "hn_url": "https://news.ycombinator.com/item?id=48198790"
+    },
+    {
+      "source": "hackernews",
+      "title": "Show HN: SIMD Agent \u2013 AI that runs OpenFOAM simulations from natural language",
+      "url": "https://github.com/simd-ai/agent",
+      "snippet": "Show HN: SIMD Agent \u2013 AI that runs OpenFOAM simulations from natural language",
+      "published_at": "2026-05-21",
+      "engagement": {
+        "comments": 0,
+        "points": 3
+      },
+      "container": "Hacker News",
+      "author": "tito777",
+      "_raw_fields_present": [
+        "author",
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "engagement_score",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": [
+        "outbound_url",
+        "domain",
+        "hn_url"
+      ],
+      "outbound_url": "https://github.com/simd-ai/agent",
+      "domain": "github.com",
+      "hn_url": "https://news.ycombinator.com/item?id=48228231"
+    },
+    {
+      "source": "hackernews",
+      "title": "Show HN: Agent Chat Bridge \u2013 give AI IDE agents an async callback",
+      "url": "https://github.com/sathvikc/agent-chat-bridge",
+      "snippet": "Show HN: Agent Chat Bridge \u2013 give AI IDE agents an async callback",
+      "published_at": "2026-05-21",
+      "engagement": {
+        "comments": 0,
+        "points": 5
+      },
+      "container": "Hacker News",
+      "author": "sathvikchinnu",
+      "_raw_fields_present": [
+        "author",
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "engagement_score",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": [
+        "outbound_url",
+        "domain",
+        "hn_url"
+      ],
+      "outbound_url": "https://github.com/sathvikc/agent-chat-bridge",
+      "domain": "github.com",
+      "hn_url": "https://news.ycombinator.com/item?id=48217340"
+    },
+    {
+      "source": "hackernews",
+      "title": "Show HN: OpenHive \u2013 AI agents share solutions so other agents dont re-solve them",
+      "url": "https://openhivemind.vercel.app/",
+      "snippet": "Show HN: OpenHive \u2013 AI agents share solutions so other agents dont re-solve them",
+      "published_at": "2026-05-29",
+      "engagement": {
+        "comments": 0,
+        "points": 5
+      },
+      "container": "Hacker News",
+      "author": "ananandreas",
+      "_raw_fields_present": [
+        "author",
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "engagement_score",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": [
+        "outbound_url",
+        "domain",
+        "hn_url"
+      ],
+      "outbound_url": "https://openhivemind.vercel.app/",
+      "domain": "openhivemind.vercel.app",
+      "hn_url": "https://news.ycombinator.com/item?id=48323606"
+    },
+    {
+      "source": "hackernews",
+      "title": "Show HN: Give your AI agent a brain that understands your codebase",
+      "url": "https://github.com/bitloops/bitloops",
+      "snippet": "Show HN: Give your AI agent a brain that understands your codebase",
+      "published_at": "2026-05-17",
+      "engagement": {
+        "comments": 1,
+        "points": 3
+      },
+      "container": "Hacker News",
+      "author": "sergiopreira",
+      "_raw_fields_present": [
+        "author",
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "engagement_score",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": [
+        "outbound_url",
+        "domain",
+        "hn_url"
+      ],
+      "outbound_url": "https://github.com/bitloops/bitloops",
+      "domain": "github.com",
+      "hn_url": "https://news.ycombinator.com/item?id=48166239"
+    },
+    {
+      "source": "hackernews",
+      "title": "Show HN: Git for AI Agents",
+      "url": "https://github.com/regent-vcs/re_gent",
+      "snippet": "Show HN: Git for AI Agents",
+      "published_at": "2026-05-08",
+      "engagement": {
+        "comments": 67,
+        "points": 129
+      },
+      "container": "Hacker News",
+      "author": "doshay",
+      "_raw_fields_present": [
+        "author",
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "engagement_score",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": [
+        "outbound_url",
+        "domain",
+        "hn_url"
+      ],
+      "outbound_url": "https://github.com/regent-vcs/re_gent",
+      "domain": "github.com",
+      "hn_url": "https://news.ycombinator.com/item?id=48063548"
+    },
+    {
+      "source": "hackernews",
+      "title": "Show HN: I open-sourced two AI agents with real memory (chat and voice, MIT)",
+      "url": "https://github.com/SynapCores/synapcores-agent",
+      "snippet": "Show HN: I open-sourced two AI agents with real memory (chat and voice, MIT)",
+      "published_at": "2026-05-26",
+      "engagement": {
+        "comments": 0,
+        "points": 5
+      },
+      "container": "Hacker News",
+      "author": "SQLv2",
+      "_raw_fields_present": [
+        "author",
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "engagement_score",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": [
+        "outbound_url",
+        "domain",
+        "hn_url"
+      ],
+      "outbound_url": "https://github.com/SynapCores/synapcores-agent",
+      "domain": "github.com",
+      "hn_url": "https://news.ycombinator.com/item?id=48280546"
+    },
+    {
+      "source": "hackernews",
+      "title": "Show HN: 3D-Agent \u2013 AI that edits Blender scenes through the Python API",
+      "url": "https://3d-agent.com/blender-ai/plugin",
+      "snippet": "Show HN: 3D-Agent \u2013 AI that edits Blender scenes through the Python API",
+      "published_at": "2026-05-14",
+      "engagement": {
+        "comments": 7,
+        "points": 4
+      },
+      "container": "Hacker News",
+      "author": "gsunshinel",
+      "_raw_fields_present": [
+        "author",
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "engagement_score",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": [
+        "outbound_url",
+        "domain",
+        "hn_url"
+      ],
+      "outbound_url": "https://3d-agent.com/blender-ai/plugin",
+      "domain": "3d-agent.com",
+      "hn_url": "https://news.ycombinator.com/item?id=48136209"
+    },
+    {
+      "source": "hackernews",
+      "title": "Show HN: CoreMem \u2013 Portable context for AI agents",
+      "url": "https://coremem.app",
+      "snippet": "Show HN: CoreMem \u2013 Portable context for AI agents",
+      "published_at": "2026-05-22",
+      "engagement": {
+        "comments": 0,
+        "points": 5
+      },
+      "container": "Hacker News",
+      "author": "20wenty",
+      "_raw_fields_present": [
+        "author",
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "engagement_score",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": [
+        "outbound_url",
+        "domain",
+        "hn_url"
+      ],
+      "outbound_url": "https://coremem.app",
+      "domain": "coremem.app",
+      "hn_url": "https://news.ycombinator.com/item?id=48239117"
+    }
+  ],
+  "clusters": [
+    {
+      "candidate_ids": [
+        "https://github.com/regent-vcs/re_gent"
+      ],
+      "cluster_id": "cluster-1",
+      "representative_ids": [
+        "https://github.com/regent-vcs/re_gent"
+      ],
+      "score": 0.0,
+      "sources": [
+        "hackernews"
+      ],
+      "title": "Show HN: Git for AI Agents"
+    },
+    {
+      "candidate_ids": [
+        "https://github.com/buffalotechrider/autodidact"
+      ],
+      "cluster_id": "cluster-2",
+      "representative_ids": [
+        "https://github.com/buffalotechrider/autodidact"
+      ],
+      "score": 0.0,
+      "sources": [
+        "hackernews"
+      ],
+      "title": "Show HN: Autodidact \u2013 Self-evolving local-first AI agent"
+    },
+    {
+      "candidate_ids": [
+        "https://3d-agent.com/blender-ai/plugin"
+      ],
+      "cluster_id": "cluster-3",
+      "representative_ids": [
+        "https://3d-agent.com/blender-ai/plugin"
+      ],
+      "score": 0.0,
+      "sources": [
+        "hackernews"
+      ],
+      "title": "Show HN: 3D-Agent \u2013 AI that edits Blender scenes through the Python API"
+    },
+    {
+      "candidate_ids": [
+        "https://github.com/umbertotancorre/youtube-mcp"
+      ],
+      "cluster_id": "cluster-4",
+      "representative_ids": [
+        "https://github.com/umbertotancorre/youtube-mcp"
+      ],
+      "score": 0.0,
+      "sources": [
+        "hackernews"
+      ],
+      "title": "Show HN: YouTube MCP, give any AI agent access to YouTube"
+    },
+    {
+      "candidate_ids": [
+        "https://github.com/stateflow-dev/adaptive-runtime"
+      ],
+      "cluster_id": "cluster-5",
+      "representative_ids": [
+        "https://github.com/stateflow-dev/adaptive-runtime"
+      ],
+      "score": 0.0,
+      "sources": [
+        "hackernews"
+      ],
+      "title": "Show HN: Adaptive Runtime \u2013 AI agent layer, no GPU, crash recovery"
+    },
+    {
+      "candidate_ids": [
+        "https://github.com/bitloops/bitloops"
+      ],
+      "cluster_id": "cluster-6",
+      "representative_ids": [
+        "https://github.com/bitloops/bitloops"
+      ],
+      "score": 0.0,
+      "sources": [
+        "hackernews"
+      ],
+      "title": "Show HN: Give your AI agent a brain that understands your codebase"
+    },
+    {
+      "candidate_ids": [
+        "https://github.com/sathvikc/agent-chat-bridge"
+      ],
+      "cluster_id": "cluster-7",
+      "representative_ids": [
+        "https://github.com/sathvikc/agent-chat-bridge"
+      ],
+      "score": 0.0,
+      "sources": [
+        "hackernews"
+      ],
+      "title": "Show HN: Agent Chat Bridge \u2013 give AI IDE agents an async callback"
+    },
+    {
+      "candidate_ids": [
+        "https://openhivemind.vercel.app"
+      ],
+      "cluster_id": "cluster-8",
+      "representative_ids": [
+        "https://openhivemind.vercel.app"
+      ],
+      "score": 0.0,
+      "sources": [
+        "hackernews"
+      ],
+      "title": "Show HN: OpenHive \u2013 AI agents share solutions so other agents dont re-solve them"
+    },
+    {
+      "candidate_ids": [
+        "https://github.com/synapcores/synapcores-agent"
+      ],
+      "cluster_id": "cluster-9",
+      "representative_ids": [
+        "https://github.com/synapcores/synapcores-agent"
+      ],
+      "score": 0.0,
+      "sources": [
+        "hackernews"
+      ],
+      "title": "Show HN: I open-sourced two AI agents with real memory (chat and voice, MIT)"
+    },
+    {
+      "candidate_ids": [
+        "https://coremem.app"
+      ],
+      "cluster_id": "cluster-10",
+      "representative_ids": [
+        "https://coremem.app"
+      ],
+      "score": 0.0,
+      "sources": [
+        "hackernews"
+      ],
+      "title": "Show HN: CoreMem \u2013 Portable context for AI agents"
+    },
+    {
+      "candidate_ids": [
+        "https://metalens.it"
+      ],
+      "cluster_id": "cluster-11",
+      "representative_ids": [
+        "https://metalens.it"
+      ],
+      "score": 0.0,
+      "sources": [
+        "hackernews"
+      ],
+      "title": "Show HN: AI agents that audit your Metabase instance and find what's broken"
+    },
+    {
+      "candidate_ids": [
+        "https://github.com/simd-ai/agent"
+      ],
+      "cluster_id": "cluster-12",
+      "representative_ids": [
+        "https://github.com/simd-ai/agent"
+      ],
+      "score": 0.0,
+      "sources": [
+        "hackernews"
+      ],
+      "title": "Show HN: SIMD Agent \u2013 AI that runs OpenFOAM simulations from natural language"
+    }
+  ],
+  "warnings": [
+    "Top evidence is highly concentrated in one source."
+  ],
+  "errors_by_source": {}
+}

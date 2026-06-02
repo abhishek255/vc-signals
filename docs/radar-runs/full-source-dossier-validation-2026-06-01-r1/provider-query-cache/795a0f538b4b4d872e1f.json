@@ -1,0 +1,231 @@
+{
+  "topic": "Agent reliability and evals startup company platform official",
+  "items": [
+    {
+      "source": "grounding",
+      "title": "About agent evaluation - Microsoft Copilot Studio | Microsoft Learn",
+      "url": "https://learn.microsoft.com/en-us/microsoft-copilot-studio/analytics-agent-evaluation-intro",
+      "snippet": "It makes sure the agent meets your business&#x27;s accuracy and reliability standards and gives transparency into how it&#x27;s performing. It has different strengths than testing by using the test chat. You run evaluations and see results using the Copilot Studio interface, through Power Platform REST APIs, or through adding actions in tools, flows, or Power Automate.",
+      "published_at": "2026-05-27",
+      "engagement": {},
+      "container": "learn.microsoft.com",
+      "author": "",
+      "_raw_fields_present": [
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": []
+    },
+    {
+      "source": "grounding",
+      "title": "Best AI Agent Evaluation Tools for Production Teams (2026) | Augment Code",
+      "url": "https://www.augmentcode.com/tools/best-ai-agent-evaluation-tools",
+      "snippet": "Best fit: Teams where security and red-teaming with OWASP-aligned presets is a primary requirement, who want fully local, privacy-by-default evaluation integrated into CI/CD, and whose team is developer-centric and comfortable with YAML configuration. Plan for separate production monitoring tooling. ... Galileo describes itself as an AI agent reliability platform combining offline evaluations, production monitoring, and runtime guardrails.",
+      "published_at": "2026-05-19",
+      "engagement": {},
+      "container": "www.augmentcode.com",
+      "author": "",
+      "_raw_fields_present": [
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": []
+    },
+    {
+      "source": "grounding",
+      "title": "LLM Observability & Evaluation Platform",
+      "url": "https://arize.com/",
+      "snippet": "&quot;We found that the platform offered great exploratory analysis and model debugging capabilities, and during the POC it was able to reliably detect model issues.&quot; Senior Data Scientist and Senior MLOps Engineer, GetYourGuide \u00b7 &quot;We love Arize for rapid prototyping of LLM projects including Agentic AI Agents. The seamless integration of AI traces, and instrumentation for building evals for LLMOps are a force multiplier for us.&quot;",
+      "published_at": "2026-05-22",
+      "engagement": {},
+      "container": "arize.com",
+      "author": "",
+      "_raw_fields_present": [
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": []
+    },
+    {
+      "source": "grounding",
+      "title": "9 Best AI Agent Evaluation Platforms in 2026: Compared by Features, Voice Eval Support, and Pricing | Noveum.ai",
+      "url": "https://noveum.ai/en/blog/best-ai-agent-evaluation-platforms",
+      "snippet": "Compare <strong>Noveum AI</strong>, Langfuse, Braintrust, Arize Phoenix, Galileo AI, Maxim AI, AgentOps, DeepEval, and LangSmith by features, voice eval support, and pricing. Find the right platform for your production AI agents in 2026.",
+      "published_at": "2026-05-15",
+      "engagement": {},
+      "container": "noveum.ai",
+      "author": "",
+      "_raw_fields_present": [
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": []
+    },
+    {
+      "source": "grounding",
+      "title": "LangChain: Observe, Evaluate, and Deploy Reliable AI Agents",
+      "url": "https://www.langchain.com/",
+      "snippet": "<strong>LangChain</strong> provides the engineering platform and open source frameworks developers use to build, test, and deploy reliable AI agents.",
+      "published_at": "2026-05-15",
+      "engagement": {},
+      "container": "www.langchain.com",
+      "author": "",
+      "_raw_fields_present": [
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": []
+    }
+  ],
+  "clusters": [
+    {
+      "candidate_ids": [
+        "https://learn.microsoft.com/en-us/microsoft-copilot-studio/analytics-agent-evaluation-intro"
+      ],
+      "cluster_id": "cluster-1",
+      "representative_ids": [
+        "https://learn.microsoft.com/en-us/microsoft-copilot-studio/analytics-agent-evaluation-intro"
+      ],
+      "score": 0.0,
+      "sources": [
+        "grounding"
+      ],
+      "title": "About agent evaluation - Microsoft Copilot Studio | Microsoft Learn"
+    },
+    {
+      "candidate_ids": [
+        "https://augmentcode.com/tools/best-ai-agent-evaluation-tools"
+      ],
+      "cluster_id": "cluster-2",
+      "representative_ids": [
+        "https://augmentcode.com/tools/best-ai-agent-evaluation-tools"
+      ],
+      "score": 0.0,
+      "sources": [
+        "grounding"
+      ],
+      "title": "Best AI Agent Evaluation Tools for Production Teams (2026) | Augment Code"
+    },
+    {
+      "candidate_ids": [
+        "https://arize.com"
+      ],
+      "cluster_id": "cluster-3",
+      "representative_ids": [
+        "https://arize.com"
+      ],
+      "score": 0.0,
+      "sources": [
+        "grounding"
+      ],
+      "title": "LLM Observability & Evaluation Platform"
+    },
+    {
+      "candidate_ids": [
+        "https://noveum.ai/en/blog/best-ai-agent-evaluation-platforms"
+      ],
+      "cluster_id": "cluster-4",
+      "representative_ids": [
+        "https://noveum.ai/en/blog/best-ai-agent-evaluation-platforms"
+      ],
+      "score": 0.0,
+      "sources": [
+        "grounding"
+      ],
+      "title": "9 Best AI Agent Evaluation Platforms in 2026: Compared by Features, Voice Eval Support, and Pricing | Noveum.ai"
+    },
+    {
+      "candidate_ids": [
+        "https://langchain.com"
+      ],
+      "cluster_id": "cluster-5",
+      "representative_ids": [
+        "https://langchain.com"
+      ],
+      "score": 0.0,
+      "sources": [
+        "grounding"
+      ],
+      "title": "LangChain: Observe, Evaluate, and Deploy Reliable AI Agents"
+    }
+  ],
+  "warnings": [
+    "Top evidence is highly concentrated in one source."
+  ],
+  "errors_by_source": {}
+}

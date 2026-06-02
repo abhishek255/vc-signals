@@ -1,0 +1,144 @@
+{
+  "topic": "\"LangChain\" funding valuation acquisition Series C",
+  "items": [
+    {
+      "source": "grounding",
+      "title": "LangChain Funding & Valuation 2025: Complete Financial Overview - Latenode Blog",
+      "url": "https://latenode.com/blog/langchain-funding-valuation",
+      "snippet": "Valuations in the AI platform space depend heavily on the business model. Platforms focused on enterprise clients often rely on recurring revenue metrics, while developer-first platforms tend to benefit from growth potential and network effects, leading to higher market multiples. LangChain&#x27;s ability to leverage its open-source community for organic growth demonstrates an efficient approach to customer acquisition and ensures steady, sustainable expansion.",
+      "published_at": "2026-05-12",
+      "engagement": {},
+      "container": "latenode.com",
+      "author": "",
+      "_raw_fields_present": [
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": []
+    },
+    {
+      "source": "grounding",
+      "title": "LangChain - 2026 Company Profile, Team, Funding & Competitors - Tracxn",
+      "url": "https://tracxn.com/d/companies/langchain/__O9N2dOHcgRE9Nbcn5BFfkUHn-rVk6GTbq8oY-UJ0Ba4",
+      "snippet": "It operates as a Developer of tools for building, testing, and deploying AI agent applications. LangChain has raised $260M in funding from investors like Sequoia Capital, Benchmark and IVP, with a current valuation of <strong>$1.25B</strong>.",
+      "published_at": "2026-05-19",
+      "engagement": {},
+      "container": "tracxn.com",
+      "author": "",
+      "_raw_fields_present": [
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": []
+    },
+    {
+      "source": "grounding",
+      "title": "Open Source AI Startup Statistics",
+      "url": "https://blog.mean.ceo/open-source-ai-startup-statistics/",
+      "snippet": "In September 2025, Mistral AI announced a EUR 1.7 billion Series C round at an <strong>EUR 11.7 billion</strong> post-money valuation, according to Mistral AI. ... In October 2025, LangChain announced a $125 million round at a $1.25 billion valuation to build ...",
+      "published_at": "2026-05-04",
+      "engagement": {},
+      "container": "blog.mean.ceo",
+      "author": "",
+      "_raw_fields_present": [
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": []
+    }
+  ],
+  "clusters": [
+    {
+      "candidate_ids": [
+        "https://latenode.com/blog/langchain-funding-valuation"
+      ],
+      "cluster_id": "cluster-1",
+      "representative_ids": [
+        "https://latenode.com/blog/langchain-funding-valuation"
+      ],
+      "score": 0.0,
+      "sources": [
+        "grounding"
+      ],
+      "title": "LangChain Funding & Valuation 2025: Complete Financial Overview - Latenode Blog"
+    },
+    {
+      "candidate_ids": [
+        "https://tracxn.com/d/companies/langchain/__o9n2dohcgre9nbcn5bffkuhn-rvk6gtbq8oy-uj0ba4"
+      ],
+      "cluster_id": "cluster-2",
+      "representative_ids": [
+        "https://tracxn.com/d/companies/langchain/__o9n2dohcgre9nbcn5bffkuhn-rvk6gtbq8oy-uj0ba4"
+      ],
+      "score": 0.0,
+      "sources": [
+        "grounding"
+      ],
+      "title": "LangChain - 2026 Company Profile, Team, Funding & Competitors - Tracxn"
+    },
+    {
+      "candidate_ids": [
+        "https://blog.mean.ceo/open-source-ai-startup-statistics"
+      ],
+      "cluster_id": "cluster-3",
+      "representative_ids": [
+        "https://blog.mean.ceo/open-source-ai-startup-statistics"
+      ],
+      "score": 0.0,
+      "sources": [
+        "grounding"
+      ],
+      "title": "Open Source AI Startup Statistics"
+    }
+  ],
+  "warnings": [
+    "Evidence is thin for this topic.",
+    "Top evidence is highly concentrated in one source."
+  ],
+  "errors_by_source": {}
+}

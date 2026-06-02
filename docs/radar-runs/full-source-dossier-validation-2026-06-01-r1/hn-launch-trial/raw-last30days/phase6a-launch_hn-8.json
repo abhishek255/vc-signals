@@ -1,0 +1,119 @@
+{
+  "topic": "Launch HN Agent runtime infrastructure",
+  "items": [
+    {
+      "source": "hackernews",
+      "title": "Show HN: Agent.email \u2013 sign up via curl, claim with a human OTP",
+      "url": "https://news.ycombinator.com/item?id=48225596",
+      "snippet": "Show HN: Agent.email \u2013 sign up via curl, claim with a human OTP",
+      "published_at": "2026-05-21",
+      "engagement": {
+        "comments": 108,
+        "points": 99
+      },
+      "container": "Hacker News",
+      "author": "adisingh13",
+      "_raw_fields_present": [
+        "author",
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "engagement_score",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": [
+        "hn_url"
+      ],
+      "hn_url": "https://news.ycombinator.com/item?id=48225596"
+    },
+    {
+      "source": "hackernews",
+      "title": "Launch HN: Runtime (YC P26) \u2013 Sandboxed coding agents for everyone on a team",
+      "url": "https://www.runtm.com/",
+      "snippet": "Launch HN: Runtime (YC P26) \u2013 Sandboxed coding agents for everyone on a team",
+      "published_at": "2026-05-21",
+      "engagement": {
+        "comments": 30,
+        "points": 103
+      },
+      "container": "Hacker News",
+      "author": "gustrigos",
+      "_raw_fields_present": [
+        "author",
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "engagement_score",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": [
+        "outbound_url",
+        "domain",
+        "hn_url"
+      ],
+      "outbound_url": "https://www.runtm.com/",
+      "domain": "runtm.com",
+      "hn_url": "https://news.ycombinator.com/item?id=48225040"
+    }
+  ],
+  "clusters": [
+    {
+      "candidate_ids": [
+        "https://news.ycombinator.com/item?id=48225596"
+      ],
+      "cluster_id": "cluster-1",
+      "representative_ids": [
+        "https://news.ycombinator.com/item?id=48225596"
+      ],
+      "score": 0.0,
+      "sources": [
+        "hackernews"
+      ],
+      "title": "Show HN: Agent.email \u2013 sign up via curl, claim with a human OTP"
+    },
+    {
+      "candidate_ids": [
+        "https://runtm.com"
+      ],
+      "cluster_id": "cluster-2",
+      "representative_ids": [
+        "https://runtm.com"
+      ],
+      "score": 0.0,
+      "sources": [
+        "hackernews"
+      ],
+      "title": "Launch HN: Runtime (YC P26) \u2013 Sandboxed coding agents for everyone on a team"
+    }
+  ],
+  "warnings": [
+    "Evidence is thin for this topic."
+  ],
+  "errors_by_source": {}
+}

@@ -1,0 +1,729 @@
+{
+  "summary": {
+    "eligible": 0,
+    "skipped": 30,
+    "queries_run": 0,
+    "query_cache_hits": 0,
+    "founders_found": 0,
+    "still_missing": 0
+  },
+  "items": [
+    {
+      "candidate_key": "affaan-m/agentshield",
+      "name": "affaan-m/agentshield",
+      "domain": "",
+      "eligible": false,
+      "skip_reason": "oss_project_only",
+      "query": "",
+      "query_status": "not_eligible",
+      "founders_found": [],
+      "founder_profiles": [],
+      "founder_team_evidence": [],
+      "evidence_urls": [],
+      "verification_basis": [],
+      "missing_founder_evidence": [
+        "no source-backed named founder/team evidence"
+      ],
+      "rejection_reasons": [],
+      "owner_readiness_score": 25,
+      "missing_owner_evidence": [
+        "OSS/project-only row"
+      ],
+      "recommended_owner_action": "Research deeper",
+      "recommended_next_validation_step": "Track OSS/project formation"
+    },
+    {
+      "candidate_key": "boostsecurityio/smokedmeat",
+      "name": "boostsecurityio/smokedmeat",
+      "domain": "",
+      "eligible": false,
+      "skip_reason": "oss_project_only",
+      "query": "",
+      "query_status": "not_eligible",
+      "founders_found": [],
+      "founder_profiles": [],
+      "founder_team_evidence": [],
+      "evidence_urls": [],
+      "verification_basis": [],
+      "missing_founder_evidence": [
+        "no source-backed named founder/team evidence"
+      ],
+      "rejection_reasons": [],
+      "owner_readiness_score": 25,
+      "missing_owner_evidence": [
+        "OSS/project-only row"
+      ],
+      "recommended_owner_action": "Research deeper",
+      "recommended_next_validation_step": "Track OSS/project formation"
+    },
+    {
+      "candidate_key": "rankistan.dev",
+      "name": "Sudo-Ali-Dev/Rankistan",
+      "domain": "rankistan.dev",
+      "eligible": false,
+      "skip_reason": "oss_project_only",
+      "query": "",
+      "query_status": "not_eligible",
+      "founders_found": [],
+      "founder_profiles": [],
+      "founder_team_evidence": [],
+      "evidence_urls": [],
+      "verification_basis": [],
+      "missing_founder_evidence": [
+        "no source-backed named founder/team evidence"
+      ],
+      "rejection_reasons": [],
+      "owner_readiness_score": 25,
+      "missing_owner_evidence": [
+        "OSS/project-only row"
+      ],
+      "recommended_owner_action": "Research deeper",
+      "recommended_next_validation_step": "Track OSS/project formation"
+    },
+    {
+      "candidate_key": "agent-ci.dev",
+      "name": "redwoodjs/agent-ci",
+      "domain": "agent-ci.dev",
+      "eligible": false,
+      "skip_reason": "oss_project_only",
+      "query": "",
+      "query_status": "not_eligible",
+      "founders_found": [],
+      "founder_profiles": [],
+      "founder_team_evidence": [],
+      "evidence_urls": [],
+      "verification_basis": [],
+      "missing_founder_evidence": [
+        "no source-backed named founder/team evidence"
+      ],
+      "rejection_reasons": [],
+      "owner_readiness_score": 25,
+      "missing_owner_evidence": [
+        "OSS/project-only row"
+      ],
+      "recommended_owner_action": "Research deeper",
+      "recommended_next_validation_step": "Track OSS/project formation"
+    },
+    {
+      "candidate_key": "pullfrog.com",
+      "name": "pullfrog/pullfrog",
+      "domain": "pullfrog.com",
+      "eligible": false,
+      "skip_reason": "oss_project_only",
+      "query": "",
+      "query_status": "not_eligible",
+      "founders_found": [],
+      "founder_profiles": [],
+      "founder_team_evidence": [],
+      "evidence_urls": [],
+      "verification_basis": [],
+      "missing_founder_evidence": [
+        "no source-backed named founder/team evidence"
+      ],
+      "rejection_reasons": [],
+      "owner_readiness_score": 25,
+      "missing_owner_evidence": [
+        "OSS/project-only row"
+      ],
+      "recommended_owner_action": "Research deeper",
+      "recommended_next_validation_step": "Track OSS/project formation"
+    },
+    {
+      "candidate_key": "leiting-eric/DailyBrief",
+      "name": "leiting-eric/DailyBrief",
+      "domain": "",
+      "eligible": false,
+      "skip_reason": "oss_project_only",
+      "query": "",
+      "query_status": "not_eligible",
+      "founders_found": [],
+      "founder_profiles": [],
+      "founder_team_evidence": [],
+      "evidence_urls": [],
+      "verification_basis": [],
+      "missing_founder_evidence": [
+        "no source-backed named founder/team evidence"
+      ],
+      "rejection_reasons": [],
+      "owner_readiness_score": 25,
+      "missing_owner_evidence": [
+        "OSS/project-only row"
+      ],
+      "recommended_owner_action": "Research deeper",
+      "recommended_next_validation_step": "Track OSS/project formation"
+    },
+    {
+      "candidate_key": "azat-io/actions-up",
+      "name": "azat-io/actions-up",
+      "domain": "",
+      "eligible": false,
+      "skip_reason": "oss_project_only",
+      "query": "",
+      "query_status": "not_eligible",
+      "founders_found": [],
+      "founder_profiles": [],
+      "founder_team_evidence": [],
+      "evidence_urls": [],
+      "verification_basis": [],
+      "missing_founder_evidence": [
+        "no source-backed named founder/team evidence"
+      ],
+      "rejection_reasons": [],
+      "owner_readiness_score": 25,
+      "missing_owner_evidence": [
+        "OSS/project-only row"
+      ],
+      "recommended_owner_action": "Research deeper",
+      "recommended_next_validation_step": "Track OSS/project formation"
+    },
+    {
+      "candidate_key": "peakoss/anti-slop",
+      "name": "peakoss/anti-slop",
+      "domain": "",
+      "eligible": false,
+      "skip_reason": "oss_project_only",
+      "query": "",
+      "query_status": "not_eligible",
+      "founders_found": [],
+      "founder_profiles": [],
+      "founder_team_evidence": [],
+      "evidence_urls": [],
+      "verification_basis": [],
+      "missing_founder_evidence": [
+        "no source-backed named founder/team evidence"
+      ],
+      "rejection_reasons": [],
+      "owner_readiness_score": 25,
+      "missing_owner_evidence": [
+        "OSS/project-only row"
+      ],
+      "recommended_owner_action": "Research deeper",
+      "recommended_next_validation_step": "Track OSS/project formation"
+    },
+    {
+      "candidate_key": "slowql/slowql",
+      "name": "slowql/slowql",
+      "domain": "",
+      "eligible": false,
+      "skip_reason": "oss_project_only",
+      "query": "",
+      "query_status": "not_eligible",
+      "founders_found": [],
+      "founder_profiles": [],
+      "founder_team_evidence": [],
+      "evidence_urls": [],
+      "verification_basis": [],
+      "missing_founder_evidence": [
+        "no source-backed named founder/team evidence"
+      ],
+      "rejection_reasons": [],
+      "owner_readiness_score": 25,
+      "missing_owner_evidence": [
+        "OSS/project-only row"
+      ],
+      "recommended_owner_action": "Research deeper",
+      "recommended_next_validation_step": "Track OSS/project formation"
+    },
+    {
+      "candidate_key": "BANANASJIM/rdc-cli",
+      "name": "BANANASJIM/rdc-cli",
+      "domain": "",
+      "eligible": false,
+      "skip_reason": "oss_project_only",
+      "query": "",
+      "query_status": "not_eligible",
+      "founders_found": [],
+      "founder_profiles": [],
+      "founder_team_evidence": [],
+      "evidence_urls": [],
+      "verification_basis": [],
+      "missing_founder_evidence": [
+        "no source-backed named founder/team evidence"
+      ],
+      "rejection_reasons": [],
+      "owner_readiness_score": 25,
+      "missing_owner_evidence": [
+        "OSS/project-only row"
+      ],
+      "recommended_owner_action": "Research deeper",
+      "recommended_next_validation_step": "Track OSS/project formation"
+    },
+    {
+      "candidate_key": "spaceraccoon/vulnerability-spoiler-alert-action",
+      "name": "spaceraccoon/vulnerability-spoiler-alert-action",
+      "domain": "",
+      "eligible": false,
+      "skip_reason": "oss_project_only",
+      "query": "",
+      "query_status": "not_eligible",
+      "founders_found": [],
+      "founder_profiles": [],
+      "founder_team_evidence": [],
+      "evidence_urls": [],
+      "verification_basis": [],
+      "missing_founder_evidence": [
+        "no source-backed named founder/team evidence"
+      ],
+      "rejection_reasons": [],
+      "owner_readiness_score": 25,
+      "missing_owner_evidence": [
+        "OSS/project-only row"
+      ],
+      "recommended_owner_action": "Research deeper",
+      "recommended_next_validation_step": "Track OSS/project formation"
+    },
+    {
+      "candidate_key": "goldbridgebanking.com",
+      "name": "Goldbridge",
+      "domain": "goldbridgebanking.com",
+      "eligible": false,
+      "skip_reason": "founder_already_verified",
+      "query": "",
+      "query_status": "not_eligible",
+      "founders_found": [],
+      "founder_profiles": [],
+      "founder_team_evidence": [],
+      "evidence_urls": [],
+      "verification_basis": [],
+      "missing_founder_evidence": [
+        "no source-backed named founder/team evidence"
+      ],
+      "rejection_reasons": [],
+      "owner_readiness_score": 100,
+      "missing_owner_evidence": [],
+      "recommended_owner_action": "Assign owner",
+      "recommended_next_validation_step": "Ready for owner assignment"
+    },
+    {
+      "candidate_key": "SKYLENAGE-AI/SWE-CI",
+      "name": "SKYLENAGE-AI/SWE-CI",
+      "domain": "",
+      "eligible": false,
+      "skip_reason": "oss_project_only",
+      "query": "",
+      "query_status": "not_eligible",
+      "founders_found": [],
+      "founder_profiles": [],
+      "founder_team_evidence": [],
+      "evidence_urls": [],
+      "verification_basis": [],
+      "missing_founder_evidence": [
+        "no source-backed named founder/team evidence"
+      ],
+      "rejection_reasons": [],
+      "owner_readiness_score": 25,
+      "missing_owner_evidence": [
+        "OSS/project-only row"
+      ],
+      "recommended_owner_action": "Research deeper",
+      "recommended_next_validation_step": "Track OSS/project formation"
+    },
+    {
+      "candidate_key": "gensecaihq/Shai-Hulud-2.0-Detector",
+      "name": "gensecaihq/Shai-Hulud-2.0-Detector",
+      "domain": "",
+      "eligible": false,
+      "skip_reason": "oss_project_only",
+      "query": "",
+      "query_status": "not_eligible",
+      "founders_found": [],
+      "founder_profiles": [],
+      "founder_team_evidence": [],
+      "evidence_urls": [],
+      "verification_basis": [],
+      "missing_founder_evidence": [
+        "no source-backed named founder/team evidence"
+      ],
+      "rejection_reasons": [],
+      "owner_readiness_score": 25,
+      "missing_owner_evidence": [
+        "OSS/project-only row"
+      ],
+      "recommended_owner_action": "Research deeper",
+      "recommended_next_validation_step": "Track OSS/project formation"
+    },
+    {
+      "candidate_key": "inview-club/devops-cases",
+      "name": "inview-club/devops-cases",
+      "domain": "",
+      "eligible": false,
+      "skip_reason": "oss_project_only",
+      "query": "",
+      "query_status": "not_eligible",
+      "founders_found": [],
+      "founder_profiles": [],
+      "founder_team_evidence": [],
+      "evidence_urls": [],
+      "verification_basis": [],
+      "missing_founder_evidence": [
+        "no source-backed named founder/team evidence"
+      ],
+      "rejection_reasons": [],
+      "owner_readiness_score": 25,
+      "missing_owner_evidence": [
+        "OSS/project-only row"
+      ],
+      "recommended_owner_action": "Research deeper",
+      "recommended_next_validation_step": "Track OSS/project formation"
+    },
+    {
+      "candidate_key": "databox.com",
+      "name": "Databox MCP",
+      "domain": "databox.com",
+      "eligible": false,
+      "skip_reason": "not_verified_company",
+      "query": "",
+      "query_status": "not_eligible",
+      "founders_found": [],
+      "founder_profiles": [],
+      "founder_team_evidence": [],
+      "evidence_urls": [],
+      "verification_basis": [],
+      "missing_founder_evidence": [
+        "no source-backed named founder/team evidence"
+      ],
+      "rejection_reasons": [],
+      "owner_readiness_score": 35,
+      "missing_owner_evidence": [
+        "no verified Attio-safe company identity",
+        "no founder/team evidence",
+        "no stage/funding evidence",
+        "no commercial/funding evidence"
+      ],
+      "recommended_owner_action": "Research deeper",
+      "recommended_next_validation_step": "Find founder/team source"
+    },
+    {
+      "candidate_key": "simplex.sh",
+      "name": "Simplex",
+      "domain": "simplex.sh",
+      "eligible": false,
+      "skip_reason": "founder_already_verified",
+      "query": "",
+      "query_status": "not_eligible",
+      "founders_found": [],
+      "founder_profiles": [],
+      "founder_team_evidence": [],
+      "evidence_urls": [],
+      "verification_basis": [],
+      "missing_founder_evidence": [
+        "no source-backed named founder/team evidence"
+      ],
+      "rejection_reasons": [],
+      "owner_readiness_score": 100,
+      "missing_owner_evidence": [],
+      "recommended_owner_action": "Assign owner",
+      "recommended_next_validation_step": "Ready for owner assignment"
+    },
+    {
+      "candidate_key": "mirurobotics.com",
+      "name": "Miru",
+      "domain": "mirurobotics.com",
+      "eligible": false,
+      "skip_reason": "founder_already_verified",
+      "query": "",
+      "query_status": "not_eligible",
+      "founders_found": [],
+      "founder_profiles": [],
+      "founder_team_evidence": [],
+      "evidence_urls": [],
+      "verification_basis": [],
+      "missing_founder_evidence": [
+        "no source-backed named founder/team evidence"
+      ],
+      "rejection_reasons": [],
+      "owner_readiness_score": 100,
+      "missing_owner_evidence": [],
+      "recommended_owner_action": "Assign owner",
+      "recommended_next_validation_step": "Ready for owner assignment"
+    },
+    {
+      "candidate_key": "arize.com",
+      "name": "LLM Observability & Evaluation Platform",
+      "domain": "arize.com",
+      "eligible": false,
+      "skip_reason": "category_context_or_monitor_only",
+      "query": "",
+      "query_status": "not_eligible",
+      "founders_found": [],
+      "founder_profiles": [],
+      "founder_team_evidence": [],
+      "evidence_urls": [],
+      "verification_basis": [],
+      "missing_founder_evidence": [
+        "no source-backed named founder/team evidence"
+      ],
+      "rejection_reasons": [],
+      "owner_readiness_score": 20,
+      "missing_owner_evidence": [
+        "category context / mature incumbent"
+      ],
+      "recommended_owner_action": "Monitor only",
+      "recommended_next_validation_step": "category context / mature incumbent"
+    },
+    {
+      "candidate_key": "dlvhdr/gh-enhance",
+      "name": "dlvhdr/gh-enhance",
+      "domain": "",
+      "eligible": false,
+      "skip_reason": "oss_project_only",
+      "query": "",
+      "query_status": "not_eligible",
+      "founders_found": [],
+      "founder_profiles": [],
+      "founder_team_evidence": [],
+      "evidence_urls": [],
+      "verification_basis": [],
+      "missing_founder_evidence": [
+        "no source-backed named founder/team evidence"
+      ],
+      "rejection_reasons": [],
+      "owner_readiness_score": 25,
+      "missing_owner_evidence": [
+        "OSS/project-only row"
+      ],
+      "recommended_owner_action": "Research deeper",
+      "recommended_next_validation_step": "Track OSS/project formation"
+    },
+    {
+      "candidate_key": "mizchi/actrun",
+      "name": "mizchi/actrun",
+      "domain": "",
+      "eligible": false,
+      "skip_reason": "oss_project_only",
+      "query": "",
+      "query_status": "not_eligible",
+      "founders_found": [],
+      "founder_profiles": [],
+      "founder_team_evidence": [],
+      "evidence_urls": [],
+      "verification_basis": [],
+      "missing_founder_evidence": [
+        "no source-backed named founder/team evidence"
+      ],
+      "rejection_reasons": [],
+      "owner_readiness_score": 25,
+      "missing_owner_evidence": [
+        "OSS/project-only row"
+      ],
+      "recommended_owner_action": "Research deeper",
+      "recommended_next_validation_step": "Track OSS/project formation"
+    },
+    {
+      "candidate_key": "dsherret/gagen",
+      "name": "dsherret/gagen",
+      "domain": "",
+      "eligible": false,
+      "skip_reason": "oss_project_only",
+      "query": "",
+      "query_status": "not_eligible",
+      "founders_found": [],
+      "founder_profiles": [],
+      "founder_team_evidence": [],
+      "evidence_urls": [],
+      "verification_basis": [],
+      "missing_founder_evidence": [
+        "no source-backed named founder/team evidence"
+      ],
+      "rejection_reasons": [],
+      "owner_readiness_score": 25,
+      "missing_owner_evidence": [
+        "OSS/project-only row"
+      ],
+      "recommended_owner_action": "Research deeper",
+      "recommended_next_validation_step": "Track OSS/project formation"
+    },
+    {
+      "candidate_key": "kuberik.com",
+      "name": "kuberik/kuberik",
+      "domain": "kuberik.com",
+      "eligible": false,
+      "skip_reason": "oss_project_only",
+      "query": "",
+      "query_status": "not_eligible",
+      "founders_found": [],
+      "founder_profiles": [],
+      "founder_team_evidence": [],
+      "evidence_urls": [],
+      "verification_basis": [],
+      "missing_founder_evidence": [
+        "no source-backed named founder/team evidence"
+      ],
+      "rejection_reasons": [],
+      "owner_readiness_score": 25,
+      "missing_owner_evidence": [
+        "OSS/project-only row"
+      ],
+      "recommended_owner_action": "Research deeper",
+      "recommended_next_validation_step": "Track OSS/project formation"
+    },
+    {
+      "candidate_key": "ritwiktiwari/copier-astral",
+      "name": "ritwiktiwari/copier-astral",
+      "domain": "",
+      "eligible": false,
+      "skip_reason": "oss_project_only",
+      "query": "",
+      "query_status": "not_eligible",
+      "founders_found": [],
+      "founder_profiles": [],
+      "founder_team_evidence": [],
+      "evidence_urls": [],
+      "verification_basis": [],
+      "missing_founder_evidence": [
+        "no source-backed named founder/team evidence"
+      ],
+      "rejection_reasons": [],
+      "owner_readiness_score": 25,
+      "missing_owner_evidence": [
+        "OSS/project-only row"
+      ],
+      "recommended_owner_action": "Research deeper",
+      "recommended_next_validation_step": "Track OSS/project formation"
+    },
+    {
+      "candidate_key": "Ronchy2000/epic-freebies-helper",
+      "name": "Ronchy2000/epic-freebies-helper",
+      "domain": "",
+      "eligible": false,
+      "skip_reason": "oss_project_only",
+      "query": "",
+      "query_status": "not_eligible",
+      "founders_found": [],
+      "founder_profiles": [],
+      "founder_team_evidence": [],
+      "evidence_urls": [],
+      "verification_basis": [],
+      "missing_founder_evidence": [
+        "no source-backed named founder/team evidence"
+      ],
+      "rejection_reasons": [],
+      "owner_readiness_score": 25,
+      "missing_owner_evidence": [
+        "OSS/project-only row"
+      ],
+      "recommended_owner_action": "Research deeper",
+      "recommended_next_validation_step": "Track OSS/project formation"
+    },
+    {
+      "candidate_key": "actions/scaleset",
+      "name": "actions/scaleset",
+      "domain": "",
+      "eligible": false,
+      "skip_reason": "oss_project_only",
+      "query": "",
+      "query_status": "not_eligible",
+      "founders_found": [],
+      "founder_profiles": [],
+      "founder_team_evidence": [],
+      "evidence_urls": [],
+      "verification_basis": [],
+      "missing_founder_evidence": [
+        "no source-backed named founder/team evidence"
+      ],
+      "rejection_reasons": [],
+      "owner_readiness_score": 25,
+      "missing_owner_evidence": [
+        "OSS/project-only row"
+      ],
+      "recommended_owner_action": "Research deeper",
+      "recommended_next_validation_step": "Track OSS/project formation"
+    },
+    {
+      "candidate_key": "eac.int",
+      "name": "ready-to-release/eac",
+      "domain": "eac.int",
+      "eligible": false,
+      "skip_reason": "oss_project_only",
+      "query": "",
+      "query_status": "not_eligible",
+      "founders_found": [],
+      "founder_profiles": [],
+      "founder_team_evidence": [],
+      "evidence_urls": [],
+      "verification_basis": [],
+      "missing_founder_evidence": [
+        "no source-backed named founder/team evidence"
+      ],
+      "rejection_reasons": [],
+      "owner_readiness_score": 25,
+      "missing_owner_evidence": [
+        "OSS/project-only row"
+      ],
+      "recommended_owner_action": "Research deeper",
+      "recommended_next_validation_step": "Track OSS/project formation"
+    },
+    {
+      "candidate_key": "SawyerHood/gitclaw",
+      "name": "SawyerHood/gitclaw",
+      "domain": "",
+      "eligible": false,
+      "skip_reason": "oss_project_only",
+      "query": "",
+      "query_status": "not_eligible",
+      "founders_found": [],
+      "founder_profiles": [],
+      "founder_team_evidence": [],
+      "evidence_urls": [],
+      "verification_basis": [],
+      "missing_founder_evidence": [
+        "no source-backed named founder/team evidence"
+      ],
+      "rejection_reasons": [],
+      "owner_readiness_score": 25,
+      "missing_owner_evidence": [
+        "OSS/project-only row"
+      ],
+      "recommended_owner_action": "Research deeper",
+      "recommended_next_validation_step": "Track OSS/project formation"
+    },
+    {
+      "candidate_key": "tuist/magnolia",
+      "name": "tuist/magnolia",
+      "domain": "",
+      "eligible": false,
+      "skip_reason": "oss_project_only",
+      "query": "",
+      "query_status": "not_eligible",
+      "founders_found": [],
+      "founder_profiles": [],
+      "founder_team_evidence": [],
+      "evidence_urls": [],
+      "verification_basis": [],
+      "missing_founder_evidence": [
+        "no source-backed named founder/team evidence"
+      ],
+      "rejection_reasons": [],
+      "owner_readiness_score": 25,
+      "missing_owner_evidence": [
+        "OSS/project-only row"
+      ],
+      "recommended_owner_action": "Research deeper",
+      "recommended_next_validation_step": "Track OSS/project formation"
+    },
+    {
+      "candidate_key": "hashgraph-online/skill-publish",
+      "name": "hashgraph-online/skill-publish",
+      "domain": "",
+      "eligible": false,
+      "skip_reason": "oss_project_only",
+      "query": "",
+      "query_status": "not_eligible",
+      "founders_found": [],
+      "founder_profiles": [],
+      "founder_team_evidence": [],
+      "evidence_urls": [],
+      "verification_basis": [],
+      "missing_founder_evidence": [
+        "no source-backed named founder/team evidence"
+      ],
+      "rejection_reasons": [],
+      "owner_readiness_score": 25,
+      "missing_owner_evidence": [
+        "OSS/project-only row"
+      ],
+      "recommended_owner_action": "Research deeper",
+      "recommended_next_validation_step": "Track OSS/project formation"
+    }
+  ]
+}

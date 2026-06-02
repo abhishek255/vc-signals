@@ -36,6 +36,7 @@ ATTIO_MATCH_STATUSES = {"active", "no_owner", "no owner", "stale", "passed"}
 ATTIO_STALE_TERMS = ("stale", "passed")
 OWNER_READY_THRESHOLD = 80
 OWNER_READY_ACTIONS = {ACTION_ASSIGN_OWNER, ACTION_REFRESH_ATTIO}
+STRICT_HN_ASSIGN_OWNER_ALLOWLIST = {"voker"}
 CUSTOMER_PULL_TERMS = (
     "customer",
     "customers",
@@ -1006,6 +1007,14 @@ def _hn_assign_owner_focus_items(hn_launch_trial: dict | None) -> list[FocusItem
         customer_url = _first_url(commercial)
         attio_status = str(row.get("attio_status") or attio.get("status") or "unknown")
 
+        allow_assign_owner = name.lower() in STRICT_HN_ASSIGN_OWNER_ALLOWLIST
+        recommended_action = ACTION_ASSIGN_OWNER if allow_assign_owner else ACTION_RESEARCH_DEEPER
+        actionability_basis = ["attio_safe_hn_assign_owner"] if allow_assign_owner else ["hn_assign_owner_requires_manual_partner_approval"]
+        focus_priority_basis = ["hn_launch_weekly_source", "assign_owner_evidence_complete"]
+        if not allow_assign_owner:
+            focus_priority_basis.append("demoted_from_assign_owner_by_strict_weekly_gate")
+        missing_evidence = [] if allow_assign_owner else ["manual_partner_approval_required_for_assign_owner"]
+
         items.append(
             FocusItem(
                 id=f"company:{domain}" if domain else f"hn-launch:{_stable_id(name)}",
@@ -1017,7 +1026,7 @@ def _hn_assign_owner_focus_items(hn_launch_trial: dict | None) -> list[FocusItem
                 market_movement_id=_stable_id(str(row.get("market_movement") or "HN launch signal")),
                 market_movement=str(row.get("market_movement") or "HN launch signal"),
                 market_sector=str(row.get("market_sector") or "HN Launch"),
-                why_focus_this_week=f"HN launch-sourced Assign Owner: {source_title}",
+                why_focus_this_week=f"HN launch-sourced {'Assign Owner' if allow_assign_owner else 'Alex Review'}: {source_title}",
                 who_is_talking=["HN launch source", "founder/company evidence"],
                 talker_types=["founder", "practitioner"],
                 talker_type_confidence="Medium",
@@ -1026,11 +1035,11 @@ def _hn_assign_owner_focus_items(hn_launch_trial: dict | None) -> list[FocusItem
                     ", ".join(row.get("evidence_dimensions") or []),
                 ],
                 evidence_urls=evidence_urls,
-                missing_evidence=[],
+                missing_evidence=missing_evidence,
                 attio_status=attio_status,
                 identity_type="verified_company",
                 attio_safe_to_match=bool(attio.get("action_safe", True)),
-                recommended_action=ACTION_ASSIGN_OWNER,
+                recommended_action=recommended_action,
                 investment_interest_score=75,
                 evidence_confidence_score=85,
                 focus_priority_score=95,
@@ -1042,8 +1051,8 @@ def _hn_assign_owner_focus_items(hn_launch_trial: dict | None) -> list[FocusItem
                 consensus_risk_score=20,
                 company_identity_quality_score=90,
                 company_identity_quality_basis=["hn_launch_trial_verified_company", "official_site_confirms_identity"],
-                focus_priority_basis=["hn_launch_weekly_source", "assign_owner_evidence_complete"],
-                actionability_basis=["attio_safe_hn_assign_owner"],
+                focus_priority_basis=focus_priority_basis,
+                actionability_basis=actionability_basis,
                 freshness_basis=["hn_launch_weekly_source"],
                 market_movement_basis=["hn_launch_trial_signal"],
                 marathon_fit_basis=["target_stage", "actionable_company_context"],
@@ -1054,8 +1063,17 @@ def _hn_assign_owner_focus_items(hn_launch_trial: dict | None) -> list[FocusItem
                 movement_assignment_evidence_url=_first_url(hn_source),
                 weekly_tag="NEW",
                 new_evidence_this_week=evidence_urls[:2],
-                why_this_may_be_noise="HN launch-sourced row; included only after owner-readiness and Attio gates cleared.",
-                skepticism_events=["HN source remains provenance-gated."],
+                why_this_may_be_noise=(
+                    "HN launch-sourced row; evidence looked complete, but non-allowlisted HN rows still need "
+                    "manual partner approval before Assign Owner."
+                    if not allow_assign_owner
+                    else "HN launch-sourced row; included only after owner-readiness and Attio gates cleared."
+                ),
+                skepticism_events=(
+                    ["HN source remains provenance-gated.", "Strict weekly Assign Owner gate demoted this row."]
+                    if not allow_assign_owner
+                    else ["HN source remains provenance-gated."]
+                ),
                 source_candidate_id=_first_url(hn_source) or name,
                 maturity_status=str(stage.get("maturity_status") or "seed_to_series_b"),
                 maturity_basis=maturity_basis,
@@ -1069,9 +1087,13 @@ def _hn_assign_owner_focus_items(hn_launch_trial: dict | None) -> list[FocusItem
                     "customer_buyer_pull_evidence",
                     "attio_new_or_no_match",
                 ],
-                missing_owner_evidence=[],
-                recommended_owner_action=ACTION_ASSIGN_OWNER,
-                recommended_next_validation_step="Assign owner",
+                missing_owner_evidence=missing_evidence,
+                recommended_owner_action=recommended_action,
+                recommended_next_validation_step=(
+                    "Manual partner approval required before Assign Owner"
+                    if not allow_assign_owner
+                    else "Assign owner"
+                ),
                 founder_team_evidence=[founder_url] if founder_url else [],
                 stage_funding_evidence=[stage_url] if stage_url else [],
                 customer_buyer_evidence=[customer_url] if customer_url else [],

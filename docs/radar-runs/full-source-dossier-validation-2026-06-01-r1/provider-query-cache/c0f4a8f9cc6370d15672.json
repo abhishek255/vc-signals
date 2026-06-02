@@ -1,0 +1,231 @@
+{
+  "topic": "\"n8n\" funding valuation acquisition Series C",
+  "items": [
+    {
+      "source": "grounding",
+      "title": "N8n - 2026 Company Profile, Team, Funding, Competitors & Financials - Tracxn",
+      "url": "https://tracxn.com/d/companies/n8n/__J5xwUZ9C29t7Du-yVvv0S99EWc7s69t2NGt5YmhQG0A",
+      "snippet": "It operates as a Developer of platform for AI workflow automation and application integration. N8n has raised $254M in funding from investors like Accel, Sequoia Capital and Felicis Ventures, with a current valuation of <strong>$2.5B</strong>.",
+      "published_at": "2026-05-18",
+      "engagement": {},
+      "container": "tracxn.com",
+      "author": "",
+      "_raw_fields_present": [
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": []
+    },
+    {
+      "source": "grounding",
+      "title": "N8n - 2026 Funding Rounds & List of Investors - Tracxn",
+      "url": "https://tracxn.com/d/companies/n8n/__J5xwUZ9C29t7Du-yVvv0S99EWc7s69t2NGt5YmhQG0A/funding-and-investors",
+      "snippet": "N8n&#x27;s largest funding round was a Series C round held on Oct 09, 2025 for <strong>$180M</strong>. Who are the lead investors in N8n&#x27;s latest funding round? Accel is the lead investor in N8n&#x27;s latest funding round held on Oct 09, 2025.",
+      "published_at": "2026-05-14",
+      "engagement": {},
+      "container": "tracxn.com",
+      "author": "",
+      "_raw_fields_present": [
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": []
+    },
+    {
+      "source": "grounding",
+      "title": "SAP backs n8n at $5.2B valuation to automate complex, data-heavy enterprise workflows with AI \u2014 TFN",
+      "url": "https://techfundingnews.com/sap-backs-n8n-at-5-2b-valuation-to-automate-complex-data-heavy-enterprise-workflows-with-ai/",
+      "snippet": "Workflow automation startup n8n has secured a strategic investment from SAP, taking its valuation to <strong>$5.2 billion</strong>.",
+      "published_at": "2026-05-13",
+      "engagement": {},
+      "container": "techfundingnews.com",
+      "author": "",
+      "_raw_fields_present": [
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": []
+    },
+    {
+      "source": "grounding",
+      "title": "N8n's valuation doubles to $5.2BN following SAP strategic investment - Tech.eu",
+      "url": "https://tech.eu/2026/05/12/n8n-s-valuation-doubles-to-5-2bn-following-sap-strategic-investment/",
+      "snippet": "... N8n, the Berlin-based startup which helps businesses automate tasks, has more than doubled its valuation to <strong>$5.2bn</strong> in less than a year following a strategic investment from German software giant SAP, it said today.",
+      "published_at": "2026-05-13",
+      "engagement": {},
+      "container": "tech.eu",
+      "author": "",
+      "_raw_fields_present": [
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": []
+    },
+    {
+      "source": "grounding",
+      "title": "SAP Invests in AI Startup N8n, Doubling Valuation to $5.2 Billion - Bloomberg",
+      "url": "https://www.bloomberg.com/news/articles/2026-05-12/sap-invests-in-ai-automation-startup-n8n-at-5-2-billion-value",
+      "snippet": "SAP SE is investing in workflow automation platform n8n, doubling the startup\u2019s valuation to <strong>$5.2 billion</strong>, as the German software giant builds out its artificial intelligence offering.",
+      "published_at": "2026-05-12",
+      "engagement": {},
+      "container": "www.bloomberg.com",
+      "author": "",
+      "_raw_fields_present": [
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": []
+    }
+  ],
+  "clusters": [
+    {
+      "candidate_ids": [
+        "https://tracxn.com/d/companies/n8n/__j5xwuz9c29t7du-yvvv0s99ewc7s69t2ngt5ymhqg0a"
+      ],
+      "cluster_id": "cluster-1",
+      "representative_ids": [
+        "https://tracxn.com/d/companies/n8n/__j5xwuz9c29t7du-yvvv0s99ewc7s69t2ngt5ymhqg0a"
+      ],
+      "score": 0.0,
+      "sources": [
+        "grounding"
+      ],
+      "title": "N8n - 2026 Company Profile, Team, Funding, Competitors & Financials - Tracxn"
+    },
+    {
+      "candidate_ids": [
+        "https://tracxn.com/d/companies/n8n/__j5xwuz9c29t7du-yvvv0s99ewc7s69t2ngt5ymhqg0a/funding-and-investors"
+      ],
+      "cluster_id": "cluster-2",
+      "representative_ids": [
+        "https://tracxn.com/d/companies/n8n/__j5xwuz9c29t7du-yvvv0s99ewc7s69t2ngt5ymhqg0a/funding-and-investors"
+      ],
+      "score": 0.0,
+      "sources": [
+        "grounding"
+      ],
+      "title": "N8n - 2026 Funding Rounds & List of Investors - Tracxn"
+    },
+    {
+      "candidate_ids": [
+        "https://techfundingnews.com/sap-backs-n8n-at-5-2b-valuation-to-automate-complex-data-heavy-enterprise-workflows-with-ai"
+      ],
+      "cluster_id": "cluster-3",
+      "representative_ids": [
+        "https://techfundingnews.com/sap-backs-n8n-at-5-2b-valuation-to-automate-complex-data-heavy-enterprise-workflows-with-ai"
+      ],
+      "score": 0.0,
+      "sources": [
+        "grounding"
+      ],
+      "title": "SAP backs n8n at $5.2B valuation to automate complex, data-heavy enterprise workflows with AI \u2014 TFN"
+    },
+    {
+      "candidate_ids": [
+        "https://tech.eu/2026/05/12/n8n-s-valuation-doubles-to-5-2bn-following-sap-strategic-investment"
+      ],
+      "cluster_id": "cluster-4",
+      "representative_ids": [
+        "https://tech.eu/2026/05/12/n8n-s-valuation-doubles-to-5-2bn-following-sap-strategic-investment"
+      ],
+      "score": 0.0,
+      "sources": [
+        "grounding"
+      ],
+      "title": "N8n's valuation doubles to $5.2BN following SAP strategic investment - Tech.eu"
+    },
+    {
+      "candidate_ids": [
+        "https://bloomberg.com/news/articles/2026-05-12/sap-invests-in-ai-automation-startup-n8n-at-5-2-billion-value"
+      ],
+      "cluster_id": "cluster-5",
+      "representative_ids": [
+        "https://bloomberg.com/news/articles/2026-05-12/sap-invests-in-ai-automation-startup-n8n-at-5-2-billion-value"
+      ],
+      "score": 0.0,
+      "sources": [
+        "grounding"
+      ],
+      "title": "SAP Invests in AI Startup N8n, Doubling Valuation to $5.2 Billion - Bloomberg"
+    }
+  ],
+  "warnings": [
+    "Top evidence is highly concentrated in one source."
+  ],
+  "errors_by_source": {}
+}

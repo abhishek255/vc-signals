@@ -1,0 +1,231 @@
+{
+  "topic": "\"anti-slop\" pricing docs customers careers",
+  "items": [
+    {
+      "source": "grounding",
+      "title": "You Can\u2019t Install Taste. What a trending \u201canti-slop\u201d skill gets\u2026 | by Mark Chen | May, 2026 | Medium",
+      "url": "https://medium.com/@markchen69/you-cant-install-taste-29a829045bba",
+      "snippet": "You Can\u2019t Install Taste What a trending \u201canti-slop\u201d skill gets right about AI writing, and the one thing it can\u2019t give you. The week stop-slop hit the GitHub trending list, I bookmarked it \u2026",
+      "published_at": "2026-05-30",
+      "engagement": {},
+      "container": "medium.com",
+      "author": "",
+      "_raw_fields_present": [
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": []
+    },
+    {
+      "source": "grounding",
+      "title": "Taste Skill: The Anti-Slop Frontend Framework That Makes AI Agents Design Like Pros | PyShine",
+      "url": "https://pyshine.com/Taste-Skill-Anti-Slop-Frontend-Framework-AI-Agents/",
+      "snippet": "It enforces full output with no ... research documents in detail. The stitch-skill provides Google Stitch-compatible rules, including an optional DESIGN.md export format for projects that use Stitch as their design-to-code bridge. On the image generation side, imagegen-frontend-web produces website comps with strong typography, spacing, and anti-slop art ...",
+      "published_at": "2026-05-28",
+      "engagement": {},
+      "container": "pyshine.com",
+      "author": "",
+      "_raw_fields_present": [
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": []
+    },
+    {
+      "source": "grounding",
+      "title": "GitHub - coderjatin/anti-slop-writing: Improve AI text to sound natural, clear, and human-like by reducing stiffness and enhancing specificity for multiple AI writing tools. \u00b7 GitHub",
+      "url": "https://github.com/coderjatin/anti-slop-writing",
+      "snippet": "anti-slop-writing is <strong>a system prompt designed to stop your AI from writing in a predictable, robotic way</strong>. It detects and removes typical AI writing patterns, making the output feel more human.",
+      "published_at": "2026-05-09",
+      "engagement": {},
+      "container": "github.com",
+      "author": "",
+      "_raw_fields_present": [
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": []
+    },
+    {
+      "source": "grounding",
+      "title": "anti-ai-slop - Agent Skill by d-o-hub | SkillsMP",
+      "url": "https://skillsmp.com/skills/d-o-hub-github-template-ai-agents-agents-skills-anti-ai-slop-skill-md",
+      "snippet": "Not all slop is equal: \ud83d\udd34 Structural \u2014 Requires redesign or rewrite. Fundamental problem. \ud83d\udfe1 Surface \u2014 Easy fix. Wrong word, wrong color, wrong font. ... Prioritize. Fix structural first. Don&#x27;t polish a broken foundation. Rewrite/redesign. For each flagged item, provide the specific replacement \u2014 not generic advice. Explain the why. Name the design principle behind each fix. Anti-slop isn&#x27;t just negation.",
+      "published_at": "2026-05-07",
+      "engagement": {},
+      "container": "skillsmp.com",
+      "author": "",
+      "_raw_fields_present": [
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": []
+    },
+    {
+      "source": "grounding",
+      "title": "Anti-Slop Code: Clean AI Coding for Claude Code Skill",
+      "url": "https://mcpmarket.com/tools/skills/anti-slop-code",
+      "snippet": "Anti-Slop Code is a specialized Claude Code skill designed to combat &#x27;AI slop&#x27;\u2014the tendency for LLMs to generate verbose, overly abstract, or redundant code.",
+      "published_at": "2026-05-06",
+      "engagement": {},
+      "container": "mcpmarket.com",
+      "author": "",
+      "_raw_fields_present": [
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": []
+    }
+  ],
+  "clusters": [
+    {
+      "candidate_ids": [
+        "https://medium.com/@markchen69/you-cant-install-taste-29a829045bba"
+      ],
+      "cluster_id": "cluster-1",
+      "representative_ids": [
+        "https://medium.com/@markchen69/you-cant-install-taste-29a829045bba"
+      ],
+      "score": 0.0,
+      "sources": [
+        "grounding"
+      ],
+      "title": "You Can\u2019t Install Taste. What a trending \u201canti-slop\u201d skill gets\u2026 | by Mark Chen | May, 2026 | Medium"
+    },
+    {
+      "candidate_ids": [
+        "https://pyshine.com/taste-skill-anti-slop-frontend-framework-ai-agents"
+      ],
+      "cluster_id": "cluster-2",
+      "representative_ids": [
+        "https://pyshine.com/taste-skill-anti-slop-frontend-framework-ai-agents"
+      ],
+      "score": 0.0,
+      "sources": [
+        "grounding"
+      ],
+      "title": "Taste Skill: The Anti-Slop Frontend Framework That Makes AI Agents Design Like Pros | PyShine"
+    },
+    {
+      "candidate_ids": [
+        "https://github.com/coderjatin/anti-slop-writing"
+      ],
+      "cluster_id": "cluster-3",
+      "representative_ids": [
+        "https://github.com/coderjatin/anti-slop-writing"
+      ],
+      "score": 0.0,
+      "sources": [
+        "grounding"
+      ],
+      "title": "GitHub - coderjatin/anti-slop-writing: Improve AI text to sound natural, clear, and human-like by reducing stiffness and enhancing specificity for multiple AI writing tools. \u00b7 GitHub"
+    },
+    {
+      "candidate_ids": [
+        "https://skillsmp.com/skills/d-o-hub-github-template-ai-agents-agents-skills-anti-ai-slop-skill-md"
+      ],
+      "cluster_id": "cluster-4",
+      "representative_ids": [
+        "https://skillsmp.com/skills/d-o-hub-github-template-ai-agents-agents-skills-anti-ai-slop-skill-md"
+      ],
+      "score": 0.0,
+      "sources": [
+        "grounding"
+      ],
+      "title": "anti-ai-slop - Agent Skill by d-o-hub | SkillsMP"
+    },
+    {
+      "candidate_ids": [
+        "https://mcpmarket.com/tools/skills/anti-slop-code"
+      ],
+      "cluster_id": "cluster-5",
+      "representative_ids": [
+        "https://mcpmarket.com/tools/skills/anti-slop-code"
+      ],
+      "score": 0.0,
+      "sources": [
+        "grounding"
+      ],
+      "title": "Anti-Slop Code: Clean AI Coding for Claude Code Skill"
+    }
+  ],
+  "warnings": [
+    "Top evidence is highly concentrated in one source."
+  ],
+  "errors_by_source": {}
+}

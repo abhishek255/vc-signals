@@ -1,0 +1,1293 @@
+{
+  "summary": {
+    "eligible": 3,
+    "skipped": 27,
+    "page_fetches": 21,
+    "page_cache_hits": 0,
+    "queries_run": 6,
+    "query_cache_hits": 0,
+    "attio_blocked": 20
+  },
+  "items": [
+    {
+      "candidate_key": "affaan-m/agentshield",
+      "name": "affaan-m/agentshield",
+      "domain": "",
+      "eligible": false,
+      "skip_reason": "oss_project_only",
+      "founder_team_evidence": [],
+      "founder_profiles": [
+        {
+          "name": "affaan-m",
+          "github": "https://github.com/affaan-m"
+        }
+      ],
+      "stage_funding_evidence": [],
+      "weak_stage_funding_hints": [],
+      "customer_buyer_evidence": [
+        "https://lablab.ai/ai-hackathons/techex-intelligent-enterprise-solutions-hackathon/agentshield/agentshield-guardian-agent-security-platform",
+        "https://github.com/affaan-m/agentshield"
+      ],
+      "customer_buyer_evidence_types": [],
+      "official_site_pages_checked": [],
+      "official_site_pages_failed": [],
+      "funding_query": "",
+      "funding_query_status": "not_eligible",
+      "customer_query": "",
+      "customer_query_status": "not_eligible",
+      "attio_confidence": "Low",
+      "attio_confidence_basis": [
+        "attio_unknown"
+      ],
+      "owner_readiness_score": 25,
+      "owner_readiness_basis": [
+        "oss_project_not_owner_ready"
+      ],
+      "missing_owner_evidence": [
+        "OSS/project-only row"
+      ],
+      "recommended_owner_action": "Research deeper",
+      "recommended_next_validation_step": "Track OSS/project formation",
+      "evidence_urls": [
+        "https://github.com/affaan-m/agentshield"
+      ]
+    },
+    {
+      "candidate_key": "boostsecurityio/smokedmeat",
+      "name": "boostsecurityio/smokedmeat",
+      "domain": "",
+      "eligible": false,
+      "skip_reason": "oss_project_only",
+      "founder_team_evidence": [],
+      "founder_profiles": [
+        {
+          "name": "boostsecurityio",
+          "github": "https://github.com/boostsecurityio"
+        }
+      ],
+      "stage_funding_evidence": [],
+      "weak_stage_funding_hints": [],
+      "customer_buyer_evidence": [
+        "https://github.com/boostsecurityio/smokedmeat"
+      ],
+      "customer_buyer_evidence_types": [],
+      "official_site_pages_checked": [],
+      "official_site_pages_failed": [],
+      "funding_query": "",
+      "funding_query_status": "not_eligible",
+      "customer_query": "",
+      "customer_query_status": "not_eligible",
+      "attio_confidence": "Low",
+      "attio_confidence_basis": [
+        "attio_unknown"
+      ],
+      "owner_readiness_score": 25,
+      "owner_readiness_basis": [
+        "oss_project_not_owner_ready"
+      ],
+      "missing_owner_evidence": [
+        "OSS/project-only row"
+      ],
+      "recommended_owner_action": "Research deeper",
+      "recommended_next_validation_step": "Track OSS/project formation",
+      "evidence_urls": [
+        "https://github.com/boostsecurityio/smokedmeat"
+      ]
+    },
+    {
+      "candidate_key": "rankistan.dev",
+      "name": "Sudo-Ali-Dev/Rankistan",
+      "domain": "rankistan.dev",
+      "eligible": false,
+      "skip_reason": "oss_project_only",
+      "founder_team_evidence": [],
+      "founder_profiles": [
+        {
+          "name": "Sudo-Ali-Dev",
+          "github": "https://github.com/Sudo-Ali-Dev"
+        }
+      ],
+      "stage_funding_evidence": [],
+      "weak_stage_funding_hints": [],
+      "customer_buyer_evidence": [],
+      "customer_buyer_evidence_types": [],
+      "official_site_pages_checked": [],
+      "official_site_pages_failed": [],
+      "funding_query": "",
+      "funding_query_status": "not_eligible",
+      "customer_query": "",
+      "customer_query_status": "not_eligible",
+      "attio_confidence": "High",
+      "attio_confidence_basis": [
+        "attio_safe_to_match",
+        "attio_status_no_match",
+        "attio_match_keys_present"
+      ],
+      "owner_readiness_score": 25,
+      "owner_readiness_basis": [
+        "oss_project_not_owner_ready"
+      ],
+      "missing_owner_evidence": [
+        "OSS/project-only row"
+      ],
+      "recommended_owner_action": "Research deeper",
+      "recommended_next_validation_step": "Track OSS/project formation",
+      "evidence_urls": [
+        "https://github.com/Sudo-Ali-Dev/Rankistan"
+      ]
+    },
+    {
+      "candidate_key": "agent-ci.dev",
+      "name": "redwoodjs/agent-ci",
+      "domain": "agent-ci.dev",
+      "eligible": false,
+      "skip_reason": "oss_project_only",
+      "founder_team_evidence": [],
+      "founder_profiles": [
+        {
+          "name": "redwoodjs",
+          "github": "https://github.com/redwoodjs"
+        }
+      ],
+      "stage_funding_evidence": [],
+      "weak_stage_funding_hints": [],
+      "customer_buyer_evidence": [],
+      "customer_buyer_evidence_types": [],
+      "official_site_pages_checked": [],
+      "official_site_pages_failed": [],
+      "funding_query": "",
+      "funding_query_status": "not_eligible",
+      "customer_query": "",
+      "customer_query_status": "not_eligible",
+      "attio_confidence": "High",
+      "attio_confidence_basis": [
+        "attio_safe_to_match",
+        "attio_status_no_match",
+        "attio_match_keys_present"
+      ],
+      "owner_readiness_score": 25,
+      "owner_readiness_basis": [
+        "oss_project_not_owner_ready"
+      ],
+      "missing_owner_evidence": [
+        "OSS/project-only row"
+      ],
+      "recommended_owner_action": "Research deeper",
+      "recommended_next_validation_step": "Track OSS/project formation",
+      "evidence_urls": [
+        "https://github.com/redwoodjs/agent-ci"
+      ]
+    },
+    {
+      "candidate_key": "pullfrog.com",
+      "name": "pullfrog/pullfrog",
+      "domain": "pullfrog.com",
+      "eligible": false,
+      "skip_reason": "oss_project_only",
+      "founder_team_evidence": [],
+      "founder_profiles": [
+        {
+          "name": "pullfrog",
+          "github": "https://github.com/pullfrog"
+        }
+      ],
+      "stage_funding_evidence": [],
+      "weak_stage_funding_hints": [],
+      "customer_buyer_evidence": [
+        "https://github.com/pullfrog/pullfrog"
+      ],
+      "customer_buyer_evidence_types": [],
+      "official_site_pages_checked": [],
+      "official_site_pages_failed": [],
+      "funding_query": "",
+      "funding_query_status": "not_eligible",
+      "customer_query": "",
+      "customer_query_status": "not_eligible",
+      "attio_confidence": "High",
+      "attio_confidence_basis": [
+        "attio_safe_to_match",
+        "attio_status_no_match",
+        "attio_match_keys_present"
+      ],
+      "owner_readiness_score": 25,
+      "owner_readiness_basis": [
+        "oss_project_not_owner_ready"
+      ],
+      "missing_owner_evidence": [
+        "OSS/project-only row"
+      ],
+      "recommended_owner_action": "Research deeper",
+      "recommended_next_validation_step": "Track OSS/project formation",
+      "evidence_urls": [
+        "https://github.com/pullfrog/pullfrog"
+      ]
+    },
+    {
+      "candidate_key": "leiting-eric/DailyBrief",
+      "name": "leiting-eric/DailyBrief",
+      "domain": "",
+      "eligible": false,
+      "skip_reason": "oss_project_only",
+      "founder_team_evidence": [],
+      "founder_profiles": [
+        {
+          "name": "leiting-eric",
+          "github": "https://github.com/leiting-eric"
+        }
+      ],
+      "stage_funding_evidence": [],
+      "weak_stage_funding_hints": [],
+      "customer_buyer_evidence": [],
+      "customer_buyer_evidence_types": [],
+      "official_site_pages_checked": [],
+      "official_site_pages_failed": [],
+      "funding_query": "",
+      "funding_query_status": "not_eligible",
+      "customer_query": "",
+      "customer_query_status": "not_eligible",
+      "attio_confidence": "Low",
+      "attio_confidence_basis": [
+        "attio_unknown"
+      ],
+      "owner_readiness_score": 25,
+      "owner_readiness_basis": [
+        "oss_project_not_owner_ready"
+      ],
+      "missing_owner_evidence": [
+        "OSS/project-only row"
+      ],
+      "recommended_owner_action": "Research deeper",
+      "recommended_next_validation_step": "Track OSS/project formation",
+      "evidence_urls": [
+        "https://github.com/leiting-eric/DailyBrief"
+      ]
+    },
+    {
+      "candidate_key": "azat-io/actions-up",
+      "name": "azat-io/actions-up",
+      "domain": "",
+      "eligible": false,
+      "skip_reason": "oss_project_only",
+      "founder_team_evidence": [],
+      "founder_profiles": [
+        {
+          "name": "azat-io",
+          "github": "https://github.com/azat-io"
+        }
+      ],
+      "stage_funding_evidence": [],
+      "weak_stage_funding_hints": [],
+      "customer_buyer_evidence": [],
+      "customer_buyer_evidence_types": [],
+      "official_site_pages_checked": [],
+      "official_site_pages_failed": [],
+      "funding_query": "",
+      "funding_query_status": "not_eligible",
+      "customer_query": "",
+      "customer_query_status": "not_eligible",
+      "attio_confidence": "Low",
+      "attio_confidence_basis": [
+        "attio_unknown"
+      ],
+      "owner_readiness_score": 25,
+      "owner_readiness_basis": [
+        "oss_project_not_owner_ready"
+      ],
+      "missing_owner_evidence": [
+        "OSS/project-only row"
+      ],
+      "recommended_owner_action": "Research deeper",
+      "recommended_next_validation_step": "Track OSS/project formation",
+      "evidence_urls": [
+        "https://github.com/azat-io/actions-up"
+      ]
+    },
+    {
+      "candidate_key": "peakoss/anti-slop",
+      "name": "peakoss/anti-slop",
+      "domain": "",
+      "eligible": false,
+      "skip_reason": "oss_project_only",
+      "founder_team_evidence": [],
+      "founder_profiles": [
+        {
+          "name": "peakoss",
+          "github": "https://github.com/peakoss"
+        }
+      ],
+      "stage_funding_evidence": [],
+      "weak_stage_funding_hints": [],
+      "customer_buyer_evidence": [],
+      "customer_buyer_evidence_types": [],
+      "official_site_pages_checked": [],
+      "official_site_pages_failed": [],
+      "funding_query": "",
+      "funding_query_status": "not_eligible",
+      "customer_query": "",
+      "customer_query_status": "not_eligible",
+      "attio_confidence": "Low",
+      "attio_confidence_basis": [
+        "attio_unknown"
+      ],
+      "owner_readiness_score": 25,
+      "owner_readiness_basis": [
+        "oss_project_not_owner_ready"
+      ],
+      "missing_owner_evidence": [
+        "OSS/project-only row"
+      ],
+      "recommended_owner_action": "Research deeper",
+      "recommended_next_validation_step": "Track OSS/project formation",
+      "evidence_urls": [
+        "https://github.com/peakoss/anti-slop"
+      ]
+    },
+    {
+      "candidate_key": "slowql/slowql",
+      "name": "slowql/slowql",
+      "domain": "",
+      "eligible": false,
+      "skip_reason": "oss_project_only",
+      "founder_team_evidence": [],
+      "founder_profiles": [
+        {
+          "name": "slowql",
+          "github": "https://github.com/slowql"
+        }
+      ],
+      "stage_funding_evidence": [],
+      "weak_stage_funding_hints": [],
+      "customer_buyer_evidence": [],
+      "customer_buyer_evidence_types": [],
+      "official_site_pages_checked": [],
+      "official_site_pages_failed": [],
+      "funding_query": "",
+      "funding_query_status": "not_eligible",
+      "customer_query": "",
+      "customer_query_status": "not_eligible",
+      "attio_confidence": "Low",
+      "attio_confidence_basis": [
+        "attio_unknown"
+      ],
+      "owner_readiness_score": 25,
+      "owner_readiness_basis": [
+        "oss_project_not_owner_ready"
+      ],
+      "missing_owner_evidence": [
+        "OSS/project-only row"
+      ],
+      "recommended_owner_action": "Research deeper",
+      "recommended_next_validation_step": "Track OSS/project formation",
+      "evidence_urls": [
+        "https://github.com/slowql/slowql"
+      ]
+    },
+    {
+      "candidate_key": "BANANASJIM/rdc-cli",
+      "name": "BANANASJIM/rdc-cli",
+      "domain": "",
+      "eligible": false,
+      "skip_reason": "oss_project_only",
+      "founder_team_evidence": [],
+      "founder_profiles": [
+        {
+          "name": "BANANASJIM",
+          "github": "https://github.com/BANANASJIM"
+        }
+      ],
+      "stage_funding_evidence": [],
+      "weak_stage_funding_hints": [],
+      "customer_buyer_evidence": [],
+      "customer_buyer_evidence_types": [],
+      "official_site_pages_checked": [],
+      "official_site_pages_failed": [],
+      "funding_query": "",
+      "funding_query_status": "not_eligible",
+      "customer_query": "",
+      "customer_query_status": "not_eligible",
+      "attio_confidence": "Low",
+      "attio_confidence_basis": [
+        "attio_unknown"
+      ],
+      "owner_readiness_score": 25,
+      "owner_readiness_basis": [
+        "oss_project_not_owner_ready"
+      ],
+      "missing_owner_evidence": [
+        "OSS/project-only row"
+      ],
+      "recommended_owner_action": "Research deeper",
+      "recommended_next_validation_step": "Track OSS/project formation",
+      "evidence_urls": [
+        "https://github.com/BANANASJIM/rdc-cli"
+      ]
+    },
+    {
+      "candidate_key": "spaceraccoon/vulnerability-spoiler-alert-action",
+      "name": "spaceraccoon/vulnerability-spoiler-alert-action",
+      "domain": "",
+      "eligible": false,
+      "skip_reason": "oss_project_only",
+      "founder_team_evidence": [],
+      "founder_profiles": [
+        {
+          "name": "spaceraccoon",
+          "github": "https://github.com/spaceraccoon"
+        }
+      ],
+      "stage_funding_evidence": [],
+      "weak_stage_funding_hints": [],
+      "customer_buyer_evidence": [],
+      "customer_buyer_evidence_types": [],
+      "official_site_pages_checked": [],
+      "official_site_pages_failed": [],
+      "funding_query": "",
+      "funding_query_status": "not_eligible",
+      "customer_query": "",
+      "customer_query_status": "not_eligible",
+      "attio_confidence": "Low",
+      "attio_confidence_basis": [
+        "attio_unknown"
+      ],
+      "owner_readiness_score": 25,
+      "owner_readiness_basis": [
+        "oss_project_not_owner_ready"
+      ],
+      "missing_owner_evidence": [
+        "OSS/project-only row"
+      ],
+      "recommended_owner_action": "Research deeper",
+      "recommended_next_validation_step": "Track OSS/project formation",
+      "evidence_urls": [
+        "https://github.com/spaceraccoon/vulnerability-spoiler-alert-action"
+      ]
+    },
+    {
+      "candidate_key": "goldbridgebanking.com",
+      "name": "Goldbridge",
+      "domain": "goldbridgebanking.com",
+      "eligible": true,
+      "skip_reason": "",
+      "founder_team_evidence": [],
+      "founder_profiles": [
+        {
+          "name": "Alvin Salehi",
+          "linkedin": "https://linkedin.com/in/alvandsalehi",
+          "x": "https://x.com/alvinsalehi_"
+        },
+        {
+          "name": "Greg Rami",
+          "linkedin": "https://linkedin.com/in/gregrami",
+          "x": ""
+        }
+      ],
+      "stage_funding_evidence": [],
+      "weak_stage_funding_hints": [],
+      "customer_buyer_evidence": [],
+      "customer_buyer_evidence_types": [],
+      "official_site_pages_checked": [],
+      "official_site_pages_failed": [
+        "https://goldbridgebanking.com",
+        "https://goldbridgebanking.com/about",
+        "https://goldbridgebanking.com/team",
+        "https://goldbridgebanking.com/blog",
+        "https://goldbridgebanking.com/customers",
+        "https://goldbridgebanking.com/pricing",
+        "https://goldbridgebanking.com/contact"
+      ],
+      "funding_query": "\"Goldbridge\" \"goldbridgebanking.com\" funding seed series A series B",
+      "funding_query_status": "queried",
+      "customer_query": "\"Goldbridge\" \"goldbridgebanking.com\" customers users case study enterprise",
+      "customer_query_status": "queried",
+      "attio_confidence": "High",
+      "attio_confidence_basis": [
+        "attio_safe_to_match",
+        "attio_status_no_owner",
+        "attio_match_keys_present"
+      ],
+      "owner_readiness_score": 100,
+      "owner_readiness_basis": [
+        "verified_company_identity",
+        "founder_team_evidence",
+        "stage_funding_evidence",
+        "customer_buyer_pull_evidence",
+        "commercial_or_funding_evidence",
+        "attio_new_or_no_match"
+      ],
+      "missing_owner_evidence": [],
+      "recommended_owner_action": "Assign owner",
+      "recommended_next_validation_step": "Ready for owner assignment",
+      "evidence_urls": [
+        "https://www.ycombinator.com/companies/goldbridge"
+      ]
+    },
+    {
+      "candidate_key": "SKYLENAGE-AI/SWE-CI",
+      "name": "SKYLENAGE-AI/SWE-CI",
+      "domain": "",
+      "eligible": false,
+      "skip_reason": "oss_project_only",
+      "founder_team_evidence": [],
+      "founder_profiles": [
+        {
+          "name": "SKYLENAGE-AI",
+          "github": "https://github.com/SKYLENAGE-AI"
+        }
+      ],
+      "stage_funding_evidence": [],
+      "weak_stage_funding_hints": [],
+      "customer_buyer_evidence": [],
+      "customer_buyer_evidence_types": [],
+      "official_site_pages_checked": [],
+      "official_site_pages_failed": [],
+      "funding_query": "",
+      "funding_query_status": "not_eligible",
+      "customer_query": "",
+      "customer_query_status": "not_eligible",
+      "attio_confidence": "Low",
+      "attio_confidence_basis": [
+        "attio_unknown"
+      ],
+      "owner_readiness_score": 25,
+      "owner_readiness_basis": [
+        "oss_project_not_owner_ready"
+      ],
+      "missing_owner_evidence": [
+        "OSS/project-only row"
+      ],
+      "recommended_owner_action": "Research deeper",
+      "recommended_next_validation_step": "Track OSS/project formation",
+      "evidence_urls": [
+        "https://github.com/SKYLENAGE-AI/SWE-CI"
+      ]
+    },
+    {
+      "candidate_key": "gensecaihq/Shai-Hulud-2.0-Detector",
+      "name": "gensecaihq/Shai-Hulud-2.0-Detector",
+      "domain": "",
+      "eligible": false,
+      "skip_reason": "oss_project_only",
+      "founder_team_evidence": [],
+      "founder_profiles": [
+        {
+          "name": "gensecaihq",
+          "github": "https://github.com/gensecaihq"
+        }
+      ],
+      "stage_funding_evidence": [],
+      "weak_stage_funding_hints": [],
+      "customer_buyer_evidence": [],
+      "customer_buyer_evidence_types": [],
+      "official_site_pages_checked": [],
+      "official_site_pages_failed": [],
+      "funding_query": "",
+      "funding_query_status": "not_eligible",
+      "customer_query": "",
+      "customer_query_status": "not_eligible",
+      "attio_confidence": "Low",
+      "attio_confidence_basis": [
+        "attio_unknown"
+      ],
+      "owner_readiness_score": 25,
+      "owner_readiness_basis": [
+        "oss_project_not_owner_ready"
+      ],
+      "missing_owner_evidence": [
+        "OSS/project-only row"
+      ],
+      "recommended_owner_action": "Research deeper",
+      "recommended_next_validation_step": "Track OSS/project formation",
+      "evidence_urls": [
+        "https://github.com/gensecaihq/Shai-Hulud-2.0-Detector"
+      ]
+    },
+    {
+      "candidate_key": "inview-club/devops-cases",
+      "name": "inview-club/devops-cases",
+      "domain": "",
+      "eligible": false,
+      "skip_reason": "oss_project_only",
+      "founder_team_evidence": [],
+      "founder_profiles": [
+        {
+          "name": "inview-club",
+          "github": "https://github.com/inview-club"
+        }
+      ],
+      "stage_funding_evidence": [],
+      "weak_stage_funding_hints": [],
+      "customer_buyer_evidence": [],
+      "customer_buyer_evidence_types": [],
+      "official_site_pages_checked": [],
+      "official_site_pages_failed": [],
+      "funding_query": "",
+      "funding_query_status": "not_eligible",
+      "customer_query": "",
+      "customer_query_status": "not_eligible",
+      "attio_confidence": "Low",
+      "attio_confidence_basis": [
+        "attio_unknown"
+      ],
+      "owner_readiness_score": 25,
+      "owner_readiness_basis": [
+        "oss_project_not_owner_ready"
+      ],
+      "missing_owner_evidence": [
+        "OSS/project-only row"
+      ],
+      "recommended_owner_action": "Research deeper",
+      "recommended_next_validation_step": "Track OSS/project formation",
+      "evidence_urls": [
+        "https://github.com/inview-club/devops-cases"
+      ]
+    },
+    {
+      "candidate_key": "databox.com",
+      "name": "Databox MCP",
+      "domain": "databox.com",
+      "eligible": false,
+      "skip_reason": "not_verified_company",
+      "founder_team_evidence": [],
+      "founder_profiles": [],
+      "stage_funding_evidence": [],
+      "weak_stage_funding_hints": [],
+      "customer_buyer_evidence": [
+        "https://databox.com/",
+        "https://databox.com/ai"
+      ],
+      "customer_buyer_evidence_types": [],
+      "official_site_pages_checked": [],
+      "official_site_pages_failed": [],
+      "funding_query": "",
+      "funding_query_status": "not_eligible",
+      "customer_query": "",
+      "customer_query_status": "not_eligible",
+      "attio_confidence": "High",
+      "attio_confidence_basis": [
+        "attio_safe_to_match",
+        "attio_status_no_match",
+        "attio_match_keys_present"
+      ],
+      "owner_readiness_score": 35,
+      "owner_readiness_basis": [
+        "customer_buyer_pull_evidence",
+        "attio_new_or_no_match"
+      ],
+      "missing_owner_evidence": [
+        "no verified Attio-safe company identity",
+        "no founder/team evidence",
+        "no stage/funding evidence",
+        "no commercial/funding evidence"
+      ],
+      "recommended_owner_action": "Research deeper",
+      "recommended_next_validation_step": "Find founder/team source",
+      "evidence_urls": [
+        "https://www.producthunt.com/products/databox?utm_campaign=producthunt-api&utm_medium=api-v2&utm_source=Application%3A+VC+Signals+%28ID%3A+286430%29",
+        "https://databox.com/ai"
+      ]
+    },
+    {
+      "candidate_key": "simplex.sh",
+      "name": "Simplex",
+      "domain": "simplex.sh",
+      "eligible": true,
+      "skip_reason": "",
+      "founder_team_evidence": [],
+      "founder_profiles": [
+        {
+          "name": "Shreya Karpoor",
+          "linkedin": "https://linkedin.com/in/shreya-karpoor",
+          "x": ""
+        },
+        {
+          "name": "Marco Nocito",
+          "linkedin": "https://linkedin.com/in/marco-nocito/",
+          "x": ""
+        }
+      ],
+      "stage_funding_evidence": [],
+      "weak_stage_funding_hints": [],
+      "customer_buyer_evidence": [],
+      "customer_buyer_evidence_types": [],
+      "official_site_pages_checked": [],
+      "official_site_pages_failed": [
+        "https://simplex.sh",
+        "https://simplex.sh/about",
+        "https://simplex.sh/team",
+        "https://simplex.sh/blog",
+        "https://simplex.sh/customers",
+        "https://simplex.sh/pricing",
+        "https://simplex.sh/contact"
+      ],
+      "funding_query": "\"Simplex\" \"simplex.sh\" funding seed series A series B",
+      "funding_query_status": "queried",
+      "customer_query": "\"Simplex\" \"simplex.sh\" customers users case study enterprise",
+      "customer_query_status": "queried",
+      "attio_confidence": "High",
+      "attio_confidence_basis": [
+        "attio_safe_to_match",
+        "attio_status_no_match",
+        "attio_match_keys_present"
+      ],
+      "owner_readiness_score": 100,
+      "owner_readiness_basis": [
+        "verified_company_identity",
+        "founder_team_evidence",
+        "stage_funding_evidence",
+        "customer_buyer_pull_evidence",
+        "commercial_or_funding_evidence",
+        "attio_new_or_no_match"
+      ],
+      "missing_owner_evidence": [],
+      "recommended_owner_action": "Research deeper",
+      "recommended_next_validation_step": "Ready for owner assignment",
+      "evidence_urls": [
+        "https://www.ycombinator.com/companies/simplex"
+      ]
+    },
+    {
+      "candidate_key": "mirurobotics.com",
+      "name": "Miru",
+      "domain": "mirurobotics.com",
+      "eligible": true,
+      "skip_reason": "",
+      "founder_team_evidence": [],
+      "founder_profiles": [
+        {
+          "name": "Armel Talla",
+          "linkedin": "https://linkedin.com/in/armeltalla",
+          "x": "https://twitter.com/armelwtalla"
+        },
+        {
+          "name": "Vedant Nair",
+          "linkedin": "https://linkedin.com/in/vedantnair",
+          "x": "https://x.com/vedantnair__"
+        },
+        {
+          "name": "Benjamin Smidt",
+          "linkedin": "https://linkedin.com/in/benjamin-smidt",
+          "x": ""
+        }
+      ],
+      "stage_funding_evidence": [],
+      "weak_stage_funding_hints": [],
+      "customer_buyer_evidence": [],
+      "customer_buyer_evidence_types": [],
+      "official_site_pages_checked": [
+        "https://mirurobotics.com",
+        "https://mirurobotics.com/about",
+        "https://mirurobotics.com/team",
+        "https://mirurobotics.com/blog",
+        "https://mirurobotics.com/customers",
+        "https://mirurobotics.com/pricing",
+        "https://mirurobotics.com/contact"
+      ],
+      "official_site_pages_failed": [],
+      "funding_query": "\"Miru\" \"mirurobotics.com\" funding seed series A series B",
+      "funding_query_status": "queried",
+      "customer_query": "\"Miru\" \"mirurobotics.com\" customers users case study enterprise",
+      "customer_query_status": "queried",
+      "attio_confidence": "High",
+      "attio_confidence_basis": [
+        "attio_safe_to_match",
+        "attio_status_no_match",
+        "attio_match_keys_present"
+      ],
+      "owner_readiness_score": 100,
+      "owner_readiness_basis": [
+        "verified_company_identity",
+        "founder_team_evidence",
+        "stage_funding_evidence",
+        "customer_buyer_pull_evidence",
+        "commercial_or_funding_evidence",
+        "attio_new_or_no_match"
+      ],
+      "missing_owner_evidence": [],
+      "recommended_owner_action": "Research deeper",
+      "recommended_next_validation_step": "Ready for owner assignment",
+      "evidence_urls": [
+        "https://www.ycombinator.com/companies/miru-ml"
+      ]
+    },
+    {
+      "candidate_key": "arize.com",
+      "name": "LLM Observability & Evaluation Platform",
+      "domain": "arize.com",
+      "eligible": false,
+      "skip_reason": "category_context_or_monitor_only",
+      "founder_team_evidence": [],
+      "founder_profiles": [],
+      "stage_funding_evidence": [],
+      "weak_stage_funding_hints": [],
+      "customer_buyer_evidence": [],
+      "customer_buyer_evidence_types": [],
+      "official_site_pages_checked": [],
+      "official_site_pages_failed": [],
+      "funding_query": "",
+      "funding_query_status": "not_eligible",
+      "customer_query": "",
+      "customer_query_status": "not_eligible",
+      "attio_confidence": "High",
+      "attio_confidence_basis": [
+        "attio_safe_to_match",
+        "attio_status_no_owner",
+        "attio_match_keys_present"
+      ],
+      "owner_readiness_score": 20,
+      "owner_readiness_basis": [],
+      "missing_owner_evidence": [
+        "category context / mature incumbent"
+      ],
+      "recommended_owner_action": "Monitor only",
+      "recommended_next_validation_step": "category context / mature incumbent",
+      "evidence_urls": [
+        "https://arize.com/"
+      ]
+    },
+    {
+      "candidate_key": "dlvhdr/gh-enhance",
+      "name": "dlvhdr/gh-enhance",
+      "domain": "",
+      "eligible": false,
+      "skip_reason": "oss_project_only",
+      "founder_team_evidence": [],
+      "founder_profiles": [
+        {
+          "name": "dlvhdr",
+          "github": "https://github.com/dlvhdr"
+        }
+      ],
+      "stage_funding_evidence": [],
+      "weak_stage_funding_hints": [],
+      "customer_buyer_evidence": [],
+      "customer_buyer_evidence_types": [],
+      "official_site_pages_checked": [],
+      "official_site_pages_failed": [],
+      "funding_query": "",
+      "funding_query_status": "not_eligible",
+      "customer_query": "",
+      "customer_query_status": "not_eligible",
+      "attio_confidence": "Low",
+      "attio_confidence_basis": [
+        "attio_unknown"
+      ],
+      "owner_readiness_score": 25,
+      "owner_readiness_basis": [
+        "oss_project_not_owner_ready"
+      ],
+      "missing_owner_evidence": [
+        "OSS/project-only row"
+      ],
+      "recommended_owner_action": "Research deeper",
+      "recommended_next_validation_step": "Track OSS/project formation",
+      "evidence_urls": [
+        "https://github.com/dlvhdr/gh-enhance"
+      ]
+    },
+    {
+      "candidate_key": "mizchi/actrun",
+      "name": "mizchi/actrun",
+      "domain": "",
+      "eligible": false,
+      "skip_reason": "oss_project_only",
+      "founder_team_evidence": [],
+      "founder_profiles": [
+        {
+          "name": "mizchi",
+          "github": "https://github.com/mizchi"
+        }
+      ],
+      "stage_funding_evidence": [],
+      "weak_stage_funding_hints": [],
+      "customer_buyer_evidence": [],
+      "customer_buyer_evidence_types": [],
+      "official_site_pages_checked": [],
+      "official_site_pages_failed": [],
+      "funding_query": "",
+      "funding_query_status": "not_eligible",
+      "customer_query": "",
+      "customer_query_status": "not_eligible",
+      "attio_confidence": "Low",
+      "attio_confidence_basis": [
+        "attio_unknown"
+      ],
+      "owner_readiness_score": 25,
+      "owner_readiness_basis": [
+        "oss_project_not_owner_ready"
+      ],
+      "missing_owner_evidence": [
+        "OSS/project-only row"
+      ],
+      "recommended_owner_action": "Research deeper",
+      "recommended_next_validation_step": "Track OSS/project formation",
+      "evidence_urls": [
+        "https://github.com/mizchi/actrun"
+      ]
+    },
+    {
+      "candidate_key": "dsherret/gagen",
+      "name": "dsherret/gagen",
+      "domain": "",
+      "eligible": false,
+      "skip_reason": "oss_project_only",
+      "founder_team_evidence": [],
+      "founder_profiles": [
+        {
+          "name": "dsherret",
+          "github": "https://github.com/dsherret"
+        }
+      ],
+      "stage_funding_evidence": [],
+      "weak_stage_funding_hints": [],
+      "customer_buyer_evidence": [],
+      "customer_buyer_evidence_types": [],
+      "official_site_pages_checked": [],
+      "official_site_pages_failed": [],
+      "funding_query": "",
+      "funding_query_status": "not_eligible",
+      "customer_query": "",
+      "customer_query_status": "not_eligible",
+      "attio_confidence": "Low",
+      "attio_confidence_basis": [
+        "attio_unknown"
+      ],
+      "owner_readiness_score": 25,
+      "owner_readiness_basis": [
+        "oss_project_not_owner_ready"
+      ],
+      "missing_owner_evidence": [
+        "OSS/project-only row"
+      ],
+      "recommended_owner_action": "Research deeper",
+      "recommended_next_validation_step": "Track OSS/project formation",
+      "evidence_urls": [
+        "https://github.com/dsherret/gagen"
+      ]
+    },
+    {
+      "candidate_key": "kuberik.com",
+      "name": "kuberik/kuberik",
+      "domain": "kuberik.com",
+      "eligible": false,
+      "skip_reason": "oss_project_only",
+      "founder_team_evidence": [],
+      "founder_profiles": [
+        {
+          "name": "kuberik",
+          "github": "https://github.com/kuberik"
+        }
+      ],
+      "stage_funding_evidence": [],
+      "weak_stage_funding_hints": [],
+      "customer_buyer_evidence": [],
+      "customer_buyer_evidence_types": [],
+      "official_site_pages_checked": [],
+      "official_site_pages_failed": [],
+      "funding_query": "",
+      "funding_query_status": "not_eligible",
+      "customer_query": "",
+      "customer_query_status": "not_eligible",
+      "attio_confidence": "High",
+      "attio_confidence_basis": [
+        "attio_safe_to_match",
+        "attio_status_no_match",
+        "attio_match_keys_present"
+      ],
+      "owner_readiness_score": 25,
+      "owner_readiness_basis": [
+        "oss_project_not_owner_ready"
+      ],
+      "missing_owner_evidence": [
+        "OSS/project-only row"
+      ],
+      "recommended_owner_action": "Research deeper",
+      "recommended_next_validation_step": "Track OSS/project formation",
+      "evidence_urls": [
+        "https://github.com/kuberik/kuberik"
+      ]
+    },
+    {
+      "candidate_key": "ritwiktiwari/copier-astral",
+      "name": "ritwiktiwari/copier-astral",
+      "domain": "",
+      "eligible": false,
+      "skip_reason": "oss_project_only",
+      "founder_team_evidence": [],
+      "founder_profiles": [
+        {
+          "name": "ritwiktiwari",
+          "github": "https://github.com/ritwiktiwari"
+        }
+      ],
+      "stage_funding_evidence": [],
+      "weak_stage_funding_hints": [],
+      "customer_buyer_evidence": [],
+      "customer_buyer_evidence_types": [],
+      "official_site_pages_checked": [],
+      "official_site_pages_failed": [],
+      "funding_query": "",
+      "funding_query_status": "not_eligible",
+      "customer_query": "",
+      "customer_query_status": "not_eligible",
+      "attio_confidence": "Low",
+      "attio_confidence_basis": [
+        "attio_unknown"
+      ],
+      "owner_readiness_score": 25,
+      "owner_readiness_basis": [
+        "oss_project_not_owner_ready"
+      ],
+      "missing_owner_evidence": [
+        "OSS/project-only row"
+      ],
+      "recommended_owner_action": "Research deeper",
+      "recommended_next_validation_step": "Track OSS/project formation",
+      "evidence_urls": [
+        "https://github.com/ritwiktiwari/copier-astral"
+      ]
+    },
+    {
+      "candidate_key": "Ronchy2000/epic-freebies-helper",
+      "name": "Ronchy2000/epic-freebies-helper",
+      "domain": "",
+      "eligible": false,
+      "skip_reason": "oss_project_only",
+      "founder_team_evidence": [],
+      "founder_profiles": [
+        {
+          "name": "Ronchy2000",
+          "github": "https://github.com/Ronchy2000"
+        }
+      ],
+      "stage_funding_evidence": [],
+      "weak_stage_funding_hints": [],
+      "customer_buyer_evidence": [],
+      "customer_buyer_evidence_types": [],
+      "official_site_pages_checked": [],
+      "official_site_pages_failed": [],
+      "funding_query": "",
+      "funding_query_status": "not_eligible",
+      "customer_query": "",
+      "customer_query_status": "not_eligible",
+      "attio_confidence": "Low",
+      "attio_confidence_basis": [
+        "attio_unknown"
+      ],
+      "owner_readiness_score": 25,
+      "owner_readiness_basis": [
+        "oss_project_not_owner_ready"
+      ],
+      "missing_owner_evidence": [
+        "OSS/project-only row"
+      ],
+      "recommended_owner_action": "Research deeper",
+      "recommended_next_validation_step": "Track OSS/project formation",
+      "evidence_urls": [
+        "https://github.com/Ronchy2000/epic-freebies-helper"
+      ]
+    },
+    {
+      "candidate_key": "actions/scaleset",
+      "name": "actions/scaleset",
+      "domain": "",
+      "eligible": false,
+      "skip_reason": "oss_project_only",
+      "founder_team_evidence": [],
+      "founder_profiles": [
+        {
+          "name": "actions",
+          "github": "https://github.com/actions"
+        }
+      ],
+      "stage_funding_evidence": [],
+      "weak_stage_funding_hints": [],
+      "customer_buyer_evidence": [],
+      "customer_buyer_evidence_types": [],
+      "official_site_pages_checked": [],
+      "official_site_pages_failed": [],
+      "funding_query": "",
+      "funding_query_status": "not_eligible",
+      "customer_query": "",
+      "customer_query_status": "not_eligible",
+      "attio_confidence": "Low",
+      "attio_confidence_basis": [
+        "attio_unknown"
+      ],
+      "owner_readiness_score": 25,
+      "owner_readiness_basis": [
+        "oss_project_not_owner_ready"
+      ],
+      "missing_owner_evidence": [
+        "OSS/project-only row"
+      ],
+      "recommended_owner_action": "Research deeper",
+      "recommended_next_validation_step": "Track OSS/project formation",
+      "evidence_urls": [
+        "https://github.com/actions/scaleset"
+      ]
+    },
+    {
+      "candidate_key": "eac.int",
+      "name": "ready-to-release/eac",
+      "domain": "eac.int",
+      "eligible": false,
+      "skip_reason": "oss_project_only",
+      "founder_team_evidence": [],
+      "founder_profiles": [
+        {
+          "name": "ready-to-release",
+          "github": "https://github.com/ready-to-release"
+        }
+      ],
+      "stage_funding_evidence": [],
+      "weak_stage_funding_hints": [],
+      "customer_buyer_evidence": [],
+      "customer_buyer_evidence_types": [],
+      "official_site_pages_checked": [],
+      "official_site_pages_failed": [],
+      "funding_query": "",
+      "funding_query_status": "not_eligible",
+      "customer_query": "",
+      "customer_query_status": "not_eligible",
+      "attio_confidence": "High",
+      "attio_confidence_basis": [
+        "attio_safe_to_match",
+        "attio_status_no_match",
+        "attio_match_keys_present"
+      ],
+      "owner_readiness_score": 25,
+      "owner_readiness_basis": [
+        "oss_project_not_owner_ready"
+      ],
+      "missing_owner_evidence": [
+        "OSS/project-only row"
+      ],
+      "recommended_owner_action": "Research deeper",
+      "recommended_next_validation_step": "Track OSS/project formation",
+      "evidence_urls": [
+        "https://github.com/ready-to-release/eac",
+        "https://www.eac.int/?view=category&id=169"
+      ]
+    },
+    {
+      "candidate_key": "SawyerHood/gitclaw",
+      "name": "SawyerHood/gitclaw",
+      "domain": "",
+      "eligible": false,
+      "skip_reason": "oss_project_only",
+      "founder_team_evidence": [],
+      "founder_profiles": [
+        {
+          "name": "SawyerHood",
+          "github": "https://github.com/SawyerHood"
+        }
+      ],
+      "stage_funding_evidence": [],
+      "weak_stage_funding_hints": [],
+      "customer_buyer_evidence": [],
+      "customer_buyer_evidence_types": [],
+      "official_site_pages_checked": [],
+      "official_site_pages_failed": [],
+      "funding_query": "",
+      "funding_query_status": "not_eligible",
+      "customer_query": "",
+      "customer_query_status": "not_eligible",
+      "attio_confidence": "Low",
+      "attio_confidence_basis": [
+        "attio_unknown"
+      ],
+      "owner_readiness_score": 25,
+      "owner_readiness_basis": [
+        "oss_project_not_owner_ready"
+      ],
+      "missing_owner_evidence": [
+        "OSS/project-only row"
+      ],
+      "recommended_owner_action": "Research deeper",
+      "recommended_next_validation_step": "Track OSS/project formation",
+      "evidence_urls": [
+        "https://github.com/SawyerHood/gitclaw"
+      ]
+    },
+    {
+      "candidate_key": "tuist/magnolia",
+      "name": "tuist/magnolia",
+      "domain": "",
+      "eligible": false,
+      "skip_reason": "oss_project_only",
+      "founder_team_evidence": [],
+      "founder_profiles": [
+        {
+          "name": "tuist",
+          "github": "https://github.com/tuist"
+        }
+      ],
+      "stage_funding_evidence": [],
+      "weak_stage_funding_hints": [],
+      "customer_buyer_evidence": [],
+      "customer_buyer_evidence_types": [],
+      "official_site_pages_checked": [],
+      "official_site_pages_failed": [],
+      "funding_query": "",
+      "funding_query_status": "not_eligible",
+      "customer_query": "",
+      "customer_query_status": "not_eligible",
+      "attio_confidence": "Low",
+      "attio_confidence_basis": [
+        "attio_unknown"
+      ],
+      "owner_readiness_score": 25,
+      "owner_readiness_basis": [
+        "oss_project_not_owner_ready"
+      ],
+      "missing_owner_evidence": [
+        "OSS/project-only row"
+      ],
+      "recommended_owner_action": "Research deeper",
+      "recommended_next_validation_step": "Track OSS/project formation",
+      "evidence_urls": [
+        "https://github.com/tuist/magnolia"
+      ]
+    },
+    {
+      "candidate_key": "hashgraph-online/skill-publish",
+      "name": "hashgraph-online/skill-publish",
+      "domain": "",
+      "eligible": false,
+      "skip_reason": "oss_project_only",
+      "founder_team_evidence": [],
+      "founder_profiles": [
+        {
+          "name": "hashgraph-online",
+          "github": "https://github.com/hashgraph-online"
+        }
+      ],
+      "stage_funding_evidence": [],
+      "weak_stage_funding_hints": [],
+      "customer_buyer_evidence": [],
+      "customer_buyer_evidence_types": [],
+      "official_site_pages_checked": [],
+      "official_site_pages_failed": [],
+      "funding_query": "",
+      "funding_query_status": "not_eligible",
+      "customer_query": "",
+      "customer_query_status": "not_eligible",
+      "attio_confidence": "Low",
+      "attio_confidence_basis": [
+        "attio_unknown"
+      ],
+      "owner_readiness_score": 25,
+      "owner_readiness_basis": [
+        "oss_project_not_owner_ready"
+      ],
+      "missing_owner_evidence": [
+        "OSS/project-only row"
+      ],
+      "recommended_owner_action": "Research deeper",
+      "recommended_next_validation_step": "Track OSS/project formation",
+      "evidence_urls": [
+        "https://github.com/hashgraph-online/skill-publish"
+      ]
+    }
+  ]
+}

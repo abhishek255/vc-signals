@@ -1,0 +1,15 @@
+[
+  {
+    "market_sector": "Cybersecurity",
+    "theme": "AI agent security",
+    "source_lanes": [
+      "Reddit"
+    ],
+    "evidence_count": 4,
+    "evidence_summary": "GitHub bans vindictive security researcher dropping Windows zero-days: \u201cI will make sure your bones are shattered\u201d; Linus Torvalds says AI-powered bug hunters have made Linux security mailing list \u2018almost entirely unmanageable\u2019; Vibe Coding Security",
+    "why_it_matters": "Repeated non-company signal suggests buyer/operator pain around AI agent security.",
+    "why_no_company_yet": "No verified company/domain/founder evidence appeared in this run.",
+    "suggested_search": "AI agent security startups Seed Series A founder launch",
+    "confidence": "Medium"
+  }
+]

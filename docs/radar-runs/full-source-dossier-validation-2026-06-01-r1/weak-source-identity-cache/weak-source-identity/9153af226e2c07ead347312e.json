@@ -1,0 +1,55 @@
+{
+  "topic": "\"scaleset\" pricing docs customers careers",
+  "items": [
+    {
+      "source": "grounding",
+      "title": "Overview of autoscale with Azure Virtual Machine Scale Sets - Azure Virtual Machine Scale Sets | Microsoft Learn",
+      "url": "https://learn.microsoft.com/en-us/azure/virtual-machine-scale-sets/virtual-machine-scale-sets-autoscale-overview",
+      "snippet": "Learn about the different ways that you can automatically scale an Azure Virtual Machine Scale Set based on performance or on a fixed schedule",
+      "published_at": "2026-05-19",
+      "engagement": {},
+      "container": "learn.microsoft.com",
+      "author": "",
+      "_raw_fields_present": [
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": []
+    }
+  ],
+  "clusters": [
+    {
+      "candidate_ids": [
+        "https://learn.microsoft.com/en-us/azure/virtual-machine-scale-sets/virtual-machine-scale-sets-autoscale-overview"
+      ],
+      "cluster_id": "cluster-1",
+      "representative_ids": [
+        "https://learn.microsoft.com/en-us/azure/virtual-machine-scale-sets/virtual-machine-scale-sets-autoscale-overview"
+      ],
+      "score": 0.0,
+      "sources": [
+        "grounding"
+      ],
+      "title": "Overview of autoscale with Azure Virtual Machine Scale Sets - Azure Virtual Machine Scale Sets | Microsoft Learn"
+    }
+  ],
+  "warnings": [
+    "Evidence is thin for this topic."
+  ],
+  "errors_by_source": {}
+}

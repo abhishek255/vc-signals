@@ -8,7 +8,7 @@ A skill/plugin for [Claude Code](https://docs.anthropic.com/en/docs/claude-code)
 
 ---
 
-> **Current state (May 2026):** VC Signals is a weekly company/project radar for Marathon-style deal discovery. It separates practitioner pain from candidate evidence, scores Investment Interest and Evidence Confidence separately, and explains when a sector has signal but no qualified companies yet.
+> **Current state (June 2026 baseline):** VC Signals is now a tiered partner-review system, not just a ranked feed. The blessed current run separates **Assign Owner**, **Alex Review Companies**, **Review-Worthy Companies**, **Review-Worthy Market Signals**, and **Evidence Gap Queue** rows. It reached the current numeric target with 1 Assign Owner row, 13 Alex Review companies, 8 Review-Worthy companies, 5 market signals, 12 evidence gaps, and 0 unsafe promotions. The honest caveat: Product Hunt is carrying most of the non-YC company yield, and founder/stage/headcount evidence still needs focused manual checks before owner assignment.
 
 ---
 
@@ -37,48 +37,47 @@ In a few minutes, you get a weekly all-sector radar like this:
 ```markdown
 # VC Signals Weekly Radar
 
-## Run Summary
+## Source-Yield Targets
 
-This run produced 50 qualified rows across 4 market sectors.
-Source mix: 18 Grounded web, 16 OSS, 9 Hacker News, 7 Attio-aware.
+Assign Owner: 1 / 1-3
+Alex Review Companies: 13 / 8-15
+Review-Worthy Companies: 8 / 8-15
+Review-Worthy Market Signals: 5 / 5-10
+Evidence Gap Queue: 12 / 10-15
+Unsafe Promotions: 0
 
-## Partner Review
+## Assign Owner
 
-| Company / Project | Market Sector | Source Lane | Theme | Tag | Tier | Interest | Evidence | Attio | Action | Why On Radar | Why This May Be Noise |
-|---|---|---|---|---|---|---|---|---|---|---|---|
-| AgentFence | Cybersecurity | Grounded web | AI agent security | NEW | Partner Review | High | Medium | no_match | take meeting / assign owner | New company evidence tied to repeated MCP permission and agent-security pain. | Could be a narrow feature unless customer urgency and founder depth check out. |
-| affaan-m/agentshield | Cybersecurity | OSS | AI agent security | RETURNING | Partner Review | High | Medium | no_match | track company formation | Fast-growing OSS scanner for agent configs, MCP servers, and tool permissions. | Repo traction may not map to company formation or buyer urgency. |
-| RuntimeOps AI | Devtools | Hacker News | Agent runtime infrastructure | NEW | Watchlist | Medium | Medium | stale/no owner | refresh owner | HN launch and developer chatter around production agent runtime reliability. | Launch interest may fade unless there is real usage beyond early adopters. |
+| Company | Domain | Source | Action | Why |
+|---|---|---|---|---|
+| Voker | voker.ai | HN launch | assign owner | Strong enough company evidence and launch context to route for partner ownership. |
 
-## Full Radar
+## Alex Review Companies
 
-Up to 50 qualified companies/projects. No filler rows. Full Radar keeps expanded fields like Stage, Raised, Headcount, Founders, LinkedIn, X, Attio URL, OSS Score, and Best Source when evidence supports them.
+| Company | Domain | Grade | Source | Missing Evidence | Recommended Manual Check | Why This May Be Noise |
+|---|---|---|---|---|---|---|
+| SocialEcho 2.0 | socialecho.net | B | Product Hunt | stage/headcount/funding | Check founders, stage, and company metadata before owner routing. | Real product surface, but still needs company maturity proof. |
+| Tabstack Web Research | tabstack.ai | B | Product Hunt | stage/headcount/funding | Check founder/team and company metadata. | Launch quality may not equal venture-scale company quality. |
+| R0Y OMNI 1.0 | r0y.xyz | B | Product Hunt | stage/headcount/funding | Check public company metadata and investor context. | Strong product surface, but venture maturity is still unverified. |
 
-## Sector Intelligence
+## Review-Worthy Market Signals
 
-### Cybersecurity
-Status: Company and OSS/project candidates found
-Why no more companies: several pain signals were promoted through grounded company discovery; remaining Reddit/HN chatter did not include enough company identity evidence.
-Next hunt: AI agent security startups Seed Series A founder launch
+GitHub stays useful even when it is not a company yet. Rising OSS projects become market signals and generate follow-up searches for companies building in the same theme.
 
-## Themes With No Company Yet
+## Evidence Gap Queue
 
-| Market Sector | Theme | Evidence | Why It Matters | Why No Company Yet | Suggested Search |
-|---|---|---|---|---|---|
-| Data Infra | Emerging technical signal | HTTP/3, storage cleanup, and infrastructure chatter | Repeated non-company signal suggests operator pain. | No verified company/domain/founder evidence appeared in this run. | Data infra startups Seed Series A founder launch |
-
-## Company Discovery From Themes
-
-| Company | Market Sector | Theme | Source | Evidence URL | Query |
-|---|---|---|---|---|---|
-| AgentFence | Cybersecurity | AI agent security | grounding | https://agentfence.dev | AI agent security startups Seed Series A founder launch |
-
-## Weak Evidence / Rejected Summary
-
-- source_not_candidate_eligible: 44
+Each blocked row says exactly what is missing: official domain, founder/team, stage/funding/headcount, commercial proof, pricing/docs/careers, or manual LinkedIn/Crunchbase-style check.
 ```
 
-Each company or project gets a specific **Why On Radar**, separate **Investment Interest** and **Evidence Confidence** scores, a skeptical **Why This May Be Noise**, and an action label.
+Each company or project gets a specific **Why On Radar**, separate **Investment Interest** and **Evidence Confidence** scores, a skeptical **Why This May Be Noise**, missing-evidence fields, and a next action.
+
+The output is deliberately tiered:
+
+- **Assign Owner** — strict gate; only rows strong enough for ownership.
+- **Alex Review Companies** — good/decent companies worth inspection, often with one or two clear gaps.
+- **Review-Worthy Companies** — credible product/company rows, not owner-ready yet.
+- **Review-Worthy Market Signals** — OSS/theme movement that tells Alex where the market is going, even if there is no company yet.
+- **Evidence Gap Queue** — promising blocked rows with exact manual checks.
 
 **Market Sector vs Source Lane:** Market Sector is the investment category, such as Cybersecurity or AI Infra. Source Lane is where the evidence came from, such as OSS, Reddit, HN, Grounded Web, or TikTok. An OSS repo can therefore be `Market Sector = Cybersecurity` and `Source Lane = OSS`.
 
@@ -103,7 +102,8 @@ For each company or project on the radar, you get:
 - **Attio status + action** — no match, active, passed, stale/no owner; with owner, last touch, staleness, and a direct record URL when available
 - **OSS action reason** — watch, contact maintainer, map ecosystem, track company formation, or ignore, with the score rationale
 - **Why This May Be Noise** — the default skeptical read
-- **Needs More Evidence** — useful pain/theme signal that is not verified enough yet for Watchlist or Partner Review
+- **Evidence Gap Queue** — useful company, launch, or OSS signal that says exactly what evidence is missing before promotion
+- **Market Signals** — OSS/theme momentum that may reveal where to search next, even when no company exists yet
 
 ---
 
@@ -187,8 +187,10 @@ The setup wizard handles all of this for you. But if you want to know what each 
 |---------|----------------|------|-----------|
 | **GitHub PAT** | Trending repos by star velocity | Free | Recommended |
 | **Brave Search** | Broader web search coverage | $5/1K queries ($5 free credit/month) | Optional |
+| **Exa API** | Richer web/content search for Product Hunt, launch pages, and official-domain resolution | Pay-per-use / free trial tiers vary | Recommended for source-yield work |
+| **Product Hunt API token** | Structured launch source: products, makers, topics, launch text, and Product Hunt URLs | Free subject to Product Hunt access/terms | Recommended for launch discovery |
 | **ScrapeCreators** | TikTok, Instagram, YouTube search | ~$29/month | Optional |
-| **OpenAI or Gemini** | Smarter query planning and ranking | Pay-per-use / Free | Optional |
+| **OpenAI, Gemini, or xAI** | Smarter query planning, signal investigation, and domain/fact extraction | Pay-per-use / Free tiers vary | Recommended for LLM investigation |
 | **OpenRouter** | Deep research with Perplexity (50+ citation synthesis for theme drill-downs) | ~$0.90/query | Optional |
 | **X/Twitter tokens** | X/Twitter developer discussions | Free (your account) | Optional |
 | **Attio token** | CRM match, stale/no-owner status, passed-company flags | Existing workspace | Recommended for Marathon |
@@ -303,21 +305,21 @@ Use `--first-pass` only when someone is trying the workflow and wants a faster s
 Then open:
 
 ```text
-docs/radar-runs/current/weekly-preview.md
+docs/radar-runs/current/source-yield-validation-report.md
 ```
 
-That Markdown file is the partner-readable artifact. The same folder also contains:
+That Markdown file is the current partner-facing source-yield artifact. The same folder also contains:
 
-- `raw-evidence.json` or `<date>-raw-evidence.json`: source evidence from collection.
-- `signals.json`: normalized Reddit/HN/GitHub/web/social signals.
-- `candidates.json`: scored candidate companies/projects, including weaker "Needs More Evidence" rows.
-- `sector-intelligence.json`: per-sector status, source gaps, rejected counts, and next-hunt prompts.
-- `theme-signals.json`: useful non-company signal that should guide research but should not become a fake company row.
-- `company-discovery.json`: targeted company-search evidence generated from theme/pain signals, used to reduce OSS-only output when grounded company evidence is available.
-- `synthesis.json`: optional LLM synthesis notes when `--with-synthesis` is used.
-- `research-workbench-input.json` and `research-workbench-prompt.md`: optional Codex/Claude workbench pack for weak-signal reasoning without promoting unverified leads.
+- `partner-decision-packet.json`: strict owner/action packet.
+- `ledger-action-report.json`: promotion/ledger audit; unsafe owner promotions must remain zero.
+- `source-yield-validation-report.json`: machine-readable counts, rows, gaps, source health, and caveats.
+- `source-yield-repeatability-report.md`: repeatability view for the latest blessed validation.
+- `targeted-manual-enrichment.json`: focused manual checks for top evidence gaps.
+- `structured-provider-trial.json`: manual-mode structured-provider hints when no direct Coresignal/Crunchbase key exists.
+- `review-worthy-sanity-check.md`: human click-check of the 8 Review-Worthy companies.
+- `run-manifest.json`: points to the source run that was blessed into `current`.
 
-If the output is thin, that does not necessarily mean the sector is dead. It means the current run found pain or chatter but not enough candidate-quality company/project evidence. Check `Sector Intelligence`, `Themes With No Company Yet`, `Company Discovery From Themes`, and `Weak Evidence / Rejected Summary` before deciding whether to rerun with better keys or do a manual deep dive.
+If the output is thin, that does not necessarily mean the sector is dead. It means the current run found pain or chatter but not enough company evidence. Check `Evidence Gap Queue`, `Manual Evidence Queue`, `Review-Worthy Market Signals`, source-health notes, and the sanity check before deciding whether to rerun with better keys or do a manual deep dive.
 
 ### All Commands
 
@@ -351,17 +353,15 @@ By default, this command uses the fuller query budget for each sector and does n
 
 The artifact contains:
 
-- Partner Review: top 10-15 ranked candidates.
-- Full Radar: up to 50 qualified companies/projects, with no filler rows.
-- Tag and Faded Off Radar: week-over-week status for current and recently disappeared companies/projects.
-- Evidence-backed enrichment: stage, raised, headcount, founders, Attio owner/staleness, Attio URL, and OSS formation score when trusted evidence exists.
-- Run Summary: candidate count, market-sector coverage, source mix, and an OSS-heavy warning when all qualified rows came from OSS.
-- Sector Intelligence: every requested priority sector, including whether it produced company candidates, OSS/project candidates, pain with no company yet, no meaningful signal, or source failures.
-- Themes With No Company Yet: bounded hunt prompts from non-company evidence, not fake company rows.
-- Company Discovery From Themes: the second-pass company searches triggered by those theme prompts, with evidence rows that can be promoted into the full radar when they include a company/product identity and credible source URL.
-- Weak Evidence Summary: what was filtered out and why, plus "Needs More Evidence" items when there is useful pain/theme signal without enough company verification.
-- Optional `synthesis.json`: advisory LLM notes, source-gap diagnoses, theme hypotheses, and possible leads when `--with-synthesis` is used.
-- Optional Research Workbench: a self-contained Codex/Claude prompt and evidence pack for source gaps, theme hypotheses, possible companies requiring verification, and next searches. It does not write to `candidates.json`.
+- Assign Owner: 1-3 strict rows that clear the owner gate.
+- Alex Review Companies: 8-15 good/decent companies worth Alex's inspection, with missing evidence made explicit.
+- Review-Worthy Companies: credible product/company rows that are real enough to inspect but not necessarily owner-ready.
+- Review-Worthy Market Signals: OSS/theme movement that indicates where the market is moving, even if no company has formed yet.
+- Evidence Gap Queue: promising blocked rows with exact missing fields and suggested manual checks.
+- Manual Evidence Queue: a 30-45 minute analyst checklist, not random research.
+- Source Health: which providers worked, degraded, timed out, or returned thin evidence.
+- LLM Signal Investigation: search plans, domain candidates, official-domain resolution, blocked unsafe domains, and fact extraction when enabled.
+- Structured Provider Trial: manual-mode Coresignal/Crunchbase/LinkedIn-style hints unless direct provider keys are configured.
 
 Market Sector is the investment category, such as Cybersecurity or AI Infra. Source Lane is where the evidence came from, such as OSS, Reddit, HN, Grounded Web, or TikTok. An OSS repo can therefore be `Market Sector = Cybersecurity` and `Source Lane = OSS`.
 
@@ -444,57 +444,48 @@ You type: /vc-signals radar all
                     │
                     ▼
         ┌────────────────────────────┐
-        │ Weekly Radar Orchestrator  │
-        │ sectors + sources + setup  │
-        └──────────────┬─────────────┘
-                    │
-        ┌──────────────▼─────────────┐
-        │ Source Collection          │
-        │ Reddit/HN/GitHub/social    │
-        │ grounded web if configured │
+        │ Source Orchestrator        │
+        │ PH + X + HN + GitHub + YC  │
+        │ + Exa/Brave/manual web     │
         └──────────────┬─────────────┘
                     │
         ┌──────────────▼─────────────┐
         │ Signal Classification      │
-        │ pain vs launch vs OSS      │
-        │ vs company web evidence    │
-        └───────┬──────────────┬─────┘
-                │              │
-                │              ▼
-                │    ┌──────────────────────┐
-                │    │ Themes With No       │
-                │    │ Company Yet          │
-                │    └──────────┬───────────┘
-                │               │
-                │               ▼
-                │    ┌──────────────────────┐
-                │    │ Company Discovery    │
-                │    │ From Themes          │
-                │    └──────────┬───────────┘
-                │               │
-                └───────────────┘
+        │ company candidate vs       │
+        │ market signal vs gap       │
+        └──────────────┬─────────────┘
                     │
         ┌──────────────▼─────────────┐
-        │ Candidate Ranking          │
-        │ interest + evidence +      │
-        │ skeptical noise check      │
+        │ Company Dossier Layer      │
+        │ official domain, founders, │
+        │ pricing/docs/customers,    │
+        │ contradictions, gaps       │
+        └──────────────┬─────────────┘
+                    │
+        ┌──────────────▼─────────────┐
+        │ LLM Investigation          │
+        │ plan searches, inspect     │
+        │ evidence, block unsafe     │
+        │ domains, explain gaps      │
         └──────────────┬─────────────┘
                        │
         ┌──────────────▼─────────────┐
-        │ Read-only Attio Awareness  │
-        │ match, stale/no owner,     │
-        │ passed-company flags       │
+        │ Tiered Review Gates        │
+        │ Assign Owner, Alex Review, │
+        │ Market Signals, Gap Queue  │
         └──────────────┬─────────────┘
                     │
                     ▼
-          Weekly Partner Brief
-          Partner Review + Full Radar
-          Sector Intelligence + audit files
+          Weekly Partner Packet
+          strict owner packet + manual queue
+          source-yield and audit files
 ```
 
-The pipeline first separates **pain/theme evidence** from **candidate evidence**. Reddit pain can create a theme, but not a company row by itself. If a theme looks real, the system runs a second-pass company search and only promotes a company when it finds a credible company/product identity and source URL. Attio is read-only context: it helps the brief say whether Marathon already knows the company, whether it is stale/no-owner, or whether it was previously passed.
+The pipeline first separates **launch/company evidence** from **market movement**. Product Hunt and X can create launch signals, but the system still has to resolve the official domain and inspect the company surface. GitHub can become a company candidate when there is website/pricing/team/customer proof; otherwise it becomes a market signal and a search prompt for companies in that theme.
 
-If grounded web search is not configured, the run can become OSS-heavy. That is expected: GitHub repos and HN launches are easier to verify without broad web/company search. The brief labels that limitation instead of filling the radar with weak company guesses.
+The LLM is used as an investigator, not as a source of truth. It plans searches, extracts facts from retrieved evidence, identifies contradictions, blocks unsafe domain guesses, and says exactly what evidence is missing. Attio remains read-only context: it helps the brief say whether Marathon already knows the company, whether it is stale/no-owner, or whether it was previously passed.
+
+If grounded web/content search is weak or source access is missing, the run can become Product Hunt, HN, YC, or OSS-heavy. That is expected. The packet labels that limitation instead of filling the radar with weak company guesses.
 
 **Want the full picture?** Open the **[visual explainer](https://abhishek255.github.io/vc-signals/)** — covers architecture, scoring rubric, company mapping layers, persistence, and graceful degradation with diagrams.
 
@@ -559,6 +550,10 @@ The result: a weekly forcing function to explore categories you might not have f
 
 ## What's New
 
+**June 2026: Source-yield baseline and Alex Review packet.** The blessed current run now uses a tiered output model: Assign Owner, Alex Review Companies, Review-Worthy Companies, Review-Worthy Market Signals, Evidence Gap Queue, and Manual Evidence Queue. The current committed baseline hit 1 Assign Owner row, 13 Alex Review companies, 8 Review-Worthy companies, 5 market signals, 12 evidence gaps, and 0 unsafe promotions.
+
+**June 2026: Company dossier and LLM investigation layer.** Product Hunt, X, GitHub, HN, YC, Exa/Brave, and manual web evidence now feed a dossier-style workflow that resolves official domains, inspects official-site proof, blocks unsafe domain guesses, separates OSS market signals from company candidates, and records exact missing evidence.
+
 **May 2026: Theme-driven company discovery.** The weekly command now uses useful pain/theme evidence to run a second-pass company search, writes `company-discovery.json`, and renders "Company Discovery From Themes" in the partner brief.
 
 **May 2026: Radar V3 sector-balanced artifact.** The weekly command now separates `Market Sector` from `Source Lane`, reclassifies OSS projects into investment categories, renders a top Run Summary, adds Sector Intelligence for every priority sector, and turns non-company signal into "Themes With No Company Yet" hunt prompts.
@@ -571,9 +566,9 @@ The result: a weekly forcing function to explore categories you might not have f
 
 **What flipped:**
 - Themes are context; company/project rows are the review surface
-- The weekly artifact starts with Run Summary and Partner Review, then Full Radar, Sector Intelligence, Themes With No Company Yet, Company Discovery From Themes, and Weak Evidence
+- The current packet starts with strict Assign Owner, then Alex Review, Review-Worthy Companies, Review-Worthy Market Signals, Evidence Gap Queue, Manual Evidence Queue, source health, and audit files
 - Company/project rows became the primary object of review
-- Weak signal is preserved as "Needs More Evidence" instead of being turned into a fake company row
+- Weak signal is preserved as a market signal or evidence gap instead of being turned into a fake company row
 - OSS is a source lane, not a default market sector; a security repo can be `Market Sector = Cybersecurity` and `Source Lane = OSS`
 - Schema additions: companies/projects are first-class entities with stable history (`candidate_history.json`) and evidence-backed enrichment fields for stage, raised, headcount, founders, Attio context, and OSS formation scoring
 
@@ -585,18 +580,23 @@ The previous `/vc-signals weekly` command still works as an alias for `/vc-signa
 
 1. ✅ **Company-first weekly radar** — output flipped from theme-centric to company/project-centric.
 2. ✅ **Radar V2 signal pipeline** — raw evidence, normalized signals, scored candidates, sector coverage, and weak-evidence summary.
-3. ✅ **Curated Reddit pain discovery** — Reddit supports themes and "Needs More Evidence" but does not directly create company rows.
+3. ✅ **Curated Reddit pain discovery** — Reddit supports themes and evidence gaps but does not directly create company rows.
 4. ✅ **Week-over-week persistence** — NEW / RETURNING / PERSISTENT / FADED tags on companies and projects, based on stable candidate history.
 5. ✅ **OSS radar semantics** — GitHub velocity, OSS project rows, maintainer profiles, license preservation, company-formation score, action vocabulary, and action rationale.
 6. ✅ **Read-only Attio CRM context** — domain/name matching, status labels, stale/no-owner resurfacing, passed-company quiet flags, owner, last touch, staleness reason, CRM URL, and mapped stage/raised/headcount fields.
 7. ✅ **Evidence-backed company enrichment** — stage, raised, headcount, founders, founding year, and lead investor can be merged from fresh cache/source evidence/Attio; blank means no trusted evidence.
-8. ✅ **Radar V3 sector-balanced artifact** — Market Sector and Source Lane are separate, Partner Review is priority-ranked, Sector Intelligence explains quiet sectors, and Themes With No Company Yet preserve non-company signal.
+8. ✅ **Radar V3 sector-balanced artifact** — Market Sector and Source Lane are separate, review rows are priority-ranked, Sector Intelligence explains quiet sectors, and non-company signal is preserved.
 9. ✅ **Theme-driven company discovery lane** — non-company pain/themes generate targeted company searches, write `company-discovery.json`, and can promote verified company evidence into the radar.
 10. ◐ **Grounded company discovery depth** — the lane is implemented, but broad web/company discovery still depends on configured web keys and better corroboration sources.
 11. ✅ **Agent-native research workbench** — creates a Codex/Claude evidence pack and prompt for weak-signal synthesis without writing unverified leads into `candidates.json`.
-12. ◐ **Ecosystem and contact depth** — still needs richer maintainer contact enrichment, founder background synthesis, and OSS ecosystem map generation.
-13. **Weekly delivery** — Monday 8:00 AM ET Slack teaser with an open/configurable destination and link or artifact for the full radar.
-14. **Theme depth** — drill-down surfaces actual sub-debates and company positioning, not just summaries.
+12. ✅ **Alex Review and Evidence Gap tiers** — the packet separates strict owner rows, good/decent company review rows, market signals, and manual evidence checks.
+13. ✅ **Company dossier layer** — candidates carry official-domain, product proof, commercial proof, founder/stage gaps, contradictions, and recommended manual checks.
+14. ✅ **LLM investigation as evidence processor** — LLMs plan searches and extract/critique evidence, but cannot promote unsupported claims.
+15. ◐ **Product Hunt/X conversion depth** — Product Hunt now contributes Review-Worthy rows, but founder/stage metadata is still thin; X works as launch radar but needs stronger official-domain and company-identity resolution.
+16. ◐ **Ecosystem and contact depth** — still needs richer maintainer contact enrichment, founder background synthesis, and OSS ecosystem map generation.
+17. **Repeatability validation** — prove the current source-yield targets across 2-3 weekly runs, not one blessed run.
+18. **Weekly delivery** — Monday 8:00 AM ET Slack teaser with an open/configurable destination and link or artifact for the full radar.
+19. **Theme depth** — drill-down surfaces actual sub-debates and company positioning, not just summaries.
 
 ---
 

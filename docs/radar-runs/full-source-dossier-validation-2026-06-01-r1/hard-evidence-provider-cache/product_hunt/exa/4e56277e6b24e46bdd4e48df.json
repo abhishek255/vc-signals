@@ -1,0 +1,86 @@
+{
+  "provider": "exa",
+  "query": "\"Tokenwise\" \"[REDACTED]\" founder maker official",
+  "items": [
+    {
+      "provider": "exa",
+      "title": "Theo \u2014 Maker of Tokenwise | Tokenwise",
+      "url": "https://tokenwisehq.com/author/theo",
+      "snippet": "Theo \u2014 Maker of Tokenwise | Tokenwise\n[...]\nMaker of Tokenwise\n[...]\nI build and run Tokenwise, an LLM cost-optimization proxy for solo makers and small teams. One line of setup, and it tells you where your AI bill is leaking \u2014 then emails you the changes worth making.",
+      "description": "Theo \u2014 Maker of Tokenwise | Tokenwise\n[...]\nMaker of Tokenwise\n[...]\nI build and run Tokenwise, an LLM cost-optimization proxy for solo makers and small teams. One line of setup, and it tells you where your AI bill is leaking \u2014 then emails you the changes worth making.",
+      "source": "exa"
+    },
+    {
+      "provider": "exa",
+      "title": "Tokenwise",
+      "url": "https://tokenwisehq.com/",
+      "snippet": "> \u201cI built Tokenwise because I was spending hours every week digging through OpenAI + Anthropic dashboards trying to figure out why my LLM bill kept doubling, and I knew I wasn\u2019t the only one. One line of code, one dashboard, one weekly email. Ship faster, spend less, see everything.\u201d\n[...]\nTh\u00e9ophile Louvart\n[...]\n@toflou \u00b7 Founder, Tokenwise",
+      "description": "> \u201cI built Tokenwise because I was spending hours every week digging through OpenAI + Anthropic dashboards trying to figure out why my LLM bill kept doubling, and I knew I wasn\u2019t the only one. One line of code, one dashboard, one weekly email. Ship faster, spend less, see everything.\u201d\n[...]\nTh\u00e9ophile Louvart\n[...]\n@toflou \u00b7 Founder, Tokenwise",
+      "source": "exa"
+    },
+    {
+      "provider": "exa",
+      "title": "How Tokenwise cuts ~30% off your LLM bill \u2014 the methodology | Tokenwise",
+      "url": "https://tokenwisehq.com/methodology",
+      "snippet": "How Tokenwise cuts ~30% off your LLM bill \u2014 the methodology | Tokenwise",
+      "description": "How Tokenwise cuts ~30% off your LLM bill \u2014 the methodology | Tokenwise",
+      "source": "exa"
+    },
+    {
+      "provider": "exa",
+      "title": "Are you ready for the  future of finance?",
+      "url": "https://www.tokenwise.co/",
+      "snippet": "Tokenwise | Tokenization and Blockchain Consulting\n[...]\nABOUT\u00a0US\n[...]\nA seasoned team...\n[...]\nAnthony P.\n[...]\nIn addition to being part of the blockchain and tokenization industry since 2017, our team has worked with leading US banks to implement transformative technologies.\n[...]\nWe are backed by over 30 years of cumulative experience in finance and law, across institutional and retail sectors. We have accompanied executives and operators in strategic initiatives at some of the world's largest financial institutions.",
+      "description": "Tokenwise | Tokenization and Blockchain Consulting\n[...]\nABOUT\u00a0US\n[...]\nA seasoned team...\n[...]\nAnthony P.\n[...]\nIn addition to being part of the blockchain and tokenization industry since 2017, our team has worked with leading US banks to implement transformative technologies.\n[...]\nWe are backed by over 30 years of cumulative experience in finance and law, across institutional and retail sectors. We have accompanied executives and operators in strategic initiatives at some of the world's largest financial institutions.",
+      "source": "exa"
+    },
+    {
+      "provider": "exa",
+      "title": "Framework + Provider Proxy Setup (2026) | Tokenwise",
+      "url": "https://tokenwisehq.com/integrations",
+      "snippet": "Framework + Provider Proxy Setup (2026) | Tokenwise\n[...]\nPoint your OpenAI baseURL at Tokenwise and every call is logged, priced, and optimizable \u2014 no SDK rewrite, no LangChain required.",
+      "description": "Framework + Provider Proxy Setup (2026) | Tokenwise\n[...]\nPoint your OpenAI baseURL at Tokenwise and every call is logged, priced, and optimizable \u2014 no SDK rewrite, no LangChain required.",
+      "source": "exa"
+    },
+    {
+      "provider": "exa",
+      "title": "DainoJung/tokenwise",
+      "url": "https://github.com/DainoJung/tokenwise",
+      "snippet": "# Repository: DainoJung/tokenwise\n[...]\n- Stars: 1\n- Forks: 0\n- Watchers: 0\n- Open issues: 0\n- Primary language: TypeScript\n- Languages: TypeScript (89.6%), Python (9.0%), JavaScript (1.3%)\n- License: MIT License (MIT)\n- Default branch: master\n- Created: 2026-04-09T08:25:41Z\n- Last push: 2026-04-10T05:45:00Z\n- Contributors: 1 (top: DainoJung)\n- Releases: 1\n- Latest release: v0.2.0 (2026-04-10T05:28:52Z)\n[...]\n---\n\n \n TokenWise\n \n\n \n Spend less, agent more.\n[...]\nfor Agentic AI. \n Reduce LLM API costs by 40\u201380% \u2014 no code rewrite needed.\n \n\n \n \n \n \n \n \n\n---\n[...]\nPRs welcome. This project aims to make Agentic AI affordable for everyone.\n[...]\n```bash\ngit clone https://github.com/DainoJung/tokenwise.git\ncd tokenwise\nnpm install\nnpm run build",
+      "description": "# Repository: DainoJung/tokenwise\n[...]\n- Stars: 1\n- Forks: 0\n- Watchers: 0\n- Open issues: 0\n- Primary language: TypeScript\n- Languages: TypeScript (89.6%), Python (9.0%), JavaScript (1.3%)\n- License: MIT License (MIT)\n- Default branch: master\n- Created: 2026-04-09T08:25:41Z\n- Last push: 2026-04-10T05:45:00Z\n- Contributors: 1 (top: DainoJung)\n- Releases: 1\n- Latest release: v0.2.0 (2026-04-10T05:28:52Z)\n[...]\n---\n\n \n TokenWise\n \n\n \n Spend less, agent more.\n[...]\nfor Agentic AI. \n Reduce LLM API costs by 40\u201380% \u2014 no code rewrite needed.\n \n\n \n \n \n \n \n \n\n---\n[...]\nPRs welcome. This project aims to make Agentic AI affordable for everyone.\n[...]\n```bash\ngit clone https://github.com/DainoJung/tokenwise.git\ncd tokenwise\nnpm install\nnpm run build",
+      "source": "exa"
+    },
+    {
+      "provider": "exa",
+      "title": "Tokenwise Revenue, Funding & Valuation",
+      "url": "https://prospeo.io/c/tokenwise-revenue",
+      "snippet": "Anthony P. Simone\n[...]\nPresident and Co-Founder\n[...]\nwise.co\n[...]\n## About Tokenwise\n[...]\nAccelerating the blockchain and tokenization industry through consulting, education, and innovation management.\n[...]\nFounder/Owner\n[...]\nAnthony P. Simone\n[...]\nPresident and Co-Founder\n[...]\nwise.co",
+      "description": "Anthony P. Simone\n[...]\nPresident and Co-Founder\n[...]\nwise.co\n[...]\n## About Tokenwise\n[...]\nAccelerating the blockchain and tokenization industry through consulting, education, and innovation management.\n[...]\nFounder/Owner\n[...]\nAnthony P. Simone\n[...]\nPresident and Co-Founder\n[...]\nwise.co",
+      "source": "exa"
+    },
+    {
+      "provider": "exa",
+      "title": "Tokenwise AI",
+      "url": "https://tokenwise.ai/",
+      "snippet": "Tokenwise AI\n\n## Tokenwise AI\n\n## We Build Apps\n\nIt\u2019s fun solving real world problems with simple mobile apps.\n\nFrom idea to app, it\u2019s about finding the right opportunity to solve for and imagining the possibilities together. The fun part is building and releasing it.",
+      "description": "Tokenwise AI\n\n## Tokenwise AI\n\n## We Build Apps\n\nIt\u2019s fun solving real world problems with simple mobile apps.\n\nFrom idea to app, it\u2019s about finding the right opportunity to solve for and imagining the possibilities together. The fun part is building and releasing it.",
+      "source": "exa"
+    }
+  ],
+  "skipped": false,
+  "skip_reason": "",
+  "cache_status": "miss",
+  "latency_ms": 1870,
+  "cost_usd": 0.007,
+  "capabilities": {
+    "provider": "exa",
+    "snippet_only": false,
+    "page_content_returned": true,
+    "livecrawl_available": true,
+    "cost_estimated": true
+  },
+  "query_id": "",
+  "query_family": "hard_evidence_resolver",
+  "movement": "",
+  "market_sector": ""
+}

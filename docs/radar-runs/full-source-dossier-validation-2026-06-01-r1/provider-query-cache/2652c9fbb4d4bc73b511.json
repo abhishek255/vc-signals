@@ -1,0 +1,231 @@
+{
+  "topic": "AI data infrastructure startup raises seed Series A launches funding company",
+  "items": [
+    {
+      "source": "grounding",
+      "title": "Cypher AI Raises $2 Million in Seed Round",
+      "url": "https://www.thesaasnews.com/news/cypher-ai-raises-2-million-in-seed-round/",
+      "snippet": "<strong>Cypher AI</strong> raises $2M in seed funding led by MaC Venture Capital to expand its AI-native digital infrastructure platform for life science R&amp;D. ... Link copied! Copy failed! ... <strong>Cypher AI</strong>, a Cambridge, MA-based startup building AI-native ...",
+      "published_at": "2026-05-28",
+      "engagement": {},
+      "container": "www.thesaasnews.com",
+      "author": "",
+      "_raw_fields_present": [
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": []
+    },
+    {
+      "source": "grounding",
+      "title": "Latest AI Startup Funding News and VC Investment Deals - 2026 | News",
+      "url": "https://www.crescendo.ai/news/latest-vc-investment-deals-in-ai-startups",
+      "snippet": "Details: <strong>Unconventional AI</strong>, founded just two months ago by former Databricks AI head Naveen Rao, secured $475 million in seed funding at a $4.5 billion valuation. The company is developing &quot;biology-inspired&quot; neuromorphic computing systems designed ...",
+      "published_at": "2026-05-21",
+      "engagement": {},
+      "container": "www.crescendo.ai",
+      "author": "",
+      "_raw_fields_present": [
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": []
+    },
+    {
+      "source": "grounding",
+      "title": "Cypher AI Secures $2M to Scale AI-Native Infrastructure for Life Science R&D",
+      "url": "https://hitconsultant.net/2026/05/27/cypher-ai-raises-2m-seed-biotech-infrastructure/",
+      "snippet": "To dismantle this patchwork tech stack and establish a single, adaptive operating layer for modern research, life science infrastructure pioneer <strong>Cypher AI</strong> has officially launched out of stealth with a $2 million seed financing round.",
+      "published_at": "2026-05-27",
+      "engagement": {},
+      "container": "hitconsultant.net",
+      "author": "",
+      "_raw_fields_present": [
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": []
+    },
+    {
+      "source": "grounding",
+      "title": "Gridcare raises an oversubscribed $64-million Series A | Latitude Media",
+      "url": "https://www.latitudemedia.com/news/gridcare-raises-oversubscribed-64-million-series-a/",
+      "snippet": "The news comes less than one year after Gridcare emerged from stealth in late May 2025 with <strong>$13.5 million</strong> in seed funding. The company uses artificial intelligence to unlock the grid\u2019s underutilized capacity.",
+      "published_at": "2026-05-14",
+      "engagement": {},
+      "container": "www.latitudemedia.com",
+      "author": "",
+      "_raw_fields_present": [
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": []
+    },
+    {
+      "source": "grounding",
+      "title": "Graphon AI raises $8.3M seed to build a pre-model intelligence layer for enterprise AI",
+      "url": "https://thenextweb.com/news/graphon-ai-pre-model-intelligence-layer-seed-funding",
+      "snippet": "Former Amazon and Meta researchers launch <strong>Graphon AI</strong> with $8.3M seed round. The startup builds a relational data layer that sits before the model, backed by Perplexity Fund and Samsung Next.",
+      "published_at": "2026-05-14",
+      "engagement": {},
+      "container": "thenextweb.com",
+      "author": "",
+      "_raw_fields_present": [
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": []
+    }
+  ],
+  "clusters": [
+    {
+      "candidate_ids": [
+        "https://thesaasnews.com/news/cypher-ai-raises-2-million-in-seed-round"
+      ],
+      "cluster_id": "cluster-1",
+      "representative_ids": [
+        "https://thesaasnews.com/news/cypher-ai-raises-2-million-in-seed-round"
+      ],
+      "score": 9.138360655737706,
+      "sources": [
+        "grounding"
+      ],
+      "title": "Cypher AI Raises $2 Million in Seed Round"
+    },
+    {
+      "candidate_ids": [
+        "https://crescendo.ai/news/latest-vc-investment-deals-in-ai-startups"
+      ],
+      "cluster_id": "cluster-2",
+      "representative_ids": [
+        "https://crescendo.ai/news/latest-vc-investment-deals-in-ai-startups"
+      ],
+      "score": 0.0,
+      "sources": [
+        "grounding"
+      ],
+      "title": "Latest AI Startup Funding News and VC Investment Deals - 2026 | News"
+    },
+    {
+      "candidate_ids": [
+        "https://hitconsultant.net/2026/05/27/cypher-ai-raises-2m-seed-biotech-infrastructure"
+      ],
+      "cluster_id": "cluster-3",
+      "representative_ids": [
+        "https://hitconsultant.net/2026/05/27/cypher-ai-raises-2m-seed-biotech-infrastructure"
+      ],
+      "score": 0.0,
+      "sources": [
+        "grounding"
+      ],
+      "title": "Cypher AI Secures $2M to Scale AI-Native Infrastructure for Life Science R&D"
+    },
+    {
+      "candidate_ids": [
+        "https://latitudemedia.com/news/gridcare-raises-oversubscribed-64-million-series-a"
+      ],
+      "cluster_id": "cluster-4",
+      "representative_ids": [
+        "https://latitudemedia.com/news/gridcare-raises-oversubscribed-64-million-series-a"
+      ],
+      "score": 0.0,
+      "sources": [
+        "grounding"
+      ],
+      "title": "Gridcare raises an oversubscribed $64-million Series A | Latitude Media"
+    },
+    {
+      "candidate_ids": [
+        "https://thenextweb.com/news/graphon-ai-pre-model-intelligence-layer-seed-funding"
+      ],
+      "cluster_id": "cluster-5",
+      "representative_ids": [
+        "https://thenextweb.com/news/graphon-ai-pre-model-intelligence-layer-seed-funding"
+      ],
+      "score": 0.0,
+      "sources": [
+        "grounding"
+      ],
+      "title": "Graphon AI raises $8.3M seed to build a pre-model intelligence layer for enterprise AI"
+    }
+  ],
+  "warnings": [
+    "Top evidence is highly concentrated in one source."
+  ],
+  "errors_by_source": {}
+}

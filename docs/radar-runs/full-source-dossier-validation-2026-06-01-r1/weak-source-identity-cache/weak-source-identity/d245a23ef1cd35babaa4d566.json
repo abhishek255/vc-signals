@@ -1,0 +1,99 @@
+{
+  "topic": "\"agentshield\" seed funding headcount founders LinkedIn",
+  "items": [
+    {
+      "source": "grounding",
+      "title": "AgentShield: The Security Scanner That Audits Your AI Agent Configuration Before It Becomes an Exploit | by Dr. Fadi Shaar | Open Intelligence | May, 2026 | Medium",
+      "url": "https://medium.com/open-intelligence/agentshield-the-security-scanner-that-audits-your-ai-agent-configuration-before-it-becomes-an-f013e5571cc0",
+      "snippet": "AgentShield: The Security Scanner That Audits Your AI Agent Configuration Before It Becomes an Exploit Every experienced developer knows that code needs to be scanned for vulnerabilities before it \u2026",
+      "published_at": "2026-05-24",
+      "engagement": {},
+      "container": "medium.com",
+      "author": "",
+      "_raw_fields_present": [
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": []
+    },
+    {
+      "source": "grounding",
+      "title": "GitHub - affaan-m/agentshield: AI agent security scanner. Detect vulnerabilities in agent configurations, MCP servers, and tool permissions. Available as CLI, GitHub Action, ECC plugin, and GitHub App integration. \ud83d\udee1\ufe0f",
+      "url": "https://github.com/affaan-m/agentshield",
+      "snippet": "Supply-chain verification (agentshield scan --supply-chain) extracts MCP package references plus root package.json and package-lock.json dependency evidence, then reports provenance counts for npm vs git, pinned vs unpinned, known-good packages, and npm-registry-backed metadata.",
+      "published_at": "2026-05-16",
+      "engagement": {},
+      "container": "github.com",
+      "author": "",
+      "_raw_fields_present": [
+        "body",
+        "container",
+        "date_confidence",
+        "engagement",
+        "freshness",
+        "item_id",
+        "local_rank_score",
+        "local_relevance",
+        "metadata",
+        "published_at",
+        "relevance_hint",
+        "snippet",
+        "source",
+        "source_quality",
+        "title",
+        "url",
+        "why_relevant"
+      ],
+      "_identity_fields_present_upstream": []
+    }
+  ],
+  "clusters": [
+    {
+      "candidate_ids": [
+        "https://medium.com/open-intelligence/agentshield-the-security-scanner-that-audits-your-ai-agent-configuration-before-it-becomes-an-f013e5571cc0"
+      ],
+      "cluster_id": "cluster-1",
+      "representative_ids": [
+        "https://medium.com/open-intelligence/agentshield-the-security-scanner-that-audits-your-ai-agent-configuration-before-it-becomes-an-f013e5571cc0"
+      ],
+      "score": 0.0,
+      "sources": [
+        "grounding"
+      ],
+      "title": "AgentShield: The Security Scanner That Audits Your AI Agent Configuration Before It Becomes an Exploit | by Dr. Fadi Shaar | Open Intelligence | May, 2026 | Medium"
+    },
+    {
+      "candidate_ids": [
+        "https://github.com/affaan-m/agentshield"
+      ],
+      "cluster_id": "cluster-2",
+      "representative_ids": [
+        "https://github.com/affaan-m/agentshield"
+      ],
+      "score": 0.0,
+      "sources": [
+        "grounding"
+      ],
+      "title": "GitHub - affaan-m/agentshield: AI agent security scanner. Detect vulnerabilities in agent configurations, MCP servers, and tool permissions. Available as CLI, GitHub Action, ECC plugin, and GitHub App integration. \ud83d\udee1\ufe0f"
+    }
+  ],
+  "warnings": [
+    "Evidence is thin for this topic."
+  ],
+  "errors_by_source": {}
+}

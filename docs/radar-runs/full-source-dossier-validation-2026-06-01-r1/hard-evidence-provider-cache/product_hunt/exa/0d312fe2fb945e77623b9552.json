@@ -1,0 +1,86 @@
+{
+  "provider": "exa",
+  "query": "\"Mistral Vibe\" \"[REDACTED], [REDACTED], [REDACTED]\" founder maker official",
+  "items": [
+    {
+      "provider": "exa",
+      "title": "mistralai/mistral-vibe",
+      "url": "https://github.com/mistralai/mistral-vibe",
+      "snippet": "# Repository: mistralai/mistral-vibe\n[...]\nMinimal CLI coding agent by Mistral\n[...]\n# Mistral Vibe\n[...]\n**Mistral's open-source CLI coding assistant.**\n[...]\nMistral Vibe is a command-line coding assistant powered by Mistral's models. It provides a conversational interface to your codebase, allowing you to use natural language to explore, modify, and interact with your projects through a powerful set of tools.",
+      "description": "# Repository: mistralai/mistral-vibe\n[...]\nMinimal CLI coding agent by Mistral\n[...]\n# Mistral Vibe\n[...]\n**Mistral's open-source CLI coding assistant.**\n[...]\nMistral Vibe is a command-line coding assistant powered by Mistral's models. It provides a conversational interface to your codebase, allowing you to use natural language to explore, modify, and interact with your projects through a powerful set of tools.",
+      "source": "exa"
+    },
+    {
+      "provider": "exa",
+      "title": "Mistral Vibe (formerly Le Chat) - AI chat and coding agent",
+      "url": "https://mistral.ai/products/vibe?_rsc=258ua",
+      "snippet": "Mistral Vibe (formerly Le Chat) - AI chat and coding agent\n[...]\nWhat is Mistral Vibe?\n[...]\nVibe is Mistral's AI chat assistant and agent for work and code. It combines an AI chat assistant (Vibe for work, formerly Le Chat) and an AI coding agent (Vibe for code) in a single product for individuals, teams, and enterprises.\n[...]\nLe Chat is now Vibe. All your conversations, settings, and plans carry over.",
+      "description": "Mistral Vibe (formerly Le Chat) - AI chat and coding agent\n[...]\nWhat is Mistral Vibe?\n[...]\nVibe is Mistral's AI chat assistant and agent for work and code. It combines an AI chat assistant (Vibe for work, formerly Le Chat) and an AI coding agent (Vibe for code) in a single product for individuals, teams, and enterprises.\n[...]\nLe Chat is now Vibe. All your conversations, settings, and plans carry over.",
+      "source": "exa"
+    },
+    {
+      "provider": "exa",
+      "title": "Vibe - AI coding agent for terminal, IDE by Mistral",
+      "url": "https://mistral.ai/products/vibe/code/",
+      "snippet": "Vibe - AI coding agent for terminal, IDE by Mistral\n[...]\nInstall the CLI with a single command \u2014`curl -LsSf ` https://mistral.ai/vibe/install.sh` | bash` or`uv tool install mistral-vibe`. Also available in the Vibe app. Access via Pro, or Team plans, or get an API key from Mistral Studio.\n[...]\nMistral Vibe generates production-\n[...]\ncode from natural language, refactors across files, auto-generates tests, reviews pull requests, documents APIs, migrates legacy codebases \u2014 all with full project context.",
+      "description": "Vibe - AI coding agent for terminal, IDE by Mistral\n[...]\nInstall the CLI with a single command \u2014`curl -LsSf ` https://mistral.ai/vibe/install.sh` | bash` or`uv tool install mistral-vibe`. Also available in the Vibe app. Access via Pro, or Team plans, or get an API key from Mistral Studio.\n[...]\nMistral Vibe generates production-\n[...]\ncode from natural language, refactors across files, auto-generates tests, reviews pull requests, documents APIs, migrates legacy codebases \u2014 all with full project context.",
+      "source": "exa"
+    },
+    {
+      "provider": "exa",
+      "title": "Vibe | Mistral Docs",
+      "url": "https://docs.mistral.ai/vibe/overview",
+      "snippet": "Vibe | Mistral Docs\n[...]\n# Vibe\n[...]\nLe Chat is now Vibe. The chat.mistral.ai \u2197 URL remains the entry point and most features now live inside Work, with a few legacy ones still available in Chat (see below). Your plan, history, and settings are preserved in Chat.\n[...]\nVibe is Mistral's unified agent for productivity and coding tasks, built for professional use and available across web, mobile, your code editor, and your terminal.",
+      "description": "Vibe | Mistral Docs\n[...]\n# Vibe\n[...]\nLe Chat is now Vibe. The chat.mistral.ai \u2197 URL remains the entry point and most features now live inside Work, with a few legacy ones still available in Chat (see below). Your plan, history, and settings are preserved in Chat.\n[...]\nVibe is Mistral's unified agent for productivity and coding tasks, built for professional use and available across web, mobile, your code editor, and your terminal.",
+      "source": "exa"
+    },
+    {
+      "provider": "exa",
+      "title": "Vibe gets to work. | Mistral AI",
+      "url": "https://mistral.ai/news/vibe-agent/",
+      "snippet": "Vibe gets to work. | Mistral AI\n[...]\nVibe is now one agent for long-running, multi-step work. It catches up across your inbox and calendar, runs deep research, drafts deliverables, and orchestrates the recurring processes that run your day-to-day.\n[...]\nVibe runs on flagship Mistral models optimized for reasoning, agentic tasks, tool calls, and coding.\n[...]\nVibe is live at chat.mistral.ai. Download the mobile app from the App Store and Google Play. If you were on Le Chat, your plan, history, and settings are already there within the Chat mode. *\n[...]\nFor code, Vibe is on the web at chat.mistral.ai/code, in VS Code through the new extension, and in your terminal with the CLI:",
+      "description": "Vibe gets to work. | Mistral AI\n[...]\nVibe is now one agent for long-running, multi-step work. It catches up across your inbox and calendar, runs deep research, drafts deliverables, and orchestrates the recurring processes that run your day-to-day.\n[...]\nVibe runs on flagship Mistral models optimized for reasoning, agentic tasks, tool calls, and coding.\n[...]\nVibe is live at chat.mistral.ai. Download the mobile app from the App Store and Google Play. If you were on Le Chat, your plan, history, and settings are already there within the Chat mode. *\n[...]\nFor code, Vibe is on the web at chat.mistral.ai/code, in VS Code through the new extension, and in your terminal with the CLI:",
+      "source": "exa"
+    },
+    {
+      "provider": "exa",
+      "title": "Work with the CLI | Mistral Docs",
+      "url": "https://docs.mistral.ai/vibe/code/cli/work-with-cli",
+      "snippet": "Work with the CLI | Mistral Docs\n[...]\nOnce the CLI is installed and your API key is set, you're ready for day-to-day work. The CLI runs in two modes: interactive for chat and exploration, and programmatic for scripting and CI.\n[...]\n```\nvibe",
+      "description": "Work with the CLI | Mistral Docs\n[...]\nOnce the CLI is installed and your API key is set, you're ready for day-to-day work. The CLI runs in two modes: interactive for chat and exploration, and programmatic for scripting and CI.\n[...]\n```\nvibe",
+      "source": "exa"
+    },
+    {
+      "provider": "exa",
+      "title": "mistral-vibe v2.8.0",
+      "url": "https://pypi.org/project/mistral-vibe/2.8.0/",
+      "snippet": "Minimal CLI coding agent by Mistral\n[...]\n- Author: Mistral AI\n- License: Apache-2.0\n- Python: >=3.12\n- Status: 5 - Production/Stable\n- Keywords: ai, cli, coding-assistant, developer-tools, llm, mistral\n- PyPI: https://pypi.org/project/mistral-vibe/\n[...]\n- Documentation: https://github.com/mistralai/mistral-vibe#readme\n- Homepage: https://github.com/mistralai/mistral-vibe\n- Issues: https://github.com/mistralai/mistral-vibe/issues\n- Repository: https://github.com/mistralai/mistral-vibe\n[...]\n# Mistral\n[...]\n**Mistral's open-source CLI coding assistant.**\n[...]\nMistral Vibe is a command-line coding assistant powered by Mistral's models. It provides a conversational interface to your codebase, allowing you to use natural language to explore, modify, and interact with your projects through a powerful set of tools.\n[...]\nCopyright 2025 Mistral AI",
+      "description": "Minimal CLI coding agent by Mistral\n[...]\n- Author: Mistral AI\n- License: Apache-2.0\n- Python: >=3.12\n- Status: 5 - Production/Stable\n- Keywords: ai, cli, coding-assistant, developer-tools, llm, mistral\n- PyPI: https://pypi.org/project/mistral-vibe/\n[...]\n- Documentation: https://github.com/mistralai/mistral-vibe#readme\n- Homepage: https://github.com/mistralai/mistral-vibe\n- Issues: https://github.com/mistralai/mistral-vibe/issues\n- Repository: https://github.com/mistralai/mistral-vibe\n[...]\n# Mistral\n[...]\n**Mistral's open-source CLI coding assistant.**\n[...]\nMistral Vibe is a command-line coding assistant powered by Mistral's models. It provides a conversational interface to your codebase, allowing you to use natural language to explore, modify, and interact with your projects through a powerful set of tools.\n[...]\nCopyright 2025 Mistral AI",
+      "source": "exa"
+    },
+    {
+      "provider": "exa",
+      "title": "Mistral rebrands LeChat as Vibe, betting its chatbot's future is as a full-blown work agent",
+      "url": "https://the-decoder.com/mistral-rebrands-lechat-as-vibe-betting-its-chatbots-future-is-as-a-full-blown-work-agent/",
+      "snippet": "# Mistral rebrands LeChat as Vibe, betting its chatbot's future is as a full-blown work agent\n[...]\nMistral rebrands LeChat as Vibe, betting its chatbot's future is as a full-blown work agent\n[...]\n# Mistral rebrands LeChat as Vibe, betting its chatbot's future is as a full-blown work agent\n[...]\n- Mistral AI has rebranded its chatbot \"Le Chat\" as \"Vibe\" and repositioned it as a full AI work tool, featuring a \"Work Mode\" that connects with services like Google Workspace and Slack to handle tasks such as emails and reports.\n[...]\n- Vibe launches with four pricing tiers, though specific usage limits remain unclear. The rebrand consolidates Mistral's existing features into a single product aimed at competing directly with AI agents from OpenAI, Google, and Anthropic.\n[...]\nMistral AI is renaming Le Chat to Vibe, repositioning the former chatbot as a work tool that handles emails, writes reports, and ships code all the way to the pull request stage. Existing conversations and settings carry over, but the pricing is new.\n[...]\nThe name \"Vibe\" already existed, by the way. Until the rebrand, it was Mistral's coding tool, available as a paid feature on Pro and Team since Vibe 2.0. Now the name has jumped from the coding agent to the whole assistant.\n[...]\nOver the past year, Le Chat gradually picked up Deep Research, a voice mode, image editing, MCP integrations, and a memory function. Work Mode and cloud-based coding agents followed in early May. Vibe bundles all of it under one brand and puts Mistral in more direct competition with the agentic versions of ChatGPT, Gemini, and Claude.\n[...]\nThe coding setup with parallel sandbox agents isn't unique. OpenAI has Codex, Anthropic has Claude code in the browser, and Cursor runs entire agent fleets in version three. Adding to the confusion, the Vibe name used to mean Mistral's coding assistant Vibe 2.0. Now it covers the whole product, work mode and all.",
+      "description": "# Mistral rebrands LeChat as Vibe, betting its chatbot's future is as a full-blown work agent\n[...]\nMistral rebrands LeChat as Vibe, betting its chatbot's future is as a full-blown work agent\n[...]\n# Mistral rebrands LeChat as Vibe, betting its chatbot's future is as a full-blown work agent\n[...]\n- Mistral AI has rebranded its chatbot \"Le Chat\" as \"Vibe\" and repositioned it as a full AI work tool, featuring a \"Work Mode\" that connects with services like Google Workspace and Slack to handle tasks such as emails and reports.\n[...]\n- Vibe launches with four pricing tiers, though specific usage limits remain unclear. The rebrand consolidates Mistral's existing features into a single product aimed at competing directly with AI agents from OpenAI, Google, and Anthropic.\n[...]\nMistral AI is renaming Le Chat to Vibe, repositioning the former chatbot as a work tool that handles emails, writes reports, and ships code all the way to the pull request stage. Existing conversations and settings carry over, but the pricing is new.\n[...]\nThe name \"Vibe\" already existed, by the way. Until the rebrand, it was Mistral's coding tool, available as a paid feature on Pro and Team since Vibe 2.0. Now the name has jumped from the coding agent to the whole assistant.\n[...]\nOver the past year, Le Chat gradually picked up Deep Research, a voice mode, image editing, MCP integrations, and a memory function. Work Mode and cloud-based coding agents followed in early May. Vibe bundles all of it under one brand and puts Mistral in more direct competition with the agentic versions of ChatGPT, Gemini, and Claude.\n[...]\nThe coding setup with parallel sandbox agents isn't unique. OpenAI has Codex, Anthropic has Claude code in the browser, and Cursor runs entire agent fleets in version three. Adding to the confusion, the Vibe name used to mean Mistral's coding assistant Vibe 2.0. Now it covers the whole product, work mode and all.",
+      "source": "exa"
+    }
+  ],
+  "skipped": false,
+  "skip_reason": "",
+  "cache_status": "miss",
+  "latency_ms": 2038,
+  "cost_usd": 0.007,
+  "capabilities": {
+    "provider": "exa",
+    "snippet_only": false,
+    "page_content_returned": true,
+    "livecrawl_available": true,
+    "cost_estimated": true
+  },
+  "query_id": "",
+  "query_family": "hard_evidence_resolver",
+  "movement": "",
+  "market_sector": ""
+}

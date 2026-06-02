@@ -1,0 +1,86 @@
+{
+  "provider": "exa",
+  "query": "\"Tabstack Web Research\" \"[REDACTED], [REDACTED], [REDACTED], [REDACTED], [REDACTED], [REDACTED]\" founder maker official",
+  "items": [
+    {
+      "provider": "exa",
+      "title": "Tabstack - Web Browsing for AI",
+      "url": "https://tabstack.ai/",
+      "snippet": "Tabstack - Web Browsing for AI\n[...]\nTabstack enables AI systems to browse, search, and interact with the web autonomously.\n[...]\n## /Research\n[...]\nAs a Mozilla-backed platform, we are committed to responsible, transparent web automation that respects both user privacy and publisher intent. Tabstack is designed to give website owners clear visibility into automated access and meaningful control over how their content is used. Specifically, Tabstack:",
+      "description": "Tabstack - Web Browsing for AI\n[...]\nTabstack enables AI systems to browse, search, and interact with the web autonomously.\n[...]\n## /Research\n[...]\nAs a Mozilla-backed platform, we are committed to responsible, transparent web automation that respects both user privacy and publisher intent. Tabstack is designed to give website owners clear visibility into automated access and meaningful control over how their content is used. Specifically, Tabstack:",
+      "source": "exa"
+    },
+    {
+      "provider": "exa",
+      "title": "Tabstack | Mozilla New Products",
+      "url": "https://newproducts.mozilla.org/product/tabstack/",
+      "snippet": "Tabstack | Mozilla New Products \n\nTabstack\n[...]\nTabstack is a web execution and data transformation API. It\u2019s built for developers whose AI systems need to reliably read and take action on the web.\n[...]\nWhether you\u2019re building AI agents, research tools, data pipelines, or autonomous workflows \u2013 Tabstack makes web access simple and reliable.\n[...]\nMozilla-backed privacy",
+      "description": "Tabstack | Mozilla New Products \n\nTabstack\n[...]\nTabstack is a web execution and data transformation API. It\u2019s built for developers whose AI systems need to reliably read and take action on the web.\n[...]\nWhether you\u2019re building AI agents, research tools, data pipelines, or autonomous workflows \u2013 Tabstack makes web access simple and reliable.\n[...]\nMozilla-backed privacy",
+      "source": "exa"
+    },
+    {
+      "provider": "exa",
+      "title": "Tabstack: Browsing Infrastructure for AI Agents | Tabstack Blog | Tabstack",
+      "url": "https://tabstack.ai/blog/intro-browsing-infrastructure-ai-agents",
+      "snippet": "Tabstack: Browsing Infrastructure for AI Agents | Tabstack Blog | Tabstack\n[...]\nSuddenly, you are not building AI anymore. You are maintaining a fragile, expensive web layer. We built Tabstack to turn that chaotic infrastructure into a solved problem.\n[...]\nToday, we are publicly launching Tabstack, the web execution layer for AI systems.\n[...]\nTabstack is a developer-focused API that enables AI agents to extract, generate, and automate web content. It acts as a single abstraction layer that collapses the complexity of web automation. Tabstack gives your agents the ability to navigate pages, interact with real user flows, and turn the chaotic web into clean, actionable inputs.\n[...]\nWe know that giving an external service access to your web traffic requires trust. Tabstack is built by Mozilla.",
+      "description": "Tabstack: Browsing Infrastructure for AI Agents | Tabstack Blog | Tabstack\n[...]\nSuddenly, you are not building AI anymore. You are maintaining a fragile, expensive web layer. We built Tabstack to turn that chaotic infrastructure into a solved problem.\n[...]\nToday, we are publicly launching Tabstack, the web execution layer for AI systems.\n[...]\nTabstack is a developer-focused API that enables AI agents to extract, generate, and automate web content. It acts as a single abstraction layer that collapses the complexity of web automation. Tabstack gives your agents the ability to navigate pages, interact with real user flows, and turn the chaotic web into clean, actionable inputs.\n[...]\nWe know that giving an external service access to your web traffic requires trust. Tabstack is built by Mozilla.",
+      "source": "exa"
+    },
+    {
+      "provider": "exa",
+      "title": "Tabstack Research: Verified Answers from the Open Web | Tabstack Blog | Tabstack",
+      "url": "https://tabstack.ai/blog/tabstack-research-verified-answers",
+      "snippet": "Tabstack Research: Verified Answers from the Open Web | Tabstack Blog | Tabstack\n[...]\nWeb browsing is the hidden tax of AI development. When you connect an agent to the open web, you are forced to stop building AI and start managing the overhead of browser orchestration. You end up debugging JS-rendering, rotating proxies, and writing brittle selectors just to turn the chaotic web into clean inputs. This is why we built Tabstack: to turn browsing into a reliable infrastructure layer.\n[...]\nToday we are launching Tabstack Research. It is a high-level research primitive that moves the autonomous reasoning loop into the infrastructure layer. You give us a goal. We execute the coordinated workflow of discovery, extraction, and verification to return a synthesized report backed by source citations.\n[...]\nWe built Tabstack Research to move this orchestration logic out of your application and into our specialized browsing layer. When you send us a request, we initiate a multi-phase agentic loop designed to mimic the recursive nature of human research at machine speed.\n[...]\nIn an era of opaque AI, we have taken a different path. As part of the Mozilla ecosystem, Tabstack is built on a foundation of privacy and responsibility. This is not just a marketing claim. It is a technical constraint on how we handle your data.",
+      "description": "Tabstack Research: Verified Answers from the Open Web | Tabstack Blog | Tabstack\n[...]\nWeb browsing is the hidden tax of AI development. When you connect an agent to the open web, you are forced to stop building AI and start managing the overhead of browser orchestration. You end up debugging JS-rendering, rotating proxies, and writing brittle selectors just to turn the chaotic web into clean inputs. This is why we built Tabstack: to turn browsing into a reliable infrastructure layer.\n[...]\nToday we are launching Tabstack Research. It is a high-level research primitive that moves the autonomous reasoning loop into the infrastructure layer. You give us a goal. We execute the coordinated workflow of discovery, extraction, and verification to return a synthesized report backed by source citations.\n[...]\nWe built Tabstack Research to move this orchestration logic out of your application and into our specialized browsing layer. When you send us a request, we initiate a multi-phase agentic loop designed to mimic the recursive nature of human research at machine speed.\n[...]\nIn an era of opaque AI, we have taken a different path. As part of the Mozilla ecosystem, Tabstack is built on a foundation of privacy and responsibility. This is not just a marketing claim. It is a technical constraint on how we handle your data.",
+      "source": "exa"
+    },
+    {
+      "provider": "exa",
+      "title": "Show HN: Tabstack \u2013 Browser infrastructure for AI agents (by Mozilla) | Hacker News",
+      "url": "https://news.ycombinator.com/item?id=46620358",
+      "snippet": "Show HN: Tabstack \u2013 Browser infrastructure for AI agents (by Mozilla) | Hacker News\n[...]\nMy team and I are building Tabstack to handle the \"web layer\" for AI agents. Launch Post: https://tabstack.ai/blog/intro-browsing-infrastructure-ai-ag...\n[...]\nTabstack is an API that abstracts that infrastructure. You send a URL and an intent; we handle the rendering and return clean, structured data for the LLM.",
+      "description": "Show HN: Tabstack \u2013 Browser infrastructure for AI agents (by Mozilla) | Hacker News\n[...]\nMy team and I are building Tabstack to handle the \"web layer\" for AI agents. Launch Post: https://tabstack.ai/blog/intro-browsing-infrastructure-ai-ag...\n[...]\nTabstack is an API that abstracts that infrastructure. You send a URL and an intent; we handle the rendering and return clean, structured data for the LLM.",
+      "source": "exa"
+    },
+    {
+      "provider": "exa",
+      "title": "Show HN: Tabstack Research \u2013 An API for verified web research (by Mozilla) | Hacker News",
+      "url": "https://news.ycombinator.com/item?id=46889144",
+      "snippet": "Show HN: Tabstack Research \u2013 An API for verified web research (by Mozilla) | Hacker News\n[...]\nMy team and I are building Tabstack to handle the web layer for AI agents. Today we are sharing Tabstack Research, an API for multi-step web discovery and synthesis.\n[...]\nWe built Tabstack Research to move this reasoning loop into the infrastructure layer. You send a goal, and the system:\n[...]\n| Show HN: Tabstack Research \u2013 An API for verified web research (by Mozilla) |\n[...]\n| --- |",
+      "description": "Show HN: Tabstack Research \u2013 An API for verified web research (by Mozilla) | Hacker News\n[...]\nMy team and I are building Tabstack to handle the web layer for AI agents. Today we are sharing Tabstack Research, an API for multi-step web discovery and synthesis.\n[...]\nWe built Tabstack Research to move this reasoning loop into the infrastructure layer. You send a goal, and the system:\n[...]\n| Show HN: Tabstack Research \u2013 An API for verified web research (by Mozilla) |\n[...]\n| --- |",
+      "source": "exa"
+    },
+    {
+      "provider": "exa",
+      "title": "Mozilla Careers \u2014 Tabstack Founding GTM Lead \u2014 Open Positions",
+      "url": "https://www.mozilla.org/en-US/careers/position/gh/7588999/",
+      "snippet": "Mozilla Careers \u2014 Tabstack Founding GTM Lead \u2014 Open Positions\n[...]\n# Tabstack Founding GTM Lead\n[...]\nThe New Products organization at Mozilla operates as an internal incubator for high-potential ventures. You will be joining Tabstack, which is operating as a fast-paced autonomous team within the organization.\n[...]\nTabstack is building the essential browser automation stack for AI agents. Our goal is to make it as simple as possible for developers to integrate fast and reliable web interactions into their AI-powered systems and agentic applications.\n[...]\nWe are seeking a Founding GTM Lead to own early customer growth and shape Tabstack\u2019s go-to-market strategy. You will be responsible for growing the platform and discovering and validating repeatable paths to customer acquisition. This is a 0\u21921 role where success is defined by learning velocity, customer signal, and commercial traction.\n[...]\nThe ideal candidate has the heart of a developer but the mindset of a founder. You are comfortable in a \"0 to 1\" environment with minimal support, eager to experiment, and willing to get your hands dirty in everything from writing integration docs to negotiating contracts.\n[...]\n- Own Messaging, Positioning & Meaningful Technical ContentCraft the core narrative and value proposition. You will lead the content marketing strategy, experimenting with different messages across blogs, landing pages, and use cases to see what drives adoption. You will identify the most compelling stories and collaborate with the engineering team to ensure technical accuracy, while you focus on optimizing the funnel and communicating the \"why\" behind Tabstack to drive conversion.\n[...]\n- Drive Customer Acquisition & GTM ExperimentsDesign and run early go-to-market experiments to discover repeatable ways to reach high-intent audiences. This includes scrappy, high-signal tactics such as targeted outreach, ecosystem engagement, founder-led sales, and experimentation with messaging and channels while prioritizing learning and signal over scale.\n[...]\n- Deep Industry Knowledge\n[...]\nLlamaIndex, vector\n[...]\nPlaywright, Selenium).\n[...]\n- The \"Hustle\" of a Founder: Experience working in early-stage startups or new product incubators. You know how to generate leads without a massive marketing budget.\n[...]\n- 5+ years of relevant experience: A mix of Product Marketing, Technical Sales, Founder experience, or Developer Relations with a heavy focus on revenue/growth.\n[...]\n- Familiarity with open source business models and the \"tech for good\" ecosystem.\n- Existing relationships with key startups and enterprise tech teams in the AI ecosystem.\n- A past body of published technical work: conference talks, tutorials, or videos where you communicate complex concepts.\n- Experience as a technical founder or early employee at a DevTools company.",
+      "description": "Mozilla Careers \u2014 Tabstack Founding GTM Lead \u2014 Open Positions\n[...]\n# Tabstack Founding GTM Lead\n[...]\nThe New Products organization at Mozilla operates as an internal incubator for high-potential ventures. You will be joining Tabstack, which is operating as a fast-paced autonomous team within the organization.\n[...]\nTabstack is building the essential browser automation stack for AI agents. Our goal is to make it as simple as possible for developers to integrate fast and reliable web interactions into their AI-powered systems and agentic applications.\n[...]\nWe are seeking a Founding GTM Lead to own early customer growth and shape Tabstack\u2019s go-to-market strategy. You will be responsible for growing the platform and discovering and validating repeatable paths to customer acquisition. This is a 0\u21921 role where success is defined by learning velocity, customer signal, and commercial traction.\n[...]\nThe ideal candidate has the heart of a developer but the mindset of a founder. You are comfortable in a \"0 to 1\" environment with minimal support, eager to experiment, and willing to get your hands dirty in everything from writing integration docs to negotiating contracts.\n[...]\n- Own Messaging, Positioning & Meaningful Technical ContentCraft the core narrative and value proposition. You will lead the content marketing strategy, experimenting with different messages across blogs, landing pages, and use cases to see what drives adoption. You will identify the most compelling stories and collaborate with the engineering team to ensure technical accuracy, while you focus on optimizing the funnel and communicating the \"why\" behind Tabstack to drive conversion.\n[...]\n- Drive Customer Acquisition & GTM ExperimentsDesign and run early go-to-market experiments to discover repeatable ways to reach high-intent audiences. This includes scrappy, high-signal tactics such as targeted outreach, ecosystem engagement, founder-led sales, and experimentation with messaging and channels while prioritizing learning and signal over scale.\n[...]\n- Deep Industry Knowledge\n[...]\nLlamaIndex, vector\n[...]\nPlaywright, Selenium).\n[...]\n- The \"Hustle\" of a Founder: Experience working in early-stage startups or new product incubators. You know how to generate leads without a massive marketing budget.\n[...]\n- 5+ years of relevant experience: A mix of Product Marketing, Technical Sales, Founder experience, or Developer Relations with a heavy focus on revenue/growth.\n[...]\n- Familiarity with open source business models and the \"tech for good\" ecosystem.\n- Existing relationships with key startups and enterprise tech teams in the AI ecosystem.\n- A past body of published technical work: conference talks, tutorials, or videos where you communicate complex concepts.\n- Experience as a technical founder or early employee at a DevTools company.",
+      "source": "exa"
+    },
+    {
+      "provider": "exa",
+      "title": "API | Tabstack",
+      "url": "https://tabstack.ai/api",
+      "snippet": "API | Tabstack\n[...]\nAI systems to\n[...]\n, search, and interact with the web autonomously.\n[...]\n#### Tabstack API\n[...]\n## /Research\n[...]\nAs a Mozilla-backed platform, we are committed to responsible, transparent web automation that respects both user privacy and publisher intent. Tabstack is designed to give website owners clear visibility into automated access and meaningful control over how their content is used. Specifically, Tabstack:",
+      "description": "API | Tabstack\n[...]\nAI systems to\n[...]\n, search, and interact with the web autonomously.\n[...]\n#### Tabstack API\n[...]\n## /Research\n[...]\nAs a Mozilla-backed platform, we are committed to responsible, transparent web automation that respects both user privacy and publisher intent. Tabstack is designed to give website owners clear visibility into automated access and meaningful control over how their content is used. Specifically, Tabstack:",
+      "source": "exa"
+    }
+  ],
+  "skipped": false,
+  "skip_reason": "",
+  "cache_status": "miss",
+  "latency_ms": 1264,
+  "cost_usd": 0.007,
+  "capabilities": {
+    "provider": "exa",
+    "snippet_only": false,
+    "page_content_returned": true,
+    "livecrawl_available": true,
+    "cost_estimated": true
+  },
+  "query_id": "",
+  "query_family": "hard_evidence_resolver",
+  "movement": "",
+  "market_sector": ""
+}

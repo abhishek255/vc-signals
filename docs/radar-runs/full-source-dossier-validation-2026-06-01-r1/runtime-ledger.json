@@ -1,0 +1,818 @@
+{
+  "mode": "deep_dive",
+  "attempted_queries": 25,
+  "completed_queries": 25,
+  "skipped_queries": 0,
+  "skip_reasons": {},
+  "cache_hits": 0,
+  "stale_cache_hits": 0,
+  "live_calls": 29,
+  "budget_exceeded": false,
+  "partial": false,
+  "query_events": [
+    {
+      "query_id": "ai-agent-security-focus_movement_company_search",
+      "kind": "focus_movement_company_search",
+      "query_family": "official_company_page",
+      "movement": "AI agent security",
+      "topic": "AI agent security startup company platform official",
+      "priority_score": 53,
+      "budget_mode": "deep_dive",
+      "status": "attempted",
+      "cache_status": "miss"
+    },
+    {
+      "query_id": "ai-agent-security-focus_movement_company_search",
+      "kind": "focus_movement_company_search",
+      "query_family": "official_company_page",
+      "movement": "AI agent security",
+      "topic": "AI agent security startup company platform official",
+      "priority_score": 53,
+      "budget_mode": "deep_dive",
+      "status": "completed",
+      "cache_status": "miss"
+    },
+    {
+      "query_id": "devtools-workflow-automation-focus_movement_company_search",
+      "kind": "focus_movement_company_search",
+      "query_family": "official_company_page",
+      "movement": "Devtools workflow automation",
+      "topic": "Devtools workflow automation startup company platform official",
+      "priority_score": 53,
+      "budget_mode": "deep_dive",
+      "status": "attempted",
+      "cache_status": "miss"
+    },
+    {
+      "query_id": "devtools-workflow-automation-focus_movement_company_search",
+      "kind": "focus_movement_company_search",
+      "query_family": "official_company_page",
+      "movement": "Devtools workflow automation",
+      "topic": "Devtools workflow automation startup company platform official",
+      "priority_score": 53,
+      "budget_mode": "deep_dive",
+      "status": "completed",
+      "cache_status": "miss"
+    },
+    {
+      "query_id": "devtools-oss-workflow-tooling-focus_movement_company_search",
+      "kind": "focus_movement_company_search",
+      "query_family": "official_company_page",
+      "movement": "Devtools OSS workflow tooling",
+      "topic": "Devtools OSS workflow tooling startup company platform official",
+      "priority_score": 53,
+      "budget_mode": "deep_dive",
+      "status": "attempted",
+      "cache_status": "miss"
+    },
+    {
+      "query_id": "devtools-oss-workflow-tooling-focus_movement_company_search",
+      "kind": "focus_movement_company_search",
+      "query_family": "official_company_page",
+      "movement": "Devtools OSS workflow tooling",
+      "topic": "Devtools OSS workflow tooling startup company platform official",
+      "priority_score": 53,
+      "budget_mode": "deep_dive",
+      "status": "completed",
+      "cache_status": "miss"
+    },
+    {
+      "query_id": "devtools-security-compliance-tooling-focus_movement_company_search",
+      "kind": "focus_movement_company_search",
+      "query_family": "official_company_page",
+      "movement": "Devtools security/compliance tooling",
+      "topic": "Devtools security/compliance tooling startup company platform official",
+      "priority_score": 53,
+      "budget_mode": "deep_dive",
+      "status": "attempted",
+      "cache_status": "miss"
+    },
+    {
+      "query_id": "devtools-security-compliance-tooling-focus_movement_company_search",
+      "kind": "focus_movement_company_search",
+      "query_family": "official_company_page",
+      "movement": "Devtools security/compliance tooling",
+      "topic": "Devtools security/compliance tooling startup company platform official",
+      "priority_score": 53,
+      "budget_mode": "deep_dive",
+      "status": "completed",
+      "cache_status": "miss"
+    },
+    {
+      "query_id": "vertical-ai-operations-focus_movement_company_search",
+      "kind": "focus_movement_company_search",
+      "query_family": "official_company_page",
+      "movement": "Vertical AI operations",
+      "topic": "Vertical AI operations startup company platform official",
+      "priority_score": 53,
+      "budget_mode": "deep_dive",
+      "status": "attempted",
+      "cache_status": "miss"
+    },
+    {
+      "query_id": "vertical-ai-operations-focus_movement_company_search",
+      "kind": "focus_movement_company_search",
+      "query_family": "official_company_page",
+      "movement": "Vertical AI operations",
+      "topic": "Vertical AI operations startup company platform official",
+      "priority_score": 53,
+      "budget_mode": "deep_dive",
+      "status": "completed",
+      "cache_status": "miss"
+    },
+    {
+      "query_id": "vertical-ai-workflow-automation-focus_movement_company_search",
+      "kind": "focus_movement_company_search",
+      "query_family": "official_company_page",
+      "movement": "Vertical AI workflow automation",
+      "topic": "Vertical AI workflow automation startup company platform official",
+      "priority_score": 53,
+      "budget_mode": "deep_dive",
+      "status": "attempted",
+      "cache_status": "miss"
+    },
+    {
+      "query_id": "vertical-ai-workflow-automation-focus_movement_company_search",
+      "kind": "focus_movement_company_search",
+      "query_family": "official_company_page",
+      "movement": "Vertical AI workflow automation",
+      "topic": "Vertical AI workflow automation startup company platform official",
+      "priority_score": 53,
+      "budget_mode": "deep_dive",
+      "status": "completed",
+      "cache_status": "miss"
+    },
+    {
+      "query_id": "agent-reliability-and-evals-focus_movement_company_search",
+      "kind": "focus_movement_company_search",
+      "query_family": "official_company_page",
+      "movement": "Agent reliability and evals",
+      "topic": "Agent reliability and evals startup company platform official",
+      "priority_score": 53,
+      "budget_mode": "deep_dive",
+      "status": "attempted",
+      "cache_status": "miss"
+    },
+    {
+      "query_id": "agent-reliability-and-evals-focus_movement_company_search",
+      "kind": "focus_movement_company_search",
+      "query_family": "official_company_page",
+      "movement": "Agent reliability and evals",
+      "topic": "Agent reliability and evals startup company platform official",
+      "priority_score": 53,
+      "budget_mode": "deep_dive",
+      "status": "completed",
+      "cache_status": "miss"
+    },
+    {
+      "query_id": "agent-runtime-infrastructure-focus_movement_company_search",
+      "kind": "focus_movement_company_search",
+      "query_family": "official_company_page",
+      "movement": "Agent runtime infrastructure",
+      "topic": "Agent runtime infrastructure startup company platform official",
+      "priority_score": 53,
+      "budget_mode": "deep_dive",
+      "status": "attempted",
+      "cache_status": "miss"
+    },
+    {
+      "query_id": "agent-runtime-infrastructure-focus_movement_company_search",
+      "kind": "focus_movement_company_search",
+      "query_family": "official_company_page",
+      "movement": "Agent runtime infrastructure",
+      "topic": "Agent runtime infrastructure startup company platform official",
+      "priority_score": 53,
+      "budget_mode": "deep_dive",
+      "status": "completed",
+      "cache_status": "miss"
+    },
+    {
+      "query_id": "ai-data-infrastructure-focus_movement_company_search",
+      "kind": "focus_movement_company_search",
+      "query_family": "official_company_page",
+      "movement": "AI data infrastructure",
+      "topic": "AI data infrastructure startup company platform official",
+      "priority_score": 53,
+      "budget_mode": "deep_dive",
+      "status": "attempted",
+      "cache_status": "miss"
+    },
+    {
+      "query_id": "ai-data-infrastructure-focus_movement_company_search",
+      "kind": "focus_movement_company_search",
+      "query_family": "official_company_page",
+      "movement": "AI data infrastructure",
+      "topic": "AI data infrastructure startup company platform official",
+      "priority_score": 53,
+      "budget_mode": "deep_dive",
+      "status": "completed",
+      "cache_status": "miss"
+    },
+    {
+      "query_id": "devtools-workflow-automation-focus_movement_funding_search",
+      "kind": "focus_movement_funding_search",
+      "query_family": "funding_launch_article",
+      "movement": "Devtools workflow automation",
+      "topic": "Devtools workflow automation startup raises seed Series A launches funding company",
+      "priority_score": 51,
+      "budget_mode": "deep_dive",
+      "status": "attempted",
+      "cache_status": "miss"
+    },
+    {
+      "query_id": "devtools-workflow-automation-focus_movement_funding_search",
+      "kind": "focus_movement_funding_search",
+      "query_family": "funding_launch_article",
+      "movement": "Devtools workflow automation",
+      "topic": "Devtools workflow automation startup raises seed Series A launches funding company",
+      "priority_score": 51,
+      "budget_mode": "deep_dive",
+      "status": "completed",
+      "cache_status": "miss"
+    },
+    {
+      "query_id": "devtools-oss-workflow-tooling-focus_movement_funding_search",
+      "kind": "focus_movement_funding_search",
+      "query_family": "funding_launch_article",
+      "movement": "Devtools OSS workflow tooling",
+      "topic": "Devtools OSS workflow tooling startup raises seed Series A launches funding company",
+      "priority_score": 51,
+      "budget_mode": "deep_dive",
+      "status": "attempted",
+      "cache_status": "miss"
+    },
+    {
+      "query_id": "devtools-oss-workflow-tooling-focus_movement_funding_search",
+      "kind": "focus_movement_funding_search",
+      "query_family": "funding_launch_article",
+      "movement": "Devtools OSS workflow tooling",
+      "topic": "Devtools OSS workflow tooling startup raises seed Series A launches funding company",
+      "priority_score": 51,
+      "budget_mode": "deep_dive",
+      "status": "completed",
+      "cache_status": "miss"
+    },
+    {
+      "query_id": "devtools-security-compliance-tooling-focus_movement_funding_search",
+      "kind": "focus_movement_funding_search",
+      "query_family": "funding_launch_article",
+      "movement": "Devtools security/compliance tooling",
+      "topic": "Devtools security/compliance tooling startup raises seed Series A launches funding company",
+      "priority_score": 51,
+      "budget_mode": "deep_dive",
+      "status": "attempted",
+      "cache_status": "miss"
+    },
+    {
+      "query_id": "devtools-security-compliance-tooling-focus_movement_funding_search",
+      "kind": "focus_movement_funding_search",
+      "query_family": "funding_launch_article",
+      "movement": "Devtools security/compliance tooling",
+      "topic": "Devtools security/compliance tooling startup raises seed Series A launches funding company",
+      "priority_score": 51,
+      "budget_mode": "deep_dive",
+      "status": "completed",
+      "cache_status": "miss"
+    },
+    {
+      "query_id": "vertical-ai-operations-focus_movement_funding_search",
+      "kind": "focus_movement_funding_search",
+      "query_family": "funding_launch_article",
+      "movement": "Vertical AI operations",
+      "topic": "Vertical AI operations startup raises seed Series A launches funding company",
+      "priority_score": 51,
+      "budget_mode": "deep_dive",
+      "status": "attempted",
+      "cache_status": "miss"
+    },
+    {
+      "query_id": "vertical-ai-operations-focus_movement_funding_search",
+      "kind": "focus_movement_funding_search",
+      "query_family": "funding_launch_article",
+      "movement": "Vertical AI operations",
+      "topic": "Vertical AI operations startup raises seed Series A launches funding company",
+      "priority_score": 51,
+      "budget_mode": "deep_dive",
+      "status": "completed",
+      "cache_status": "miss"
+    },
+    {
+      "query_id": "vertical-ai-workflow-automation-focus_movement_funding_search",
+      "kind": "focus_movement_funding_search",
+      "query_family": "funding_launch_article",
+      "movement": "Vertical AI workflow automation",
+      "topic": "Vertical AI workflow automation startup raises seed Series A launches funding company",
+      "priority_score": 51,
+      "budget_mode": "deep_dive",
+      "status": "attempted",
+      "cache_status": "miss"
+    },
+    {
+      "query_id": "vertical-ai-workflow-automation-focus_movement_funding_search",
+      "kind": "focus_movement_funding_search",
+      "query_family": "funding_launch_article",
+      "movement": "Vertical AI workflow automation",
+      "topic": "Vertical AI workflow automation startup raises seed Series A launches funding company",
+      "priority_score": 51,
+      "budget_mode": "deep_dive",
+      "status": "completed",
+      "cache_status": "miss"
+    },
+    {
+      "query_id": "agent-reliability-and-evals-focus_movement_funding_search",
+      "kind": "focus_movement_funding_search",
+      "query_family": "funding_launch_article",
+      "movement": "Agent reliability and evals",
+      "topic": "Agent reliability and evals startup raises seed Series A launches funding company",
+      "priority_score": 51,
+      "budget_mode": "deep_dive",
+      "status": "attempted",
+      "cache_status": "miss"
+    },
+    {
+      "query_id": "agent-reliability-and-evals-focus_movement_funding_search",
+      "kind": "focus_movement_funding_search",
+      "query_family": "funding_launch_article",
+      "movement": "Agent reliability and evals",
+      "topic": "Agent reliability and evals startup raises seed Series A launches funding company",
+      "priority_score": 51,
+      "budget_mode": "deep_dive",
+      "status": "completed",
+      "cache_status": "miss"
+    },
+    {
+      "query_id": "agent-runtime-infrastructure-focus_movement_funding_search",
+      "kind": "focus_movement_funding_search",
+      "query_family": "funding_launch_article",
+      "movement": "Agent runtime infrastructure",
+      "topic": "Agent runtime infrastructure startup raises seed Series A launches funding company",
+      "priority_score": 51,
+      "budget_mode": "deep_dive",
+      "status": "attempted",
+      "cache_status": "miss"
+    },
+    {
+      "query_id": "agent-runtime-infrastructure-focus_movement_funding_search",
+      "kind": "focus_movement_funding_search",
+      "query_family": "funding_launch_article",
+      "movement": "Agent runtime infrastructure",
+      "topic": "Agent runtime infrastructure startup raises seed Series A launches funding company",
+      "priority_score": 51,
+      "budget_mode": "deep_dive",
+      "status": "completed",
+      "cache_status": "miss"
+    },
+    {
+      "query_id": "ai-data-infrastructure-focus_movement_funding_search",
+      "kind": "focus_movement_funding_search",
+      "query_family": "funding_launch_article",
+      "movement": "AI data infrastructure",
+      "topic": "AI data infrastructure startup raises seed Series A launches funding company",
+      "priority_score": 51,
+      "budget_mode": "deep_dive",
+      "status": "attempted",
+      "cache_status": "miss"
+    },
+    {
+      "query_id": "ai-data-infrastructure-focus_movement_funding_search",
+      "kind": "focus_movement_funding_search",
+      "query_family": "funding_launch_article",
+      "movement": "AI data infrastructure",
+      "topic": "AI data infrastructure startup raises seed Series A launches funding company",
+      "priority_score": 51,
+      "budget_mode": "deep_dive",
+      "status": "completed",
+      "cache_status": "miss"
+    },
+    {
+      "query_id": "vertical-ai-workflow-automation-focus_identity_search",
+      "kind": "focus_identity_search",
+      "query_family": "exact_row_identity",
+      "movement": "Vertical AI workflow automation",
+      "topic": "\"Goldbridge\" \"Vertical AI workflow automation\" official company founder",
+      "priority_score": 45,
+      "budget_mode": "deep_dive",
+      "status": "attempted",
+      "cache_status": "miss"
+    },
+    {
+      "query_id": "vertical-ai-workflow-automation-focus_identity_search",
+      "kind": "focus_identity_search",
+      "query_family": "exact_row_identity",
+      "movement": "Vertical AI workflow automation",
+      "topic": "\"Goldbridge\" \"Vertical AI workflow automation\" official company founder",
+      "priority_score": 45,
+      "budget_mode": "deep_dive",
+      "status": "completed",
+      "cache_status": "miss"
+    },
+    {
+      "query_id": "agent-runtime-infrastructure-focus_identity_search",
+      "kind": "focus_identity_search",
+      "query_family": "exact_row_identity",
+      "movement": "Agent runtime infrastructure",
+      "topic": "\"Databox MCP\" \"Agent runtime infrastructure\" official company founder",
+      "priority_score": 45,
+      "budget_mode": "deep_dive",
+      "status": "attempted",
+      "cache_status": "miss"
+    },
+    {
+      "query_id": "agent-runtime-infrastructure-focus_identity_search",
+      "kind": "focus_identity_search",
+      "query_family": "exact_row_identity",
+      "movement": "Agent runtime infrastructure",
+      "topic": "\"Databox MCP\" \"Agent runtime infrastructure\" official company founder",
+      "priority_score": 45,
+      "budget_mode": "deep_dive",
+      "status": "completed",
+      "cache_status": "miss"
+    },
+    {
+      "query_id": "ai-data-infrastructure-focus_identity_search",
+      "kind": "focus_identity_search",
+      "query_family": "exact_row_identity",
+      "movement": "AI data infrastructure",
+      "topic": "\"Simplex\" \"AI data infrastructure\" official company founder",
+      "priority_score": 45,
+      "budget_mode": "deep_dive",
+      "status": "attempted",
+      "cache_status": "miss"
+    },
+    {
+      "query_id": "ai-data-infrastructure-focus_identity_search",
+      "kind": "focus_identity_search",
+      "query_family": "exact_row_identity",
+      "movement": "AI data infrastructure",
+      "topic": "\"Simplex\" \"AI data infrastructure\" official company founder",
+      "priority_score": 45,
+      "budget_mode": "deep_dive",
+      "status": "completed",
+      "cache_status": "miss"
+    },
+    {
+      "query_id": "devtools-oss-workflow-tooling-focus_identity_search",
+      "kind": "focus_identity_search",
+      "query_family": "exact_row_identity",
+      "movement": "Devtools OSS workflow tooling",
+      "topic": "\"Miru\" \"Devtools OSS workflow tooling\" official company founder",
+      "priority_score": 45,
+      "budget_mode": "deep_dive",
+      "status": "attempted",
+      "cache_status": "miss"
+    },
+    {
+      "query_id": "devtools-oss-workflow-tooling-focus_identity_search",
+      "kind": "focus_identity_search",
+      "query_family": "exact_row_identity",
+      "movement": "Devtools OSS workflow tooling",
+      "topic": "\"Miru\" \"Devtools OSS workflow tooling\" official company founder",
+      "priority_score": 45,
+      "budget_mode": "deep_dive",
+      "status": "completed",
+      "cache_status": "miss"
+    },
+    {
+      "query_id": "ai-data-infrastructure-focus_identity_search",
+      "kind": "focus_identity_search",
+      "query_family": "exact_row_identity",
+      "movement": "AI data infrastructure",
+      "topic": "\"Menza\" \"AI data infrastructure\" official company founder",
+      "priority_score": 45,
+      "budget_mode": "deep_dive",
+      "status": "attempted",
+      "cache_status": "miss"
+    },
+    {
+      "query_id": "ai-data-infrastructure-focus_identity_search",
+      "kind": "focus_identity_search",
+      "query_family": "exact_row_identity",
+      "movement": "AI data infrastructure",
+      "topic": "\"Menza\" \"AI data infrastructure\" official company founder",
+      "priority_score": 45,
+      "budget_mode": "deep_dive",
+      "status": "completed",
+      "cache_status": "miss"
+    },
+    {
+      "query_id": "ai-agent-security-theme_company_search",
+      "kind": "theme_company_search",
+      "query_family": "official_company_page",
+      "movement": "AI agent security",
+      "topic": "AI agent security startup company platform official Cybersecurity",
+      "priority_score": 23,
+      "budget_mode": "deep_dive",
+      "status": "attempted",
+      "cache_status": "miss"
+    },
+    {
+      "query_id": "ai-agent-security-theme_company_search",
+      "kind": "theme_company_search",
+      "query_family": "official_company_page",
+      "movement": "AI agent security",
+      "topic": "AI agent security startup company platform official Cybersecurity",
+      "priority_score": 23,
+      "budget_mode": "deep_dive",
+      "status": "completed",
+      "cache_status": "miss"
+    },
+    {
+      "query_id": "ai-agent-security-theme_funding_search",
+      "kind": "theme_funding_search",
+      "query_family": "funding_launch_article",
+      "movement": "AI agent security",
+      "topic": "AI agent security startup raises seed Series A launches funding company",
+      "priority_score": 21,
+      "budget_mode": "deep_dive",
+      "status": "attempted",
+      "cache_status": "miss"
+    },
+    {
+      "query_id": "ai-agent-security-theme_funding_search",
+      "kind": "theme_funding_search",
+      "query_family": "funding_launch_article",
+      "movement": "AI agent security",
+      "topic": "AI agent security startup raises seed Series A launches funding company",
+      "priority_score": 21,
+      "budget_mode": "deep_dive",
+      "status": "completed",
+      "cache_status": "miss"
+    },
+    {
+      "query_id": "ai-agent-security-theme_yc_accelerator_search",
+      "kind": "theme_yc_accelerator_search",
+      "query_family": "yc_accelerator",
+      "movement": "AI agent security",
+      "topic": "site:ycombinator.com/companies \"AI agent security\" startup company",
+      "priority_score": 19,
+      "budget_mode": "deep_dive",
+      "status": "attempted",
+      "cache_status": "miss"
+    },
+    {
+      "query_id": "ai-agent-security-theme_yc_accelerator_search",
+      "kind": "theme_yc_accelerator_search",
+      "query_family": "yc_accelerator",
+      "movement": "AI agent security",
+      "topic": "site:ycombinator.com/companies \"AI agent security\" startup company",
+      "priority_score": 19,
+      "budget_mode": "deep_dive",
+      "status": "completed",
+      "cache_status": "miss"
+    }
+  ],
+  "duration_seconds": 748.22,
+  "source_health": [
+    {
+      "source": "last30days:devtools",
+      "status": "complete",
+      "fresh_items": 0,
+      "duration_seconds": 34.63,
+      "warnings": []
+    },
+    {
+      "source": "last30days:cybersecurity",
+      "status": "complete",
+      "fresh_items": 12,
+      "duration_seconds": 32.45,
+      "warnings": [
+        "Top evidence is highly concentrated in one source."
+      ]
+    },
+    {
+      "source": "last30days:ai-infra",
+      "status": "degraded",
+      "fresh_items": 0,
+      "duration_seconds": 88.03,
+      "warnings": [
+        "last30days query timed out (60s): /last30days \u00b7 researching: LLMOps pain OR LLM inference cost OR agent evaluation failure\n\u23f3 \u001b[95mProcessing\u001b[0m Organizing findings...\n[Resolve] Resolved 1 subreddits, x_handle='', github_user='amitshekhariitbhu', github_repos=['langfuse/langfuse', 'amitshekhariitbhu/ai-engineering-interview-question"
+      ]
+    },
+    {
+      "source": "last30days:vertical-ai",
+      "status": "degraded",
+      "fresh_items": 0,
+      "duration_seconds": 88.66,
+      "warnings": [
+        "last30days query timed out (60s): /last30days \u00b7 researching: manual workflow pain OR AI agent for operations OR AI SDR frustration\n\u23f3 \u001b[95mProcessing\u001b[0m Scoring and ranking...\n[Web] Reddit rate-limited, halting enrichment: Reddit rate limited (429) fetching https://www.reddit.com/r/automation/comments/1tpc4cb/best_ai_workflow_automa"
+      ]
+    },
+    {
+      "source": "last30days:data-infra",
+      "status": "degraded",
+      "fresh_items": 0,
+      "duration_seconds": 83.43,
+      "warnings": [
+        "last30days query timed out (60s): /last30days \u00b7 researching: data pipeline testing pain OR data lineage pain OR data quality incident\n\u23f3 \u001b[95mProcessing\u001b[0m Crunching the data...\n[Resolve] Resolved 1 subreddits, x_handle='articles', github_user='open-metadata', github_repos=['open-metadata/OpenMetadata', 'datahub-project/datahub', 'A"
+      ]
+    },
+    {
+      "source": "last30days:oss",
+      "status": "degraded",
+      "fresh_items": 0,
+      "duration_seconds": 88.37,
+      "warnings": [
+        "last30days query timed out (60s): /last30days \u00b7 researching: open source tool adoption OR GitHub repo production use OR maintainer burnout\n\u23f3 \u001b[95mProcessing\u001b[0m Crunching the data...\n[Resolve] Resolved 1 subreddits, x_handle='', github_user='schedule', github_repos=['schedule/2026-05-07-the-state-of-open-source-in-2026-issue-419'], "
+      ]
+    },
+    {
+      "source": "github",
+      "status": "complete",
+      "fresh_items": 40,
+      "duration_seconds": 32.51,
+      "warnings": []
+    },
+    {
+      "source": "product_hunt",
+      "status": "complete",
+      "fresh_items": 20,
+      "duration_seconds": 50.08,
+      "warnings": [
+        "Mina Meeting Assistant: 403 Forbidden; web resolver found no verified official domain",
+        "Dune Keypad: 403 Forbidden; web resolver found no verified official domain",
+        "Sentinel: 403 Forbidden; web resolver found no verified official domain"
+      ]
+    },
+    {
+      "source": "yc_directory",
+      "status": "complete",
+      "fresh_items": 18,
+      "duration_seconds": 5.96,
+      "warnings": []
+    },
+    {
+      "source": "x_launches",
+      "status": "complete",
+      "fresh_items": 2,
+      "duration_seconds": 213.4,
+      "warnings": [
+        "Evidence is thin for this topic.",
+        "Top evidence is highly concentrated in one source."
+      ]
+    }
+  ],
+  "source_access": {
+    "summary": {
+      "configured": [
+        "Product Hunt API",
+        "X"
+      ],
+      "manual_mode": [
+        "Crunchbase",
+        "Coresignal",
+        "LinkedIn"
+      ],
+      "missing": [
+        "PitchBook",
+        "People Data Labs",
+        "Dealroom",
+        "Apollo",
+        "Clay"
+      ],
+      "recommendation": "Product Hunt and X are configured; Coresignal, Crunchbase, and LinkedIn are intentionally manual-mode for now."
+    },
+    "providers": {
+      "Crunchbase": {
+        "status": "manual_mode",
+        "direct_access_status": "missing",
+        "configured_keys": [],
+        "accepted_keys": [
+          "CRUNCHBASE_API_KEY",
+          "CRUNCHBASE_TOKEN"
+        ],
+        "coverage": [
+          "company_identity_funding_founders_headcount"
+        ],
+        "manual_mode": true,
+        "manual_strategy": "Use manual funding/stage lookup from launch articles, investor posts, public snippets, and company pages for top candidates."
+      },
+      "PitchBook": {
+        "status": "missing",
+        "direct_access_status": "missing",
+        "configured_keys": [],
+        "accepted_keys": [
+          "PITCHBOOK_API_KEY",
+          "PITCHBOOK_CLIENT_ID"
+        ],
+        "coverage": [
+          "funding_stage_private_market_metadata"
+        ],
+        "manual_mode": false,
+        "manual_strategy": ""
+      },
+      "Coresignal": {
+        "status": "manual_mode",
+        "direct_access_status": "missing",
+        "configured_keys": [],
+        "accepted_keys": [
+          "CORESIGNAL_API_KEY"
+        ],
+        "coverage": [
+          "company_identity_headcount_linkedin_profile"
+        ],
+        "manual_mode": true,
+        "manual_strategy": "Use Brave/last30days/company-site resolver for official domain, team, careers, customers, and hiring evidence."
+      },
+      "People Data Labs": {
+        "status": "missing",
+        "direct_access_status": "missing",
+        "configured_keys": [],
+        "accepted_keys": [
+          "PDL_API_KEY",
+          "PEOPLE_DATA_LABS_API_KEY"
+        ],
+        "coverage": [
+          "people_founder_company_identity"
+        ],
+        "manual_mode": false,
+        "manual_strategy": ""
+      },
+      "Dealroom": {
+        "status": "missing",
+        "direct_access_status": "missing",
+        "configured_keys": [],
+        "accepted_keys": [
+          "DEALROOM_API_KEY"
+        ],
+        "coverage": [
+          "company_identity_funding_stage"
+        ],
+        "manual_mode": false,
+        "manual_strategy": ""
+      },
+      "Apollo": {
+        "status": "missing",
+        "direct_access_status": "missing",
+        "configured_keys": [],
+        "accepted_keys": [
+          "APOLLO_API_KEY"
+        ],
+        "coverage": [
+          "company_identity_people_headcount"
+        ],
+        "manual_mode": false,
+        "manual_strategy": ""
+      },
+      "Clay": {
+        "status": "missing",
+        "direct_access_status": "missing",
+        "configured_keys": [],
+        "accepted_keys": [
+          "CLAY_API_KEY"
+        ],
+        "coverage": [
+          "manual_workflow_enrichment"
+        ],
+        "manual_mode": false,
+        "manual_strategy": ""
+      },
+      "Product Hunt API": {
+        "status": "configured",
+        "direct_access_status": "configured",
+        "configured_keys": [
+          "PRODUCT_HUNT_TOKEN"
+        ],
+        "accepted_keys": [
+          "PRODUCT_HUNT_TOKEN",
+          "PRODUCTHUNT_API_TOKEN",
+          "PRODUCT_HUNT_API_TOKEN"
+        ],
+        "coverage": [
+          "launch_company_identity_makers"
+        ],
+        "manual_mode": false,
+        "manual_strategy": ""
+      },
+      "X": {
+        "status": "configured",
+        "direct_access_status": "configured",
+        "configured_keys": [
+          "XAI_API_KEY"
+        ],
+        "accepted_keys": [
+          "XAI_API_KEY",
+          "AUTH_TOKEN+CT0"
+        ],
+        "coverage": [
+          "launch_social_confidence"
+        ],
+        "manual_mode": false,
+        "manual_strategy": ""
+      },
+      "LinkedIn": {
+        "status": "manual_mode",
+        "direct_access_status": "missing",
+        "configured_keys": [],
+        "accepted_keys": [
+          "LINKEDIN_ACCESS_TOKEN",
+          "LINKEDIN_API_KEY"
+        ],
+        "coverage": [
+          "company_profile_people_headcount"
+        ],
+        "manual_mode": true,
+        "manual_strategy": "Use manual LinkedIn checks only for high-value candidates; do not scrape or treat missing API access as a weekly blocker."
+      }
+    }
+  }
+}

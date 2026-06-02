@@ -1,0 +1,68 @@
+{
+  "movements": [
+    {
+      "movement": "AI agent security",
+      "total_queries": 4,
+      "completed_queries": 4,
+      "skipped_queries": 0,
+      "status": "full"
+    },
+    {
+      "movement": "Devtools workflow automation",
+      "total_queries": 2,
+      "completed_queries": 2,
+      "skipped_queries": 0,
+      "status": "full"
+    },
+    {
+      "movement": "Devtools OSS workflow tooling",
+      "total_queries": 3,
+      "completed_queries": 3,
+      "skipped_queries": 0,
+      "status": "full"
+    },
+    {
+      "movement": "Devtools security/compliance tooling",
+      "total_queries": 2,
+      "completed_queries": 2,
+      "skipped_queries": 0,
+      "status": "full"
+    },
+    {
+      "movement": "Vertical AI operations",
+      "total_queries": 2,
+      "completed_queries": 2,
+      "skipped_queries": 0,
+      "status": "full"
+    },
+    {
+      "movement": "Vertical AI workflow automation",
+      "total_queries": 3,
+      "completed_queries": 3,
+      "skipped_queries": 0,
+      "status": "full"
+    },
+    {
+      "movement": "Agent reliability and evals",
+      "total_queries": 2,
+      "completed_queries": 2,
+      "skipped_queries": 0,
+      "status": "full"
+    },
+    {
+      "movement": "Agent runtime infrastructure",
+      "total_queries": 3,
+      "completed_queries": 3,
+      "skipped_queries": 0,
+      "status": "full"
+    },
+    {
+      "movement": "AI data infrastructure",
+      "total_queries": 4,
+      "completed_queries": 4,
+      "skipped_queries": 0,
+      "status": "full"
+    }
+  ],
+  "recommended_deep_dive": []
+}

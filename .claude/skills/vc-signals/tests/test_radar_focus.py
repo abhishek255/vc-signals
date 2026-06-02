@@ -249,6 +249,55 @@ def test_hn_assign_owner_rows_enter_main_partner_focus_when_weekly_hn_enabled():
     assert "Voker" in markdown
 
 
+def test_non_allowlisted_hn_assign_owner_rows_are_demoted_to_research_deeper():
+    from radar_focus import ACTION_ASSIGN_OWNER, ACTION_RESEARCH_DEEPER, build_weekly_focus_artifact
+
+    artifact = build_weekly_focus_artifact(
+        candidates=[],
+        category_context_items=[],
+        theme_signals=[],
+        sector_intelligence=[],
+        source_health=[],
+        run_id="2026-06-01",
+        hn_launch_trial={
+            "enabled": True,
+            "assign_owner_rows": 1,
+            "unsafe_promotions": 0,
+            "review_rows": [
+                {
+                    "name": "Mljar Studio",
+                    "domain": "mljar.com",
+                    "final_action": "Assign owner",
+                    "completion_status": "completed_clean",
+                    "evidence_dimensions": ["customer", "founder", "stage"],
+                    "attio_status": "no_match",
+                    "missing_evidence": [],
+                    "unsafe_promotion": False,
+                    "assign_owner_evidence_provenance": {
+                        "hn_source": {
+                            "url": "https://news.ycombinator.com/item?id=47985077",
+                            "title": "Show HN: Mljar Studio",
+                        },
+                        "official_company_source": {"url": "https://mljar.com", "domain": "mljar.com"},
+                        "founder_evidence": {"url": "https://mljar.com/about", "founders": ["Karol Falkowski"]},
+                        "stage_funding_evidence": {
+                            "url": "https://mljar.com/about",
+                            "maturity_status": "seed_to_series_b",
+                            "basis": ["owner_evidence_stage_funding_signal"],
+                        },
+                        "commercial_customer_evidence": {"url": "https://mljar.com/blog"},
+                        "attio_status_evidence": {"status": "no_match", "source": "attio_read", "action_safe": True},
+                    },
+                }
+            ],
+        },
+    )
+
+    assert ACTION_ASSIGN_OWNER not in artifact.workflow_view
+    assert artifact.workflow_view[ACTION_RESEARCH_DEEPER][0].name == "Mljar Studio"
+    assert "manual_partner_approval_required_for_assign_owner" in artifact.workflow_view[ACTION_RESEARCH_DEEPER][0].missing_evidence
+
+
 def test_attio_no_match_does_not_create_company_identity_by_itself():
     from radar_focus import score_company_identity
 

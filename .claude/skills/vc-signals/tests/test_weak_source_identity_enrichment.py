@@ -151,7 +151,41 @@ def test_weak_source_enrichment_prioritizes_product_hunt_with_limited_budget():
 
     _enriched, report = enrich_weak_source_identity(rows, query_runner=fake_query_runner, max_candidates=1)
 
-    assert queried == ['"LaunchCo" official website founder company']
+    assert queried
+    assert all("LaunchCo" in query for query in queried)
+    assert all("repo-one" not in query for query in queried)
     assert report["items"][0]["status"] == "skipped"
     assert report["items"][0]["skip_reason"] == "weak_source_identity_candidate_budget_exceeded"
     assert report["items"][1]["status"] == "unresolved"
+
+
+def test_weak_source_enrichment_uses_investigator_queries_before_fixed_query():
+    from weak_source_identity_enrichment import build_weak_source_identity_query, enrich_weak_source_identity
+
+    candidate = _candidate(
+        why_on_radar="Permission firewall for AI agents with policy controls.",
+    )
+    fixed_query = build_weak_source_identity_query(candidate)
+    queried = []
+
+    def fake_query_runner(topic: str, **kwargs):
+        queried.append(topic)
+        if topic == fixed_query:
+            raise AssertionError("fixed query should not run before investigator-generated queries")
+        return {
+            "items": [
+                {
+                    "title": "AgentFence - AI agent permissions",
+                    "url": "https://agentfence.dev",
+                    "snippet": "AgentFence is a permission firewall for AI agents.",
+                    "source": "grounding",
+                }
+            ]
+        }
+
+    enriched, report = enrich_weak_source_identity([candidate], query_runner=fake_query_runner, max_candidates=1)
+
+    assert queried
+    assert queried[0] != fixed_query
+    assert enriched[0].domain == "agentfence.dev"
+    assert report["items"][0]["search_plan_source"] == "signal_investigator"

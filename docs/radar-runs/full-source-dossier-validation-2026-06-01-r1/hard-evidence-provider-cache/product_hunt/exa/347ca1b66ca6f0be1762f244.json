@@ -1,0 +1,86 @@
+{
+  "provider": "exa",
+  "query": "\"NetworkSpy\" \"[REDACTED]\" founder maker official",
+  "items": [
+    {
+      "provider": "exa",
+      "title": "HTTP Traffic Debugger for AI powered teams | NetworkSpy",
+      "url": "https://networkspy.app/",
+      "snippet": "HTTP Traffic Debugger for AI powered teams | NetworkSpy",
+      "description": "HTTP Traffic Debugger for AI powered teams | NetworkSpy",
+      "source": "exa"
+    },
+    {
+      "provider": "exa",
+      "title": "OWASP API Security Testing with NetworkSpy | NetworkSpy",
+      "url": "https://networkspy.app/blog/owasp-api-security-testing-networkspy",
+      "snippet": "Do not test against accounts, tenants, or systems you are not authorized to use. Use seeded test users and development data. Keep captures private and redact tokens, cookies, personal data, and secrets.\n[...]\nUse authorized development or test environments, test accounts, short-lived credentials, and redact sensitive data before sharing captures.\n[...]\n### Muiz\n[...]\nBuilder of NetworkSpy, sharing practical notes on debugging APIs, modern app traffic, and AI workflows.",
+      "description": "Do not test against accounts, tenants, or systems you are not authorized to use. Use seeded test users and development data. Keep captures private and redact tokens, cookies, personal data, and secrets.\n[...]\nUse authorized development or test environments, test accounts, short-lived credentials, and redact sensitive data before sharing captures.\n[...]\n### Muiz\n[...]\nBuilder of NetworkSpy, sharing practical notes on debugging APIs, modern app traffic, and AI workflows.",
+      "source": "exa"
+    },
+    {
+      "provider": "exa",
+      "title": "Download NetworkSpy | NetworkSpy",
+      "url": "https://networkspy.app/download",
+      "snippet": "Download NetworkSpy | NetworkSpy\n[...]\n# Get NetworkSpy\n[...]\nInstall NetworkSpy on your machine with a single command. Support for macOS, Linux, and Windows.",
+      "description": "Download NetworkSpy | NetworkSpy\n[...]\n# Get NetworkSpy\n[...]\nInstall NetworkSpy on your machine with a single command. Support for macOS, Linux, and Windows.",
+      "source": "exa"
+    },
+    {
+      "provider": "exa",
+      "title": "Changelog | NetworkSpy",
+      "url": "https://networkspy.app/changelog",
+      "snippet": "Changelog | NetworkSpy\n[...]\nKeep track of the latest features, improvements, and bug fixes in NetworkSpy.\n[...]\nWe've completely rebuilt the core analysis engine to support deep inspection of binary protocols.",
+      "description": "Changelog | NetworkSpy\n[...]\nKeep track of the latest features, improvements, and bug fixes in NetworkSpy.\n[...]\nWe've completely rebuilt the core analysis engine to support deep inspection of binary protocols.",
+      "source": "exa"
+    },
+    {
+      "provider": "exa",
+      "title": "Pricing & Plans | NetworkSpy",
+      "url": "https://networkspy.app/pricing",
+      "snippet": "Pricing & Plans | NetworkSpy\n\n\ud83c\udf89 Limited Time Offer: 50% OFF for Early Adopters! Use code: EARLY\n\nFlexible Plans\n\n## Simple, Transparent Pricing.\n\nGet the full power of NetworkSpy. Choose the plan that works best for your workflow.\n\nIndividual LicenseTeam License\n\nPersonal\n\n$18/year\n\nPerfect for solo developers and enthusiasts.\n\n- Full HTTP Debug Proxy Kit\n- GraphQL & JSON Inspectors\n- LLM Token Analyzer\n- Custom Viewer Builder + AI\n- 1 Device License\n- Direct Discord Access*\n\nGet Personal\n\nProfessional\n\n$29/year\n\nFor power users who need advanced capabilities.\n\n- Everything in Personal\n- AI Viewer (Custom Providers)\n- MCP\n- Priority Email Support\n\nGet Pro Now\n\nLifetime\n\n$99 one-time\n\nPay once, use forever. No subscriptions.\n\n- Everything in Pro\n- Beta Features\n- Lifetime Updates\n\nGet Lifetime\n\n* Lifetime license provides perpetual access to the tool. Priority support is reserved for active subscription plans.\n\nTeam Starter\n\n$49/mo\n\nIdeal for small development teams. Up to 5 users.\n\n- Everything in Pro\n- Centralized Team Billing\n- Shared Plugin Presets\n- Standard Team Dashboard\n\nStart Team Trial\n\nBusiness\n\n$149/mo\n\nFor growing dev teams. Up to 20 users.\n\n- Everything in Team Starter\n- Audit logs & Activity\n- SSO & SAML Integration\n- Priority 24/7 Support\n\nUpgrade to Business\n\nEnterprise\n\nCustom\n\nBespoke solutions for large-scale organizations.\n\n- Unlimited User Seats\n- Custom Security Reviews\n- On-Premise Deployment\n- Dedicated Account Manager\n\nContact Sales\n\n### Detailed Comparison\n\n| Features | Free | Personal | Pro / Team |\n| --- | --- | --- | --- |\n| Core Interception |\n| HTTP/HTTPS Monitoring |\n| WebSocket Inspection |\n| gRPC Support | Basic | Advanced |\n| GraphQL Explorer |\n| Advanced Capabilities |\n| LLM Token Stream Analysis | Limited |\n| Breakpoint Engine | Limited |\n| Map Local / Map Remote | Limited |\n| AI-Powered Debugger | - | - |\n| Custom Viewer Builder | Limited |\n| AI Viewer Generation | Fixed Model | Change Model | Custom Providers |\n| Request/Response Scripting | Limited |\n| Collaboration & Support |\n| Shared Interception Rules | - | - |\n| Cloud Sync (Settings) | - | - |\n| Priority Support | - | - |\n\n## Frequently Asked Questions\n\nWhat is the difference between the Individual and Team license?\n\nThe Individual license is for a single user and cannot be shared. The Team license includes centralized billing, shared interception rules, and priority support for multiple seats.\n\nDoes NetworkSpy support HTTPS interception?\n\nYes, NetworkSpy supports full HTTPS interception. It automatically installs a root certificate to decrypt traffic on your local machine.\n\nCan I use NetworkSpy on multiple devices?\n\nAn Individual license allows you to use NetworkSpy on only 1 device. Team licenses are per-seat.\n\nIs NetworkSpy free?\n\nYes, NetworkSpy is free to use with core features! You can download and use it forever without paying. Advanced features like the Custom Viewer Builder require a paid plan.\n\nHow does the Lifetime license work?\n\nThe Lifetime license is a one-time purchase that gives you access to the current version and all minor updates forever. Major version upgrades may require a discounted upgrade fee.\n\nCan NetworkSpy inspect traffic from physical mobile devices?\n\nYes, you can configure your physical iOS or Android device to use NetworkSpy as a proxy to inspect its traffic.\n\nDoes NetworkSpy work with gRPC and WebSockets?\n\nYes, NetworkSpy has first-class support for both gRPC (including Protobuf decoding) and WebSockets with real-time message streaming.\n\nWhat happens after my subscription ends?\n\nIf you are on a subscription plan and cancel, you will lose access to the app at the end of your billing period unless you purchase a Lifetime license.\n\nDo you offer refunds?\n\nYes, we offer a 30-day money-back guarantee if you are not satisfied with NetworkSpy.\n\nHow does NetworkSpy compare to Wireshark or Charles Proxy?\n\nWhile Wireshark is great for low-level packet analysis, NetworkSpy is designed specifically for application-level HTTP/HTTPS debugging. Compared to Charles, NetworkSpy offers a more modern UI, better support for streaming/SSE, and built-in AI debugging features.",
+      "description": "Pricing & Plans | NetworkSpy\n\n\ud83c\udf89 Limited Time Offer: 50% OFF for Early Adopters! Use code: EARLY\n\nFlexible Plans\n\n## Simple, Transparent Pricing.\n\nGet the full power of NetworkSpy. Choose the plan that works best for your workflow.\n\nIndividual LicenseTeam License\n\nPersonal\n\n$18/year\n\nPerfect for solo developers and enthusiasts.\n\n- Full HTTP Debug Proxy Kit\n- GraphQL & JSON Inspectors\n- LLM Token Analyzer\n- Custom Viewer Builder + AI\n- 1 Device License\n- Direct Discord Access*\n\nGet Personal\n\nProfessional\n\n$29/year\n\nFor power users who need advanced capabilities.\n\n- Everything in Personal\n- AI Viewer (Custom Providers)\n- MCP\n- Priority Email Support\n\nGet Pro Now\n\nLifetime\n\n$99 one-time\n\nPay once, use forever. No subscriptions.\n\n- Everything in Pro\n- Beta Features\n- Lifetime Updates\n\nGet Lifetime\n\n* Lifetime license provides perpetual access to the tool. Priority support is reserved for active subscription plans.\n\nTeam Starter\n\n$49/mo\n\nIdeal for small development teams. Up to 5 users.\n\n- Everything in Pro\n- Centralized Team Billing\n- Shared Plugin Presets\n- Standard Team Dashboard\n\nStart Team Trial\n\nBusiness\n\n$149/mo\n\nFor growing dev teams. Up to 20 users.\n\n- Everything in Team Starter\n- Audit logs & Activity\n- SSO & SAML Integration\n- Priority 24/7 Support\n\nUpgrade to Business\n\nEnterprise\n\nCustom\n\nBespoke solutions for large-scale organizations.\n\n- Unlimited User Seats\n- Custom Security Reviews\n- On-Premise Deployment\n- Dedicated Account Manager\n\nContact Sales\n\n### Detailed Comparison\n\n| Features | Free | Personal | Pro / Team |\n| --- | --- | --- | --- |\n| Core Interception |\n| HTTP/HTTPS Monitoring |\n| WebSocket Inspection |\n| gRPC Support | Basic | Advanced |\n| GraphQL Explorer |\n| Advanced Capabilities |\n| LLM Token Stream Analysis | Limited |\n| Breakpoint Engine | Limited |\n| Map Local / Map Remote | Limited |\n| AI-Powered Debugger | - | - |\n| Custom Viewer Builder | Limited |\n| AI Viewer Generation | Fixed Model | Change Model | Custom Providers |\n| Request/Response Scripting | Limited |\n| Collaboration & Support |\n| Shared Interception Rules | - | - |\n| Cloud Sync (Settings) | - | - |\n| Priority Support | - | - |\n\n## Frequently Asked Questions\n\nWhat is the difference between the Individual and Team license?\n\nThe Individual license is for a single user and cannot be shared. The Team license includes centralized billing, shared interception rules, and priority support for multiple seats.\n\nDoes NetworkSpy support HTTPS interception?\n\nYes, NetworkSpy supports full HTTPS interception. It automatically installs a root certificate to decrypt traffic on your local machine.\n\nCan I use NetworkSpy on multiple devices?\n\nAn Individual license allows you to use NetworkSpy on only 1 device. Team licenses are per-seat.\n\nIs NetworkSpy free?\n\nYes, NetworkSpy is free to use with core features! You can download and use it forever without paying. Advanced features like the Custom Viewer Builder require a paid plan.\n\nHow does the Lifetime license work?\n\nThe Lifetime license is a one-time purchase that gives you access to the current version and all minor updates forever. Major version upgrades may require a discounted upgrade fee.\n\nCan NetworkSpy inspect traffic from physical mobile devices?\n\nYes, you can configure your physical iOS or Android device to use NetworkSpy as a proxy to inspect its traffic.\n\nDoes NetworkSpy work with gRPC and WebSockets?\n\nYes, NetworkSpy has first-class support for both gRPC (including Protobuf decoding) and WebSockets with real-time message streaming.\n\nWhat happens after my subscription ends?\n\nIf you are on a subscription plan and cancel, you will lose access to the app at the end of your billing period unless you purchase a Lifetime license.\n\nDo you offer refunds?\n\nYes, we offer a 30-day money-back guarantee if you are not satisfied with NetworkSpy.\n\nHow does NetworkSpy compare to Wireshark or Charles Proxy?\n\nWhile Wireshark is great for low-level packet analysis, NetworkSpy is designed specifically for application-level HTTP/HTTPS debugging. Compared to Charles, NetworkSpy offers a more modern UI, better support for streaming/SSE, and built-in AI debugging features.",
+      "source": "exa"
+    },
+    {
+      "provider": "exa",
+      "title": "Blog | NetworkSpy",
+      "url": "https://networkspy.app/blog",
+      "snippet": "Blog | NetworkSpy\n[...]\nNetworkSpy Blog\n[...]\n# Engineering & Updates\n[...]\nInsights into building the future of network debugging.",
+      "description": "Blog | NetworkSpy\n[...]\nNetworkSpy Blog\n[...]\n# Engineering & Updates\n[...]\nInsights into building the future of network debugging.",
+      "source": "exa"
+    },
+    {
+      "provider": "exa",
+      "title": "Network Spy v0.1.8",
+      "url": "https://github.com/muizidn/NetworkSpy-Tauri/releases/tag/v0.1.8",
+      "snippet": "# Release: muizidn/NetworkSpy v0.1.8\n[...]\n- Repository: muizidn/NetworkSpy | Developer's favourite HTTP Traffic Debugger with Supercharged Viewer. | 16 stars | TypeScript\n- Name: Network Spy v0.1.8\n- Author: @github-actions[bot]\n- Created: 2026-04-10T12:04:16Z\n- Published: 2026-04-10T12:42:06Z",
+      "description": "# Release: muizidn/NetworkSpy v0.1.8\n[...]\n- Repository: muizidn/NetworkSpy | Developer's favourite HTTP Traffic Debugger with Supercharged Viewer. | 16 stars | TypeScript\n- Name: Network Spy v0.1.8\n- Author: @github-actions[bot]\n- Created: 2026-04-10T12:04:16Z\n- Published: 2026-04-10T12:42:06Z",
+      "source": "exa"
+    },
+    {
+      "provider": "exa",
+      "title": "Privacy Policy | NetworkSpy",
+      "url": "https://networkspy.app/privacy",
+      "snippet": "Privacy Policy | NetworkSpy\n\n# Privacy Policy\n\nLast Updated: April 16, 2026\n\n## 1. Information We Collect\n\nAt NetworkSpy, we prioritize your privacy. We collect the following information:\n\n- Email Address: Used for license delivery and account management.\n- License Keys: Associated with your email to validate your access.\n- Device Identifiers: Anonymous identifiers used solely to prevent license abuse and manage your device limit.\n\n## 2. How We Use Your Information\n\nWe use the collected information for:\n\n- Validating your license and granting access to the Software.\n- Providing technical support and updates.\n- Enforcing our Terms of Service (device limits).\n\nNote: We do NOT collect or monitor the network traffic you inspect with NetworkSpy. All traffic data remains local to your machine.\n\n## 3. Third-Party Services\n\nWe use Polar.sh as our payment processor. They handle your payment details (credit card information) according to their own privacy policy. We do not store your financial information.\n\n## 4. Cookies\n\nWe use minimal cookies for administrative purposes (e.g., maintaining your admin session) and for essential site functionality. We do not use tracking or advertising cookies.\n\n## 5. Data Security\n\nWe implement appropriate technical and organizational measures to protect your personal information from unauthorized access, loss, or alteration.\n\n## 6. Your Rights\n\nYou have the right to access, correct, or request the deletion of your personal information (email address and license data). Please contact us for such requests.\n\n## 7. Changes to This Policy\n\nWe may update our Privacy Policy from time to time. We will notify you of any changes by posting the new Privacy Policy on this page.",
+      "description": "Privacy Policy | NetworkSpy\n\n# Privacy Policy\n\nLast Updated: April 16, 2026\n\n## 1. Information We Collect\n\nAt NetworkSpy, we prioritize your privacy. We collect the following information:\n\n- Email Address: Used for license delivery and account management.\n- License Keys: Associated with your email to validate your access.\n- Device Identifiers: Anonymous identifiers used solely to prevent license abuse and manage your device limit.\n\n## 2. How We Use Your Information\n\nWe use the collected information for:\n\n- Validating your license and granting access to the Software.\n- Providing technical support and updates.\n- Enforcing our Terms of Service (device limits).\n\nNote: We do NOT collect or monitor the network traffic you inspect with NetworkSpy. All traffic data remains local to your machine.\n\n## 3. Third-Party Services\n\nWe use Polar.sh as our payment processor. They handle your payment details (credit card information) according to their own privacy policy. We do not store your financial information.\n\n## 4. Cookies\n\nWe use minimal cookies for administrative purposes (e.g., maintaining your admin session) and for essential site functionality. We do not use tracking or advertising cookies.\n\n## 5. Data Security\n\nWe implement appropriate technical and organizational measures to protect your personal information from unauthorized access, loss, or alteration.\n\n## 6. Your Rights\n\nYou have the right to access, correct, or request the deletion of your personal information (email address and license data). Please contact us for such requests.\n\n## 7. Changes to This Policy\n\nWe may update our Privacy Policy from time to time. We will notify you of any changes by posting the new Privacy Policy on this page.",
+      "source": "exa"
+    }
+  ],
+  "skipped": false,
+  "skip_reason": "",
+  "cache_status": "miss",
+  "latency_ms": 1231,
+  "cost_usd": 0.007,
+  "capabilities": {
+    "provider": "exa",
+    "snippet_only": false,
+    "page_content_returned": true,
+    "livecrawl_available": true,
+    "cost_estimated": true
+  },
+  "query_id": "",
+  "query_family": "hard_evidence_resolver",
+  "movement": "",
+  "market_sector": ""
+}

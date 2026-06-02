@@ -1,0 +1,86 @@
+{
+  "provider": "exa",
+  "query": "\"Open Caffeine\" \"[REDACTED]\" founder maker official",
+  "items": [
+    {
+      "provider": "exa",
+      "title": "[REDACTED] Coffee Company | Premium Small Batch Coffee\n\u2013 [Redacted] Coffee Company",
+      "url": "https://redactedcoffee.com/",
+      "snippet": "[REDACTED] Coffee Company | Premium Small Batch Coffee \u2013 [Redacted] Coffee Company\n[...]\n## [REDACTED] coffee company\n[...]\nVeteran-founded and employee-owned, our mission is to be the weirdest premium coffee brand in the world. [Redacted] Coffee is what we actually drink everyday; we obsess over every single aspect of each roast: from sourcing, to roasting, to pouring into our cups. We're excited to bring our passion to your table.",
+      "description": "[REDACTED] Coffee Company | Premium Small Batch Coffee \u2013 [Redacted] Coffee Company\n[...]\n## [REDACTED] coffee company\n[...]\nVeteran-founded and employee-owned, our mission is to be the weirdest premium coffee brand in the world. [Redacted] Coffee is what we actually drink everyday; we obsess over every single aspect of each roast: from sourcing, to roasting, to pouring into our cups. We're excited to bring our passion to your table.",
+      "source": "exa"
+    },
+    {
+      "provider": "exa",
+      "title": "anomalyco/opencode",
+      "url": "https://github.com/anomalyco/OpenCode",
+      "snippet": "# Repository: anomalyco/opencode\n[...]\nThe open source coding agent.\n[...]\n- Stars: 168366\n- Forks: 20111\n- Watchers: 645\n- Open issues: 6433\n- Primary language: TypeScript\n- Languages: TypeScript (66.5%), MDX (29.7%), CSS (3.2%), HTML (0.2%), Astro (0.1%), JavaScript (0.1%), Shell, Nix, Dockerfile, PowerShell\n- License: MIT License (MIT)\n- Default branch: dev\n- Homepage: https://opencode.ai\n- Created: 2025-04-30T20:08:00Z\n- Last push: 2026-06-01T22:33:54Z\n- Contributors: 460 (top: thdxr, adamdotdevin, rekram1-node, kitlangton, actions-user, opencode-agent[bot], iamdavidhill, jayair, fwang, Brendonovich)\n- Releases: 814\n- Latest release: v1.15.13 (2026-05-30T23:40:58Z)",
+      "description": "# Repository: anomalyco/opencode\n[...]\nThe open source coding agent.\n[...]\n- Stars: 168366\n- Forks: 20111\n- Watchers: 645\n- Open issues: 6433\n- Primary language: TypeScript\n- Languages: TypeScript (66.5%), MDX (29.7%), CSS (3.2%), HTML (0.2%), Astro (0.1%), JavaScript (0.1%), Shell, Nix, Dockerfile, PowerShell\n- License: MIT License (MIT)\n- Default branch: dev\n- Homepage: https://opencode.ai\n- Created: 2025-04-30T20:08:00Z\n- Last push: 2026-06-01T22:33:54Z\n- Contributors: 460 (top: thdxr, adamdotdevin, rekram1-node, kitlangton, actions-user, opencode-agent[bot], iamdavidhill, jayair, fwang, Brendonovich)\n- Releases: 814\n- Latest release: v1.15.13 (2026-05-30T23:40:58Z)",
+      "source": "exa"
+    },
+    {
+      "provider": "exa",
+      "title": "Redacted - 2026 Company Profile, Team, Funding & Competitors - Tracxn",
+      "url": "https://tracxn.com/d/companies/redacted/__Z-91PtxtUVgpchvpPdmVCWzxcV6CudPZ9YOn55eAyuc",
+      "snippet": "Redacted is an acquired company based in Berkeley (United States), founded in 2019 by Mahmoud Hafez and Rama Veeraragoo. It operates as a Provider of AI based text editor. The company has 305 active competitors, including 11 funded and 3 that have exited. Its top competitors include companies like Netlify, Tiny and Zed.\n[...]\n## Redacted's founders and board of directors\n[...]\nThe founders of Redacted are Mahmoud Hafez and Rama Veeraragoo.\n[...]\n- Mahmoud Hafez: Co-Founder of Redacted.\n- Rama Veeraragoo: Co-Founder of Redacted.",
+      "description": "Redacted is an acquired company based in Berkeley (United States), founded in 2019 by Mahmoud Hafez and Rama Veeraragoo. It operates as a Provider of AI based text editor. The company has 305 active competitors, including 11 funded and 3 that have exited. Its top competitors include companies like Netlify, Tiny and Zed.\n[...]\n## Redacted's founders and board of directors\n[...]\nThe founders of Redacted are Mahmoud Hafez and Rama Veeraragoo.\n[...]\n- Mahmoud Hafez: Co-Founder of Redacted.\n- Rama Veeraragoo: Co-Founder of Redacted.",
+      "source": "exa"
+    },
+    {
+      "provider": "exa",
+      "title": "\ud83d\udcdd docs: update README with concurrent session handling details \u00b7 e0e2bad \u00b7 nguyenphutrong/opencode-caffeinate",
+      "url": "https://github.com/nguyenphutrong/opencode-caffeinate/commit/e0e2bad81c8f7d76453bc657629a0b541f1765e7",
+      "snippet": "# Commit: nguyenphutrong/opencode-caffeinate@e0e2bad\n[...]\n- Repository: nguyenphutrong/opencode-caffeinate | Prevent macOS from sleeping while OpenCode sessions are active. | 3 stars | TypeScript\n[...]\n- Author: @nguyenphutrong\n- Date: 2026-02-02T09:17:29Z\n- SHA: e0e2bad81c8f7d76453bc657629a0b541f1765e7\n- Changes: +10 -3 (1 files)\n[...]\n```diff\n@@ -44,16 +44,23 @@ git clone https://github.com/nguyenphutrong/opencode-caffeinate.git .opencode/pl\n \n ## How it works\n \n-1. When a session is created (`session.created` event), the plugin spawns a `caffeinate` process\n-2. Multiple sessions are tracked - caffeinate keeps running as long as any session is active\n-3. When all sessions end (`session.idle`\n[...]\n`session.deleted` events),\n[...]\nprocess synchronization:** The plugin\n[...]\nfile-based session tracking to correctly handle multiple OpenCode instances\n[...]\nin parallel. Each\n[...]\n## Development\n[...]\n+# Run tests\n[...]\nbun run test",
+      "description": "# Commit: nguyenphutrong/opencode-caffeinate@e0e2bad\n[...]\n- Repository: nguyenphutrong/opencode-caffeinate | Prevent macOS from sleeping while OpenCode sessions are active. | 3 stars | TypeScript\n[...]\n- Author: @nguyenphutrong\n- Date: 2026-02-02T09:17:29Z\n- SHA: e0e2bad81c8f7d76453bc657629a0b541f1765e7\n- Changes: +10 -3 (1 files)\n[...]\n```diff\n@@ -44,16 +44,23 @@ git clone https://github.com/nguyenphutrong/opencode-caffeinate.git .opencode/pl\n \n ## How it works\n \n-1. When a session is created (`session.created` event), the plugin spawns a `caffeinate` process\n-2. Multiple sessions are tracked - caffeinate keeps running as long as any session is active\n-3. When all sessions end (`session.idle`\n[...]\n`session.deleted` events),\n[...]\nprocess synchronization:** The plugin\n[...]\nfile-based session tracking to correctly handle multiple OpenCode instances\n[...]\nin parallel. Each\n[...]\n## Development\n[...]\n+# Run tests\n[...]\nbun run test",
+      "source": "exa"
+    },
+    {
+      "provider": "exa",
+      "title": "Radhesh Koka - Founder & CEO at Blue Caffeine | The Org",
+      "url": "https://theorg.com/org/blue-caffeine/org-chart/radhesh-koka",
+      "snippet": "Radhesh Koka - Founder & CEO at Blue Caffeine | The Org\n[...]\n### Founder & CEO\n[...]\nRadhesh Koka has a diverse professional background with experience in digital marketing, customer experience management, and business consulting. Currently, Radhesh is the Founder & CEO of Blue Caffeine, as well as a Co-Founder of gurukool. With a strong foundation in engineering and an MBA in General Management, Radhesh has held leadership positions at companies like Cognizant and Satyam Computer Services Limited.",
+      "description": "Radhesh Koka - Founder & CEO at Blue Caffeine | The Org\n[...]\n### Founder & CEO\n[...]\nRadhesh Koka has a diverse professional background with experience in digital marketing, customer experience management, and business consulting. Currently, Radhesh is the Founder & CEO of Blue Caffeine, as well as a Co-Founder of gurukool. With a strong foundation in engineering and an MBA in General Management, Radhesh has held leadership positions at companies like Cognizant and Satyam Computer Services Limited.",
+      "source": "exa"
+    },
+    {
+      "provider": "exa",
+      "title": "README.md at main \u00b7 openclaw/openclaw",
+      "url": "https://github.com/openclaw/openclaw/blob/main/README.md",
+      "snippet": "OpenClaw was built for **Molty**, a space lobster AI assistant. \ud83e\udd9e\nby Peter Steinberger and the community.",
+      "description": "OpenClaw was built for **Molty**, a space lobster AI assistant. \ud83e\udd9e\nby Peter Steinberger and the community.",
+      "source": "exa"
+    },
+    {
+      "provider": "exa",
+      "title": "Caffeine - 2026 Company Profile, Team, Funding & Competitors - Tracxn",
+      "url": "https://tracxn.com/d/companies/caffeine/__WmzJrIO9D1NeoGhe9KAKDz0GsnmBMhruN-VEGHv8Qjk",
+      "snippet": "Caffeine is a series D company based in San Francisco (United States), founded in 2016 by Ben Keighran and Sam Roberts. It operates as a Social broadcasting platform for gaming, entertainment, and the creative arts. Caffeine has raised $259M in funding from investors like Greylock Partners, Andreessen Horowitz and Cox Enterprises, with a current valuation of$*****. The company has 502 active competitors, including 53 funded and 57 that have exited. Its top competitors include companies like Kaltura, Amagi and Vimeo.\n[...]\n## Caffeine's founders and board of directors\n[...]\nThe founders of Caffeine are Ben Keighran and Sam Roberts. Ben Keighran is the CEO of Caffeine.\n[...]\n- Ben Keighran: Co-Founder & CEO of Caffeine.\n- Sam Roberts: Former Co-Founder of Caffeine.\n[...]\nCaffeine is headquartered in San Francisco, United States. It is registered at Redwood City, California.\n[...]\nBen Keighran is the current CEO of Caffeine. They have also founded 1 company.",
+      "description": "Caffeine is a series D company based in San Francisco (United States), founded in 2016 by Ben Keighran and Sam Roberts. It operates as a Social broadcasting platform for gaming, entertainment, and the creative arts. Caffeine has raised $259M in funding from investors like Greylock Partners, Andreessen Horowitz and Cox Enterprises, with a current valuation of$*****. The company has 502 active competitors, including 53 funded and 57 that have exited. Its top competitors include companies like Kaltura, Amagi and Vimeo.\n[...]\n## Caffeine's founders and board of directors\n[...]\nThe founders of Caffeine are Ben Keighran and Sam Roberts. Ben Keighran is the CEO of Caffeine.\n[...]\n- Ben Keighran: Co-Founder & CEO of Caffeine.\n- Sam Roberts: Former Co-Founder of Caffeine.\n[...]\nCaffeine is headquartered in San Francisco, United States. It is registered at Redwood City, California.\n[...]\nBen Keighran is the current CEO of Caffeine. They have also founded 1 company.",
+      "source": "exa"
+    },
+    {
+      "provider": "exa",
+      "title": "GitHub - nguyenphutrong/opencode-caffeinate at 7301661cde43babd4abff111f07a678383164295 \u00b7 GitHub",
+      "url": "https://github.com/nguyenphutrong/opencode-caffeinate/tree/7301661cde43babd4abff111f07a678383164295",
+      "snippet": "GitHub - nguyenphutrong/opencode-caffeinate at 7301661cde43babd4abff111f07a678383164295 \u00b7 GitHub\n[...]\n# opencode-caffeinate\n[...]\nPrevent macOS from sleeping while OpenCode sessions are active.\n[...]\nThis plugin automatically runs`caffeinate -dim` when an OpenCode session starts, keeping your Mac awake during long AI coding sessions. When all sessions end, caffeinate is stopped to restore normal power management.\n[...]\nnguyenph\n[...]\nPrevent macOS from sleeping while OpenCode sessions are active.",
+      "description": "GitHub - nguyenphutrong/opencode-caffeinate at 7301661cde43babd4abff111f07a678383164295 \u00b7 GitHub\n[...]\n# opencode-caffeinate\n[...]\nPrevent macOS from sleeping while OpenCode sessions are active.\n[...]\nThis plugin automatically runs`caffeinate -dim` when an OpenCode session starts, keeping your Mac awake during long AI coding sessions. When all sessions end, caffeinate is stopped to restore normal power management.\n[...]\nnguyenph\n[...]\nPrevent macOS from sleeping while OpenCode sessions are active.",
+      "source": "exa"
+    }
+  ],
+  "skipped": false,
+  "skip_reason": "",
+  "cache_status": "miss",
+  "latency_ms": 1228,
+  "cost_usd": 0.007,
+  "capabilities": {
+    "provider": "exa",
+    "snippet_only": false,
+    "page_content_returned": true,
+    "livecrawl_available": true,
+    "cost_estimated": true
+  },
+  "query_id": "",
+  "query_family": "hard_evidence_resolver",
+  "movement": "",
+  "market_sector": ""
+}

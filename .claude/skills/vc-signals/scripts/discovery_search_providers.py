@@ -11,6 +11,7 @@ from urllib.request import Request, urlopen
 
 PROVIDER_ENV_KEYS = {
     "brave": ("BRAVE_API_KEY",),
+    "exa": ("EXA_API_KEY",),
     "you": ("YOU_API_KEY", "YDC_API_KEY"),
     "perplexity_search": ("PERPLEXITY_API_KEY",),
 }
@@ -74,6 +75,7 @@ def run_provider_query(
     max_results: int = 10,
     timeout_seconds: int = 20,
     http_get=None,
+    http_post=None,
     env: dict | None = None,
 ) -> dict:
     topic = query.get("topic") or query.get("query") or ""
@@ -105,8 +107,20 @@ def run_provider_query(
 
     started = time.monotonic()
     raw_items = []
+    cost_usd = 0.0
+    capability_overrides = {}
     if provider == "brave":
         raw_items = _run_brave(topic, api_key, max_results, timeout_seconds, http_get)
+    elif provider == "exa":
+        payload = _run_exa(topic, api_key, max_results, timeout_seconds, http_post)
+        raw_items = payload.get("results") or []
+        cost_usd = _extract_total_cost(payload)
+        capability_overrides = {
+            "snippet_only": False,
+            "page_content_returned": True,
+            "livecrawl_available": True,
+            "cost_estimated": True,
+        }
     elif provider == "you":
         raw_items = _run_you(topic, api_key, max_results, timeout_seconds, http_get)
     elif provider == "perplexity_search":
@@ -130,9 +144,9 @@ def run_provider_query(
         query=topic,
         raw_items=raw_items[:max_results],
         latency_ms=int((time.monotonic() - started) * 1000),
-        cost_usd=0.0,
+        cost_usd=cost_usd,
         cache_status="miss",
-        capabilities={},
+        capabilities=capability_overrides,
     )
     result["query_id"] = query.get("query_id") or query.get("id") or ""
     result["query_family"] = query.get("query_family", "")
@@ -154,6 +168,21 @@ def _run_brave(topic: str, api_key: str, max_results: int, timeout_seconds: int,
         http_get=http_get,
     )
     return payload.get("web", {}).get("results") or payload.get("results") or []
+
+
+def _run_exa(topic: str, api_key: str, max_results: int, timeout_seconds: int, http_post) -> dict:
+    return _http_post_json(
+        "https://api.exa.ai/search",
+        headers={"x-api-key": api_key, "Content-Type": "application/json"},
+        payload={
+            "query": topic,
+            "type": "auto",
+            "numResults": max_results,
+            "contents": {"highlights": True},
+        },
+        timeout_seconds=timeout_seconds,
+        http_post=http_post,
+    )
 
 
 def _run_you(topic: str, api_key: str, max_results: int, timeout_seconds: int, http_get) -> list[dict]:
@@ -194,6 +223,14 @@ def _http_get_json(url: str, *, headers: dict, params: dict, timeout_seconds: in
         return json.loads(response.read().decode("utf-8"))
 
 
+def _http_post_json(url: str, *, headers: dict, payload: dict, timeout_seconds: int, http_post) -> dict:
+    if http_post:
+        return http_post(url, headers=headers, payload=payload, timeout_seconds=timeout_seconds)
+    request = Request(url, headers=headers, data=json.dumps(payload).encode("utf-8"), method="POST")
+    with urlopen(request, timeout=timeout_seconds) as response:  # nosec B310
+        return json.loads(response.read().decode("utf-8"))
+
+
 def _provider_api_key(provider: str, env: dict | None = None) -> str:
     lookup = env or os.environ
     for key in PROVIDER_ENV_KEYS.get(provider, ()):
@@ -208,7 +245,7 @@ def _provider_capabilities(provider: str, overrides: dict) -> dict:
         "provider": provider,
         "snippet_only": True,
         "page_content_returned": False,
-        "livecrawl_available": provider == "you",
+        "livecrawl_available": provider in {"exa", "you"},
         "cost_estimated": True,
     }
     defaults.update(overrides or {})
@@ -218,7 +255,15 @@ def _provider_capabilities(provider: str, overrides: dict) -> dict:
 def _normalize_item(provider: str, item: dict) -> dict:
     url = item.get("url") or item.get("link") or item.get("href") or item.get("source_url") or ""
     title = item.get("title") or item.get("name") or ""
-    snippet = item.get("snippet") or item.get("description") or item.get("summary") or item.get("content") or ""
+    snippet = (
+        item.get("snippet")
+        or item.get("description")
+        or item.get("summary")
+        or item.get("content")
+        or _highlights_to_snippet(item.get("highlights"))
+        or item.get("text")
+        or ""
+    )
     return {
         "provider": provider,
         "title": title,
@@ -227,6 +272,32 @@ def _normalize_item(provider: str, item: dict) -> dict:
         "description": snippet,
         "source": provider,
     }
+
+
+def _highlights_to_snippet(highlights) -> str:
+    if not highlights:
+        return ""
+    if isinstance(highlights, str):
+        return highlights
+    if not isinstance(highlights, list):
+        return ""
+    parts = []
+    for item in highlights:
+        if isinstance(item, str):
+            parts.append(item.strip())
+        elif isinstance(item, dict):
+            value = item.get("text") or item.get("highlight") or item.get("content") or ""
+            if value:
+                parts.append(str(value).strip())
+    return " ".join(part for part in parts if part)
+
+
+def _extract_total_cost(payload: dict) -> float:
+    cost = payload.get("costDollars") or {}
+    try:
+        return float(cost.get("total") or 0.0)
+    except (TypeError, ValueError):
+        return 0.0
 
 
 def _cache_path(cache_dir: Path | str | None, provider: str, topic: str, max_results: int) -> Path | None:

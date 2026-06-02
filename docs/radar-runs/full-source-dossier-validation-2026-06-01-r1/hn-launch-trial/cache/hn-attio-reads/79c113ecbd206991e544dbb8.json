@@ -1,0 +1,34 @@
+{
+  "fetched_at": "2026-06-01",
+  "payload": {
+    "attio_status": "no_match",
+    "attio_action": "assign owner",
+    "attio_lists": [],
+    "attio_match": {
+      "record_text": "Voker (YC S24)",
+      "object_slug": "companies",
+      "record_id": "e89a8761-6660-44cf-823d-9cc46f890adb"
+    },
+    "attio_record_url": "https://app.attio.com/marathon/companies/record/e89a8761-6660-44cf-823d-9cc46f890adb",
+    "attio_owner": "",
+    "attio_last_interaction": "",
+    "attio_staleness_reason": "No recent interaction found.",
+    "stage": "PRE_SEED",
+    "raised": 2700000,
+    "headcount": 7,
+    "enrichment_evidence": {
+      "stage": "attio",
+      "raised": "attio",
+      "headcount": "attio"
+    },
+    "attio_attributes": {
+      "last_round_type": "PRE_SEED",
+      "headcount": 7,
+      "total_amount_raised": 2700000
+    }
+  },
+  "match_key": {
+    "name": "Voker",
+    "domain": "voker.ai"
+  }
+}

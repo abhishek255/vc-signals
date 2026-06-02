@@ -1,0 +1,440 @@
+{
+  "summary": {
+    "queries": 10,
+    "items_seen": 85,
+    "field_presence": {
+      "author": 85,
+      "body": 85,
+      "container": 85,
+      "date_confidence": 85,
+      "engagement": 85,
+      "engagement_score": 85,
+      "freshness": 85,
+      "item_id": 85,
+      "local_rank_score": 85,
+      "local_relevance": 85,
+      "metadata": 85,
+      "published_at": 85,
+      "relevance_hint": 85,
+      "snippet": 85,
+      "source": 85,
+      "source_quality": 85,
+      "title": 85,
+      "url": 85,
+      "why_relevant": 85
+    },
+    "identity_useful_fields_present": {
+      "author": 85,
+      "domain": 80,
+      "engagement": 85,
+      "hn_url": 85,
+      "outbound_url": 80,
+      "url": 85
+    }
+  },
+  "rows": [
+    {
+      "query_id": "phase6a:launch_hn:1",
+      "lane": "launch_hn",
+      "topic": "Show HN AI agent security",
+      "sources": "hackernews",
+      "items_seen": 12,
+      "field_presence": {
+        "author": 12,
+        "body": 12,
+        "container": 12,
+        "date_confidence": 12,
+        "engagement": 12,
+        "engagement_score": 12,
+        "freshness": 12,
+        "item_id": 12,
+        "local_rank_score": 12,
+        "local_relevance": 12,
+        "metadata": 12,
+        "published_at": 12,
+        "relevance_hint": 12,
+        "snippet": 12,
+        "source": 12,
+        "source_quality": 12,
+        "title": 12,
+        "url": 12,
+        "why_relevant": 12
+      },
+      "identity_useful_fields_present": {
+        "author": 12,
+        "domain": 12,
+        "engagement": 12,
+        "hn_url": 12,
+        "outbound_url": 12,
+        "url": 12
+      },
+      "warnings": [
+        "Top evidence is highly concentrated in one source."
+      ],
+      "errors_by_source": {}
+    },
+    {
+      "query_id": "phase6a:launch_hn:2",
+      "lane": "launch_hn",
+      "topic": "Launch HN AI agent security",
+      "sources": "hackernews",
+      "items_seen": 12,
+      "field_presence": {
+        "author": 12,
+        "body": 12,
+        "container": 12,
+        "date_confidence": 12,
+        "engagement": 12,
+        "engagement_score": 12,
+        "freshness": 12,
+        "item_id": 12,
+        "local_rank_score": 12,
+        "local_relevance": 12,
+        "metadata": 12,
+        "published_at": 12,
+        "relevance_hint": 12,
+        "snippet": 12,
+        "source": 12,
+        "source_quality": 12,
+        "title": 12,
+        "url": 12,
+        "why_relevant": 12
+      },
+      "identity_useful_fields_present": {
+        "author": 12,
+        "domain": 12,
+        "engagement": 12,
+        "hn_url": 12,
+        "outbound_url": 12,
+        "url": 12
+      },
+      "warnings": [
+        "Top evidence is highly concentrated in one source."
+      ],
+      "errors_by_source": {}
+    },
+    {
+      "query_id": "phase6a:launch_hn:3",
+      "lane": "launch_hn",
+      "topic": "Show HN Vertical AI operations",
+      "sources": "hackernews",
+      "items_seen": 12,
+      "field_presence": {
+        "author": 12,
+        "body": 12,
+        "container": 12,
+        "date_confidence": 12,
+        "engagement": 12,
+        "engagement_score": 12,
+        "freshness": 12,
+        "item_id": 12,
+        "local_rank_score": 12,
+        "local_relevance": 12,
+        "metadata": 12,
+        "published_at": 12,
+        "relevance_hint": 12,
+        "snippet": 12,
+        "source": 12,
+        "source_quality": 12,
+        "title": 12,
+        "url": 12,
+        "why_relevant": 12
+      },
+      "identity_useful_fields_present": {
+        "author": 12,
+        "domain": 11,
+        "engagement": 12,
+        "hn_url": 12,
+        "outbound_url": 11,
+        "url": 12
+      },
+      "warnings": [
+        "Top evidence is highly concentrated in one source."
+      ],
+      "errors_by_source": {}
+    },
+    {
+      "query_id": "phase6a:launch_hn:4",
+      "lane": "launch_hn",
+      "topic": "Launch HN Vertical AI operations",
+      "sources": "hackernews",
+      "items_seen": 12,
+      "field_presence": {
+        "author": 12,
+        "body": 12,
+        "container": 12,
+        "date_confidence": 12,
+        "engagement": 12,
+        "engagement_score": 12,
+        "freshness": 12,
+        "item_id": 12,
+        "local_rank_score": 12,
+        "local_relevance": 12,
+        "metadata": 12,
+        "published_at": 12,
+        "relevance_hint": 12,
+        "snippet": 12,
+        "source": 12,
+        "source_quality": 12,
+        "title": 12,
+        "url": 12,
+        "why_relevant": 12
+      },
+      "identity_useful_fields_present": {
+        "author": 12,
+        "domain": 11,
+        "engagement": 12,
+        "hn_url": 12,
+        "outbound_url": 11,
+        "url": 12
+      },
+      "warnings": [
+        "Top evidence is highly concentrated in one source."
+      ],
+      "errors_by_source": {}
+    },
+    {
+      "query_id": "phase6a:launch_hn:5",
+      "lane": "launch_hn",
+      "topic": "Show HN Agent reliability and evals",
+      "sources": "hackernews",
+      "items_seen": 3,
+      "field_presence": {
+        "author": 3,
+        "body": 3,
+        "container": 3,
+        "date_confidence": 3,
+        "engagement": 3,
+        "engagement_score": 3,
+        "freshness": 3,
+        "item_id": 3,
+        "local_rank_score": 3,
+        "local_relevance": 3,
+        "metadata": 3,
+        "published_at": 3,
+        "relevance_hint": 3,
+        "snippet": 3,
+        "source": 3,
+        "source_quality": 3,
+        "title": 3,
+        "url": 3,
+        "why_relevant": 3
+      },
+      "identity_useful_fields_present": {
+        "author": 3,
+        "domain": 3,
+        "engagement": 3,
+        "hn_url": 3,
+        "outbound_url": 3,
+        "url": 3
+      },
+      "warnings": [
+        "Evidence is thin for this topic.",
+        "Top evidence is highly concentrated in one source."
+      ],
+      "errors_by_source": {}
+    },
+    {
+      "query_id": "phase6a:launch_hn:6",
+      "lane": "launch_hn",
+      "topic": "Launch HN Agent reliability and evals",
+      "sources": "hackernews",
+      "items_seen": 5,
+      "field_presence": {
+        "author": 5,
+        "body": 5,
+        "container": 5,
+        "date_confidence": 5,
+        "engagement": 5,
+        "engagement_score": 5,
+        "freshness": 5,
+        "item_id": 5,
+        "local_rank_score": 5,
+        "local_relevance": 5,
+        "metadata": 5,
+        "published_at": 5,
+        "relevance_hint": 5,
+        "snippet": 5,
+        "source": 5,
+        "source_quality": 5,
+        "title": 5,
+        "url": 5,
+        "why_relevant": 5
+      },
+      "identity_useful_fields_present": {
+        "author": 5,
+        "domain": 4,
+        "engagement": 5,
+        "hn_url": 5,
+        "outbound_url": 4,
+        "url": 5
+      },
+      "warnings": [
+        "Evidence is thin for this topic.",
+        "Top evidence is highly concentrated in one source."
+      ],
+      "errors_by_source": {}
+    },
+    {
+      "query_id": "phase6a:launch_hn:7",
+      "lane": "launch_hn",
+      "topic": "Show HN Agent runtime infrastructure",
+      "sources": "hackernews",
+      "items_seen": 3,
+      "field_presence": {
+        "author": 3,
+        "body": 3,
+        "container": 3,
+        "date_confidence": 3,
+        "engagement": 3,
+        "engagement_score": 3,
+        "freshness": 3,
+        "item_id": 3,
+        "local_rank_score": 3,
+        "local_relevance": 3,
+        "metadata": 3,
+        "published_at": 3,
+        "relevance_hint": 3,
+        "snippet": 3,
+        "source": 3,
+        "source_quality": 3,
+        "title": 3,
+        "url": 3,
+        "why_relevant": 3
+      },
+      "identity_useful_fields_present": {
+        "author": 3,
+        "domain": 3,
+        "engagement": 3,
+        "hn_url": 3,
+        "outbound_url": 3,
+        "url": 3
+      },
+      "warnings": [
+        "Evidence is thin for this topic.",
+        "Top evidence is highly concentrated in one source."
+      ],
+      "errors_by_source": {}
+    },
+    {
+      "query_id": "phase6a:launch_hn:8",
+      "lane": "launch_hn",
+      "topic": "Launch HN Agent runtime infrastructure",
+      "sources": "hackernews",
+      "items_seen": 2,
+      "field_presence": {
+        "author": 2,
+        "body": 2,
+        "container": 2,
+        "date_confidence": 2,
+        "engagement": 2,
+        "engagement_score": 2,
+        "freshness": 2,
+        "item_id": 2,
+        "local_rank_score": 2,
+        "local_relevance": 2,
+        "metadata": 2,
+        "published_at": 2,
+        "relevance_hint": 2,
+        "snippet": 2,
+        "source": 2,
+        "source_quality": 2,
+        "title": 2,
+        "url": 2,
+        "why_relevant": 2
+      },
+      "identity_useful_fields_present": {
+        "author": 2,
+        "domain": 1,
+        "engagement": 2,
+        "hn_url": 2,
+        "outbound_url": 1,
+        "url": 2
+      },
+      "warnings": [
+        "Evidence is thin for this topic."
+      ],
+      "errors_by_source": {}
+    },
+    {
+      "query_id": "phase6a:launch_hn:9",
+      "lane": "launch_hn",
+      "topic": "Show HN AI data infrastructure",
+      "sources": "hackernews",
+      "items_seen": 12,
+      "field_presence": {
+        "author": 12,
+        "body": 12,
+        "container": 12,
+        "date_confidence": 12,
+        "engagement": 12,
+        "engagement_score": 12,
+        "freshness": 12,
+        "item_id": 12,
+        "local_rank_score": 12,
+        "local_relevance": 12,
+        "metadata": 12,
+        "published_at": 12,
+        "relevance_hint": 12,
+        "snippet": 12,
+        "source": 12,
+        "source_quality": 12,
+        "title": 12,
+        "url": 12,
+        "why_relevant": 12
+      },
+      "identity_useful_fields_present": {
+        "author": 12,
+        "domain": 11,
+        "engagement": 12,
+        "hn_url": 12,
+        "outbound_url": 11,
+        "url": 12
+      },
+      "warnings": [
+        "Top evidence is highly concentrated in one source."
+      ],
+      "errors_by_source": {}
+    },
+    {
+      "query_id": "phase6a:launch_hn:10",
+      "lane": "launch_hn",
+      "topic": "Launch HN AI data infrastructure",
+      "sources": "hackernews",
+      "items_seen": 12,
+      "field_presence": {
+        "author": 12,
+        "body": 12,
+        "container": 12,
+        "date_confidence": 12,
+        "engagement": 12,
+        "engagement_score": 12,
+        "freshness": 12,
+        "item_id": 12,
+        "local_rank_score": 12,
+        "local_relevance": 12,
+        "metadata": 12,
+        "published_at": 12,
+        "relevance_hint": 12,
+        "snippet": 12,
+        "source": 12,
+        "source_quality": 12,
+        "title": 12,
+        "url": 12,
+        "why_relevant": 12
+      },
+      "identity_useful_fields_present": {
+        "author": 12,
+        "domain": 12,
+        "engagement": 12,
+        "hn_url": 12,
+        "outbound_url": 12,
+        "url": 12
+      },
+      "warnings": [
+        "Top evidence is highly concentrated in one source."
+      ],
+      "errors_by_source": {}
+    }
+  ]
+}

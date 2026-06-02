@@ -9,6 +9,11 @@ from urllib.parse import urlparse
 from radar_company_discovery import _domain_from_url, _normalize_domain, classify_discovery_source
 from radar_models import Candidate
 
+try:
+    from signal_investigator import build_investigation_packet, build_search_plan
+except ImportError:  # pragma: no cover - damaged local installs
+    build_investigation_packet = None
+    build_search_plan = None
 
 WEAK_SOURCE_LANES = {"product hunt", "oss"}
 WEAK_CANDIDATE_TYPES = {"producthunt_launch", "oss_project"}
@@ -130,6 +135,39 @@ def build_weak_source_identity_query(candidate: Candidate) -> str:
     if candidate.candidate_type == "oss_project" and candidate.name != name:
         return f'"{name}" "{candidate.name}" official website founder company'
     return f'"{name}" official website founder company'
+
+
+def build_weak_source_identity_queries(candidate: Candidate) -> list[dict]:
+    queries: list[dict] = []
+    if build_investigation_packet and build_search_plan:
+        packet = build_investigation_packet(candidate)
+        plan = build_search_plan(packet, provider=lambda _packet: None)
+        for item in plan.get("search_plan") or []:
+            query = str(item.get("query") or "").strip()
+            if query:
+                queries.append(
+                    {
+                        "query": query,
+                        "sources": item.get("sources") or "grounding",
+                        "search_plan_source": "signal_investigator",
+                    }
+                )
+    queries.append(
+        {
+            "query": build_weak_source_identity_query(candidate),
+            "sources": "grounding",
+            "search_plan_source": "fixed_fallback",
+        }
+    )
+    seen = set()
+    out = []
+    for item in queries:
+        key = item["query"].lower()
+        if key in seen:
+            continue
+        seen.add(key)
+        out.append(item)
+    return out
 
 
 def _query_items(payload: dict | None) -> list[dict]:
@@ -255,23 +293,44 @@ def enrich_weak_source_identity(
             continue
 
         summary["eligible"] += 1
-        query = build_weak_source_identity_query(candidate)
-        payload = _read_cache(cache_path, query)
-        if payload:
-            summary["query_cache_hits"] += 1
-        else:
-            payload = query_runner(
-                query,
-                sources="grounding",
-                lookback_days=30,
-                auto_resolve=True,
-                store=True,
-                web_backend="auto",
-            )
-            _write_cache(cache_path, query, payload)
-            summary["queries_run"] += 1
+        query = ""
+        selected = None
+        rejection_reasons: list[str] = []
+        query_records: list[dict] = []
+        selected_plan_source = ""
+        for query_item in build_weak_source_identity_queries(candidate):
+            query = query_item["query"]
+            payload = _read_cache(cache_path, query)
+            cache_hit = bool(payload)
+            if payload:
+                summary["query_cache_hits"] += 1
+            else:
+                payload = query_runner(
+                    query,
+                    sources=query_item.get("sources") or "grounding",
+                    lookback_days=30,
+                    auto_resolve=True,
+                    store=True,
+                    web_backend="auto",
+                )
+                _write_cache(cache_path, query, payload)
+                summary["queries_run"] += 1
 
-        selected, rejection_reasons = _select_official_identity_item(candidate, _query_items(payload))
+            selected, rejection_reasons = _select_official_identity_item(candidate, _query_items(payload))
+            selected_plan_source = query_item.get("search_plan_source", "")
+            query_records.append(
+                {
+                    "query": query,
+                    "sources": query_item.get("sources") or "grounding",
+                    "search_plan_source": selected_plan_source,
+                    "cache_hit": cache_hit,
+                    "items_seen": len(_query_items(payload)),
+                    "selected": bool(selected),
+                    "rejection_reasons": list(rejection_reasons),
+                }
+            )
+            if selected:
+                break
         if selected:
             updated = _apply_identity_item(candidate, selected, query=query)
             enriched.append(updated)
@@ -285,6 +344,8 @@ def enrich_weak_source_identity(
                     "status": "resolved",
                     "skip_reason": "",
                     "query": query,
+                    "queries": query_records,
+                    "search_plan_source": selected_plan_source,
                     "resolved_domain": updated.domain,
                     "evidence_url": updated.sources[-1] if updated.sources else "",
                     "rejection_reasons": rejection_reasons,
@@ -302,6 +363,8 @@ def enrich_weak_source_identity(
                     "status": "unresolved",
                     "skip_reason": "",
                     "query": query,
+                    "queries": query_records,
+                    "search_plan_source": selected_plan_source,
                     "resolved_domain": "",
                     "rejection_reasons": rejection_reasons,
                 }

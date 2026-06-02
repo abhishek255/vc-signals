@@ -92,6 +92,16 @@ from founder_team_verification import enrich_founder_team_verification, write_fo
 from owner_evidence import enrich_owner_evidence, write_owner_evidence_json
 from owner_readiness import enrich_owner_readiness, write_owner_readiness_json
 from weak_source_identity_enrichment import enrich_weak_source_identity, write_weak_source_identity_enrichment_json
+try:
+    from signal_investigator import investigate_candidates, investigate_source_rows
+except ImportError:  # pragma: no cover - only for damaged installs
+    investigate_candidates = None
+    investigate_source_rows = None
+try:
+    from hard_evidence_resolver import enrich_source_rows_with_hard_evidence, write_hard_evidence_report
+except ImportError:  # pragma: no cover - only for damaged installs
+    enrich_source_rows_with_hard_evidence = None
+    write_hard_evidence_report = None
 from hn_weekly_trial import HNLaunchTrialConfig, run_hn_launch_weekly_trial
 from radar_oss import enrich_oss_candidate
 from canonical_identity import canonicalize_identity
@@ -2096,6 +2106,97 @@ def save_raw_evidence(evidence: dict, *, output_dir: Path = DEFAULT_OUTPUT_DIR, 
     return path
 
 
+def _source_rows_for_signal_investigation(evidence: dict, signals: list) -> list[dict]:
+    rows: list[dict] = []
+    for row in evidence.get("product_hunt") or []:
+        if isinstance(row, dict):
+            rows.append({**row, "source_lane": row.get("source_lane") or "Product Hunt", "source": row.get("source") or "producthunt"})
+    for row in evidence.get("x_launches") or []:
+        if isinstance(row, dict):
+            rows.append({**row, "source_lane": row.get("source_lane") or "X", "source": row.get("source") or "x"})
+    for row in evidence.get("github") or []:
+        if isinstance(row, dict):
+            rows.append({**row, "source_lane": row.get("source_lane") or "OSS", "source": row.get("source") or "github"})
+    for signal in signals or []:
+        payload = signal.to_dict() if hasattr(signal, "to_dict") else dict(signal)
+        source = str(payload.get("source") or "").lower()
+        if source not in {"hackernews", "hn"}:
+            continue
+        rows.append(
+            {
+                **payload,
+                "source": "hackernews",
+                "source_lane": payload.get("source_lane") or "Hacker News",
+                "name": payload.get("name") or payload.get("title") or payload.get("headline") or "Hacker News signal",
+                "title": payload.get("title") or payload.get("headline") or payload.get("name") or "",
+                "url": payload.get("url") or payload.get("source_url") or "",
+                "description": payload.get("description") or payload.get("snippet") or payload.get("why_on_radar") or "",
+            }
+        )
+    return rows
+
+
+def _merge_signal_investigation_reports(candidate_report: dict, source_report: dict) -> dict:
+    candidate_summary = candidate_report.get("summary", {}) if isinstance(candidate_report, dict) else {}
+    source_summary = source_report.get("summary", {}) if isinstance(source_report, dict) else {}
+    numeric_keys = [
+        "rows_considered",
+        "rows_investigated",
+        "search_queries_planned",
+        "search_queries_run",
+        "official_domains_resolved",
+        "url_roles_classified",
+        "unsafe_domain_attempts_blocked",
+    ]
+    provider_modes = [str(source_summary.get("provider_mode") or ""), str(candidate_summary.get("provider_mode") or "")]
+    provider_mode = "llm" if "llm" in provider_modes else "heuristic_fallback" if "heuristic_fallback" in provider_modes else "disabled"
+    summary = {
+        "enabled": bool(candidate_summary.get("enabled") or source_summary.get("enabled")),
+        "provider_mode": provider_mode,
+    }
+    for key in numeric_keys:
+        summary[key] = int(candidate_summary.get(key) or 0) + int(source_summary.get(key) or 0)
+    candidate_items = list(candidate_report.get("items", []) or []) if isinstance(candidate_report, dict) else []
+    source_items = list(source_report.get("items", []) or []) if isinstance(source_report, dict) else []
+    return {
+        "summary": summary,
+        "items": source_items + candidate_items,
+        "source_items": source_items,
+        "candidate_items": candidate_items,
+    }
+
+
+def _merge_hard_evidence_reports(reports: dict[str, dict]) -> dict:
+    numeric_keys = [
+        "rows_considered",
+        "rows_investigated",
+        "search_queries_planned",
+        "search_queries_run",
+        "official_domains_resolved",
+        "commercial_evidence_rows",
+        "url_roles_classified",
+        "unsafe_domain_attempts_blocked",
+    ]
+    summary = {
+        "enabled": bool(enrich_source_rows_with_hard_evidence),
+        "lanes": {},
+    }
+    for key in numeric_keys:
+        summary[key] = 0
+    items = []
+    for lane, report in reports.items():
+        lane_summary = report.get("summary", {}) if isinstance(report, dict) else {}
+        summary["lanes"][lane] = lane_summary
+        for key in numeric_keys:
+            summary[key] += int(lane_summary.get(key) or 0)
+        for item in report.get("items", []) if isinstance(report, dict) else []:
+            if isinstance(item, dict):
+                items.append({"source_lane": lane, **item})
+    if not enrich_source_rows_with_hard_evidence:
+        summary["skip_reason"] = "hard_evidence_resolver_unavailable"
+    return {"summary": summary, "items": items}
+
+
 def collect_live_evidence(
     *,
     sectors: tuple[str, ...] = DEFAULT_SECTORS,
@@ -2379,6 +2480,7 @@ def run_weekly_artifacts(
     hn_launch_trial_config: HNLaunchTrialConfig | None = None,
     exclude_yc: bool = False,
     hn_launch_trial_only: bool = False,
+    signal_investigation_limit: int | None = None,
     weak_source_identity_enrichment_limit: int = 0,
     update_signal_ledger: bool = False,
     signal_ledger_path: Path | None = None,
@@ -2389,6 +2491,8 @@ def run_weekly_artifacts(
     company_discovery_path = output_dir / "company-discovery.json"
     runtime_ledger_path = output_dir / "runtime-ledger.json"
     coverage_report_path = output_dir / "coverage-report.json"
+    signal_investigation_path = output_dir / "signal-investigation.json"
+    hard_evidence_dossiers_path = output_dir / "hard-evidence-dossiers.json"
     weak_source_identity_enrichment_path = output_dir / "weak-source-identity-enrichment.json"
     manual_enrichment_targets_path = output_dir / "manual-enrichment-targets.json"
     evidence = collect_live_evidence(
@@ -2407,6 +2511,47 @@ def run_weekly_artifacts(
         exclude_yc=exclude_yc,
         hn_launch_trial_only=hn_launch_trial_only,
     )
+    hard_evidence_provider = os.environ.get("VC_SIGNALS_HARD_EVIDENCE_PROVIDER") or "exa,brave"
+    hard_evidence_limit = int(os.environ.get("VC_SIGNALS_HARD_EVIDENCE_LIMIT") or "15")
+    hard_evidence_reports = {}
+    hard_evidence_live_enabled = (os.environ.get("VC_SIGNALS_HARD_EVIDENCE_ENABLE_LIVE") or "").strip().lower() in {
+        "1",
+        "true",
+        "yes",
+    }
+    official_site_crawl_enabled = (os.environ.get("VC_SIGNALS_OFFICIAL_SITE_CRAWL_ENABLE") or "").strip().lower() in {
+        "1",
+        "true",
+        "yes",
+    }
+    if enrich_source_rows_with_hard_evidence and hard_evidence_live_enabled:
+        if evidence.get("product_hunt"):
+            evidence["product_hunt"], hard_evidence_reports["Product Hunt"] = enrich_source_rows_with_hard_evidence(
+                evidence.get("product_hunt") or [],
+                source_lane="Product Hunt",
+                provider=hard_evidence_provider,
+                cache_dir=output_dir / "hard-evidence-provider-cache" / "product_hunt",
+                max_rows=hard_evidence_limit,
+                max_queries_per_row=2,
+                timeout_seconds=int(_cap_timeout(query_timeout_seconds, 12)),
+                crawl_official_site=official_site_crawl_enabled,
+            )
+        if evidence.get("x_launches"):
+            evidence["x_launches"], hard_evidence_reports["X"] = enrich_source_rows_with_hard_evidence(
+                evidence.get("x_launches") or [],
+                source_lane="X",
+                provider=hard_evidence_provider,
+                cache_dir=output_dir / "hard-evidence-provider-cache" / "x",
+                max_rows=hard_evidence_limit,
+                max_queries_per_row=2,
+                timeout_seconds=int(_cap_timeout(query_timeout_seconds, 12)),
+                crawl_official_site=official_site_crawl_enabled,
+            )
+    hard_evidence_report = _merge_hard_evidence_reports(hard_evidence_reports)
+    if not hard_evidence_live_enabled:
+        hard_evidence_report["summary"]["enabled"] = False
+        hard_evidence_report["summary"]["skip_reason"] = "live_hard_evidence_disabled"
+    evidence["hard_evidence_dossiers"] = hard_evidence_report
     signal_result = build_signals_from_evidence(evidence)
     theme_signals = build_theme_signals(signal_result["signals"], sectors=sectors)
     initial_promotion = promote_signals_to_candidates(signal_result["signals"])
@@ -2445,6 +2590,57 @@ def run_weekly_artifacts(
     source_errors = _source_errors_from_evidence(evidence)
     scored_candidates = _score_sort_limit_candidates(promotion["candidates"], candidate_limit)
     scored_candidates = apply_candidate_enrichment(scored_candidates)
+    resolved_signal_investigation_limit = candidate_limit if signal_investigation_limit is None else signal_investigation_limit
+    source_signal_investigation_report = (
+        investigate_source_rows(
+            _source_rows_for_signal_investigation(evidence, signal_result["signals"]),
+            query_runner=enrichment_query_runner,
+            max_rows_per_lane=3,
+            max_queries_per_row=1,
+        )
+        if investigate_source_rows and resolved_signal_investigation_limit > 0
+        else {
+            "summary": {
+                "enabled": bool(investigate_source_rows) and resolved_signal_investigation_limit > 0,
+                "provider_mode": "disabled",
+                "rows_considered": 0,
+                "rows_investigated": 0,
+                "search_queries_planned": 0,
+                "search_queries_run": 0,
+                "official_domains_resolved": 0,
+                "url_roles_classified": 0,
+                "unsafe_domain_attempts_blocked": 0,
+            },
+            "items": [],
+        }
+    )
+    if investigate_candidates and resolved_signal_investigation_limit > 0:
+        scored_candidates, candidate_signal_investigation_report = investigate_candidates(
+            scored_candidates,
+            query_runner=enrichment_query_runner,
+            max_candidates=resolved_signal_investigation_limit,
+            max_queries_per_candidate=2,
+        )
+    else:
+        signal_investigation_report = {
+            "summary": {
+                "enabled": bool(investigate_candidates) and resolved_signal_investigation_limit > 0,
+                "provider_mode": "disabled",
+                "rows_considered": len(scored_candidates),
+                "rows_investigated": 0,
+                "search_queries_planned": 0,
+                "search_queries_run": 0,
+                "official_domains_resolved": 0,
+                "url_roles_classified": 0,
+                "unsafe_domain_attempts_blocked": 0,
+            },
+            "items": [],
+        }
+        candidate_signal_investigation_report = signal_investigation_report
+    signal_investigation_report = _merge_signal_investigation_reports(
+        candidate_signal_investigation_report,
+        source_signal_investigation_report,
+    )
     if weak_source_identity_enrichment_limit > 0:
         scored_candidates, weak_source_identity_enrichment_report = enrich_weak_source_identity(
             scored_candidates,
@@ -2545,6 +2741,11 @@ def run_weekly_artifacts(
     runtime_ledger["source_access"] = source_access_report
     runtime_ledger_path.write_text(json.dumps(runtime_ledger, indent=2))
     coverage_report_path.write_text(json.dumps(company_discovery.get("coverage_report", {}), indent=2))
+    signal_investigation_path.write_text(json.dumps(signal_investigation_report, indent=2))
+    if write_hard_evidence_report:
+        write_hard_evidence_report(hard_evidence_report, hard_evidence_dossiers_path)
+    else:
+        hard_evidence_dossiers_path.write_text(json.dumps(hard_evidence_report, indent=2))
     write_weak_source_identity_enrichment_json(weak_source_identity_enrichment_report, weak_source_identity_enrichment_path)
     identity_resolution_path.write_text(json.dumps([item.to_dict() for item in identity_resolutions], indent=2, sort_keys=True))
     metadata_loss_report = build_metadata_loss_report(
@@ -2638,6 +2839,8 @@ def run_weekly_artifacts(
         "coverage_report": str(coverage_report_path),
         "identity_resolution_json": str(identity_resolution_path),
         "metadata_loss_report": str(metadata_loss_report_path),
+        "signal_investigation_json": str(signal_investigation_path),
+        "hard_evidence_dossiers_json": str(hard_evidence_dossiers_path),
         "weak_source_identity_enrichment_json": str(weak_source_identity_enrichment_path),
         "owner_evidence_json": str(owner_evidence_path),
         "founder_team_verification_json": str(founder_team_verification_path),
@@ -3082,6 +3285,12 @@ def _cli_main() -> None:
             hn_launch_trial_config=_hn_launch_trial_config_from_args(args),
             exclude_yc=_get_bool_arg(args, "exclude_yc", "no_yc"),
             hn_launch_trial_only=_get_bool_arg(args, "hn_launch_trial_only", "hn_trial_only"),
+            signal_investigation_limit=_get_int_arg(
+                args,
+                "signal_investigation_limit",
+                "signal_investigator_limit",
+                default=None,
+            ),
             weak_source_identity_enrichment_limit=_get_int_arg(
                 args,
                 "weak_source_identity_enrichment_limit",
