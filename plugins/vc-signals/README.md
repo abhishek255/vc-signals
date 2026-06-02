@@ -131,7 +131,7 @@ If you have the Claude desktop app with terminal access, you get full functional
 git clone https://github.com/abhishek255/vc-signals.git /tmp/vc-signals && mkdir -p ~/.claude/skills && cp -r /tmp/vc-signals/.claude/skills/vc-signals ~/.claude/skills/vc-signals && rm -rf /tmp/vc-signals && echo "Done! Restart Claude and type: /vc-signals radar all"
 ```
 
-Then **close and reopen Claude Co-Work**. Type `/vc-signals radar all` to start. Run `/vc-signals setup` to configure API keys for Reddit, HN, X, GitHub, and Perplexity.
+Then **close and reopen Claude Co-Work**. Type `/vc-signals radar all` to start. Run `/vc-signals setup` to configure Exa, Product Hunt, GitHub, Attio, X, last30days, and optional research/search providers.
 
 ### Claude Code (CLI, VS Code, JetBrains)
 
@@ -172,9 +172,10 @@ The skill is auto-detected. Type `/vc-signals radar all` to start.
 
 No matter which install method you use, on your first run the skill:
 
-1. **Detects it's your first time** and asks if you want to run setup (2 minutes) or jump straight in with basic web search
-2. **If you choose setup:** Claude installs the research engine, then asks for API keys one at a time — in plain English, with links. You paste each key or say "skip"
-3. **If you skip setup:** You get results immediately via web search. Run `/vc-signals setup` anytime later to unlock more sources
+1. **Detects it's your first time** and asks if you want to run setup or jump straight in with basic web search
+2. **If you choose setup:** Claude installs/checks the research engine, then asks for provider keys one at a time — in plain English, with exact env var names. You paste each key or say "skip"
+3. **If setup was already completed:** `/vc-signals setup` still runs as an update flow. It checks which keys are missing and lets you add Exa, Product Hunt, Attio, X, GitHub, or other providers without wiping existing config
+4. **If you skip setup:** You get results immediately via web search. Run `/vc-signals setup` anytime later to unlock more sources
 
 **Prerequisites:** Python 3.12+ (`brew install python@3.13` on Mac if needed). Everything else is handled by the skill.
 
@@ -182,7 +183,15 @@ No matter which install method you use, on your first run the skill:
 
 ## Optional API Keys
 
-The setup wizard handles all of this for you. But if you want to know what each key does:
+The setup wizard now asks for the important keys explicitly. It should not hide Exa under a generic web-search prompt, and it should not skip Product Hunt just because setup was already completed once.
+
+Keys are saved to:
+
+```bash
+~/.config/last30days/.env
+```
+
+If you need to configure manually, use these exact names:
 
 | API Key | What it Unlocks | Cost | Required? |
 |---------|----------------|------|-----------|
@@ -199,6 +208,36 @@ The setup wizard handles all of this for you. But if you want to know what each 
 | **Attio token** | CRM match, stale/no-owner status, passed-company flags | Existing workspace | Recommended for Marathon |
 
 **You can skip any key** — the skill works with whatever you have and tells you what you're missing. If Brave/Parallel/Serper/Exa is missing, the weekly radar automatically uses a stricter non-grounded HN/GitHub fallback instead of broad noisy web discovery.
+
+Minimum useful source-yield setup:
+
+```bash
+EXA_API_KEY=...
+PRODUCT_HUNT_TOKEN=...
+GITHUB_TOKEN=...
+ATTIO_ACCESS_TOKEN=...
+SETUP_COMPLETE=true
+```
+
+Optional:
+
+```bash
+XAI_API_KEY=...
+AUTH_TOKEN=...
+CT0=...
+SCRAPECREATORS_API_KEY=...
+OPENROUTER_API_KEY=...
+SERPER_API_KEY=...
+BRAVE_API_KEY=...
+```
+
+Crunchbase, Coresignal, and LinkedIn stay manual-mode unless you intentionally add compliant direct API access:
+
+```bash
+CORESIGNAL_API_KEY=...
+CRUNCHBASE_API_KEY=...
+LINKEDIN_ACCESS_TOKEN=...
+```
 
 ### Paid Search Cost Controls
 

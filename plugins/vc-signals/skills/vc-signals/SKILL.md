@@ -82,6 +82,10 @@ Say this to the user:
 If they choose setup → run the Setup Wizard (below), then continue to their original command.
 If they choose to skip → proceed with their command using WebSearch path. Note: "Running with basic web search. You can run `/vc-signals setup` anytime to unlock more sources."
 
+**If the user explicitly runs `/vc-signals setup`:**
+
+Always run the setup/update wizard, even when `SETUP_COMPLETE=true` already exists. Treat setup as "add or update provider keys", not only "first install." First read `~/.config/last30days/.env`, detect which keys are already present, and ask only for missing keys unless the user says they want to replace one. Never print existing secret values; show only configured/missing status.
+
 **Auto-install last30days during setup:**
 
 As part of setup Step 3, ALWAYS clone last30days if it's not already installed — don't ask the user. Just do it:
@@ -138,7 +142,23 @@ Config:
 
 **Trigger:** `/vc-signals setup`
 
-Walk the user through setup one step at a time. Use plain, non-technical language. Check what's already configured and skip completed steps.
+Walk the user through setup one step at a time. Use plain, non-technical language. Check what's already configured and skip completed steps. If setup was previously completed, do not exit early; run the provider-key update flow below so newly added sources like Exa and Product Hunt can be configured.
+
+Before prompting, load existing config:
+
+```bash
+mkdir -p ~/.config/last30days
+touch ~/.config/last30days/.env
+chmod 600 ~/.config/last30days/.env
+```
+
+Use this file as the shared local config:
+
+```text
+~/.config/last30days/.env
+```
+
+When a user provides a key, save it as the exact env var name shown below. Preserve existing keys unless the user explicitly asks to replace them.
 
 ### Step 1: Python Check
 
@@ -160,7 +180,104 @@ pip install requests
 
 Say: "Installed the one Python library we need (requests, for GitHub API calls)."
 
-### Step 3: last30days Research Engine
+### Step 3: Provider Keys
+
+Ask for these provider keys explicitly. Every key is optional, but do not hide Exa or Product Hunt behind a generic "web search" prompt.
+
+**Recommended now**
+
+**Exa API Key (`EXA_API_KEY`) -- recommended for source-yield work:**
+> "Exa helps us resolve Product Hunt and X launch chatter into official domains and richer page evidence. Paste your Exa API key, or type 'skip'."
+
+If provided, save:
+```bash
+EXA_API_KEY=<value>
+```
+
+**Product Hunt API Token (`PRODUCT_HUNT_TOKEN`) -- recommended for launch discovery:**
+> "Product Hunt gives us structured launch data: products, makers, topics, launch copy, and Product Hunt URLs. Paste your Product Hunt token, or type 'skip'."
+
+If provided, save:
+```bash
+PRODUCT_HUNT_TOKEN=<value>
+```
+
+**GitHub Token (`GITHUB_TOKEN`) -- recommended for OSS market radar:**
+First check:
+```bash
+gh auth status 2>&1
+```
+
+If `gh` is not authenticated and `GITHUB_TOKEN` is missing:
+> "GitHub helps us find OSS momentum and company/market signals. Paste a GitHub Personal Access Token with `public_repo`, or type 'skip'."
+
+If provided, save:
+```bash
+GITHUB_TOKEN=<value>
+```
+
+**Attio Access Token (`ATTIO_ACCESS_TOKEN`) -- recommended for Marathon owner/status checks:**
+> "Attio lets the packet show whether a company is already known, stale, passed, or missing an owner. Paste an Attio access token, or type 'skip'."
+
+If provided, save:
+```bash
+ATTIO_ACCESS_TOKEN=<value>
+```
+
+**X launch radar (`XAI_API_KEY` or `AUTH_TOKEN` + `CT0`) -- optional:**
+> "X is useful as launch radar, not identity truth. Paste an `XAI_API_KEY` if you use xAI access for this lane, or paste browser cookies `AUTH_TOKEN` and `CT0`. You can skip X."
+
+If `XAI_API_KEY` is provided, save:
+```bash
+XAI_API_KEY=<value>
+```
+
+If browser cookies are provided, save:
+```bash
+AUTH_TOKEN=<value>
+CT0=<value>
+```
+
+**Optional search alternatives**
+
+Ask only if the user wants lower-cost provider trials or already has keys:
+
+- `SERPER_API_KEY`
+- `DATAFORSEO_LOGIN` and `DATAFORSEO_PASSWORD`
+- `BRAVE_API_KEY` (guarded; do not auto-enable broad last30days grounding)
+- `YOU_API_KEY` or `YDC_API_KEY`
+- `PERPLEXITY_API_KEY`
+
+Make the cost rule clear:
+> "Normal weekly runs keep broad paid last30days grounding disabled. Exa can still be used for targeted hard-evidence resolution. To intentionally enable broad grounding, use `VC_SIGNALS_ALLOW_LAST30DAYS_GROUNDING=1` and a dollar cap."
+
+**Optional deep research**
+
+**OpenRouter API Key (`OPENROUTER_API_KEY`) -- optional:**
+> "OpenRouter gives access to Perplexity-style deep research for theme drill-downs. Paste an OpenRouter key, or type 'skip'."
+
+**Optional social/video**
+
+**ScrapeCreators API Key (`SCRAPECREATORS_API_KEY`) -- optional:**
+> "ScrapeCreators unlocks TikTok, Instagram, and YouTube through last30days. Paste a key, or type 'skip'."
+
+**Manual-mode structured providers**
+
+Do not block setup on these. Say:
+> "Crunchbase, Coresignal, and LinkedIn stay manual-mode for now unless you already have compliant API access. You can add these later, but they are not required for this sprint."
+
+Accepted optional direct-provider vars:
+
+- `CORESIGNAL_API_KEY`
+- `CRUNCHBASE_API_KEY` or `CRUNCHBASE_TOKEN`
+- `LINKEDIN_ACCESS_TOKEN` or `LINKEDIN_API_KEY`
+
+**Direct LLM API fallback**
+
+Do not ask for OpenAI, Gemini, or xAI as normal reasoning providers. Say:
+> "Claude Code/Codex is the reasoning layer. Direct OpenAI/Gemini/xAI LLM APIs are only for standalone non-harness runs and stay disabled unless `VC_SIGNALS_ALLOW_DIRECT_LLM_API=1` is set."
+
+### Step 4: last30days Research Engine
 
 Check availability:
 ```bash
@@ -177,65 +294,6 @@ If they want to proceed:
 git clone https://github.com/mvanhorn/last30days-skill.git vendor/last30days-skill
 ```
 
-Then walk them through API keys one at a time:
-
-**ScrapeCreators API Key (required for last30days):**
-> "ScrapeCreators lets us search TikTok, Instagram, and YouTube. It's the one required key for last30days."
->
-> "Here's how to get it:"
-> 1. Go to https://scrapecreators.com
-> 2. Sign up for an account
-> 3. Go to your dashboard and copy your API key
-> 4. Paste it here
-
-**Web Search API Key (pick one -- Exa/Serper for experiments, Brave only with budget guardrails):**
-> "We need a web search API for broader coverage and official-domain resolution. Exa is useful when we need richer page content; Serper/DataForSEO are useful for lower-cost search trials; Brave works but must stay budget-capped because repeated validation runs can get expensive."
->
-> "Paste whichever key you have, or type 'skip'. Normal weekly runs use direct Exa-first resolver calls for targeted evidence, and last30days will not use paid web grounding just because a key exists. Broad last30days grounding requires `VC_SIGNALS_ALLOW_LAST30DAYS_GROUNDING=1` or `--allow-last30days-grounding`; Brave auto-use also requires `VC_SIGNALS_ALLOW_BRAVE_AUTO=1`."
-
-**Harness LLM reasoning (default):**
-> "For reasoning, this skill uses the current Claude Code/Codex harness LLM. You do not need an OpenAI, Gemini, or xAI key for normal runs."
->
-> "External API keys are for evidence retrieval, such as Brave, Exa, Product Hunt, GitHub, X, or Attio. Direct LLM API calls are only a standalone fallback outside the harness and stay disabled unless `VC_SIGNALS_ALLOW_DIRECT_LLM_API=1` is set."
-
-**OpenRouter API Key (optional -- for deep research):**
-> "OpenRouter gives us access to Perplexity Sonar Pro for deep research. When you drill down into a specific theme, it produces a comprehensive report with 50+ citations. Costs about $0.90 per deep query."
->
-> 1. Go to https://openrouter.ai/keys
-> 2. Sign up or log in
-> 3. Click "Create Key"
-> 4. Copy the key (starts with `sk-or-`)
-> 5. Add credits under Billing (~$5 is enough for many queries)
->
-> "Paste your key here, or type 'skip'. Theme drill-downs still work without it -- just uses regular search instead of deep synthesis."
-
-**X/Twitter Auth Tokens (optional):**
-> "To search X/Twitter for trending developer discussions, we need your browser auth tokens."
->
-> 1. Open X/Twitter in your browser and log in
-> 2. Open Developer Tools (Cmd+Option+I on Mac)
-> 3. Go to Application tab -> Cookies -> twitter.com
-> 4. Find the cookie named `auth_token` -- copy its value
-> 5. Find the cookie named `ct0` -- copy its value
->
-> "This is optional. Skip if you don't use X/Twitter."
-
-### Step 4: GitHub Authentication
-
-Check if `gh` CLI is authenticated:
-```bash
-gh auth status 2>&1
-```
-
-If not, check for GITHUB_TOKEN env var. If neither works:
-> "For GitHub trending repos, we need a GitHub Personal Access Token."
->
-> 1. Go to https://github.com/settings/tokens
-> 2. Click "Generate new token (classic)"
-> 3. Give it a name like "vc-signals"
-> 4. Select scopes: just `public_repo` is enough
-> 5. Generate and copy the token
-
 ### Step 5: Save Configuration
 
 Save all collected keys to `~/.config/last30days/.env`:
@@ -243,7 +301,7 @@ Save all collected keys to `~/.config/last30days/.env`:
 mkdir -p ~/.config/last30days
 ```
 
-Write the .env file with all provided keys. Also save GITHUB_TOKEN to a local config if provided.
+Write the .env file with all provided keys. Preserve existing keys, append missing keys, and never echo secret values back to the user.
 
 Add `SETUP_COMPLETE=true` at the end.
 
@@ -261,17 +319,32 @@ Run a quick test:
 python3 <skill_dir>/scripts/last30days_adapter.py check
 ```
 
+Then run source access detection:
+```bash
+python3 <skill_dir>/scripts/source_access.py
+```
+
+Optionally verify key presence without printing secrets:
+```bash
+grep -q '^EXA_API_KEY=' ~/.config/last30days/.env && echo "Exa configured" || echo "Exa missing"
+grep -q '^PRODUCT_HUNT_TOKEN=' ~/.config/last30days/.env && echo "Product Hunt configured" || echo "Product Hunt missing"
+grep -q '^ATTIO_ACCESS_TOKEN=' ~/.config/last30days/.env && echo "Attio configured" || echo "Attio missing"
+```
+
 ### Step 7: Summary
 
 Print what's configured and what each unlocks:
 
 > **Setup complete. Here's what's active:**
-> - [x/skip] Web search (Brave) -- broad internet coverage
-> - [x/skip] GitHub API -- trending repo discovery
+> - [x/skip] Exa -- targeted hard-evidence search and official-domain resolution
+> - [x/skip] Product Hunt -- structured product launch source
+> - [x/skip] GitHub API -- trending repo and OSS market-radar discovery
+> - [x/skip] Attio -- owner/status/pass/stale context
 > - [x/skip] last30days -- Reddit, HN, X/Twitter, YouTube
 > - [x] Harness LLM reasoning -- Claude/Codex plans searches and validates evidence
 > - [x/skip] Deep research (OpenRouter) -- Perplexity synthesis for theme drill-downs
-> - [x/skip] X/Twitter -- developer discussions
+> - [x/skip] X -- launch radar
+> - [manual] Crunchbase/Coresignal/LinkedIn -- manual-mode unless direct API keys were provided
 >
 > (Show [x] for configured items, [ ] for skipped items, based on what the user actually set up.)
 >
