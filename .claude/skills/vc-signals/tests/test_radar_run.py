@@ -2982,6 +2982,7 @@ def test_weekly_hn_launch_trial_flag_writes_trial_appendix_only(tmp_path, monkey
     import json
     import radar_run
     from hn_weekly_trial import HNLaunchTrialConfig
+    from paid_search_guardrails import current_paid_search_guard
     from radar_models import ThemeSignal
 
     calls = {}
@@ -2989,6 +2990,14 @@ def test_weekly_hn_launch_trial_flag_writes_trial_appendix_only(tmp_path, monkey
     def fake_hn_trial(**kwargs):
         calls["movements"] = kwargs["movements"]
         calls["config"] = kwargs["config"]
+        guard = current_paid_search_guard()
+        reservation = guard.reserve(
+            provider="last30days_grounding",
+            query="HN trial paid search",
+            module="hn_weekly_trial",
+            estimated_cost_usd=0.25,
+        )
+        guard.record(reservation, cache_status="miss", result_count=1)
         return {
             "enabled": True,
             "label": "Phase 6C HN Launch Trial",
@@ -3032,6 +3041,9 @@ def test_weekly_hn_launch_trial_flag_writes_trial_appendix_only(tmp_path, monkey
     assert focus["appendix"]["hn_launch_trial"]["outbound_candidates"] == 1
     assert calls["movements"][0]["movement"] == "Agent reliability and evals"
     assert calls["config"].max_candidates == 3
+    runtime_ledger = json.loads((tmp_path / "runtime-ledger.json").read_text())
+    assert runtime_ledger["paid_search"]["estimated_spend_usd"] == 0.25
+    assert runtime_ledger["paid_search"]["live_calls"] == 1
     weekly_focus_md = (tmp_path / "weekly-focus.md").read_text()
     assert "## HN Launch Trial" in weekly_focus_md
     assert "Outbound candidates: 1" in weekly_focus_md

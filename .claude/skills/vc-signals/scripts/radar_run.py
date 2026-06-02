@@ -2831,6 +2831,8 @@ def run_weekly_artifacts(
             cache_dir=output_dir / "hn-launch-trial" / "cache",
             config=hn_launch_trial_config,
         )
+    runtime_ledger["paid_search"] = paid_search_summary()
+    runtime_ledger_path.write_text(json.dumps(runtime_ledger, indent=2))
     preview_path = output_dir / "weekly-preview.md"
     preview_path.write_text(
         _render_weekly_brief(
