@@ -308,14 +308,14 @@ For deterministic weekly runs, prefer the orchestration helper before doing manu
 python3 <skill_dir>/scripts/radar_run.py weekly --sectors all --output-dir <output_dir>
 ```
 
-This saves raw evidence JSON, normalized signals, scored candidates, and a partner preview. The default weekly command is the full-quality path: it uses the normal sector query budget and does not impose an artificial wrapper timeout on `last30days`. If a native grounded web key (Brave, Parallel, Serper, or Exa) is configured, the run includes grounded company discovery. If not, it automatically uses a stricter HN/GitHub fallback plus curated Reddit pain discovery instead of broad noisy company-web queries.
+This saves raw evidence JSON, normalized signals, scored candidates, and a partner preview. The default weekly command is the full-quality safe path: it uses Product Hunt, YC, GitHub, X/social sources where configured, and direct Exa-first hard-evidence resolution when enabled. Broad `last30days` paid grounding is disabled by default even when Brave, Exa, Serper, or Parallel keys exist; enable it only for intentional deep validations with `VC_SIGNALS_ALLOW_LAST30DAYS_GROUNDING=1` or `--allow-last30days-grounding`.
 
 Paid-search guardrails are always expected for local weekly runs:
 - Shared provider cache: `~/.cache/vc-signals/provider-search-cache` (`VC_SIGNALS_PROVIDER_CACHE_DIR` overrides it)
 - Spend ledger: `~/.cache/vc-signals/paid-search-ledger.jsonl` (`VC_SIGNALS_PAID_SEARCH_LEDGER_PATH` overrides it)
 - Default caps: smoke/dev `$0.50`, manual enrichment `$2`, weekly `$8`, deep validation `$25`
 - Override cap: `VC_SIGNALS_PAID_SEARCH_MAX_USD=<amount>`
-- `last30days` prefers `VC_SIGNALS_LAST30DAYS_WEB_BACKEND`, then Exa, Serper, or Parallel; if only Brave is configured it passes `--web-backend=none` unless `VC_SIGNALS_ALLOW_BRAVE_AUTO=1`
+- `last30days` passes `--web-backend=none` by default when paid web keys exist; after `VC_SIGNALS_ALLOW_LAST30DAYS_GROUNDING=1`, it can use `VC_SIGNALS_LAST30DAYS_WEB_BACKEND`, Exa, Serper, Parallel, or Brave with `VC_SIGNALS_ALLOW_BRAVE_AUTO=1`
 
 Before a validation sprint or any repeated run, preview paid-search cost and exit before live collection:
 
