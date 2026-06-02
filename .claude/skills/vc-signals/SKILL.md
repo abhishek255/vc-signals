@@ -195,20 +195,10 @@ Then walk them through API keys one at a time:
 > 3. Create an account and get your API key
 > 4. Paste it here (or type 'skip' to skip this)
 
-**Reasoning Provider (pick one -- OpenAI or Gemini):**
-> "last30days needs an AI provider for query planning and ranking. Either OpenAI or Gemini works."
+**Harness LLM reasoning (default):**
+> "For reasoning, this skill uses the current Claude Code/Codex harness LLM. You do not need an OpenAI, Gemini, or xAI key for normal runs."
 >
-> **OpenAI:**
-> 1. Go to https://platform.openai.com/api-keys
-> 2. Create a new API key
-> 3. You'll need a paid account (usage-based, typically a few cents per query)
->
-> **Gemini:**
-> 1. Go to https://aistudio.google.com/apikey
-> 2. Create a new API key
-> 3. You get $5 free credits/month (~1,000 queries)
->
-> "Paste your key here, or type 'skip' to skip (web search mode only)."
+> "External API keys are for evidence retrieval, such as Brave, Exa, Product Hunt, GitHub, X, or Attio. Direct LLM API calls are only a standalone fallback outside the harness and stay disabled unless `VC_SIGNALS_ALLOW_DIRECT_LLM_API=1` is set."
 
 **OpenRouter API Key (optional -- for deep research):**
 > "OpenRouter gives us access to Perplexity Sonar Pro for deep research. When you drill down into a specific theme, it produces a comprehensive report with 50+ citations. Costs about $0.90 per deep query."
@@ -281,6 +271,7 @@ Print what's configured and what each unlocks:
 > - [x/skip] Web search (Brave) -- broad internet coverage
 > - [x/skip] GitHub API -- trending repo discovery
 > - [x/skip] last30days -- Reddit, HN, X/Twitter, YouTube
+> - [x] Harness LLM reasoning -- Claude/Codex plans searches and validates evidence
 > - [x/skip] Deep research (OpenRouter) -- Perplexity synthesis for theme drill-downs
 > - [x/skip] X/Twitter -- developer discussions
 >

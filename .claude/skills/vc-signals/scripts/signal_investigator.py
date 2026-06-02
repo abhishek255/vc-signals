@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""LLM-guided signal investigation with deterministic safety rails."""
+"""Harness-guided signal investigation with deterministic safety rails."""
 
 from __future__ import annotations
 
@@ -33,6 +33,10 @@ XAI_MODEL = "grok-4.3"
 OPENAI_CHAT_COMPLETIONS_URL = "https://api.openai.com/v1/chat/completions"
 GEMINI_GENERATE_CONTENT_URL = "https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent"
 XAI_CHAT_COMPLETIONS_URL = "https://api.x.ai/v1/chat/completions"
+DIRECT_LLM_API_ENV = "VC_SIGNALS_ALLOW_DIRECT_LLM_API"
+HARNESS_INPUT_ARTIFACT = "signal-investigation-harness-input.json"
+HARNESS_PROMPT_ARTIFACT = "signal-investigation-harness-prompt.md"
+HARNESS_OUTPUT_ARTIFACT = "signal-investigation-harness-output.json"
 PLACEHOLDER_VALUES = {"", "...", "TODO", "YOUR_KEY", "YOUR_API_KEY", "<YOUR_API_KEY>"}
 
 SOCIAL_DOMAINS = {
@@ -135,6 +139,35 @@ def _merged_env() -> dict[str, str]:
     merged = _load_env_file()
     merged.update(os.environ)
     return merged
+
+
+def _truthy(value: object) -> bool:
+    return str(value or "").strip().lower() in {"1", "true", "yes", "on"}
+
+
+def _direct_llm_api_enabled(env: dict[str, str] | None = None) -> bool:
+    env = env or _merged_env()
+    return _truthy(env.get(DIRECT_LLM_API_ENV))
+
+
+def harness_llm_health() -> dict:
+    return {
+        "status": "default",
+        "runtime": "Claude Code or Codex harness",
+        "artifact_contract": "signal-investigation-harness",
+        "input_artifact": HARNESS_INPUT_ARTIFACT,
+        "prompt_artifact": HARNESS_PROMPT_ARTIFACT,
+        "output_artifact": HARNESS_OUTPUT_ARTIFACT,
+    }
+
+
+def direct_llm_api_health(env: dict[str, str] | None = None) -> dict:
+    enabled = _direct_llm_api_enabled(env)
+    return {
+        "enabled": enabled,
+        "status": "enabled_explicitly" if enabled else "disabled_by_default",
+        "env_flag": DIRECT_LLM_API_ENV,
+    }
 
 
 def _domain_from_url(url: str) -> str:
@@ -259,6 +292,77 @@ def _provider_prompt(packet: dict) -> str:
     )
 
 
+def build_harness_investigation_package(packet: dict) -> dict:
+    """Build the evidence/prompt/schema contract for the current agent harness."""
+
+    return {
+        "mode": "harness_llm_investigation",
+        "harness_llm": harness_llm_health(),
+        "direct_llm_api": direct_llm_api_health({}),
+        "rules": {
+            "use_current_claude_or_codex_harness": True,
+            "do_not_call_direct_llm_api": True,
+            "use_only_supplied_evidence_for_facts": True,
+            "do_not_invent_domains_funding_headcount_founders_or_customers": True,
+            "search_queries_are_allowed": True,
+            "official_domain_requires_source_evidence": True,
+        },
+        "input_packet": deepcopy(packet),
+        "heuristic_seed_plan": _fallback_search_plan(packet),
+        "output_schema": {
+            "type": "object",
+            "required": [
+                "signal_type",
+                "company_hypotheses",
+                "domain_hypotheses",
+                "search_plan",
+                "evidence_needed",
+                "risk_flags",
+            ],
+            "properties": {
+                "signal_type": "product_launch | oss_project | market_signal",
+                "company_hypotheses": ["string"],
+                "domain_hypotheses": ["string"],
+                "search_plan": [{"query": "string", "purpose": "official_domain | founder | commercial_evidence | stage_or_team", "sources": "grounding"}],
+                "evidence_needed": ["string"],
+                "risk_flags": ["string"],
+            },
+        },
+        "validation": {
+            "expected_output": HARNESS_OUTPUT_ARTIFACT,
+            "acceptance": [
+                "Output is valid JSON.",
+                "Every official-domain hypothesis is treated as a hypothesis until search evidence confirms it.",
+                "No funding, headcount, founder, stage, customer, or domain claim is invented.",
+                "Search plan uses verifiable public-source queries.",
+            ],
+        },
+    }
+
+
+def render_harness_investigation_prompt(package: dict) -> str:
+    packet = package.get("input_packet") or {}
+    schema = package.get("output_schema") or {}
+    seed_plan = package.get("heuristic_seed_plan") or {}
+    return (
+        "# VC Signals Signal Investigation\n\n"
+        "Use the current Claude/Codex harness LLM to inspect this weak signal and produce a structured investigation plan. "
+        "Do not call OpenAI, xAI, Gemini, or any other LLM API.\n\n"
+        "## Hard Rules\n\n"
+        "- Use only the supplied packet as factual input.\n"
+        "- Do not invent official domains, founders, funding, headcount, stage, customers, or traction.\n"
+        "- Domain hypotheses are not facts. They only become usable after source evidence confirms them.\n"
+        "- Prefer search queries that can verify official domain, founder/team, commercial proof, and stage/size.\n\n"
+        "## Required JSON Output\n\n"
+        f"Write `{HARNESS_OUTPUT_ARTIFACT}` with this schema:\n\n"
+        f"```json\n{json.dumps(schema, indent=2)}\n```\n\n"
+        "## Signal Packet\n\n"
+        f"```json\n{json.dumps(packet, indent=2, ensure_ascii=False)}\n```\n\n"
+        "## Deterministic Seed Plan\n\n"
+        f"```json\n{json.dumps(seed_plan, indent=2, ensure_ascii=False)}\n```\n"
+    )
+
+
 def _parse_json_content(content: str) -> dict:
     text = (content or "").strip()
     if text.startswith("```"):
@@ -276,8 +380,7 @@ def _safe_provider_error(exc: Exception) -> str:
 
 def default_llm_provider(packet: dict) -> dict | None:
     env = _merged_env()
-    live_enabled = (env.get("VC_SIGNALS_INVESTIGATOR_ENABLE_LIVE") or "").strip().lower() in {"1", "true", "yes"}
-    if not live_enabled:
+    if not _direct_llm_api_enabled(env):
         return None
     provider = (env.get("VC_SIGNALS_INVESTIGATOR_PROVIDER") or "auto").lower()
     openai_key = env.get("OPENAI_API_KEY", "")
@@ -778,7 +881,10 @@ def investigate_candidates(
     items: list[dict] = []
     summary = {
         "enabled": True,
-        "provider_mode": "disabled",
+        "provider_mode": "harness_llm",
+        "planner_mode": "heuristic_fallback",
+        "harness_llm": harness_llm_health(),
+        "direct_llm_api": direct_llm_api_health(),
         "rows_considered": len(candidates),
         "rows_investigated": 0,
         "search_queries_planned": 0,
@@ -794,7 +900,12 @@ def investigate_candidates(
             continue
         packet = build_investigation_packet(candidate)
         plan = build_search_plan(packet, provider=provider)
-        summary["provider_mode"] = "llm" if plan.get("mode") == "llm" else summary["provider_mode"] or "heuristic_fallback"
+        harness_package = build_harness_investigation_package(packet)
+        if plan.get("mode") == "llm":
+            summary["provider_mode"] = "llm"
+            summary["planner_mode"] = "llm"
+        elif summary["planner_mode"] == "disabled":
+            summary["planner_mode"] = "heuristic_fallback"
         search_items: list[dict] = []
         queries_run = []
         for query in (plan.get("search_plan") or [])[:max_queries_per_candidate]:
@@ -838,13 +949,14 @@ def investigate_candidates(
                 "source_lane": candidate.source_lane,
                 "candidate_type": candidate.candidate_type,
                 "plan": plan,
+                "harness_investigation_package": harness_package,
                 "queries_run": queries_run,
                 "investigation": investigation,
                 "resolved_domain": investigation.get("official_domain", ""),
             }
         )
-    if summary["provider_mode"] == "disabled" and eligible_indices:
-        summary["provider_mode"] = "heuristic_fallback"
+    if summary["planner_mode"] == "disabled" and eligible_indices:
+        summary["planner_mode"] = "heuristic_fallback"
     return investigated, {"summary": summary, "items": items}
 
 
@@ -901,7 +1013,10 @@ def investigate_source_rows(
     items: list[dict] = []
     summary = {
         "enabled": True,
-        "provider_mode": "disabled",
+        "provider_mode": "harness_llm",
+        "planner_mode": "heuristic_fallback",
+        "harness_llm": harness_llm_health(),
+        "direct_llm_api": direct_llm_api_health(),
         "rows_considered": len(source_rows),
         "rows_investigated": 0,
         "search_queries_planned": 0,
@@ -924,10 +1039,12 @@ def investigate_source_rows(
         if not packet.get("name"):
             continue
         plan = build_search_plan(packet, provider=provider)
+        harness_package = build_harness_investigation_package(packet)
         if plan.get("mode") == "llm":
             summary["provider_mode"] = "llm"
-        elif summary["provider_mode"] == "disabled":
-            summary["provider_mode"] = "heuristic_fallback"
+            summary["planner_mode"] = "llm"
+        elif summary["planner_mode"] == "disabled":
+            summary["planner_mode"] = "heuristic_fallback"
         search_items: list[dict] = []
         queries_run = []
         for query in (plan.get("search_plan") or [])[:max_queries_per_row]:
@@ -969,6 +1086,7 @@ def investigate_source_rows(
                 "candidate_type": packet.get("candidate_type", ""),
                 "name": packet.get("name", ""),
                 "plan": plan,
+                "harness_investigation_package": harness_package,
                 "queries_run": queries_run,
                 "investigation": investigation,
                 "resolved_domain": investigation.get("official_domain", ""),

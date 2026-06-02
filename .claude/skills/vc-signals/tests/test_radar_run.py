@@ -3601,6 +3601,50 @@ def test_run_weekly_artifacts_writes_signal_investigation_artifact(tmp_path, mon
     assert report["source_items"][0]["source_lane"] == "Product Hunt"
 
 
+def test_merge_signal_investigation_reports_preserves_harness_and_direct_llm_health():
+    import radar_run
+
+    merged = radar_run._merge_signal_investigation_reports(
+        candidate_report={
+            "summary": {
+                "enabled": True,
+                "provider_mode": "harness_llm",
+                "rows_considered": 1,
+                "rows_investigated": 1,
+                "search_queries_planned": 2,
+                "search_queries_run": 1,
+                "official_domains_resolved": 0,
+                "url_roles_classified": 1,
+                "unsafe_domain_attempts_blocked": 0,
+                "harness_llm": {"status": "default", "artifact_contract": "signal-investigation-harness"},
+                "direct_llm_api": {"enabled": False, "status": "disabled_by_default"},
+            },
+            "items": [],
+        },
+        source_report={
+            "summary": {
+                "enabled": True,
+                "provider_mode": "heuristic_fallback",
+                "rows_considered": 2,
+                "rows_investigated": 2,
+                "search_queries_planned": 2,
+                "search_queries_run": 2,
+                "official_domains_resolved": 1,
+                "url_roles_classified": 3,
+                "unsafe_domain_attempts_blocked": 1,
+                "harness_llm": {"status": "default", "artifact_contract": "signal-investigation-harness"},
+                "direct_llm_api": {"enabled": False, "status": "disabled_by_default"},
+            },
+            "items": [],
+        },
+    )
+
+    assert merged["summary"]["provider_mode"] == "harness_llm"
+    assert merged["summary"]["harness_llm"]["status"] == "default"
+    assert merged["summary"]["direct_llm_api"]["enabled"] is False
+    assert merged["summary"]["source_health"]["search_queries_run"] == 3
+
+
 def test_run_weekly_artifacts_applies_hard_evidence_to_product_hunt_rows(tmp_path, monkeypatch):
     import json
     import radar_run

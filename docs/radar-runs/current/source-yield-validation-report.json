@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-06-02T01:28:28.295006+00:00",
+  "generated_at": "2026-06-02T02:15:51.891713+00:00",
   "run_dir": "docs/radar-runs/full-source-dossier-validation-2026-06-01-r1",
   "goal_assessment": {
     "goal_reached": true,
@@ -3802,6 +3802,17 @@
   "llm_signal_investigation_summary": {
     "enabled": true,
     "provider_mode": "llm",
+    "planner_mode": "llm",
+    "harness_llm": {
+      "status": "default",
+      "runtime": "Claude Code or Codex harness",
+      "note": "Default for new runs; this historical signal-investigation artifact may predate harness health fields."
+    },
+    "direct_llm_api": {
+      "enabled": true,
+      "status": "legacy_or_injected_llm_provider"
+    },
+    "source_health": {},
     "rows_considered": 77,
     "rows_investigated": 28,
     "search_queries_planned": 48,

@@ -190,7 +190,7 @@ The setup wizard handles all of this for you. But if you want to know what each 
 | **Exa API** | Richer web/content search for Product Hunt, launch pages, and official-domain resolution | Pay-per-use / free trial tiers vary | Recommended for source-yield work |
 | **Product Hunt API token** | Structured launch source: products, makers, topics, launch text, and Product Hunt URLs | Free subject to Product Hunt access/terms | Recommended for launch discovery |
 | **ScrapeCreators** | TikTok, Instagram, YouTube search | ~$29/month | Optional |
-| **OpenAI, Gemini, or xAI** | Smarter query planning, signal investigation, and domain/fact extraction | Pay-per-use / Free tiers vary | Recommended for LLM investigation |
+| **Direct LLM API fallback: OpenAI, Gemini, or xAI** | Standalone/non-harness synthesis or investigation fallback. Normal Claude Code/Codex runs use the harness LLM instead. | Pay-per-use / Free tiers vary | Optional, disabled by default |
 | **OpenRouter** | Deep research with Perplexity (50+ citation synthesis for theme drill-downs) | ~$0.90/query | Optional |
 | **X/Twitter tokens** | X/Twitter developer discussions | Free (your account) | Optional |
 | **Attio token** | CRM match, stale/no-owner status, passed-company flags | Existing workspace | Recommended for Marathon |
@@ -236,7 +236,15 @@ This enables TikTok, Instagram, and YouTube searches via the last30days engine.
 </details>
 
 <details>
-<summary><strong>OpenAI API Key (or Gemini as a free alternative)</strong></summary>
+<summary><strong>Direct LLM API fallback: OpenAI, Gemini, or xAI</strong></summary>
+
+Normal Claude Code/Codex usage does not need this. The skill uses the current harness LLM for reasoning and uses external APIs for evidence retrieval.
+
+Only configure a direct LLM key if you want standalone Python runs outside Claude/Codex. Direct LLM calls are disabled unless you set:
+
+```bash
+export VC_SIGNALS_ALLOW_DIRECT_LLM_API=1
+```
 
 **OpenAI:**
 1. Go to https://platform.openai.com/api-keys
@@ -249,6 +257,11 @@ This enables TikTok, Instagram, and YouTube searches via the last30days engine.
 1. Go to https://aistudio.google.com/apikey
 2. Click **"Create API key"**
 3. Copy the key
+
+**xAI:**
+1. Go to https://console.x.ai/
+2. Create an API key
+3. Store it as `XAI_API_KEY`
 
 </details>
 
@@ -360,7 +373,7 @@ The artifact contains:
 - Evidence Gap Queue: promising blocked rows with exact missing fields and suggested manual checks.
 - Manual Evidence Queue: a 30-45 minute analyst checklist, not random research.
 - Source Health: which providers worked, degraded, timed out, or returned thin evidence.
-- LLM Signal Investigation: search plans, domain candidates, official-domain resolution, blocked unsafe domains, and fact extraction when enabled.
+- Harness LLM Signal Investigation: search plans, domain candidates, official-domain resolution, blocked unsafe domains, and fact extraction through the current Claude/Codex reasoning context.
 - Structured Provider Trial: manual-mode Coresignal/Crunchbase/LinkedIn-style hints unless direct provider keys are configured.
 
 Market Sector is the investment category, such as Cybersecurity or AI Infra. Source Lane is where the evidence came from, such as OSS, Reddit, HN, Grounded Web, or TikTok. An OSS repo can therefore be `Market Sector = Cybersecurity` and `Source Lane = OSS`.
@@ -369,7 +382,7 @@ Reddit is used primarily for curated pain discovery across devtools, cybersecuri
 
 YouTube, TikTok, Instagram, and Threads are supporting source lanes through ScrapeCreators/last30days. They can create a candidate only when the company/product identity is clear and corroborated by a founder/company account, demo, website, waitlist, or another source.
 
-### Optional LLM Synthesis
+### Optional Harness LLM Synthesis
 
 Add `--with-synthesis` to write `synthesis.json` and render an `LLM Synthesis Notes` section in the weekly preview:
 
@@ -381,10 +394,10 @@ Synthesis is opt-in and advisory. It can summarize source gaps, suggest next hun
 
 Provider behavior:
 
-- By default, synthesis uses `GEMINI_API_KEY` or `GOOGLE_API_KEY` from the current shell or `~/.config/last30days/.env`.
-- If Gemini is unavailable, it falls back to `OPENAI_API_KEY`.
-- Set `VC_SIGNALS_SYNTHESIS_PROVIDER=openai` or `VC_SIGNALS_SYNTHESIS_PROVIDER=gemini` to force a provider.
-- Set `VC_SIGNALS_SYNTHESIS_MODEL` to override the default model.
+- In normal Claude Code/Codex usage, use the Agent-Native Research Workbench below. The harness LLM reads the generated evidence pack and prompt directly.
+- Direct OpenAI/Gemini calls are disabled by default, even if API keys exist.
+- To run standalone direct-API synthesis outside the harness, set `VC_SIGNALS_ALLOW_DIRECT_LLM_API=1`.
+- Then set `VC_SIGNALS_SYNTHESIS_PROVIDER=openai` or `VC_SIGNALS_SYNTHESIS_PROVIDER=gemini` to force a provider, and `VC_SIGNALS_SYNTHESIS_MODEL` to override the default model.
 
 ### Agent-Native Research Workbench
 
@@ -534,7 +547,7 @@ You can also manually add a sector by editing `sectors.json` following the exist
 - **Attio integration is read/match context only** — it matches and enriches records but does not write notes, assign owners, update CRM fields, or create list entries unless a later writeback workflow is built.
 - **Social/video evidence is supporting evidence** — YouTube, TikTok, Instagram, and Threads need clear company/product identity plus corroboration before creating candidate rows.
 - **Slack destination is still open/configurable** — weekly delivery can later target a configurable channel, but the current artifact is generated locally as Markdown/JSON.
-- **LLM synthesis is opt-in and advisory** — unsupported claims are dropped, possible leads from synthesis require verification before they can be treated as canonical candidates, and the selected LLM provider must have working quota/billing.
+- **LLM synthesis is opt-in and advisory** — unsupported claims are dropped and possible leads require verification before they can be treated as canonical candidates. Normal Claude/Codex runs use the harness LLM; direct provider APIs require `VC_SIGNALS_ALLOW_DIRECT_LLM_API=1`.
 - **Agent-native research workbench is not grounding** — it helps Codex/Claude reason over collected evidence and propose verification leads, but it does not turn unsourced ideas into canonical candidates.
 - **Deep research** requires OpenRouter API key and costs ~$0.90 per query
 

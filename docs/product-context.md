@@ -362,8 +362,7 @@ Themes (3 lines each, brief context)
 ## API Keys & Services
 
 ### Reported by local adapter check (2026-05-22)
-- OpenAI
-- Google/Gemini
+- Harness LLM reasoning is the default inside Claude Code/Codex; direct OpenAI/Gemini/xAI calls are optional standalone fallback only.
 - OpenRouter (deep research)
 - ScrapeCreators (YouTube, TikTok, Instagram, Threads, Pinterest)
 - Brave Search (grounded web)

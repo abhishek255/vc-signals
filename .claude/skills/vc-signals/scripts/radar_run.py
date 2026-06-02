@@ -2149,13 +2149,34 @@ def _merge_signal_investigation_reports(candidate_report: dict, source_report: d
         "unsafe_domain_attempts_blocked",
     ]
     provider_modes = [str(source_summary.get("provider_mode") or ""), str(candidate_summary.get("provider_mode") or "")]
-    provider_mode = "llm" if "llm" in provider_modes else "heuristic_fallback" if "heuristic_fallback" in provider_modes else "disabled"
+    if "llm" in provider_modes:
+        provider_mode = "llm"
+    elif "harness_llm" in provider_modes:
+        provider_mode = "harness_llm"
+    elif "heuristic_fallback" in provider_modes:
+        provider_mode = "heuristic_fallback"
+    else:
+        provider_mode = "disabled"
     summary = {
         "enabled": bool(candidate_summary.get("enabled") or source_summary.get("enabled")),
         "provider_mode": provider_mode,
     }
     for key in numeric_keys:
         summary[key] = int(candidate_summary.get(key) or 0) + int(source_summary.get(key) or 0)
+    summary["source_health"] = {key: summary[key] for key in numeric_keys}
+    summary["harness_llm"] = (
+        candidate_summary.get("harness_llm")
+        or source_summary.get("harness_llm")
+        or {"status": "default", "runtime": "Claude Code or Codex harness"}
+    )
+    direct_candidate = candidate_summary.get("direct_llm_api") if isinstance(candidate_summary.get("direct_llm_api"), dict) else {}
+    direct_source = source_summary.get("direct_llm_api") if isinstance(source_summary.get("direct_llm_api"), dict) else {}
+    direct_enabled = bool(direct_candidate.get("enabled") or direct_source.get("enabled"))
+    summary["direct_llm_api"] = {
+        "enabled": direct_enabled,
+        "status": "enabled_explicitly" if direct_enabled else "disabled_by_default",
+        "env_flag": direct_candidate.get("env_flag") or direct_source.get("env_flag") or "VC_SIGNALS_ALLOW_DIRECT_LLM_API",
+    }
     candidate_items = list(candidate_report.get("items", []) or []) if isinstance(candidate_report, dict) else []
     source_items = list(source_report.get("items", []) or []) if isinstance(source_report, dict) else []
     return {

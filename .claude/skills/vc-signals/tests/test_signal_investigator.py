@@ -100,7 +100,7 @@ def test_investigator_uses_llm_provider_search_plan_when_available():
     assert plan["company_hypotheses"] == ["Envio", "Envio Env Manager"]
 
 
-def test_default_provider_uses_xai_when_live_and_configured(monkeypatch):
+def test_default_provider_uses_xai_when_direct_llm_api_opted_in_and_configured(monkeypatch):
     import signal_investigator
     from signal_investigator import default_llm_provider
 
@@ -133,7 +133,7 @@ def test_default_provider_uses_xai_when_live_and_configured(monkeypatch):
     monkeypatch.setattr(
         signal_investigator,
         "_merged_env",
-        lambda: {"VC_SIGNALS_INVESTIGATOR_ENABLE_LIVE": "1", "XAI_API_KEY": "xai-secret"},
+        lambda: {"VC_SIGNALS_ALLOW_DIRECT_LLM_API": "1", "XAI_API_KEY": "xai-secret"},
     )
     monkeypatch.setattr(signal_investigator.requests, "post", fake_post)
 
@@ -142,6 +142,85 @@ def test_default_provider_uses_xai_when_live_and_configured(monkeypatch):
     assert calls[0]["url"] == signal_investigator.XAI_CHAT_COMPLETIONS_URL
     assert calls[0]["json"]["model"] == signal_investigator.XAI_MODEL
     assert result["search_plan"][0]["query"] == "Envio official website"
+
+
+def test_default_provider_does_not_call_direct_api_with_legacy_live_flag(monkeypatch):
+    import signal_investigator
+    from signal_investigator import default_llm_provider
+
+    def fail_post(*_args, **_kwargs):
+        raise AssertionError("direct LLM API should be disabled unless explicitly opted in")
+
+    monkeypatch.setattr(
+        signal_investigator,
+        "_merged_env",
+        lambda: {"VC_SIGNALS_INVESTIGATOR_ENABLE_LIVE": "1", "XAI_API_KEY": "xai-secret"},
+    )
+    monkeypatch.setattr(signal_investigator.requests, "post", fail_post)
+
+    result = default_llm_provider({"name": "Envio", "source_lane": "X", "candidate_type": "social_launch"})
+
+    assert result is None
+
+
+def test_default_provider_uses_xai_only_with_direct_llm_api_opt_in(monkeypatch):
+    import signal_investigator
+    from signal_investigator import default_llm_provider
+
+    calls = []
+
+    class FakeResponse:
+        def raise_for_status(self):
+            return None
+
+        def json(self):
+            return {
+                "choices": [
+                    {
+                        "message": {
+                            "content": (
+                                '{"signal_type":"product_launch","company_hypotheses":["Envio"],'
+                                '"domain_hypotheses":["envio.app"],'
+                                '"search_plan":[{"query":"Envio official website","purpose":"official_domain","sources":"grounding"}],'
+                                '"evidence_needed":["founder_team"],"risk_flags":[]}'
+                            )
+                        }
+                    }
+                ]
+            }
+
+    def fake_post(url, *, json, headers, timeout, params=None):
+        calls.append({"url": url, "json": json, "headers": headers, "timeout": timeout, "params": params})
+        return FakeResponse()
+
+    monkeypatch.setattr(
+        signal_investigator,
+        "_merged_env",
+        lambda: {"VC_SIGNALS_ALLOW_DIRECT_LLM_API": "1", "XAI_API_KEY": "xai-secret"},
+    )
+    monkeypatch.setattr(signal_investigator.requests, "post", fake_post)
+
+    result = default_llm_provider({"name": "Envio", "source_lane": "X", "candidate_type": "social_launch"})
+
+    assert calls[0]["url"] == signal_investigator.XAI_CHAT_COMPLETIONS_URL
+    assert result["search_plan"][0]["query"] == "Envio official website"
+
+
+def test_harness_investigation_package_contains_prompt_schema_and_validation_contract():
+    from signal_investigator import build_harness_investigation_package, build_investigation_packet, render_harness_investigation_prompt
+
+    packet = build_investigation_packet(_candidate())
+    package = build_harness_investigation_package(packet)
+    prompt = render_harness_investigation_prompt(package)
+
+    assert package["mode"] == "harness_llm_investigation"
+    assert package["harness_llm"]["status"] == "default"
+    assert package["direct_llm_api"]["enabled"] is False
+    assert package["rules"]["use_current_claude_or_codex_harness"] is True
+    assert "search_plan" in package["output_schema"]["required"]
+    assert "signal-investigation-harness-output.json" in package["validation"]["expected_output"]
+    assert "Use the current Claude/Codex harness LLM" in prompt
+    assert "Do not call OpenAI, xAI, Gemini, or any other LLM API" in prompt
 
 
 def test_provider_error_redacts_secret_query_params():

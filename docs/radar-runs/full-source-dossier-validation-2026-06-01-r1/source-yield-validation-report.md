@@ -101,9 +101,10 @@
 - product_hunt: launches=20, resolved_domains=10, unresolved_domains=10
 - x: launches=2, resolved_domains=2, unresolved_domains=0
 
-## LLM Signal Investigation
+## Harness LLM Signal Investigation
 
 - enabled=true, provider_mode=llm, rows=28, queries_run=48, domains_resolved=9, url_roles=165, blocked=84
+- harness_llm=default; direct_llm_api=legacy_or_injected_llm_provider; planner_mode=llm
 - lanes=OSS, Product Hunt, X; completion_ready=yes
 
 ## Structured Provider Decision

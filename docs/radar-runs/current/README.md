@@ -3,7 +3,7 @@
 This folder is the small, current-state pointer for the radar. It does not delete older experiment folders; it tells us which artifacts to trust first.
 
 - Source run: `docs/radar-runs/full-source-dossier-validation-2026-06-01-r1`
-- Generated at: `2026-06-02T01:29:18.416372+00:00`
+- Generated at: `2026-06-02T02:15:51.936301+00:00`
 - Decision packet rows: 9
 - Assign Owner rows: 1
 - Unsafe promotion policy: unchanged_high_confidence_only

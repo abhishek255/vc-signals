@@ -912,18 +912,32 @@ def _llm_signal_investigation_summary(run_path: Path) -> dict:
     )
     enabled = bool(summary.get("enabled"))
     provider_mode = str(summary.get("provider_mode") or "disabled")
+    planner_mode = str(summary.get("planner_mode") or (provider_mode if provider_mode != "disabled" else ""))
+    harness_llm = summary.get("harness_llm") or {
+        "status": "default",
+        "runtime": "Claude Code or Codex harness",
+        "note": "Default for new runs; this historical signal-investigation artifact may predate harness health fields.",
+    }
+    direct_llm_api = summary.get("direct_llm_api") or {
+        "enabled": provider_mode == "llm",
+        "status": "legacy_or_injected_llm_provider" if provider_mode == "llm" else "disabled_by_default",
+    }
     rows_investigated = int(summary.get("rows_investigated") or 0)
     search_queries_run = int(summary.get("search_queries_run") or 0)
     url_roles_classified = int(summary.get("url_roles_classified") or 0)
     completion_ready = (
         enabled
-        and provider_mode == "llm"
+        and provider_mode in {"llm", "harness_llm"}
         and rows_investigated > 0
         and (search_queries_run > 0 or url_roles_classified > 0)
     )
     return {
         "enabled": enabled,
         "provider_mode": provider_mode,
+        "planner_mode": planner_mode,
+        "harness_llm": harness_llm,
+        "direct_llm_api": direct_llm_api,
+        "source_health": summary.get("source_health", {}),
         "rows_considered": int(summary.get("rows_considered") or 0),
         "rows_investigated": rows_investigated,
         "search_queries_planned": int(summary.get("search_queries_planned") or 0),
@@ -1546,7 +1560,7 @@ def render_source_yield_markdown(report: dict) -> str:
             )
         )
     investigation = report.get("llm_signal_investigation_summary", {})
-    lines.extend(["", "## LLM Signal Investigation", ""])
+    lines.extend(["", "## Harness LLM Signal Investigation", ""])
     lines.append(
         "- enabled={enabled}, provider_mode={provider}, rows={rows}, queries_run={queries}, domains_resolved={domains}, url_roles={roles}, blocked={blocked}".format(
             enabled=str(investigation.get("enabled", False)).lower(),
@@ -1556,6 +1570,15 @@ def render_source_yield_markdown(report: dict) -> str:
             domains=investigation.get("official_domains_resolved", 0),
             roles=investigation.get("url_roles_classified", 0),
             blocked=investigation.get("unsafe_domain_attempts_blocked", 0),
+        )
+    )
+    direct_llm = investigation.get("direct_llm_api") or {}
+    harness_llm = investigation.get("harness_llm") or {}
+    lines.append(
+        "- harness_llm={harness}; direct_llm_api={direct}; planner_mode={planner}".format(
+            harness=harness_llm.get("status", "unknown"),
+            direct=direct_llm.get("status", "unknown"),
+            planner=investigation.get("planner_mode", "unknown") or "unknown",
         )
     )
     lines.append(

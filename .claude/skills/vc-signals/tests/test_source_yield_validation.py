@@ -375,8 +375,50 @@ def test_validation_report_includes_llm_signal_investigation_summary(tmp_path):
     assert summary["unsafe_domain_attempts_blocked"] == 4
     assert summary["source_lanes_investigated"] == ["Hacker News", "OSS", "Product Hunt", "X"]
     assert summary["completion_ready"] is True
-    assert "## LLM Signal Investigation" in markdown
+    assert "## Harness LLM Signal Investigation" in markdown
     assert "provider_mode=llm" in markdown
+
+
+def test_validation_report_treats_harness_signal_investigation_as_completion_ready(tmp_path):
+    from source_yield_validation import build_source_yield_validation_report, render_source_yield_markdown
+
+    run_dir = tmp_path / "run"
+    _write_json(run_dir / "candidates.json", [_candidate()])
+    _write_json(run_dir / "weekly-focus.json", {"workflow_view": {"Assign owner": []}})
+    _write_json(run_dir / "runtime-ledger.json", {"source_health": []})
+    _write_json(run_dir / "2026-06-01-raw-evidence.json", {"product_hunt": [{"name": "AgentFence"}]})
+    _write_json(
+        run_dir / "signal-investigation.json",
+        {
+            "summary": {
+                "enabled": True,
+                "provider_mode": "harness_llm",
+                "planner_mode": "heuristic_fallback",
+                "rows_considered": 2,
+                "rows_investigated": 2,
+                "search_queries_planned": 4,
+                "search_queries_run": 2,
+                "official_domains_resolved": 1,
+                "url_roles_classified": 5,
+                "unsafe_domain_attempts_blocked": 1,
+                "harness_llm": {"status": "default", "runtime": "Claude Code or Codex harness"},
+                "direct_llm_api": {"enabled": False, "status": "disabled_by_default"},
+            },
+            "items": [{"source_lane": "Product Hunt"}],
+        },
+    )
+
+    report = build_source_yield_validation_report(run_dir, target_review_worthy_count=1)
+    markdown = render_source_yield_markdown(report)
+
+    summary = report["llm_signal_investigation_summary"]
+    assert summary["provider_mode"] == "harness_llm"
+    assert summary["planner_mode"] == "heuristic_fallback"
+    assert summary["harness_llm"]["status"] == "default"
+    assert summary["direct_llm_api"]["status"] == "disabled_by_default"
+    assert summary["completion_ready"] is True
+    assert "provider_mode=harness_llm" in markdown
+    assert "direct_llm_api=disabled_by_default" in markdown
 
 
 def test_decision_packet_uses_only_weekly_assign_owner(tmp_path):
