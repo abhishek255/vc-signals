@@ -191,7 +191,7 @@ Then walk them through API keys one at a time:
 **Web Search API Key (pick one -- Exa/Serper for experiments, Brave only with budget guardrails):**
 > "We need a web search API for broader coverage and official-domain resolution. Exa is useful when we need richer page content; Serper/DataForSEO are useful for lower-cost search trials; Brave works but must stay budget-capped because repeated validation runs can get expensive."
 >
-> "Paste whichever key you have, or type 'skip'. For Brave, the skill will not use it implicitly inside last30days unless `VC_SIGNALS_ALLOW_BRAVE_AUTO=1` is set."
+> "Paste whichever key you have, or type 'skip'. Normal weekly runs use direct Exa-first resolver calls for targeted evidence, and last30days will not use paid web grounding just because a key exists. Broad last30days grounding requires `VC_SIGNALS_ALLOW_LAST30DAYS_GROUNDING=1` or `--allow-last30days-grounding`; Brave auto-use also requires `VC_SIGNALS_ALLOW_BRAVE_AUTO=1`."
 
 **Harness LLM reasoning (default):**
 > "For reasoning, this skill uses the current Claude Code/Codex harness LLM. You do not need an OpenAI, Gemini, or xAI key for normal runs."

@@ -464,7 +464,7 @@ def test_run_query_prefers_explicit_last30days_web_backend(tmp_path, monkeypatch
     assert "--web-backend=none" not in calls[0]
 
 
-def test_run_query_prefers_exa_over_implicit_brave_when_available(tmp_path, monkeypatch):
+def test_run_query_disables_implicit_web_backend_even_when_exa_available(tmp_path, monkeypatch):
     from last30days_adapter import run_query
 
     vendor = _make_vendor(tmp_path)
@@ -482,6 +482,33 @@ def test_run_query_prefers_exa_over_implicit_brave_when_available(tmp_path, monk
         "agent infra",
         vendor_path=vendor,
         extra_env={"BRAVE_API_KEY": "brave-test", "EXA_API_KEY": "exa-test"},
+    )
+
+    assert "--web-backend=none" in calls[0]
+
+
+def test_run_query_prefers_exa_when_last30days_grounding_explicitly_enabled(tmp_path, monkeypatch):
+    from last30days_adapter import run_query
+
+    vendor = _make_vendor(tmp_path)
+    monkeypatch.setattr("last30days_adapter._find_python", lambda: "python3")
+    completed = MagicMock(returncode=0, stdout=json.dumps({"items_by_source": {}}), stderr="")
+    calls = []
+
+    def fake_run(cmd, **kwargs):
+        calls.append(cmd)
+        return completed
+
+    monkeypatch.setattr("last30days_adapter._run_last30days_command", fake_run)
+
+    run_query(
+        "agent infra",
+        vendor_path=vendor,
+        extra_env={
+            "BRAVE_API_KEY": "brave-test",
+            "EXA_API_KEY": "exa-test",
+            "VC_SIGNALS_ALLOW_LAST30DAYS_GROUNDING": "1",
+        },
     )
 
     assert "--web-backend=exa" in calls[0]
@@ -504,7 +531,11 @@ def test_run_query_allows_implicit_brave_only_when_explicitly_enabled(tmp_path, 
     run_query(
         "agent infra",
         vendor_path=vendor,
-        extra_env={"BRAVE_API_KEY": "brave-test", "VC_SIGNALS_ALLOW_BRAVE_AUTO": "1"},
+        extra_env={
+            "BRAVE_API_KEY": "brave-test",
+            "VC_SIGNALS_ALLOW_BRAVE_AUTO": "1",
+            "VC_SIGNALS_ALLOW_LAST30DAYS_GROUNDING": "1",
+        },
     )
 
     assert not any(part.startswith("--web-backend=") for part in calls[0])
@@ -516,7 +547,13 @@ def test_run_query_skips_grounding_when_paid_search_budget_exceeded(tmp_path, mo
 
     vendor = _make_vendor(tmp_path)
     monkeypatch.setattr("last30days_adapter._find_python", lambda: "python3")
-    configure_paid_search_guard(mode="smoke", run_id="last30days-budget-test", max_usd=0.0, ledger_path=tmp_path / "ledger.jsonl")
+    configure_paid_search_guard(
+        mode="smoke",
+        run_id="last30days-budget-test",
+        max_usd=0.0,
+        ledger_path=tmp_path / "ledger.jsonl",
+        allow_last30days_grounding=True,
+    )
 
     def should_not_call(*_args, **_kwargs):
         raise AssertionError("budget guard should skip last30days subprocess")
@@ -528,7 +565,7 @@ def test_run_query_skips_grounding_when_paid_search_budget_exceeded(tmp_path, mo
             "agent infra",
             vendor_path=vendor,
             sources="grounding",
-            extra_env={"EXA_API_KEY": "exa-test"},
+            extra_env={"EXA_API_KEY": "exa-test", "VC_SIGNALS_ALLOW_LAST30DAYS_GROUNDING": "1"},
         )
     finally:
         reset_paid_search_guard()

@@ -95,6 +95,7 @@ from weak_source_identity_enrichment import enrich_weak_source_identity, write_w
 from paid_search_guardrails import (
     build_weekly_paid_search_preview,
     configure_paid_search_guard,
+    last30days_grounding_allowed,
     paid_search_summary,
     provider_cache_dir,
     reset_paid_search_guard,
@@ -2242,6 +2243,7 @@ def collect_live_evidence(
     progress: bool = False,
     exclude_yc: bool = False,
     hn_launch_trial_only: bool = False,
+    allow_last30days_grounding: bool | None = None,
 ) -> dict:
     """Collect raw last30days and GitHub evidence for the weekly radar."""
     evidence = {
@@ -2254,7 +2256,8 @@ def collect_live_evidence(
         "source_health": [],
     }
     sector_config = load_sector_config()
-    grounded_available = _grounded_search_available()
+    last30days_grounding_enabled = last30days_grounding_allowed(allow_last30days_grounding)
+    grounded_available = _grounded_search_available() and last30days_grounding_enabled
     social_available = _social_search_available()
 
     if run_query:
@@ -2514,6 +2517,7 @@ def run_weekly_artifacts(
     signal_ledger_path: Path | None = None,
     history_data_dir: Path | None = None,
     paid_search_max_usd: float | None = None,
+    allow_last30days_grounding: bool | None = None,
 ) -> dict:
     """Collect evidence and render a weekly partner preview in one command."""
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -2521,7 +2525,9 @@ def run_weekly_artifacts(
         mode=discovery_budget_mode,
         run_id=output_dir.name,
         max_usd=paid_search_max_usd,
+        allow_last30days_grounding=allow_last30days_grounding,
     )
+    last30days_grounding_enabled = last30days_grounding_allowed(allow_last30days_grounding)
     company_discovery_path = output_dir / "company-discovery.json"
     runtime_ledger_path = output_dir / "runtime-ledger.json"
     coverage_report_path = output_dir / "coverage-report.json"
@@ -2544,6 +2550,7 @@ def run_weekly_artifacts(
         progress=progress,
         exclude_yc=exclude_yc,
         hn_launch_trial_only=hn_launch_trial_only,
+        allow_last30days_grounding=last30days_grounding_enabled,
     )
     hard_evidence_provider = os.environ.get("VC_SIGNALS_HARD_EVIDENCE_PROVIDER") or "exa,brave"
     hard_evidence_limit = int(os.environ.get("VC_SIGNALS_HARD_EVIDENCE_LIMIT") or "15")
@@ -2592,7 +2599,7 @@ def run_weekly_artifacts(
     provisional_candidates = _score_sort_limit_candidates(initial_promotion["candidates"], candidate_limit)
     provisional_focus_items = [build_focus_item(candidate) for candidate in provisional_candidates]
     resolved_discovery_budget = discovery_budget or DiscoveryRunBudget.for_mode(discovery_budget_mode)
-    grounded_available = _grounded_search_available()
+    grounded_available = _grounded_search_available() and last30days_grounding_enabled
     weekly_query_runner = _weekly_query_runner_with_timeout(query_timeout_seconds) if grounded_available else None
     enrichment_query_runner = (
         _weekly_query_runner_with_timeout(_cap_timeout(query_timeout_seconds, 25))
@@ -3293,6 +3300,11 @@ def _cli_main() -> None:
             "signal_investigator_limit",
             default=None,
         )
+        allow_last30days_grounding = (
+            True
+            if _get_bool_arg(args, "allow_last30days_grounding", "allow_last30days_paid_grounding")
+            else None
+        )
         if _get_bool_arg(args, "paid_search_dry_run", "dry_run_cost"):
             preview = build_weekly_paid_search_preview(
                 run_mode=discovery_budget_mode,
@@ -3304,6 +3316,7 @@ def _cli_main() -> None:
                 signal_investigation_limit=int(signal_investigation_limit or 0),
                 hard_evidence_live=(os.environ.get("VC_SIGNALS_HARD_EVIDENCE_ENABLE_LIVE") or "").strip().lower()
                 in {"1", "true", "yes"},
+                last30days_grounding_enabled=allow_last30days_grounding,
                 max_usd=_get_float_arg(args, "paid_search_max_usd", "paid_search_budget_usd", default=None),
             )
             print(json.dumps({"dry_run": True, "paid_search_preview": preview}))
@@ -3370,6 +3383,7 @@ def _cli_main() -> None:
             signal_ledger_path=Path(args["signal_ledger_path"]) if "signal_ledger_path" in args else None,
             history_data_dir=Path(args["history_data_dir"]) if "history_data_dir" in args else None,
             paid_search_max_usd=_get_float_arg(args, "paid_search_max_usd", "paid_search_budget_usd", default=None),
+            allow_last30days_grounding=allow_last30days_grounding,
         )
         print(json.dumps(result))
         return

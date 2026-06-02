@@ -947,7 +947,12 @@ def test_collect_live_evidence_aggregates_targeted_sector_queries(monkeypatch):
         lambda: {"source_capabilities": {"grounded": ["web"], "social": ["youtube"]}},
     )
 
-    evidence = radar_run.collect_live_evidence(sectors=("data-infra",), github_limit=0, max_queries_per_sector=2)
+    evidence = radar_run.collect_live_evidence(
+        sectors=("data-infra",),
+        github_limit=0,
+        max_queries_per_sector=2,
+        allow_last30days_grounding=True,
+    )
 
     assert len(calls) == 2
     assert any("site:ycombinator.com/companies" in topic for topic, _kwargs in calls)
@@ -2713,6 +2718,7 @@ def test_run_weekly_artifacts_promotes_theme_company_discovery(tmp_path, monkeyp
         github_limit=0,
         candidate_limit=50,
         query_timeout_seconds=13,
+        allow_last30days_grounding=True,
     )
 
     assert result["company_discovery"].endswith("company-discovery.json")
@@ -2790,6 +2796,7 @@ def test_run_weekly_artifacts_writes_runtime_ledger_and_coverage_report(tmp_path
             max_article_fetches=0,
         ),
         discovery_cache_dir=tmp_path / "provider-cache",
+        allow_last30days_grounding=True,
     )
 
     ledger = json.loads((tmp_path / "runtime-ledger.json").read_text())
@@ -3034,6 +3041,7 @@ def test_weekly_hn_launch_trial_flag_writes_trial_appendix_only(tmp_path, monkey
         sectors=("ai-infra",),
         github_limit=0,
         hn_launch_trial_config=HNLaunchTrialConfig(enabled=True, max_candidates=3),
+        allow_last30days_grounding=True,
     )
 
     focus = json.loads((tmp_path / "weekly-focus.json").read_text())
@@ -3096,6 +3104,7 @@ def test_weekly_discovery_yield_trial_flag_runs_selected_families(tmp_path, monk
             per_movement_query_cap=3,
         ),
         discovery_yield_trial_config=DiscoveryYieldTrialConfig(enabled=True),
+        allow_last30days_grounding=True,
     )
 
     discovery = json.loads((tmp_path / "company-discovery.json").read_text())
@@ -3153,6 +3162,7 @@ def test_discovery_yield_trial_braintrust_unknown_stays_out_of_sourcing(tmp_path
             per_movement_query_cap=3,
         ),
         discovery_yield_trial_config=DiscoveryYieldTrialConfig(enabled=True),
+        allow_last30days_grounding=True,
     )
 
     focus = json.loads((tmp_path / "weekly-focus.json").read_text())
@@ -3219,6 +3229,7 @@ def test_discovery_yield_trial_mature_company_routes_to_category_context(tmp_pat
             per_movement_query_cap=3,
         ),
         discovery_yield_trial_config=DiscoveryYieldTrialConfig(enabled=True),
+        allow_last30days_grounding=True,
     )
 
     focus = json.loads((tmp_path / "weekly-focus.json").read_text())
@@ -3287,6 +3298,7 @@ def test_discovery_yield_trial_langwatch_cannot_assign_owner_without_owner_readi
             per_movement_query_cap=3,
         ),
         discovery_yield_trial_config=DiscoveryYieldTrialConfig(enabled=True),
+        allow_last30days_grounding=True,
     )
 
     focus = json.loads((tmp_path / "weekly-focus.json").read_text())
@@ -3436,6 +3448,7 @@ def test_run_weekly_artifacts_feeds_verified_discovery_into_identity_resolution(
         sectors=("cybersecurity",),
         github_limit=0,
         candidate_limit=50,
+        allow_last30days_grounding=True,
     )
 
     discovery = json.loads((tmp_path / "company-discovery.json").read_text())
@@ -3525,6 +3538,7 @@ def test_run_weekly_artifacts_applies_optional_weak_source_identity_enrichment(t
         candidate_limit=10,
         signal_investigation_limit=0,
         weak_source_identity_enrichment_limit=3,
+        allow_last30days_grounding=True,
     )
 
     candidates = json.loads((tmp_path / "candidates.json").read_text())
@@ -3607,6 +3621,7 @@ def test_run_weekly_artifacts_writes_signal_investigation_artifact(tmp_path, mon
         candidate_limit=10,
         signal_investigation_limit=3,
         weak_source_identity_enrichment_limit=0,
+        allow_last30days_grounding=True,
     )
 
     assert result["signal_investigation_json"].endswith("signal-investigation.json")
@@ -3828,6 +3843,7 @@ def test_run_weekly_artifacts_does_not_promote_vibe_discovery_result(tmp_path, m
         sectors=("cybersecurity",),
         github_limit=0,
         candidate_limit=50,
+        allow_last30days_grounding=True,
     )
 
     discovery = json.loads((tmp_path / "company-discovery.json").read_text())
@@ -4150,7 +4166,8 @@ def test_cli_weekly_paid_search_dry_run_skips_live_collection(tmp_path, monkeypa
     preview = payload["paid_search_preview"]
     assert payload["dry_run"] is True
     assert preview["mode"] == "deep_dive"
-    assert preview["estimated_cost_usd"] > 0
+    assert preview["estimated_cost_usd"] == 0
+    assert preview["policy"]["last30days_grounding_allowed"] is False
     assert preview["cache_dir"]
     assert preview["ledger_path"]
 

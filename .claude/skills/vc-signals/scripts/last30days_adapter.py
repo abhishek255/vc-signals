@@ -105,6 +105,13 @@ def _default_web_backend_for_paid_safety(detection_env: dict[str, str]) -> str |
     explicit = str(detection_env.get("VC_SIGNALS_LAST30DAYS_WEB_BACKEND") or "").strip()
     if explicit:
         return explicit
+    if not _truthy_env(detection_env.get("VC_SIGNALS_ALLOW_LAST30DAYS_GROUNDING")):
+        if any(
+            _has_configured_key(detection_env, key)
+            for key in ("BRAVE_API_KEY", "EXA_API_KEY", "SERPER_API_KEY", "PARALLEL_API_KEY")
+        ):
+            return "none"
+        return None
     if _truthy_env(detection_env.get("VC_SIGNALS_ALLOW_BRAVE_AUTO")):
         return None
     for key, backend in (

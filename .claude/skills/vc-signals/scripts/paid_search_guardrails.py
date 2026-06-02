@@ -19,6 +19,7 @@ DEFAULT_PROVIDER_COST_PER_1000 = {
     "perplexity_search": 5.0,
 }
 DEFAULT_LAST30DAYS_GROUNDING_COST_USD = 1.0
+LAST30DAYS_GROUNDING_ENV = "VC_SIGNALS_ALLOW_LAST30DAYS_GROUNDING"
 RUN_MODE_BUDGETS_USD = {
     "smoke": 0.50,
     "dev": 0.50,
@@ -72,6 +73,12 @@ def budget_for_mode(mode: str) -> float | None:
     return _float_env("VC_SIGNALS_PAID_SEARCH_MAX_USD", RUN_MODE_BUDGETS_USD.get(normalized, RUN_MODE_BUDGETS_USD["weekly"]))
 
 
+def last30days_grounding_allowed(value: bool | None = None) -> bool:
+    if value is not None:
+        return bool(value)
+    return _truthy(os.environ.get(LAST30DAYS_GROUNDING_ENV))
+
+
 @dataclass
 class PaidSearchGuard:
     mode: str = "weekly"
@@ -80,11 +87,13 @@ class PaidSearchGuard:
     ledger_path: Path | str | None = None
     dry_run: bool = False
     allow_over_budget: bool = False
+    allow_last30days_grounding: bool | None = None
     estimated_spend_usd: float = 0.0
     live_calls: int = 0
     cache_hits: int = 0
     skipped_budget_exceeded: int = 0
     skipped_dry_run: int = 0
+    skipped_policy_disabled: int = 0
     records: list[dict] = field(default_factory=list)
 
     def __post_init__(self) -> None:
@@ -95,6 +104,7 @@ class PaidSearchGuard:
         self.allow_over_budget = bool(
             self.allow_over_budget or _truthy(os.environ.get("VC_SIGNALS_ALLOW_PAID_SEARCH_OVER_BUDGET"))
         )
+        self.allow_last30days_grounding = last30days_grounding_allowed(self.allow_last30days_grounding)
 
     def reserve(
         self,
@@ -108,7 +118,10 @@ class PaidSearchGuard:
         cost = provider_cost_usd(provider, request_units=request_units) if estimated_cost_usd is None else float(estimated_cost_usd)
         allowed = True
         skip_reason = ""
-        if self.dry_run:
+        if provider == "last30days_grounding" and not self.allow_last30days_grounding:
+            allowed = False
+            skip_reason = "last30days_grounding_disabled"
+        elif self.dry_run:
             allowed = False
             skip_reason = "paid_search_dry_run"
         elif self.max_usd is not None and not self.allow_over_budget and self.estimated_spend_usd + cost > float(self.max_usd):
@@ -146,6 +159,8 @@ class PaidSearchGuard:
             self.skipped_budget_exceeded += 1
         elif skipped and row["skip_reason"] == "paid_search_dry_run":
             self.skipped_dry_run += 1
+        elif skipped and row["skip_reason"] == "last30days_grounding_disabled":
+            self.skipped_policy_disabled += 1
         elif not skipped:
             self.live_calls += 1
             if cache_status != "hit":
@@ -177,6 +192,8 @@ class PaidSearchGuard:
             "cache_hits": self.cache_hits,
             "skipped_budget_exceeded": self.skipped_budget_exceeded,
             "skipped_dry_run": self.skipped_dry_run,
+            "skipped_policy_disabled": self.skipped_policy_disabled,
+            "last30days_grounding_allowed": bool(self.allow_last30days_grounding),
             "ledger_path": str(self.ledger_path),
         }
 
@@ -199,6 +216,7 @@ def configure_paid_search_guard(
     max_usd: float | None = None,
     ledger_path: Path | str | None = None,
     dry_run: bool = False,
+    allow_last30days_grounding: bool | None = None,
 ) -> PaidSearchGuard:
     global _CURRENT_GUARD
     _CURRENT_GUARD = PaidSearchGuard(
@@ -207,6 +225,7 @@ def configure_paid_search_guard(
         max_usd=max_usd,
         ledger_path=ledger_path,
         dry_run=dry_run,
+        allow_last30days_grounding=allow_last30days_grounding,
     )
     return _CURRENT_GUARD
 
@@ -236,6 +255,7 @@ def build_weekly_paid_search_preview(
     company_discovery_queries: int,
     signal_investigation_limit: int,
     hard_evidence_live: bool,
+    last30days_grounding_enabled: bool | None = None,
     max_usd: float | None = None,
 ) -> dict:
     planned = []
@@ -252,16 +272,19 @@ def build_weekly_paid_search_preview(
             }
         )
 
-    add(
-        "last30days_grounding",
-        "last30days_grounding",
-        len(tuple(sectors or ())) * max(int(max_queries_per_sector or 0), 0),
-        provider_cost_usd("last30days_grounding"),
-    )
+    last30days_enabled = last30days_grounding_allowed(last30days_grounding_enabled)
+    if last30days_enabled:
+        add(
+            "last30days_sector_collection",
+            "last30days_grounding",
+            len(tuple(sectors or ())) * max(int(max_queries_per_sector or 0), 0),
+            provider_cost_usd("last30days_grounding"),
+        )
     if hard_evidence_live:
         add("hard_evidence_resolver", "exa", (int(product_hunt_limit or 0) + int(x_launch_limit or 0)) * 2, provider_cost_usd("exa"))
-    add("company_discovery", "grounding", int(company_discovery_queries or 0), provider_cost_usd("brave"))
-    add("signal_investigation", "grounding", int(signal_investigation_limit or 0), provider_cost_usd("brave"))
+    if last30days_enabled:
+        add("company_discovery", "last30days_grounding", int(company_discovery_queries or 0), provider_cost_usd("last30days_grounding"))
+        add("signal_investigation", "last30days_grounding", int(signal_investigation_limit or 0), provider_cost_usd("last30days_grounding"))
 
     estimated = round(sum(row["estimated_cost_usd"] for row in planned), 6)
     max_usd = budget_for_mode(run_mode) if max_usd is None else float(max_usd)
@@ -273,6 +296,13 @@ def build_weekly_paid_search_preview(
         },
         "planned_paid_search": planned,
         "estimated_cost_usd": estimated,
+        "policy": {
+            "last30days_grounding_allowed": last30days_enabled,
+            "last30days_grounding_env": LAST30DAYS_GROUNDING_ENV,
+            "last30days_grounding_note": (
+                "Broad last30days paid grounding is disabled by default; use the env flag or CLI opt-in only for intentional deep runs."
+            ),
+        },
         "cache_dir": str(provider_cache_dir()),
         "ledger_path": str(default_ledger_path()),
     }

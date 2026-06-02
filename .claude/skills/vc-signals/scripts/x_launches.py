@@ -606,6 +606,7 @@ def run_x_launches(
                 lookback_days=query["lookback_days"],
                 auto_resolve=True,
                 store=True,
+                web_backend="none",
                 timeout_seconds=timeout_seconds,
             )
         except Exception as exc:

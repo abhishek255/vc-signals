@@ -210,13 +210,15 @@ Paid search is now guarded by default so validation runs do not quietly turn int
 - Override weekly cap: `VC_SIGNALS_PAID_SEARCH_MAX_USD=8`
 - Default caps: smoke/dev `$0.50`, manual enrichment `$2`, weekly `$8`, deep validation `$25`
 
-`last30days` no longer implicitly burns Brave just because `BRAVE_API_KEY` exists. It prefers `VC_SIGNALS_LAST30DAYS_WEB_BACKEND`, then Exa, Serper, or Parallel. If only Brave is configured, it passes `--web-backend=none` unless you explicitly set `VC_SIGNALS_ALLOW_BRAVE_AUTO=1`.
+`last30days` no longer uses paid web grounding just because `BRAVE_API_KEY`, `EXA_API_KEY`, Serper, or Parallel is configured. By default it passes `--web-backend=none` for last30days web enrichment and relies on free/social sources plus direct Exa resolver calls. To intentionally enable broad last30days grounding for a deep run, set `VC_SIGNALS_ALLOW_LAST30DAYS_GROUNDING=1` or pass `--allow-last30days-grounding`. If you specifically want last30days to use Brave automatically, also set `VC_SIGNALS_ALLOW_BRAVE_AUTO=1`.
 
 Preview the paid-search cost before a weekly run:
 
 ```bash
 python3 .claude/skills/vc-signals/scripts/radar_run.py weekly --sectors all --limit 50 --paid-search-dry-run
 ```
+
+The preview shows whether broad last30days grounding is enabled, which providers will be called, and whether the planned spend is over the run cap. Normal weekly runs should stay under the weekly cap without broad last30days grounding.
 
 Compare provider cost/yield safely before switching away from Brave:
 
@@ -399,7 +401,7 @@ The local partner command is:
 python3 .claude/skills/vc-signals/scripts/radar_run.py weekly --sectors all --output-dir docs/radar-runs/current --limit 50
 ```
 
-By default, this command uses the fuller query budget for each sector and does not impose a wrapper timeout on `last30days` queries. If you need a quick trial run, append `--first-pass`; that mode uses one query per sector and a 45-second query cap so a new user can see the shape of the artifact quickly.
+By default, this command keeps broad last30days paid grounding disabled. It still uses Product Hunt, YC, GitHub, X/social sources where configured, and direct Exa-first hard-evidence resolution when enabled. For an intentional deep run with broad last30days grounding, first run `--paid-search-dry-run`, then rerun with `VC_SIGNALS_ALLOW_LAST30DAYS_GROUNDING=1` or `--allow-last30days-grounding` plus a hard dollar cap. If you need a quick trial run, append `--first-pass`; that mode uses one query per sector and a 45-second query cap so a new user can see the shape of the artifact quickly.
 
 The artifact contains:
 
@@ -587,6 +589,7 @@ You can also manually add a sector by editing `sectors.json` following the exist
 - **LLM synthesis is opt-in and advisory** — unsupported claims are dropped and possible leads require verification before they can be treated as canonical candidates. Normal Claude/Codex runs use the harness LLM; direct provider APIs require `VC_SIGNALS_ALLOW_DIRECT_LLM_API=1`.
 - **Agent-native research workbench is not grounding** — it helps Codex/Claude reason over collected evidence and propose verification leads, but it does not turn unsourced ideas into canonical candidates.
 - **Deep research** requires OpenRouter API key and costs ~$0.90 per query
+- **Broad last30days grounding is opt-in** — normal weekly runs keep it disabled to avoid `$1/query` spend from broad company discovery. Use the dry-run preview plus `VC_SIGNALS_ALLOW_LAST30DAYS_GROUNDING=1` only for intentional deep validations.
 
 ## Why This Exists
 
