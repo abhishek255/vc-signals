@@ -21,6 +21,7 @@ def test_provider_ab_test_live_uses_guarded_provider_queries(tmp_path, monkeypat
     import provider_ab_test
 
     calls = []
+    env_loaded = []
 
     def fake_run_provider_query(provider, query, **kwargs):
         calls.append((provider, query, kwargs))
@@ -35,6 +36,7 @@ def test_provider_ab_test_live_uses_guarded_provider_queries(tmp_path, monkeypat
         }
 
     monkeypatch.setattr(provider_ab_test, "run_provider_query", fake_run_provider_query)
+    monkeypatch.setattr(provider_ab_test, "load_provider_env_files", lambda: env_loaded.append(True))
 
     result = provider_ab_test.run_provider_ab_test(
         queries=["AI agent security startup"],
@@ -45,6 +47,7 @@ def test_provider_ab_test_live_uses_guarded_provider_queries(tmp_path, monkeypat
         max_usd=1.0,
     )
 
+    assert env_loaded == [True]
     assert len(calls) == 2
     assert result["live"] is True
     assert result["results"][0]["items"][0]["url"] == "https://brave.example"

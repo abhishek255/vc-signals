@@ -7,7 +7,7 @@ import json
 import sys
 from pathlib import Path
 
-from discovery_search_providers import run_provider_query
+from discovery_search_providers import load_provider_env_files, run_provider_query
 from paid_search_guardrails import (
     configure_paid_search_guard,
     paid_search_summary,
@@ -99,6 +99,7 @@ def run_provider_ab_test(
     if not live:
         return plan
 
+    load_provider_env_files()
     configure_paid_search_guard(
         mode=mode,
         run_id="provider-ab-test",
