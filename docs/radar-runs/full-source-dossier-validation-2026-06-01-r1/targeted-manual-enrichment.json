@@ -10,7 +10,8 @@
     "queries_per_target": 3,
     "limit": 15,
     "max_runtime_seconds": 600,
-    "stopped_early": false
+    "stopped_early": false,
+    "manual_workbench_fields": true
   },
   "items": [
     {
@@ -36,19 +37,19 @@
           "items_seen": 5,
           "top_items": [
             {
-              "title": "AgentShield \u2014 Guardian Agent Security Platform",
+              "title": "AgentShield — Guardian Agent Security Platform",
               "url": "https://lablab.ai/ai-hackathons/techex-intelligent-enterprise-solutions-hackathon/agentshield/agentshield-guardian-agent-security-platform",
               "domain": "lablab.ai",
               "source": "grounding",
-              "snippet": "AgentShield is <strong>the first complete security platform for the agentic coding era</strong>. Developers now give AI agents full system access \u2014 Claude Code, Cursor, and OpenClaw agents read files, run shell commands, install plugins, and hold API keys, often with zero guardrails.",
+              "snippet": "AgentShield is <strong>the first complete security platform for the agentic coding era</strong>. Developers now give AI agents full system access — Claude Code, Cursor, and OpenClaw agents read files, run shell commands, install plugins, and hold API keys, often with zero guardrails.",
               "published_at": "2026-05-18"
             },
             {
-              "title": "GitHub - affaan-m/agentshield: AI agent security scanner. Detect vulnerabilities in agent configurations, MCP servers, and tool permissions. Available as CLI, GitHub Action, ECC plugin, and GitHub App integration. \ud83d\udee1\ufe0f",
+              "title": "GitHub - affaan-m/agentshield: AI agent security scanner. Detect vulnerabilities in agent configurations, MCP servers, and tool permissions. Available as CLI, GitHub Action, ECC plugin, and GitHub App integration. 🛡️",
               "url": "https://github.com/affaan-m/agentshield",
               "domain": "github.com",
               "source": "grounding",
-              "snippet": "<strong>AI agent security scanner</strong>. Detect vulnerabilities in agent configurations, MCP servers, and tool permissions. Available as CLI, GitHub Action, ECC plugin, and GitHub App integration. \ud83d\udee1\ufe0f - affaan-m/...",
+              "snippet": "<strong>AI agent security scanner</strong>. Detect vulnerabilities in agent configurations, MCP servers, and tool permissions. Available as CLI, GitHub Action, ECC plugin, and GitHub App integration. 🛡️ - affaan-m/...",
               "published_at": "2026-05-16"
             },
             {
@@ -64,11 +65,11 @@
               "url": "https://www.youtube.com/watch?v=4V2_JM1E23Y",
               "domain": "youtube.com",
               "source": "grounding",
-              "snippet": "\ud83d\ude80 Build AI Agents\u2026 But Make Them SAFE \ud83d\udee1\ufe0fWhat if your AI agent could think, act\u2026 and defend itself at the same time?Welcome to AgentShield \u2014 the future of s...",
+              "snippet": "🚀 Build AI Agents… But Make Them SAFE 🛡️What if your AI agent could think, act… and defend itself at the same time?Welcome to AgentShield — the future of s...",
               "published_at": "2026-04-28"
             },
             {
-              "title": "AgentShield \u2014 Rust utility // Lib.rs",
+              "title": "AgentShield — Rust utility // Lib.rs",
               "url": "https://lib.rs/crates/agentshield",
               "domain": "lib.rs",
               "source": "grounding",
@@ -93,7 +94,7 @@
               "url": "https://www.linkedin.com/in/vivekjyoti/",
               "domain": "linkedin.com",
               "source": "grounding",
-              "snippet": "Here&#x27;s full setup: \u2192 38 specialized agents (planner, security reviewer, debugger, code reviewer) \u2192 156 skills loaded on demand (/plan, /tdd, /security-scan, /quality-gate) \u2192 72 custom slash commands \u2192 AgentShield: 1,282 security tests across CLAUDE .md, MCP configs, hooks, skills \u2192 3 Opus 4.6 agents running red-team pipelines (Attacker, Defender, Auditor) \u2192 Continuous learning layer that builds confidence across sessions \u2192 Coverage across 12 language ecosystems This is what Claude Code look",
+              "snippet": "Here&#x27;s full setup: → 38 specialized agents (planner, security reviewer, debugger, code reviewer) → 156 skills loaded on demand (/plan, /tdd, /security-scan, /quality-gate) → 72 custom slash commands → AgentShield: 1,282 security tests across CLAUDE .md, MCP configs, hooks, skills → 3 Opus 4.6 agents running red-team pipelines (Attacker, Defender, Auditor) → Continuous learning layer that builds confidence across sessions → Coverage across 12 language ecosystems This is what Claude Code look",
               "published_at": "2026-06-01"
             },
             {
@@ -105,11 +106,11 @@
               "published_at": "2026-05-11"
             },
             {
-              "title": "Affaan Mustafa - Founder @ It\u00f4 | ETFs for Prediction Markets",
+              "title": "Affaan Mustafa - Founder @ Itô | ETFs for Prediction Markets",
               "url": "https://www.linkedin.com/in/affaanmustafa/",
               "domain": "linkedin.com",
               "source": "grounding",
-              "snippet": "\u00b7 Experience: ECC Tools \u00b7 Education: UC San Diego \u00b7 Location: San Francisco \u00b7 500+ connections on LinkedIn. View <strong>Affaan Mustafa</strong>\u2019s profile on LinkedIn, a professional community of 1 billion members.",
+              "snippet": "· Experience: ECC Tools · Education: UC San Diego · Location: San Francisco · 500+ connections on LinkedIn. View <strong>Affaan Mustafa</strong>’s profile on LinkedIn, a professional community of 1 billion members.",
               "published_at": "2026-03-25"
             }
           ],
@@ -145,7 +146,7 @@
             "domain": "linkedin.com"
           },
           {
-            "title": "Affaan Mustafa - Founder @ It\u00f4 | ETFs for Prediction Markets",
+            "title": "Affaan Mustafa - Founder @ Itô | ETFs for Prediction Markets",
             "url": "https://www.linkedin.com/in/affaanmustafa/",
             "domain": "linkedin.com"
           }
@@ -158,7 +159,44 @@
         "official_domain_still_missing",
         "pricing_docs_or_careers_still_missing"
       ],
-      "manual_policy": "Public web-search assist only; do not scrape gated LinkedIn/Crunchbase pages."
+      "manual_policy": "Public web-search assist only; do not scrape gated LinkedIn/Crunchbase pages.",
+      "manual_workbench": {
+        "exact_checks": [
+          "Find the official website from the launch page, founder profile, docs, or search result.",
+          "Find the company LinkedIn or official company social page for supporting identity confidence.",
+          "Check pricing/docs/careers pages on the official website."
+        ],
+        "missing_fields": [
+          "official_domain_missing",
+          "company_linkedin_or_social_missing",
+          "pricing_docs_or_careers_missing",
+          "OSS/project-only row",
+          "no verified domain"
+        ],
+        "evidence_hints_found": {
+          "official_domain_hits": false,
+          "company_linkedin_candidates": false,
+          "founder_linkedin_candidates": true,
+          "funding_metadata_candidates": false,
+          "careers_or_headcount_candidates": false
+        },
+        "unresolved_gaps": [
+          "company_linkedin_still_missing",
+          "official_domain_still_missing",
+          "pricing_docs_or_careers_still_missing"
+        ],
+        "recommended_manual_check": "Resolve official domain from launch text, project docs, founder profile, or web search.",
+        "suggested_decision": "still_blocked",
+        "promote_if_found": "Promote if the official domain clearly matches the launch/product and is not a social, repo, article, or directory page.",
+        "discard_if_not_found": "Discard if no official website or durable company identity appears after focused search.",
+        "likely_payoff": "Medium: still promising, but blocked until the missing field resolves."
+      },
+      "recommended_manual_check": "Resolve official domain from launch text, project docs, founder profile, or web search.",
+      "promote_if": "Promote if the official domain clearly matches the launch/product and is not a social, repo, article, or directory page.",
+      "discard_if": "Discard if no official website or durable company identity appears after focused search.",
+      "likely_payoff": "Medium: still promising, but blocked until the missing field resolves.",
+      "promote_if_found": "Promote if the official domain clearly matches the launch/product and is not a social, repo, article, or directory page.",
+      "discard_if_not_found": "Discard if no official website or durable company identity appears after focused search."
     },
     {
       "name": "Sudo-Ali-Dev/Rankistan",
@@ -187,7 +225,7 @@
               "url": "https://www.linkedin.com/in/yasir-ali-hr-specialist/",
               "domain": "linkedin.com",
               "source": "grounding",
-              "snippet": "New to LinkedIn? Join now \u00b7 QEC Officer \u00b7 Lahore District \u00b7 Connect \u00b7 Personal Assistant at Naubahar Bottling Company \u00b7 Lahore District \u00b7 Connect \u00b7 Personal Assistant at Ashraf sugar mills limited \u00b7 Pakistan \u00b7 Connect \u00b7 PA to COO \u00b7 Karachi Division \u00b7",
+              "snippet": "New to LinkedIn? Join now · QEC Officer · Lahore District · Connect · Personal Assistant at Naubahar Bottling Company · Lahore District · Connect · Personal Assistant at Ashraf sugar mills limited · Pakistan · Connect · PA to COO · Karachi Division ·",
               "published_at": "2025-07-16"
             }
           ],
@@ -236,7 +274,46 @@
         "headcount_source_still_missing",
         "pricing_docs_or_careers_still_missing"
       ],
-      "manual_policy": "Public web-search assist only; do not scrape gated LinkedIn/Crunchbase pages."
+      "manual_policy": "Public web-search assist only; do not scrape gated LinkedIn/Crunchbase pages.",
+      "manual_workbench": {
+        "exact_checks": [
+          "Find the company LinkedIn or official company social page for supporting identity confidence.",
+          "Check funding, stage, headcount, jobs, careers, or Crunchbase-style public snippets.",
+          "Check pricing, customers, case studies, docs, deployments, waitlist, or paid plan evidence.",
+          "Check pricing/docs/careers pages on the official website."
+        ],
+        "missing_fields": [
+          "stage_funding_or_headcount_missing",
+          "company_linkedin_or_social_missing",
+          "commercial_or_customer_signal_missing",
+          "pricing_docs_or_careers_missing",
+          "OSS/project-only row"
+        ],
+        "evidence_hints_found": {
+          "official_domain_hits": false,
+          "company_linkedin_candidates": false,
+          "founder_linkedin_candidates": true,
+          "funding_metadata_candidates": false,
+          "careers_or_headcount_candidates": false
+        },
+        "unresolved_gaps": [
+          "company_linkedin_still_missing",
+          "stage_or_funding_source_still_missing",
+          "headcount_source_still_missing",
+          "pricing_docs_or_careers_still_missing"
+        ],
+        "recommended_manual_check": "Find stage, funding, headcount, careers, or company profile evidence.",
+        "suggested_decision": "still_blocked",
+        "promote_if_found": "Promote if pricing, docs, customers, careers, deployment, or paid product proof appears.",
+        "discard_if_not_found": "Discard if the row remains only launch chatter with no product/commercial surface.",
+        "likely_payoff": "Medium: still promising, but blocked until the missing field resolves."
+      },
+      "recommended_manual_check": "Find stage, funding, headcount, careers, or company profile evidence.",
+      "promote_if": "Promote if pricing, docs, customers, careers, deployment, or paid product proof appears.",
+      "discard_if": "Discard if the row remains only launch chatter with no product/commercial surface.",
+      "likely_payoff": "Medium: still promising, but blocked until the missing field resolves.",
+      "promote_if_found": "Promote if pricing, docs, customers, careers, deployment, or paid product proof appears.",
+      "discard_if_not_found": "Discard if the row remains only launch chatter with no product/commercial surface."
     },
     {
       "name": "azat-io/actions-up",
@@ -263,7 +340,7 @@
           "items_seen": 1,
           "top_items": [
             {
-              "title": "GitHub - azat-io/actions-up: \ud83c\udf0a Interactive CLI tool to update GitHub Actions to latest versions with SHA pinning",
+              "title": "GitHub - azat-io/actions-up: 🌊 Interactive CLI tool to update GitHub Actions to latest versions with SHA pinning",
               "url": "https://github.com/azat-io/actions-up",
               "domain": "github.com",
               "source": "grounding",
@@ -284,7 +361,7 @@
           "items_seen": 1,
           "top_items": [
             {
-              "title": "GitHub - azat-io/actions-up: \ud83c\udf0a Interactive CLI tool to update GitHub Actions to latest versions with SHA pinning",
+              "title": "GitHub - azat-io/actions-up: 🌊 Interactive CLI tool to update GitHub Actions to latest versions with SHA pinning",
               "url": "https://github.com/azat-io/actions-up",
               "domain": "github.com",
               "source": "grounding",
@@ -322,7 +399,50 @@
         "official_domain_still_missing",
         "pricing_docs_or_careers_still_missing"
       ],
-      "manual_policy": "Public web-search assist only; do not scrape gated LinkedIn/Crunchbase pages."
+      "manual_policy": "Public web-search assist only; do not scrape gated LinkedIn/Crunchbase pages.",
+      "manual_workbench": {
+        "exact_checks": [
+          "Find the official website from the launch page, founder profile, docs, or search result.",
+          "Find the company LinkedIn or official company social page for supporting identity confidence.",
+          "Check funding, stage, headcount, jobs, careers, or Crunchbase-style public snippets.",
+          "Check pricing, customers, case studies, docs, deployments, waitlist, or paid plan evidence.",
+          "Check pricing/docs/careers pages on the official website."
+        ],
+        "missing_fields": [
+          "official_domain_missing",
+          "stage_funding_or_headcount_missing",
+          "company_linkedin_or_social_missing",
+          "commercial_or_customer_signal_missing",
+          "pricing_docs_or_careers_missing",
+          "OSS/project-only row",
+          "no verified domain"
+        ],
+        "evidence_hints_found": {
+          "official_domain_hits": false,
+          "company_linkedin_candidates": false,
+          "founder_linkedin_candidates": false,
+          "funding_metadata_candidates": false,
+          "careers_or_headcount_candidates": false
+        },
+        "unresolved_gaps": [
+          "company_linkedin_still_missing",
+          "stage_or_funding_source_still_missing",
+          "headcount_source_still_missing",
+          "official_domain_still_missing",
+          "pricing_docs_or_careers_still_missing"
+        ],
+        "recommended_manual_check": "Resolve official domain from launch text, project docs, founder profile, or web search.",
+        "suggested_decision": "still_blocked",
+        "promote_if_found": "Promote if the official domain clearly matches the launch/product and is not a social, repo, article, or directory page.",
+        "discard_if_not_found": "Discard if no official website or durable company identity appears after focused search.",
+        "likely_payoff": "Medium: still promising, but blocked until the missing field resolves."
+      },
+      "recommended_manual_check": "Resolve official domain from launch text, project docs, founder profile, or web search.",
+      "promote_if": "Promote if the official domain clearly matches the launch/product and is not a social, repo, article, or directory page.",
+      "discard_if": "Discard if no official website or durable company identity appears after focused search.",
+      "likely_payoff": "Medium: still promising, but blocked until the missing field resolves.",
+      "promote_if_found": "Promote if the official domain clearly matches the launch/product and is not a social, repo, article, or directory page.",
+      "discard_if_not_found": "Discard if no official website or durable company identity appears after focused search."
     },
     {
       "name": "boostsecurityio/smokedmeat",
@@ -347,7 +467,7 @@
           "items_seen": 6,
           "top_items": [
             {
-              "title": "GitHub - boostsecurityio/smokedmeat: A CI/CD Red Team Framework for demonstrating Build Pipeline security risks. \u00b7 GitHub",
+              "title": "GitHub - boostsecurityio/smokedmeat: A CI/CD Red Team Framework for demonstrating Build Pipeline security risks. · GitHub",
               "url": "https://github.com/boostsecurityio/smokedmeat",
               "domain": "github.com",
               "source": "grounding",
@@ -355,11 +475,11 @@
               "published_at": "2026-05-12"
             },
             {
-              "title": "$27 Off Mahogany Smoked Meats Coupons & Promo Codes \u2013 April 2026",
+              "title": "$27 Off Mahogany Smoked Meats Coupons & Promo Codes – April 2026",
               "url": "https://www.goodshop.com/coupons/smokedmeats.com",
               "domain": "goodshop.com",
               "source": "grounding",
-              "snippet": "With new sitewide coupons added daily, it has never been easier to cut the cost of shopping online at http://www.smokedmeats.com. Also, check out the website\u2019s clearance section, look for <strong>Mahogany Smoked Meats</strong> promotions on the homepage banners, ...",
+              "snippet": "With new sitewide coupons added daily, it has never been easier to cut the cost of shopping online at http://www.smokedmeats.com. Also, check out the website’s clearance section, look for <strong>Mahogany Smoked Meats</strong> promotions on the homepage banners, ...",
               "published_at": "2026-05-06"
             },
             {
@@ -444,7 +564,44 @@
         "official_domain_still_missing",
         "pricing_docs_or_careers_still_missing"
       ],
-      "manual_policy": "Public web-search assist only; do not scrape gated LinkedIn/Crunchbase pages."
+      "manual_policy": "Public web-search assist only; do not scrape gated LinkedIn/Crunchbase pages.",
+      "manual_workbench": {
+        "exact_checks": [
+          "Find the official website from the launch page, founder profile, docs, or search result.",
+          "Find the company LinkedIn or official company social page for supporting identity confidence.",
+          "Check pricing/docs/careers pages on the official website."
+        ],
+        "missing_fields": [
+          "official_domain_missing",
+          "company_linkedin_or_social_missing",
+          "pricing_docs_or_careers_missing",
+          "OSS/project-only row",
+          "no verified domain"
+        ],
+        "evidence_hints_found": {
+          "official_domain_hits": false,
+          "company_linkedin_candidates": false,
+          "founder_linkedin_candidates": false,
+          "funding_metadata_candidates": false,
+          "careers_or_headcount_candidates": false
+        },
+        "unresolved_gaps": [
+          "company_linkedin_still_missing",
+          "official_domain_still_missing",
+          "pricing_docs_or_careers_still_missing"
+        ],
+        "recommended_manual_check": "Resolve official domain from launch text, project docs, founder profile, or web search.",
+        "suggested_decision": "still_blocked",
+        "promote_if_found": "Promote if the official domain clearly matches the launch/product and is not a social, repo, article, or directory page.",
+        "discard_if_not_found": "Discard if no official website or durable company identity appears after focused search.",
+        "likely_payoff": "Medium: still promising, but blocked until the missing field resolves."
+      },
+      "recommended_manual_check": "Resolve official domain from launch text, project docs, founder profile, or web search.",
+      "promote_if": "Promote if the official domain clearly matches the launch/product and is not a social, repo, article, or directory page.",
+      "discard_if": "Discard if no official website or durable company identity appears after focused search.",
+      "likely_payoff": "Medium: still promising, but blocked until the missing field resolves.",
+      "promote_if_found": "Promote if the official domain clearly matches the launch/product and is not a social, repo, article, or directory page.",
+      "discard_if_not_found": "Discard if no official website or durable company identity appears after focused search."
     },
     {
       "name": "pullfrog/pullfrog",
@@ -467,7 +624,7 @@
           "items_seen": 4,
           "top_items": [
             {
-              "title": "GitHub - pullfrog/pullfrog: Open-source model-agnostic BYOK GitHub bot that runs in GitHub Actions \u00b7 GitHub",
+              "title": "GitHub - pullfrog/pullfrog: Open-source model-agnostic BYOK GitHub bot that runs in GitHub Actions · GitHub",
               "url": "https://github.com/pullfrog/pullfrog",
               "domain": "github.com",
               "source": "grounding",
@@ -487,7 +644,7 @@
               "url": "https://x.com/pullfrogai",
               "domain": "x.com",
               "source": "grounding",
-              "snippet": "Click to Follow pullfrogai \u00b7 Pullfrog \u00b7 @pullfrogai \u00b7 The ultimate GitHub integration for your favorite coding agents Join the Discord \u2192 https://discord.gg/8y96raFg8e \u00b7 pullfrog.com \u00b7 Joined August 2025 \u00b7 2 Following \u00b7 346 Followers \u00b7 @pullfrogai hasn\u2019t posted \u00b7",
+              "snippet": "Click to Follow pullfrogai · Pullfrog · @pullfrogai · The ultimate GitHub integration for your favorite coding agents Join the Discord → https://discord.gg/8y96raFg8e · pullfrog.com · Joined August 2025 · 2 Following · 346 Followers · @pullfrogai hasn’t posted ·",
               "published_at": "2025-08-01"
             },
             {
@@ -495,7 +652,7 @@
               "url": "https://kotaku.com/games/pullfrog-deluxe",
               "domain": "kotaku.com",
               "source": "grounding",
-              "snippet": "All the Latest Game Footage and Images from Pullfrog: Deluxe Start Slideshow \u00b7 Tetris meets frog! A little puzzle platformer made for Pico-8, equal parts fun and challenging. Help a little frog clear as many lines as possible by using its tongue to pull around blocks in the air.",
+              "snippet": "All the Latest Game Footage and Images from Pullfrog: Deluxe Start Slideshow · Tetris meets frog! A little puzzle platformer made for Pico-8, equal parts fun and challenging. Help a little frog clear as many lines as possible by using its tongue to pull around blocks in the air.",
               "published_at": "2025-10-26"
             }
           ],
@@ -543,7 +700,40 @@
         "company_linkedin_still_missing",
         "pricing_docs_or_careers_still_missing"
       ],
-      "manual_policy": "Public web-search assist only; do not scrape gated LinkedIn/Crunchbase pages."
+      "manual_policy": "Public web-search assist only; do not scrape gated LinkedIn/Crunchbase pages.",
+      "manual_workbench": {
+        "exact_checks": [
+          "Find the company LinkedIn or official company social page for supporting identity confidence.",
+          "Check pricing/docs/careers pages on the official website."
+        ],
+        "missing_fields": [
+          "company_linkedin_or_social_missing",
+          "pricing_docs_or_careers_missing",
+          "OSS/project-only row"
+        ],
+        "evidence_hints_found": {
+          "official_domain_hits": true,
+          "company_linkedin_candidates": false,
+          "founder_linkedin_candidates": false,
+          "funding_metadata_candidates": false,
+          "careers_or_headcount_candidates": false
+        },
+        "unresolved_gaps": [
+          "company_linkedin_still_missing",
+          "pricing_docs_or_careers_still_missing"
+        ],
+        "recommended_manual_check": "Use this as a market signal and search for companies building around the theme.",
+        "suggested_decision": "still_blocked",
+        "promote_if_found": "Promote if pricing, docs, customers, careers, deployment, or paid product proof appears.",
+        "discard_if_not_found": "Discard if the row remains only launch chatter with no product/commercial surface.",
+        "likely_payoff": "Medium: still promising, but blocked until the missing field resolves."
+      },
+      "recommended_manual_check": "Use this as a market signal and search for companies building around the theme.",
+      "promote_if": "Promote if pricing, docs, customers, careers, deployment, or paid product proof appears.",
+      "discard_if": "Discard if the row remains only launch chatter with no product/commercial surface.",
+      "likely_payoff": "Medium: still promising, but blocked until the missing field resolves.",
+      "promote_if_found": "Promote if pricing, docs, customers, careers, deployment, or paid product proof appears.",
+      "discard_if_not_found": "Discard if the row remains only launch chatter with no product/commercial surface."
     },
     {
       "name": "redwoodjs/agent-ci",
@@ -568,7 +758,7 @@
           "items_seen": 1,
           "top_items": [
             {
-              "title": "GitHub - redwoodjs/agent-ci: Agent-CI is local GitHub Actions for your agents. \u00b7 GitHub",
+              "title": "GitHub - redwoodjs/agent-ci: Agent-CI is local GitHub Actions for your agents. · GitHub",
               "url": "https://github.com/redwoodjs/agent-ci",
               "domain": "github.com",
               "source": "grounding",
@@ -615,7 +805,46 @@
         "headcount_source_still_missing",
         "pricing_docs_or_careers_still_missing"
       ],
-      "manual_policy": "Public web-search assist only; do not scrape gated LinkedIn/Crunchbase pages."
+      "manual_policy": "Public web-search assist only; do not scrape gated LinkedIn/Crunchbase pages.",
+      "manual_workbench": {
+        "exact_checks": [
+          "Find the company LinkedIn or official company social page for supporting identity confidence.",
+          "Check funding, stage, headcount, jobs, careers, or Crunchbase-style public snippets.",
+          "Check pricing, customers, case studies, docs, deployments, waitlist, or paid plan evidence.",
+          "Check pricing/docs/careers pages on the official website."
+        ],
+        "missing_fields": [
+          "stage_funding_or_headcount_missing",
+          "company_linkedin_or_social_missing",
+          "commercial_or_customer_signal_missing",
+          "pricing_docs_or_careers_missing",
+          "OSS/project-only row"
+        ],
+        "evidence_hints_found": {
+          "official_domain_hits": false,
+          "company_linkedin_candidates": false,
+          "founder_linkedin_candidates": false,
+          "funding_metadata_candidates": false,
+          "careers_or_headcount_candidates": false
+        },
+        "unresolved_gaps": [
+          "company_linkedin_still_missing",
+          "stage_or_funding_source_still_missing",
+          "headcount_source_still_missing",
+          "pricing_docs_or_careers_still_missing"
+        ],
+        "recommended_manual_check": "Find stage, funding, headcount, careers, or company profile evidence.",
+        "suggested_decision": "still_blocked",
+        "promote_if_found": "Promote if pricing, docs, customers, careers, deployment, or paid product proof appears.",
+        "discard_if_not_found": "Discard if the row remains only launch chatter with no product/commercial surface.",
+        "likely_payoff": "Medium: still promising, but blocked until the missing field resolves."
+      },
+      "recommended_manual_check": "Find stage, funding, headcount, careers, or company profile evidence.",
+      "promote_if": "Promote if pricing, docs, customers, careers, deployment, or paid product proof appears.",
+      "discard_if": "Discard if the row remains only launch chatter with no product/commercial surface.",
+      "likely_payoff": "Medium: still promising, but blocked until the missing field resolves.",
+      "promote_if_found": "Promote if pricing, docs, customers, careers, deployment, or paid product proof appears.",
+      "discard_if_not_found": "Discard if the row remains only launch chatter with no product/commercial surface."
     },
     {
       "name": "peakoss/anti-slop",
@@ -642,11 +871,11 @@
           "items_seen": 3,
           "top_items": [
             {
-              "title": "Quitting ChatGPT? I tried the viral 'anti-slop' website everyone\u2019s talking about \u2014 and it\u2019s actually quite useful",
+              "title": "Quitting ChatGPT? I tried the viral 'anti-slop' website everyone’s talking about — and it’s actually quite useful",
               "url": "https://tech.yahoo.com/ai/chatgpt/articles/anti-ai-slop-website-going-162533295.html",
               "domain": "tech.yahoo.com",
               "source": "grounding",
-              "snippet": "It taps into something bigger: growing frustration with \u201cAI slop.\u201d If you aren&#x27;t familiar with this term, you surely are familiar with what it describes. Essentially, it&#x27;s an umbrella term referring to low-quality content generated quickly with AI tools and flooding the internet \u2014 from articles to images to social posts. The site is essentially a parody of that phenomenon. Instead of automated answers, it highlights something AI often lacks: true human personality. And while the a webs",
+              "snippet": "It taps into something bigger: growing frustration with “AI slop.” If you aren&#x27;t familiar with this term, you surely are familiar with what it describes. Essentially, it&#x27;s an umbrella term referring to low-quality content generated quickly with AI tools and flooding the internet — from articles to images to social posts. The site is essentially a parody of that phenomenon. Instead of automated answers, it highlights something AI often lacks: true human personality. And while the a webs",
               "published_at": "2026-03-11"
             },
             {
@@ -680,15 +909,15 @@
           "items_seen": 2,
           "top_items": [
             {
-              "title": "anti-slop \u00b7 GitHub Topics \u00b7 GitHub",
+              "title": "anti-slop · GitHub Topics · GitHub",
               "url": "https://github.com/topics/anti-slop",
               "domain": "github.com",
               "source": "grounding",
-              "snippet": "ai writing gemini copilot claude content-writing writing-style llm prompt-engineering chatgpt ai-detection system-prompt agent-skill anti-slop authentic-writing ... Un skill Claude pour \u00e9crire du contenu qui sonne humain. Inspir\u00e9 de stop-slop, adapt\u00e9 au fran\u00e7ais et personnalisable avec ta propre voix. ... Claude Code skill: researches topics across 5-8 real sources and writes data-backed LinkedIn posts in your voice \u2014 not AI writing",
+              "snippet": "ai writing gemini copilot claude content-writing writing-style llm prompt-engineering chatgpt ai-detection system-prompt agent-skill anti-slop authentic-writing ... Un skill Claude pour écrire du contenu qui sonne humain. Inspiré de stop-slop, adapté au français et personnalisable avec ta propre voix. ... Claude Code skill: researches topics across 5-8 real sources and writes data-backed LinkedIn posts in your voice — not AI writing",
               "published_at": "2026-02-18"
             },
             {
-              "title": "GitHub - peakoss/anti-slop: A GitHub action that detects and automatically closes low-quality and AI slop PRs. \u00b7 GitHub",
+              "title": "GitHub - peakoss/anti-slop: A GitHub action that detects and automatically closes low-quality and AI slop PRs. · GitHub",
               "url": "https://github.com/peakoss/anti-slop",
               "domain": "github.com",
               "source": "grounding",
@@ -726,7 +955,50 @@
         "official_domain_still_missing",
         "pricing_docs_or_careers_still_missing"
       ],
-      "manual_policy": "Public web-search assist only; do not scrape gated LinkedIn/Crunchbase pages."
+      "manual_policy": "Public web-search assist only; do not scrape gated LinkedIn/Crunchbase pages.",
+      "manual_workbench": {
+        "exact_checks": [
+          "Find the official website from the launch page, founder profile, docs, or search result.",
+          "Find the company LinkedIn or official company social page for supporting identity confidence.",
+          "Check funding, stage, headcount, jobs, careers, or Crunchbase-style public snippets.",
+          "Check pricing, customers, case studies, docs, deployments, waitlist, or paid plan evidence.",
+          "Check pricing/docs/careers pages on the official website."
+        ],
+        "missing_fields": [
+          "official_domain_missing",
+          "stage_funding_or_headcount_missing",
+          "company_linkedin_or_social_missing",
+          "commercial_or_customer_signal_missing",
+          "pricing_docs_or_careers_missing",
+          "OSS/project-only row",
+          "no verified domain"
+        ],
+        "evidence_hints_found": {
+          "official_domain_hits": false,
+          "company_linkedin_candidates": false,
+          "founder_linkedin_candidates": false,
+          "funding_metadata_candidates": false,
+          "careers_or_headcount_candidates": false
+        },
+        "unresolved_gaps": [
+          "company_linkedin_still_missing",
+          "stage_or_funding_source_still_missing",
+          "headcount_source_still_missing",
+          "official_domain_still_missing",
+          "pricing_docs_or_careers_still_missing"
+        ],
+        "recommended_manual_check": "Resolve official domain from launch text, project docs, founder profile, or web search.",
+        "suggested_decision": "still_blocked",
+        "promote_if_found": "Promote if the official domain clearly matches the launch/product and is not a social, repo, article, or directory page.",
+        "discard_if_not_found": "Discard if no official website or durable company identity appears after focused search.",
+        "likely_payoff": "Medium: still promising, but blocked until the missing field resolves."
+      },
+      "recommended_manual_check": "Resolve official domain from launch text, project docs, founder profile, or web search.",
+      "promote_if": "Promote if the official domain clearly matches the launch/product and is not a social, repo, article, or directory page.",
+      "discard_if": "Discard if no official website or durable company identity appears after focused search.",
+      "likely_payoff": "Medium: still promising, but blocked until the missing field resolves.",
+      "promote_if_found": "Promote if the official domain clearly matches the launch/product and is not a social, repo, article, or directory page.",
+      "discard_if_not_found": "Discard if no official website or durable company identity appears after focused search."
     },
     {
       "name": "slowql/slowql",
@@ -753,7 +1025,7 @@
           "items_seen": 1,
           "top_items": [
             {
-              "title": "SlowQL \u2013 stop bad SQL before it reaches production | Hacker News",
+              "title": "SlowQL – stop bad SQL before it reaches production | Hacker News",
               "url": "https://news.ycombinator.com/item?id=47307661",
               "domain": "news.ycombinator.com",
               "source": "grounding",
@@ -774,7 +1046,7 @@
           "items_seen": 1,
           "top_items": [
             {
-              "title": "SlowQL \u2013 stop bad SQL before it reaches production | Hacker News",
+              "title": "SlowQL – stop bad SQL before it reaches production | Hacker News",
               "url": "https://news.ycombinator.com/item?id=47307661",
               "domain": "news.ycombinator.com",
               "source": "grounding",
@@ -812,7 +1084,50 @@
         "official_domain_still_missing",
         "pricing_docs_or_careers_still_missing"
       ],
-      "manual_policy": "Public web-search assist only; do not scrape gated LinkedIn/Crunchbase pages."
+      "manual_policy": "Public web-search assist only; do not scrape gated LinkedIn/Crunchbase pages.",
+      "manual_workbench": {
+        "exact_checks": [
+          "Find the official website from the launch page, founder profile, docs, or search result.",
+          "Find the company LinkedIn or official company social page for supporting identity confidence.",
+          "Check funding, stage, headcount, jobs, careers, or Crunchbase-style public snippets.",
+          "Check pricing, customers, case studies, docs, deployments, waitlist, or paid plan evidence.",
+          "Check pricing/docs/careers pages on the official website."
+        ],
+        "missing_fields": [
+          "official_domain_missing",
+          "stage_funding_or_headcount_missing",
+          "company_linkedin_or_social_missing",
+          "commercial_or_customer_signal_missing",
+          "pricing_docs_or_careers_missing",
+          "OSS/project-only row",
+          "no verified domain"
+        ],
+        "evidence_hints_found": {
+          "official_domain_hits": false,
+          "company_linkedin_candidates": false,
+          "founder_linkedin_candidates": false,
+          "funding_metadata_candidates": false,
+          "careers_or_headcount_candidates": false
+        },
+        "unresolved_gaps": [
+          "company_linkedin_still_missing",
+          "stage_or_funding_source_still_missing",
+          "headcount_source_still_missing",
+          "official_domain_still_missing",
+          "pricing_docs_or_careers_still_missing"
+        ],
+        "recommended_manual_check": "Resolve official domain from launch text, project docs, founder profile, or web search.",
+        "suggested_decision": "still_blocked",
+        "promote_if_found": "Promote if the official domain clearly matches the launch/product and is not a social, repo, article, or directory page.",
+        "discard_if_not_found": "Discard if no official website or durable company identity appears after focused search.",
+        "likely_payoff": "Medium: still promising, but blocked until the missing field resolves."
+      },
+      "recommended_manual_check": "Resolve official domain from launch text, project docs, founder profile, or web search.",
+      "promote_if": "Promote if the official domain clearly matches the launch/product and is not a social, repo, article, or directory page.",
+      "discard_if": "Discard if no official website or durable company identity appears after focused search.",
+      "likely_payoff": "Medium: still promising, but blocked until the missing field resolves.",
+      "promote_if_found": "Promote if the official domain clearly matches the launch/product and is not a social, repo, article, or directory page.",
+      "discard_if_not_found": "Discard if no official website or durable company identity appears after focused search."
     },
     {
       "name": "BANANASJIM/rdc-cli",
@@ -882,7 +1197,50 @@
         "official_domain_still_missing",
         "pricing_docs_or_careers_still_missing"
       ],
-      "manual_policy": "Public web-search assist only; do not scrape gated LinkedIn/Crunchbase pages."
+      "manual_policy": "Public web-search assist only; do not scrape gated LinkedIn/Crunchbase pages.",
+      "manual_workbench": {
+        "exact_checks": [
+          "Find the official website from the launch page, founder profile, docs, or search result.",
+          "Find the company LinkedIn or official company social page for supporting identity confidence.",
+          "Check funding, stage, headcount, jobs, careers, or Crunchbase-style public snippets.",
+          "Check pricing, customers, case studies, docs, deployments, waitlist, or paid plan evidence.",
+          "Check pricing/docs/careers pages on the official website."
+        ],
+        "missing_fields": [
+          "official_domain_missing",
+          "stage_funding_or_headcount_missing",
+          "company_linkedin_or_social_missing",
+          "commercial_or_customer_signal_missing",
+          "pricing_docs_or_careers_missing",
+          "OSS/project-only row",
+          "no verified domain"
+        ],
+        "evidence_hints_found": {
+          "official_domain_hits": false,
+          "company_linkedin_candidates": false,
+          "founder_linkedin_candidates": false,
+          "funding_metadata_candidates": false,
+          "careers_or_headcount_candidates": false
+        },
+        "unresolved_gaps": [
+          "company_linkedin_still_missing",
+          "stage_or_funding_source_still_missing",
+          "headcount_source_still_missing",
+          "official_domain_still_missing",
+          "pricing_docs_or_careers_still_missing"
+        ],
+        "recommended_manual_check": "Resolve official domain from launch text, project docs, founder profile, or web search.",
+        "suggested_decision": "still_blocked",
+        "promote_if_found": "Promote if the official domain clearly matches the launch/product and is not a social, repo, article, or directory page.",
+        "discard_if_not_found": "Discard if no official website or durable company identity appears after focused search.",
+        "likely_payoff": "Medium: still promising, but blocked until the missing field resolves."
+      },
+      "recommended_manual_check": "Resolve official domain from launch text, project docs, founder profile, or web search.",
+      "promote_if": "Promote if the official domain clearly matches the launch/product and is not a social, repo, article, or directory page.",
+      "discard_if": "Discard if no official website or durable company identity appears after focused search.",
+      "likely_payoff": "Medium: still promising, but blocked until the missing field resolves.",
+      "promote_if_found": "Promote if the official domain clearly matches the launch/product and is not a social, repo, article, or directory page.",
+      "discard_if_not_found": "Discard if no official website or durable company identity appears after focused search."
     },
     {
       "name": "Databox MCP",
@@ -930,7 +1288,7 @@
               "url": "https://databox.com/how-to",
               "domain": "databox.com",
               "source": "grounding",
-              "snippet": "All Datasets Excel Facebook Ads Facebook Pages Google Ads Google Analytics 4 Google Business Profile Google Search Console Google Sheets Harvest HubSpot HubSpot CRM HubSpot Marketing HubSpot Service Instagram Business Intercom LinkedIn Ads LinkedIn Company Pages Mailchimp Microsoft Advertising Mixpanel Pipedrive CRM QuickBooks Salesforce CRM SEMrush Stripe X (Twitter) YouTube \u00b7 Get an accurate, month-to-date breakdown of spend by platform, channel, and brand to walk into leadership meetings prep",
+              "snippet": "All Datasets Excel Facebook Ads Facebook Pages Google Ads Google Analytics 4 Google Business Profile Google Search Console Google Sheets Harvest HubSpot HubSpot CRM HubSpot Marketing HubSpot Service Instagram Business Intercom LinkedIn Ads LinkedIn Company Pages Mailchimp Microsoft Advertising Mixpanel Pipedrive CRM QuickBooks Salesforce CRM SEMrush Stripe X (Twitter) YouTube · Get an accurate, month-to-date breakdown of spend by platform, channel, and brand to walk into leadership meetings prep",
               "published_at": "2026-04-02"
             },
             {
@@ -938,7 +1296,7 @@
               "url": "https://databox.com/databox-analytics-mcp-for-teams-a-practical-guide",
               "domain": "databox.com",
               "source": "grounding",
-              "snippet": "What this means in practice: The same MCP connection that lets you ask \u201cWhat was our CAC last month?\u201d also lets an automated agent monitor your metrics overnight and alert you when something shifts. Same toolkit, different applications. The pain: Marketing data is scattered across Google Ads, GA4, Meta, LinkedIn, HubSpot, email platforms, and more.",
+              "snippet": "What this means in practice: The same MCP connection that lets you ask “What was our CAC last month?” also lets an automated agent monitor your metrics overnight and alert you when something shifts. Same toolkit, different applications. The pain: Marketing data is scattered across Google Ads, GA4, Meta, LinkedIn, HubSpot, email platforms, and more.",
               "published_at": "2026-04-03"
             },
             {
@@ -954,7 +1312,7 @@
               "url": "https://databox.com/average-cpm-linkedin-b2b",
               "domain": "databox.com",
               "source": "grounding",
-              "snippet": "Adam Smartschan from Altitude Marketing says, \u201cIt depends on the audience and the ad type. <strong>For a text ad, we want to see a CPM of &lt;$1.00</strong>. A typical audience (say, director-level marketers) should yield a CPM around the Databox median.",
+              "snippet": "Adam Smartschan from Altitude Marketing says, “It depends on the audience and the ad type. <strong>For a text ad, we want to see a CPM of &lt;$1.00</strong>. A typical audience (say, director-level marketers) should yield a CPM around the Databox median.",
               "published_at": "2026-03-03"
             }
           ],
@@ -975,7 +1333,7 @@
               "url": "https://databox.substack.com/p/databox-mcp-chat-with-your-data-anywhere",
               "domain": "databox.substack.com",
               "source": "grounding",
-              "snippet": "Connect your MCP client. From then on: push data, ask questions, get answers. The future of business data is not dashboards. It is AI that understands your numbers and tells you what matters \u2192 with security you can trust. We built the foundation. Now it is your turn to build on it. Visit https://databox.com/mcp for more information and setup guidelines.",
+              "snippet": "Connect your MCP client. From then on: push data, ask questions, get answers. The future of business data is not dashboards. It is AI that understands your numbers and tells you what matters → with security you can trust. We built the foundation. Now it is your turn to build on it. Visit https://databox.com/mcp for more information and setup guidelines.",
               "published_at": "2026-01-05"
             },
             {
@@ -987,7 +1345,7 @@
               "published_at": "2026-05-22"
             },
             {
-              "title": "Databox MCP | MCP Servers \u00b7 LobeHub",
+              "title": "Databox MCP | MCP Servers · LobeHub",
               "url": "https://lobehub.com/nl/mcp/databox-databox-mcp",
               "domain": "lobehub.com",
               "source": "grounding",
@@ -1013,11 +1371,11 @@
               "url": "https://databox.substack.com/p/databox-mcp-chat-with-your-data-anywhere",
               "domain": "databox.substack.com",
               "source": "grounding",
-              "snippet": "Connect your MCP client. From then on: push data, ask questions, get answers. The future of business data is not dashboards. It is AI that understands your numbers and tells you what matters \u2192 with security you can trust. We built the foundation. Now it is your turn to build on it. Visit https://databox.com/mcp for more information and setup guidelines.",
+              "snippet": "Connect your MCP client. From then on: push data, ask questions, get answers. The future of business data is not dashboards. It is AI that understands your numbers and tells you what matters → with security you can trust. We built the foundation. Now it is your turn to build on it. Visit https://databox.com/mcp for more information and setup guidelines.",
               "published_at": "2026-01-05"
             },
             {
-              "title": "Databox MCP | MCP Servers \u00b7 LobeHub",
+              "title": "Databox MCP | MCP Servers · LobeHub",
               "url": "https://lobehub.com/nl/mcp/databox-databox-mcp",
               "domain": "lobehub.com",
               "source": "grounding",
@@ -1074,7 +1432,46 @@
         "company_linkedin_still_missing",
         "pricing_docs_or_careers_still_missing"
       ],
-      "manual_policy": "Public web-search assist only; do not scrape gated LinkedIn/Crunchbase pages."
+      "manual_policy": "Public web-search assist only; do not scrape gated LinkedIn/Crunchbase pages.",
+      "manual_workbench": {
+        "exact_checks": [
+          "Confirm founder/team from company about/team page, Product Hunt maker page, GitHub, X, or LinkedIn.",
+          "Find the company LinkedIn or official company social page for supporting identity confidence.",
+          "Check pricing/docs/careers pages on the official website."
+        ],
+        "missing_fields": [
+          "founder_team_missing",
+          "company_linkedin_or_social_missing",
+          "pricing_docs_or_careers_missing",
+          "no verified Attio-safe company identity",
+          "no founder/team evidence",
+          "no stage/funding evidence",
+          "no commercial/funding evidence",
+          "no founder or maintainer identity"
+        ],
+        "evidence_hints_found": {
+          "official_domain_hits": true,
+          "company_linkedin_candidates": false,
+          "founder_linkedin_candidates": true,
+          "funding_metadata_candidates": false,
+          "careers_or_headcount_candidates": false
+        },
+        "unresolved_gaps": [
+          "company_linkedin_still_missing",
+          "pricing_docs_or_careers_still_missing"
+        ],
+        "recommended_manual_check": "Find founder or maintainer identity from website, GitHub org, LinkedIn, HN, or X.",
+        "suggested_decision": "still_blocked",
+        "promote_if_found": "Promote if founder/operator evidence matches the official company or launch.",
+        "discard_if_not_found": "Discard if no real operator/team evidence appears.",
+        "likely_payoff": "Medium: still promising, but blocked until the missing field resolves."
+      },
+      "recommended_manual_check": "Find founder or maintainer identity from website, GitHub org, LinkedIn, HN, or X.",
+      "promote_if": "Promote if founder/operator evidence matches the official company or launch.",
+      "discard_if": "Discard if no real operator/team evidence appears.",
+      "likely_payoff": "Medium: still promising, but blocked until the missing field resolves.",
+      "promote_if_found": "Promote if founder/operator evidence matches the official company or launch.",
+      "discard_if_not_found": "Discard if no real operator/team evidence appears."
     },
     {
       "name": "leiting-eric/DailyBrief",
@@ -1105,15 +1502,15 @@
               "url": "https://tracxn.com/d/companies/dailybrief/__RttZQFW7OSAeNznKF5g0nXncJs-E_pwSYNIcp4LoenU",
               "domain": "tracxn.com",
               "source": "grounding",
-              "snippet": "Abhinav Bhat: Co-Founder &amp; Product Head of DailyBrief. View details of DailyBrief&#x27;s Founder profiles and Board Members \u00b7 DailyBrief has 71 employees as of Aug 25. The total employee count is 22.0% more than what it was in Aug 24. Here is DailyBrief&#x27;s employee count trend over the years: Uncover DailyBrief&#x27;s growth story! Sign up today! ... Our Google Chrome extension lets you view company details while browsing their websitesInstall Tracxn Extension",
+              "snippet": "Abhinav Bhat: Co-Founder &amp; Product Head of DailyBrief. View details of DailyBrief&#x27;s Founder profiles and Board Members · DailyBrief has 71 employees as of Aug 25. The total employee count is 22.0% more than what it was in Aug 24. Here is DailyBrief&#x27;s employee count trend over the years: Uncover DailyBrief&#x27;s growth story! Sign up today! ... Our Google Chrome extension lets you view company details while browsing their websitesInstall Tracxn Extension",
               "published_at": "2026-03-18"
             },
             {
-              "title": "Terms & Conditions \u00bb Daily Brief",
+              "title": "Terms & Conditions » Daily Brief",
               "url": "https://dailybrief.ca/terms-conditions/",
               "domain": "dailybrief.ca",
               "source": "grounding",
-              "snippet": "\ud83d\udce7 Email: elexilyworldnews@gmail.com \ud83c\udf10 Website: <strong>https://dailybrief.ca/</strong>",
+              "snippet": "📧 Email: elexilyworldnews@gmail.com 🌐 Website: <strong>https://dailybrief.ca/</strong>",
               "published_at": "2026-02-11"
             }
           ],
@@ -1134,7 +1531,7 @@
               "url": "https://tracxn.com/d/companies/dailybrief/__RttZQFW7OSAeNznKF5g0nXncJs-E_pwSYNIcp4LoenU",
               "domain": "tracxn.com",
               "source": "grounding",
-              "snippet": "Linkedin \u00b7 Twitter \u00b7 Facebook \u00b7 Email \u00b7 Copy Url \u00b7 Request page removal \u00b7 DailyBrief is <strong>an unfunded company based in Mumbai (India), founded in 2020 by Umang Agarwal and Abhinav Bhat</strong>.",
+              "snippet": "Linkedin · Twitter · Facebook · Email · Copy Url · Request page removal · DailyBrief is <strong>an unfunded company based in Mumbai (India), founded in 2020 by Umang Agarwal and Abhinav Bhat</strong>.",
               "published_at": "2026-03-18"
             },
             {
@@ -1142,7 +1539,7 @@
               "url": "https://tracxn.com/d/companies/newslaundry/__Fm68BUdgATM04bwqLdKXW7pB1TWMZmkCl0AVE3YXBKc",
               "domain": "tracxn.com",
               "source": "grounding",
-              "snippet": "Newslaundry has raised $882K in funding from Omidyar Network India, with a current valuation of \u20b9*****. The company has 1490 active competitors, including 8 funded and 9 that have exited. Its top competitors include companies like Scroll.in, DailyBrief and The Quint.",
+              "snippet": "Newslaundry has raised $882K in funding from Omidyar Network India, with a current valuation of ₹*****. The company has 1490 active competitors, including 8 funded and 9 that have exited. Its top competitors include companies like Scroll.in, DailyBrief and The Quint.",
               "published_at": "2026-05-07"
             }
           ],
@@ -1180,7 +1577,48 @@
         "stage_or_funding_source_still_missing",
         "official_domain_still_missing"
       ],
-      "manual_policy": "Public web-search assist only; do not scrape gated LinkedIn/Crunchbase pages."
+      "manual_policy": "Public web-search assist only; do not scrape gated LinkedIn/Crunchbase pages.",
+      "manual_workbench": {
+        "exact_checks": [
+          "Find the official website from the launch page, founder profile, docs, or search result.",
+          "Find the company LinkedIn or official company social page for supporting identity confidence.",
+          "Check funding, stage, headcount, jobs, careers, or Crunchbase-style public snippets.",
+          "Check pricing, customers, case studies, docs, deployments, waitlist, or paid plan evidence.",
+          "Check pricing/docs/careers pages on the official website."
+        ],
+        "missing_fields": [
+          "official_domain_missing",
+          "stage_funding_or_headcount_missing",
+          "company_linkedin_or_social_missing",
+          "commercial_or_customer_signal_missing",
+          "pricing_docs_or_careers_missing",
+          "OSS/project-only row",
+          "no verified domain"
+        ],
+        "evidence_hints_found": {
+          "official_domain_hits": false,
+          "company_linkedin_candidates": false,
+          "founder_linkedin_candidates": false,
+          "funding_metadata_candidates": false,
+          "careers_or_headcount_candidates": true
+        },
+        "unresolved_gaps": [
+          "company_linkedin_still_missing",
+          "stage_or_funding_source_still_missing",
+          "official_domain_still_missing"
+        ],
+        "recommended_manual_check": "Resolve official domain from launch text, project docs, founder profile, or web search.",
+        "suggested_decision": "still_blocked",
+        "promote_if_found": "Promote if the official domain clearly matches the launch/product and is not a social, repo, article, or directory page.",
+        "discard_if_not_found": "Discard if no official website or durable company identity appears after focused search.",
+        "likely_payoff": "Medium: still promising, but blocked until the missing field resolves."
+      },
+      "recommended_manual_check": "Resolve official domain from launch text, project docs, founder profile, or web search.",
+      "promote_if": "Promote if the official domain clearly matches the launch/product and is not a social, repo, article, or directory page.",
+      "discard_if": "Discard if no official website or durable company identity appears after focused search.",
+      "likely_payoff": "Medium: still promising, but blocked until the missing field resolves.",
+      "promote_if_found": "Promote if the official domain clearly matches the launch/product and is not a social, repo, article, or directory page.",
+      "discard_if_not_found": "Discard if no official website or durable company identity appears after focused search."
     },
     {
       "name": "spaceraccoon/vulnerability-spoiler-alert-action",
@@ -1211,11 +1649,11 @@
               "url": "https://spaceraccoon.dev/discovering-negative-days-llm-workflows/",
               "domain": "spaceraccoon.dev",
               "source": "grounding",
-              "snippet": "You can customise it to run your own models, create Slack alerts instead of GitHub Issues, and so on. However, if you just want to take this for a spin, I\u2019ve open-sourced (lol) the action at https://github.com/spaceraccoon/vulnerability-spoiler-alert-action (or GitHub Marketplace) - check it out and let me know if anything breaks.",
+              "snippet": "You can customise it to run your own models, create Slack alerts instead of GitHub Issues, and so on. However, if you just want to take this for a spin, I’ve open-sourced (lol) the action at https://github.com/spaceraccoon/vulnerability-spoiler-alert-action (or GitHub Marketplace) - check it out and let me know if anything breaks.",
               "published_at": "2026-02-07"
             },
             {
-              "title": "GitHub - spaceraccoon/vulnerability-spoiler-alert-action: GitHub Action to alert on security patches before the CVE drops. \u00b7 GitHub",
+              "title": "GitHub - spaceraccoon/vulnerability-spoiler-alert-action: GitHub Action to alert on security patches before the CVE drops. · GitHub",
               "url": "https://github.com/spaceraccoon/vulnerability-spoiler-alert-action",
               "domain": "github.com",
               "source": "grounding",
@@ -1223,7 +1661,7 @@
               "published_at": "2026-03-14"
             },
             {
-              "title": "GitHub - spaceraccoon/vulnerability-spoiler-alert: A monitoring hub that watches popular open-source repositories and uses AI to detect when commits are patching security vulnerabilities - often before a CVE is even assigned. Findings are published to a retro-themed website with an RSS feed. \u00b7 GitHub",
+              "title": "GitHub - spaceraccoon/vulnerability-spoiler-alert: A monitoring hub that watches popular open-source repositories and uses AI to detect when commits are patching security vulnerabilities - often before a CVE is even assigned. Findings are published to a retro-themed website with an RSS feed. · GitHub",
               "url": "https://github.com/spaceraccoon/vulnerability-spoiler-alert",
               "domain": "github.com",
               "source": "grounding",
@@ -1231,7 +1669,7 @@
               "published_at": "2026-02-10"
             },
             {
-              "title": "[Vulnerability] vercel/next.js: Code Injection \u00b7 Issue #17 \u00b7 spaceraccoon/vulnerability-spoiler-alert",
+              "title": "[Vulnerability] vercel/next.js: Code Injection · Issue #17 · spaceraccoon/vulnerability-spoiler-alert",
               "url": "https://github.com/spaceraccoon/vulnerability-spoiler-alert/issues/17",
               "domain": "github.com",
               "source": "grounding",
@@ -1257,11 +1695,11 @@
               "url": "https://spaceraccoon.dev/discovering-negative-days-llm-workflows/",
               "domain": "spaceraccoon.dev",
               "source": "grounding",
-              "snippet": "You can customise it to run your own models, create Slack alerts instead of GitHub Issues, and so on. However, if you just want to take this for a spin, I\u2019ve open-sourced (lol) the action at https://github.com/spaceraccoon/vulnerability-spoiler-alert-action (or GitHub Marketplace) - check it out and let me know if anything breaks.",
+              "snippet": "You can customise it to run your own models, create Slack alerts instead of GitHub Issues, and so on. However, if you just want to take this for a spin, I’ve open-sourced (lol) the action at https://github.com/spaceraccoon/vulnerability-spoiler-alert-action (or GitHub Marketplace) - check it out and let me know if anything breaks.",
               "published_at": "2026-02-07"
             },
             {
-              "title": "[Vulnerability] vercel/next.js: Code Injection \u00b7 Issue #17 \u00b7 spaceraccoon/vulnerability-spoiler-alert",
+              "title": "[Vulnerability] vercel/next.js: Code Injection · Issue #17 · spaceraccoon/vulnerability-spoiler-alert",
               "url": "https://github.com/spaceraccoon/vulnerability-spoiler-alert/issues/17",
               "domain": "github.com",
               "source": "grounding",
@@ -1269,7 +1707,7 @@
               "published_at": "2026-02-13"
             },
             {
-              "title": "GitHub - spaceraccoon/vulnerability-spoiler-alert: A monitoring hub that watches popular open-source repositories and uses AI to detect when commits are patching security vulnerabilities - often before a CVE is even assigned. Findings are published to a retro-themed website with an RSS feed. \u00b7 GitHub",
+              "title": "GitHub - spaceraccoon/vulnerability-spoiler-alert: A monitoring hub that watches popular open-source repositories and uses AI to detect when commits are patching security vulnerabilities - often before a CVE is even assigned. Findings are published to a retro-themed website with an RSS feed. · GitHub",
               "url": "https://github.com/spaceraccoon/vulnerability-spoiler-alert",
               "domain": "github.com",
               "source": "grounding",
@@ -1277,7 +1715,7 @@
               "published_at": "2026-02-10"
             },
             {
-              "title": "GitHub - spaceraccoon/vulnerability-spoiler-alert-action: GitHub Action to alert on security patches before the CVE drops. \u00b7 GitHub",
+              "title": "GitHub - spaceraccoon/vulnerability-spoiler-alert-action: GitHub Action to alert on security patches before the CVE drops. · GitHub",
               "url": "https://github.com/spaceraccoon/vulnerability-spoiler-alert-action",
               "domain": "github.com",
               "source": "grounding",
@@ -1309,7 +1747,7 @@
         "funding_metadata_candidates": [],
         "careers_or_headcount_candidates": [
           {
-            "title": "GitHub - spaceraccoon/vulnerability-spoiler-alert-action: GitHub Action to alert on security patches before the CVE drops. \u00b7 GitHub",
+            "title": "GitHub - spaceraccoon/vulnerability-spoiler-alert-action: GitHub Action to alert on security patches before the CVE drops. · GitHub",
             "url": "https://github.com/spaceraccoon/vulnerability-spoiler-alert-action",
             "domain": "github.com"
           }
@@ -1320,7 +1758,48 @@
         "stage_or_funding_source_still_missing",
         "official_domain_still_missing"
       ],
-      "manual_policy": "Public web-search assist only; do not scrape gated LinkedIn/Crunchbase pages."
+      "manual_policy": "Public web-search assist only; do not scrape gated LinkedIn/Crunchbase pages.",
+      "manual_workbench": {
+        "exact_checks": [
+          "Find the official website from the launch page, founder profile, docs, or search result.",
+          "Find the company LinkedIn or official company social page for supporting identity confidence.",
+          "Check funding, stage, headcount, jobs, careers, or Crunchbase-style public snippets.",
+          "Check pricing, customers, case studies, docs, deployments, waitlist, or paid plan evidence.",
+          "Check pricing/docs/careers pages on the official website."
+        ],
+        "missing_fields": [
+          "official_domain_missing",
+          "stage_funding_or_headcount_missing",
+          "company_linkedin_or_social_missing",
+          "commercial_or_customer_signal_missing",
+          "pricing_docs_or_careers_missing",
+          "OSS/project-only row",
+          "no verified domain"
+        ],
+        "evidence_hints_found": {
+          "official_domain_hits": false,
+          "company_linkedin_candidates": false,
+          "founder_linkedin_candidates": false,
+          "funding_metadata_candidates": false,
+          "careers_or_headcount_candidates": true
+        },
+        "unresolved_gaps": [
+          "company_linkedin_still_missing",
+          "stage_or_funding_source_still_missing",
+          "official_domain_still_missing"
+        ],
+        "recommended_manual_check": "Resolve official domain from launch text, project docs, founder profile, or web search.",
+        "suggested_decision": "still_blocked",
+        "promote_if_found": "Promote if the official domain clearly matches the launch/product and is not a social, repo, article, or directory page.",
+        "discard_if_not_found": "Discard if no official website or durable company identity appears after focused search.",
+        "likely_payoff": "Medium: still promising, but blocked until the missing field resolves."
+      },
+      "recommended_manual_check": "Resolve official domain from launch text, project docs, founder profile, or web search.",
+      "promote_if": "Promote if the official domain clearly matches the launch/product and is not a social, repo, article, or directory page.",
+      "discard_if": "Discard if no official website or durable company identity appears after focused search.",
+      "likely_payoff": "Medium: still promising, but blocked until the missing field resolves.",
+      "promote_if_found": "Promote if the official domain clearly matches the launch/product and is not a social, repo, article, or directory page.",
+      "discard_if_not_found": "Discard if no official website or durable company identity appears after focused search."
     }
   ],
   "run_dir": "docs/radar-runs/full-source-dossier-validation-2026-06-01-r1"

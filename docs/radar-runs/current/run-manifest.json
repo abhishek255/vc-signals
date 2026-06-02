@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-06-02T02:15:51.936301+00:00",
+  "generated_at": "2026-06-02T13:23:01.612530+00:00",
   "source_run_dir": "docs/radar-runs/full-source-dossier-validation-2026-06-01-r1",
   "blessed_current_dir": "docs/radar-runs/current",
   "required_artifacts": [
@@ -14,9 +14,7 @@
     "source-yield-repeatability-report.json",
     "source-yield-repeatability-report.md",
     "targeted-manual-enrichment.json",
-    "structured-provider-trial.json",
-    "evidence-completion-repeatability-report.md",
-    "evidence-completion-repeatability-report.json"
+    "structured-provider-trial.json"
   ],
   "inputs": {
     "partner_decision_packet": "docs/radar-runs/full-source-dossier-validation-2026-06-01-r1/source-yield-decision-packet/partner-decision-packet.json",
@@ -26,9 +24,7 @@
     "source_yield_repeatability_report": "docs/radar-runs/full-source-dossier-validation-2026-06-01-r1/source-yield-repeatability-report.json",
     "source_yield_repeatability_markdown": "docs/radar-runs/full-source-dossier-validation-2026-06-01-r1/source-yield-repeatability-report.md",
     "targeted_manual_enrichment_report": "docs/radar-runs/full-source-dossier-validation-2026-06-01-r1/targeted-manual-enrichment.json",
-    "structured_provider_trial_report": "docs/radar-runs/full-source-dossier-validation-2026-06-01-r1/structured-provider-trial.json",
-    "evidence_completion_repeatability_report": "docs/radar-runs/current/evidence-completion-repeatability-report.json",
-    "evidence_completion_repeatability_markdown": "docs/radar-runs/current/evidence-completion-repeatability-report.md"
+    "structured_provider_trial_report": "docs/radar-runs/full-source-dossier-validation-2026-06-01-r1/structured-provider-trial.json"
   },
   "policy": {
     "assign_owner_gate": "unchanged_high_confidence_only",

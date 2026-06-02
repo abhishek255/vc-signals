@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-06-02T02:15:51.891713+00:00",
+  "generated_at": "2026-06-02T13:22:27.303693+00:00",
   "report_type": "source_yield_strict_action_report",
   "source_run_dir": "docs/radar-runs/full-source-dossier-validation-2026-06-01-r1",
   "summary": {
@@ -11,7 +11,8 @@
     "evidence_gap_entities": 12,
     "manual_evidence_queue_entities": 12,
     "review_worthy_research_entities": 8,
-    "unsafe_promotions": 0
+    "unsafe_promotions": 0,
+    "unsafe_promotion_names": []
   },
   "actions": [
     {

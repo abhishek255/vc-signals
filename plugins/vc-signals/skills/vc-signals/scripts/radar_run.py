@@ -11,7 +11,10 @@ from __future__ import annotations
 import json
 import os
 import re
+import signal
 import sys
+import time
+from collections import Counter
 from inspect import Parameter, signature
 from datetime import datetime, timezone
 from pathlib import Path
@@ -32,14 +35,45 @@ except ImportError:  # pragma: no cover - only for damaged installs
     run_trending = None
 
 try:
+    from product_hunt_launches import run_product_hunt_launches
+except ImportError:  # pragma: no cover - only for damaged installs
+    run_product_hunt_launches = None
+
+try:
+    from yc_directory import run_yc_directory
+except ImportError:  # pragma: no cover - only for damaged installs
+    run_yc_directory = None
+
+try:
+    from x_launches import run_x_launches
+except ImportError:  # pragma: no cover - only for damaged installs
+    run_x_launches = None
+
+try:
     from last30days_adapter import check_availability as check_last30days_availability
     from last30days_adapter import run_query
 except ImportError:  # pragma: no cover - only for damaged installs
     check_last30days_availability = None
     run_query = None
 
-from radar_models import Candidate, RejectedSignal, SectorCoverage
-from radar_company_discovery import collect_company_discovery
+try:
+    from manual_enrichment_targets import build_manual_enrichment_targets, write_manual_enrichment_targets_json
+except ImportError:  # pragma: no cover - only for damaged installs
+    build_manual_enrichment_targets = None
+    write_manual_enrichment_targets_json = None
+
+try:
+    from source_access import detect_enrichment_provider_access
+except ImportError:  # pragma: no cover - only for damaged installs
+    detect_enrichment_provider_access = None
+
+from radar_models import Candidate, EvidenceMetadata, FocusItem, RejectedSignal, SectorCoverage
+from radar_company_discovery import (
+    DiscoveryRunBudget,
+    DiscoveryYieldTrialConfig,
+    classify_discovery_source,
+    collect_company_discovery,
+)
 from radar_scoring import score_and_tier
 from radar_sources import classify_source_item
 from radar_sector_intelligence import build_sector_intelligence
@@ -49,14 +83,87 @@ from radar_render import render_weekly_brief
 from radar_theme_signals import build_theme_signals
 from radar_workbench import write_workbench_artifacts
 from radar_history import apply_weekly_tags, load_candidate_history, save_candidate_history
+from signal_ledger import DEFAULT_LEDGER_PATH as DEFAULT_SIGNAL_LEDGER_PATH
+from signal_ledger import update_signal_ledger_from_run
 from radar_enrichment import apply_candidate_enrichment, merge_source_enrichment
+from identity_resolution import apply_identity_resolution
+from metadata_loss import build_metadata_loss_report
+from founder_team_verification import enrich_founder_team_verification, write_founder_team_verification_json
+from owner_evidence import enrich_owner_evidence, write_owner_evidence_json
+from owner_readiness import enrich_owner_readiness, write_owner_readiness_json
+from weak_source_identity_enrichment import enrich_weak_source_identity, write_weak_source_identity_enrichment_json
+from paid_search_guardrails import (
+    build_weekly_paid_search_preview,
+    configure_paid_search_guard,
+    last30days_grounding_allowed,
+    paid_search_summary,
+    provider_cache_dir,
+    reset_paid_search_guard,
+)
+try:
+    from signal_investigator import investigate_candidates, investigate_source_rows
+except ImportError:  # pragma: no cover - only for damaged installs
+    investigate_candidates = None
+    investigate_source_rows = None
+try:
+    from hard_evidence_resolver import enrich_source_rows_with_hard_evidence, write_hard_evidence_report
+except ImportError:  # pragma: no cover - only for damaged installs
+    enrich_source_rows_with_hard_evidence = None
+    write_hard_evidence_report = None
+from hn_weekly_trial import HNLaunchTrialConfig, run_hn_launch_weekly_trial
 from radar_oss import enrich_oss_candidate
+from canonical_identity import canonicalize_identity
+from candidate_quality import candidate_name_quality, candidate_quality_from_candidate
+from radar_focus import (
+    build_focus_item,
+    build_weekly_focus_artifact,
+    render_weekly_focus_markdown,
+    write_feedback_scaffold,
+    write_weekly_focus_json,
+)
 
 
 DEFAULT_OUTPUT_DIR = Path(__file__).parent.parent / "data" / "radar_runs"
 DEFAULT_SECTORS = ("devtools", "cybersecurity", "ai-infra", "vertical-ai", "data-infra", "oss")
 SECTOR_CONFIG_PATH = Path(__file__).parent.parent / "config" / "sectors.json"
 REDDIT_SOURCES_CONFIG_PATH = Path(__file__).parent.parent / "config" / "reddit_sources.json"
+DEFAULT_WEEKLY_HN_LAUNCH_LOOKBACK_DAYS = 30
+DEFAULT_WEEKLY_HN_LAUNCH_TIMEOUT_SECONDS = 60
+DEFAULT_WEEKLY_HN_LAUNCH_MAX_CANDIDATES = 5
+DEFAULT_WEEKLY_HN_LAUNCH_MAX_RUNTIME_SECONDS = 300
+DEFAULT_WEEKLY_HN_LAUNCH_MAX_ATTIO_CHECKS = 5
+DEFAULT_WEEKLY_HN_LAUNCH_MAX_LIVE_QUERIES = 30
+DEFAULT_WEEKLY_HN_LAUNCH_PER_CANDIDATE_TIMEOUT_SECONDS = 30
+
+KNOWN_MATURE_INCUMBENT_CATEGORY_DOMAINS = {
+    "atlassian.com": "known_mature_incumbent_category_anchor",
+    "blackduck.com": "known_mature_incumbent_category_anchor",
+    "cloud.google.com": "known_incumbent_platform_product",
+    "datatheorem.com": "known_mature_incumbent_category_anchor",
+    "docs.cloud.google.com": "known_incumbent_platform_product",
+    "gigamon.com": "known_mature_incumbent_category_anchor",
+    "kiro.dev": "known_incumbent_platform_product",
+    "n8n.io": "known_mature_incumbent_category_anchor",
+    "netdata.cloud": "known_mature_incumbent_category_anchor",
+    "solidatus.com": "known_mature_incumbent_category_anchor",
+}
+
+KNOWN_MATURE_INCUMBENT_CATEGORY_NAMES = {
+    "atlassian": "known_mature_incumbent_category_anchor",
+    "blackduck": "known_mature_incumbent_category_anchor",
+    "blackducksoftware": "known_mature_incumbent_category_anchor",
+    "data theorem": "known_mature_incumbent_category_anchor",
+    "datatheorem": "known_mature_incumbent_category_anchor",
+    "gigamon": "known_mature_incumbent_category_anchor",
+    "google cloud": "known_incumbent_platform_product",
+    "kiro": "known_incumbent_platform_product",
+    "n8n": "known_mature_incumbent_category_anchor",
+    "netdata": "known_mature_incumbent_category_anchor",
+    "solidatus": "known_mature_incumbent_category_anchor",
+}
+
+LATE_OR_CONTEXT_MATURITY_STATUSES = {"likely_too_late", "acquired", "incumbent", "category_leader"}
+LARGE_ROUND_OR_RAISED_DOLLARS = 100_000_000
 
 REPO_NOISE_TERMS = (
     "daily digest",
@@ -179,6 +286,11 @@ INTEREST_KEYWORDS = (
 )
 
 CONSENSUS_TERMS = ("series c", "series d", "$1.5b", "$60b", "too late", "consensus")
+DEFAULT_GITHUB_TIMEOUT_SECONDS = 5 * 60
+
+
+class GithubCollectionTimeout(TimeoutError):
+    pass
 
 
 def _label(score: int) -> str:
@@ -213,6 +325,12 @@ def is_repo_noise(repo: dict) -> bool:
 
 def is_evidence_noise(item: dict) -> bool:
     """True for evidence items that are likely social/model/news noise."""
+    if (item.get("source") or "").lower() in {"grounding", "web"} and classify_discovery_source(item) in {
+        "publisher_article",
+        "directory_page",
+        "content_platform",
+    }:
+        return True
     title = (item.get("title") or "").strip()
     if re.match(r"^(feat|fix|chore|docs|refactor|test|ci|build)(\\(.+\\))?:", title.lower()):
         return True
@@ -228,6 +346,90 @@ def filter_repos(repos: list[dict]) -> list[dict]:
 
 def filter_evidence(items: list[dict]) -> list[dict]:
     return [item for item in items if not is_evidence_noise(item)]
+
+
+def _source_health(source: str, status: str, *, fresh_items: int = 0, duration_seconds: float = 0.0, warnings: list[str] | None = None) -> dict:
+    return {
+        "source": source,
+        "status": status,
+        "fresh_items": fresh_items,
+        "duration_seconds": round(duration_seconds, 2),
+        "warnings": list(warnings or []),
+    }
+
+
+def _diagnostic_excerpt(value: object, *, limit: int = 800) -> str:
+    text = str(value or "").strip()
+    return text[:limit]
+
+
+def _degraded_source_signals(*parts: object) -> list[str]:
+    text = "\n".join(str(part or "") for part in parts if part).lower()
+    signals = []
+    if "reddit" in text and "429" in text:
+        signals.append("reddit_429")
+    if "scrapecreators" in text and "402" in text:
+        signals.append("scrapecreators_402")
+    return signals
+
+
+def _source_health_status(errors: list[str], degraded_error_count: int) -> str:
+    if not errors:
+        return "complete"
+    if degraded_error_count and degraded_error_count == len(errors):
+        return "degraded"
+    return "error"
+
+
+def _github_timeout_handler(signum, frame):  # pragma: no cover - exercised through alarm behavior
+    raise GithubCollectionTimeout("github_collection_timeout")
+
+
+def _run_github_trending_with_timeout(*, limit: int, timeout_seconds: int | None) -> tuple[dict, dict]:
+    if not run_trending:
+        return {"repos": [], "warnings": ["GitHub trending unavailable"]}, _source_health(
+            "github",
+            "skipped_unavailable",
+            warnings=["GitHub trending unavailable"],
+        )
+    if limit <= 0:
+        return {"repos": [], "warnings": ["GitHub collection skipped by github_limit=0"]}, _source_health(
+            "github",
+            "skipped_disabled",
+            warnings=["GitHub collection skipped by github_limit=0"],
+        )
+
+    started = time.monotonic()
+    previous_handler = None
+    try:
+        if timeout_seconds and hasattr(signal, "SIGALRM"):
+            previous_handler = signal.getsignal(signal.SIGALRM)
+            signal.signal(signal.SIGALRM, _github_timeout_handler)
+            signal.alarm(max(1, int(timeout_seconds)))
+        result = run_trending("all", limit=limit)
+        duration = time.monotonic() - started
+        return result, _source_health(
+            "github",
+            "complete",
+            fresh_items=len(result.get("repos", [])),
+            duration_seconds=duration,
+            warnings=result.get("warnings", []),
+        )
+    except GithubCollectionTimeout:
+        duration = time.monotonic() - started
+        warning = f"GitHub collection timed out after {timeout_seconds}s"
+        return {"repos": [], "warnings": [warning], "error": warning}, _source_health(
+            "github",
+            "partial_timeout",
+            fresh_items=0,
+            duration_seconds=duration,
+            warnings=[warning],
+        )
+    finally:
+        if timeout_seconds and hasattr(signal, "SIGALRM"):
+            signal.alarm(0)
+            if previous_handler is not None:
+                signal.signal(signal.SIGALRM, previous_handler)
 
 
 def load_sector_config(path: Path = SECTOR_CONFIG_PATH) -> dict:
@@ -261,6 +463,52 @@ def _dedupe_items(items: list[dict]) -> list[dict]:
     return deduped
 
 
+def _subreddit_from_item(item: dict) -> str:
+    container = str(item.get("container") or "").strip().lower()
+    if container.startswith("r/"):
+        container = container[2:]
+    if container:
+        return container
+    match = re.search(r"reddit\.com/r/([^/]+)", str(item.get("url") or ""), flags=re.IGNORECASE)
+    return match.group(1).lower() if match else ""
+
+
+def _reddit_item_matches_query_subreddits(item: dict, query_spec: dict) -> bool:
+    if (item.get("source") or "").lower() != "reddit":
+        return True
+    raw_subreddits = query_spec.get("subreddits") or ""
+    if not raw_subreddits:
+        return True
+    allowed = {
+        subreddit.strip().lower().removeprefix("r/")
+        for subreddit in str(raw_subreddits).split(",")
+        if subreddit.strip()
+    }
+    subreddit = _subreddit_from_item(item)
+    return bool(subreddit and subreddit in allowed)
+
+
+def _configured_company_query_families(company_queries: dict) -> tuple[tuple[str, str], ...]:
+    return (
+        ("yc_company", "yc_queries"),
+        ("funding_company", "funding_queries"),
+        ("company_launch", "company_launch_queries"),
+        ("founder_company", "founder_queries"),
+        ("technical_blog_company", "technical_blog_queries"),
+    )
+
+
+def _iter_company_query_specs(company_queries: dict):
+    """Yield configured company queries across families before repeating one family."""
+    families = _configured_company_query_families(company_queries)
+    max_family_len = max((len(company_queries.get(key, [])) for _kind, key in families), default=0)
+    for index in range(max_family_len):
+        for kind, key in families:
+            topics = company_queries.get(key, [])
+            if index < len(topics):
+                yield kind, topics[index]
+
+
 def _sources(*base: str, social_available: bool = False, vertical_social: bool = False) -> str:
     sources = list(base)
     if social_available:
@@ -268,6 +516,37 @@ def _sources(*base: str, social_available: bool = False, vertical_social: bool =
         if vertical_social:
             sources.extend(["tiktok", "instagram", "threads"])
     return ",".join(dict.fromkeys(sources))
+
+
+def _without_regular_hn(sources: str, *, hn_launch_trial_only: bool = False) -> str:
+    if not hn_launch_trial_only:
+        return sources
+    return ",".join(
+        part
+        for part in str(sources or "").split(",")
+        if part and part.strip().lower() != "hackernews"
+    )
+
+
+def _without_sources(sources: str, *excluded_sources: str) -> str:
+    excluded = {source.strip().lower() for source in excluded_sources if source.strip()}
+    return ",".join(
+        part.strip()
+        for part in str(sources or "").split(",")
+        if part.strip() and part.strip().lower() not in excluded
+    )
+
+
+def _company_query_sources(
+    *,
+    social_available: bool = False,
+    vertical_social: bool = False,
+    hn_launch_trial_only: bool = False,
+) -> str:
+    return _without_regular_hn(
+        _sources("grounding", "hackernews", social_available=social_available, vertical_social=vertical_social),
+        hn_launch_trial_only=hn_launch_trial_only,
+    )
 
 
 def _reddit_pain_query(sector_slug: str, reddit_config: dict, *, lookback_days: int) -> dict | None:
@@ -296,6 +575,8 @@ def build_sector_collection_queries(
     social_available: bool = False,
     lookback_days: int = 30,
     max_queries: int = 3,
+    exclude_yc: bool = False,
+    hn_launch_trial_only: bool = False,
 ) -> list[dict]:
     """Build a small, Marathon-focused query set for one sector."""
     config = sector_config.get(sector_slug, {}) if sector_slug in sector_config else sector_config
@@ -310,19 +591,28 @@ def build_sector_collection_queries(
                 {
                     "kind": "vertical_workflow_social",
                     "topic": f"{display_name} AI workflow demos operator pain SMB automation founder product demo",
-                    "sources": _sources("reddit", "hackernews", social_available=social_available, vertical_social=True),
+                    "sources": _without_regular_hn(
+                        _sources("reddit", "hackernews", social_available=social_available, vertical_social=True),
+                        hn_launch_trial_only=hn_launch_trial_only,
+                    ),
                     "lookback_days": lookback_days,
                 },
                 {
                     "kind": "vertical_hn",
                     "topic": f"Show HN {display_name} AI agent workflow startup",
-                    "sources": _sources("hackernews", "github", social_available=social_available),
+                    "sources": _without_regular_hn(
+                        _sources("hackernews", "github", social_available=social_available),
+                        hn_launch_trial_only=hn_launch_trial_only,
+                    ),
                     "lookback_days": lookback_days,
                 },
                 {
                     "kind": "vertical_github",
                     "topic": f"{display_name} AI workflow automation GitHub agent",
-                    "sources": _sources("github", "hackernews", social_available=social_available),
+                    "sources": _without_regular_hn(
+                        _sources("github", "hackernews", social_available=social_available),
+                        hn_launch_trial_only=hn_launch_trial_only,
+                    ),
                     "lookback_days": lookback_days,
                 },
             ])
@@ -332,19 +622,28 @@ def build_sector_collection_queries(
                 {
                     "kind": "oss_show",
                     "topic": "Show HN open source AI agent MCP security developer tool",
-                    "sources": _sources("hackernews", "github", social_available=social_available),
+                    "sources": _without_regular_hn(
+                        _sources("hackernews", "github", social_available=social_available),
+                        hn_launch_trial_only=hn_launch_trial_only,
+                    ),
                     "lookback_days": lookback_days,
                 },
                 {
                     "kind": "oss_github",
                     "topic": "open source AI agent infrastructure GitHub stars MCP security",
-                    "sources": _sources("github", "hackernews", social_available=social_available),
+                    "sources": _without_regular_hn(
+                        _sources("github", "hackernews", social_available=social_available),
+                        hn_launch_trial_only=hn_launch_trial_only,
+                    ),
                     "lookback_days": lookback_days,
                 },
                 {
                     "kind": "oss_security",
                     "topic": "open source AI security scanner MCP agent tool GitHub",
-                    "sources": _sources("github", "hackernews", social_available=social_available),
+                    "sources": _without_regular_hn(
+                        _sources("github", "hackernews", social_available=social_available),
+                        hn_launch_trial_only=hn_launch_trial_only,
+                    ),
                     "lookback_days": lookback_days,
                 },
             ])
@@ -353,19 +652,28 @@ def build_sector_collection_queries(
             {
                 "kind": "conversation",
                 "topic": f"Show HN {display_name} AI startup developer tool open source",
-                "sources": _sources("hackernews", "github", social_available=social_available),
+                "sources": _without_regular_hn(
+                    _sources("hackernews", "github", social_available=social_available),
+                    hn_launch_trial_only=hn_launch_trial_only,
+                ),
                 "lookback_days": lookback_days,
             },
             {
                 "kind": "hn_show",
                 "topic": f"Launch HN Show HN {display_name} startup AI infrastructure",
-                "sources": _sources("hackernews", "github", social_available=social_available),
+                "sources": _without_regular_hn(
+                    _sources("hackernews", "github", social_available=social_available),
+                    hn_launch_trial_only=hn_launch_trial_only,
+                ),
                 "lookback_days": lookback_days,
             },
             {
                 "kind": "github_signal",
                 "topic": f"{display_name} AI agent infrastructure open source GitHub stars",
-                "sources": _sources("github", "hackernews", social_available=social_available),
+                "sources": _without_regular_hn(
+                    _sources("github", "hackernews", social_available=social_available),
+                    hn_launch_trial_only=hn_launch_trial_only,
+                ),
                 "lookback_days": lookback_days,
             },
         ])
@@ -379,48 +687,70 @@ def build_sector_collection_queries(
     )
     company_queries = config.get("company_discovery_queries", {})
     if grounded_available and company_queries:
-        for kind, key in (
-            ("yc_company", "yc_queries"),
-            ("funding_company", "funding_queries"),
-            ("company_launch", "company_launch_queries"),
-            ("founder_company", "founder_queries"),
-            ("technical_blog_company", "technical_blog_queries"),
-        ):
+        for kind, topic in _iter_company_query_specs(company_queries):
+            if exclude_yc and (kind == "yc_company" or "ycombinator.com" in topic.lower()):
+                continue
             if len(queries) >= max_queries:
                 break
-            for topic in company_queries.get(key, []):
-                if len(queries) >= max_queries:
-                    break
-                queries.append({
-                    "kind": kind,
-                    "topic": topic,
-                    "sources": _sources("grounding", "hackernews", "github", social_available=social_available),
-                    "web_backend": "auto",
-                    "lookback_days": lookback_days,
-                })
-    elif grounded_available:
-        queries.extend([
-            {
-                "kind": "yc_company",
-                "topic": f"site:ycombinator.com/companies {display_name} AI startups Seed Series A Series B",
-                "sources": _sources("grounding", "hackernews", "github", social_available=social_available),
+            queries.append({
+                "kind": kind,
+                "topic": topic,
+                "sources": _company_query_sources(
+                    social_available=social_available,
+                    hn_launch_trial_only=hn_launch_trial_only,
+                ),
                 "web_backend": "auto",
                 "lookback_days": lookback_days,
-            },
+            })
+    elif grounded_available:
+        if not exclude_yc:
+            queries.append({
+                "kind": "yc_company",
+                "topic": f"site:ycombinator.com/companies {display_name} AI startups Seed Series A Series B",
+                "sources": _company_query_sources(
+                    social_available=social_available,
+                    hn_launch_trial_only=hn_launch_trial_only,
+                ),
+                "web_backend": "auto",
+                "lookback_days": lookback_days,
+            })
+        queries.append(
             {
                 "kind": "company_discovery",
                 "topic": f"{display_name} startups Seed Series A Series B emerging companies funding founder traction",
-                "sources": _sources("grounding", "reddit", "hackernews", "github", social_available=social_available, vertical_social=(sector_slug == "vertical-ai")),
+                "sources": _without_sources(
+                    _without_regular_hn(
+                        _sources("grounding", "reddit", "hackernews", social_available=social_available, vertical_social=(sector_slug == "vertical-ai")),
+                        hn_launch_trial_only=hn_launch_trial_only,
+                    ),
+                    "reddit",
+                )
+                if sector_slug == "oss"
+                else _without_regular_hn(
+                    _sources("grounding", "reddit", "hackernews", social_available=social_available, vertical_social=(sector_slug == "vertical-ai")),
+                    hn_launch_trial_only=hn_launch_trial_only,
+                ),
                 "web_backend": "auto",
                 "lookback_days": lookback_days,
-            },
-        ])
+                **(
+                    {
+                        "exclude_sources": "reddit",
+                        "source_policy": "oss_company_discovery_reddit_split",
+                    }
+                    if sector_slug == "oss"
+                    else {}
+                ),
+            }
+        )
 
     if len(queries) < max_queries:
         queries.append({
             "kind": "conversation",
             "topic": f"{conversation_topic} Seed Series A Series B founder customer traction",
-            "sources": _sources("reddit", "hackernews", "github", social_available=social_available),
+            "sources": _without_regular_hn(
+                _sources("reddit", "hackernews", "github", social_available=social_available),
+                hn_launch_trial_only=hn_launch_trial_only,
+            ),
             "lookback_days": lookback_days,
         })
 
@@ -445,6 +775,14 @@ def _social_search_available() -> bool:
     except Exception:
         return False
     return bool((availability.get("source_capabilities") or {}).get("social"))
+
+
+def _x_launch_movements_for_sectors(sectors: tuple[str, ...]) -> list[dict]:
+    movements = []
+    for sector in sectors or DEFAULT_SECTORS:
+        label = SECTOR_LABELS.get(sector, sector)
+        movements.append({"movement": f"{label} product launch", "market_sector": label})
+    return movements
 
 
 def parse_sectors_arg(value: str | None) -> tuple[str, ...]:
@@ -499,6 +837,29 @@ def _domain_from_url(url: str) -> str:
     return host
 
 
+SOURCE_ONLY_DOMAINS = {
+    "news.ycombinator.com",
+    "reddit.com",
+    "github.com",
+    "medium.com",
+    "substack.com",
+    "producthunt.com",
+    "x.com",
+    "twitter.com",
+    "linkedin.com",
+    "instagram.com",
+    "threads.net",
+    "tiktok.com",
+    "youtube.com",
+    "youtu.be",
+}
+
+
+def _is_source_only_domain(domain: str) -> bool:
+    normalized = (domain or "").strip().lower().removeprefix("www.")
+    return any(normalized == blocked or normalized.endswith(f".{blocked}") for blocked in SOURCE_ONLY_DOMAINS)
+
+
 def _yc_slug_from_url(url: str) -> str | None:
     parsed = urlparse(url or "")
     host = (parsed.netloc or "").lower()
@@ -517,6 +878,30 @@ def _name_from_slug(slug: str) -> str:
     return " ".join("AI" if word.lower() == "ai" else word.capitalize() for word in words)
 
 
+def _homepage_name_from_domain(domain: str) -> str | None:
+    host = (domain or "").lower().strip().removeprefix("www.")
+    parts = [part for part in host.split(".") if part]
+    if len(parts) < 2:
+        return None
+    stem = parts[-2]
+    if not stem or _is_source_only_domain(host) or stem in {"amazon", "aws", "google", "microsoft", "openai"}:
+        return None
+    if any(char.isdigit() for char in stem):
+        return stem
+    return _name_from_slug(stem)
+
+
+def _root_homepage_domain_from_item(item: dict) -> str:
+    if (item.get("source") or "").lower() not in {"grounding", "web"}:
+        return ""
+    url = item.get("url", "")
+    parsed = urlparse(url or "")
+    path = (parsed.path or "").strip()
+    if path not in {"", "/"}:
+        return ""
+    return _candidate_domain_from_item(item)
+
+
 def _candidate_name_from_item(item: dict) -> str | None:
     structured_name = (item.get("company_name") or item.get("name") or "").strip()
     if structured_name and structured_name.lower() not in GENERIC_EXTRACTED_NAMES:
@@ -526,7 +911,23 @@ def _candidate_name_from_item(item: dict) -> str | None:
     if slug:
         return _name_from_slug(slug)
 
-    return _extract_name_from_title(item.get("title", ""))
+    title_name = _extract_name_from_title(item.get("title", ""))
+    if title_name:
+        title_quality = candidate_name_quality(
+            name=title_name,
+            domain=_candidate_domain_from_item(item),
+            urls=[item.get("url", "")],
+            source_headline=item.get("title", ""),
+            why_on_radar=item.get("title", ""),
+            candidate_type="company_web",
+        )
+        if title_quality.usable:
+            return title_name
+
+    homepage_domain = _root_homepage_domain_from_item(item)
+    if homepage_domain:
+        return _homepage_name_from_domain(homepage_domain)
+    return title_name
 
 
 def _is_github_issue_or_pr(item: dict) -> bool:
@@ -539,7 +940,8 @@ def _is_github_issue_or_pr(item: dict) -> bool:
 def _candidate_domain_from_item(item: dict) -> str:
     domain = (item.get("domain") or "").strip().lower()
     if domain:
-        return domain.removeprefix("www.")
+        domain = domain.removeprefix("www.")
+        return "" if _is_source_only_domain(domain) else domain
 
     url = item.get("url", "")
     slug = _yc_slug_from_url(url)
@@ -547,7 +949,7 @@ def _candidate_domain_from_item(item: dict) -> str:
         return f"{slug}.com"
 
     domain = _domain_from_url(url)
-    if domain in {"news.ycombinator.com", "reddit.com", "github.com", "medium.com", "substack.com"}:
+    if _is_source_only_domain(domain):
         return ""
     return domain
 
@@ -561,17 +963,26 @@ def _profile_url(item: dict, *keys: str) -> str:
 
 
 def _founder_profiles_from_item(item: dict) -> list[dict]:
-    founders = item.get("founders") or item.get("founder_profiles") or []
+    founders = []
+    raw_profiles = item.get("founder_profiles") or []
+    raw_founders = item.get("founders") or []
+    if isinstance(raw_profiles, list):
+        founders.extend(raw_profiles)
+    if isinstance(raw_founders, list):
+        founders.extend(raw_founders)
     profiles = []
     if isinstance(founders, list):
+        seen = set()
         for founder in founders:
             if not isinstance(founder, dict):
                 continue
             name = (founder.get("name") or "").strip()
             linkedin = _profile_url(founder, "linkedin", "linkedin_url")
             x_url = _profile_url(founder, "x", "x_url", "twitter", "twitter_url")
-            if name or linkedin or x_url:
+            key = (name, linkedin, x_url)
+            if (name or linkedin or x_url) and key not in seen:
                 profiles.append({"name": name, "linkedin": linkedin, "x": x_url})
+                seen.add(key)
     return profiles
 
 
@@ -614,7 +1025,15 @@ def extract_company_candidates(evidence: dict) -> list[dict]:
             title = item.get("title", "")
             name = _candidate_name_from_item(item)
             key = _normalize_candidate_key(name or "")
-            if not name or name.lower() in GENERIC_EXTRACTED_NAMES or not key:
+            quality = candidate_name_quality(
+                name=name or "",
+                domain=_candidate_domain_from_item(item),
+                urls=[item.get("url", "")],
+                source_headline=title,
+                why_on_radar=title,
+                candidate_type="company_web",
+            )
+            if not name or name.lower() in GENERIC_EXTRACTED_NAMES or not key or not quality.usable:
                 continue
             text = _blob(title, item.get("snippet"))
             source = item.get("url", "")
@@ -629,7 +1048,7 @@ def extract_company_candidates(evidence: dict) -> list[dict]:
                 "sources": [source] if source else [],
                 "source_count": 1,
                 "engagement": item.get("engagement", {}),
-                "action": "assign owner",
+                "action": "research deeper",
             }
             company_linkedin = _profile_url(item, "company_linkedin", "linkedin_url", "linkedin")
             company_x = _profile_url(item, "company_x", "x_url", "twitter_url", "twitter")
@@ -722,7 +1141,14 @@ def merge_attio_context(companies: list[dict], attio_client=None) -> list[dict]:
 
     def should_skip_attio(company: dict) -> bool:
         name = company.get("name") or ""
-        return is_oss_project(company) and "/" in name and not company.get("domain")
+        if is_oss_project(company) and "/" in name and not company.get("domain"):
+            return True
+        source_lane = (company.get("source_lane") or "").strip().lower()
+        candidate_type = (company.get("candidate_type") or "").strip().lower()
+        social_lanes = {"x", "instagram", "tiktok", "threads", "youtube"}
+        if not company.get("domain") and (source_lane in social_lanes or candidate_type in {"social_launch", "product_demo"}):
+            return True
+        return False
 
     def skipped(company: dict) -> dict:
         return {
@@ -900,6 +1326,28 @@ def _format_founders(founders: list[dict]) -> str:
     return "; ".join(formatted)
 
 
+def _compact_evidence_metadata(candidate_key: str, item: dict) -> dict:
+    metadata = EvidenceMetadata(
+        candidate_key=candidate_key,
+        source_url=item.get("url", ""),
+        source=item.get("source", ""),
+        title=item.get("title") or item.get("full_name") or item.get("name") or "",
+        author=item.get("author", ""),
+        published_at=item.get("published_at", ""),
+        container=item.get("container", ""),
+        query_kind=item.get("query_kind", ""),
+        query_topic=item.get("query_topic", ""),
+        outbound_url=item.get("outbound_url") or item.get("resolved_url") or "",
+        domain=item.get("domain") or item.get("website_domain") or "",
+        owner_name=item.get("owner_name", ""),
+        owner_type=item.get("owner_type", ""),
+        topics=list(item.get("topics") or []),
+        description=item.get("description") or item.get("snippet") or "",
+        homepage=item.get("homepage") or item.get("website") or "",
+    )
+    return metadata.to_dict()
+
+
 def _candidate_from_signal(signal) -> Candidate | None:
     item = signal.metadata or {}
     name = None
@@ -920,10 +1368,30 @@ def _candidate_from_signal(signal) -> Candidate | None:
     why = signal.title
     if velocity.get("stars_last_30d") is not None:
         why = f"{item.get('description') or signal.title} +{velocity.get('stars_last_30d')} stars in 30d."
+    elif signal.role in {"producthunt_launch", "yc_company", "social_launch"} and signal.text:
+        why = f"{signal.title}: {signal.text}"
+
+    domain = _candidate_domain_from_item(item)
+    source_headline = item.get("source_headline") or item.get("title") or signal.title
+    identity = canonicalize_identity(
+        name=item.get("display_name") or item.get("canonical_name") or name,
+        domain=domain,
+        candidate_type=signal.role,
+        identity_type=item.get("identity_type", ""),
+        raw_title=source_headline,
+        source_headline=source_headline,
+    )
+    default_action = "watch" if signal.role == "oss_project" else "assign owner"
+    if signal.role in {"producthunt_launch", "yc_company", "social_launch"}:
+        default_action = "research deeper"
 
     candidate = Candidate(
-        name=name,
-        domain=_candidate_domain_from_item(item),
+        name=identity["display_name"] or name,
+        canonical_name=identity["canonical_name"],
+        display_name=identity["display_name"],
+        source_headline=identity["source_headline"],
+        tagline=identity["tagline"],
+        domain=domain,
         sector=SECTOR_LABELS.get(signal.sector, signal.sector),
         theme=infer_theme(f"{signal.title} {signal.text}"),
         source=source,
@@ -931,12 +1399,18 @@ def _candidate_from_signal(signal) -> Candidate | None:
         source_count=1,
         candidate_type=signal.role,
         why_on_radar=why,
-        why_this_may_be_noise="Needs verification across stronger company/founder/customer evidence.",
+        why_this_may_be_noise=item.get("why_this_may_be_noise") or "Needs verification across stronger company/founder/customer evidence.",
         company_linkedin=_profile_url(item, "company_linkedin", "linkedin_url", "linkedin"),
         company_x=_profile_url(item, "company_x", "x_url", "twitter_url", "twitter"),
         founder_profiles=_founder_profiles_from_item(item),
         engagement=item.get("engagement", {}),
-        action="watch" if signal.role == "oss_project" else "assign owner",
+        action=item.get("action") or default_action,
+        maturity_status=item.get("maturity_status") or "unknown",
+        maturity_basis=list(item.get("maturity_basis") or []),
+        maturity_evidence_urls=list(item.get("maturity_evidence_urls") or []),
+        category_anchor=bool(item.get("category_anchor")),
+        consensus_risk_reason=item.get("consensus_risk_reason", ""),
+        lead_route=item.get("lead_route") or "research_deeper",
     )
     source_lane = item.get("source_lane") or ("OSS" if signal.role == "oss_project" else signal.source)
     sector_classification = classify_market_sector(
@@ -949,6 +1423,7 @@ def _candidate_from_signal(signal) -> Candidate | None:
     candidate.evidence_role = signal.role
     candidate.sector_confidence = sector_classification.sector_confidence
     candidate.sector_reason = sector_classification.sector_reason
+    candidate.evidence_metadata = [_compact_evidence_metadata(candidate.stable_key or candidate.name, item)]
     if candidate.market_sector != "Unclassified":
         candidate.sector = candidate.market_sector
     candidate = merge_source_enrichment(candidate, item)
@@ -992,6 +1467,75 @@ def build_signals_from_evidence(evidence: dict) -> dict:
         else:
             coverage["oss"] = SectorCoverage(sector="oss", raw_signals=len(github_signals), reason="")
 
+    product_hunt_signals = []
+    for launch in evidence.get("product_hunt", []):
+        item = {
+            **launch,
+            "source": "producthunt",
+            "title": launch.get("title") or launch.get("name", ""),
+            "url": launch.get("product_hunt_url") or launch.get("url", ""),
+            "description": launch.get("description") or launch.get("tagline", ""),
+        }
+        signal = classify_source_item(sector="company-formation", item=item)
+        signals.append(signal)
+        product_hunt_signals.append(signal)
+    if product_hunt_signals:
+        coverage["company-formation"] = SectorCoverage(
+            sector="company-formation",
+            raw_signals=len(product_hunt_signals),
+            reason="" if any(signal.can_create_candidate for signal in product_hunt_signals) else "No candidate-eligible Product Hunt launches.",
+        )
+
+    yc_directory_signals = []
+    for company in evidence.get("yc_directory", []):
+        item = {
+            **company,
+            "source": "yc_directory",
+            "title": company.get("title") or company.get("name", ""),
+            "url": company.get("yc_url") or company.get("url", ""),
+            "description": company.get("description") or company.get("tagline", ""),
+        }
+        signal = classify_source_item(sector="company-formation", item=item)
+        signals.append(signal)
+        yc_directory_signals.append(signal)
+    if yc_directory_signals:
+        existing = coverage.get("company-formation")
+        if existing:
+            existing.raw_signals += len(yc_directory_signals)
+            if any(signal.can_create_candidate for signal in yc_directory_signals):
+                existing.reason = ""
+        else:
+            coverage["company-formation"] = SectorCoverage(
+                sector="company-formation",
+                raw_signals=len(yc_directory_signals),
+                reason="" if any(signal.can_create_candidate for signal in yc_directory_signals) else "No candidate-eligible YC directory rows.",
+            )
+
+    x_launch_signals = []
+    for launch in evidence.get("x_launches", []):
+        item = {
+            **launch,
+            "source": "x",
+            "title": launch.get("title") or launch.get("name", ""),
+            "url": launch.get("company_x") or launch.get("url", ""),
+            "description": launch.get("description") or launch.get("snippet", ""),
+        }
+        signal = classify_source_item(sector="company-formation", item=item)
+        signals.append(signal)
+        x_launch_signals.append(signal)
+    if x_launch_signals:
+        existing = coverage.get("company-formation")
+        if existing:
+            existing.raw_signals += len(x_launch_signals)
+            if any(signal.can_create_candidate for signal in x_launch_signals):
+                existing.reason = ""
+        else:
+            coverage["company-formation"] = SectorCoverage(
+                sector="company-formation",
+                raw_signals=len(x_launch_signals),
+                reason="" if any(signal.can_create_candidate for signal in x_launch_signals) else "No candidate-eligible X launches.",
+            )
+
     discovery_signals = []
     for item in _filter_company_discovery_items(evidence.get("company_discovery", {}).get("items", [])):
         sector = item.get("sector") or _sector_slug_from_label(item.get("market_sector")) or "company-discovery"
@@ -1030,22 +1574,139 @@ def _filter_company_discovery_items(items: list[dict]) -> list[dict]:
     return kept
 
 
+def _slug_id(text: str) -> str:
+    slug = re.sub(r"[^a-z0-9]+", "-", (text or "").lower()).strip("-")
+    return slug or "unknown"
+
+
+def _category_context_focus_items_from_company_discovery(company_discovery: dict) -> list[FocusItem]:
+    items: list[FocusItem] = []
+    seen: set[str] = set()
+    for lead in company_discovery.get("accepted_leads", []) or []:
+        if not isinstance(lead, dict):
+            continue
+        if not (lead.get("category_anchor") or lead.get("lead_route") in {"category_context", "monitor_only"}):
+            continue
+        domain = lead.get("domain") or _domain_from_url(lead.get("source_url", ""))
+        identity = canonicalize_identity(
+            name=lead.get("display_name") or lead.get("canonical_name") or lead.get("name") or lead.get("company_name") or lead.get("raw_title") or "Unknown",
+            domain=domain,
+            candidate_type=lead.get("candidate_type") or "",
+            raw_title=lead.get("raw_title") or "",
+            source_headline=lead.get("source_headline") or lead.get("raw_title") or "",
+        )
+        name = identity["display_name"] or "Unknown"
+        key = domain or name
+        item_id = _slug_id(f"category-context-{key}")
+        if item_id in seen:
+            continue
+        seen.add(item_id)
+        source_url = lead.get("source_url") or ""
+        evidence_urls = [
+            source_url,
+            *(lead.get("supporting_evidence_urls") or []),
+            lead.get("official_domain_verification_url") or "",
+            *(lead.get("maturity_evidence_urls") or []),
+        ]
+        evidence_urls = list(dict.fromkeys(url for url in evidence_urls if url))
+        movement = lead.get("movement") or lead.get("query_theme") or "Category context"
+        sector = lead.get("market_sector") or "Company Discovery"
+        items.append(
+            FocusItem(
+                id=item_id,
+                name=name,
+                canonical_name=identity["canonical_name"],
+                display_name=identity["display_name"],
+                source_headline=identity["source_headline"],
+                tagline=identity["tagline"],
+                company_domain=domain,
+                market_movement_id=_slug_id(f"{sector}-{movement}"),
+                market_movement=movement,
+                market_sector=sector,
+                why_focus_this_week=lead.get("why_on_radar") or lead.get("raw_snippet") or lead.get("raw_title") or "",
+                who_is_talking=["Grounded web evidence"],
+                talker_types=["unknown"],
+                talker_type_confidence="Low",
+                evidence_snapshot=[lead.get("why_on_radar") or lead.get("raw_snippet") or lead.get("raw_title") or ""],
+                evidence_urls=evidence_urls,
+                attio_status="unknown",
+                identity_type=lead.get("candidate_type") or "verified_company",
+                recommended_action="Monitor only",
+                evidence_confidence_score=70 if domain else 45,
+                company_identity_quality_score=90 if domain else 45,
+                company_identity_quality_basis=list(lead.get("verification_basis") or []),
+                focus_priority_basis=["category_context_from_company_discovery"],
+                actionability_basis=["category_context_not_owner_action"],
+                market_movement_basis=list(lead.get("movement_assignment_basis") or []),
+                noise_risk_score=60,
+                consensus_risk_score=90 if lead.get("likely_too_late") or lead.get("category_anchor") else 55,
+                consensus_risk_basis=list(lead.get("maturity_basis") or []),
+                movement_assignment_method="backtrace",
+                movement_assignment_confidence="Medium",
+                movement_assignment_evidence_url=evidence_urls[0] if evidence_urls else "",
+                why_this_may_be_noise=lead.get("why_this_may_be_noise") or lead.get("consensus_risk_reason") or "",
+                skepticism_events=[lead.get("why_this_may_be_noise") or lead.get("consensus_risk_reason") or ""],
+                source_candidate_id=lead.get("query_id") or item_id,
+                maturity_status=lead.get("maturity_status") or "unknown",
+                maturity_basis=list(lead.get("maturity_basis") or []),
+                maturity_evidence_urls=list(lead.get("maturity_evidence_urls") or []),
+                category_anchor=bool(lead.get("category_anchor")),
+                consensus_risk_reason=lead.get("consensus_risk_reason") or "",
+                lead_route=lead.get("lead_route") or "category_context",
+            )
+        )
+    return items
+
+
 def _merge_candidate_model(existing: Candidate, candidate: Candidate) -> None:
     existing.source_count += 1
     if candidate.source and candidate.source not in existing.sources:
         existing.sources.append(candidate.source)
+    existing_metadata_keys = {
+        (metadata.get("source_url"), metadata.get("title"), metadata.get("outbound_url"))
+        for metadata in existing.evidence_metadata
+        if isinstance(metadata, dict)
+    }
+    for metadata in candidate.evidence_metadata:
+        if not isinstance(metadata, dict):
+            continue
+        key = (metadata.get("source_url"), metadata.get("title"), metadata.get("outbound_url"))
+        if key not in existing_metadata_keys:
+            existing.evidence_metadata.append(metadata)
+            existing_metadata_keys.add(key)
     if not existing.domain and candidate.domain:
         existing.domain = candidate.domain
     if not existing.company_linkedin and candidate.company_linkedin:
         existing.company_linkedin = candidate.company_linkedin
     if not existing.company_x and candidate.company_x:
         existing.company_x = candidate.company_x
+    if candidate.category_anchor or candidate.lead_route in {"category_context", "monitor_only"}:
+        existing.maturity_status = candidate.maturity_status
+        existing.maturity_basis = list(candidate.maturity_basis)
+        existing.maturity_evidence_urls = list(candidate.maturity_evidence_urls)
+        existing.category_anchor = candidate.category_anchor
+        existing.consensus_risk_reason = candidate.consensus_risk_reason
+        existing.lead_route = candidate.lead_route
+    elif existing.lead_route == "research_deeper" and candidate.lead_route:
+        existing.maturity_status = candidate.maturity_status
+        existing.maturity_basis = list(candidate.maturity_basis)
+        existing.maturity_evidence_urls = list(candidate.maturity_evidence_urls)
+        existing.consensus_risk_reason = candidate.consensus_risk_reason
+        existing.lead_route = candidate.lead_route
     seen = {(profile.get("name"), profile.get("linkedin"), profile.get("x"), profile.get("github")) for profile in existing.founder_profiles}
     for profile in candidate.founder_profiles:
         key = (profile.get("name"), profile.get("linkedin"), profile.get("x"), profile.get("github"))
         if key not in seen:
             existing.founder_profiles.append(profile)
             seen.add(key)
+    if not existing.canonical_name and candidate.canonical_name:
+        existing.canonical_name = candidate.canonical_name
+    if not existing.display_name and candidate.display_name:
+        existing.display_name = candidate.display_name
+    if not existing.source_headline and candidate.source_headline:
+        existing.source_headline = candidate.source_headline
+    if not existing.tagline and candidate.tagline:
+        existing.tagline = candidate.tagline
 
 
 def promote_signals_to_candidates(signals: list) -> dict:
@@ -1073,6 +1734,26 @@ def promote_signals_to_candidates(signals: list) -> dict:
                 reason="candidate_name_not_extractable",
             ))
             continue
+        quality = candidate_quality_from_candidate(candidate)
+        if not quality.usable:
+            rejected.append(RejectedSignal(
+                sector=signal.sector,
+                source=signal.source,
+                title=signal.title,
+                url=signal.url,
+                reason=quality.rejection_code,
+            ))
+            continue
+        source_authority_ok, source_authority_reason = _company_web_source_authority(candidate, signal)
+        if not source_authority_ok:
+            rejected.append(RejectedSignal(
+                sector=signal.sector,
+                source=signal.source,
+                title=signal.title,
+                url=signal.url,
+                reason=source_authority_reason,
+            ))
+            continue
 
         key = _normalize_candidate_key(candidate.domain or candidate.name)
         if key in candidates_by_key:
@@ -1083,22 +1764,281 @@ def promote_signals_to_candidates(signals: list) -> dict:
     return {"candidates": list(candidates_by_key.values()), "rejected": rejected}
 
 
+def _enforce_candidate_action_safety(candidate: Candidate) -> Candidate:
+    action = (candidate.action or "").strip().lower()
+    if action != "assign owner":
+        return candidate
+    weak_single_source_lanes = {"product hunt", "yc directory", "x"}
+    source_lane = (candidate.source_lane or "").strip().lower()
+    if source_lane in weak_single_source_lanes and int(candidate.source_count or 0) < 2:
+        candidate.action = "research deeper"
+        return candidate
+    if candidate.evidence_confidence == "Low" or candidate.tier == "Needs More Evidence":
+        candidate.action = "research deeper"
+    return candidate
+
+
+def _mature_incumbent_category_reason(candidate: Candidate) -> str:
+    domain = (candidate.domain or candidate.candidate_domain or "").strip().lower().removeprefix("www.")
+    if domain in KNOWN_MATURE_INCUMBENT_CATEGORY_DOMAINS:
+        return KNOWN_MATURE_INCUMBENT_CATEGORY_DOMAINS[domain]
+    name_key = _normalize_candidate_key(candidate.name or candidate.display_name or candidate.canonical_name or "")
+    return KNOWN_MATURE_INCUMBENT_CATEGORY_NAMES.get(name_key, "")
+
+
+def _money_amount(value) -> float:
+    if isinstance(value, (int, float)):
+        return float(value)
+    text = str(value or "").strip().lower().replace(",", "")
+    if not text:
+        return 0.0
+    amounts = []
+    for number, suffix in re.findall(r"\$?\s*(\d+(?:\.\d+)?)\s*([kmb])?", text):
+        amount = float(number)
+        if suffix == "k":
+            amount *= 1_000
+        elif suffix == "m":
+            amount *= 1_000_000
+        elif suffix == "b":
+            amount *= 1_000_000_000
+        amounts.append(amount)
+    if not amounts:
+        return 0.0
+    return max(amounts)
+
+
+def _structured_late_stage_maturity_basis(candidate: Candidate) -> list[str]:
+    basis = []
+    stage_text = str(candidate.stage or "").lower().replace("_", " ")
+    if re.search(r"\bseries\s+[cdefg]\b", stage_text):
+        basis.append("series_c_or_later")
+    if _money_amount(candidate.raised) >= LARGE_ROUND_OR_RAISED_DOLLARS:
+        basis.append("large_round_or_valuation")
+    return basis
+
+
+def _route_category_context(candidate: Candidate, *, status: str, basis: list[str], reason: str) -> Candidate:
+    candidate.maturity_status = status
+    candidate.category_anchor = True
+    candidate.lead_route = "category_context"
+    candidate.action = "monitor only"
+    candidate.recommended_owner_action = "Monitor only"
+    candidate.owner_readiness_score = min(int(candidate.owner_readiness_score or 20), 20)
+    candidate.maturity_basis = list(dict.fromkeys(list(candidate.maturity_basis or []) + basis + [reason]))
+    candidate.consensus_risk_reason = candidate.consensus_risk_reason or "Late-stage, acquired, high-valuation, or consensus/category-leader evidence."
+    candidate.why_this_may_be_noise = candidate.why_this_may_be_noise or "Mature/category context; route as market context, not a sourcing lead."
+    candidate.missing_owner_evidence = list(dict.fromkeys(list(candidate.missing_owner_evidence or []) + ["category context / mature incumbent"]))
+    return candidate
+
+
+def apply_maturity_category_cleanup(candidates: list[Candidate]) -> list[Candidate]:
+    routed: list[Candidate] = []
+    for candidate in candidates:
+        out = Candidate.from_dict(candidate.to_dict())
+        reason = _mature_incumbent_category_reason(out)
+        if reason:
+            out = _route_category_context(
+                out,
+                status="incumbent",
+                basis=[],
+                reason=reason,
+            )
+            out.consensus_risk_reason = out.consensus_risk_reason or "Known mature/category incumbent; use as market context, not a sourcing lead."
+            out.why_this_may_be_noise = "Known mature/category incumbent; route as category context, not a sourcing lead."
+        elif out.maturity_status in LATE_OR_CONTEXT_MATURITY_STATUSES:
+            out = _route_category_context(
+                out,
+                status=out.maturity_status,
+                basis=list(out.maturity_basis or [out.maturity_status]),
+                reason="maturity_overlay_category_context",
+            )
+        else:
+            structured_basis = _structured_late_stage_maturity_basis(out)
+            if structured_basis:
+                out = _route_category_context(
+                    out,
+                    status="likely_too_late",
+                    basis=structured_basis,
+                    reason="structured_stage_or_funding_context",
+                )
+        routed.append(out)
+    return routed
+
+
+def _structured_company_web_identity(item: dict) -> bool:
+    has_name = bool((item.get("company_name") or item.get("name") or "").strip())
+    has_domain = bool((item.get("domain") or item.get("website") or "").strip())
+    return has_name and has_domain
+
+
+def _candidate_identity_tokens(candidate: Candidate, item: dict) -> set[str]:
+    tokens = set()
+    for value in (candidate.name, candidate.display_name, candidate.canonical_name, item.get("company_name"), item.get("name")):
+        for token in re.findall(r"[a-z0-9]+", (value or "").lower()):
+            if len(token) >= 3 or any(char.isdigit() for char in token):
+                tokens.add(token)
+    domain = _candidate_domain_from_item(item)
+    stem = (domain or "").split(".")[0].replace("-", "")
+    if stem and (len(stem) >= 3 or any(char.isdigit() for char in stem)):
+        tokens.add(stem)
+    return tokens - {"and", "the", "for", "with", "agent", "agents", "startup", "company"}
+
+
+def _title_mentions_candidate_identity(candidate: Candidate, item: dict) -> bool:
+    haystack = re.sub(r"[^a-z0-9]+", "", f"{item.get('title', '')} {item.get('url', '')}".lower())
+    return any(token and token in haystack for token in _candidate_identity_tokens(candidate, item))
+
+
+def _is_official_company_content_page(candidate: Candidate, item: dict) -> bool:
+    source_domain = _domain_from_url(item.get("url") or "")
+    candidate_domain = _candidate_domain_from_item(item)
+    if not source_domain or not candidate_domain or source_domain != candidate_domain:
+        return False
+    if not _title_mentions_candidate_identity(candidate, item):
+        return False
+
+    path = (urlparse(item.get("url") or "").path or "").lower()
+    title = (item.get("title") or "").lower()
+    identity_or_product_paths = (
+        "/about",
+        "/company",
+        "/team",
+        "/founder",
+        "/founders",
+        "/product",
+        "/products",
+        "/platform",
+    )
+    event_paths = (
+        "/blog",
+        "/blog-posts",
+        "/news",
+        "/press",
+        "/announcement",
+        "/announcements",
+        "/launch",
+    )
+    event_terms = (
+        "introducing",
+        "launch",
+        "launches",
+        "launched",
+        "emerges",
+        "emerged",
+        "stealth",
+        "seed",
+        "series a",
+        "series b",
+        "funding",
+        "raises",
+        "raised",
+    )
+    if any(hint in path for hint in identity_or_product_paths):
+        return True
+    if any(hint in path for hint in event_paths) and any(term in title for term in event_terms):
+        return True
+    return False
+
+
+def _company_web_source_authority(candidate: Candidate, signal) -> tuple[bool, str]:
+    if candidate.candidate_type != "company_web":
+        return True, ""
+    item = signal.metadata or {}
+    source_url = signal.url or item.get("url", "")
+    source_type = classify_discovery_source(item)
+    if source_type in {
+        "listicle_or_seo",
+        "directory_page",
+        "marketplace_project_page",
+        "content_platform",
+    }:
+        return False, f"{source_type}_not_company_proof"
+    if _structured_company_web_identity(item):
+        return True, ""
+    if _root_homepage_domain_from_item(item):
+        return True, ""
+    if source_type == "official_company_page":
+        return True, ""
+    if _is_official_company_content_page(candidate, item):
+        return True, ""
+    if source_type in {
+        "publisher_article",
+        "investor_page",
+        "government_or_academic",
+        "funding_press_release",
+    }:
+        return False, f"{source_type}_not_company_proof"
+    if source_url and not _root_homepage_domain_from_item(item):
+        return False, "weak_company_web_article_not_company_proof"
+    return True, ""
+
+
 def _score_sort_limit_candidates(candidates: list[Candidate], candidate_limit: int) -> list[Candidate]:
     scored = [
         candidate if candidate.tier and candidate.investment_interest_score else score_and_tier(candidate)
         for candidate in candidates
     ]
+    scored = [_enforce_candidate_action_safety(candidate) for candidate in scored]
     visible = [candidate for candidate in scored if candidate.tier != "Filtered"]
-    return sorted(
+    ranked = sorted(
         visible,
         key=lambda c: (c.tier == "Partner Review", c.investment_interest_score, c.evidence_confidence_score),
         reverse=True,
-    )[:candidate_limit]
+    )
+    return _keep_source_coverage(ranked, candidate_limit)
+
+
+def _source_coverage_bucket(candidate: Candidate) -> str:
+    source_lane = (candidate.source_lane or "").strip().lower()
+    source = (candidate.source or "").strip().lower()
+    candidate_type = (candidate.candidate_type or "").strip().lower()
+    if "product hunt" in source_lane or "producthunt" in source:
+        return "product_hunt"
+    if source_lane == "x" or "x.com/" in source or "twitter.com/" in source:
+        return "x"
+    if "grounded web" in source_lane or candidate_type == "company_web":
+        return "manual_web"
+    return ""
+
+
+def _keep_source_coverage(ranked: list[Candidate], candidate_limit: int) -> list[Candidate]:
+    selected = list(ranked[:candidate_limit])
+    if candidate_limit < 10:
+        return selected
+    selected_keys = {candidate.stable_key or candidate.domain or candidate.name for candidate in selected}
+    protected_lanes = ("product_hunt", "x", "manual_web")
+    for lane in protected_lanes:
+        if any(_source_coverage_bucket(candidate) == lane for candidate in selected):
+            continue
+        replacement = next(
+            (
+                candidate
+                for candidate in ranked
+                if _source_coverage_bucket(candidate) == lane
+                and candidate.domain
+                and (candidate.stable_key or candidate.domain or candidate.name) not in selected_keys
+            ),
+            None,
+        )
+        if replacement is None:
+            continue
+        if len(selected) < candidate_limit:
+            selected.append(replacement)
+        else:
+            selected[-1] = replacement
+        selected_keys = {candidate.stable_key or candidate.domain or candidate.name for candidate in selected}
+    return selected
 
 
 def _apply_attio_to_candidates(candidates: list[Candidate], attio_client=None) -> list[Candidate]:
     enriched = merge_attio_context([candidate.to_dict() for candidate in candidates], attio_client)
     return [Candidate.from_dict(candidate) for candidate in enriched]
+
+
+def prepare_candidates_for_weekly_focus(candidates: list[Candidate], attio_client=None) -> tuple[list[Candidate], list]:
+    resolved_candidates, identity_resolutions = apply_identity_resolution(candidates)
+    resolved_candidates = _apply_attio_to_candidates(resolved_candidates, attio_client)
+    return resolved_candidates, identity_resolutions
 
 
 def _update_sector_coverage(
@@ -1174,23 +2114,155 @@ def save_raw_evidence(evidence: dict, *, output_dir: Path = DEFAULT_OUTPUT_DIR, 
     return path
 
 
+def _source_rows_for_signal_investigation(evidence: dict, signals: list) -> list[dict]:
+    rows: list[dict] = []
+    for row in evidence.get("product_hunt") or []:
+        if isinstance(row, dict):
+            rows.append({**row, "source_lane": row.get("source_lane") or "Product Hunt", "source": row.get("source") or "producthunt"})
+    for row in evidence.get("x_launches") or []:
+        if isinstance(row, dict):
+            rows.append({**row, "source_lane": row.get("source_lane") or "X", "source": row.get("source") or "x"})
+    for row in evidence.get("github") or []:
+        if isinstance(row, dict):
+            rows.append({**row, "source_lane": row.get("source_lane") or "OSS", "source": row.get("source") or "github"})
+    for signal in signals or []:
+        payload = signal.to_dict() if hasattr(signal, "to_dict") else dict(signal)
+        source = str(payload.get("source") or "").lower()
+        if source not in {"hackernews", "hn"}:
+            continue
+        rows.append(
+            {
+                **payload,
+                "source": "hackernews",
+                "source_lane": payload.get("source_lane") or "Hacker News",
+                "name": payload.get("name") or payload.get("title") or payload.get("headline") or "Hacker News signal",
+                "title": payload.get("title") or payload.get("headline") or payload.get("name") or "",
+                "url": payload.get("url") or payload.get("source_url") or "",
+                "description": payload.get("description") or payload.get("snippet") or payload.get("why_on_radar") or "",
+            }
+        )
+    return rows
+
+
+def _merge_signal_investigation_reports(candidate_report: dict, source_report: dict) -> dict:
+    candidate_summary = candidate_report.get("summary", {}) if isinstance(candidate_report, dict) else {}
+    source_summary = source_report.get("summary", {}) if isinstance(source_report, dict) else {}
+    numeric_keys = [
+        "rows_considered",
+        "rows_investigated",
+        "search_queries_planned",
+        "search_queries_run",
+        "official_domains_resolved",
+        "url_roles_classified",
+        "unsafe_domain_attempts_blocked",
+    ]
+    provider_modes = [str(source_summary.get("provider_mode") or ""), str(candidate_summary.get("provider_mode") or "")]
+    if "llm" in provider_modes:
+        provider_mode = "llm"
+    elif "harness_llm" in provider_modes:
+        provider_mode = "harness_llm"
+    elif "heuristic_fallback" in provider_modes:
+        provider_mode = "heuristic_fallback"
+    else:
+        provider_mode = "disabled"
+    summary = {
+        "enabled": bool(candidate_summary.get("enabled") or source_summary.get("enabled")),
+        "provider_mode": provider_mode,
+    }
+    for key in numeric_keys:
+        summary[key] = int(candidate_summary.get(key) or 0) + int(source_summary.get(key) or 0)
+    summary["source_health"] = {key: summary[key] for key in numeric_keys}
+    summary["harness_llm"] = (
+        candidate_summary.get("harness_llm")
+        or source_summary.get("harness_llm")
+        or {"status": "default", "runtime": "Claude Code or Codex harness"}
+    )
+    direct_candidate = candidate_summary.get("direct_llm_api") if isinstance(candidate_summary.get("direct_llm_api"), dict) else {}
+    direct_source = source_summary.get("direct_llm_api") if isinstance(source_summary.get("direct_llm_api"), dict) else {}
+    direct_enabled = bool(direct_candidate.get("enabled") or direct_source.get("enabled"))
+    summary["direct_llm_api"] = {
+        "enabled": direct_enabled,
+        "status": "enabled_explicitly" if direct_enabled else "disabled_by_default",
+        "env_flag": direct_candidate.get("env_flag") or direct_source.get("env_flag") or "VC_SIGNALS_ALLOW_DIRECT_LLM_API",
+    }
+    candidate_items = list(candidate_report.get("items", []) or []) if isinstance(candidate_report, dict) else []
+    source_items = list(source_report.get("items", []) or []) if isinstance(source_report, dict) else []
+    return {
+        "summary": summary,
+        "items": source_items + candidate_items,
+        "source_items": source_items,
+        "candidate_items": candidate_items,
+    }
+
+
+def _merge_hard_evidence_reports(reports: dict[str, dict]) -> dict:
+    numeric_keys = [
+        "rows_considered",
+        "rows_investigated",
+        "search_queries_planned",
+        "search_queries_run",
+        "official_domains_resolved",
+        "commercial_evidence_rows",
+        "url_roles_classified",
+        "unsafe_domain_attempts_blocked",
+    ]
+    summary = {
+        "enabled": bool(enrich_source_rows_with_hard_evidence),
+        "lanes": {},
+    }
+    for key in numeric_keys:
+        summary[key] = 0
+    items = []
+    for lane, report in reports.items():
+        lane_summary = report.get("summary", {}) if isinstance(report, dict) else {}
+        summary["lanes"][lane] = lane_summary
+        for key in numeric_keys:
+            summary[key] += int(lane_summary.get(key) or 0)
+        for item in report.get("items", []) if isinstance(report, dict) else []:
+            if isinstance(item, dict):
+                items.append({"source_lane": lane, **item})
+    if not enrich_source_rows_with_hard_evidence:
+        summary["skip_reason"] = "hard_evidence_resolver_unavailable"
+    return {"summary": summary, "items": items}
+
+
 def collect_live_evidence(
     *,
     sectors: tuple[str, ...] = DEFAULT_SECTORS,
     lookback_days: int = 30,
     github_limit: int = 40,
+    product_hunt_limit: int = 0,
+    yc_directory_limit: int = 0,
+    x_launch_limit: int = 0,
     max_queries_per_sector: int = 3,
     query_timeout_seconds: int | None = None,
+    github_timeout_seconds: int | None = DEFAULT_GITHUB_TIMEOUT_SECONDS,
+    product_hunt_timeout_seconds: int | None = 20,
+    yc_directory_timeout_seconds: int | None = 20,
+    x_launch_timeout_seconds: int | None = 45,
     progress: bool = False,
+    exclude_yc: bool = False,
+    hn_launch_trial_only: bool = False,
+    allow_last30days_grounding: bool | None = None,
 ) -> dict:
     """Collect raw last30days and GitHub evidence for the weekly radar."""
-    evidence = {"last30days": {}, "github": [], "warnings": []}
+    evidence = {
+        "last30days": {},
+        "github": [],
+        "product_hunt": [],
+        "yc_directory": [],
+        "x_launches": [],
+        "warnings": [],
+        "source_health": [],
+    }
     sector_config = load_sector_config()
-    grounded_available = _grounded_search_available()
+    last30days_grounding_enabled = last30days_grounding_allowed(allow_last30days_grounding)
+    grounded_available = _grounded_search_available() and last30days_grounding_enabled
     social_available = _social_search_available()
 
     if run_query:
         for sector in sectors:
+            started = time.monotonic()
             query_specs = build_sector_collection_queries(
                 sector,
                 sector_config,
@@ -1198,11 +2270,15 @@ def collect_live_evidence(
                 social_available=social_available,
                 lookback_days=lookback_days,
                 max_queries=max_queries_per_sector,
+                exclude_yc=exclude_yc,
+                hn_launch_trial_only=hn_launch_trial_only,
             )
             items = []
             clusters = []
             warnings = []
             errors = []
+            degraded_error_count = 0
+            query_diagnostics = []
             for index, query_spec in enumerate(query_specs, start=1):
                 if progress:
                     print(
@@ -1219,18 +2295,62 @@ def collect_live_evidence(
                     auto_resolve=True,
                     store=True,
                     web_backend=query_spec.get("web_backend"),
+                    exclude_sources=query_spec.get("exclude_sources"),
                     timeout_seconds=query_timeout_seconds,
                 )
+                raw_items_returned = len(result.get("items", []) or [])
+                leaked_reddit_items = 0
+                accepted_items = []
                 for item in result.get("items", []):
+                    if not _reddit_item_matches_query_subreddits(item, query_spec):
+                        leaked_reddit_items += 1
+                        continue
                     item.setdefault("query_kind", query_spec["kind"])
                     item.setdefault("query_topic", query_spec["topic"])
                     item.setdefault("candidate_eligible", query_spec.get("candidate_eligible", True))
-                items.extend(result.get("items", []))
+                    accepted_items.append(item)
+                items.extend(accepted_items)
+                if leaked_reddit_items:
+                    warnings.append(
+                        f"{query_spec['kind']}: filtered {leaked_reddit_items} reddit items outside requested subreddits"
+                    )
                 clusters.extend(result.get("clusters", []))
-                warnings.extend(result.get("warnings", []))
+                result_warnings = list(result.get("warnings", []))
+                warnings.extend(result_warnings)
+                stderr_excerpt = _diagnostic_excerpt(result.get("stderr"))
+                degraded_signals = _degraded_source_signals(
+                    result.get("error"),
+                    result.get("stderr"),
+                    result.get("raw_output"),
+                    *result_warnings,
+                )
+                diagnostic = {
+                    "kind": query_spec.get("kind", ""),
+                    "topic": query_spec.get("topic", ""),
+                    "sources": query_spec.get("sources", ""),
+                    "exclude_sources": query_spec.get("exclude_sources", ""),
+                    "candidate_eligible": query_spec.get("candidate_eligible", True),
+                    "raw_items_returned": raw_items_returned,
+                    "accepted_items": len(accepted_items),
+                    "filtered_items": leaked_reddit_items,
+                    "filtered_reddit_outside_subreddits": leaked_reddit_items,
+                    "error": result.get("error", ""),
+                    "warnings": result_warnings,
+                    "source_health_classification": "degraded_source_health" if degraded_signals else "",
+                }
+                if stderr_excerpt:
+                    diagnostic["stderr_excerpt"] = stderr_excerpt
+                if degraded_signals:
+                    diagnostic["degraded_signals"] = degraded_signals
+                query_diagnostics.append(diagnostic)
                 if result.get("error"):
-                    errors.append(result["error"])
-                    evidence["warnings"].append(f"{sector}: {result['error']}")
+                    error_message = result["error"]
+                    if stderr_excerpt:
+                        error_message = f"{error_message}: {stderr_excerpt[:300]}"
+                    errors.append(error_message)
+                    if degraded_signals:
+                        degraded_error_count += 1
+                    evidence["warnings"].append(f"{sector}: {error_message}")
             items = filter_evidence(_dedupe_items(items))
             evidence["last30days"][sector] = {
                 "queries": query_specs,
@@ -1239,16 +2359,130 @@ def collect_live_evidence(
                 "clusters": clusters,
                 "warnings": warnings,
                 "errors": errors,
+                "query_diagnostics": query_diagnostics,
             }
+            evidence["source_health"].append(
+                _source_health(
+                    f"last30days:{sector}",
+                    _source_health_status(errors, degraded_error_count),
+                    fresh_items=len(items),
+                    duration_seconds=time.monotonic() - started,
+                    warnings=errors or warnings,
+                )
+            )
 
-    if run_trending:
+    if progress:
+        print("[vc-signals] github: collecting trending repos", file=sys.stderr, flush=True)
+    github, github_health = _run_github_trending_with_timeout(
+        limit=github_limit,
+        timeout_seconds=github_timeout_seconds,
+    )
+    evidence["github"] = filter_repos(github.get("repos", []))
+    evidence["source_health"].append(github_health)
+    evidence["warnings"].extend(github.get("warnings", []))
+    if github.get("error"):
+        evidence["warnings"].append(github["error"])
+
+    if product_hunt_limit > 0:
+        started = time.monotonic()
         if progress:
-            print("[vc-signals] github: collecting trending repos", file=sys.stderr, flush=True)
-        github = run_trending("all", limit=github_limit)
-        evidence["github"] = filter_repos(github.get("repos", []))
-        evidence["warnings"].extend(github.get("warnings", []))
-        if github.get("error"):
-            evidence["warnings"].append(github["error"])
+            print("[vc-signals] product_hunt: collecting launches", file=sys.stderr, flush=True)
+        if not run_product_hunt_launches:
+            warning = "Product Hunt launch adapter unavailable"
+            evidence["warnings"].append(warning)
+            evidence["source_health"].append(
+                _source_health("product_hunt", "unavailable", fresh_items=0, warnings=[warning])
+            )
+        else:
+            result = run_product_hunt_launches(
+                limit=product_hunt_limit,
+                timeout_seconds=product_hunt_timeout_seconds,
+            )
+            launches = result.get("launches", []) or []
+            warnings = list(result.get("warnings", []) or [])
+            evidence["product_hunt"] = launches
+            evidence["product_hunt_meta"] = {
+                **(result.get("source_meta", {}) or {}),
+                "source_mode": result.get("source_mode", ""),
+            }
+            evidence["warnings"].extend(warnings)
+            if result.get("error"):
+                evidence["warnings"].append(result["error"])
+            evidence["source_health"].append(
+                _source_health(
+                    "product_hunt",
+                    "complete" if launches else "empty",
+                    fresh_items=len(launches),
+                    duration_seconds=time.monotonic() - started,
+                    warnings=warnings,
+                )
+            )
+
+    if yc_directory_limit > 0 and not exclude_yc:
+        started = time.monotonic()
+        if progress:
+            print("[vc-signals] yc_directory: collecting public YC rows", file=sys.stderr, flush=True)
+        if not run_yc_directory:
+            warning = "YC directory adapter unavailable"
+            evidence["warnings"].append(warning)
+            evidence["source_health"].append(
+                _source_health("yc_directory", "unavailable", fresh_items=0, warnings=[warning])
+            )
+        else:
+            result = run_yc_directory(
+                limit=yc_directory_limit,
+                timeout_seconds=yc_directory_timeout_seconds,
+            )
+            companies = result.get("companies", []) or []
+            warnings = list(result.get("warnings", []) or [])
+            evidence["yc_directory"] = companies
+            evidence["yc_directory_meta"] = result.get("source_meta", {})
+            evidence["warnings"].extend(warnings)
+            if result.get("error"):
+                evidence["warnings"].append(result["error"])
+            evidence["source_health"].append(
+                _source_health(
+                    "yc_directory",
+                    "complete" if companies else "empty",
+                    fresh_items=len(companies),
+                    duration_seconds=time.monotonic() - started,
+                    warnings=warnings,
+                )
+            )
+
+    if x_launch_limit > 0:
+        started = time.monotonic()
+        if progress:
+            print("[vc-signals] x_launches: collecting X launch/social confidence", file=sys.stderr, flush=True)
+        if not run_x_launches:
+            warning = "X launch adapter unavailable"
+            evidence["warnings"].append(warning)
+            evidence["source_health"].append(
+                _source_health("x_launches", "unavailable", fresh_items=0, warnings=[warning])
+            )
+        else:
+            x_result = run_x_launches(
+                movements=_x_launch_movements_for_sectors(sectors),
+                query_runner=run_query,
+                limit=x_launch_limit,
+                lookback_days=lookback_days,
+                timeout_seconds=x_launch_timeout_seconds,
+            )
+            launches = x_result.get("launches", []) or []
+            warnings = list(x_result.get("warnings", []) or [])
+            evidence["x_launches"] = launches
+            evidence["x_launch_queries"] = x_result.get("queries", [])
+            evidence["warnings"].extend(warnings)
+            status = x_result.get("status") or ("complete" if launches else "empty")
+            evidence["source_health"].append(
+                _source_health(
+                    "x_launches",
+                    status,
+                    fresh_items=len(launches),
+                    duration_seconds=time.monotonic() - started,
+                    warnings=warnings,
+                )
+            )
 
     return evidence
 
@@ -1258,30 +2492,142 @@ def run_weekly_artifacts(
     output_dir: Path = DEFAULT_OUTPUT_DIR,
     sectors: tuple[str, ...] = DEFAULT_SECTORS,
     github_limit: int = 40,
+    product_hunt_limit: int = 0,
+    yc_directory_limit: int = 0,
+    x_launch_limit: int = 0,
     max_queries_per_sector: int = 3,
     candidate_limit: int = 15,
     with_synthesis: bool = False,
     query_timeout_seconds: int | None = None,
+    github_timeout_seconds: int | None = DEFAULT_GITHUB_TIMEOUT_SECONDS,
+    product_hunt_timeout_seconds: int | None = 20,
+    yc_directory_timeout_seconds: int | None = 20,
+    x_launch_timeout_seconds: int | None = 45,
     progress: bool = False,
+    discovery_budget: DiscoveryRunBudget | None = None,
+    discovery_budget_mode: str = "weekly",
+    discovery_cache_dir: Path | None = None,
+    discovery_yield_trial_config: DiscoveryYieldTrialConfig | None = None,
+    hn_launch_trial_config: HNLaunchTrialConfig | None = None,
+    exclude_yc: bool = False,
+    hn_launch_trial_only: bool = False,
+    signal_investigation_limit: int | None = None,
+    signal_investigation_max_runtime_seconds: int | None = 180,
+    weak_source_identity_enrichment_limit: int = 0,
+    update_signal_ledger: bool = False,
+    signal_ledger_path: Path | None = None,
+    history_data_dir: Path | None = None,
+    paid_search_max_usd: float | None = None,
+    allow_last30days_grounding: bool | None = None,
 ) -> dict:
     """Collect evidence and render a weekly partner preview in one command."""
     output_dir.mkdir(parents=True, exist_ok=True)
+    configure_paid_search_guard(
+        mode=discovery_budget_mode,
+        run_id=output_dir.name,
+        max_usd=paid_search_max_usd,
+        allow_last30days_grounding=allow_last30days_grounding,
+    )
+    last30days_grounding_enabled = last30days_grounding_allowed(allow_last30days_grounding)
+    company_discovery_path = output_dir / "company-discovery.json"
+    runtime_ledger_path = output_dir / "runtime-ledger.json"
+    coverage_report_path = output_dir / "coverage-report.json"
+    signal_investigation_path = output_dir / "signal-investigation.json"
+    hard_evidence_dossiers_path = output_dir / "hard-evidence-dossiers.json"
+    weak_source_identity_enrichment_path = output_dir / "weak-source-identity-enrichment.json"
+    manual_enrichment_targets_path = output_dir / "manual-enrichment-targets.json"
     evidence = collect_live_evidence(
         sectors=sectors,
         github_limit=github_limit,
+        product_hunt_limit=product_hunt_limit,
+        yc_directory_limit=yc_directory_limit,
+        x_launch_limit=x_launch_limit,
         max_queries_per_sector=max_queries_per_sector,
         query_timeout_seconds=query_timeout_seconds,
+        github_timeout_seconds=github_timeout_seconds,
+        product_hunt_timeout_seconds=product_hunt_timeout_seconds,
+        yc_directory_timeout_seconds=yc_directory_timeout_seconds,
+        x_launch_timeout_seconds=x_launch_timeout_seconds,
         progress=progress,
+        exclude_yc=exclude_yc,
+        hn_launch_trial_only=hn_launch_trial_only,
+        allow_last30days_grounding=last30days_grounding_enabled,
     )
+    hard_evidence_provider = os.environ.get("VC_SIGNALS_HARD_EVIDENCE_PROVIDER") or "exa,brave"
+    hard_evidence_limit = int(os.environ.get("VC_SIGNALS_HARD_EVIDENCE_LIMIT") or "15")
+    hard_evidence_reports = {}
+    hard_evidence_live_enabled = (os.environ.get("VC_SIGNALS_HARD_EVIDENCE_ENABLE_LIVE") or "").strip().lower() in {
+        "1",
+        "true",
+        "yes",
+    }
+    official_site_crawl_disabled = (os.environ.get("VC_SIGNALS_OFFICIAL_SITE_CRAWL_DISABLE") or "").strip().lower() in {
+        "1",
+        "true",
+        "yes",
+    }
+    official_site_crawl_requested = (os.environ.get("VC_SIGNALS_OFFICIAL_SITE_CRAWL_ENABLE") or "").strip().lower() in {
+        "1",
+        "true",
+        "yes",
+    }
+    official_site_crawl_enabled = hard_evidence_live_enabled and official_site_crawl_requested and not official_site_crawl_disabled
+    if enrich_source_rows_with_hard_evidence and hard_evidence_live_enabled:
+        if evidence.get("product_hunt"):
+            evidence["product_hunt"], hard_evidence_reports["Product Hunt"] = enrich_source_rows_with_hard_evidence(
+                evidence.get("product_hunt") or [],
+                source_lane="Product Hunt",
+                provider=hard_evidence_provider,
+                cache_dir=provider_cache_dir("hard-evidence/product_hunt"),
+                max_rows=hard_evidence_limit,
+                max_queries_per_row=2,
+                timeout_seconds=int(_cap_timeout(query_timeout_seconds, 12)),
+                crawl_official_site=official_site_crawl_enabled,
+            )
+        if evidence.get("x_launches"):
+            evidence["x_launches"], hard_evidence_reports["X"] = enrich_source_rows_with_hard_evidence(
+                evidence.get("x_launches") or [],
+                source_lane="X",
+                provider=hard_evidence_provider,
+                cache_dir=provider_cache_dir("hard-evidence/x"),
+                max_rows=hard_evidence_limit,
+                max_queries_per_row=2,
+                timeout_seconds=int(_cap_timeout(query_timeout_seconds, 12)),
+                crawl_official_site=official_site_crawl_enabled,
+            )
+    hard_evidence_report = _merge_hard_evidence_reports(hard_evidence_reports)
+    if not hard_evidence_live_enabled:
+        hard_evidence_report["summary"]["enabled"] = False
+        hard_evidence_report["summary"]["skip_reason"] = "live_hard_evidence_disabled"
+    evidence["hard_evidence_dossiers"] = hard_evidence_report
     signal_result = build_signals_from_evidence(evidence)
     theme_signals = build_theme_signals(signal_result["signals"], sectors=sectors)
+    initial_promotion = promote_signals_to_candidates(signal_result["signals"])
+    provisional_candidates = _score_sort_limit_candidates(initial_promotion["candidates"], candidate_limit)
+    provisional_focus_items = [build_focus_item(candidate) for candidate in provisional_candidates]
+    resolved_discovery_budget = discovery_budget or DiscoveryRunBudget.for_mode(discovery_budget_mode)
+    grounded_available = _grounded_search_available() and last30days_grounding_enabled
+    weekly_query_runner = _weekly_query_runner_with_timeout(query_timeout_seconds) if grounded_available else None
+    enrichment_query_runner = (
+        _weekly_query_runner_with_timeout(_cap_timeout(query_timeout_seconds, 25))
+        if grounded_available
+        else None
+    )
     company_discovery = collect_company_discovery(
         theme_signals,
-        query_runner=run_query,
-        grounded_available=_grounded_search_available(),
+        focus_items=provisional_focus_items,
+        unresolved_candidates=provisional_candidates,
+        query_runner=weekly_query_runner,
+        grounded_available=grounded_available,
         social_available=_social_search_available(),
         max_queries_per_theme=3,
+        run_budget=resolved_discovery_budget,
+        partial_output_path=company_discovery_path,
+        query_cache_dir=discovery_cache_dir or provider_cache_dir("company-discovery"),
+        trial_config=discovery_yield_trial_config,
+        exclude_yc=exclude_yc,
     )
+    company_discovery["source_health"] = list(evidence.get("source_health", []))
     evidence["company_discovery"] = company_discovery
     for error in company_discovery.get("errors", []):
         evidence.setdefault("warnings", []).append(f"company-discovery: {error}")
@@ -1292,13 +2638,129 @@ def run_weekly_artifacts(
     source_errors = _source_errors_from_evidence(evidence)
     scored_candidates = _score_sort_limit_candidates(promotion["candidates"], candidate_limit)
     scored_candidates = apply_candidate_enrichment(scored_candidates)
-    scored_candidates = _apply_attio_to_candidates(scored_candidates, _attio_client_from_env())
+    resolved_signal_investigation_limit = candidate_limit if signal_investigation_limit is None else signal_investigation_limit
+    source_signal_investigation_report = (
+        investigate_source_rows(
+            _source_rows_for_signal_investigation(evidence, signal_result["signals"]),
+            query_runner=enrichment_query_runner,
+            max_rows_per_lane=3,
+            max_queries_per_row=1,
+            max_runtime_seconds=signal_investigation_max_runtime_seconds,
+        )
+        if investigate_source_rows and resolved_signal_investigation_limit > 0
+        else {
+            "summary": {
+                "enabled": bool(investigate_source_rows) and resolved_signal_investigation_limit > 0,
+                "provider_mode": "disabled",
+                "rows_considered": 0,
+                "rows_investigated": 0,
+                "search_queries_planned": 0,
+                "search_queries_run": 0,
+                "official_domains_resolved": 0,
+                "url_roles_classified": 0,
+                "unsafe_domain_attempts_blocked": 0,
+            },
+            "items": [],
+        }
+    )
+    if investigate_candidates and resolved_signal_investigation_limit > 0:
+        scored_candidates, candidate_signal_investigation_report = investigate_candidates(
+            scored_candidates,
+            query_runner=enrichment_query_runner,
+            max_candidates=resolved_signal_investigation_limit,
+            max_queries_per_candidate=2,
+            max_runtime_seconds=signal_investigation_max_runtime_seconds,
+        )
+    else:
+        signal_investigation_report = {
+            "summary": {
+                "enabled": bool(investigate_candidates) and resolved_signal_investigation_limit > 0,
+                "provider_mode": "disabled",
+                "rows_considered": len(scored_candidates),
+                "rows_investigated": 0,
+                "search_queries_planned": 0,
+                "search_queries_run": 0,
+                "official_domains_resolved": 0,
+                "url_roles_classified": 0,
+                "unsafe_domain_attempts_blocked": 0,
+            },
+            "items": [],
+        }
+        candidate_signal_investigation_report = signal_investigation_report
+    signal_investigation_report = _merge_signal_investigation_reports(
+        candidate_signal_investigation_report,
+        source_signal_investigation_report,
+    )
+    if weak_source_identity_enrichment_limit > 0:
+        scored_candidates, weak_source_identity_enrichment_report = enrich_weak_source_identity(
+            scored_candidates,
+            query_runner=enrichment_query_runner,
+            cache_dir=output_dir / "weak-source-identity-cache",
+            max_candidates=weak_source_identity_enrichment_limit,
+        )
+    else:
+        weak_source_identity_enrichment_report = {
+            "summary": {
+                "enabled": False,
+                "eligible": 0,
+                "skipped": 0,
+                "queries_run": 0,
+                "query_cache_hits": 0,
+                "domains_resolved": 0,
+                "unresolved": 0,
+            },
+            "items": [],
+        }
+    scored_candidates, identity_resolutions = prepare_candidates_for_weekly_focus(
+        scored_candidates,
+        _attio_client_from_env(),
+    )
+    scored_candidates = apply_maturity_category_cleanup(scored_candidates)
     scored_candidates = _score_sort_limit_candidates(scored_candidates, candidate_limit)
+    scored_candidates, owner_evidence_report = enrich_owner_evidence(
+        scored_candidates,
+        query_runner=enrichment_query_runner,
+        page_fetcher=_owner_page_fetcher_with_timeout(
+            min(float(query_timeout_seconds), 5.0) if query_timeout_seconds is not None else 5.0
+        ),
+        cache_dir=output_dir / "owner-evidence-cache",
+        max_candidates=5,
+    )
+    scored_candidates = _score_sort_limit_candidates(scored_candidates, candidate_limit)
+    scored_candidates, founder_team_verification_report = enrich_founder_team_verification(
+        scored_candidates,
+        query_runner=enrichment_query_runner,
+        cache_dir=output_dir / "founder-team-verification-cache",
+        max_candidates=5,
+    )
+    scored_candidates = _score_sort_limit_candidates(scored_candidates, candidate_limit)
+    scored_candidates, owner_readiness_report = enrich_owner_readiness(
+        scored_candidates,
+        query_runner=None,
+        cache_dir=output_dir / "owner-readiness-cache",
+        max_queries=0,
+    )
+    scored_candidates = _score_sort_limit_candidates(scored_candidates, candidate_limit)
+    if build_manual_enrichment_targets:
+        manual_enrichment_targets_report = build_manual_enrichment_targets(scored_candidates, limit=min(candidate_limit, 10))
+    else:
+        manual_enrichment_targets_report = {
+            "summary": {"targets": 0, "error": "manual enrichment target builder unavailable"},
+            "items": [],
+        }
+    source_access_report = detect_enrichment_provider_access() if detect_enrichment_provider_access else {
+        "summary": {"configured": [], "missing": [], "error": "source access detector unavailable"},
+        "providers": {},
+    }
     run_date = datetime.now(timezone.utc).strftime("%Y-%m-%d")
-    history_result = apply_weekly_tags(scored_candidates, load_candidate_history(), run_date=run_date)
+    history = load_candidate_history(history_data_dir) if history_data_dir is not None else load_candidate_history()
+    history_result = apply_weekly_tags(scored_candidates, history, run_date=run_date)
     scored_candidates = history_result.candidates
     partner_review = select_partner_review(scored_candidates)
-    save_candidate_history(history_result.history)
+    if history_data_dir is not None:
+        save_candidate_history(history_result.history, history_data_dir)
+    else:
+        save_candidate_history(history_result.history)
     _update_sector_coverage(signal_result["coverage"], sectors, scored_candidates, promotion["rejected"])
     sector_intelligence = build_sector_intelligence(
         sectors=sectors,
@@ -1307,18 +2769,50 @@ def run_weekly_artifacts(
         rejected=promotion["rejected"],
         theme_signals=theme_signals,
         source_errors=source_errors,
-        grounded_available=_grounded_search_available(),
+        grounded_available=grounded_available,
     )
     signals_path = output_dir / "signals.json"
     candidates_path = output_dir / "candidates.json"
     theme_signals_path = output_dir / "theme-signals.json"
+    seed_diagnostics_path = output_dir / "seed-diagnostics.json"
     sector_intelligence_path = output_dir / "sector-intelligence.json"
-    company_discovery_path = output_dir / "company-discovery.json"
+    identity_resolution_path = output_dir / "identity-resolution.json"
+    metadata_loss_report_path = output_dir / "metadata-loss-report.json"
+    owner_evidence_path = output_dir / "owner-evidence.json"
+    founder_team_verification_path = output_dir / "founder-team-verification.json"
+    owner_readiness_path = output_dir / "owner-readiness.json"
     signals_path.write_text(json.dumps([signal.to_dict() for signal in signal_result["signals"]], indent=2))
     candidates_path.write_text(json.dumps([candidate.to_dict() for candidate in scored_candidates], indent=2))
     theme_signals_path.write_text(json.dumps([item.to_dict() for item in theme_signals], indent=2))
     sector_intelligence_path.write_text(json.dumps([item.to_dict() for item in sector_intelligence], indent=2))
     company_discovery_path.write_text(json.dumps(company_discovery, indent=2))
+    runtime_ledger = dict(company_discovery.get("runtime_ledger", {}))
+    runtime_ledger["source_health"] = list(evidence.get("source_health", []))
+    runtime_ledger["source_access"] = source_access_report
+    runtime_ledger["paid_search"] = paid_search_summary()
+    runtime_ledger_path.write_text(json.dumps(runtime_ledger, indent=2))
+    coverage_report_path.write_text(json.dumps(company_discovery.get("coverage_report", {}), indent=2))
+    signal_investigation_path.write_text(json.dumps(signal_investigation_report, indent=2))
+    if write_hard_evidence_report:
+        write_hard_evidence_report(hard_evidence_report, hard_evidence_dossiers_path)
+    else:
+        hard_evidence_dossiers_path.write_text(json.dumps(hard_evidence_report, indent=2))
+    write_weak_source_identity_enrichment_json(weak_source_identity_enrichment_report, weak_source_identity_enrichment_path)
+    identity_resolution_path.write_text(json.dumps([item.to_dict() for item in identity_resolutions], indent=2, sort_keys=True))
+    metadata_loss_report = build_metadata_loss_report(
+        evidence=evidence,
+        signals=signal_result["signals"],
+        candidates=scored_candidates,
+        identity_resolutions=identity_resolutions,
+    )
+    metadata_loss_report_path.write_text(json.dumps([item.to_dict() for item in metadata_loss_report], indent=2, sort_keys=True))
+    write_owner_evidence_json(owner_evidence_report, owner_evidence_path)
+    write_founder_team_verification_json(founder_team_verification_report, founder_team_verification_path)
+    write_owner_readiness_json(owner_readiness_report, owner_readiness_path)
+    if write_manual_enrichment_targets_json:
+        write_manual_enrichment_targets_json(manual_enrichment_targets_report, manual_enrichment_targets_path)
+    else:
+        manual_enrichment_targets_path.write_text(json.dumps(manual_enrichment_targets_report, indent=2))
     synthesis = None
     synthesis_path = None
     if with_synthesis:
@@ -1331,6 +2825,30 @@ def run_weekly_artifacts(
         )
         synthesis_path = output_dir / "synthesis.json"
         synthesis_path.write_text(json.dumps(synthesis.to_dict(), indent=2))
+    hn_launch_trial = {"enabled": False}
+    hn_movement_seeds = _hn_launch_trial_movements(theme_signals, scored_candidates)
+    seed_diagnostics = build_seed_generation_diagnostics(
+        evidence=evidence,
+        signals=signal_result["signals"],
+        theme_signals=theme_signals,
+        candidates=scored_candidates,
+        rejected=promotion["rejected"],
+        hn_movement_seeds=hn_movement_seeds,
+    )
+    seed_diagnostics_path.write_text(json.dumps(seed_diagnostics, indent=2))
+    if hn_launch_trial_config and hn_launch_trial_config.enabled:
+        hn_launch_trial = run_hn_launch_weekly_trial(
+            movements=hn_movement_seeds,
+            run_query_fn=run_query,
+            query_runner=weekly_query_runner,
+            page_fetcher=None,
+            attio_matcher=_hn_attio_matcher_from_env(),
+            output_dir=output_dir / "hn-launch-trial",
+            cache_dir=output_dir / "hn-launch-trial" / "cache",
+            config=hn_launch_trial_config,
+        )
+    runtime_ledger["paid_search"] = paid_search_summary()
+    runtime_ledger_path.write_text(json.dumps(runtime_ledger, indent=2))
     preview_path = output_dir / "weekly-preview.md"
     preview_path.write_text(
         _render_weekly_brief(
@@ -1345,19 +2863,64 @@ def run_weekly_artifacts(
             company_discovery=company_discovery,
         )
     )
+    weekly_focus = build_weekly_focus_artifact(
+        candidates=scored_candidates,
+        category_context_items=_category_context_focus_items_from_company_discovery(company_discovery),
+        theme_signals=theme_signals,
+        sector_intelligence=sector_intelligence,
+        source_gap_context="bounded_validation" if query_timeout_seconds is not None else "",
+        source_health=evidence.get("source_health", []),
+        run_id=run_date,
+        discovery_yield_trial=company_discovery.get("discovery_yield_trial", {"enabled": False}),
+        hn_launch_trial=hn_launch_trial,
+    )
+    weekly_focus_json_path = output_dir / "weekly-focus.json"
+    weekly_focus_path = output_dir / "weekly-focus.md"
+    feedback_path = output_dir / "feedback.json"
+    write_weekly_focus_json(weekly_focus, weekly_focus_json_path)
+    weekly_focus_path.write_text(render_weekly_focus_markdown(weekly_focus))
+    write_feedback_scaffold(run_date, weekly_focus.partner_focus, feedback_path)
     result = {
         "raw_evidence": str(raw_path),
         "signals": str(signals_path),
         "candidates": str(candidates_path),
         "theme_signals": str(theme_signals_path),
+        "seed_diagnostics": str(seed_diagnostics_path),
         "sector_intelligence": str(sector_intelligence_path),
         "company_discovery": str(company_discovery_path),
+        "runtime_ledger": str(runtime_ledger_path),
+        "coverage_report": str(coverage_report_path),
+        "identity_resolution_json": str(identity_resolution_path),
+        "metadata_loss_report": str(metadata_loss_report_path),
+        "signal_investigation_json": str(signal_investigation_path),
+        "hard_evidence_dossiers_json": str(hard_evidence_dossiers_path),
+        "weak_source_identity_enrichment_json": str(weak_source_identity_enrichment_path),
+        "owner_evidence_json": str(owner_evidence_path),
+        "founder_team_verification_json": str(founder_team_verification_path),
+        "owner_readiness_json": str(owner_readiness_path),
+        "manual_enrichment_targets_json": str(manual_enrichment_targets_path),
         "preview": str(preview_path),
+        "weekly_focus_json": str(weekly_focus_json_path),
+        "weekly_focus": str(weekly_focus_path),
+        "feedback": str(feedback_path),
         "companies": len(scored_candidates),
         "sectors": list(sectors),
     }
+    if history_data_dir is not None:
+        result["history_data_dir"] = str(history_data_dir)
+    if hn_launch_trial.get("enabled"):
+        result["hn_launch_trial"] = str(output_dir / "hn-launch-trial")
     if synthesis_path:
         result["synthesis"] = str(synthesis_path)
+    if update_signal_ledger:
+        ledger_update = update_signal_ledger_from_run(
+            run_dir=output_dir,
+            ledger_path=signal_ledger_path or DEFAULT_SIGNAL_LEDGER_PATH,
+        )
+        result["company_signal_ledger"] = ledger_update["ledger"]
+        result["company_signal_ledger_entities"] = ledger_update["entities"]
+        result["company_signal_ledger_sightings"] = ledger_update["sightings"]
+    reset_paid_search_guard()
     return result
 
 
@@ -1399,6 +2962,245 @@ def _get_int_arg(args: dict, *names: str, default: int | None = None) -> int | N
     return default
 
 
+def _get_float_arg(args: dict, *names: str, default: float | None = None) -> float | None:
+    for name in names:
+        if name in args:
+            return float(args[name])
+    return default
+
+
+def _discovery_budget_from_args(args: dict, *, first_pass: bool) -> DiscoveryRunBudget:
+    mode = args.get("discovery_budget_mode") or args.get("budget_mode") or ("smoke" if first_pass else "weekly")
+    overrides = {}
+    for arg_name, field_name in (
+        ("max_runtime_seconds", "max_runtime_seconds"),
+        ("max_company_discovery_queries", "max_company_discovery_queries"),
+        ("max_maturity_queries", "max_maturity_queries"),
+        ("max_article_fetches", "max_article_fetches"),
+        ("max_results_per_query", "max_results_per_query"),
+        ("per_movement_query_cap", "per_movement_query_cap"),
+        ("query_cache_ttl_seconds", "query_cache_ttl_seconds"),
+    ):
+        if arg_name in args:
+            overrides[field_name] = int(args[arg_name])
+    if "allow_stale_cache" in args:
+        overrides["allow_stale_cache"] = _get_bool_arg(args, "allow_stale_cache")
+    return DiscoveryRunBudget.for_mode(mode, **overrides)
+
+
+def _discovery_yield_trial_config_from_args(args: dict) -> DiscoveryYieldTrialConfig | None:
+    if not _get_bool_arg(args, "discovery_yield_trial", "discoveryYieldTrial"):
+        return None
+    raw_families = args.get("discovery_trial_families", "")
+    families = tuple(
+        family.strip()
+        for family in str(raw_families).split(",")
+        if family.strip()
+    ) or ("official_company_page", "founder_company_pages", "movement_platform")
+    movement_platform_cap = int(args.get("discovery_trial_movement_platform_cap", 1))
+    return DiscoveryYieldTrialConfig(
+        enabled=True,
+        families=families,
+        movement_platform_cap_per_movement=movement_platform_cap,
+    )
+
+
+def _hn_launch_trial_config_from_args(args: dict) -> HNLaunchTrialConfig | None:
+    if _get_bool_arg(args, "no_hn_launch_trial", "noHnLaunchTrial", "disable_hn_launch_trial"):
+        return None
+    return HNLaunchTrialConfig(
+        enabled=True,
+        lookback_days=int(args.get("hn_launch_lookback_days", DEFAULT_WEEKLY_HN_LAUNCH_LOOKBACK_DAYS)),
+        timeout_seconds=int(args.get("hn_launch_timeout_seconds", DEFAULT_WEEKLY_HN_LAUNCH_TIMEOUT_SECONDS)),
+        max_candidates=int(args.get("hn_launch_max_candidates", DEFAULT_WEEKLY_HN_LAUNCH_MAX_CANDIDATES)),
+        max_runtime_seconds=float(args.get("hn_launch_max_runtime_seconds", DEFAULT_WEEKLY_HN_LAUNCH_MAX_RUNTIME_SECONDS)),
+        max_attio_checks=int(args.get("hn_launch_max_attio_checks", DEFAULT_WEEKLY_HN_LAUNCH_MAX_ATTIO_CHECKS)),
+        max_live_queries=int(args.get("hn_launch_max_live_queries", DEFAULT_WEEKLY_HN_LAUNCH_MAX_LIVE_QUERIES)),
+        per_candidate_timeout_seconds=float(
+            args.get(
+                "hn_launch_per_candidate_timeout_seconds",
+                DEFAULT_WEEKLY_HN_LAUNCH_PER_CANDIDATE_TIMEOUT_SECONDS,
+            )
+        ),
+    )
+
+
+def _hn_launch_trial_movements(theme_signals, candidates) -> list[dict]:
+    movements: list[dict] = []
+    seen: set[str] = set()
+    generic_movements = {"emerging technical signal"}
+    for signal in theme_signals or []:
+        movement = (getattr(signal, "theme", "") or "").strip()
+        if not movement or movement.lower() in generic_movements or movement in seen:
+            continue
+        seen.add(movement)
+        movements.append(
+            {
+                "movement": movement,
+                "market_sector": getattr(signal, "market_sector", ""),
+                "origin_row_ids": [],
+            }
+        )
+    for candidate in candidates or []:
+        movement = (getattr(candidate, "theme", "") or "").strip()
+        action = (getattr(candidate, "action", "") or getattr(candidate, "recommended_action", "") or "").strip().lower()
+        if action == "ignore":
+            continue
+        if not movement or movement.lower() in generic_movements or movement in seen:
+            continue
+        seen.add(movement)
+        movements.append(
+            {
+                "movement": movement,
+                "market_sector": getattr(candidate, "market_sector", "") or getattr(candidate, "sector", ""),
+                "origin_row_ids": [getattr(candidate, "stable_key", "")] if getattr(candidate, "stable_key", "") else [],
+            }
+        )
+    return movements
+
+
+def _candidate_hn_seed_status(candidate: Candidate) -> tuple[bool, str]:
+    movement = (getattr(candidate, "theme", "") or "").strip()
+    action = (getattr(candidate, "action", "") or getattr(candidate, "recommended_action", "") or "").strip().lower()
+    if action == "ignore":
+        return False, "candidate_action_ignore"
+    if not movement:
+        return False, "candidate_missing_theme"
+    if movement.lower() == "emerging technical signal":
+        return False, "candidate_generic_theme"
+    return True, "candidate_seed"
+
+
+def build_seed_generation_diagnostics(
+    *,
+    evidence: dict,
+    signals: list,
+    theme_signals: list,
+    candidates: list[Candidate],
+    rejected: list[RejectedSignal],
+    hn_movement_seeds: list[dict],
+) -> dict:
+    signal_counts = Counter()
+    candidate_eligible_by_sector = Counter()
+    for signal in signals:
+        signal_counts[f"source:{signal.source}"] += 1
+        signal_counts[f"role:{signal.role}"] += 1
+        if signal.can_create_candidate:
+            candidate_eligible_by_sector[signal.sector or "unknown"] += 1
+    query_rows = []
+    for sector, payload in (evidence.get("last30days") or {}).items():
+        for row in payload.get("query_diagnostics", []):
+            query_rows.append({"sector": sector, **row})
+    candidate_rows = []
+    for candidate in candidates:
+        accepted, reason = _candidate_hn_seed_status(candidate)
+        candidate_rows.append({
+            "name": candidate.name,
+            "sector": candidate.sector,
+            "market_sector": candidate.market_sector,
+            "theme": candidate.theme,
+            "action": candidate.action,
+            "tier": candidate.tier,
+            "source": candidate.source,
+            "accepted_as_hn_seed": accepted,
+            "seed_reason": reason,
+        })
+    theme_rows = [
+        {
+            "theme": item.theme,
+            "market_sector": item.market_sector,
+            "confidence": item.confidence,
+            "evidence_count": item.evidence_count,
+            "accepted_as_hn_seed": bool(item.theme and item.theme.lower() != "emerging technical signal"),
+        }
+        for item in theme_signals
+    ]
+    rejected_reason_counts = Counter(item.reason for item in rejected)
+    seed_provenance = "fresh_weekly_run" if hn_movement_seeds else "fresh_weekly_run_generated_no_eligible_hn_seeds"
+    no_seed_reason = ""
+    if not hn_movement_seeds:
+        if theme_signals or candidates:
+            no_seed_reason = "fresh weekly produced only generic/ignored candidates or no eligible theme signals"
+        else:
+            no_seed_reason = "fresh weekly produced no theme signals or candidates"
+    return {
+        "seed_provenance": seed_provenance,
+        "validation_counted": bool(hn_movement_seeds),
+        "no_seed_reason": no_seed_reason,
+        "summary": {
+            "queries": len(query_rows),
+            "raw_items_returned": sum(int(row.get("raw_items_returned", 0) or 0) for row in query_rows),
+            "accepted_items": sum(int(row.get("accepted_items", 0) or 0) for row in query_rows),
+            "filtered_items": sum(int(row.get("filtered_items", 0) or 0) for row in query_rows),
+            "signals": len(signals),
+            "candidate_eligible_signals": sum(1 for signal in signals if signal.can_create_candidate),
+            "theme_signals": len(theme_signals),
+            "candidates": len(candidates),
+            "hn_movement_seeds": len(hn_movement_seeds),
+        },
+        "signal_counts": dict(signal_counts),
+        "candidate_eligible_by_sector": dict(candidate_eligible_by_sector),
+        "rejected_reason_counts": dict(rejected_reason_counts),
+        "queries": query_rows,
+        "theme_signal_review": theme_rows,
+        "candidate_seed_review": candidate_rows,
+        "hn_movement_seeds": list(hn_movement_seeds),
+    }
+
+
+def _weekly_query_runner_with_timeout(timeout_seconds: int | None):
+    if not run_query:
+        return None
+    if timeout_seconds is None:
+        return run_query
+
+    def query(topic: str, **kwargs):
+        current_timeout = kwargs.get("timeout_seconds")
+        if current_timeout is None or float(current_timeout) > float(timeout_seconds):
+            kwargs["timeout_seconds"] = timeout_seconds
+        return run_query(topic, **kwargs)
+
+    return query
+
+
+def _cap_timeout(timeout_seconds: int | float | None, cap_seconds: int | float) -> int | float:
+    if timeout_seconds is None:
+        return cap_seconds
+    return min(timeout_seconds, cap_seconds)
+
+
+class _OwnerPageFetchTimeout(Exception):
+    pass
+
+
+def _owner_page_fetcher_with_timeout(timeout_seconds: float | None, page_fetcher=None):
+    from owner_evidence import _default_page_fetcher
+
+    fetch_page = page_fetcher or _default_page_fetcher
+    if timeout_seconds is None:
+        return fetch_page
+
+    def _handle_timeout(signum, frame):
+        raise _OwnerPageFetchTimeout()
+
+    def fetch(url: str) -> str:
+        previous_handler = signal.getsignal(signal.SIGALRM)
+        previous_timer = signal.getitimer(signal.ITIMER_REAL)
+        try:
+            signal.signal(signal.SIGALRM, _handle_timeout)
+            signal.setitimer(signal.ITIMER_REAL, max(float(timeout_seconds), 0.001))
+            return fetch_page(url)
+        except _OwnerPageFetchTimeout:
+            return ""
+        finally:
+            signal.setitimer(signal.ITIMER_REAL, 0)
+            signal.signal(signal.SIGALRM, previous_handler)
+            if previous_timer[0] > 0:
+                signal.setitimer(signal.ITIMER_REAL, previous_timer[0], previous_timer[1])
+
+    return fetch
+
+
 def _attio_client_from_env():
     token = os.environ.get("ATTIO_ACCESS_TOKEN")
     if not token and get_access_token:
@@ -1406,6 +3208,17 @@ def _attio_client_from_env():
     if not token or not AttioClient:
         return None
     return AttioClient(token)
+
+
+def _hn_attio_matcher_from_env():
+    client = _attio_client_from_env()
+    if not client:
+        return None
+
+    def match(candidate):
+        return client.match_company({"name": candidate.name, "domain": candidate.domain})
+
+    return match
 
 
 def _cli_main() -> None:
@@ -1422,6 +3235,9 @@ def _cli_main() -> None:
         evidence = collect_live_evidence(
             sectors=parse_sectors_arg(args.get("sectors")),
             github_limit=int(args.get("github_limit", 40)),
+            product_hunt_limit=int(args.get("product_hunt_limit", args.get("producthunt_limit", 0))),
+            yc_directory_limit=int(args.get("yc_directory_limit", args.get("yc_limit", 0))),
+            x_launch_limit=int(args.get("x_launch_limit", args.get("x_limit", 0))),
             max_queries_per_sector=_get_int_arg(
                 args,
                 "max_queries_per_sector",
@@ -1433,24 +3249,95 @@ def _cli_main() -> None:
                 "query_timeout_seconds",
                 default=45 if first_pass else None,
             ),
+            github_timeout_seconds=_get_int_arg(
+                args,
+                "github_timeout",
+                "github_timeout_seconds",
+                default=60 if first_pass else DEFAULT_GITHUB_TIMEOUT_SECONDS,
+            ),
+            product_hunt_timeout_seconds=_get_int_arg(
+                args,
+                "product_hunt_timeout",
+                "product_hunt_timeout_seconds",
+                "producthunt_timeout",
+                default=20,
+            ),
+            yc_directory_timeout_seconds=_get_int_arg(
+                args,
+                "yc_directory_timeout",
+                "yc_directory_timeout_seconds",
+                "yc_timeout",
+                default=20,
+            ),
+            x_launch_timeout_seconds=_get_int_arg(
+                args,
+                "x_launch_timeout",
+                "x_launch_timeout_seconds",
+                "x_timeout",
+                default=45,
+            ),
             progress=bool(args.get("progress", False)),
+            exclude_yc=_get_bool_arg(args, "exclude_yc", "no_yc"),
+            hn_launch_trial_only=_get_bool_arg(args, "hn_launch_trial_only", "hn_trial_only"),
         )
         path = save_raw_evidence(evidence, output_dir=output_dir)
-        print(json.dumps({"saved": str(path), "github_count": len(evidence.get("github", []))}))
+        print(json.dumps({
+            "saved": str(path),
+            "github_count": len(evidence.get("github", [])),
+            "product_hunt_count": len(evidence.get("product_hunt", [])),
+            "yc_directory_count": len(evidence.get("yc_directory", [])),
+            "x_launch_count": len(evidence.get("x_launches", [])),
+        }))
         return
 
     if command == "weekly":
         output_dir = Path(args.get("output_dir", DEFAULT_OUTPUT_DIR))
         first_pass = _get_bool_arg(args, "first_pass", "firstPass")
+        sectors = parse_sectors_arg(args.get("sectors"))
+        max_queries_per_sector = _get_int_arg(
+            args,
+            "max_queries_per_sector",
+            default=1 if first_pass else 3,
+        )
+        product_hunt_limit = int(args.get("product_hunt_limit", args.get("producthunt_limit", 0)))
+        x_launch_limit = int(args.get("x_launch_limit", args.get("x_limit", 0)))
+        discovery_budget = _discovery_budget_from_args(args, first_pass=first_pass)
+        discovery_budget_mode = args.get("discovery_budget_mode") or args.get("budget_mode") or ("smoke" if first_pass else "weekly")
+        signal_investigation_limit = _get_int_arg(
+            args,
+            "signal_investigation_limit",
+            "signal_investigator_limit",
+            default=None,
+        )
+        allow_last30days_grounding = (
+            True
+            if _get_bool_arg(args, "allow_last30days_grounding", "allow_last30days_paid_grounding")
+            else None
+        )
+        if _get_bool_arg(args, "paid_search_dry_run", "dry_run_cost"):
+            preview = build_weekly_paid_search_preview(
+                run_mode=discovery_budget_mode,
+                sectors=sectors,
+                max_queries_per_sector=max_queries_per_sector or 0,
+                product_hunt_limit=product_hunt_limit,
+                x_launch_limit=x_launch_limit,
+                company_discovery_queries=int(discovery_budget.max_company_discovery_queries or 0),
+                signal_investigation_limit=int(signal_investigation_limit or 0),
+                hard_evidence_live=(os.environ.get("VC_SIGNALS_HARD_EVIDENCE_ENABLE_LIVE") or "").strip().lower()
+                in {"1", "true", "yes"},
+                last30days_grounding_enabled=allow_last30days_grounding,
+                max_usd=_get_float_arg(args, "paid_search_max_usd", "paid_search_budget_usd", default=None),
+            )
+            print(json.dumps({"dry_run": True, "paid_search_preview": preview}))
+            return
         result = run_weekly_artifacts(
             output_dir=output_dir,
-            sectors=parse_sectors_arg(args.get("sectors")),
+            sectors=sectors,
             github_limit=int(args.get("github_limit", 40)),
-            max_queries_per_sector=_get_int_arg(
-                args,
-                "max_queries_per_sector",
-                default=1 if first_pass else 3,
-            ),
+            product_hunt_limit=product_hunt_limit,
+            yc_directory_limit=int(args.get("yc_directory_limit", args.get("yc_limit", 0))),
+            x_launch_limit=x_launch_limit,
+            max_queries_per_sector=max_queries_per_sector,
             candidate_limit=int(args.get("limit", 15)),
             with_synthesis=bool(args.get("with_synthesis", False)),
             query_timeout_seconds=_get_int_arg(
@@ -1459,7 +3346,59 @@ def _cli_main() -> None:
                 "query_timeout_seconds",
                 default=45 if first_pass else None,
             ),
+            github_timeout_seconds=_get_int_arg(
+                args,
+                "github_timeout",
+                "github_timeout_seconds",
+                default=60 if first_pass else DEFAULT_GITHUB_TIMEOUT_SECONDS,
+            ),
+            product_hunt_timeout_seconds=_get_int_arg(
+                args,
+                "product_hunt_timeout",
+                "product_hunt_timeout_seconds",
+                "producthunt_timeout",
+                default=20,
+            ),
+            yc_directory_timeout_seconds=_get_int_arg(
+                args,
+                "yc_directory_timeout",
+                "yc_directory_timeout_seconds",
+                "yc_timeout",
+                default=20,
+            ),
+            x_launch_timeout_seconds=_get_int_arg(
+                args,
+                "x_launch_timeout",
+                "x_launch_timeout_seconds",
+                "x_timeout",
+                default=45,
+            ),
             progress=bool(args.get("progress", True)),
+            discovery_budget=discovery_budget,
+            discovery_budget_mode=discovery_budget_mode,
+            discovery_yield_trial_config=_discovery_yield_trial_config_from_args(args),
+            hn_launch_trial_config=_hn_launch_trial_config_from_args(args),
+            exclude_yc=_get_bool_arg(args, "exclude_yc", "no_yc"),
+            hn_launch_trial_only=_get_bool_arg(args, "hn_launch_trial_only", "hn_trial_only"),
+            signal_investigation_limit=signal_investigation_limit,
+            signal_investigation_max_runtime_seconds=_get_int_arg(
+                args,
+                "signal_investigation_max_runtime_seconds",
+                "signal_investigator_max_runtime_seconds",
+                default=180,
+            ),
+            weak_source_identity_enrichment_limit=_get_int_arg(
+                args,
+                "weak_source_identity_enrichment_limit",
+                "weak_identity_enrichment_limit",
+                "weak_source_identity_limit",
+                default=0,
+            ),
+            update_signal_ledger=_get_bool_arg(args, "update_signal_ledger", "updateSignalLedger"),
+            signal_ledger_path=Path(args["signal_ledger_path"]) if "signal_ledger_path" in args else None,
+            history_data_dir=Path(args["history_data_dir"]) if "history_data_dir" in args else None,
+            paid_search_max_usd=_get_float_arg(args, "paid_search_max_usd", "paid_search_budget_usd", default=None),
+            allow_last30days_grounding=allow_last30days_grounding,
         )
         print(json.dumps(result))
         return

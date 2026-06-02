@@ -5,9 +5,13 @@ from __future__ import annotations
 
 import json
 import os
+import signal
 import subprocess
 import sys
 from pathlib import Path
+from urllib.parse import urlparse
+
+from paid_search_guardrails import current_paid_search_guard, provider_cost_usd
 
 
 def _resolve_skill_root(vendor_path: Path) -> Path:
@@ -45,11 +49,157 @@ def _find_vendor_path() -> Path:
 DEFAULT_VENDOR_PATH = _find_vendor_path()
 DEFAULT_CONFIG_PATH = Path.home() / ".config" / "last30days" / ".env"
 PLACEHOLDER_VALUES = {"", "...", "TODO", "YOUR_KEY", "YOUR_API_KEY", "<YOUR_API_KEY>"}
+TRUTHY_ENV_VALUES = {"1", "true", "yes", "on"}
+IDENTITY_USEFUL_FIELDS = (
+    "outbound_url",
+    "resolved_url",
+    "story_url",
+    "domain",
+    "homepage",
+    "website",
+    "hn_url",
+    "owner_name",
+    "owner_type",
+    "topics",
+    "description",
+    "founders",
+    "batch",
+)
 
 
 def _configured_value(value: str) -> bool:
     normalized = value.strip().strip("\"'")
     return normalized not in PLACEHOLDER_VALUES
+
+
+def _truthy_env(value: object) -> bool:
+    return str(value or "").strip().lower() in TRUTHY_ENV_VALUES
+
+
+def _load_env_file(path: Path = DEFAULT_CONFIG_PATH) -> dict[str, str]:
+    env: dict[str, str] = {}
+    if not path.exists():
+        return env
+    for line in path.read_text().splitlines():
+        stripped = line.strip()
+        if not stripped or stripped.startswith("#") or "=" not in stripped:
+            continue
+        key, value = stripped.split("=", 1)
+        env[key.strip()] = value.strip().strip("\"'")
+    return env
+
+
+def _disable_browser_cookie_lookup(env: dict[str, str], detection_env: dict[str, str]) -> None:
+    if _truthy_env(detection_env.get("LAST30DAYS_ALLOW_BROWSER_COOKIES")):
+        return
+    env["FROM_BROWSER"] = "off"
+    env["LAST30DAYS_DISABLE_BROWSER_COOKIES"] = "1"
+    env["BIRD_DISABLE_BROWSER_COOKIES"] = "1"
+
+
+def _has_configured_key(env: dict[str, str], key: str) -> bool:
+    return bool(_configured_value(str(env.get(key, ""))))
+
+
+def _default_web_backend_for_paid_safety(detection_env: dict[str, str]) -> str | None:
+    explicit = str(detection_env.get("VC_SIGNALS_LAST30DAYS_WEB_BACKEND") or "").strip()
+    if explicit:
+        return explicit
+    if not _truthy_env(detection_env.get("VC_SIGNALS_ALLOW_LAST30DAYS_GROUNDING")):
+        if any(
+            _has_configured_key(detection_env, key)
+            for key in ("BRAVE_API_KEY", "EXA_API_KEY", "SERPER_API_KEY", "PARALLEL_API_KEY")
+        ):
+            return "none"
+        return None
+    if _truthy_env(detection_env.get("VC_SIGNALS_ALLOW_BRAVE_AUTO")):
+        return None
+    for key, backend in (
+        ("EXA_API_KEY", "exa"),
+        ("SERPER_API_KEY", "serper"),
+        ("PARALLEL_API_KEY", "parallel"),
+    ):
+        if _has_configured_key(detection_env, key):
+            return backend
+    if _has_configured_key(detection_env, "BRAVE_API_KEY"):
+        return "none"
+    return None
+
+
+def _sources_include_grounding(sources: str | None) -> bool:
+    if not sources:
+        return False
+    source_names = {part.strip().lower() for part in sources.replace(";", ",").split(",") if part.strip()}
+    return bool(source_names & {"grounding", "web", "search", "all"})
+
+
+def _may_use_paid_grounding(
+    *,
+    sources: str | None,
+    auto_resolve: bool,
+    deep_research: bool,
+    web_backend: str | None,
+    detection_env: dict[str, str],
+) -> bool:
+    normalized_backend = str(web_backend or "").strip().lower()
+    if normalized_backend == "none":
+        return False
+    if normalized_backend:
+        return True
+    if _truthy_env(detection_env.get("VC_SIGNALS_ALLOW_BRAVE_AUTO")) and _has_configured_key(detection_env, "BRAVE_API_KEY"):
+        return True
+    return bool(auto_resolve or deep_research or _sources_include_grounding(sources))
+
+
+def _decode_subprocess_stream(value) -> str:
+    if value is None:
+        return ""
+    if isinstance(value, bytes):
+        return value.decode("utf-8", errors="replace")
+    return str(value)
+
+
+def _run_last30days_command(cmd: list[str], *, capture_output: bool, text: bool, timeout: int | None, cwd: str, env: dict[str, str]):
+    """Run last30days with process-group timeout protection.
+
+    last30days can spawn helper processes that inherit stdout/stderr pipes. The
+    stdlib subprocess.run timeout kills only the direct child, which can leave
+    the parent process stuck in communicate() waiting for inherited pipes to
+    close. Running the child in a new session lets us kill the whole group.
+    """
+    if os.name == "nt":  # pragma: no cover - this repo runs on Unix/macOS
+        return subprocess.run(
+            cmd,
+            capture_output=capture_output,
+            text=text,
+            timeout=timeout,
+            cwd=cwd,
+            env=env,
+        )
+
+    process = subprocess.Popen(
+        cmd,
+        stdout=subprocess.PIPE if capture_output else None,
+        stderr=subprocess.PIPE if capture_output else None,
+        text=text,
+        cwd=cwd,
+        env=env,
+        start_new_session=True,
+    )
+    try:
+        stdout, stderr = process.communicate(timeout=timeout)
+    except subprocess.TimeoutExpired as exc:
+        try:
+            os.killpg(process.pid, signal.SIGKILL)
+        except ProcessLookupError:  # pragma: no cover - race with process exit
+            pass
+        try:
+            stdout, stderr = process.communicate(timeout=2)
+        except subprocess.TimeoutExpired:
+            stdout = _decode_subprocess_stream(getattr(exc, "stdout", None) or getattr(exc, "output", None))
+            stderr = _decode_subprocess_stream(getattr(exc, "stderr", None))
+        raise subprocess.TimeoutExpired(cmd=cmd, timeout=timeout, output=stdout, stderr=stderr)
+    return subprocess.CompletedProcess(cmd, process.returncode, stdout, stderr)
 
 
 def check_availability(
@@ -87,6 +237,8 @@ def check_availability(
                 "AUTH_TOKEN",
                 "CT0",
                 "BRAVE_API_KEY",
+                "EXA_API_KEY",
+                "SERPER_API_KEY",
                 "PARALLEL_API_KEY",
             ):
                 for line in content.splitlines():
@@ -128,18 +280,45 @@ def normalize_report_items(items_by_source: dict) -> list[dict]:
 
     for source, items in items_by_source.items():
         for item in items:
-            normalized.append({
+            enriched_item = _enrich_native_identity_fields(source, item)
+            normalized_item = {
                 "source": source,
-                "title": item.get("title", ""),
-                "url": item.get("url", ""),
-                "snippet": item.get("snippet", item.get("body", ""))[:500],
-                "published_at": item.get("published_at", ""),
-                "engagement": item.get("engagement", {}),
-                "container": item.get("container", ""),
-                "author": item.get("author", ""),
-            })
+                "title": enriched_item.get("title", ""),
+                "url": enriched_item.get("url", ""),
+                "snippet": enriched_item.get("snippet", enriched_item.get("body", ""))[:500],
+                "published_at": enriched_item.get("published_at", ""),
+                "engagement": enriched_item.get("engagement", {}),
+                "container": enriched_item.get("container", ""),
+                "author": enriched_item.get("author", ""),
+                "_raw_fields_present": sorted(item.keys()),
+                "_identity_fields_present_upstream": [
+                    field for field in IDENTITY_USEFUL_FIELDS if enriched_item.get(field) not in ("", None, [], {})
+                ],
+            }
+            for field in IDENTITY_USEFUL_FIELDS:
+                if enriched_item.get(field) not in ("", None, [], {}):
+                    normalized_item[field] = enriched_item[field]
+            normalized.append(normalized_item)
 
     return normalized
+
+
+def _enrich_native_identity_fields(source: str, item: dict) -> dict:
+    """Promote source-native metadata needed by downstream identity audits."""
+    enriched = dict(item)
+    metadata = item.get("metadata") if isinstance(item.get("metadata"), dict) else {}
+    if source == "hackernews":
+        if not enriched.get("hn_url") and metadata.get("hn_url"):
+            enriched["hn_url"] = metadata["hn_url"]
+        url = enriched.get("url") or ""
+        if url and "news.ycombinator.com" not in url:
+            enriched.setdefault("outbound_url", url)
+            domain = urlparse(url).netloc.lower()
+            if domain.startswith("www."):
+                domain = domain[4:]
+            if domain:
+                enriched.setdefault("domain", domain)
+    return enriched
 
 
 def run_query(
@@ -166,6 +345,14 @@ def run_query(
     web_backend: str | None = None,
     save_dir: str | None = None,
     save_suffix: str | None = None,
+    competitors: int | str | bool | None = None,
+    competitors_list: str | None = None,
+    competitors_plan: str | None = None,
+    synthesis_file: str | None = None,
+    include_sources: str | None = None,
+    exclude_sources: str | None = None,
+    youtube_ssh_host: str | None = None,
+    extra_env: dict[str, str] | None = None,
     timeout_seconds: int | None = None,
 ) -> dict:
     """Run a query through last30days CLI and return parsed results."""
@@ -213,51 +400,128 @@ def run_query(
         cmd.append(f"--ig-creators={ig_creators}")
     if polymarket_keywords:
         cmd.append(f"--polymarket-keywords={polymarket_keywords}")
-    if web_backend:
-        cmd.append(f"--web-backend={web_backend}")
     if save_dir:
         cmd.append(f"--save-dir={save_dir}")
     if save_suffix:
         cmd.append(f"--save-suffix={save_suffix}")
+    if competitors is not None and competitors is not False:
+        if competitors is True:
+            cmd.append("--competitors")
+        else:
+            cmd.append(f"--competitors={competitors}")
+    if competitors_list:
+        cmd.append(f"--competitors-list={competitors_list}")
+    if competitors_plan:
+        cmd.append(f"--competitors-plan={competitors_plan}")
+    if synthesis_file:
+        cmd.append(f"--synthesis-file={synthesis_file}")
+
+    env = os.environ.copy()
+    if extra_env:
+        env.update({key: str(value) for key, value in extra_env.items()})
+    detection_env = _load_env_file(DEFAULT_CONFIG_PATH)
+    detection_env.update(os.environ)
+    if extra_env:
+        detection_env.update({key: str(value) for key, value in extra_env.items()})
+    _disable_browser_cookie_lookup(env, detection_env)
+    effective_web_backend = web_backend or _default_web_backend_for_paid_safety(detection_env)
+    if effective_web_backend:
+        cmd.append(f"--web-backend={effective_web_backend}")
+    if include_sources:
+        env["INCLUDE_SOURCES"] = include_sources
+    if exclude_sources:
+        env["EXCLUDE_SOURCES"] = exclude_sources
+    if youtube_ssh_host:
+        env["LAST30DAYS_YOUTUBE_SSH_HOST"] = youtube_ssh_host
+
+    paid_search_guard = current_paid_search_guard()
+    paid_search_reservation = None
+    if paid_search_guard and _may_use_paid_grounding(
+        sources=sources,
+        auto_resolve=auto_resolve,
+        deep_research=deep_research,
+        web_backend=effective_web_backend,
+        detection_env=detection_env,
+    ):
+        paid_search_reservation = paid_search_guard.reserve(
+            provider="last30days_grounding",
+            query=topic,
+            module="last30days_adapter",
+            estimated_cost_usd=provider_cost_usd("last30days_grounding"),
+        )
+        if not paid_search_reservation.get("allowed"):
+            paid_search_guard.record(paid_search_reservation, cache_status="skip", result_count=0)
+            return {
+                "error": paid_search_reservation.get("skip_reason") or "paid_search_skipped",
+                "items": [],
+                "paid_search": paid_search_reservation,
+            }
 
     try:
-        result = subprocess.run(
+        result = _run_last30days_command(
             cmd,
             capture_output=True,
             text=True,
             timeout=timeout_seconds,
             cwd=str(skill_root),
+            env=env,
         )
-    except subprocess.TimeoutExpired:
-        return {"error": f"last30days query timed out ({timeout_seconds}s)", "items": []}
+    except subprocess.TimeoutExpired as exc:
+        timeout_result = {"error": f"last30days query timed out ({timeout_seconds}s)", "items": []}
+        stderr = _decode_subprocess_stream(getattr(exc, "stderr", None))
+        stdout = _decode_subprocess_stream(getattr(exc, "stdout", None) or getattr(exc, "output", None))
+        if stderr:
+            timeout_result["stderr"] = stderr[:4000]
+        if stdout:
+            timeout_result["raw_output"] = stdout[:2000]
+        if paid_search_guard and paid_search_reservation:
+            timeout_result["paid_search"] = paid_search_guard.record(paid_search_reservation, cache_status="miss", result_count=0)
+        return timeout_result
     except FileNotFoundError:
         return {"error": f"Python not found: {python_cmd}", "items": []}
 
     if result.returncode != 0:
-        return {
+        error_result = {
             "error": f"last30days exited with code {result.returncode}",
             "stderr": result.stderr[:500] if result.stderr else "",
             "items": [],
         }
+        if paid_search_guard and paid_search_reservation:
+            error_result["paid_search"] = paid_search_guard.record(paid_search_reservation, cache_status="miss", result_count=0)
+        return error_result
 
     if emit == "json":
         try:
             report = json.loads(result.stdout)
             items = normalize_report_items(report.get("items_by_source", {}))
-            return {
+            parsed_result = {
                 "topic": topic,
                 "items": items,
                 "clusters": report.get("clusters", []),
                 "warnings": report.get("warnings", []),
+                "errors_by_source": report.get("errors_by_source", {}),
             }
+            if paid_search_guard and paid_search_reservation:
+                parsed_result["paid_search"] = paid_search_guard.record(
+                    paid_search_reservation,
+                    cache_status="miss",
+                    result_count=len(items),
+                )
+            return parsed_result
         except json.JSONDecodeError:
-            return {
+            parse_result = {
                 "error": "Failed to parse last30days JSON output",
                 "raw_output": result.stdout[:1000],
                 "items": [],
             }
+            if paid_search_guard and paid_search_reservation:
+                parse_result["paid_search"] = paid_search_guard.record(paid_search_reservation, cache_status="miss", result_count=0)
+            return parse_result
     else:
-        return {"topic": topic, "raw_output": result.stdout, "items": []}
+        text_result = {"topic": topic, "raw_output": result.stdout, "items": []}
+        if paid_search_guard and paid_search_reservation:
+            text_result["paid_search"] = paid_search_guard.record(paid_search_reservation, cache_status="miss", result_count=0)
+        return text_result
 
 
 def _find_python() -> str | None:
@@ -313,6 +577,7 @@ def _cli_main() -> None:
             vendor_path=vendor,
             sources=args.get("sources"),
             lookback_days=int(args.get("lookback-days", "30")),
+            emit=args.get("emit", "json"),
             subreddits=args.get("subreddits"),
             quick="quick" in args,
             deep_research="deep-research" in args,
@@ -331,6 +596,14 @@ def _cli_main() -> None:
             web_backend=args.get("web-backend"),
             save_dir=args.get("save-dir"),
             save_suffix=args.get("save-suffix"),
+            competitors=_parse_optional_int_flag(args.get("competitors")),
+            competitors_list=args.get("competitors-list"),
+            competitors_plan=args.get("competitors-plan"),
+            synthesis_file=args.get("synthesis-file"),
+            include_sources=args.get("include-sources"),
+            exclude_sources=args.get("exclude-sources"),
+            youtube_ssh_host=args.get("youtube-ssh-host"),
+            timeout_seconds=_parse_int_arg(args.get("timeout-seconds")),
         )
         print(json.dumps(result, indent=2))
 
@@ -355,6 +628,23 @@ def _parse_cli_args(argv: list[str]) -> dict:
         else:
             i += 1
     return result
+
+
+def _parse_int_arg(value: str | None) -> int | None:
+    if value is None:
+        return None
+    return int(value)
+
+
+def _parse_optional_int_flag(value: str | None) -> int | str | bool | None:
+    if value is None:
+        return None
+    if value == "true":
+        return True
+    try:
+        return int(value)
+    except ValueError:
+        return value
 
 
 if __name__ == "__main__":

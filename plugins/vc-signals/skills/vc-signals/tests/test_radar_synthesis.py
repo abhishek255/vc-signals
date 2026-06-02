@@ -71,13 +71,43 @@ def test_run_synthesis_without_provider_keys_returns_disabled_result(monkeypatch
     )
 
     assert result.enabled is False
-    assert "OPENAI_API_KEY or GEMINI_API_KEY" in result.warnings[0]
+    assert "Harness LLM synthesis handoff" in result.warnings[0]
 
 
-def test_run_synthesis_auto_uses_gemini_before_openai(monkeypatch):
+def test_run_synthesis_auto_does_not_call_direct_api_without_explicit_opt_in(monkeypatch):
+    import radar_synthesis
+
+    monkeypatch.setenv("GEMINI_API_KEY", "gemini-key")
+    monkeypatch.setenv("OPENAI_API_KEY", "openai-key")
+    monkeypatch.delenv("VC_SIGNALS_ALLOW_DIRECT_LLM_API", raising=False)
+    monkeypatch.delenv("VC_SIGNALS_SYNTHESIS_PROVIDER", raising=False)
+    monkeypatch.delenv("VC_SIGNALS_SYNTHESIS_MODEL", raising=False)
+    monkeypatch.setattr(radar_synthesis, "SYNTHESIS_ENV_PATHS", ())
+
+    def fail_provider(*_args, **_kwargs):
+        raise AssertionError("direct LLM API should be disabled unless explicitly opted in")
+
+    monkeypatch.setattr(radar_synthesis, "call_gemini_synthesis", fail_provider)
+    monkeypatch.setattr(radar_synthesis, "call_openai_synthesis", fail_provider)
+
+    result = radar_synthesis.run_synthesis(
+        evidence={},
+        signals=[_signal()],
+        candidates=[_candidate()],
+        sector_intelligence=[],
+        theme_signals=[],
+    )
+
+    assert result.enabled is False
+    assert result.model == "harness-llm"
+    assert "Harness LLM synthesis handoff" in result.warnings[0]
+
+
+def test_run_synthesis_auto_uses_gemini_before_openai_when_direct_api_opted_in(monkeypatch):
     import radar_synthesis
 
     seen = {}
+    monkeypatch.setenv("VC_SIGNALS_ALLOW_DIRECT_LLM_API", "1")
     monkeypatch.setenv("GEMINI_API_KEY", "gemini-key")
     monkeypatch.setenv("OPENAI_API_KEY", "openai-key")
     monkeypatch.delenv("VC_SIGNALS_SYNTHESIS_PROVIDER", raising=False)
@@ -118,7 +148,7 @@ def test_run_synthesis_can_load_gemini_key_from_env_file(tmp_path, monkeypatch):
     import radar_synthesis
 
     env_file = tmp_path / ".env"
-    env_file.write_text("GEMINI_API_KEY=gemini-from-file\n")
+    env_file.write_text("VC_SIGNALS_ALLOW_DIRECT_LLM_API=1\nGEMINI_API_KEY=gemini-from-file\n")
     seen = {}
     monkeypatch.delenv("GEMINI_API_KEY", raising=False)
     monkeypatch.delenv("GOOGLE_API_KEY", raising=False)

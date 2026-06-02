@@ -124,6 +124,7 @@ Scripts:
 - `<skill_dir>/scripts/last30days_adapter.py` — last30days integration
 - `<skill_dir>/scripts/attio.py` — read-only Attio CRM matching from `ATTIO_ACCESS_TOKEN`
 - `<skill_dir>/scripts/radar_run.py` — weekly evidence collection, quality filtering, Attio merge, and partner-preview rendering
+- `<skill_dir>/scripts/provider_ab_test.py` — dry-run-first paid search provider comparison
 
 Config:
 - `<skill_dir>/config/sectors.json` — sector taxonomy
@@ -187,28 +188,15 @@ Then walk them through API keys one at a time:
 > 3. Go to your dashboard and copy your API key
 > 4. Paste it here
 
-**Web Search API Key (pick one -- Brave recommended):**
-> "We need a web search API for broader coverage. Brave Search is the easiest -- you get $5 in free credits each month, which covers about 1,000 searches. More than enough for weekly scans."
+**Web Search API Key (pick one -- Exa/Serper for experiments, Brave only with budget guardrails):**
+> "We need a web search API for broader coverage and official-domain resolution. Exa is useful when we need richer page content; Serper/DataForSEO are useful for lower-cost search trials; Brave works but must stay budget-capped because repeated validation runs can get expensive."
 >
-> 1. Go to https://brave.com/search/api/
-> 2. Click "Get Started for Free"
-> 3. Create an account and get your API key
-> 4. Paste it here (or type 'skip' to skip this)
+> "Paste whichever key you have, or type 'skip'. Normal weekly runs use direct Exa-first resolver calls for targeted evidence, and last30days will not use paid web grounding just because a key exists. Broad last30days grounding requires `VC_SIGNALS_ALLOW_LAST30DAYS_GROUNDING=1` or `--allow-last30days-grounding`; Brave auto-use also requires `VC_SIGNALS_ALLOW_BRAVE_AUTO=1`."
 
-**Reasoning Provider (pick one -- OpenAI or Gemini):**
-> "last30days needs an AI provider for query planning and ranking. Either OpenAI or Gemini works."
+**Harness LLM reasoning (default):**
+> "For reasoning, this skill uses the current Claude Code/Codex harness LLM. You do not need an OpenAI, Gemini, or xAI key for normal runs."
 >
-> **OpenAI:**
-> 1. Go to https://platform.openai.com/api-keys
-> 2. Create a new API key
-> 3. You'll need a paid account (usage-based, typically a few cents per query)
->
-> **Gemini:**
-> 1. Go to https://aistudio.google.com/apikey
-> 2. Create a new API key
-> 3. You get $5 free credits/month (~1,000 queries)
->
-> "Paste your key here, or type 'skip' to skip (web search mode only)."
+> "External API keys are for evidence retrieval, such as Brave, Exa, Product Hunt, GitHub, X, or Attio. Direct LLM API calls are only a standalone fallback outside the harness and stay disabled unless `VC_SIGNALS_ALLOW_DIRECT_LLM_API=1` is set."
 
 **OpenRouter API Key (optional -- for deep research):**
 > "OpenRouter gives us access to Perplexity Sonar Pro for deep research. When you drill down into a specific theme, it produces a comprehensive report with 50+ citations. Costs about $0.90 per deep query."
@@ -281,6 +269,7 @@ Print what's configured and what each unlocks:
 > - [x/skip] Web search (Brave) -- broad internet coverage
 > - [x/skip] GitHub API -- trending repo discovery
 > - [x/skip] last30days -- Reddit, HN, X/Twitter, YouTube
+> - [x] Harness LLM reasoning -- Claude/Codex plans searches and validates evidence
 > - [x/skip] Deep research (OpenRouter) -- Perplexity synthesis for theme drill-downs
 > - [x/skip] X/Twitter -- developer discussions
 >
@@ -319,7 +308,30 @@ For deterministic weekly runs, prefer the orchestration helper before doing manu
 python3 <skill_dir>/scripts/radar_run.py weekly --sectors all --output-dir <output_dir>
 ```
 
-This saves raw evidence JSON, normalized signals, scored candidates, and a partner preview. The default weekly command is the full-quality path: it uses the normal sector query budget and does not impose an artificial wrapper timeout on `last30days`. If a native grounded web key (Brave, Parallel, Serper, or Exa) is configured, the run includes grounded company discovery. If not, it automatically uses a stricter HN/GitHub fallback plus curated Reddit pain discovery instead of broad noisy company-web queries.
+This saves raw evidence JSON, normalized signals, scored candidates, and a partner preview. The default weekly command is the full-quality safe path: it uses Product Hunt, YC, GitHub, X/social sources where configured, and direct Exa-first hard-evidence resolution when enabled. Broad `last30days` paid grounding is disabled by default even when Brave, Exa, Serper, or Parallel keys exist; enable it only for intentional deep validations with `VC_SIGNALS_ALLOW_LAST30DAYS_GROUNDING=1` or `--allow-last30days-grounding`. Signal investigation is runtime-capped by default (`--signal-investigation-max-runtime-seconds` overrides it) so weekly runs finish with explicit partial investigation instead of hanging quietly.
+
+Official-site crawling is targeted/opt-in because it is useful but slow. Enable it only for focused evidence-completion passes with `VC_SIGNALS_OFFICIAL_SITE_CRAWL_ENABLE=1`; normal weekly runs rely on hard-evidence search and targeted manual enrichment first.
+
+Paid-search guardrails are always expected for local weekly runs:
+- Shared provider cache: `~/.cache/vc-signals/provider-search-cache` (`VC_SIGNALS_PROVIDER_CACHE_DIR` overrides it)
+- Spend ledger: `~/.cache/vc-signals/paid-search-ledger.jsonl` (`VC_SIGNALS_PAID_SEARCH_LEDGER_PATH` overrides it)
+- Default caps: smoke/dev `$0.50`, manual enrichment `$2`, weekly `$8`, deep validation `$25`
+- Override cap: `VC_SIGNALS_PAID_SEARCH_MAX_USD=<amount>`
+- `last30days` passes `--web-backend=none` by default when paid web keys exist; after `VC_SIGNALS_ALLOW_LAST30DAYS_GROUNDING=1`, it can use `VC_SIGNALS_LAST30DAYS_WEB_BACKEND`, Exa, Serper, Parallel, or Brave with `VC_SIGNALS_ALLOW_BRAVE_AUTO=1`
+
+Before a validation sprint or any repeated run, preview paid-search cost and exit before live collection:
+
+```bash
+python3 <skill_dir>/scripts/radar_run.py weekly --sectors all --output-dir <output_dir> --paid-search-dry-run
+```
+
+To compare search providers without spending, use the A/B scaffold:
+
+```bash
+python3 <skill_dir>/scripts/provider_ab_test.py --queries-file queries.json --providers brave,exa,serper,dataforseo
+```
+
+Add `--live --max-usd 1` only when the user intentionally wants a paid provider trial.
 
 For a lightweight smoke test, and only when the user wants to try the flow quickly, run:
 

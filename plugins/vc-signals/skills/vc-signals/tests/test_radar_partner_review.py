@@ -158,6 +158,50 @@ def test_partner_priority_uses_attio_action_even_when_action_is_default():
     assert compute_partner_priority(attio_owner) > compute_partner_priority(default_action)
 
 
+def test_partner_priority_does_not_reward_raw_assign_owner_without_owner_readiness():
+    from radar_partner_review import compute_partner_priority
+
+    raw_assign = _candidate(
+        "RawAssign",
+        "AI Infra",
+        "Grounded web",
+        60,
+        50,
+        action="assign owner",
+        attio_status="no_match",
+    )
+    safe_watch = _candidate("SafeWatch", "AI Infra", "Grounded web", 60, 50, action="watch", attio_status="no_match")
+
+    assert compute_partner_priority(raw_assign) == compute_partner_priority(safe_watch)
+
+
+def test_partner_review_excludes_article_title_fragment_candidate_names():
+    from radar_partner_review import select_partner_review
+
+    bad = _candidate(
+        "How",
+        "Cybersecurity",
+        "Grounded web",
+        95,
+        80,
+        tier="Partner Review",
+        action="assign owner",
+        attio_status="no_match",
+    )
+    bad.domain = "nightfall.ai"
+    bad.source = "https://www.nightfall.ai/blog/how-to-monitor-mcp-usage-a-10-step-security-checklist-for-2026"
+    bad.sources = [bad.source]
+    bad.why_on_radar = "How to Monitor MCP Usage: A 10-Step Security Checklist for 2026 | Nightfall AI"
+    good = _candidate("AgentFence", "Cybersecurity", "Grounded web", 70, 60, tier="Watchlist")
+    good.domain = "agentfence.dev"
+    good.source = "https://agentfence.dev/"
+    good.sources = [good.source]
+
+    partner = select_partner_review([bad, good], min_rows=1, max_rows=2)
+
+    assert [candidate.name for candidate in partner] == ["AgentFence"]
+
+
 def test_partner_review_prefers_sector_diversity_before_filling_remaining_slots():
     from radar_partner_review import select_partner_review
 

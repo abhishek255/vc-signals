@@ -13,6 +13,13 @@ SCRIPTS_DIR = Path(__file__).parent.parent / "scripts"
 sys.path.insert(0, str(SCRIPTS_DIR))
 
 
+@pytest.fixture(autouse=True)
+def isolated_paid_search_paths(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+    """Keep shared-cache defaults from leaking local machine state into tests."""
+    monkeypatch.setenv("VC_SIGNALS_PROVIDER_CACHE_DIR", str(tmp_path / "provider-search-cache"))
+    monkeypatch.setenv("VC_SIGNALS_PAID_SEARCH_LEDGER_PATH", str(tmp_path / "paid-search-ledger.jsonl"))
+
+
 @pytest.fixture
 def data_dir(tmp_path: Path) -> Path:
     """Create a temporary data directory matching the expected structure."""

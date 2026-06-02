@@ -18,6 +18,8 @@ from radar_models import (
 
 DEFAULT_SYNTHESIS_MODEL = "gpt-4.1-mini"
 DEFAULT_GEMINI_SYNTHESIS_MODEL = "gemini-2.0-flash"
+HARNESS_SYNTHESIS_MODEL = "harness-llm"
+DIRECT_LLM_API_ENV = "VC_SIGNALS_ALLOW_DIRECT_LLM_API"
 OPENAI_CHAT_COMPLETIONS_URL = "https://api.openai.com/v1/chat/completions"
 GEMINI_GENERATE_CONTENT_URL = "https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent"
 SYNTHESIS_ENV_PATHS = (Path.home() / ".config/last30days/.env",)
@@ -176,6 +178,14 @@ def _env_value(*keys: str) -> str:
         if value:
             return value
     return ""
+
+
+def _truthy(value: object) -> bool:
+    return str(value or "").strip().lower() in {"1", "true", "yes", "on"}
+
+
+def _direct_llm_api_enabled() -> bool:
+    return _truthy(_env_value(DIRECT_LLM_API_ENV))
 
 
 def _safe_projection(item, fields: tuple[str, ...]) -> dict:
@@ -454,6 +464,18 @@ def run_synthesis(
     known_urls = _known_urls_from_payload(payload)
 
     if provider is None:
+        if not _direct_llm_api_enabled():
+            return SynthesisResult(
+                enabled=False,
+                model=HARNESS_SYNTHESIS_MODEL,
+                generated_at=_now_iso(),
+                source_digest=source_digest,
+                warnings=[
+                    "Harness LLM synthesis handoff: direct LLM APIs are disabled by default. "
+                    "Use the Codex/Claude workbench prompt for reasoning, or set "
+                    f"{DIRECT_LLM_API_ENV}=1 for standalone API fallback."
+                ],
+            )
         provider_name = _env_value("VC_SIGNALS_SYNTHESIS_PROVIDER").lower() or "auto"
         gemini_key = _env_value("GEMINI_API_KEY", "GOOGLE_API_KEY")
         openai_key = _env_value("OPENAI_API_KEY")
@@ -480,7 +502,10 @@ def run_synthesis(
                 model=model,
                 generated_at=_now_iso(),
                 source_digest=source_digest,
-                warnings=["OPENAI_API_KEY or GEMINI_API_KEY is not set; LLM synthesis skipped."],
+                warnings=[
+                    "Direct LLM API fallback was enabled, but OPENAI_API_KEY or GEMINI_API_KEY is not set. "
+                    "Use the harness workbench for normal Claude/Codex synthesis."
+                ],
             )
     else:
         model = model or _env_value("VC_SIGNALS_SYNTHESIS_MODEL") or DEFAULT_SYNTHESIS_MODEL

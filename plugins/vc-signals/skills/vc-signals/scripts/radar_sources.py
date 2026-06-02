@@ -7,12 +7,18 @@ SOURCE_LANE_LABELS = {
     "reddit": "Reddit",
     "hackernews": "Hacker News",
     "github": "OSS",
+    "producthunt": "Product Hunt",
+    "product_hunt": "Product Hunt",
     "grounding": "Grounded web",
     "web": "Grounded web",
     "youtube": "YouTube",
     "tiktok": "TikTok",
     "instagram": "Instagram",
     "threads": "Threads",
+    "x": "X",
+    "twitter": "X",
+    "yc_directory": "YC Directory",
+    "linkedin": "LinkedIn",
 }
 
 
@@ -37,6 +43,7 @@ def _social_has_company_evidence(item: dict) -> bool:
             "website",
             "domain",
             "company_linkedin",
+            "company_x",
             "founder",
             "founders",
             "waitlist_url",
@@ -105,6 +112,58 @@ def classify_source_item(*, sector: str, item: dict) -> Signal:
             can_create_candidate=True,
             evidence_strength=45,
             reason="GitHub repo results can create OSS project candidates.",
+            metadata=metadata,
+        )
+
+    if source in {"producthunt", "product_hunt"}:
+        return Signal(
+            source="producthunt",
+            role="producthunt_launch",
+            title=title,
+            url=url,
+            sector=sector,
+            text=text,
+            can_create_candidate=True,
+            evidence_strength=45,
+            reason="Product Hunt launches can create weak company-formation candidates for research, not owner routing.",
+            metadata=metadata,
+        )
+
+    if source == "yc_directory":
+        has_official_domain = bool(item.get("domain") or item.get("website"))
+        return Signal(
+            source=source,
+            role="yc_company",
+            title=title,
+            url=url,
+            sector=sector,
+            text=text,
+            can_create_candidate=has_official_domain,
+            evidence_strength=60 if has_official_domain else 35,
+            reason=(
+                "YC directory rows with official website/domain can create research candidates."
+                if has_official_domain
+                else "YC directory row needs official website/domain before candidate creation."
+            ),
+            metadata=metadata,
+        )
+
+    if source in {"x", "twitter"}:
+        can_create_candidate = _social_has_company_evidence(item)
+        return Signal(
+            source="x",
+            role="social_launch",
+            title=title,
+            url=url,
+            sector=sector,
+            text=text,
+            can_create_candidate=can_create_candidate,
+            evidence_strength=45 if can_create_candidate else 30,
+            reason=(
+                "X launch posts with company evidence can create research candidates."
+                if can_create_candidate
+                else "X social evidence supports launch confidence, but needs company evidence before creating rows."
+            ),
             metadata=metadata,
         )
 

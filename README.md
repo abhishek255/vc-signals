@@ -8,7 +8,7 @@ A skill/plugin for [Claude Code](https://docs.anthropic.com/en/docs/claude-code)
 
 ---
 
-> **Current state (June 2026 baseline):** VC Signals is now a tiered partner-review system, not just a ranked feed. The blessed current run separates **Assign Owner**, **Partner Review Companies**, **Review-Worthy Companies**, **Review-Worthy Market Signals**, and **Evidence Gap Queue** rows. It reached the current numeric target with 1 Assign Owner row, 13 Partner Review companies, 8 Review-Worthy companies, 5 market signals, 12 evidence gaps, and 0 unsafe promotions. A June 2 repeatability check was more sober: three safe validations kept unsafe promotions at 0 and produced useful Partner Review / Market Signal / Evidence Gap rows, but only repeated 1 strict Review-Worthy Company. Product Hunt and X still need stronger official-domain and founder/company resolution, or top gaps need structured company metadata/manual checks.
+> **Current state (June 2026 baseline):** VC Signals is now a tiered partner-review system, not just a ranked feed. The blessed current run separates **Assign Owner**, **Partner Review Companies**, **Review-Worthy Companies**, **Review-Worthy Market Signals**, and **Evidence Gap Queue** rows. It reached the current numeric target with 1 Assign Owner row, 13 Partner Review companies, 8 Review-Worthy companies, 5 market signals, 12 evidence gaps, and 0 unsafe promotions. A June 2 repeatability check was more sober: three safe validations kept unsafe promotions at 0 and produced useful Partner Review / Market Signal / Evidence Gap rows, but only repeated 1 strict Review-Worthy Company. Product Hunt, X, and manual review now carry source-specific evidence completion plans, but repeatable strict company yield still needs stronger official-domain/founder resolution or structured company metadata for top gaps.
 
 ---
 
@@ -78,6 +78,7 @@ The output is deliberately tiered:
 - **Review-Worthy Companies** — credible product/company rows, not owner-ready yet.
 - **Review-Worthy Market Signals** — OSS/theme movement that tells partners where the market is going, even if there is no company yet.
 - **Evidence Gap Queue** — promising blocked rows with exact manual checks.
+- **Manual Evidence Queue** — a first-class analyst workbench: exact checks, promote-if-found, discard-if-not-found, likely payoff, and unresolved gaps.
 
 **Market Sector vs Source Lane:** Market Sector is the investment category, such as Cybersecurity or AI Infra. Source Lane is where the evidence came from, such as OSS, Reddit, HN, Grounded Web, or TikTok. An OSS repo can therefore be `Market Sector = Cybersecurity` and `Source Lane = OSS`.
 
@@ -533,7 +534,7 @@ You type: /vc-signals radar all
           source-yield and audit files
 ```
 
-The pipeline first separates **launch/company evidence** from **market movement**. Product Hunt and X can create launch signals, but the system still has to resolve the official domain and inspect the company surface. GitHub can become a company candidate when there is website/pricing/team/customer proof; otherwise it becomes a market signal and a search prompt for companies in that theme.
+The pipeline first separates **launch/company evidence** from **market movement**. Product Hunt and X can create launch signals, but the system still has to resolve the official domain and inspect the company surface. Each PH/X/manual row now carries an evidence completion plan: what is proven, what is missing, where to check next, what would promote it, and what would discard it. GitHub can become a company candidate when there is website/pricing/team/customer proof; otherwise it becomes a market signal and a search prompt for companies in that theme.
 
 The LLM is used as an investigator, not as a source of truth. It plans searches, extracts facts from retrieved evidence, identifies contradictions, blocks unsafe domain guesses, and says exactly what evidence is missing. Attio remains read-only context: it helps the brief say whether Marathon already knows the company, whether it is stale/no-owner, or whether it was previously passed.
 
@@ -609,6 +610,8 @@ The result: a weekly forcing function to explore categories you might not have f
 
 **June 2026: Company dossier and LLM investigation layer.** Product Hunt, X, GitHub, HN, YC, Exa/Brave, and manual web evidence now feed a dossier-style workflow that resolves official domains, inspects official-site proof, blocks unsafe domain guesses, separates OSS market signals from company candidates, and records exact missing evidence.
 
+**June 2026: Source-specific evidence completion plans.** Product Hunt rows now say "launch source, not identity source" and carry maker/launch context plus official-domain, founder/team, commercial, pricing/docs/careers, social, and stage/headcount checks. X rows are treated as launch radar with launch-intent evidence and an explicit policy that official identity must be verified elsewhere. Manual enrichment now produces a workbench with exact checks, promote-if-found, discard-if-not-found, likely payoff, and unresolved gaps.
+
 **May 2026: Theme-driven company discovery.** The weekly command now uses useful pain/theme evidence to run a second-pass company search, writes `company-discovery.json`, and renders "Company Discovery From Themes" in the partner brief.
 
 **May 2026: Radar V3 sector-balanced artifact.** The weekly command now separates `Market Sector` from `Source Lane`, reclassifies OSS projects into investment categories, renders a top Run Summary, adds Sector Intelligence for every priority sector, and turns non-company signal into "Themes With No Company Yet" hunt prompts.
@@ -647,11 +650,12 @@ The previous `/vc-signals weekly` command still works as an alias for `/vc-signa
 12. ✅ **Partner Review and Evidence Gap tiers** — the packet separates strict owner rows, good/decent company review rows, market signals, and manual evidence checks.
 13. ✅ **Company dossier layer** — candidates carry official-domain, product proof, commercial proof, founder/stage gaps, contradictions, and recommended manual checks.
 14. ✅ **LLM investigation as evidence processor** — LLMs plan searches and extract/critique evidence, but cannot promote unsupported claims.
-15. ◐ **Product Hunt/X conversion depth** — Product Hunt now contributes Review-Worthy rows, but founder/stage metadata is still thin; X works as launch radar but needs stronger official-domain and company-identity resolution.
-16. ◐ **Ecosystem and contact depth** — still needs richer maintainer contact enrichment, founder background synthesis, and OSS ecosystem map generation.
-17. ◐ **Repeatability validation** — 3 safe validations were run; unsafe promotions stayed at 0, but strict Review-Worthy Company yield did not repeat yet.
-18. **Weekly delivery** — Monday 8:00 AM ET Slack teaser with an open/configurable destination and link or artifact for the full radar.
-19. **Theme depth** — drill-down surfaces actual sub-debates and company positioning, not just summaries.
+15. ✅ **Source-specific evidence completion plans** — PH/X/manual rows now carry source context, exact evidence checks, promote-if-found, discard-if-not-found, and likely payoff.
+16. ◐ **Product Hunt/X conversion depth** — Product Hunt now contributes Review-Worthy rows and better manual plans, but founder/stage metadata is still thin; X works as launch radar but needs stronger official-domain and company-identity resolution.
+17. ◐ **Ecosystem and contact depth** — still needs richer maintainer contact enrichment, founder background synthesis, and OSS ecosystem map generation.
+18. ◐ **Repeatability validation** — 3 safe validations were run; unsafe promotions stayed at 0, but strict Review-Worthy Company yield did not repeat yet.
+19. **Weekly delivery** — Monday 8:00 AM ET Slack teaser with an open/configurable destination and link or artifact for the full radar.
+20. **Theme depth** — drill-down surfaces actual sub-debates and company positioning, not just summaries.
 
 ---
 
