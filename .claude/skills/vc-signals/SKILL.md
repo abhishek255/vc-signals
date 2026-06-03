@@ -444,13 +444,21 @@ Read the company alias map:
 cat <skill_dir>/config/company_aliases.json
 ```
 
-For deterministic weekly runs, prefer the orchestration helper before doing manual synthesis:
+For deterministic weekly runs, use the orchestration helper as the canonical packet writer. Do not replace its generated report with a hand-written web-research memo:
 
 ```bash
 python3 <skill_dir>/scripts/radar_run.py weekly --sectors all --output-dir <output_dir>
 ```
 
-This saves raw evidence JSON, normalized signals, scored candidates, and a partner preview. The default weekly command is the full-quality safe path: it uses Product Hunt, YC, GitHub, X/social sources where configured, and direct Exa-first hard-evidence resolution for Product Hunt/X rows by default. Broad `last30days` paid grounding is disabled by default even when Brave, Exa, Serper, or Parallel keys exist; enable it only for intentional deep validations with `VC_SIGNALS_ALLOW_LAST30DAYS_GROUNDING=1` or `--allow-last30days-grounding`. Disable targeted hard evidence only with `--no-hard-evidence-live` or `VC_SIGNALS_HARD_EVIDENCE_DISABLE=1`. Signal investigation is runtime-capped by default (`--signal-investigation-max-runtime-seconds` overrides it) so weekly runs finish with explicit partial investigation instead of hanging quietly.
+This saves raw evidence JSON, normalized signals, scored candidates, a weekly preview, a weekly focus packet, and `quality-gate.json`. The default weekly command is the full-quality safe path: it uses Product Hunt, YC, GitHub, X/social sources where configured, and direct Exa-first hard-evidence resolution for Product Hunt/X rows by default. Broad `last30days` paid grounding is disabled by default even when Brave, Exa, Serper, or Parallel keys exist; enable it only for intentional deep validations with `VC_SIGNALS_ALLOW_LAST30DAYS_GROUNDING=1` or `--allow-last30days-grounding`. Disable targeted hard evidence only with `--no-hard-evidence-live` or `VC_SIGNALS_HARD_EVIDENCE_DISABLE=1`. Signal investigation is runtime-capped by default (`--signal-investigation-max-runtime-seconds` overrides it) so weekly runs finish with explicit partial investigation instead of hanging quietly.
+
+After every weekly run, read `<output_dir>/quality-gate.json` before summarizing. The gate is the product truth:
+- `passing` means the generated packet cleared the canonical weekly shape.
+- `partial` means the row counts passed but some source coverage needs caveats.
+- `thin` means the packet is a partial review queue, not a full-quality weekly radar.
+- `smoke` means setup/artifact validation only; never judge Marathon output quality from it.
+
+If `quality-gate.json` says `do_not_freestyle_final_report: true`, obey it. Summarize the generated `weekly-preview.md` and `weekly-focus.md`; do not create a replacement radar with ad hoc web research. Extra Claude intelligence is allowed only as a clearly labeled supplement, such as "Supplemental leads to verify", and must not promote unsupported companies into the canonical rows.
 
 Official-site crawling is targeted/opt-in because it is useful but slow. Enable it only for focused evidence-completion passes with `VC_SIGNALS_OFFICIAL_SITE_CRAWL_ENABLE=1`; normal weekly runs rely on hard-evidence search and targeted manual enrichment first.
 
@@ -483,7 +491,7 @@ python3 <skill_dir>/scripts/radar_run.py weekly --sectors all --output-dir <outp
 
 `--first-pass` uses one query per sector and a 45-second per-query cap. Do not use first-pass mode to judge final Marathon radar quality.
 
-The weekly artifact must not silently omit sectors. If a sector has no qualified candidates, render a sector coverage note explaining whether the cause was no source evidence, source-not-candidate-eligible evidence, weak evidence, or missing grounded web/company enrichment.
+The weekly artifact must not silently omit sectors or source quality. If a sector has no qualified candidates, render a sector coverage note explaining whether the cause was no source evidence, source-not-candidate-eligible evidence, weak evidence, or missing grounded web/company enrichment. If Product Hunt, YC, X, hard evidence, Attio, or non-OSS company rows are missing or thin, rely on the generated quality gate instead of writing around the gap.
 
 For lower-level debugging, run collection and preview separately:
 
@@ -499,7 +507,7 @@ To build an automatic scored preview from saved evidence:
 python3 <skill_dir>/scripts/radar_run.py preview --from-evidence <output_dir>/<YYYY-MM-DD>-raw-evidence.json --output <output_dir>/<YYYY-MM-DD>-auto-scored-preview.md
 ```
 
-The automatic preview is intentionally conservative: it extracts candidate companies/projects, applies first-pass Investment Interest and Evidence Confidence scores, merges Attio context when `ATTIO_ACCESS_TOKEN` is present, filters low-interest candidates, and renders only Medium/High-interest rows. If it underfills the table, use Claude synthesis over the raw evidence plus external/web research to add higher-quality candidates rather than lowering the threshold.
+The automatic preview is intentionally conservative: it extracts candidate companies/projects, applies first-pass Investment Interest and Evidence Confidence scores, merges Attio context when `ATTIO_ACCESS_TOKEN` is present, filters low-interest candidates, and renders only Medium/High-interest rows. If it underfills the table, label the run as thin/partial through the generated quality gate. Do not lower the threshold, and do not replace the canonical packet with freestyled synthesis.
 
 The preview schema includes LinkedIn, Founders, and X columns. Fill them only from evidence, Attio/CRM fields, structured seed input, or explicit user-provided data. Do not invent LinkedIn or founder links. Without grounded web or LinkedIn-capable evidence, leave those cells blank and treat them as next diligence.
 

@@ -101,7 +101,7 @@
   <h1>Turn launch chatter into reviewable company evidence.</h1>
   <p>VC Signals turns Product Hunt launches, X chatter, HN posts, GitHub momentum, YC rows, and web evidence into one weekly partner packet: what is owner-ready, what a partner should inspect, what is only a market signal, and exactly what evidence is missing.</p>
   <div class="badges">
-    <span class="badge">v1.0.5 setup-safe runtime</span>
+    <span class="badge">v1.0.6 canonical quality gate</span>
     <span class="badge">Strict Assign Owner gate</span>
     <span class="badge">Targeted Exa hard evidence</span>
     <span class="badge">8-15 Partner Review companies</span>
@@ -118,7 +118,7 @@
     <div class="card">
       <p><strong>June 2026 blessed baseline:</strong> 1 Assign Owner row, 13 Partner Review companies, 8 Review-Worthy companies, 5 Review-Worthy market signals, 12 Evidence Gap rows, and 0 unsafe promotions.</p>
       <p><strong>June 2 repeatability check:</strong> three safe validations kept unsafe promotions at 0 and repeatedly produced Partner Review / Market Signal / Evidence Gap rows, but only repeated 1 strict Review-Worthy Company. The system is conservative; source evidence yield is not repeatable enough yet.</p>
-      <p><strong>Latest workflow update:</strong> Product Hunt, YC, and X are exercised by default with bounded limits; Product Hunt/X rows get targeted Exa-first hard-evidence resolution by default; broad last30days paid grounding remains opt-in. Setup now installs dependencies into the same Python runtime the adapter selects, checks Node.js for cookie-based X, accepts X cookie aliases, and checks Attio from the vc-signals config path.</p>
+      <p><strong>Latest workflow update:</strong> Product Hunt, YC, and X are exercised by default with bounded limits; Product Hunt/X rows get targeted Exa-first hard-evidence resolution by default; broad last30days paid grounding remains opt-in. Every weekly run now writes a canonical quality gate that labels passing, partial, thin, and smoke runs, so Claude summarizes the generated packet instead of replacing it with ad hoc research.</p>
       <div style="overflow-x:auto; margin-top:12px;">
         <table>
           <tr><th>Tier</th><th>Example</th><th>Source</th><th>What It Means</th><th>Next Action</th></tr>
@@ -150,7 +150,7 @@
       <div class="arrow">↓</div>
       <div class="node" style="border-left-color:var(--green)"><strong>6. Tiered gates</strong><span>Promote into Assign Owner, Partner Review, Review-Worthy Company, Market Signal, Evidence Gap, Launch Watch, or reject. Generic category pages and unsafe domain guesses are rejected instead of becoming fake company rows.</span></div>
       <div class="arrow">↓</div>
-      <div class="node"><strong>7. Weekly partner packet</strong><span>Decision packet, source-yield report, repeatability report, manual evidence queue, sanity check, source-health ledger, and audit JSON files.</span></div>
+      <div class="node"><strong>7. Weekly partner packet</strong><span>Decision packet, quality gate, source-yield report, repeatability report, manual evidence queue, sanity check, source-health ledger, and audit JSON files.</span></div>
     </div>
   </section>
 
@@ -272,6 +272,7 @@
       <tr><th>File</th><th>Purpose</th></tr>
       <tr><td>source-yield-validation-report.md</td><td>The human-readable current packet: tiers, rows, gaps, source health, and caveats.</td></tr>
       <tr><td>partner-decision-packet.json</td><td>Strict owner/action packet for high-confidence routing.</td></tr>
+      <tr><td>quality-gate.json</td><td>Canonical verdict that says whether the run is passing, partial, thin, or smoke, with source lane and row-count checks.</td></tr>
       <tr><td>ledger-action-report.json</td><td>Promotion audit; unsafe owner promotions must remain zero.</td></tr>
       <tr><td>targeted-manual-enrichment.json</td><td>Focused checks for the top evidence gaps.</td></tr>
       <tr><td>structured-provider-trial.json</td><td>Manual-mode Coresignal/Crunchbase/LinkedIn-style metadata hints when direct keys are absent.</td></tr>

@@ -282,6 +282,140 @@ def test_render_partner_preview_groups_sections(tmp_path):
     assert (tmp_path / "brief.md").exists()
 
 
+def test_weekly_quality_gate_flags_thin_oss_heavy_run():
+    from radar_models import Candidate
+    from radar_run import build_weekly_quality_gate
+
+    candidates = [
+        Candidate(
+            name=f"Repo {i}",
+            sector="OSS",
+            market_sector="OSS",
+            source_lane="OSS",
+            theme="Agent CI",
+            source=f"https://github.com/example/repo-{i}",
+            candidate_type="oss_project",
+            tier="Watchlist",
+            investment_interest="Medium",
+            evidence_confidence="Low",
+            investment_interest_score=50,
+            evidence_confidence_score=30,
+        )
+        for i in range(13)
+    ]
+    candidates.extend(
+        [
+            Candidate(
+                name="Goldbridge",
+                sector="Vertical AI",
+                market_sector="Vertical AI",
+                source_lane="YC Directory",
+                theme="Real estate finance",
+                source="https://www.ycombinator.com/companies/goldbridge",
+                candidate_type="yc_company",
+                tier="Partner Review",
+                investment_interest="High",
+                evidence_confidence="Medium",
+                investment_interest_score=75,
+                evidence_confidence_score=55,
+            ),
+            Candidate(
+                name="LaunchThing",
+                sector="Devtools",
+                market_sector="Devtools",
+                source_lane="Product Hunt",
+                theme="AI coding",
+                source="https://www.producthunt.com/products/launchthing",
+                candidate_type="launch_style_needs_identity",
+                tier="Needs More Evidence",
+                investment_interest="Medium",
+                evidence_confidence="Low",
+                investment_interest_score=50,
+                evidence_confidence_score=25,
+                missing_identity_evidence=["official domain", "founder/team"],
+            ),
+        ]
+    )
+
+    report = build_weekly_quality_gate(
+        candidates,
+        partner_review=[candidates[13]],
+        source_health=[
+            {"source": "github", "status": "complete", "fresh_items": 13},
+            {"source": "product_hunt", "status": "complete", "fresh_items": 1},
+            {"source": "yc_directory", "status": "complete", "fresh_items": 1},
+            {"source": "x_launches", "status": "empty", "fresh_items": 0},
+        ],
+        run_mode="weekly",
+        hard_evidence_report={"summary": {"enabled": True}},
+    )
+
+    assert report["status"] == "thin"
+    assert report["do_not_freestyle_final_report"] is True
+    assert report["claude_summary_policy"] == "summarize_generated_packet_only"
+    assert report["metrics"]["non_oss_company_rows"]["count"] == 2
+    assert report["metrics"]["non_oss_company_rows"]["status"] == "miss"
+    assert report["metrics"]["partner_review_companies"]["status"] == "miss"
+    assert report["source_lanes"]["x_launches"]["status"] == "ran_empty"
+    assert any("thin" in warning.lower() for warning in report["warnings"])
+
+
+def test_render_weekly_brief_renders_canonical_quality_gate():
+    from radar_models import Candidate
+    from radar_render import render_weekly_brief
+
+    candidate = Candidate(
+        name="Goldbridge",
+        sector="Vertical AI",
+        market_sector="Vertical AI",
+        source_lane="YC Directory",
+        theme="Real estate finance",
+        source="https://www.ycombinator.com/companies/goldbridge",
+        candidate_type="yc_company",
+        tier="Partner Review",
+        investment_interest="High",
+        evidence_confidence="Medium",
+        action="research deeper",
+    )
+    markdown = render_weekly_brief(
+        [candidate],
+        {},
+        [],
+        partner_review=[candidate],
+        quality_gate={
+            "status": "thin",
+            "status_label": "Thin Run",
+            "canonical_sections": [
+                "Assign Owner",
+                "Partner Review Companies",
+                "Review-Worthy Market Signals",
+                "Evidence Gap Queue",
+                "Source Health",
+            ],
+            "warnings": ["Thin run: only 1 non-OSS company row cleared."],
+            "summary": "Generated packet is usable as a partial review queue, not a full-quality weekly radar.",
+            "metrics": {
+                "non_oss_company_rows": {"count": 1, "target": ">=3", "status": "miss"},
+                "partner_review_companies": {"count": 1, "target": "8-15", "status": "miss"},
+            },
+            "source_lanes": {
+                "product_hunt": {"label": "Product Hunt", "status": "ran_with_items", "fresh_items": 1},
+                "yc_directory": {"label": "YC Directory", "status": "ran_with_items", "fresh_items": 1},
+                "x_launches": {"label": "X Launches", "status": "ran_empty", "fresh_items": 0},
+            },
+            "do_not_freestyle_final_report": True,
+            "claude_summary_policy": "summarize_generated_packet_only",
+        },
+    )
+
+    assert "## Canonical Packet Quality Gate" in markdown
+    assert "Status: **Thin Run**" in markdown
+    assert "Assign Owner, Partner Review Companies, Review-Worthy Market Signals, Evidence Gap Queue, Source Health" in markdown
+    assert "| Non-OSS Company Rows | 1 | >=3 | miss |" in markdown
+    assert "| X Launches | ran_empty | 0 |" in markdown
+    assert "Do not replace this generated packet with an ad hoc web-research memo." in markdown
+
+
 def test_save_raw_evidence_writes_json(tmp_path):
     from radar_run import save_raw_evidence
 
@@ -2382,9 +2516,17 @@ def test_run_weekly_artifacts_saves_raw_and_preview(tmp_path, monkeypatch):
     assert result["signals"].endswith("signals.json")
     assert result["candidates"].endswith("candidates.json")
     assert result["metadata_loss_report"].endswith("metadata-loss-report.json")
+    assert result["quality_gate_json"].endswith("quality-gate.json")
+    assert result["quality_gate_status"] in {"thin", "partial", "passing", "smoke"}
     assert result["preview"].endswith("weekly-preview.md")
     assert result["companies"] == 1
-    assert "BeeSafe AI" in (tmp_path / "weekly-preview.md").read_text()
+    preview = (tmp_path / "weekly-preview.md").read_text()
+    assert "## Canonical Packet Quality Gate" in preview
+    assert "Do not replace this generated packet with an ad hoc web-research memo." in preview
+    assert "BeeSafe AI" in preview
+    quality_gate = json.loads((tmp_path / "quality-gate.json").read_text())
+    assert quality_gate["do_not_freestyle_final_report"] is True
+    assert quality_gate["claude_summary_policy"] == "summarize_generated_packet_only"
     saved = json.loads((tmp_path / "candidates.json").read_text())
     assert saved[0]["stable_key"]
     assert saved[0]["weekly_tag"] == "NEW"

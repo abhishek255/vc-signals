@@ -14,6 +14,7 @@ def render_weekly_brief(
     partner_review: list | None = None,
     synthesis=None,
     company_discovery: dict | None = None,
+    quality_gate: dict | None = None,
 ) -> str:
     partner = partner_review if partner_review is not None else [candidate for candidate in candidates if candidate.tier == "Partner Review"][:15]
     if partner_review is None and not partner:
@@ -23,6 +24,8 @@ def render_weekly_brief(
         "# VC Signals Weekly Radar",
         "",
         _run_summary(candidates),
+        "",
+        _quality_gate_section(quality_gate),
         "",
         "## Partner Review",
         "",
@@ -70,6 +73,64 @@ def render_weekly_brief(
     return "\n".join(lines).rstrip() + "\n"
 
 
+def _quality_gate_section(quality_gate: dict | None) -> str:
+    if not quality_gate:
+        return "## Canonical Packet Quality Gate\n\n- Quality gate was not generated."
+
+    lines = [
+        "## Canonical Packet Quality Gate",
+        "",
+        f"Status: **{quality_gate.get('status_label') or quality_gate.get('status', 'Unknown')}**",
+    ]
+    summary = quality_gate.get("summary")
+    if summary:
+        lines.append(f"- {summary}")
+    sections = quality_gate.get("canonical_sections") or []
+    if sections:
+        lines.append("- Canonical sections: " + ", ".join(str(section) for section in sections))
+    if quality_gate.get("do_not_freestyle_final_report"):
+        lines.append("- Do not replace this generated packet with an ad hoc web-research memo.")
+    warnings = quality_gate.get("warnings") or []
+    if warnings:
+        lines.append("- Warnings: " + "; ".join(str(warning) for warning in warnings[:4]))
+
+    metrics = quality_gate.get("metrics") or {}
+    if metrics:
+        lines.extend(["", "| Metric | Count | Target | Status |", "|---|---:|---|---|"])
+        for key, row in metrics.items():
+            label = str(row.get("label") or _quality_metric_label(key))
+            lines.append(
+                "| "
+                + " | ".join(
+                    [
+                        _markdown_table_cell(label),
+                        _markdown_table_cell(row.get("count", 0)),
+                        _markdown_table_cell(row.get("target", "")),
+                        _markdown_table_cell(row.get("status", "")),
+                    ]
+                )
+                + " |"
+            )
+
+    source_lanes = quality_gate.get("source_lanes") or {}
+    if source_lanes:
+        lines.extend(["", "| Source Lane | Status | Fresh Items |", "|---|---|---:|"])
+        for row in source_lanes.values():
+            lines.append(
+                "| "
+                + " | ".join(
+                    [
+                        _markdown_table_cell(row.get("label", "")),
+                        _markdown_table_cell(row.get("status", "")),
+                        _markdown_table_cell(row.get("fresh_items", 0)),
+                    ]
+                )
+                + " |"
+            )
+
+    return "\n".join(lines)
+
+
 def _table(candidates: list) -> str:
     rows = [
         "| Company / Project | Market Sector | Source Lane | Theme | Tag | Stage | Raised | Headcount | Founders | Tier | Interest | Evidence | Attio | Attio Owner | Attio Last Touch | Attio URL | Staleness | Action | OSS Score | Action Reason | LinkedIn | X | Why On Radar | Why This May Be Noise | Best Source |",
@@ -87,6 +148,17 @@ def _table(candidates: list) -> str:
     return "\n".join(rows)
 
 
+def _quality_metric_label(key: str) -> str:
+    labels = {
+        "assign_owner": "Assign Owner",
+        "partner_review_companies": "Partner Review Companies",
+        "non_oss_company_rows": "Non-OSS Company Rows",
+        "review_worthy_market_signals": "Review-Worthy Market Signals",
+        "evidence_gap_queue": "Evidence Gap Queue",
+    }
+    return labels.get(key, str(key).replace("_", " ").title())
+
+
 def _run_summary(candidates: list) -> str:
     market_sectors = sorted({_market_sector(candidate) for candidate in candidates if _market_sector(candidate)})
     source_counts = {}
@@ -94,11 +166,12 @@ def _run_summary(candidates: list) -> str:
         lane = _source_lane(candidate) or "Unknown"
         source_counts[lane] = source_counts.get(lane, 0) + 1
     source_mix = ", ".join(f"{count} {lane}" for lane, count in sorted(source_counts.items(), key=lambda item: item[0]))
+    source_mix_sentence = f"Source mix: {source_mix}." if source_mix else "Source mix: No qualified source lanes."
     lines = [
         "## Run Summary",
         "",
         f"This run produced {len(candidates)} qualified {_plural(len(candidates), 'row')} across {len(market_sectors)} market {_plural(len(market_sectors), 'sector')}.",
-        f"Source mix: {source_mix or 'No qualified source lanes.'}.",
+        source_mix_sentence,
     ]
     if candidates and all(_source_lane(candidate) == "OSS" for candidate in candidates):
         lines.append("Warning: this run is OSS-heavy; non-OSS company discovery did not produce qualified rows.")

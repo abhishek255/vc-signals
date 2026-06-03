@@ -2009,6 +2009,201 @@ def _source_coverage_bucket(candidate: Candidate) -> str:
     return ""
 
 
+CANONICAL_PACKET_SECTIONS = [
+    "Assign Owner",
+    "Partner Review Companies",
+    "Review-Worthy Market Signals",
+    "Evidence Gap Queue",
+    "Source Health",
+]
+
+
+def _candidate_source_lane(candidate: Candidate) -> str:
+    return (candidate.source_lane or candidate.source or "").strip()
+
+
+def _is_oss_like_candidate(candidate: Candidate) -> bool:
+    lane = _candidate_source_lane(candidate).lower()
+    source = (candidate.source or "").lower()
+    candidate_type = (candidate.candidate_type or "").lower()
+    sector = (candidate.sector or candidate.market_sector or "").lower()
+    return (
+        lane == "oss"
+        or candidate_type == "oss_project"
+        or sector == "oss"
+        or "github.com/" in source
+    )
+
+
+def _has_evidence_gap(candidate: Candidate) -> bool:
+    return bool(
+        candidate.tier == "Needs More Evidence"
+        or candidate.missing_identity_evidence
+        or candidate.missing_owner_evidence
+        or not (candidate.domain or candidate.candidate_domain)
+        or int(candidate.evidence_confidence_score or 0) < 45
+    )
+
+
+def _metric_row(label: str, count: int, target: str, status: str) -> dict:
+    return {"label": label, "count": count, "target": target, "status": status}
+
+
+def _source_lane_report(source_health: list[dict] | None, source: str, label: str) -> dict:
+    row = next((item for item in source_health or [] if item.get("source") == source), None)
+    if not row:
+        return {"label": label, "status": "not_run", "fresh_items": 0, "warnings": []}
+    fresh_items = int(row.get("fresh_items") or 0)
+    raw_status = str(row.get("status") or "unknown").lower()
+    if fresh_items > 0:
+        status = "ran_with_items"
+    elif raw_status in {"complete", "empty"}:
+        status = "ran_empty"
+    elif raw_status.startswith("skipped") or raw_status in {"unavailable", "degraded"}:
+        status = "skipped_or_unavailable"
+    else:
+        status = raw_status
+    return {
+        "label": label,
+        "status": status,
+        "fresh_items": fresh_items,
+        "warnings": list(row.get("warnings") or []),
+    }
+
+
+def _range_status(count: int, *, min_count: int, max_count: int | None = None) -> str:
+    if count < min_count:
+        return "miss"
+    if max_count is not None and count > max_count:
+        return "over"
+    return "pass"
+
+
+def build_weekly_quality_gate(
+    candidates: list[Candidate],
+    *,
+    partner_review: list[Candidate] | None = None,
+    source_health: list[dict] | None = None,
+    run_mode: str = "weekly",
+    hard_evidence_report: dict | None = None,
+    source_access_report: dict | None = None,
+) -> dict:
+    """Build the canonical quality contract every weekly packet must surface."""
+    normalized_mode = (run_mode or "weekly").strip().lower()
+    smoke_mode = normalized_mode in {"smoke", "first_pass", "first-pass"}
+    partner_review = list(partner_review or [])
+    non_oss_count = sum(1 for candidate in candidates if not _is_oss_like_candidate(candidate))
+    oss_market_signal_count = sum(1 for candidate in candidates if _is_oss_like_candidate(candidate))
+    evidence_gap_count = sum(1 for candidate in candidates if _has_evidence_gap(candidate))
+    assign_owner_count = sum(
+        1
+        for candidate in candidates
+        if "assign owner" in {
+            (candidate.action or "").lower(),
+            (candidate.attio_action or "").lower(),
+            (candidate.recommended_owner_action or "").lower(),
+        }
+    )
+
+    partner_min = 1 if smoke_mode else 8
+    partner_max = 15
+    non_oss_min = 1 if smoke_mode else 3
+    source_lanes = {
+        "product_hunt": _source_lane_report(source_health, "product_hunt", "Product Hunt"),
+        "yc_directory": _source_lane_report(source_health, "yc_directory", "YC Directory"),
+        "x_launches": _source_lane_report(source_health, "x_launches", "X Launches"),
+    }
+    hard_evidence_summary = (hard_evidence_report or {}).get("summary") or {}
+    source_access_summary = (source_access_report or {}).get("summary") or {}
+    source_lanes["hard_evidence"] = {
+        "label": "Targeted Hard Evidence",
+        "status": "enabled" if hard_evidence_summary.get("enabled") else "disabled",
+        "fresh_items": int(hard_evidence_summary.get("rows_investigated") or 0),
+        "warnings": [hard_evidence_summary.get("skip_reason", "")] if hard_evidence_summary.get("skip_reason") else [],
+    }
+    source_lanes["attio"] = {
+        "label": "Attio",
+        "status": "configured" if "Attio" in source_access_summary.get("configured", []) else "missing_or_unchecked",
+        "fresh_items": 0,
+        "warnings": [],
+    }
+    metrics = {
+        "assign_owner": _metric_row(
+            "Assign Owner",
+            assign_owner_count,
+            "1-3 strict rows",
+            "watch" if assign_owner_count == 0 else _range_status(assign_owner_count, min_count=1, max_count=3),
+        ),
+        "partner_review_companies": _metric_row(
+            "Partner Review Companies",
+            len(partner_review),
+            "1+ smoke" if smoke_mode else "8-15",
+            _range_status(len(partner_review), min_count=partner_min, max_count=partner_max),
+        ),
+        "non_oss_company_rows": _metric_row(
+            "Non-OSS Company Rows",
+            non_oss_count,
+            "1+ smoke" if smoke_mode else ">=3",
+            _range_status(non_oss_count, min_count=non_oss_min),
+        ),
+        "review_worthy_market_signals": _metric_row(
+            "Review-Worthy Market Signals",
+            oss_market_signal_count,
+            "observed",
+            "present" if oss_market_signal_count else "empty",
+        ),
+        "evidence_gap_queue": _metric_row(
+            "Evidence Gap Queue",
+            evidence_gap_count,
+            "explicit if gaps exist",
+            "present" if evidence_gap_count else "empty",
+        ),
+    }
+    warnings = []
+    if smoke_mode:
+        warnings.append("Smoke/first-pass run: use this to verify setup, not final weekly output quality.")
+    if metrics["non_oss_company_rows"]["status"] == "miss" or metrics["partner_review_companies"]["status"] == "miss":
+        warnings.append("Thin run: generated packet is a partial review queue, not a full-quality weekly radar.")
+    if source_lanes["product_hunt"]["status"] in {"not_run", "skipped_or_unavailable"}:
+        warnings.append("Product Hunt did not produce a usable source lane.")
+    if source_lanes["yc_directory"]["status"] in {"not_run", "skipped_or_unavailable"}:
+        warnings.append("YC Directory did not produce a usable source lane.")
+    if source_lanes["x_launches"]["status"] == "not_run":
+        warnings.append("X launch lane did not run; if intentionally skipped, treat X as missing coverage.")
+
+    if smoke_mode:
+        status = "smoke"
+        status_label = "Smoke / Setup Validation"
+        summary = "Generated packet verifies setup and artifact shape; do not judge Marathon weekly quality from this run."
+    elif any(row["status"] == "miss" for key, row in metrics.items() if key in {"partner_review_companies", "non_oss_company_rows"}):
+        status = "thin"
+        status_label = "Thin Run"
+        summary = "Generated packet is usable as a partial review queue, not a full-quality weekly radar."
+    elif warnings:
+        status = "partial"
+        status_label = "Partial Coverage"
+        summary = "Generated packet cleared row-count gates but has source coverage caveats."
+    else:
+        status = "passing"
+        status_label = "Passing"
+        summary = "Generated packet cleared the canonical weekly shape and source-coverage checks."
+
+    return {
+        "version": "1.0",
+        "run_mode": normalized_mode,
+        "status": status,
+        "status_label": status_label,
+        "summary": summary,
+        "canonical_sections": list(CANONICAL_PACKET_SECTIONS),
+        "metrics": metrics,
+        "source_lanes": source_lanes,
+        "warnings": warnings,
+        "do_not_freestyle_final_report": True,
+        "claude_summary_policy": "summarize_generated_packet_only",
+        "allowed_intelligence_layer": "Add analysis only as clearly labeled supplemental notes; do not replace generated rows or promote unsupported companies.",
+    }
+
+
 def _keep_source_coverage(ranked: list[Candidate], candidate_limit: int) -> list[Candidate]:
     selected = list(ranked[:candidate_limit])
     if candidate_limit < 10:
@@ -2097,6 +2292,7 @@ def _render_weekly_brief(
     partner_review: list[Candidate],
     synthesis=None,
     company_discovery=None,
+    quality_gate=None,
 ) -> str:
     kwargs = {"faded": faded}
     accepted = signature(render_weekly_brief).parameters
@@ -2111,6 +2307,8 @@ def _render_weekly_brief(
         kwargs["synthesis"] = synthesis
     if "company_discovery" in accepted or accepts_kwargs:
         kwargs["company_discovery"] = company_discovery
+    if "quality_gate" in accepted or accepts_kwargs:
+        kwargs["quality_gate"] = quality_gate
     return render_weekly_brief(candidates, coverage, rejected, **kwargs)
 
 
@@ -2564,6 +2762,7 @@ def run_weekly_artifacts(
     coverage_report_path = output_dir / "coverage-report.json"
     signal_investigation_path = output_dir / "signal-investigation.json"
     hard_evidence_dossiers_path = output_dir / "hard-evidence-dossiers.json"
+    quality_gate_path = output_dir / "quality-gate.json"
     weak_source_identity_enrichment_path = output_dir / "weak-source-identity-enrichment.json"
     manual_enrichment_targets_path = output_dir / "manual-enrichment-targets.json"
     evidence = collect_live_evidence(
@@ -2816,7 +3015,6 @@ def run_weekly_artifacts(
     runtime_ledger["source_health"] = list(evidence.get("source_health", []))
     runtime_ledger["source_access"] = source_access_report
     runtime_ledger["paid_search"] = paid_search_summary()
-    runtime_ledger_path.write_text(json.dumps(runtime_ledger, indent=2))
     coverage_report_path.write_text(json.dumps(company_discovery.get("coverage_report", {}), indent=2))
     signal_investigation_path.write_text(json.dumps(signal_investigation_report, indent=2))
     if write_hard_evidence_report:
@@ -2873,6 +3071,16 @@ def run_weekly_artifacts(
             cache_dir=output_dir / "hn-launch-trial" / "cache",
             config=hn_launch_trial_config,
         )
+    quality_gate = build_weekly_quality_gate(
+        scored_candidates,
+        partner_review=partner_review,
+        source_health=evidence.get("source_health", []),
+        run_mode=discovery_budget_mode,
+        hard_evidence_report=hard_evidence_report,
+        source_access_report=source_access_report,
+    )
+    quality_gate_path.write_text(json.dumps(quality_gate, indent=2))
+    runtime_ledger["quality_gate"] = quality_gate
     runtime_ledger["paid_search"] = paid_search_summary()
     runtime_ledger_path.write_text(json.dumps(runtime_ledger, indent=2))
     preview_path = output_dir / "weekly-preview.md"
@@ -2887,6 +3095,7 @@ def run_weekly_artifacts(
             partner_review=partner_review,
             synthesis=synthesis,
             company_discovery=company_discovery,
+            quality_gate=quality_gate,
         )
     )
     weekly_focus = build_weekly_focus_artifact(
@@ -2920,6 +3129,7 @@ def run_weekly_artifacts(
         "metadata_loss_report": str(metadata_loss_report_path),
         "signal_investigation_json": str(signal_investigation_path),
         "hard_evidence_dossiers_json": str(hard_evidence_dossiers_path),
+        "quality_gate_json": str(quality_gate_path),
         "weak_source_identity_enrichment_json": str(weak_source_identity_enrichment_path),
         "owner_evidence_json": str(owner_evidence_path),
         "founder_team_verification_json": str(founder_team_verification_path),
@@ -2930,6 +3140,7 @@ def run_weekly_artifacts(
         "weekly_focus": str(weekly_focus_path),
         "feedback": str(feedback_path),
         "companies": len(scored_candidates),
+        "quality_gate_status": quality_gate.get("status", ""),
         "sectors": list(sectors),
     }
     if history_data_dir is not None:

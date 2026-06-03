@@ -8,7 +8,7 @@ A skill/plugin for [Claude Code](https://docs.anthropic.com/en/docs/claude-code)
 
 ---
 
-> **Current state (June 2026 baseline):** VC Signals is now a tiered partner-review system, not just a ranked feed. The blessed current run separates **Assign Owner**, **Partner Review Companies**, **Review-Worthy Companies**, **Review-Worthy Market Signals**, and **Evidence Gap Queue** rows. It reached the current numeric target with 1 Assign Owner row, 13 Partner Review companies, 8 Review-Worthy companies, 5 market signals, 12 evidence gaps, and 0 unsafe promotions. A June 2 repeatability check was more sober: three safe validations kept unsafe promotions at 0 and produced useful Partner Review / Market Signal / Evidence Gap rows, but only repeated 1 strict Review-Worthy Company. Product Hunt, X, and manual review now carry source-specific evidence completion plans, but repeatable strict company yield still needs stronger official-domain/founder resolution or structured company metadata for top gaps.
+> **Current state (June 2026 baseline):** VC Signals is now a tiered partner-review system, not just a ranked feed. The blessed current run separates **Assign Owner**, **Partner Review Companies**, **Review-Worthy Companies**, **Review-Worthy Market Signals**, and **Evidence Gap Queue** rows. Every weekly run now writes `quality-gate.json` and renders a **Canonical Packet Quality Gate** so thin or smoke runs are labeled instead of being dressed up as full-quality radar. A June 2 repeatability check was more sober: three safe validations kept unsafe promotions at 0 and produced useful Partner Review / Market Signal / Evidence Gap rows, but only repeated 1 strict Review-Worthy Company. Product Hunt, X, and manual review now carry source-specific evidence completion plans, but repeatable strict company yield still needs stronger official-domain/founder resolution or structured company metadata for top gaps.
 
 ---
 
@@ -409,6 +409,7 @@ docs/radar-runs/current/source-yield-validation-report.md
 That Markdown file is the current partner-facing source-yield artifact. The same folder also contains:
 
 - `partner-decision-packet.json`: strict owner/action packet.
+- `quality-gate.json`: canonical packet verdict: passing, partial, thin, or smoke.
 - `ledger-action-report.json`: promotion/ledger audit; unsafe owner promotions must remain zero.
 - `source-yield-validation-report.json`: machine-readable counts, rows, gaps, source health, and caveats.
 - `source-yield-repeatability-report.md`: repeatability view for the latest blessed validation.
@@ -417,7 +418,7 @@ That Markdown file is the current partner-facing source-yield artifact. The same
 - `review-worthy-sanity-check.md`: human click-check of the 8 Review-Worthy companies.
 - `run-manifest.json`: points to the source run that was blessed into `current`.
 
-If the output is thin, that does not necessarily mean the sector is dead. It means the current run found pain or chatter but not enough company evidence. Check `Evidence Gap Queue`, `Manual Evidence Queue`, `Review-Worthy Market Signals`, source-health notes, and the sanity check before deciding whether to rerun with better keys or do a manual deep dive.
+If the output is thin, that does not necessarily mean the sector is dead. It means the current run found pain or chatter but not enough company evidence. Check `quality-gate.json`, `Evidence Gap Queue`, `Manual Evidence Queue`, `Review-Worthy Market Signals`, source-health notes, and the sanity check before deciding whether to rerun with better keys or do a manual deep dive. Claude should summarize the generated packet; it should not replace it with an ad hoc web-research memo.
 
 ### All Commands
 
