@@ -126,6 +126,24 @@ else
 fi
 ```
 
+Then check Node.js for cookie-based X. last30days uses its bundled `bird-search.mjs` backend for `AUTH_TOKEN`/`CT0`, and that backend requires `node` on PATH. If X cookies are configured and Node is missing, install it with Homebrew when available:
+
+```bash
+ENV_FILE="$HOME/.config/last30days/.env"
+if [ -f "$ENV_FILE" ] && grep -Eq '^(AUTH_TOKEN|TWITTER_AUTH_TOKEN)=' "$ENV_FILE" && grep -Eq '^(CT0|TWITTER_CT0)=' "$ENV_FILE"; then
+  if ! command -v node >/dev/null 2>&1; then
+    if command -v brew >/dev/null 2>&1; then
+      brew install node || true
+    elif [ -x /opt/homebrew/bin/brew ]; then
+      /opt/homebrew/bin/brew install node || true
+    else
+      echo "Node.js missing; install with: brew install node"
+    fi
+  fi
+  command -v node >/dev/null 2>&1 && node --version || true
+fi
+```
+
 If either fails, continue — the skill works without them (WebSearch fallback, no GitHub trending). Tell the user what succeeded and what didn't.
 
 ## Script Paths
@@ -253,7 +271,7 @@ ATTIO_ACCESS_TOKEN=<value>
 ```
 
 **X launch radar (`XAI_API_KEY`, `AUTH_TOKEN` + `CT0`, or `TWITTER_AUTH_TOKEN` + `TWITTER_CT0`) -- optional:**
-> "X is useful as launch radar, not identity truth. Paste an `XAI_API_KEY` if you use xAI access for this lane, or paste browser cookies `AUTH_TOKEN` and `CT0`. `TWITTER_AUTH_TOKEN` and `TWITTER_CT0` also work if your setup already uses those names. You can skip X."
+> "X is useful as launch radar, not identity truth. Paste an `XAI_API_KEY` if you use xAI access for this lane, or paste browser cookies `AUTH_TOKEN` and `CT0`. Cookie-based X also needs Node.js for the bundled bird backend; setup can install it with `brew install node` if missing. `TWITTER_AUTH_TOKEN` and `TWITTER_CT0` also work if your setup already uses those names. You can skip X."
 
 If `XAI_API_KEY` is provided, save:
 ```bash
@@ -271,6 +289,23 @@ If the user already has Twitter-prefixed cookie names, preserve them too:
 TWITTER_AUTH_TOKEN=<value>
 TWITTER_CT0=<value>
 ```
+
+After saving cookie-based X values, verify Node.js because the last30days X backend is the bundled `bird-search.mjs` script:
+
+```bash
+if ! command -v node >/dev/null 2>&1; then
+  if command -v brew >/dev/null 2>&1; then
+    brew install node || true
+  elif [ -x /opt/homebrew/bin/brew ]; then
+    /opt/homebrew/bin/brew install node || true
+  else
+    echo "Node.js missing; cookie-based X needs Node. Install with: brew install node"
+  fi
+fi
+command -v node >/dev/null 2>&1 && node --version || true
+```
+
+Then re-run `<skill_dir>/scripts/last30days_adapter.py check`. If `x_backend.ready` is false with cookie keys present, report the missing dependency instead of saying X is active.
 
 **Optional search alternatives**
 

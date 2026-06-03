@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import json
 import os
+import shutil
 import signal
 import subprocess
 import sys
@@ -149,6 +150,59 @@ def _runtime_dependency_status(python_cmd: str | None) -> dict:
             }
     status["ready"] = all(item.get("available") for item in status["dependencies"].values())
     return status
+
+
+def _node_status() -> dict:
+    node_path = shutil.which("node")
+    status = {
+        "available": bool(node_path),
+        "path": node_path or "",
+        "version": "",
+        "install_hint": "" if node_path else "brew install node",
+    }
+    if not node_path:
+        return status
+    try:
+        result = subprocess.run([node_path, "--version"], capture_output=True, text=True, timeout=5)
+        if result.returncode == 0:
+            status["version"] = result.stdout.strip()
+    except (FileNotFoundError, subprocess.TimeoutExpired):
+        status["available"] = False
+        status["path"] = ""
+        status["install_hint"] = "brew install node"
+    return status
+
+
+def _x_backend_status(skill_root: Path, available_keys: list[str]) -> dict:
+    xai_configured = "XAI_API_KEY" in available_keys
+    cookie_pair_configured = (
+        ("AUTH_TOKEN" in available_keys and "CT0" in available_keys)
+        or ("TWITTER_AUTH_TOKEN" in available_keys and "TWITTER_CT0" in available_keys)
+    )
+    bird_script = skill_root / "scripts" / "lib" / "vendor" / "bird-search" / "bird-search.mjs"
+    node = _node_status() if cookie_pair_configured else {
+        "available": False,
+        "path": "",
+        "version": "",
+        "install_hint": "",
+    }
+    cookie_backend_ready = bool(cookie_pair_configured and bird_script.exists() and node.get("available"))
+    ready = bool(xai_configured or cookie_backend_ready)
+    missing = []
+    if cookie_pair_configured and not bird_script.exists():
+        missing.append("bird-search.mjs")
+    if cookie_pair_configured and not node.get("available"):
+        missing.append("node")
+    return {
+        "ready": ready,
+        "xai_configured": xai_configured,
+        "cookie_pair_configured": cookie_pair_configured,
+        "cookie_backend_ready": cookie_backend_ready,
+        "bird_script_present": bird_script.exists(),
+        "bird_script_path": str(bird_script),
+        "node": node,
+        "missing": missing,
+    }
 
 
 def _default_web_backend_for_paid_safety(detection_env: dict[str, str]) -> str | None:
@@ -303,12 +357,19 @@ def check_availability(
                     available_keys.append(key_name)
             configured = len(available_keys) > 0
 
+    x_backend = _x_backend_status(skill_root, available_keys) if installed else {
+        "ready": False,
+        "xai_configured": False,
+        "cookie_pair_configured": False,
+        "cookie_backend_ready": False,
+        "bird_script_present": False,
+        "bird_script_path": "",
+        "node": {"available": False, "path": "", "version": "", "install_hint": ""},
+        "missing": [],
+    }
+
     social_sources = []
-    if (
-        "XAI_API_KEY" in available_keys
-        or ("AUTH_TOKEN" in available_keys and "CT0" in available_keys)
-        or ("TWITTER_AUTH_TOKEN" in available_keys and "TWITTER_CT0" in available_keys)
-    ):
+    if x_backend["ready"]:
         social_sources.append("x")
     if "SCRAPECREATORS_API_KEY" in available_keys:
         social_sources.extend(["youtube", "tiktok", "instagram", "threads", "pinterest"])
@@ -326,6 +387,7 @@ def check_availability(
         "available_keys": available_keys,
         "runtime_python": runtime_python or "",
         "runtime_dependencies": _runtime_dependency_status(runtime_python),
+        "x_backend": x_backend,
         "free_sources_available": installed,
         "source_capabilities": {
             "free": ["reddit", "hackernews", "github", "polymarket"] if installed else [],

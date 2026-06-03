@@ -204,7 +204,7 @@ If you need to configure manually, use these exact names:
 | **ScrapeCreators** | TikTok, Instagram, YouTube search | ~$29/month | Optional |
 | **Direct LLM API fallback: OpenAI, Gemini, or xAI** | Standalone/non-harness synthesis or investigation fallback. Normal Claude Code/Codex runs use the harness LLM instead. | Pay-per-use / Free tiers vary | Optional, disabled by default |
 | **OpenRouter** | Deep research with Perplexity (50+ citation synthesis for theme drill-downs) | ~$0.90/query | Optional |
-| **X/Twitter tokens** | X/Twitter developer discussions | Free (your account) | Optional |
+| **X/Twitter tokens** | X/Twitter developer discussions; cookie-based X also needs Node.js for last30days' bundled bird backend | Free (your account) | Optional |
 | **Attio token** | CRM match, stale/no-owner status, passed-company flags | Existing workspace | Recommended for Marathon |
 
 **You can skip any key** — the skill works with whatever you have and tells you what you're missing. If Brave/Parallel/Serper/Exa is missing, the weekly radar automatically uses a stricter non-grounded HN/GitHub fallback instead of broad noisy web discovery.
@@ -231,6 +231,12 @@ SCRAPECREATORS_API_KEY=...
 OPENROUTER_API_KEY=...
 SERPER_API_KEY=...
 BRAVE_API_KEY=...
+```
+
+Cookie-based X (`AUTH_TOKEN`/`CT0` or `TWITTER_AUTH_TOKEN`/`TWITTER_CT0`) requires Node.js because last30days runs its bundled `bird-search.mjs` backend. Setup checks this now; if Node is missing, install it with:
+
+```bash
+brew install node
 ```
 
 Crunchbase, Coresignal, and LinkedIn stay manual-mode unless you intentionally add compliant direct API access:

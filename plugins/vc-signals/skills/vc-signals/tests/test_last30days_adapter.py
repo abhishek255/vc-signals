@@ -184,6 +184,12 @@ def _make_nested_vendor(tmp_path):
     return vendor
 
 
+def _add_bird_backend(vendor: Path) -> None:
+    bird_dir = vendor / "skills" / "last30days" / "scripts" / "lib" / "vendor" / "bird-search"
+    bird_dir.mkdir(parents=True)
+    (bird_dir / "bird-search.mjs").write_text("// stub")
+
+
 def test_check_installed_with_current_upstream_nested_layout(tmp_path):
     from last30days_adapter import check_availability
 
@@ -218,18 +224,44 @@ def test_check_does_not_report_x_from_auth_token_without_ct0(tmp_path):
     assert result["source_capabilities"]["social"] == []
 
 
-def test_check_reports_x_from_twitter_cookie_alias_pair(tmp_path):
+def test_check_reports_x_from_twitter_cookie_alias_pair(tmp_path, monkeypatch):
     from last30days_adapter import check_availability
 
     vendor = _make_nested_vendor(tmp_path)
+    _add_bird_backend(vendor)
     config = tmp_path / ".env"
     config.write_text("SETUP_COMPLETE=true\nTWITTER_AUTH_TOKEN=auth-cookie\nTWITTER_CT0=csrf-cookie\n")
+    monkeypatch.setattr("last30days_adapter._find_python", lambda: None)
+    monkeypatch.setattr("last30days_adapter.shutil.which", lambda cmd: "/opt/homebrew/bin/node" if cmd == "node" else None)
+    monkeypatch.setattr("last30days_adapter.subprocess.run", lambda *args, **kwargs: MagicMock(returncode=0, stdout="v26.0.0\n"))
 
     result = check_availability(vendor_path=vendor, config_path=config)
 
     assert "TWITTER_AUTH_TOKEN" in result["available_keys"]
     assert "TWITTER_CT0" in result["available_keys"]
+    assert result["x_backend"]["ready"] is True
+    assert result["x_backend"]["cookie_backend_ready"] is True
+    assert result["x_backend"]["node"]["path"] == "/opt/homebrew/bin/node"
     assert result["source_capabilities"]["social"] == ["x"]
+
+
+def test_check_reports_x_cookie_pair_but_not_ready_without_node(tmp_path, monkeypatch):
+    from last30days_adapter import check_availability
+
+    vendor = _make_nested_vendor(tmp_path)
+    _add_bird_backend(vendor)
+    config = tmp_path / ".env"
+    config.write_text("SETUP_COMPLETE=true\nAUTH_TOKEN=auth-cookie\nCT0=csrf-cookie\n")
+    monkeypatch.setattr("last30days_adapter._find_python", lambda: None)
+    monkeypatch.setattr("last30days_adapter.shutil.which", lambda cmd: None)
+
+    result = check_availability(vendor_path=vendor, config_path=config)
+
+    assert result["x_backend"]["cookie_pair_configured"] is True
+    assert result["x_backend"]["ready"] is False
+    assert result["x_backend"]["node"]["install_hint"] == "brew install node"
+    assert "node" in result["x_backend"]["missing"]
+    assert result["source_capabilities"]["social"] == []
 
 
 def test_check_reports_runtime_dependency_hint_for_selected_python(tmp_path, monkeypatch):

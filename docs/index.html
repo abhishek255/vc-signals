@@ -101,7 +101,7 @@
   <h1>Turn launch chatter into reviewable company evidence.</h1>
   <p>VC Signals turns Product Hunt launches, X chatter, HN posts, GitHub momentum, YC rows, and web evidence into one weekly partner packet: what is owner-ready, what a partner should inspect, what is only a market signal, and exactly what evidence is missing.</p>
   <div class="badges">
-    <span class="badge">v1.0.4 setup-safe runtime</span>
+    <span class="badge">v1.0.5 setup-safe runtime</span>
     <span class="badge">Strict Assign Owner gate</span>
     <span class="badge">Targeted Exa hard evidence</span>
     <span class="badge">8-15 Partner Review companies</span>
@@ -118,7 +118,7 @@
     <div class="card">
       <p><strong>June 2026 blessed baseline:</strong> 1 Assign Owner row, 13 Partner Review companies, 8 Review-Worthy companies, 5 Review-Worthy market signals, 12 Evidence Gap rows, and 0 unsafe promotions.</p>
       <p><strong>June 2 repeatability check:</strong> three safe validations kept unsafe promotions at 0 and repeatedly produced Partner Review / Market Signal / Evidence Gap rows, but only repeated 1 strict Review-Worthy Company. The system is conservative; source evidence yield is not repeatable enough yet.</p>
-      <p><strong>Latest workflow update:</strong> Product Hunt, YC, and X are exercised by default with bounded limits; Product Hunt/X rows get targeted Exa-first hard-evidence resolution by default; broad last30days paid grounding remains opt-in. Setup now installs dependencies into the same Python runtime the adapter selects, accepts X cookie aliases, and checks Attio from the vc-signals config path.</p>
+      <p><strong>Latest workflow update:</strong> Product Hunt, YC, and X are exercised by default with bounded limits; Product Hunt/X rows get targeted Exa-first hard-evidence resolution by default; broad last30days paid grounding remains opt-in. Setup now installs dependencies into the same Python runtime the adapter selects, checks Node.js for cookie-based X, accepts X cookie aliases, and checks Attio from the vc-signals config path.</p>
       <div style="overflow-x:auto; margin-top:12px;">
         <table>
           <tr><th>Tier</th><th>Example</th><th>Source</th><th>What It Means</th><th>Next Action</th></tr>
@@ -135,7 +135,7 @@
     <h2>How the weekly radar works</h2>
     <p class="desc">The important idea: launch chatter is a starting signal, not the answer. The system has to resolve the official domain, inspect the company surface, separate companies from market signals, and explain every gap.</p>
     <div class="flow">
-      <div class="node"><strong>1. Setup and source access</strong><span>Run setup/update, install requests into the selected Python 3.12+ runtime, read keys from last30days and vc-signals config files, and normalize X cookie aliases before any source run.</span></div>
+      <div class="node"><strong>1. Setup and source access</strong><span>Run setup/update, install requests into the selected Python 3.12+ runtime, check Node.js for cookie-based X, read keys from last30days and vc-signals config files, and normalize X cookie aliases before any source run.</span></div>
       <div class="arrow">↓</div>
       <div class="node"><strong>2. Source collection</strong><span>Pull bounded signal from Product Hunt, YC, X, Hacker News, GitHub, guarded web search, and manual-mode company metadata checks. Weekly defaults exercise Product Hunt/YC/X; first-pass uses smaller limits.</span></div>
       <div class="arrow">↓</div>
@@ -164,7 +164,7 @@
       </div>
       <div class="card ok">
         <h3>Provider key normalization</h3>
-        <p>Product Hunt, Exa, GitHub, Attio, and X are checked explicitly. X accepts `AUTH_TOKEN`/`CT0` and `TWITTER_AUTH_TOKEN`/`TWITTER_CT0`; Attio is checked from the vc-signals config path too.</p>
+        <p>Product Hunt, Exa, GitHub, Attio, and X are checked explicitly. X accepts `AUTH_TOKEN`/`CT0` and `TWITTER_AUTH_TOKEN`/`TWITTER_CT0`; cookie-based X also checks Node.js for the bundled bird backend. Attio is checked from the vc-signals config path too.</p>
       </div>
       <div class="card callout">
         <h3>Bounded default source exercise</h3>
