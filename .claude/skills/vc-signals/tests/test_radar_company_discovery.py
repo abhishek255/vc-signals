@@ -171,6 +171,30 @@ def test_build_company_discovery_queries_refuses_broad_vibe_queries():
     assert queries == []
 
 
+def test_verify_discovery_item_rejects_generic_category_page_as_company():
+    from radar_company_discovery import verify_discovery_item
+
+    lead = verify_discovery_item(
+        {
+            "source": "grounding",
+            "title": "Testing Frameworks",
+            "url": "https://cypress.io/",
+            "domain": "cypress.io",
+            "snippet": "A guide to AI testing frameworks for development teams.",
+        },
+        {
+            "id": "q1",
+            "movement": "AI testing frameworks",
+            "market_sector": "Devtools",
+            "topic": "AI testing frameworks startup company founder launch",
+        },
+    )
+
+    assert lead.verification_status == "rejected"
+    assert lead.domain == ""
+    assert "generic_or_category_company_name" in lead.missing_evidence
+
+
 def test_collect_company_discovery_budget_records_skipped_queries_and_partial(tmp_path):
     from radar_company_discovery import DiscoveryRunBudget, collect_company_discovery
     from radar_models import ThemeSignal

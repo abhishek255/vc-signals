@@ -205,6 +205,54 @@ def test_check_reports_free_sources_when_installed_without_keys(tmp_path):
     assert result["source_capabilities"]["social"] == []
 
 
+def test_check_does_not_report_x_from_auth_token_without_ct0(tmp_path):
+    from last30days_adapter import check_availability
+
+    vendor = _make_nested_vendor(tmp_path)
+    config = tmp_path / ".env"
+    config.write_text("SETUP_COMPLETE=true\nAUTH_TOKEN=auth-cookie\n")
+
+    result = check_availability(vendor_path=vendor, config_path=config)
+
+    assert "AUTH_TOKEN" in result["available_keys"]
+    assert result["source_capabilities"]["social"] == []
+
+
+def test_check_reports_x_from_twitter_cookie_alias_pair(tmp_path):
+    from last30days_adapter import check_availability
+
+    vendor = _make_nested_vendor(tmp_path)
+    config = tmp_path / ".env"
+    config.write_text("SETUP_COMPLETE=true\nTWITTER_AUTH_TOKEN=auth-cookie\nTWITTER_CT0=csrf-cookie\n")
+
+    result = check_availability(vendor_path=vendor, config_path=config)
+
+    assert "TWITTER_AUTH_TOKEN" in result["available_keys"]
+    assert "TWITTER_CT0" in result["available_keys"]
+    assert result["source_capabilities"]["social"] == ["x"]
+
+
+def test_check_reports_runtime_dependency_hint_for_selected_python(tmp_path, monkeypatch):
+    from last30days_adapter import check_availability
+
+    vendor = _make_nested_vendor(tmp_path)
+    config = tmp_path / ".env"
+    config.write_text("SETUP_COMPLETE=true\nEXA_API_KEY=exa-test\n")
+    monkeypatch.setattr("last30days_adapter._find_python", lambda: "python3.13")
+
+    def fake_run(cmd, **kwargs):
+        assert cmd == ["python3.13", "-c", "import requests"]
+        return MagicMock(returncode=1)
+
+    monkeypatch.setattr("last30days_adapter.subprocess.run", fake_run)
+
+    result = check_availability(vendor_path=vendor, config_path=config)
+
+    assert result["runtime_python"] == "python3.13"
+    assert result["runtime_dependencies"]["dependencies"]["requests"]["available"] is False
+    assert result["runtime_dependencies"]["dependencies"]["requests"]["install_hint"].startswith("python3.13 -m pip")
+
+
 def test_check_does_not_report_grounded_from_openrouter_alone(tmp_path):
     from last30days_adapter import check_availability
 
@@ -288,6 +336,22 @@ def test_find_python_uses_codex_bundled_python_when_available(tmp_path, monkeypa
     monkeypatch.setattr("last30days_adapter.subprocess.run", fake_run)
 
     assert _find_python() == str(bundled)
+
+
+def test_find_vendor_path_finds_repo_vendor_from_plugin_layout(tmp_path, monkeypatch):
+    import last30days_adapter
+
+    script_path = tmp_path / "repo" / "plugins" / "vc-signals" / "skills" / "vc-signals" / "scripts" / "last30days_adapter.py"
+    script_path.parent.mkdir(parents=True)
+    script_path.write_text("# stub")
+    vendor = tmp_path / "repo" / "vendor" / "last30days-skill"
+    (vendor / "skills" / "last30days" / "scripts" / "lib").mkdir(parents=True)
+    (vendor / "skills" / "last30days" / "scripts" / "last30days.py").write_text("# stub")
+    (vendor / "skills" / "last30days" / "scripts" / "lib" / "__init__.py").write_text("")
+
+    monkeypatch.setattr(last30days_adapter, "__file__", str(script_path))
+
+    assert last30days_adapter._find_vendor_path() == vendor
 
 
 def test_run_query_emits_normalized_items(tmp_path, monkeypatch):
@@ -631,6 +695,31 @@ def test_run_query_sets_source_environment_overrides(tmp_path, monkeypatch):
     assert env["INCLUDE_SOURCES"] == "reddit,hackernews"
     assert env["EXCLUDE_SOURCES"] == "tiktok,instagram"
     assert env["LAST30DAYS_YOUTUBE_SSH_HOST"] == "homebox"
+
+
+def test_run_query_maps_twitter_cookie_aliases_to_last30days_env(tmp_path, monkeypatch):
+    from last30days_adapter import run_query
+
+    vendor = _make_vendor(tmp_path)
+    monkeypatch.setattr("last30days_adapter._find_python", lambda: "python3")
+    completed = MagicMock(returncode=0, stdout=json.dumps({"items_by_source": {}}), stderr="")
+    calls = []
+
+    def fake_run(cmd, **kwargs):
+        calls.append((cmd, kwargs))
+        return completed
+
+    monkeypatch.setattr("last30days_adapter._run_last30days_command", fake_run)
+
+    run_query(
+        "agent launches",
+        vendor_path=vendor,
+        extra_env={"TWITTER_AUTH_TOKEN": "auth-cookie", "TWITTER_CT0": "csrf-cookie"},
+    )
+
+    env = calls[0][1]["env"]
+    assert env["AUTH_TOKEN"] == "auth-cookie"
+    assert env["CT0"] == "csrf-cookie"
 
 
 def test_run_query_disables_browser_cookie_lookup_by_default(tmp_path, monkeypatch):

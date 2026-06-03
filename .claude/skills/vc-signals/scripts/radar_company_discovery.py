@@ -31,6 +31,24 @@ GENERIC_EXTRACTED_NAMES = {
     "ai startups",
     "open source ai",
 }
+GENERIC_CATEGORY_NAME_SUFFIXES = (
+    "apps",
+    "companies",
+    "frameworks",
+    "platforms",
+    "services",
+    "software",
+    "solutions",
+    "startups",
+    "systems",
+    "tools",
+)
+GENERIC_CATEGORY_NAME_PREFIXES = (
+    "best ",
+    "top ",
+    "what is ",
+    "how to ",
+)
 GENERIC_MOVEMENTS = {"emerging technical signal", "unclassified technical tooling", "oss company-formation watchlist"}
 IDENTITY_MISSING_TERMS = ("domain", "founder", "company", "identity")
 NOISY_OSS_TERMS = ("template", "tutorial", "example", "demo", "boilerplate")
@@ -974,6 +992,9 @@ def verify_discovery_item(item: dict, query: dict) -> VerifiedCompanyDiscoveryLe
         missing.append("no_source_url")
     if not name:
         missing.append("no_company_name")
+    generic_name_reason = _generic_company_name_reason(name)
+    if generic_name_reason:
+        missing.append(generic_name_reason)
     if source == "github" or "github.com" in source_url:
         missing.append("github_only_not_company_proof")
     domain_ok, domain_basis, domain_missing = _company_domain_evidence(item, domain, source_url, source)
@@ -986,7 +1007,14 @@ def verify_discovery_item(item: dict, query: dict) -> VerifiedCompanyDiscoveryLe
     else:
         missing.extend(movement_reasons)
 
-    accepted = bool(source_url and name and domain_ok and movement_basis and "github_only_not_company_proof" not in missing)
+    accepted = bool(
+        source_url
+        and name
+        and domain_ok
+        and movement_basis
+        and "github_only_not_company_proof" not in missing
+        and "generic_or_category_company_name" not in missing
+    )
     identity = canonicalize_identity(
         name=name,
         domain=domain if accepted else "",
@@ -2195,6 +2223,20 @@ def _valid_extracted_company_name(name: str) -> bool:
     if normalized in {"the", "new", "top", "how", "what", "why", "us", "ai startups"}:
         return False
     return len(normalized) > 2 and any(char.isalpha() for char in normalized)
+
+
+def _generic_company_name_reason(name: str) -> str:
+    normalized = " ".join((name or "").strip().lower().split())
+    if not normalized:
+        return ""
+    if normalized in GENERIC_EXTRACTED_NAMES or normalized in BROAD_THEMES:
+        return "generic_or_category_company_name"
+    if any(normalized.startswith(prefix) for prefix in GENERIC_CATEGORY_NAME_PREFIXES):
+        return "generic_or_category_company_name"
+    words = normalized.split()
+    if len(words) <= 4 and any(normalized.endswith(f" {suffix}") for suffix in GENERIC_CATEGORY_NAME_SUFFIXES):
+        return "generic_or_category_company_name"
+    return ""
 
 
 def _is_likely_too_late_text(text: str) -> bool:

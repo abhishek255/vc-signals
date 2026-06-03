@@ -24,6 +24,17 @@ build/
 .claude/skills/vc-signals/data/companies/candidate_history.json
 .claude/skills/vc-signals/data/companies/hn_enrichment_cache.json
 .claude/skills/vc-signals/data/radar_runs/
+plugins/vc-signals/skills/vc-signals/data/briefings/*.json
+plugins/vc-signals/skills/vc-signals/data/briefings/*.md
+plugins/vc-signals/skills/vc-signals/data/themes/*.md
+plugins/vc-signals/skills/vc-signals/data/companies/*.md
+plugins/vc-signals/skills/vc-signals/data/github/*.md
+plugins/vc-signals/skills/vc-signals/data/history/theme_index.json
+plugins/vc-signals/skills/vc-signals/data/companies/company_index.json
+plugins/vc-signals/skills/vc-signals/data/companies/enrichment_cache.json
+plugins/vc-signals/skills/vc-signals/data/companies/candidate_history.json
+plugins/vc-signals/skills/vc-signals/data/companies/hn_enrichment_cache.json
+plugins/vc-signals/skills/vc-signals/data/radar_runs/
 vendor/
 .DS_Store
 **/.DS_Store

@@ -3539,6 +3539,7 @@ def test_run_weekly_artifacts_applies_optional_weak_source_identity_enrichment(t
         signal_investigation_limit=0,
         weak_source_identity_enrichment_limit=3,
         allow_last30days_grounding=True,
+        hard_evidence_live=False,
     )
 
     candidates = json.loads((tmp_path / "candidates.json").read_text())
@@ -4188,6 +4189,10 @@ def test_cli_weekly_runs_collect_and_preview(tmp_path, monkeypatch, capsys):
     assert seen["max_queries_per_sector"] == 3
     assert seen["query_timeout_seconds"] is None
     assert seen["signal_investigation_max_runtime_seconds"] == 180
+    assert seen["product_hunt_limit"] == 20
+    assert seen["yc_directory_limit"] == 20
+    assert seen["x_launch_limit"] == 10
+    assert seen["hard_evidence_live"] is True
 
 
 def test_cli_weekly_respects_signal_investigation_runtime_cap(tmp_path, monkeypatch):
@@ -4255,7 +4260,8 @@ def test_cli_weekly_paid_search_dry_run_skips_live_collection(tmp_path, monkeypa
     preview = payload["paid_search_preview"]
     assert payload["dry_run"] is True
     assert preview["mode"] == "deep_dive"
-    assert preview["estimated_cost_usd"] == 0
+    assert preview["estimated_cost_usd"] > 0
+    assert any(row["module"] == "hard_evidence_resolver" for row in preview["planned_paid_search"])
     assert preview["policy"]["last30days_grounding_allowed"] is False
     assert preview["cache_dir"]
     assert preview["ledger_path"]
@@ -4277,6 +4283,10 @@ def test_cli_weekly_first_pass_uses_fast_trial_defaults(tmp_path, monkeypatch):
 
     assert seen["max_queries_per_sector"] == 1
     assert seen["query_timeout_seconds"] == 45
+    assert seen["product_hunt_limit"] == 5
+    assert seen["yc_directory_limit"] == 5
+    assert seen["x_launch_limit"] == 3
+    assert seen["hard_evidence_live"] is True
 
 
 def test_cli_weekly_first_pass_respects_explicit_quality_overrides(tmp_path, monkeypatch):

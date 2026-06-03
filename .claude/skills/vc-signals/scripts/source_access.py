@@ -12,6 +12,7 @@ try:
 except ImportError:  # pragma: no cover - damaged local installs
     DEFAULT_CONFIG_PATH = Path.home() / ".config" / "last30days" / ".env"
 
+VC_SIGNALS_CONFIG_PATH = Path.home() / ".config" / "vc-signals" / ".env"
 
 PLACEHOLDER_VALUES = {"", "...", "TODO", "YOUR_KEY", "YOUR_API_KEY", "<YOUR_API_KEY>"}
 PROVIDERS = {
@@ -52,8 +53,12 @@ PROVIDERS = {
         "coverage": ["launch_company_identity_makers"],
     },
     "X": {
-        "keys": ("XAI_API_KEY", "AUTH_TOKEN+CT0"),
+        "keys": ("XAI_API_KEY", "AUTH_TOKEN+CT0", "TWITTER_AUTH_TOKEN+TWITTER_CT0"),
         "coverage": ["launch_social_confidence"],
+    },
+    "Attio": {
+        "keys": ("ATTIO_ACCESS_TOKEN",),
+        "coverage": ["crm_owner_status_dedupe_context"],
     },
     "LinkedIn": {
         "keys": ("LINKEDIN_ACCESS_TOKEN", "LINKEDIN_API_KEY"),
@@ -84,7 +89,11 @@ def load_env_file(path: Path | str = DEFAULT_CONFIG_PATH) -> dict[str, str]:
 
 
 def _merged_env(env: dict[str, str] | None, *, config_path: Path | str = DEFAULT_CONFIG_PATH) -> dict[str, str]:
-    merged = load_env_file(config_path)
+    merged: dict[str, str] = {}
+    for path in dict.fromkeys((Path(config_path), VC_SIGNALS_CONFIG_PATH)):
+        for key, value in load_env_file(path).items():
+            if _configured(value) or key not in merged:
+                merged[key] = value
     merged.update(os.environ)
     if env is not None:
         merged.update(env)
@@ -94,8 +103,9 @@ def _merged_env(env: dict[str, str] | None, *, config_path: Path | str = DEFAULT
 def _provider_configured(provider: dict, env: dict[str, str]) -> tuple[bool, list[str]]:
     configured_keys = []
     for key in provider["keys"]:
-        if key == "AUTH_TOKEN+CT0":
-            if _configured(env.get("AUTH_TOKEN")) and _configured(env.get("CT0")):
+        if "+" in key:
+            key_parts = key.split("+")
+            if all(_configured(env.get(part)) for part in key_parts):
                 configured_keys.append(key)
         elif _configured(env.get(key)):
             configured_keys.append(key)

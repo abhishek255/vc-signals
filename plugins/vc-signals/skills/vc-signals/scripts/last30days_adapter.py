@@ -35,8 +35,11 @@ def _has_engine(vendor_path: Path) -> bool:
 
 def _find_vendor_path() -> Path:
     """Find last30days-skill in multiple candidate locations."""
+    script_path = Path(__file__).resolve()
     candidates = [
-        Path(__file__).resolve().parents[4] / "vendor" / "last30days-skill",  # project-level
+        parent / "vendor" / "last30days-skill"
+        for parent in script_path.parents
+    ] + [
         Path.home() / "vendor" / "last30days-skill",  # home dir
         Path.home() / ".claude" / "vendor" / "last30days-skill",  # claude config dir
     ]
@@ -50,6 +53,7 @@ DEFAULT_VENDOR_PATH = _find_vendor_path()
 DEFAULT_CONFIG_PATH = Path.home() / ".config" / "last30days" / ".env"
 PLACEHOLDER_VALUES = {"", "...", "TODO", "YOUR_KEY", "YOUR_API_KEY", "<YOUR_API_KEY>"}
 TRUTHY_ENV_VALUES = {"1", "true", "yes", "on"}
+LAST30DAYS_RUNTIME_DEPENDENCIES = ("requests",)
 IDENTITY_USEFUL_FIELDS = (
     "outbound_url",
     "resolved_url",
@@ -89,6 +93,20 @@ def _load_env_file(path: Path = DEFAULT_CONFIG_PATH) -> dict[str, str]:
     return env
 
 
+def _apply_runtime_env_aliases(env: dict[str, str], detection_env: dict[str, str]) -> None:
+    """Pass backwards-compatible provider aliases to the runtime process."""
+    alias_pairs = (
+        ("AUTH_TOKEN", "TWITTER_AUTH_TOKEN"),
+        ("CT0", "TWITTER_CT0"),
+    )
+    for canonical, legacy in alias_pairs:
+        if _has_configured_key(detection_env, canonical):
+            env.setdefault(canonical, str(detection_env[canonical]))
+            continue
+        if _has_configured_key(detection_env, legacy):
+            env[canonical] = str(detection_env[legacy])
+
+
 def _disable_browser_cookie_lookup(env: dict[str, str], detection_env: dict[str, str]) -> None:
     if _truthy_env(detection_env.get("LAST30DAYS_ALLOW_BROWSER_COOKIES")):
         return
@@ -99,6 +117,38 @@ def _disable_browser_cookie_lookup(env: dict[str, str], detection_env: dict[str,
 
 def _has_configured_key(env: dict[str, str], key: str) -> bool:
     return bool(_configured_value(str(env.get(key, ""))))
+
+
+def _configured_key_present(content: str, key_name: str) -> bool:
+    for line in content.splitlines():
+        stripped = line.strip()
+        if stripped.startswith(f"{key_name}=") and _configured_value(stripped.split("=", 1)[1]):
+            return True
+    return False
+
+
+def _runtime_dependency_status(python_cmd: str | None) -> dict:
+    status = {"python": python_cmd or "", "available": bool(python_cmd), "dependencies": {}}
+    if not python_cmd:
+        return status
+    for dependency in LAST30DAYS_RUNTIME_DEPENDENCIES:
+        try:
+            result = subprocess.run(
+                [python_cmd, "-c", f"import {dependency}"],
+                capture_output=True,
+                timeout=5,
+            )
+            status["dependencies"][dependency] = {
+                "available": result.returncode == 0,
+                "install_hint": "" if result.returncode == 0 else f"{python_cmd} -m pip install --user 'requests>=2.32,<3'",
+            }
+        except (FileNotFoundError, subprocess.TimeoutExpired):
+            status["dependencies"][dependency] = {
+                "available": False,
+                "install_hint": f"{python_cmd} -m pip install --user 'requests>=2.32,<3'",
+            }
+    status["ready"] = all(item.get("available") for item in status["dependencies"].values())
+    return status
 
 
 def _default_web_backend_for_paid_safety(detection_env: dict[str, str]) -> str | None:
@@ -216,6 +266,7 @@ def check_availability(
 
     configured = False
     available_keys = []
+    runtime_python = _find_python() if installed else None
 
     if config_path.exists():
         # Warn if config file is world-readable
@@ -236,19 +287,28 @@ def check_availability(
                 "SCRAPECREATORS_API_KEY",
                 "AUTH_TOKEN",
                 "CT0",
+                "TWITTER_AUTH_TOKEN",
+                "TWITTER_CT0",
                 "BRAVE_API_KEY",
                 "EXA_API_KEY",
                 "SERPER_API_KEY",
                 "PARALLEL_API_KEY",
+                "PRODUCT_HUNT_TOKEN",
+                "PRODUCTHUNT_API_TOKEN",
+                "PRODUCT_HUNT_API_TOKEN",
+                "GITHUB_TOKEN",
+                "ATTIO_ACCESS_TOKEN",
             ):
-                for line in content.splitlines():
-                    stripped = line.strip()
-                    if stripped.startswith(f"{key_name}=") and _configured_value(stripped.split("=", 1)[1]):
-                        available_keys.append(key_name)
+                if _configured_key_present(content, key_name):
+                    available_keys.append(key_name)
             configured = len(available_keys) > 0
 
     social_sources = []
-    if "AUTH_TOKEN" in available_keys or "XAI_API_KEY" in available_keys:
+    if (
+        "XAI_API_KEY" in available_keys
+        or ("AUTH_TOKEN" in available_keys and "CT0" in available_keys)
+        or ("TWITTER_AUTH_TOKEN" in available_keys and "TWITTER_CT0" in available_keys)
+    ):
         social_sources.append("x")
     if "SCRAPECREATORS_API_KEY" in available_keys:
         social_sources.extend(["youtube", "tiktok", "instagram", "threads", "pinterest"])
@@ -264,6 +324,8 @@ def check_availability(
         "script_path": str(script_path),
         "config_path": str(config_path),
         "available_keys": available_keys,
+        "runtime_python": runtime_python or "",
+        "runtime_dependencies": _runtime_dependency_status(runtime_python),
         "free_sources_available": installed,
         "source_capabilities": {
             "free": ["reddit", "hackernews", "github", "polymarket"] if installed else [],
@@ -423,6 +485,7 @@ def run_query(
     detection_env.update(os.environ)
     if extra_env:
         detection_env.update({key: str(value) for key, value in extra_env.items()})
+    _apply_runtime_env_aliases(env, detection_env)
     _disable_browser_cookie_lookup(env, detection_env)
     effective_web_backend = web_backend or _default_web_backend_for_paid_safety(detection_env)
     if effective_web_backend:

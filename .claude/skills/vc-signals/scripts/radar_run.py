@@ -134,6 +134,14 @@ DEFAULT_WEEKLY_HN_LAUNCH_MAX_RUNTIME_SECONDS = 300
 DEFAULT_WEEKLY_HN_LAUNCH_MAX_ATTIO_CHECKS = 5
 DEFAULT_WEEKLY_HN_LAUNCH_MAX_LIVE_QUERIES = 30
 DEFAULT_WEEKLY_HN_LAUNCH_PER_CANDIDATE_TIMEOUT_SECONDS = 30
+DEFAULT_WEEKLY_PRODUCT_HUNT_LIMIT = 20
+DEFAULT_WEEKLY_YC_DIRECTORY_LIMIT = 20
+DEFAULT_WEEKLY_X_LAUNCH_LIMIT = 10
+DEFAULT_FIRST_PASS_PRODUCT_HUNT_LIMIT = 5
+DEFAULT_FIRST_PASS_YC_DIRECTORY_LIMIT = 5
+DEFAULT_FIRST_PASS_X_LAUNCH_LIMIT = 3
+TRUTHY_RUNTIME_VALUES = {"1", "true", "yes", "on"}
+FALSY_RUNTIME_VALUES = {"0", "false", "no", "off"}
 
 KNOWN_MATURE_INCUMBENT_CATEGORY_DOMAINS = {
     "atlassian.com": "known_mature_incumbent_category_anchor",
@@ -2226,6 +2234,27 @@ def _merge_hard_evidence_reports(reports: dict[str, dict]) -> dict:
     return {"summary": summary, "items": items}
 
 
+def _env_truthy(value: object) -> bool:
+    return str(value or "").strip().lower() in TRUTHY_RUNTIME_VALUES
+
+
+def _env_falsy(value: object) -> bool:
+    return str(value or "").strip().lower() in FALSY_RUNTIME_VALUES
+
+
+def _hard_evidence_live_enabled(explicit: bool | None = None) -> bool:
+    if explicit is not None:
+        return bool(explicit)
+    raw_enabled = os.environ.get("VC_SIGNALS_HARD_EVIDENCE_ENABLE_LIVE")
+    if raw_enabled is not None and str(raw_enabled).strip():
+        if _env_falsy(raw_enabled):
+            return False
+        return _env_truthy(raw_enabled)
+    if _env_truthy(os.environ.get("VC_SIGNALS_HARD_EVIDENCE_DISABLE")):
+        return False
+    return True
+
+
 def collect_live_evidence(
     *,
     sectors: tuple[str, ...] = DEFAULT_SECTORS,
@@ -2519,6 +2548,7 @@ def run_weekly_artifacts(
     history_data_dir: Path | None = None,
     paid_search_max_usd: float | None = None,
     allow_last30days_grounding: bool | None = None,
+    hard_evidence_live: bool | None = None,
 ) -> dict:
     """Collect evidence and render a weekly partner preview in one command."""
     output_dir.mkdir(parents=True, exist_ok=True)
@@ -2556,11 +2586,7 @@ def run_weekly_artifacts(
     hard_evidence_provider = os.environ.get("VC_SIGNALS_HARD_EVIDENCE_PROVIDER") or "exa,brave"
     hard_evidence_limit = int(os.environ.get("VC_SIGNALS_HARD_EVIDENCE_LIMIT") or "15")
     hard_evidence_reports = {}
-    hard_evidence_live_enabled = (os.environ.get("VC_SIGNALS_HARD_EVIDENCE_ENABLE_LIVE") or "").strip().lower() in {
-        "1",
-        "true",
-        "yes",
-    }
+    hard_evidence_live_enabled = _hard_evidence_live_enabled(hard_evidence_live)
     official_site_crawl_disabled = (os.environ.get("VC_SIGNALS_OFFICIAL_SITE_CRAWL_DISABLE") or "").strip().lower() in {
         "1",
         "true",
@@ -2969,6 +2995,28 @@ def _get_float_arg(args: dict, *names: str, default: float | None = None) -> flo
     return default
 
 
+def _direct_source_limits_for_mode(first_pass: bool) -> dict[str, int]:
+    if first_pass:
+        return {
+            "product_hunt_limit": DEFAULT_FIRST_PASS_PRODUCT_HUNT_LIMIT,
+            "yc_directory_limit": DEFAULT_FIRST_PASS_YC_DIRECTORY_LIMIT,
+            "x_launch_limit": DEFAULT_FIRST_PASS_X_LAUNCH_LIMIT,
+        }
+    return {
+        "product_hunt_limit": DEFAULT_WEEKLY_PRODUCT_HUNT_LIMIT,
+        "yc_directory_limit": DEFAULT_WEEKLY_YC_DIRECTORY_LIMIT,
+        "x_launch_limit": DEFAULT_WEEKLY_X_LAUNCH_LIMIT,
+    }
+
+
+def _hard_evidence_live_arg(args: dict) -> bool | None:
+    if _get_bool_arg(args, "no_hard_evidence_live", "disable_hard_evidence_live"):
+        return False
+    if _get_bool_arg(args, "hard_evidence_live", "enable_hard_evidence_live"):
+        return True
+    return None
+
+
 def _discovery_budget_from_args(args: dict, *, first_pass: bool) -> DiscoveryRunBudget:
     mode = args.get("discovery_budget_mode") or args.get("budget_mode") or ("smoke" if first_pass else "weekly")
     overrides = {}
@@ -3232,12 +3280,28 @@ def _cli_main() -> None:
     if command == "collect":
         output_dir = Path(args.get("output_dir", DEFAULT_OUTPUT_DIR))
         first_pass = _get_bool_arg(args, "first_pass", "firstPass")
+        direct_source_limits = _direct_source_limits_for_mode(first_pass)
         evidence = collect_live_evidence(
             sectors=parse_sectors_arg(args.get("sectors")),
             github_limit=int(args.get("github_limit", 40)),
-            product_hunt_limit=int(args.get("product_hunt_limit", args.get("producthunt_limit", 0))),
-            yc_directory_limit=int(args.get("yc_directory_limit", args.get("yc_limit", 0))),
-            x_launch_limit=int(args.get("x_launch_limit", args.get("x_limit", 0))),
+            product_hunt_limit=_get_int_arg(
+                args,
+                "product_hunt_limit",
+                "producthunt_limit",
+                default=direct_source_limits["product_hunt_limit"],
+            ),
+            yc_directory_limit=_get_int_arg(
+                args,
+                "yc_directory_limit",
+                "yc_limit",
+                default=direct_source_limits["yc_directory_limit"],
+            ),
+            x_launch_limit=_get_int_arg(
+                args,
+                "x_launch_limit",
+                "x_limit",
+                default=direct_source_limits["x_launch_limit"],
+            ),
             max_queries_per_sector=_get_int_arg(
                 args,
                 "max_queries_per_sector",
@@ -3299,8 +3363,26 @@ def _cli_main() -> None:
             "max_queries_per_sector",
             default=1 if first_pass else 3,
         )
-        product_hunt_limit = int(args.get("product_hunt_limit", args.get("producthunt_limit", 0)))
-        x_launch_limit = int(args.get("x_launch_limit", args.get("x_limit", 0)))
+        direct_source_limits = _direct_source_limits_for_mode(first_pass)
+        product_hunt_limit = _get_int_arg(
+            args,
+            "product_hunt_limit",
+            "producthunt_limit",
+            default=direct_source_limits["product_hunt_limit"],
+        )
+        yc_directory_limit = _get_int_arg(
+            args,
+            "yc_directory_limit",
+            "yc_limit",
+            default=direct_source_limits["yc_directory_limit"],
+        )
+        x_launch_limit = _get_int_arg(
+            args,
+            "x_launch_limit",
+            "x_limit",
+            default=direct_source_limits["x_launch_limit"],
+        )
+        hard_evidence_live = _hard_evidence_live_enabled(_hard_evidence_live_arg(args))
         discovery_budget = _discovery_budget_from_args(args, first_pass=first_pass)
         discovery_budget_mode = args.get("discovery_budget_mode") or args.get("budget_mode") or ("smoke" if first_pass else "weekly")
         signal_investigation_limit = _get_int_arg(
@@ -3323,8 +3405,7 @@ def _cli_main() -> None:
                 x_launch_limit=x_launch_limit,
                 company_discovery_queries=int(discovery_budget.max_company_discovery_queries or 0),
                 signal_investigation_limit=int(signal_investigation_limit or 0),
-                hard_evidence_live=(os.environ.get("VC_SIGNALS_HARD_EVIDENCE_ENABLE_LIVE") or "").strip().lower()
-                in {"1", "true", "yes"},
+                hard_evidence_live=hard_evidence_live,
                 last30days_grounding_enabled=allow_last30days_grounding,
                 max_usd=_get_float_arg(args, "paid_search_max_usd", "paid_search_budget_usd", default=None),
             )
@@ -3335,7 +3416,7 @@ def _cli_main() -> None:
             sectors=sectors,
             github_limit=int(args.get("github_limit", 40)),
             product_hunt_limit=product_hunt_limit,
-            yc_directory_limit=int(args.get("yc_directory_limit", args.get("yc_limit", 0))),
+            yc_directory_limit=yc_directory_limit,
             x_launch_limit=x_launch_limit,
             max_queries_per_sector=max_queries_per_sector,
             candidate_limit=int(args.get("limit", 15)),
@@ -3399,6 +3480,7 @@ def _cli_main() -> None:
             history_data_dir=Path(args["history_data_dir"]) if "history_data_dir" in args else None,
             paid_search_max_usd=_get_float_arg(args, "paid_search_max_usd", "paid_search_budget_usd", default=None),
             allow_last30days_grounding=allow_last30days_grounding,
+            hard_evidence_live=hard_evidence_live,
         )
         print(json.dumps(result))
         return

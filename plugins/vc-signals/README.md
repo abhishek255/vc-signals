@@ -225,6 +225,8 @@ Optional:
 XAI_API_KEY=...
 AUTH_TOKEN=...
 CT0=...
+TWITTER_AUTH_TOKEN=...
+TWITTER_CT0=...
 SCRAPECREATORS_API_KEY=...
 OPENROUTER_API_KEY=...
 SERPER_API_KEY=...
@@ -374,7 +376,7 @@ For the local Marathon-style workflow, use this path:
 ```bash
 git clone https://github.com/abhishek255/vc-signals.git
 cd vc-signals
-python3 --version
+python3.13 --version || python3.12 --version || python3 --version
 python3 .claude/skills/vc-signals/scripts/radar_run.py weekly --sectors all --output-dir docs/radar-runs/current --limit 50
 ```
 
@@ -441,7 +443,7 @@ The local partner command is:
 python3 .claude/skills/vc-signals/scripts/radar_run.py weekly --sectors all --output-dir docs/radar-runs/current --limit 50
 ```
 
-By default, this command keeps broad last30days paid grounding disabled. It still uses Product Hunt, YC, GitHub, X/social sources where configured, and direct Exa-first hard-evidence resolution when enabled. Signal investigation is runtime-capped by default so a weekly run finishes with explicit partial investigation instead of sitting quietly; override with `--signal-investigation-max-runtime-seconds` when needed. Official-site crawling is useful but slow, so it is targeted/opt-in with `VC_SIGNALS_OFFICIAL_SITE_CRAWL_ENABLE=1`. For an intentional deep run with broad last30days grounding, first run `--paid-search-dry-run`, then rerun with `VC_SIGNALS_ALLOW_LAST30DAYS_GROUNDING=1` or `--allow-last30days-grounding` plus a hard dollar cap. If you need a quick trial run, append `--first-pass`; that mode uses one query per sector and a 45-second query cap so a new user can see the shape of the artifact quickly.
+By default, this command keeps broad last30days paid grounding disabled. It still uses Product Hunt, YC, GitHub, X/social sources where configured, and direct Exa-first hard-evidence resolution for Product Hunt/X rows by default. Signal investigation is runtime-capped by default so a weekly run finishes with explicit partial investigation instead of sitting quietly; override with `--signal-investigation-max-runtime-seconds` when needed. Official-site crawling is useful but slow, so it is targeted/opt-in with `VC_SIGNALS_OFFICIAL_SITE_CRAWL_ENABLE=1`. For an intentional deep run with broad last30days grounding, first run `--paid-search-dry-run`, then rerun with `VC_SIGNALS_ALLOW_LAST30DAYS_GROUNDING=1` or `--allow-last30days-grounding` plus a hard dollar cap. Disable targeted hard evidence with `--no-hard-evidence-live` or `VC_SIGNALS_HARD_EVIDENCE_DISABLE=1`. If you need a quick trial run, append `--first-pass`; that mode uses one query per sector and a 45-second query cap so a new user can see the shape of the artifact quickly.
 
 The artifact contains:
 

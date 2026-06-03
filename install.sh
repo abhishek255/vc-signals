@@ -64,8 +64,8 @@ echo "  Vendor directory ready at $HOME/.claude/vendor/"
 
 # Try to install requests (optional — skill works without it)
 echo "  Installing Python dependencies..."
-$PYTHON -m pip install requests >/dev/null 2>&1 || \
-$PYTHON -m pip install --user requests >/dev/null 2>&1 || \
+$PYTHON -m pip install 'requests>=2.32,<3' >/dev/null 2>&1 || \
+$PYTHON -m pip install --user 'requests>=2.32,<3' >/dev/null 2>&1 || \
 echo "  Note: Could not install 'requests' library. GitHub trending will be limited."
 
 echo ""

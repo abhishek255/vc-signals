@@ -100,12 +100,30 @@ elif [ -d "$HOME/.claude/skills/vc-signals" ]; then
   # Global install (Co-Work) — clone to ~/.claude/vendor/
   mkdir -p "$HOME/.claude/vendor"
   git clone --quiet --depth 1 https://github.com/mvanhorn/last30days-skill.git "$HOME/.claude/vendor/last30days-skill" 2>/dev/null || true
+else
+  # Marketplace plugin install — keep shared vendor under ~/.claude/vendor/
+  mkdir -p "$HOME/.claude/vendor"
+  git clone --quiet --depth 1 https://github.com/mvanhorn/last30days-skill.git "$HOME/.claude/vendor/last30days-skill" 2>/dev/null || true
 fi
 ```
 
-Then install requests:
+Then install requests into the same Python runtime the adapter will use:
 ```bash
-python3 -m pip install requests 2>/dev/null || python3 -m pip install --user requests 2>/dev/null || true
+RUNTIME_PY="${CODEX_BUNDLED_PYTHON:-}"
+if [ -z "$RUNTIME_PY" ] || ! "$RUNTIME_PY" -c 'import sys; raise SystemExit(0 if sys.version_info >= (3, 12) else 1)' >/dev/null 2>&1; then
+  RUNTIME_PY="$(
+    for py in python3.14 python3.13 python3.12 python3; do
+      command -v "$py" >/dev/null 2>&1 || continue
+      "$py" -c 'import sys; raise SystemExit(0 if sys.version_info >= (3, 12) else 1)' >/dev/null 2>&1 && { command -v "$py"; break; }
+    done
+  )"
+fi
+if [ -n "$RUNTIME_PY" ]; then
+  "$RUNTIME_PY" -m pip install 'requests>=2.32,<3' 2>/dev/null || "$RUNTIME_PY" -m pip install --user 'requests>=2.32,<3' 2>/dev/null || true
+  "$RUNTIME_PY" -c 'import requests' 2>/dev/null && echo "requests ready for $RUNTIME_PY" || echo "requests missing for $RUNTIME_PY"
+else
+  echo "Python 3.12+ missing; install with: brew install python@3.13"
+fi
 ```
 
 If either fails, continue — the skill works without them (WebSearch fallback, no GitHub trending). Tell the user what succeeded and what didn't.
@@ -163,10 +181,19 @@ When a user provides a key, save it as the exact env var name shown below. Prese
 ### Step 1: Python Check
 
 ```bash
-python3 --version
+RUNTIME_PY="${CODEX_BUNDLED_PYTHON:-}"
+if [ -z "$RUNTIME_PY" ] || ! "$RUNTIME_PY" -c 'import sys; raise SystemExit(0 if sys.version_info >= (3, 12) else 1)' >/dev/null 2>&1; then
+  RUNTIME_PY="$(
+    for py in python3.14 python3.13 python3.12 python3; do
+      command -v "$py" >/dev/null 2>&1 || continue
+      "$py" -c 'import sys; raise SystemExit(0 if sys.version_info >= (3, 12) else 1)' >/dev/null 2>&1 && { command -v "$py"; break; }
+    done
+  )"
+fi
+[ -n "$RUNTIME_PY" ] && "$RUNTIME_PY" --version || true
 ```
 
-If Python 3.12+ is available, say: "Python is ready." and move on.
+If Python 3.12+ is available, say: "Python is ready at `<runtime path>`." and move on.
 If not, say: "You need Python 3.12 or newer. Here's how to install it:" and provide instructions for macOS:
 ```
 brew install python@3.13
@@ -175,10 +202,11 @@ brew install python@3.13
 ### Step 2: Install Python Dependencies
 
 ```bash
-pip install requests
+"$RUNTIME_PY" -m pip install 'requests>=2.32,<3' 2>/dev/null || "$RUNTIME_PY" -m pip install --user 'requests>=2.32,<3'
+"$RUNTIME_PY" -c 'import requests'
 ```
 
-Say: "Installed the one Python library we need (requests, for GitHub API calls)."
+Say: "Installed requests into the Python runtime vc-signals will actually use."
 
 ### Step 3: Provider Keys
 
@@ -224,8 +252,8 @@ If provided, save:
 ATTIO_ACCESS_TOKEN=<value>
 ```
 
-**X launch radar (`XAI_API_KEY` or `AUTH_TOKEN` + `CT0`) -- optional:**
-> "X is useful as launch radar, not identity truth. Paste an `XAI_API_KEY` if you use xAI access for this lane, or paste browser cookies `AUTH_TOKEN` and `CT0`. You can skip X."
+**X launch radar (`XAI_API_KEY`, `AUTH_TOKEN` + `CT0`, or `TWITTER_AUTH_TOKEN` + `TWITTER_CT0`) -- optional:**
+> "X is useful as launch radar, not identity truth. Paste an `XAI_API_KEY` if you use xAI access for this lane, or paste browser cookies `AUTH_TOKEN` and `CT0`. `TWITTER_AUTH_TOKEN` and `TWITTER_CT0` also work if your setup already uses those names. You can skip X."
 
 If `XAI_API_KEY` is provided, save:
 ```bash
@@ -236,6 +264,12 @@ If browser cookies are provided, save:
 ```bash
 AUTH_TOKEN=<value>
 CT0=<value>
+```
+
+If the user already has Twitter-prefixed cookie names, preserve them too:
+```bash
+TWITTER_AUTH_TOKEN=<value>
+TWITTER_CT0=<value>
 ```
 
 **Optional search alternatives**
@@ -281,7 +315,7 @@ Do not ask for OpenAI, Gemini, or xAI as normal reasoning providers. Say:
 
 Check availability:
 ```bash
-python3 <skill_dir>/scripts/last30days_adapter.py check
+"$RUNTIME_PY" <skill_dir>/scripts/last30days_adapter.py check
 ```
 
 If not installed, tell the user:
@@ -316,12 +350,12 @@ Setting secure file permissions so only your user can read the keys.
 
 Run a quick test:
 ```bash
-python3 <skill_dir>/scripts/last30days_adapter.py check
+"$RUNTIME_PY" <skill_dir>/scripts/last30days_adapter.py check
 ```
 
 Then run source access detection:
 ```bash
-python3 <skill_dir>/scripts/source_access.py
+"$RUNTIME_PY" <skill_dir>/scripts/source_access.py
 ```
 
 Optionally verify key presence without printing secrets:
@@ -381,7 +415,7 @@ For deterministic weekly runs, prefer the orchestration helper before doing manu
 python3 <skill_dir>/scripts/radar_run.py weekly --sectors all --output-dir <output_dir>
 ```
 
-This saves raw evidence JSON, normalized signals, scored candidates, and a partner preview. The default weekly command is the full-quality safe path: it uses Product Hunt, YC, GitHub, X/social sources where configured, and direct Exa-first hard-evidence resolution when enabled. Broad `last30days` paid grounding is disabled by default even when Brave, Exa, Serper, or Parallel keys exist; enable it only for intentional deep validations with `VC_SIGNALS_ALLOW_LAST30DAYS_GROUNDING=1` or `--allow-last30days-grounding`. Signal investigation is runtime-capped by default (`--signal-investigation-max-runtime-seconds` overrides it) so weekly runs finish with explicit partial investigation instead of hanging quietly.
+This saves raw evidence JSON, normalized signals, scored candidates, and a partner preview. The default weekly command is the full-quality safe path: it uses Product Hunt, YC, GitHub, X/social sources where configured, and direct Exa-first hard-evidence resolution for Product Hunt/X rows by default. Broad `last30days` paid grounding is disabled by default even when Brave, Exa, Serper, or Parallel keys exist; enable it only for intentional deep validations with `VC_SIGNALS_ALLOW_LAST30DAYS_GROUNDING=1` or `--allow-last30days-grounding`. Disable targeted hard evidence only with `--no-hard-evidence-live` or `VC_SIGNALS_HARD_EVIDENCE_DISABLE=1`. Signal investigation is runtime-capped by default (`--signal-investigation-max-runtime-seconds` overrides it) so weekly runs finish with explicit partial investigation instead of hanging quietly.
 
 Official-site crawling is targeted/opt-in because it is useful but slow. Enable it only for focused evidence-completion passes with `VC_SIGNALS_OFFICIAL_SITE_CRAWL_ENABLE=1`; normal weekly runs rely on hard-evidence search and targeted manual enrichment first.
 
