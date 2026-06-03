@@ -136,6 +136,15 @@ Then **close and reopen Claude Co-Work**. Type `/vc-signals radar all` to start.
 ### Claude Code (CLI, VS Code, JetBrains)
 
 **Option A: Plugin marketplace install** (inside Claude Code):
+
+If you previously installed the standalone skill, first move that copy aside in Terminal so it cannot shadow the marketplace plugin:
+
+```bash
+if [ -d "$HOME/.claude/skills/vc-signals" ]; then mv "$HOME/.claude/skills/vc-signals" "$HOME/.claude/skills/vc-signals.disabled.$(date +%Y%m%d%H%M%S)"; fi
+```
+
+Then install or reinstall the plugin inside Claude Code:
+
 ```
 /plugin marketplace add abhishek255/vc-signals
 /plugin install vc-signals@vc-signals-marketplace
@@ -143,6 +152,7 @@ Then **close and reopen Claude Co-Work**. Type `/vc-signals radar all` to start.
 
 Then run:
 ```
+/vc-signals:vc-signals setup
 /vc-signals:vc-signals radar all
 ```
 
